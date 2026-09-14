@@ -39,6 +39,8 @@ Aktuelle Interaktionsgrenzen:
 - Tabellen-Spaltenbreite hält Pointer-Zwischenstände flüchtig und schreibt im Editor erst beim Loslassen genau eine neue Spaltenliste in den Baum; Escape/Cancel verwirft den Zug.
 - HTML5-DnD für Blöcke verändert den Baum nicht während der Vorschau. `commitDrop()` führt am Drop eine einzige Move-/Add-Operation aus.
 
+Der Transaktionsvertrag ist mit `src/state/historyVertrag.test.ts` explizit eingefroren.
+
 ## Persistenz und Loader
 
 ### Browser-Autosave
@@ -83,6 +85,10 @@ Der unmittelbare Vorgänger des aktuellen Loaders (`b05415f02fb49d959ff0367907ca
 - der damalige Maskendatei-Loader akzeptierte `dateiVersion >= 1` bis zur aktuellen Version 2,
 - der tote separate Local-Storage-Key `aufbau_editor_verknuepfungen_v1` wurde noch aktiv entfernt.
 
+Zusätzlich existiert im Git-Verlauf eine **konkrete alte Projektdatei**: `masken/mustermaske.json` lag unmittelbar vor der letzten Umstellung bereits als `art: "aufbau-editor-maske"`, `dateiVersion: 2`, aber mit `schemaVersion: 6` vor. Dieselbe Datei liegt heute mit Schema 8 vor. Damit ist Schema 6 kein nur theoretischer Migrationsfall.
+
+Im aktuellen Arbeitsbaum ist `masken/mustermaske.json` die einzige eigentliche Editor-Maskendatei. Weitere eingecheckte JSON-Dateien wie `docs/chef-maske/JsonBeleg.json`, die `*.SEvariablen.json`-Referenzen, `src/export/referenz/referenz.sevariablen.json` und `tools/sichtprobe-seed.json` sind SoftENGINE-/Referenz-/Test- bzw. Werkzeugdaten und **keine** alternativen Editor-Projektformate.
+
 Das sind historische Verträge im Repository-Verlauf, **keine** heute unterstützten Importformate. Ein späterer Loader-Umbau darf sie nicht versehentlich wieder teilweise und verlustbehaftet akzeptieren.
 
 ## Tabellen-/Spaltenlogik und SoftENGINE-Ordinalität
@@ -124,7 +130,7 @@ Der Export liest Registry-Metadaten, Baum, Datenquellen und Relationen. Er schre
 
 Die Runtime wird nicht nachgeladen. `laufzeitTeile.ts` liest `src/export/generated/laufzeit.json` und hängt Basis plus benötigte Blockteile in Abhängigkeitsreihenfolge zu einem Skript zusammen.
 
-Bestehende Goldens:
+Bestehende Goldens/Regressionen:
 
 - `src/export/referenz/referenz.html`
 - `src/export/referenz/referenz.sevariablen.json`
@@ -185,12 +191,26 @@ Der Builder ist derzeit bewusst sourcecode-sensitiv. Er setzt voraus:
 - SoftENGINE-Laufzeitzeilen sind Objekte; Feldcodes werden über `getField()` gelesen. Für `pos_len`-Codes existiert ein Rückfall auf den Rohsatz (`SATZNEU`/`SATZ`/`RAW`).
 - Relationen und Datenquellen werden gemeinsam mit Maskendateien gespeichert; Bibliotheksdateien können sie separat transportieren.
 
+## Validierung Phase 0
+
+Validiert auf dem isolierten Branch mit Node 22 / `npm ci`:
+
+- `npm test`: **grün**, 19 Testdateien / 111 Tests. `pretest` hat vorher `npm run build:runtime` erfolgreich ausgeführt.
+- Die vorhandenen Export-Goldens (`referenzabzug.test.ts`) sind grün.
+- Der frische Runtime-Bündelvergleich (`runtimeBuendel.test.ts`) ist grün.
+- Die beiden neuen Phase-0-Vertragstests sind grün.
+- `npm run check`: **rot** wegen eines bereits im unveränderten Ausgangscode vorhandenen TypeScript-Fehlers in `src/core/blocks/eigenschaftsOrt.ts:13`: `string` wird an einen als `` `${string}Field` `` inferierten Set-Parameter übergeben (`TS2345`).
+- `npm run build`: `prebuild`/`build:runtime` ist erfolgreich; anschließend scheitert `tsc -b` am selben bereits vorhandenen `eigenschaftsOrt.ts`-Fehler, bevor Vite startet.
+
+Dieser TypeScript-Baselinefehler wurde in Phase 0 bewusst **nicht** nebenbei repariert, weil die Phase Verhalten einfrieren und keinen fachfremden Umbau beginnen soll. Spätere Phasen müssen ihn als bekannten Ausgangszustand behandeln und dürfen ihn nicht fälschlich als Refactoring-Regression verbuchen.
+
 ## Bestätigte Annahmen
 
 - Tabellen-Spalten besitzen einen positionsabhängigen Laufzeit-/ERP-Vertrag; stabile Kennungen werden beim Export auf volle Array-Indizes aufgelöst.
 - `laufzeitBauen.mjs` hängt an konkreten Ordnern, Dateinamensmustern, statischen `blockType`-Deklarationen, Importformen und Regexen.
 - Der Editor-Baum sowie DataSource-/Relation-Stores sind die maßgeblichen fachlichen Zustände; Canvas-Lit-Elemente sind Projektionen.
 - History-Snapshots entstehen vor Mutationen und Bibliotheksänderungen; Transaktionen/Gesten gruppieren mehrere Zwischenänderungen.
+- Im Git-Verlauf existiert mindestens eine konkrete alte Editor-Projektdatei mit Maskendateiversion 2 und Schema 6.
 - Export und Runtime besitzen bereits Golden-/Reproduzierbarkeitstests.
 - SoftENGINE-Bridge und Runtime verwenden mehrere globale Host-/`FF*`-Namen als echte Integrationsverträge.
 
@@ -209,6 +229,7 @@ Der Builder ist derzeit bewusst sourcecode-sensitiv. Er setzt voraus:
 - Die globale Registry hat keinen Reset. Tests verlassen sich deshalb auf einmalige Side-Effect-Registrierung über `blocks/register`.
 - React portaliert Containerkinder in Lit-Custom-Elements. Änderungen an Mount-Reihenfolge, Shadow-DOM oder Container-Slots sind besonders regressionsgefährdet.
 - Browser-Persistenz und Maskendatei haben unterschiedliche Hüllen und unterschiedliche Fehler-/Backup-Pfade, obwohl beide denselben Baum prüfen.
+- Der aktuelle Baseline-Branch ist trotz grüner Tests nicht TypeScript-buildsauber: `check` und App-Build werden von `eigenschaftsOrt.ts:13` blockiert.
 
 ## Verträge, die spätere Phasen nicht brechen dürfen
 
