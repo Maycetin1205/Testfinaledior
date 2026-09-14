@@ -27,8 +27,11 @@ export interface WahlProps
 export const Wahl = forwardRef<HTMLSelectElement, WahlProps>(
   ({ optionen, wert, leerText, onWaehle, className, ...rest }, ref) => {
     const unbekannt = wert !== '' && !optionen.some((o) => o.wert === wert)
+    // Die Breite gehoert dem Rahmen, nicht dem <select>: sonst stand der Pfeil
+    // am Ende einer vollen Zeile, waehrend das Feld schmal blieb, und der Rahmen
+    // nahm den Nachbarn in der Reihe den Platz.
     return (
-      <span className="relative inline-flex min-w-0 w-full items-center">
+      <span className={cn('relative inline-flex min-w-0 items-center', className ?? 'w-full')}>
         <select
           ref={ref}
           value={wert}
@@ -37,7 +40,6 @@ export const Wahl = forwardRef<HTMLSelectElement, WahlProps>(
             EINGABE_KANTE,
             'h-steuer cursor-pointer appearance-none py-0 pl-2 pr-7',
             unbekannt && 'text-fehler',
-            className,
           )}
           {...rest}
         >
