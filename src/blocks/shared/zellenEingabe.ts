@@ -146,7 +146,12 @@ export const zellenEingabeStil = css`
         border-radius: var(--se-r-sm);
       }
 
-      .zell-eingabe:focus { outline: none; }
+      /* Die Zelle mit der Schreibmarke zeigt es: Rahmen in der Kennfarbe. */
+      .zell-eingabe:focus {
+        outline: none;
+        border-color: var(--se-accent);
+        background: var(--se-panel);
+      }
 
       /* Eine Zahl sitzt rechts, in der Eingabezelle wie in jeder anderen Zelle
          der Tabelle. Nur unter dem Schreibzeiger nicht: „1," ist noch keine
@@ -165,9 +170,10 @@ export const zellenEingabeStil = css`
         font-weight: 600;
       }
 
+      /* Aus dem gewaehlten Satz uebernommen: die Flaeche sagt es, die Schrift
+         bleibt die der Zeile. Kursiv und Kennfarbe lasen sich wie ein Fehler. */
       .zell-eingabe.auto {
-        color: var(--se-accent);
-        font-style: italic;
+        color: var(--se-ink);
         background: var(--se-accent-soft);
       }
 `

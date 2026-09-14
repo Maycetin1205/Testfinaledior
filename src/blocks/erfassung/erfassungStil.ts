@@ -14,13 +14,17 @@ export const erfassungStil = css`
         z-index: 1;
       }
 
+      /* Eine Zeile wie jede andere: dieselbe Flaeche, dieselbe Schrift. Nur die
+         Linie darueber trennt sie vom Gerollten, wie die Linie unter dem Kopf. */
       .zeile.erfassung {
         flex: none;
-        background: var(--se-panel-2);
+        background: var(--se-panel);
         border-top: var(--se-border) solid var(--se-line);
       }
 
-      :host([data-ff-editor]) .zeile.erfassung > div { color: var(--se-muted); }
+      /* Im Editor stehen die Spaltentitel dort, wo in der Maske die Platzhalter
+         stehen, in derselben Farbe. */
+      :host([data-ff-editor]) .zeile.erfassung > div { color: var(--se-faint); }
 
       .zeile.erfasst { flex: none; }
       :host(:not([data-ff-editor])) .zeile.erfasst { cursor: pointer; }
