@@ -59,7 +59,6 @@ export function BerechnungSektion({ block }: { block: BlockNode }) {
       titel="Berechnungen"
       offen={offen}
       onSchalte={schalte}
-      aktionen={<Knopf onClick={lege}>+ Berechnung</Knopf>}
     >
       <div className="flex flex-col gap-2">
         <p className="text-dicht text-matt">
@@ -79,17 +78,25 @@ export function BerechnungSektion({ block }: { block: BlockNode }) {
             (feld) => (feld === '' ? null : feld),
             (kennung) => spalten.find((s) => s.kennung === kennung)?.hatFormel === true,
           )
+          const formelText = berechnungAlsText(b, (k) => titelVon(k) ?? '?')
           return (
             <div key={b.kennung} className="flex items-start gap-1">
-              <Eintrag
-                icon={Link2}
-                name={b.name}
-                aktiv={b.kennung === imFenster}
-                onClick={() => setzeFenster(b.kennung)}
-                unten={maengel.length > 0
-                  ? <span className="text-fehler">{maengel[0]}</span>
-                  : berechnungAlsText(b, (k) => titelVon(k) ?? '?')}
-              />
+              <div className="min-w-0 flex-1">
+                <Eintrag
+                  icon={Link2}
+                  name={b.name}
+                  aktiv={b.kennung === imFenster}
+                  onClick={() => setzeFenster(b.kennung)}
+                  unten={(
+                    // Die Formel ist laenger als der Inspector breit; ganz steht
+                    // sie im Tooltip und im Fenster.
+                    <span
+                      className={maengel.length > 0 ? 'block truncate text-fehler' : 'block truncate'}
+                      title={formelText}
+                    >{maengel.length > 0 ? maengel[0] : formelText}</span>
+                  )}
+                />
+              </div>
               <Knopf
                 nurZeichen
                 aria-label={`Berechnung ${b.name} entfernen`}
@@ -100,6 +107,8 @@ export function BerechnungSektion({ block }: { block: BlockNode }) {
             </div>
           )
         })}
+
+        <Knopf onClick={lege}>+ Berechnung</Knopf>
       </div>
 
       {geoeffnet !== undefined && (
