@@ -88,12 +88,26 @@ function alsBreite(v: unknown): number | undefined {
   return gerundet < SPALTEN_MIN_BREITE ? SPALTEN_MIN_BREITE : gerundet
 }
 
+const BEKANNTE_ANGABEN = ['kennung', 'titel', 'feld', 'breite', 'summe', 'versteckt', 'formel']
+
+// Was eine erbende Tabelle an IHRER Spalte fuehrt, reist unberuehrt mit: die
+// Erfassung haengt Fuellfeld, Schalter und Suchfenster daran. Ohne das verlor
+// jedes Anfuegen, Streichen und Verschieben sie still, weil diese Stelle die
+// Spalte aus einer festen Schluesselliste neu aufbaut.
+function weitereAngaben(o: Record<string, unknown>): Record<string, unknown> {
+  const rest: Record<string, unknown> = {}
+  for (const [key, wert] of Object.entries(o)) {
+    if (wert !== undefined && !BEKANNTE_ANGABEN.includes(key)) rest[key] = wert
+  }
+  return rest
+}
+
 function alsSpalte(x: unknown, index: number): Spalte {
   if (x && typeof x === 'object') {
     const o = x as Record<string, unknown>
     const breite = o.breite === undefined ? undefined : alsBreite(o.breite)
     const formel = formelVonRoh(o.formel)
-    return {
+    const spalte: Spalte = {
       kennung: typeof o.kennung === 'string' ? o.kennung.trim() : '',
       titel: typeof o.titel === 'string' ? o.titel : standardTitelFuer(index),
       feld: typeof o.feld === 'string' ? o.feld : '',
@@ -106,6 +120,8 @@ function alsSpalte(x: unknown, index: number): Spalte {
 
       ...(formel === undefined ? {} : { formel }),
     }
+    // Die geprueften Angaben gewinnen; die mitgereisten fuellen nur auf.
+    return Object.assign(weitereAngaben(o), spalte)
   }
 
   if (typeof x === 'string') return { ...neueSpalte(index), titel: x }
