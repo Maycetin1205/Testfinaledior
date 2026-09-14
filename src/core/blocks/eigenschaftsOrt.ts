@@ -7,7 +7,11 @@ export function eigenschaftenFuer(
   def: BlockDefinition,
   ort: 'inline' | 'inspector',
 ): PropertyDescription[] {
-  const direktGebunden = new Set((def.bindableSpots ?? []).map((s) => bindingProp(s.prop)))
+  // Ausdruecklich Set<string>: `bindingProp` liefert `${P}Field`, und danach
+  // gefragt wird mit einem gewoehnlichen Eigenschaftsnamen.
+  const direktGebunden = new Set<string>(
+    (def.bindableSpots ?? []).map((s) => bindingProp(s.prop)),
+  )
   const klarnamen = new Set(def.customProperties.map((p) => p.klarnameProp))
   return def.customProperties.filter((p) => {
     if (direktGebunden.has(p.attributeName) || klarnamen.has(p.attributeName)) return false
