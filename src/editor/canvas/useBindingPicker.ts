@@ -64,11 +64,15 @@ export function useBindingPicker({
   }
 
   function onClick(e: ReactMouseEvent<HTMLDivElement>) {
+    // Der erste Klick waehlt den Baustein nur. Erst ein Klick auf den schon
+    // GEWAEHLTEN macht den Feldwaehler auf: sonst ginge er bei jedem Anfassen
+    // zum Verschieben auf, auch ohne eine einzige Datenquelle.
+    const warGewaehlt = editor.selectedId === blockRef.current.id
     e.stopPropagation()
     onSelect?.()
     clearPickerTimer()
 
-    if (!hatAngebot) return
+    if (!hatAngebot || !warGewaehlt) return
     if (e.detail > 1) return
     const hit = spotAt(e)
     if (!hit) return

@@ -110,6 +110,9 @@ export function SpaltenBedienung({
     e.stopPropagation()
     const rahmen = wirt.current
     if (!rahmen) return
+    // Ein Klick auf eine Spalte eines noch nicht gewaehlten Bausteins waehlt
+    // ihn nur; der Waehler geht erst am gewaehlten auf.
+    const warGewaehlt = editor.selectedId === block.id
     const startX = e.clientX
     const bezugLinks = rahmen.getBoundingClientRect().left
     const mitten = stellen.map((s) => bezugLinks + s.left + s.width / 2)
@@ -143,7 +146,8 @@ export function SpaltenBedienung({
       const s = slot
       aufraeumen()
       if (!war) {
-        oeffnePicker(index)
+        if (warGewaehlt) oeffnePicker(index)
+        else onSelect?.()
         return
       }
       const verschieben = bindung.eintragVerschieben
