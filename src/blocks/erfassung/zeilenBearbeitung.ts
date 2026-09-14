@@ -394,6 +394,12 @@ export class ZeilenBearbeitung {
   // Kette „Zeile gewaehlt" aus, und Pfeile blaetterten den Rumpf.
   tasteZelle(rohIndex: number, spaltenIndex: number, e: KeyboardEvent): void {
     const feld = e.target as HTMLInputElement
+    // F5 heisst in der Maske Nachschlagen; eine gebuchte Zelle hat keines, und
+    // der Browser luede sonst die ganze Maske neu.
+    if (e.key === 'F5') {
+      e.preventDefault()
+      return
+    }
     if (e.key === 'Escape') {
       e.preventDefault()
       e.stopPropagation()

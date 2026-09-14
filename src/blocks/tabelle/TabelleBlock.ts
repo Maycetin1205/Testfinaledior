@@ -239,9 +239,16 @@ export class TabelleBlock extends BasicBlock {
     runEvent(this, 'onF4', { PINDEX: satz, DROP_PINDEX: satz }).catch(meldeKettenFehler)
   }
 
+  // F5 ist in der Maske das Nachschlagen. Faellt die Taste bis zum Browser
+  // durch, laedt der die ganze Maske neu, und jede Vormerkung ist weg.
+  private readonly sperrtNeuladen = (e: KeyboardEvent): void => {
+    if (!this.imEditor && e.key === 'F5' && !e.ctrlKey && !e.metaKey) e.preventDefault()
+  }
+
   override connectedCallback(): void {
     super.connectedCallback()
     this.addEventListener('keydown', this.aktionsTaste)
+    this.addEventListener('keydown', this.sperrtNeuladen)
     if (this._besitz === 'softengine') connectTable(this)
     this._ansicht.beobachte()
   }
@@ -264,6 +271,7 @@ export class TabelleBlock extends BasicBlock {
   override disconnectedCallback(): void {
     super.disconnectedCallback()
     this.removeEventListener('keydown', this.aktionsTaste)
+    this.removeEventListener('keydown', this.sperrtNeuladen)
     this._wahl.loese()
     this._ansicht.loese()
     disconnectTable(this)
