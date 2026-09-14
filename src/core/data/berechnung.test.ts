@@ -105,7 +105,8 @@ describe('Einheiten', () => {
       zaehler: b.zaehler.map((f) => (f.kennung === 'B' ? { ...f, einheit: 'ml' } : f)),
     }
     expect(einheitenProbe(fluessig)).toBe('')
-    expect(rechne(fluessig, VOLL)).toMatchObject({ art: 'ergebnis', zahl: 4.8 })
+    // Milliliter ist die Basis des Volumens: 600 kg-Tage mal 8 ml je kg sind 4800 ml.
+    expect(rechne(fluessig, VOLL)).toMatchObject({ art: 'ergebnis', zahl: 4800 })
   })
 
   it('haelt an, wo eine Einheit unbekannt ist', () => {

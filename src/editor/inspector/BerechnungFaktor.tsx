@@ -10,15 +10,15 @@ import { EINHEITEN } from '../../core/data/einheiten'
 import { zahlStreng, zahlText, STELLEN_MAX } from '../../core/data/rechnung'
 import type { QuelleInReichweite } from '../../core/data/sourceLinks'
 
-export const ARTEN: WahlOption[] = [
+const ARTEN: WahlOption[] = [
   { wert: 'spalte', name: 'Spalte der Zeile' },
   { wert: 'datenfeld', name: 'Feld des Datensatzes' },
   { wert: 'zahl', name: 'Feste Zahl' },
 ]
 
-export const EINHEIT_OPTIONEN: WahlOption[] = EINHEITEN.map((e) => ({ wert: e.code, name: e.name }))
+const EINHEIT_OPTIONEN: WahlOption[] = EINHEITEN.map((e) => ({ wert: e.code, name: e.name }))
 
-export function spaltenOptionen(
+function spaltenOptionen(
   spalten: readonly { kennung: string; titel: string }[],
 ): WahlOption[] {
   return spalten

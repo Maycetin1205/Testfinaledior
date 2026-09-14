@@ -120,6 +120,7 @@ function standJeEintrag(
   const ausSpalten = fensterSpaltenIn({
     spalten: coerceErfassungsSpalten(block.props[prop]),
     quelleId: String(block.props.source ?? ''),
+    berechnungen: [],
     paareZu: () => [],
     partnerVon: () => '',
   }, platz)
