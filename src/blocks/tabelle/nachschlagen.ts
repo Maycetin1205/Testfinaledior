@@ -75,8 +75,10 @@ export interface NachschlagenArgs {
   // dieselben Saetze wie die Vorschlagsliste daneben.
   eintraege?: readonly Eintrag[]
 
-  // Ohne Angabe die erste Lupe des Bausteins; die Erfassungszeile hat mehrere.
-  rueckFokus?: HTMLElement | null
+  // Wohin der Fokus nach dem Schliessen geht: ein Element oder ein Ruf, der ihn
+  // setzt. Ohne Angabe die Lupe des Bausteins; die Erfassungszeile hat keine und
+  // schickt ihn in die Zelle zurueck, aus der F5 kam.
+  rueckFokus?: HTMLElement | (() => void) | null
 
   // Was der Bediener schon getippt hat; es steht beim Aufmachen in der Suche des
   // Fensters.
@@ -202,7 +204,7 @@ export function folgeBeimVerlassen(
 // Der Lit-Halter am document.body; ihn zu entfernen raeumt Fenster und Listener ab.
 let offen: HTMLElement | null = null
 let offenFuer: HTMLElement | null = null
-let rueckFokus: HTMLElement | null = null
+let rueckFokus: HTMLElement | (() => void) | null = null
 
 function lupeVon(el: HTMLElement): HTMLElement | null {
   return el.shadowRoot?.querySelector<HTMLElement>('.lupe') ?? null
@@ -214,7 +216,8 @@ function schliesse(mitFokus = true): void {
   offen?.remove()
   offen = null
   offenFuer = null
-  ziel?.focus()
+  if (typeof ziel === 'function') ziel()
+  else ziel?.focus()
 }
 
 // Stirbt das Feld, darf sein Fenster nicht als Waise am document.body

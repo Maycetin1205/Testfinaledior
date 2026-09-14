@@ -53,7 +53,9 @@ function fenster(wirt: ErfassungsWirt, index: number): void {
     breite: spalte.fensterBreite ?? fensterBreiteFuer(spalten.length),
     hoehe: spalte.fensterHoehe ?? FENSTER_HOEHE,
     eintraege: wirt.lauf.eintraege(umfeld, index),
-    rueckFokus: null,
+    // Esc oder eine Wahl im Fenster: die Schreibmarke steht danach wieder in
+    // dieser Zelle, nicht im Nirgendwo.
+    rueckFokus: () => wirt.fokussiere(index),
     suchtext: wirt.lauf.wertVon(umfeld, index),
     onUebernehmen: (_anzeige, _wert, satz) => {
       wirt.lauf.uebernimm(wirt.umfeld(), index, satz)

@@ -268,7 +268,8 @@ export class FormFeldBlock extends BasicBlock {
       breite: this.fensterBreite,
       hoehe: this.fensterHoehe,
       suchtext,
-
+      // Zurueck ins Feld, nicht auf die Lupe: wer Esc drueckt, will weitertippen.
+      rueckFokus: () => this.shadowRoot?.querySelector<HTMLInputElement>('.nachschlag .ctrl')?.focus(),
       onUebernehmen: (anzeige, wert, satz) => this.uebernimmUndMelde(anzeige, wert, satz),
     })
   }
