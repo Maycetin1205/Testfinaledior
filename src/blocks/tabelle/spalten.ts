@@ -1,6 +1,6 @@
 // Die Spaltenliste einer Tabelle: Form, Kennungen, Reihenfolge, Sicht beim Zeichnen.
 import { kennungenVergeben } from '../../core/blocks/listenBindung'
-import { formelVonRoh, ohneGliederAuf, type Formel } from '../../core/data/rechnung'
+import { formelVonRoh, type Formel } from '../../core/data/rechnung'
 
 export interface Spalte {
   // Ketten und Formeln zeigen auf die Kennung, nie auf Platz oder Feld: ein
@@ -157,18 +157,27 @@ export function fuegeSpalteAn(spalten: readonly Spalte[]): Spalte[] {
 }
 
 // Dieselbe Liste zurueck heisst „nicht erlaubt" (letzte Spalte, Platz ausserhalb).
-// Die Formeln der anderen verlieren ihre Glieder auf die gestrichene Spalte.
+// Die Formeln der anderen BEHALTEN ihr Glied auf die gestrichene Spalte: es
+// zeigt nun ins Leere, die Formel rechnet nicht mehr und der Inspector sagt,
+// welche Spalte fehlt. Das Glied still wegzunehmen hiesse, mit einer ANDEREN
+// Formel weiterzurechnen, und niemand saehe es.
 export function ohneSpalte(spalten: readonly Spalte[], index: number): readonly Spalte[] {
   if (spalten.length <= SPALTEN_MIN || index < 0 || index >= spalten.length) return spalten
-  const gestrichen = new Set([spalten[index].kennung])
-  return spalten.filter((_, i) => i !== index).map((s) => {
-    if (s.formel === undefined) return s
-    const formel = ohneGliederAuf(s.formel, gestrichen)
-    if (formel === s.formel) return s
-    const ohne: Spalte = { ...s }
-    delete ohne.formel
-    return formel === undefined ? ohne : { ...ohne, formel }
-  })
+  return spalten.filter((_, i) => i !== index)
+}
+
+// Die Glieder einer Formel, deren Spalte es nicht mehr gibt.
+export function fehlendeGlieder(
+  formel: Formel,
+  spalten: readonly Spalte[],
+): string[] {
+  const raus: string[] = []
+  for (const glied of formel.glieder) {
+    if (!('spalte' in glied)) continue
+    if (glied.spalte === '' || spalteMitKennung(spalten, glied.spalte) !== -1) continue
+    if (!raus.includes(glied.spalte)) raus.push(glied.spalte)
+  }
+  return raus
 }
 
 // Dieselbe Liste zurueck heisst „nichts zu tun". Ketten und Rechnung zeigen auf

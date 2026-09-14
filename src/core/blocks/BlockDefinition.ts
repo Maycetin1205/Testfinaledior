@@ -239,6 +239,11 @@ export interface BlockDefinition {
 
   kannLoeschen?: ErfassungsFaehigkeit
 
+  // Gesetzt heisst: dieser Baustein traegt Berechnungen (Produktgleichungen
+  // ueber seine Spalten). In welcher Eigenschaft sie stehen, sagt die Registry,
+  // damit Export und Inspector keinen Bausteintyp kennen muessen.
+  rechenGruppen?: { prop: string }
+
   suchFenster?: SuchFenster
 
   // Gesetzt heisst: dieser Baustein kann einer Kette die GEAENDERTEN Zeilen

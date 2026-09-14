@@ -8,6 +8,7 @@ import { alsZahl } from '../tabelle/sortierung'
 import { ZELLE_PLATZHALTER, type Spalte } from '../tabelle/spalten'
 import type { ErfassungsSpalte } from './erfassungsSpalte'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
+import type { Berechnung } from '../../core/data/berechnung'
 import type { SchluesselPaar } from '../../core/data/sourceLinks'
 import { getField } from '../../softengine/data'
 
@@ -30,6 +31,9 @@ export interface ErfassungsLage {
   marke: number
 
   listeNachOben: boolean
+
+  // Was an dieser Zeile gerade nicht aufgeht; steht ueber der Zeile.
+  hinweise: readonly string[]
 }
 
 export interface ErfassungsHandeln {
@@ -46,6 +50,7 @@ export function erfassungsZeileTpl(
   tun: ErfassungsHandeln,
 ): TemplateResult {
   return html`<div class="zeile erfassung" role="row" style=${styleMap(lage.cols)}>
+    ${lage.imEditor || lage.hinweise.length === 0 ? nothing : html`<div class="rechen-hinweis" role="status">${lage.hinweise.join(' ')}</div>`}
     ${lage.spalten.map((spalte, i) => {
       if (lage.imEditor) {
         return html`<div
@@ -96,6 +101,10 @@ export interface Zellenziel {
 export interface ErfassungsUmfeld {
   baustein?: HTMLElement
   spalten: readonly ErfassungsSpalte[]
+
+  // Die Berechnungen der Zeile: jede eine Gruppe, die sich nach jeder ihrer
+  // Groessen aufloesen laesst.
+  berechnungen: readonly Berechnung[]
 
   quelleId: string
 

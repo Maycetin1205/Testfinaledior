@@ -5,7 +5,7 @@ import { Segment, type SegmentOption } from '@/ui/werkbank/Segment'
 import { Wahl, type WahlOption } from '@/ui/werkbank/Wahl'
 import { Zahl } from '@/ui/werkbank/Zahl'
 import { X } from '@/ui/zeichen'
-import { coerceSpalten, type Spalte } from '../../blocks/tabelle/spalten'
+import { coerceSpalten, fehlendeGlieder, type Spalte } from '../../blocks/tabelle/spalten'
 import type { BlockNode } from '../../core/blocks/BlockData'
 import {
   formelAlsText,
@@ -83,7 +83,9 @@ function FormelZeilen({ spalten, index, onFormel }: {
   const optionen: WahlOption[] = [...andere, { wert: FESTE_ZAHL, name: 'Zahl…' }]
   const titelVon = (kennung: string): string => {
     const s = spalten.find((sp) => sp.kennung === kennung)
-    return s === undefined ? '' : (s.titel === '' ? s.kennung : s.titel)
+    // Eine gestrichene Spalte behaelt ihre Kennung im Text: sonst stuende dort
+    // ein Fragezeichen und niemand wuesste, was fehlt.
+    return s === undefined ? kennung : (s.titel === '' ? s.kennung : s.titel)
   }
 
   const setzeGlied = (i: number, glied: Glied): void => {
@@ -108,8 +110,17 @@ function FormelZeilen({ spalten, index, onFormel }: {
     })
   }
 
+  const fehlen = fehlendeGlieder(formel, spalten)
+
   return (
     <div className="flex flex-col gap-1.5 rounded border border-linie p-2">
+      {fehlen.length > 0 && (
+        <p className="text-dicht text-fehler">
+          Die Formel ist unvollständig: {fehlen.length === 1 ? 'die Spalte' : 'die Spalten'}
+          {' '}{fehlen.join(', ')} {fehlen.length === 1 ? 'gibt' : 'geben'} es nicht mehr.
+          Sie rechnet erst wieder, wenn hier eine Spalte steht.
+        </p>
+      )}
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-ui" title={formelAlsText(formel, titelVon)}>
           <span className="font-medium">{spaltenName(spalte)}</span>

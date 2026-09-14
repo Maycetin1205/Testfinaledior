@@ -16,6 +16,7 @@ import {
   traegtEigeneQuelle,
 } from '../core/blocks/treeQuery'
 import { AUSWAHL_FOLGE_PROP, auswahlFolgenAus, folgeBrauchbar } from '../core/data/auswahlFolge'
+import { datenfelderAus } from '../core/data/berechnung'
 import { ladeRelationFor, quellenAusHolWert, type DataSource } from '../core/data/dataSources'
 import {
   quelleBrauchbar,
@@ -54,6 +55,12 @@ export function collectDataSources(
     for (const prop of def?.customProperties ?? []) {
       if (prop.kind === 'quelle' && propertySichtbar(prop.visibleWhen, node.props)) {
         add(node.props[prop.attributeName])
+      }
+    }
+
+    if (def?.rechenGruppen) {
+      for (const feld of datenfelderAus(node.props[def.rechenGruppen.prop])) {
+        add(zerlegeBindung(feld).quelleId)
       }
     }
 
@@ -124,6 +131,14 @@ export function benutzteFelderJeQuelle(
         // Das Fuellfeld zeigt auf eine HILFSQUELLE; bliebe es aussen vor, faende
         // die Erfassungszeile in SoftEngine nichts zum Vorschlagen.
         for (const { wert } of feldWahlenLesen(b, eintrag)) merkeEintragsFeld(wert)
+      }
+    }
+
+    // Was eine Berechnung aus einem Datensatz liest, muss mit in die Maske;
+    // sonst rechnete die Laufzeit mit einem leeren Feld.
+    if (def?.rechenGruppen) {
+      for (const feld of datenfelderAus(node.props[def.rechenGruppen.prop])) {
+        merkeBindung(feld)
       }
     }
 

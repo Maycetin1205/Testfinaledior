@@ -130,6 +130,7 @@ export function erfassungsZeileFuer(
     vorschlaege: wirt.lauf.vorschlaege,
     marke: wirt.lauf.marke,
     listeNachOben,
+    hinweise: wirt.lauf.hinweise,
   }, {
     tippen: (i, text) => {
       wirt.lauf.tippe(i, text)

@@ -150,20 +150,3 @@ export function formelVonRoh(roh: unknown): Formel | undefined {
     runden: alsRundung(o.runden),
   }
 }
-
-// Eine gestrichene Spalte darf kein Glied hinterlassen: ihre Kennung kann eine
-// neue Spalte wieder bekommen. Unveraendert kommt dieselbe Formel zurueck,
-// undefined heisst, es bleibt kein Glied.
-export function ohneGliederAuf(formel: Formel, gestrichen: ReadonlySet<string>): Formel | undefined {
-  const weg = (glied: Glied): boolean => 'spalte' in glied && gestrichen.has(glied.spalte)
-  if (!formel.glieder.some(weg)) return formel
-  const glieder: Glied[] = []
-  const zeichen: Rechenzeichen[] = []
-  formel.glieder.forEach((glied, i) => {
-    if (weg(glied)) return
-    if (glieder.length > 0) zeichen.push(formel.zeichen[i - 1] ?? '*')
-    glieder.push(glied)
-  })
-  if (glieder.length === 0) return undefined
-  return { glieder, zeichen, runden: formel.runden }
-}
