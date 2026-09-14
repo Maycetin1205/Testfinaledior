@@ -215,7 +215,7 @@ export function RechnungSektion({ block }: { block: BlockNode }) {
     .map(({ spalte, index }) => ({ wert: String(index), name: spaltenName(spalte) }))
 
   return (
-    <Gruppe titel="Rechnung" offen={offen} onSchalte={schalte}>
+    <Gruppe titel="Formelspalten" offen={offen} onSchalte={schalte}>
       <div className="flex flex-col gap-3">
         <p className="text-dicht text-matt">
           Eine Spalte mit Formel rechnet sich aus anderen Spalten, sobald alle
