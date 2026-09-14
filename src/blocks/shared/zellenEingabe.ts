@@ -146,11 +146,12 @@ export const zellenEingabeStil = css`
         border-radius: var(--se-r-sm);
       }
 
-      /* Die Zelle mit der Schreibmarke zeigt es: Rahmen in der Kennfarbe. */
+      /* Kein Kaestchen in der Zeile, auch nicht unter der Schreibmarke: die
+         Zelle bleibt Text wie jede andere. Nur ein Strich darunter sagt, wo
+         getippt wird. */
       .zell-eingabe:focus {
         outline: none;
-        border-color: var(--se-accent);
-        background: var(--se-panel);
+        box-shadow: inset 0 -2px 0 var(--se-accent);
       }
 
       /* Eine Zahl sitzt rechts, in der Eingabezelle wie in jeder anderen Zelle
@@ -163,17 +164,18 @@ export const zellenEingabeStil = css`
       .zeile.erfassung .zell-eingabe::placeholder { color: var(--se-faint); }
       .zeile:focus-within .zell-eingabe::placeholder { color: var(--se-faint); }
 
+      /* Vorgemerkt, noch nicht geschrieben: fett und ein Strich in Bernstein,
+         keine Flaeche. Den Zeilenstand sagt der Punkt vor der Zeile. */
       .zell-eingabe.geaendert {
-        background: var(--se-amber-shell);
-        border-color: var(--se-amber-line);
         color: var(--se-ink);
         font-weight: 600;
+        box-shadow: inset 0 -2px 0 var(--se-amber);
       }
 
-      /* Aus dem gewaehlten Satz uebernommen: die Flaeche sagt es, die Schrift
-         bleibt die der Zeile. Kursiv und Kennfarbe lasen sich wie ein Fehler. */
+      /* Aus dem gewaehlten Satz uebernommen: steht da wie jeder andere Wert.
+         Getoente Kaestchen und Kursivschrift liessen die Zeile wie einen
+         Fremdkoerper aussehen. */
       .zell-eingabe.auto {
         color: var(--se-ink);
-        background: var(--se-accent-soft);
       }
 `
