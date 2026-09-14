@@ -1,1590 +1,390 @@
-# EditorAufbauV3 – Finaler Refactoring- und Architekturplan
+# Testfinaledior – Gesamtplan für Architektur, Design und Bedienung
 
-## 0. Ziel
+Stand: 14. September 2026
 
-Der bestehende Editor wird schrittweise zu einem **modularen Monolithen mit klaren, gerichteten Abhängigkeiten** umgebaut.
+## 0. Welche Fassung und welches Repository?
 
-Ziel ist kein theoretisch perfektes Architekturschaubild, sondern ein System, das:
+Dies ist die zusammengeführte Übergabefassung. Sie vereint den ursprünglichen Plan „EditorAufbauV3“, den zuletzt eingefügten „maßgeblichen Gesamtplan nach Phase 0“ und die konkreten Anforderungen zu Tabelle, Kanban und Berechnungen. Frühere Fassungen dienen nur noch als Hintergrund; bei Widersprüchen gilt diese Fassung.
 
-- verständlich ist,
-- vorhersehbar funktioniert,
-- leicht verändert werden kann,
-- keine versteckten globalen Abhängigkeiten besitzt,
-- bestehende Projekte und Exporte schützt,
-- unter Node testbare Fach- und Exportlogik besitzt,
-- React, Lit, Browser und SoftENGINE sauber voneinander trennt,
-- und nach dem Umbau **weniger kompliziert** ist als vorher.
+Bestätigtes Zielrepository: **Maycetin1205/Testfinaledior**, Defaultbranch `master`. Der laut übergebener Repository-Analyse damals untersuchte Stand lautet `a441d523db6633dc71f72d0c51c2278eb2909004`; diese frühere Codeprüfung wurde hier nicht wiederholt. Der umsetzende Agent bestätigt vor Beginn den aktuellen Commit und berücksichtigt zwischenzeitliche Änderungen.
 
-Grundsatz:
+**C:\Users\mu.aycetin\Desktop\finaleditor ist das Original. Es wird für diesen Umbau nicht verändert.** Die bisherigen lokalen Codebefunde stammen aus diesem Original. Abweichungen der Kopie müssen im Zielrepository geprüft werden.
 
-> Architektur dient dem Code. Der Code dient nicht dem Architekturdiagramm.
+**Phase 0 ist abgeschlossen.** Ihre Ergebnisse und Referenzen werden verwendet. Es gibt keine erneute Phase 0. Bereits vorhandene Fehlermeldungen und ungeprüfte Annahmen werden dem richtigen Repository-Stand zugeordnet.
 
-Es werden keine Abstraktionen eingeführt, nur damit die Architektur symmetrischer oder theoretisch sauberer aussieht.
+Diese Datei erlaubt zunächst Analyse, Planung und isolierte Designentwürfe. **Anwendungscode wird erst nach ausdrücklicher Freigabe der Umsetzung geändert.** Der maßgebliche Ablageort im Zielrepository ist `docs/REFACTOR-PLAN.md`. Das Veröffentlichen dieses Plans ist keine Freigabe für den Architekturumbau.
 
----
+## 1. Ziel und Prioritäten
 
-# 1. Grundprinzipien
+Der Editor soll fachlich zuverlässig, verständlich zu bedienen, visuell zusammenhängend und gut wartbar werden. Bestehende Funktionen werden nicht allein deshalb erhalten, weil sie vorhanden sind. Jede Funktion braucht einen nachvollziehbaren Arbeitszweck.
 
-## 1.1 Klare Abhängigkeitsrichtung
+Priorität bei Konflikten:
 
-Die grobe Struktur lautet:
+1. Daten und nachgewiesene SoftENGINE-Verträge schützen.
+2. Tatsächliche Arbeitsabläufe vollständig und verständlich unterstützen.
+3. Bedienung und Gestaltung vereinheitlichen und unnötige Optionen entfernen.
+4. Architektur so schneiden, dass diese Abläufe einfach geändert und geprüft werden können.
 
-```text
-UI
-↓
-Application
-↓
-Core
+Kein vollständiger Neubau. React bleibt Editoroberfläche, Lit bleibt gemeinsame Renderquelle für Canvas und exportierte Maske, TypeScript trägt Fachlogik. Der modulare Monolith und Snapshot-Undo bleiben.
 
-Compiler / Export Preparation
-↓
-Core
+Nicht eingeführt werden Redux-Ersatz, Event Sourcing, Command Bus, globaler Event Bus, DI-Framework, Service Locator, Microservices, ein architekturgetriebenes Monorepo, universelles Plugin-/Target-System, allgemeine Formularengine oder eine freie Skriptsprache. Keine zweite React-Implementierung der Maskenblocks. Keine Coverage-Quote oder Testzahl als Qualitätsziel.
 
-SoftENGINE Target
-↓
-Compiler / Core
+## 2. Planung vor dem Architekturumbau
 
-Browser- und SoftENGINE-Adapter
-→ implementieren äußere Abhängigkeiten der Application
+### 2.1 Tatsächlichen Bestand erfassen
 
-Bootstrap / Composition Root
-→ darf alle Teile kennen und miteinander verbinden
-```
+Für Palette, Canvas, Inspector, Seiten, Tabelle, Erfassung, Kanban, Formfelder, Datenquellen, Relationen, Bindings, Actions, Berechnungen, Speichern und Export wird eine kompakte Entscheidungsliste erstellt:
 
-Nicht erlaubt:
+| Funktion | Tatsächliches Verhalten und Beleg | Arbeitszweck | Entscheidung | Folgen/Abnahme |
+|---|---|---|---|---|
+| pro vorhandener Funktion | Code, praktisch beobachtet oder ungeprüft | konkrete Anwenderaufgabe | behalten, vereinfachen, zusammenführen, entfernen, reparieren | betroffene Daten und Abläufe |
 
-```text
-Core → React
-Core → Lit
-Core → Browser
-Core → SoftENGINE
-Core → Editor UI
-Core → localStorage
+Codebefunde, Browserbeobachtungen und echte SoftENGINE-Nachweise bleiben unterscheidbar. Fehlender Laufzeitzugriff wird benannt. Vorhandene Datenquellen oder fachliche Schutzmechanismen werden nicht aufgrund einer optischen Präferenz entfernt.
 
-Compiler → React
-Compiler → Lit
-Compiler → DOM
-Compiler → Browser-Datei-APIs
+### 2.2 Vollständige Arbeitsabläufe entwerfen
 
-innere Module → Bootstrap
-```
+Mindestens durchspielen und schriftlich festlegen:
 
-Import-Abhängigkeit und Runtime-Control-Flow sind nicht dasselbe. Äußere Adapter dürfen Interfaces oder Funktionen innerer Schichten implementieren beziehungsweise aufrufen. Innere Schichten kennen aber niemals konkrete äußere Implementierungen.
+- Maske laden, Block ändern, Undo/Redo, speichern, wieder laden und exportieren.
+- Datenquelle und Relation zuordnen, verwendete Quelle ändern oder entfernen.
+- Artikel/Verabreichungsart auswählen, Werte übernehmen, Menge berechnen, Zeile vormerken, senden, Rückmeldung behandeln.
+- Bestehende Zeile ändern/löschen, während ERP-Daten eintreffen; Fehler und unklaren Ausgang behandeln.
+- Kanban-Muster gestalten, Bindings zuordnen, Spalten/Unterteilungen konfigurieren und Laufzeitkarten prüfen.
+- Seite löschen und wiederherstellen; referenzierte Spalte löschen und Undo ausführen.
 
----
+Zu jedem Ablauf gehören Normalfall, unvollständige Eingabe, Abbruch, Fehler und Datenaktualisierung.
 
-# 2. Kein Architekturtheater
+### 2.3 Visuelles Ziel vor Umsetzung festlegen
 
-Während des Refactors werden ausdrücklich nicht eingeführt:
+Vor dem großen Architekturumbau werden konkrete visuelle Entwürfe für Hauptansicht, Erfassung mit Zuständen, Berechnungsdialog und Kanban-Musterbearbeitung gezeigt. Textskizzen allein sind keine Designabnahme. Interaktive Prototypen dürfen isoliert entstehen; sie verändern nicht die Anwendung und schaffen keine zweite produktive Renderquelle.
 
-```text
-Redux-Ersatz
-Event Sourcing
-Command Bus
-globaler Event Bus
-DI-Framework
-Service Locator
-Microservices
-Monorepo nur aus Architekturgründen
-generisches Plugin-System
-TargetRegistry
-TargetFactory
-TargetPlugin
-universelles Formularsystem
-vorsorgliche Template Engine
-Coverage-Ziel
-hunderte triviale Tests
-tiefe OOP-Vererbungshierarchien
-```
+Die helle kompakte Gestaltung ist Ausgangspunkt, kein ungeprüftes Qualitätsurteil. Bestehende Tokens werden auf Lesbarkeit, Dichte, Kontrast, Fokus und konsistente Hierarchie geprüft. Maskendesign und Editor-Chrome bleiben getrennt. Keine erfundenen ERP-Daten in der produktiven Oberfläche; Entwürfe verwenden Feldbeschriftungen oder ausdrücklich gekennzeichnete Beispieldaten.
 
-Neue Abstraktionen entstehen nur, wenn mindestens ein konkretes aktuelles Problem dadurch einfacher wird.
+## 3. Verbindliche Bedien- und Designregeln
 
-Composition wird gegenüber Vererbung bevorzugt. Normale Funktionen und kleine Datenstrukturen werden bevorzugt.
+### 3.1 Hauptoberfläche und Inspector
 
----
+Palette links, Canvas mittig und Inspector rechts bleiben Ausgangsstruktur. Änderungen werden anhand der vollständigen Abläufe begründet. Suche sowie Hinzufügen per Klick und Drag & Drop bleiben erreichbar.
 
-# 3. Eine Source of Truth
+Inspector nach Aufgaben ordnen: **Darstellung, Daten, Schreiben, Verhalten, Berechnungen, Erweitert**. Nur relevante Abschnitte anzeigen. Keine Gruppierung allein nach React-Controltyp. Allgemeine Controls nur für tatsächlich allgemeine Eingaben; komplexe Spalten-, Relations-, Binding- und Action-Editoren bleiben eigenständige Komponenten.
 
-Für jede fachliche Information darf zu jedem Zeitpunkt **genau eine authoritative Source of Truth** existieren.
+Direktbearbeitung und Inspector haben eindeutige Zuständigkeiten. Sichtbare Texte können direkt bearbeitet werden; die Konfiguration ihrer Datenbindung bleibt klar auffindbar. Keine zwei unabhängig veränderbaren Fassungen desselben Werts.
 
-Nicht erlaubt:
+Speichern, Laden, Undo/Redo, Daten und Export bleiben gut erreichbar. Ein Exportmenü darf die vorhandenen Exportwege zusammenführen. Die Belegrahmen-Nummer gehört zum betreffenden Exportweg. Maskenname und Exportziel müssen erkennbar bleiben.
 
-```text
-Project.dataSources
-+
-DataSourceStore.dataSources
-+
-lokaler React-State
-```
+### 3.2 Visuelle Abnahme
 
-wenn alle drei unabhängig verändert werden können.
+- Lesbare Beschriftungen bei üblicher und schmaler Inspectorbreite, keine abgeschnittenen Primäraktionen.
+- Konsistente Abstände, Kontrollhöhen, Typografie und wenige verständlich verwendete Akzentfarben.
+- Tastaturfokus sichtbar; wichtige Aktionen mit Maus und Tastatur erreichbar.
+- Leere, ladende, fehlerhafte und deaktivierte Zustände verständlich.
+- Farbe, Kursivschrift und Tooltips tragen nie allein eine wesentliche Bedeutung.
+- Modale Bearbeitung besitzt eindeutiges Übernehmen/Abbrechen und korrektes Fokusverhalten.
+- Das Design wird auch mit vielen Spalten, langen Namen und wenig Platz geprüft.
 
-Während Übergangsphasen dürfen alte Stores weiter existieren, aber eindeutig nur als Source of Truth oder Projektion / Subscription-Fassade. Nie beides gleichzeitig.
+## 4. Tabelle und Erfassung
 
----
+### 4.1 Zwei unabhängige Bedeutungen
 
-# 4. Project – persistierbares In-Memory-Fachmodell
+**Zellherkunft:** manuell eingegeben, aus Daten übernommen oder berechnet.
 
-Das zentrale fachliche Modell lautet sinngemäß:
+**Schreibstatus:** lokal vorgemerkt, wird gesendet, Bestätigung ausstehend, bestätigt oder nachweislich fehlgeschlagen. Ein unklarer Ausgang bleibt ausdrücklich unklar.
 
-```ts
-interface Project {
-  tree: BlockTree
-  dataSources: DataSource[]
-  relations: Relation[]
-}
-```
+Die bisherige Klasse für automatische Zellwerte verwendet Kursivschrift und Akzentfarbe. Das ist kein allgemeiner Nachweis „noch nicht geschrieben“. Diese Mehrdeutigkeit wird beseitigt. Vorschlag für die Zielgestaltung: normale gut lesbare Schrift, gezielte Herkunftskennzeichnung und sichtbarer Klartext für relevante Zeilenzustände. Die konkrete Darstellung wird im Entwurf festgelegt.
 
-Das `Project` enthält ausschließlich fachliche Daten der bearbeiteten Maske.
+### 4.2 Zustände und Übergänge
 
-Nicht hinein gehören:
+Neu, Änderung und Löschung verwenden dieselbe verständliche Statusfamilie, behalten aber ihre fachlich unterschiedlichen Daten. Ansichtszustand, persönliche Tabellenpräferenzen, lokale Eingaben, gesendete Werte, vorherige Werte und Fehler werden nicht vorschnell zu einem einzigen Speicher vereinigt.
 
-```text
-selectedId
-activePageId
-Undo/Redo-History
-Dialogzustände
-Hover-State
-Autosave-Status
-Browserzustand
-SoftENGINE-Verbindung
-React-State
-Lit-State
-Dateiformatversion
-```
+Der bisherige interne Zustand `geschrieben` für bloß hinausgeschickte Daten wird zu einem eindeutigen Begriff wie `bestaetigungAusstehend`. Ein Versand ist noch keine bestätigte Übernahme.
 
----
+**Eine Lieferung ohne den erwarteten Wert beweist nicht automatisch einen Fehler.** Vor einer Statusentscheidung muss geklärt sein, ob die Lieferung neu, relevant und für die betreffende Operation vollständig genug ist. Veraltete oder partielle Lieferungen dürfen weder Erfolg noch Ablehnung vortäuschen.
 
-# 5. Project-Invarianten
+Für jede Art von Neu/Ändern/Löschen festlegen:
 
-Es muss eindeutig definiert werden, welche Regeln für ein gültiges `Project` gelten.
+- Wie Zielzeile und gesendete Operation zugeordnet werden.
+- Welcher konkrete Nachweis Erfolg oder Ablehnung belegt.
+- Wie lange der Zustand ohne Nachweis offen bleibt und wie dies angezeigt wird.
+- Wie neue Eingaben während eines laufenden Versands erhalten bleiben.
+- Wann ein erneuter Versuch zulässig ist und wie Doppelausführung verhindert wird.
 
-Beispiele:
+Kein automatischer Wiederholungsversuch nach unklarem Ausgang einer nicht idempotenten Aktion. Wenn SoftENGINE keine eindeutige Bestätigung oder sichere Wiederholung ermöglicht, bleibt diese Grenze sichtbar; sie wird nicht durch einen optimistischen Status kaschiert.
+
+### 4.3 Spalten und Interaktion
+
+Dauerhafte Spaltenkennung, Position in der vollständigen Spaltenliste und sichtbare Position sind verschieden. Ausblenden verändert keine ERP-Zuordnung. Verschieben und Löschen aktualisieren Referenzen nach festgelegten Regeln.
+
+Tastaturverhalten wird in der laufenden Anwendung geprüft und dann vereinheitlicht: Tab, Enter, Pfeile, Escape, Insert, Vorschlagsauswahl und Fokus nach Datenlieferung. Eine nicht geprüfte Tastenbeschreibung gilt nicht als bereits zugesicherter Vertrag.
+
+### 4.4 Abnahme
+
+Neue/geänderte/gelöschte Zeile mit bestätigter Übernahme; ausdrücklicher Fehler; verspätete, doppelte und partielle Lieferung; unklarer Ausgang; zulässiger Wiederholungsversuch; neue Eingabe während Versand; Fokus während Push; ausgeblendete Spalte vor einer gebundenen Spalte. Keine Eingaben verschwinden unbemerkt, keine doppelte Ausführung durch wiederholten Klick.
+
+## 5. Berechnungen: vollständiger konkreter Anwendungsfall
+
+### 5.1 Zweck und Umfang
+
+Der allgemeine Rechner verarbeitet Spaltenwerte derselben Zeile, Felder eines eindeutig zugeordneten Datensatzes und feste Zahlen. Keine Medikamentennamen oder installationsspezifischen Feldcodes fest im Rechenkern. Keine künstlichen Hilfsspalten und keine Verpackungs-/Packungsberechnung.
+
+Für den aktuellen Bedarf gelten die vier Größen:
+
+- T: Anzahl Tiere
+- D: Tage
+- K: Körpergewicht je Tier
+- A: Abgabemenge
+
+Zusätzlich aus dem passenden Datensatz von ID0001 / Verabreichungsart:
+
+- B: Behandlungsmenge; vom Nutzer genannt `IDB_175_8`.
+- Behandlungseinheit; vom Nutzer genannt `IDB_183_5`.
+- S: Stammkörpergewicht; vom Nutzer genannt `IDB_313_5`.
+
+Der Workflow liest die Behandlungseinheit an einigen Stellen mit Länge 4. Die tatsächlich gültige Feldzuordnung ist im Zielbestand zu prüfen; nicht stillschweigend ändern. Der Workflow enthält historische Bedingungen und wird nicht als unveränderliche Spezifikation kopiert. Insbesondere dürfen seine uneinheitlichen Leerfeldprüfungen nicht ungeprüft übernommen werden.
+
+Nach Angleichung der Einheiten gelten die ausdrücklich konfigurierten Richtungen:
 
 ```text
-Block-IDs sind eindeutig.
-Page-IDs sind eindeutig.
-Tree enthält keine Zyklen.
-Parent/Child-Regeln sind gültig.
-Referenzen zeigen auf existierende Objekte.
-Relationen sind strukturell konsistent.
-Persistierte Block-Properties entsprechen ihrem fachlichen Modell.
+A = T × D × K × B ÷ S
+T = A × S ÷ D ÷ K ÷ B
+D = A × S ÷ T ÷ K ÷ B
+K = A × S ÷ T ÷ D ÷ B
 ```
 
-Nicht jeder Consumer soll dieselben Schutzprüfungen erneut implementieren müssen.
+Diese vier Richtungen bilden eine Berechnungsgruppe. Kein universeller Gleichungslöser. Die fachliche Zeitbasis von B muss zur Multiplikation mit Tagen passen; diese Bedeutung wird vor Umsetzung bestätigt und nicht aus einem Feldnamen geraten. Der Editor überprüft damit konfigurierte Rechenregeln, keine medizinische Eignung einer Dosierung.
 
----
+### 5.2 So bedient der Maskenbauer die Konfiguration
 
-# 6. EditorSession
+1. Erfassungstabelle auswählen, Inspector **Berechnungen → + Berechnung**.
+2. Namen vergeben und T/D/K/A den vorhandenen Spalten anhand ihrer stabilen Kennungen zuordnen.
+3. Für jede Richtung das Ergebnis und die Formelglieder anzeigen; Spalte, Datenfeld oder feste Zahl auswählen.
+4. Datenquelle, Feld und Datensatzbezug für B, S und die Einheit auswählen. Der Bezug muss sich auf das in dieser Erfassungszeile ausgewählte Medikament/die Verabreichungsart auflösen. Niemals blind den ersten Datensatz einer Liste verwenden.
+5. Eingabe-, Daten- und Ausgabeeinheiten festlegen. Körpergewicht und Stammkörpergewicht müssen kompatibel sein.
+6. Rundung je Ergebnis auswählen: Nachkommastellen, kaufmännisch/auf/ab. Für Tiere und Tage fachlich sinnvolle Vorschläge machen, ohne selbst zu entscheiden, ob Bruchteile zulässig sind.
+7. Mit frei eingegebenen Prüfwerten alle vier Richtungen im Dialog prüfen und Konfiguration übernehmen. Änderungen der Konfiguration sind Undo-fähig.
 
-Nichtpersistierbarer Editorzustand wird separat gehalten.
+### 5.3 So bedient der Anwender die fertige Maske
 
-```ts
-interface EditorSession {
-  selectedId: string | null
-  activePageId: string | null
-}
-```
-
-Ob `activePageId` nullable ist, richtet sich nach der echten Project-Invariante.
-
-Die Session besitzt klare Regeln:
-
-```text
-selectedId referenziert einen existierenden Block oder ist null.
-activePageId referenziert eine existierende Page oder ist null.
-```
-
-Nach Operationen wie Delete, Undo, Redo, Load, Page Delete oder Project Replace wird die Session zentral reconciled, sinngemäß über `reconcileSession(project, session)`.
-
-Die konkrete API ist zweitrangig. Wichtig ist, dass Session-Konsistenz nicht zufällig über UI-Komponenten verteilt wird.
-
----
-
-# 7. History
-
-Die bestehende Snapshot-History bleibt zunächst erhalten.
-
-Kein Event Sourcing. Kein Command Bus nur für Undo.
-
-Ein History-Eintrag entspricht aber **einer abgeschlossenen Benutzeraktion**, nicht automatisch einer einzelnen State-Mutation.
-
-Beispiele:
-
-```text
-Slider von 100 → 200
-Resize
-Drag & Drop
-Textbearbeitung
-Mehrfachänderung im Inspector
-```
-
-sollen jeweils sinnvoll gruppiert werden.
-
-Dafür erhält der Editor eine kleine Interaction-/Transaction-Grenze, z. B. sinngemäß:
-
-```ts
-beginInteraction()
-update(...)
-update(...)
-commitInteraction()
-```
-
-Die konkrete Benennung ist zweitrangig.
-
-Wichtig:
-
-```text
-100 Slider-Events ≠ 100 Undo-Schritte
-```
-
-Ein History-Snapshot enthält bewusst nur den Zustand, der für Undo/Redo notwendig ist.
-
-```ts
-interface HistorySnapshot {
-  project: Project
-  session: {
-    selectedId: string | null
-    activePageId: string | null
-  }
-}
-```
-
-Keine Notifications, Dialoge oder Autosave-Flags. History bleibt begrenzt.
-
----
-
-# 8. Editor als Application-Facade
-
-Die bestehende `Editor`-Klasse darf als zentrale Application-Facade bestehen bleiben.
-
-Sie koordiniert:
-
-```text
-Project
-EditorSession
-History
-Project-Operationen
-Notifications
-Autosave-Auslösung
-Subscriptions für UI
-```
-
-Sie implementiert aber nicht selbst:
-
-```text
-Tree-Algorithmen
-Persistenzformat
-localStorage
-Datei-I/O
-SoftENGINE-Globals
-Compilerlogik
-HTML-Export
-Block-Fachregeln
-```
-
-Der `Editor` darf echte Application-Logik enthalten. Er soll weder God Object noch leerer 800-Zeilen-Forwarder werden.
-
----
-
-# 9. Pure Project Operations
-
-Fachliche Änderungen werden möglichst als pure Funktionen modelliert.
-
-Beispiele:
-
-```ts
-addBlock(...)
-removeBlock(...)
-moveBlock(...)
-duplicateBlock(...)
-updateBlockProperty(...)
-resizeBlock(...)
-addPage(...)
-removePage(...)
-```
-
-Diese Operationen greifen nicht auf DOM zu, kennen kein React, kein Lit, kein localStorage, keine Toasts und kein SoftENGINE.
-
----
-
-# 10. Strukturierte Operationsergebnisse
-
-Keine fachlichen Warnungen als bloßes `warnings: string[]`.
-
-Stattdessen kleine strukturierte Issues:
-
-```ts
-interface ProjectIssue {
-  code: string
-  message: string
-  blockId?: string
-  relationId?: string
-  path?: string
-}
-```
-
-Oder als kleine Discriminated Union.
-
-Erwartbare ungültige Benutzeroperationen wie Block in eigenes Kind verschieben, Root löschen oder ungültigen Parent wählen dürfen als Resultat zurückgegeben werden. Verletzte interne Invarianten dürfen weiterhin Exceptions sein.
-
----
-
-# 11. ID-Erzeugung
-
-Interne technische IDs dürfen UUIDs bleiben. ERP-Fachcodes und interne IDs bleiben strikt getrennt.
-
-`crypto.randomUUID()` wird nicht zwangsläufig tief in pure Core-Funktionen eingebrannt.
-
-Bei einfacher Erstellung kann die ID bereits an der Creation Boundary erzeugt werden:
-
-```ts
-const id = crypto.randomUUID()
-addBlock(project, { id, ... })
-```
-
-Bei Operationen, die mehrere IDs erzeugen müssen, darf ein kleiner Generator übergeben werden:
-
-```ts
-type CreateId = () => string
-
-duplicateBlock(project, args, createId)
-```
-
-Das ist kein DI-Framework. Es dient Determinismus und Testbarkeit. Keine ID-Abhängigkeit wird unnötig durch Schichten weitergereicht, die keine IDs erzeugen.
-
----
-
-# 12. Serialisiertes Format ist NICHT das Project
-
-Das persistierte Dateiformat wird ausdrücklich vom In-Memory-Modell getrennt.
-
-Nicht:
-
-```ts
-interface SerializedProject {
-  version: 1
-  project: Project
-}
-```
-
-Stattdessen beispielsweise:
-
-```ts
-interface SerializedProjectV1 {
-  format: 'aufbau-maske'
-  version: 1
-  project: SerializedProjectDataV1
-}
-```
-
-Das V1-Schema wird als V1-Vertrag behandelt. Änderungen am internen `Project` verändern nicht stillschweigend das alte Dateiformat.
-
----
-
-# 13. ProjectCodec
-
-Der Codec besitzt reine Logik:
-
-```text
-string
-↓
-JSON parse
-↓
-SerializedProjectV1 validieren
-↓
-decode
-↓
-Project
-```
-
-und:
-
-```text
-Project
-↓
-encode
-↓
-SerializedProjectV1
-↓
-JSON stringify
-```
-
-Keine Browser-APIs, keine Datei-Dialoge, kein localStorage.
-
----
-
-# 14. Laden alter Projekte: kompatibel, aber nicht magisch
-
-Es gilt weder:
-
-```text
-jedes fehlende Feld → kompletter Ladeabbruch
-```
-
-noch:
-
-```text
-alles Kaputte stillschweigend mit aktuellen Manifest-Defaults reparieren
-```
-
-Bekannte, bewusst optionale Felder einer bekannten Formatversion dürfen definierte Kompatibilitätsdefaults besitzen.
-
-Beispiel:
-
-```text
-SerializedProjectV1.borderColor fehlt
-→ V1-definierter Default
-```
-
-Nicht automatisch der jeweils heutige Manifest-Default.
-
-Kaputte Daten wie unbekannter Blocktyp, falscher Datentyp, defekte Referenz oder inkonsistenter Tree werden nicht heimlich umgeschrieben.
-
-Fehlerarten werden sinnvoll unterschieden:
-
-```text
-ungültiges JSON
-unbekanntes Format
-unbekannte Version
-ungültige bekannte Version
-inkonsistente Projektdaten
-```
-
-Keine automatische Speicherung reparierter Daten ohne klare Nutzeraktion.
-
----
-
-# 15. Versionierung
-
-Das In-Memory-`Project` enthält keine Dateiversion.
-
-Formatversionierung existiert ausschließlich an Persistenzgrenzen.
-
-Vorerst:
-
-```text
-format: 'aufbau-maske'
-version: 1
-```
-
-Keine allgemeine Migration Engine, solange Version 2 nicht real existiert.
-
-Wenn Version 2 tatsächlich entsteht, wird anhand der echten Änderung entschieden, wie V1 → V2 behandelt wird.
-
----
-
-# 16. AutosaveStore
-
-Der Browser-Autosave kennt ausschließlich rohe persistierte Daten.
-
-Zum Beispiel:
-
-```ts
-loadRaw()
-saveRaw(raw)
-```
-
-Er kennt `localStorage`, aber nicht Project, BlockManifest, fachliche Validierung, Migration oder Compiler.
-
----
-
-# 17. ProjectFileIO
-
-Datei-I/O behandelt nur Browser-Dateien.
-
-Zum Beispiel:
-
-```text
-Datei auswählen
-Text lesen
-Datei herunterladen
-```
-
-Kein Wissen über das Project-Schema.
-
-Der Fluss lautet:
-
-```text
-Project
-↓
-ProjectCodec
-↓
-raw string
-↓
-AutosaveStore / ProjectFileIO
-```
-
-und umgekehrt.
-
----
-
-# 18. BlockManifest
-
-Die fachliche Beschreibung eines Blocktyps wird von Lit und React entkoppelt.
-
-```ts
-interface BlockManifest<Props = unknown> {
-  type: BlockType
-  createDefaultProps(): Props
-
-  properties: readonly BlockPropertySpec[]
-  layout?: BlockLayoutSpec
-  children?: BlockChildrenSpec
-  binding?: BlockBindingSpec
-  events?: readonly BlockEventSpec[]
-}
-```
-
-Das Manifest kennt nicht Lit, React, DOM, `customElements`, SoftENGINE, `selib`, `SEDATA` oder Editor-Komponenten.
-
----
-
-# 19. Default Props
-
-Persistierte Default-Properties besitzen eine klare kanonische Quelle.
-
-Keine gemeinsam mutierbaren Default-Objekte.
-
-Gefährlich:
-
-```ts
-const defaultProps = {
-  columns: [],
-}
-```
-
-wenn dasselbe Objekt mehreren Blocks zugewiesen wird.
-
-Bevorzugt `createDefaultProps()` oder eine andere eindeutig immutable Lösung.
-
-Lit-interner Runtime-State bleibt davon getrennt.
-
----
-
-# 20. Manifest ist kein God Object
-
-Metadaten werden nur gruppiert, wenn sie semantisch zusammengehören.
-
-Mögliche Typen:
-
-```text
-BlockLayoutSpec
-BlockPropertySpec
-BlockBindingSpec
-BlockChildrenSpec
-BlockEventSpec
-```
-
-Keine Interfaces nur zur optischen Verschönerung. Keine 40 Boolean-Capabilities.
-
-Statt vieler `supportsX: true`-Flags können optionale Capability-Objekte verwendet werden, wenn mehrere zugehörige Daten zusammengehören.
-
----
-
-# 21. Renderer- und Editor-Metadaten getrennt
-
-Rendering-spezifische Informationen gehören nicht automatisch ins Core-Manifest.
-
-Zum Beispiel:
-
-```ts
-interface LitBlockDefinition {
-  type: BlockType
-  tagName: string
-}
-```
-
-Editor-only-Daten separat:
-
-```ts
-interface EditorBlockDefinition {
-  type: BlockType
-  label: string
-  icon?: unknown
-  showInPalette: boolean
-  inspector?: unknown
-}
-```
-
-`displayName`, Icons, Inspector-Komponenten usw. gehören nicht ins fachliche Manifest, wenn sie ausschließlich Editorzwecken dienen.
-
----
-
-# 22. Lit kennt Manifest, nicht umgekehrt
-
-Richtung:
-
-```text
-BlockManifest
-    ↑
-Lit Block
-```
-
-Nie umgekehrt. Diese Grenze wird möglichst mechanisch durch Importregeln abgesichert.
-
----
-
-# 23. BlockCatalog
-
-Die globale mutable Block-Registry wird schrittweise durch einen expliziten Catalog ersetzt.
-
-```ts
-const blockCatalog = createBlockCatalog([
-  tableManifest,
-  textManifest,
-  buttonManifest,
-])
-```
-
-Der Catalog wird beim Bootstrap erzeugt, validiert doppelte Blocktypen, wird danach nicht mehr mutiert und besitzt keine `register()`-Methode für Laufzeitmutation.
-
-Beispiel-API:
-
-```ts
-interface BlockCatalog {
-  get(type: BlockType): BlockManifest | undefined
-  has(type: BlockType): boolean
-  all(): readonly BlockManifest[]
-}
-```
-
-Während der Migration darf die bestehende Registry temporär adaptiert werden. Am Ende gibt es genau eine kanonische Quelle.
-
----
-
-# 24. React und Lit
-
-Die langfristige Rollenverteilung bleibt:
-
-```text
-React = Editor-Oberfläche
-Lit = Maskenrenderer
-Pure TypeScript = Fachlogik / Export
-```
-
-Keine doppelte React-Implementierung der Maskenblocks. Keine Lit-Version des Editors.
-
-Wichtige zusätzliche Regel:
-
-> React und Lit besitzen niemals denselben DOM-Subtree.
-
-Kommunikation erfolgt über explizite Grenzen wie Properties, Plain Data, Custom Events oder kleine Adapter. Nicht durch gegenseitige DOM-Manipulation.
-
----
-
-# 25. React-Reaktivität
-
-Wenn `Editor` ein React-externer Store bleibt, wird eine explizite Subscription-Schnittstelle definiert.
-
-`useSyncExternalStore` ist dafür ein bevorzugter Kandidat.
-
-Die konkrete Implementierung soll aber granulare und stabile Snapshots ermöglichen. Nicht zwingend `useEntireEditor()` für jede Komponente.
-
-Mögliche spezialisierte Hooks:
-
-```text
-useProject()
-useSelection()
-useActivePage()
-useBlock(id)
-```
-
-Die genaue Granularität richtet sich nach realen Performance- und Wartbarkeitsanforderungen. Keine komplizierte Selector-Infrastruktur ohne Bedarf.
-
----
-
-# 26. Komplexe Editor-UIs
-
-Komplexe Editoren bleiben normale React-Komponenten.
-
-Beispiele:
-
-```text
-Spalteneditor
-Relationeneditor
-Bindings
-Actions
-Suchfenster
-```
-
-Kein universelles Schema-Form-System.
-
-Generische Property Controls nur dort, wo sie wirklich generisch sind, etwa Text, Number, Boolean, Enum oder Color.
-
-Sonderfälle dürfen Sonderfälle bleiben.
-
----
-
-# 27. SoftENGINE-Tabellen: Ordinalität und Sichtbarkeit
-
-Die bestehende SoftENGINE-Regel für Tabellen wird als explizite Invariante dokumentiert und getestet.
-
-Wenn die ERP-Zuordnung an der physischen Position einer Spalte hängt, gilt:
-
-```text
-Spalte existiert
-≠
-Spalte ist sichtbar
-```
-
-Eine Spalte auszublenden darf ihre ERP-Position nicht versehentlich verändern.
-
-Beispiel:
-
-```text
-A B C D
-
-B unsichtbar
-
-→ C und D behalten ihre ursprüngliche ERP-Zuordnung
-```
-
-`hideColumn` und `deleteColumn` sind fachlich unterschiedliche Operationen.
-
-Diese Regel erhält mindestens einen gezielten Regressionstest.
-
----
-
-# 28. Actions
-
-Das bestehende Action-System bleibt grundsätzlich erhalten.
-
-Kein generisches Plugin-System.
-
-Trennung:
-
-```text
-Action-Daten / Action-Semantik → Core
-Action-Editor → React
-SoftENGINE-Umsetzung → SoftENGINE Export/Target
-```
-
-Nur reale Action-Typen werden modelliert.
+- Drei manuell vorgegebene Werte bestimmen den vierten; berechnete Werte bleiben als solche gekennzeichnet.
+- Ändert sich eine Eingabe, aktualisiert sich das abgeleitete Ergebnis.
+- Eine manuelle Überschreibung macht das betreffende Feld manuell. Kein anderer manueller Wert wird deshalb ungefragt ersetzt.
+- Ein geleertes Feld kann wieder zum Ergebnis werden. Bei mehreren fehlenden unabhängigen Werten wird nicht geraten.
+- Bei vier manuellen Werten wird nichts beliebig überschrieben. Eine inkonsistente Kombination wird anhand einer zur Präzision passenden Regel kenntlich gemacht.
+- Leer, explizite Null, ungültige Zahl, noch ladender Wert und fehlendes Datenfeld sind verschiedene Zustände.
+- Änderungen der Datensatzauswahl entwerten abgeleitete Werte des alten Bezugs. Verspätete Antworten zum alten Datensatz werden nicht übernommen. Manuelle Eingaben werden entsprechend einer sichtbaren, festgelegten Regel erhalten.
+- Berechnete Werte werden nicht wieder als unabhängige Eingaben derselben Gruppe verwendet. Keine Rechenschleifen.
 
----
+### 5.4 Einheiten und numerische Regeln
 
-# 29. Layout
+Zunächst nur der reale Bedarf: kg/g/mg, l/ml, Anzahl und Tage sowie einheitenlose Faktoren. Mengenwerte tragen ihre Einheit; Umrechnung benutzt eine kanonische Basis je kompatibler Größenart.
 
-Pure fachliche Layoutregeln dürfen im Core liegen.
+Masse wird nur in Masse, Volumen nur in Volumen umgerechnet. Keine automatische Umrechnung von mg in ml ohne eine zusätzlich ausdrücklich modellierte Beziehung. Die Größenart von Körpergewicht und Medikamentenmenge bleibt semantisch unterscheidbar, auch wenn beide Masse verwenden. Die Formelgruppe berücksichtigt die konfigurierte Zeit-/Anzahlbasis.
 
-Beispiele:
+456 g bleiben 456 g, unabhängig von einer Packung zu 1 kg. Keine Erweiterung auf Fläche, Währungen, Temperatur oder andere hypothetische Anwendungsfälle in dieser Phase.
 
-```text
-Grid
-Flow
-Resize-Regeln
-Parent/Child-Regeln
-erlaubte Größen
-```
-
-Nicht im Core:
-
-```text
-DOM-Messung
-getBoundingClientRect()
-Browser-Pointer-Events
-Pixelmessung des gerenderten Elements
-```
-
----
-
-# 30. Export / Compiler – keine vorab erfundene Universal-IR
-
-Es wird nicht vorab festgeschrieben, dass eine vollkommen target-neutrale `CompiledMask` existieren muss.
-
-Aktuell existiert ein reales Exportziel: SoftENGINE.
-
-Deshalb wird zunächst entlang des realen Problems geschnitten:
-
-```text
-Project
-↓
-Compile / Export Validation
-↓
-SoftENGINE Export Preparation
-↓
-PreparedSoftEngineExport
-```
-
-Danach:
-
-```text
-PreparedSoftEngineExport
-├── HTML
-├── CSS
-├── SE-Variablen
-└── Runtime-Artefakte
-```
-
-Falls sich später tatsächlich ein natürliches target-neutrales Zwischenmodell ergibt, kann dieses extrahiert werden. Nicht vorher.
-
----
-
-# 31. Export Preparation
-
-Gemeinsame semantische Berechnungen werden nicht mehrfach in verschiedenen Emittern implementiert.
-
-Die Preparation darf beispielsweise berechnen:
-
-```text
-benutzte Datenquellen
-aufgelöste Bindings
-benutzte Felder
-Relationen
-Events
-Layout
-Runtime-Anforderungen
-SoftENGINE-relevante Blockinformationen
-```
-
-Das Ergebnis darf ausdrücklich SoftENGINE-spezifisch heißen und strukturiert sein. Ehrliche konkrete Architektur ist besser als eine künstlich generische.
-
----
-
-# 32. Compiler / Export bleibt headless
-
-Core und Exportlogik laufen ohne Browser.
-
-Verboten:
-
-```text
-window
-document
-customElements
-localStorage
-Browser File API
-React
-Lit
-selib
-SEDATA
-```
-
-Node/Vitest muss ohne DOM-Polyfill funktionieren.
-
----
-
-# 33. Export Diagnostics
-
-Erwartbare Exportprobleme werden als Daten zurückgegeben.
-
-```ts
-interface CompileIssue {
-  code: string
-  message: string
-  blockId?: string
-  relationId?: string
-  path?: string
-}
-```
-
-Beispielresultat:
-
-```ts
-type PrepareResult =
-  | {
-      ok: true
-      value: PreparedSoftEngineExport
-      warnings: CompileIssue[]
-    }
-  | {
-      ok: false
-      errors: CompileIssue[]
-      warnings: CompileIssue[]
-    }
-```
-
-Programmierfehler und verletzte interne Invarianten dürfen Exceptions bleiben.
-
----
-
-# 34. SoftENGINE Target / Emitter
-
-SoftENGINE-spezifischer Output bleibt außerhalb des Core.
-
-Emitter sollen möglichst pure Funktionen sein.
-
-Nicht: Emitter erzeugt HTML und startet Browserdownload.
-
-Sondern beispielsweise:
-
-```ts
-interface SoftEngineArtifactSet {
-  html: string
-  css: string
-  runtime: string
-  variables: readonly SoftEngineVariable[]
-}
-```
-
-Sinngemäß:
-
-```ts
-const artifacts = emitSoftEngine(prepared)
-```
-
-Erst ein äußerer Adapter speichert, lädt herunter oder überträgt die Artefakte.
-
----
-
-# 35. Kein generisches Target-System
-
-Solange SoftENGINE das einzige Exportziel ist, reicht:
-
-```ts
-prepareSoftEngineExport(...)
-emitSoftEngine(...)
-```
-
-Nicht eingeführt werden:
-
-```text
-AbstractTarget
-TargetRegistry
-TargetFactory
-TargetProvider
-TargetPlugin
-TargetLifecycle
-```
-
-Ein zweites reales Target darf später zeigen, welche Abstraktion tatsächlich gemeinsam ist.
-
----
-
-# 36. Golden Master
-
-Vor größerer Exportumstellung werden repräsentative Exporte eingefroren.
-
-Mindestens:
-
-```text
-einfache Maske
-Datenquelle
-Tabelle
-Formfeld
-Bindings
-Events
-Relation
-komplexerer Container
-```
-
-Vergleich bytegenau, wenn sinnvoll; semantisch, wenn instabile irrelevante Details existieren.
-
-Zufällige IDs, Timestamps oder instabile Sortierung werden nicht blind als Golden-Vertrag konserviert. Golden Fixtures werden bewusst reviewed.
-
----
-
-# 37. SoftENGINE Live Adapter
-
-Die Live-Bridge wird nach echten Verantwortlichkeiten zerlegt.
-
-Mögliche Bereiche:
-
-```text
-Datenempfang
-Commands / Refresh
-Message-Verarbeitung
-Fokusintegration
-```
-
-Nur trennen, wenn tatsächlich unabhängige Verantwortlichkeiten entstehen. Keine künstliche Layer-Aufteilung.
-
----
-
-# 38. Kleine Ports statt SoftEngineGodInterface
-
-Wo Application-Code äußere Fähigkeiten benötigt, dürfen kleine Ports entstehen.
-
-Nicht ein `SoftEngineHost` mit 40 Methoden, sondern kleine APIs entlang echter Konsumenten.
-
-Ports werden dort definiert, wo sie gebraucht werden. Keine zentrale Sammlung abstrakter Interfaces nur für Clean Architecture.
-
----
-
-# 39. Runtime Lifecycle
-
-Alles, was Listener, Polling oder Timer erzeugt, besitzt einen klaren Cleanup.
-
-```ts
-const runtime = connectSoftEngine(...)
-runtime.dispose()
-```
-
-Wichtig für Tests, HMR, mehrfache Initialisierung und sauberes Unmounting.
-
----
-
-# 40. Externe Daten validieren
-
-Alles, was von SoftENGINE oder anderen äußeren Systemen kommt, wird an der Adaptergrenze geprüft.
-
-Externe Systeme dürfen niemals automatisch als perfekte interne Datenquelle behandelt werden.
-
-Einige echte anonymisierte Fixtures werden verwendet für Datenlieferungen, Antworten, Relationen und Fehlerfälle. Keine hundert erfundenen Mockfälle.
-
----
-
-# 41. Runtime Builder ist Teil des Refactors ab Phase 0
-
-`tools/laufzeitBauen.mjs` und vergleichbare Build-Werkzeuge gelten als bestehender Architekturvertrag.
-
-Vor Änderungen an Ordnern, Block-Metadaten, statischen Properties, SoftENGINE Bridge oder globalen `FF.*`-Namen wird dokumentiert, was der Builder tatsächlich erwartet.
-
-Falls er aktuell Sourcecode oder feste Pfade analysiert, wird dieses Verhalten durch Referenztests abgesichert.
-
-Keine Ordnerstruktur wird für Architekturhygiene umgebaut, bevor der Runtime-Build abgesichert ist.
-
----
-
-# 42. Langfristiges Builder-Ziel
-
-Der Runtime Builder soll langfristig keine Regex über TypeScript-Quellcode benötigen, um Block-Metadaten zu verstehen.
-
-Strukturierte Daten werden zur Quelle.
-
-Beispielsweise eine explizite Liste:
-
-```ts
-export const blockManifests = [
-  buttonManifest,
-  tableManifest,
-  textManifest,
-]
-```
-
-Keine neue Regex schreiben, die nur `manifest.ts` statt alter statischer Properties analysiert.
-
----
-
-# 43. Ordnerstruktur
-
-Ordnernamen sind zweitrangig.
-
-Mögliche Zielstruktur:
-
-```text
-src/
-  core/
-    project/
-    blocks/
-    layout/
-    dataSources/
-    relations/
-
-  application/
-    editor/
-    history/
-
-  compiler/
-
-  targets/
-    softengine/
-
-  adapters/
-    browser/
-    softengine/
-
-  ui/
-    react/
-    lit/
+Erst das Endergebnis in seiner Ausgabeeinheit runden. Ungerundete Zwischenwerte bleiben für weitere Berechnung verfügbar. Dezimale Eingabe-, Daten- und Ausgabeformate explizit normalisieren; keine mehrdeutigen Tausender-/Dezimaltrennzeichen erraten. Rundungsgrenzen mit gezielten Beispielen prüfen und eine geeignete numerische Umsetzung wählen.
 
-  bootstrap/
-```
-
-Es werden keine Ordner nur deshalb verschoben, damit das Repository schöner aussieht. Bestehende Runtime-/Build-Verträge haben Vorrang.
-
-Ein Ordner wie `blocks/` darf nicht zur neuen Misch-Müllhalde werden.
-
----
-
-# 44. Composition Root
-
-Es gibt einen klaren Bootstrap-Ort, beispielsweise `createApplication(...)`.
-
-Dort werden zusammengesteckt:
-
-```text
-BlockCatalog
-ProjectCodec
-AutosaveStore
-ProjectFileIO
-Editor
-SoftENGINE Live Adapter
-Exportfunktionen
-React-Anbindung
-```
-
-Nur der Composition Root darf bewusst mehrere Architekturschichten kennen. Innere Module importieren niemals Bootstrap-Code.
-
----
-
-# 45. Architekturregeln mechanisch absichern
-
-Wichtige Importgrenzen werden durch ESLint beziehungsweise vorhandene Architekturregeln abgesichert.
-
-Insbesondere:
-
-```text
-core → kein editor
-core → keine adapters
-core → kein compiler
-core → kein SoftENGINE
-core → kein React/Lit
-
-compiler → keine UI
-compiler → keine Browseradapter
-
-UI → Application/Core APIs
-```
-
-Keine hunderten kosmetischen Regeln. Architekturregeln haben Vorrang.
-
----
-
-# 46. Keine Zyklen
-
-Zwischen den Hauptmodulen existieren keine zyklischen Abhängigkeiten.
-
-Zyklen werden nicht durch Barrel-Files oder indirekte Re-Exports versteckt.
-
----
-
-# 47. Barrel Files
-
-Kein `index.ts` in jedem Ordner aus Prinzip.
-
-Direkte Imports sind erlaubt. Barrels nur an echten stabilen Modulgrenzen.
-
----
-
-# 48. Typisierung
-
-An heterogenen Systemgrenzen dürfen Typen generischer sein. Nach Validierung werden konkrete Typen verwendet.
-
-Nicht dauerhaft überall `Record<string, unknown>`, aber auch keine TypeScript-Akrobatik, die nur noch ein Mensch versteht.
-
-```text
-Boundary → unknown/generic
-Featureintern → TableProps / ButtonProps / RelationConfig
-```
-
----
-
-# 49. Tests – Grundphilosophie
-
-Keine Testzahl als Qualitätsmetrik. Kein Coverage-Ziel.
-
-Keine Tests für triviale Getter, einfache Konstruktoren, Frameworkverhalten, 1:1-Mapping ohne Logik oder jede einzelne Manifest-Property.
-
-Tests schützen wichtige Verträge.
-
----
-
-# 50. Block Contract Tests
-
-Eine generische Suite prüft alle Manifeste auf relevante Konsistenz.
-
-Zum Beispiel:
-
-```text
-Blocktyp eindeutig
-Defaults gültig
-referenzierte Properties vorhanden
-Parent/Child-Regeln konsistent
-Capability-Daten valide
-```
-
-Keine fast identischen Testdateien pro Block. Keine tautologischen Tests für Dinge, die der Catalog bereits garantiert.
-
----
-
-# 51. Core Tests
-
-Gezielte Tests für echte Fachlogik:
-
-```text
-Delete
-Duplicate
-Move
-Grid
-Pages
-Property-Updates mit Cleanup
-Parent/Child-Regeln
-kritische Relationen
-```
-
----
-
-# 52. Export Tests
-
-Wenige semantische Tests für:
-
-```text
-benutzte Quellen
-Felder
-Relationen
-Bindings
-Events
-Runtime-Anforderungen
-Layout
-SoftENGINE-spezifische Preparation
-```
+Fehlender Operand, unbekannte Einheit, ungültige Zahl oder Division durch null liefert einen strukturierten Grund, kein scheinbar gültiges Ergebnis.
 
-Interne Hilfsfunktionen müssen nicht einzeln getestet werden.
+**Wird eine referenzierte Spalte oder Datenquelle gelöscht, bleibt die Formel erkennbar unvollständig und rechnet nicht weiter. Niemals den Operanden still entfernen und eine andere Formel ausführen.** Undo stellt Referenz und Konfiguration wieder her.
 
----
+### 5.5 Integration und Abnahme
 
-# 53. SoftENGINE Golden Tests
+Vorhandene Rechenlogik gezielt erweitern. Bestehende einheitenlose Formeln bleiben lesbar und behalten ihre bisherige Semantik, sofern keine konkrete Fehlerkorrektur ausdrücklich beschlossen wird. Neue Datenformen benötigen eine bewusste Schemaentscheidung.
 
-Final erzeugter SoftENGINE-Output wird über repräsentative Golden Fixtures geschützt. Diese Tests haben hohe Priorität.
+Nur in Formeln benötigte Datenfelder werden ebenfalls für den Export gesammelt und geladen. Tabellenanzeige und ERP-Ausgabe verwenden dieselbe Berechnung und vereinbarte Rundung; Einheitenbeschriftungen dürfen keine numerischen ERP-Felder verunreinigen.
 
----
+Prüfen: alle vier Richtungen; mg→g, g→kg, ml→l; Gewichtseinheiten; manuelle Überschreibung; Wechsel des Ergebnisses; mehrere fehlende Werte; widersprüchliche Vollbelegung; Quelle lädt/fehlt/wechselt; alte Antwort nach Wechsel; Nullnenner; Rundungsgrenzen; gelöschte Referenz und Undo; Speichern/Laden; tatsächlicher Export der berechneten Werte.
 
-# 54. Persistenztests
+## 6. Kanban
 
-Der Codec erhält fokussierte Tests für:
+Eine gemeinsame Kartenvorlage je Board bleibt die Ausgangsentscheidung. Die bisherige Erzeugung einer Vorlage ist noch kein Beweis, dass Laden, Löschen oder Duplizieren deren Anzahl immer korrekt erhalten; diese Invariante wird überprüft und abgesichert.
 
-```text
-gültiges SerializedProjectV1
-V1 → Project
-Project → V1
-Roundtrip
-kaputtes JSON
-falsches Format
-unbekannte Version
-fehlende Pflichtdaten
-ungültige Struktur
-bekannte optionale V1-Felder
-```
-
-Keine Migrationstests, solange keine Migration existiert.
-
----
-
-# 55. Wenige Integration-Smoke-Tests
-
-Zusätzlich wenige echte Lebensadern testen.
-
-Beispiele:
-
-```text
-Projekt laden → Block ändern → Undo → speichern
-Block hinzufügen → Property ändern → exportieren
-Page löschen → Undo
-Datenquelle → Relation → Export
-SoftENGINE Bridge connect → Message → dispose
-```
-
-Keine riesige End-to-End-Suite.
-
----
-
-# 56. CI
-
-Mindestens:
-
-```text
-TypeScript
-ESLint
-Tests
-Runtime Build
-Application Build
-Block Contracts
-Golden Export
-```
-
-Contract- und Golden-Tests können Teil der normalen Testsuite sein. Keine unnötige CI-Matrix.
-
----
-
-# 57. Refactoring-Strategie: vertikale Scheiben
-
-Der Umbau erfolgt nicht als erst alle Manifeste, dann alle Catalogs, dann alle Renderer und irgendwann Export.
-
-Stattdessen wird möglichst eine **vollständige vertikale Scheibe** migriert.
-
-Pilot: ein möglichst einfacher, repräsentativer Block, bevorzugt `ButtonBlock`, sofern die reale Codebasis das bestätigt.
-
-Für diesen einen Block wird der komplette neue Weg geprüft:
-
-```text
-Manifest
-Catalog
-Defaults
-Project Operation
-React Inspector
-Lit Rendering
-Export Preparation
-SoftENGINE Output
-Runtime Builder
-Golden Test
-```
-
-Erst wenn dieser Block vollständig funktioniert, wird das Muster auf weitere Blocktypen übertragen.
-
----
-
-# 58. Übergangscode
-
-Alte und neue Architektur dürfen während der Migration temporär parallel existieren.
-
-Aber nur wenn der Übergang bewusst ist, klar dokumentiert ist, ein Löschzeitpunkt existiert und eine eindeutige Source of Truth besteht.
+Der dauerhaft sichtbare Musterkasten oberhalb der Spalten entfällt im normalen Editor-Modus. **Kartenmuster bearbeiten** am Board öffnet einen klar bezeichneten Bearbeitungsmodus mit der tatsächlichen Card-Komponente. Dort sind sichtbare Stellen, deren Bindungen und Darstellung nachvollziehbar zugeordnet. Übernehmen/Abbrechen, Auswahl, Fokus und Undo sind definiert.
 
-Nicht erlaubt ist dauerhaftes:
+Die Laufzeitkarten verwenden dieselbe Vorlage. Keine kopierten Konfigurationen pro Spalte. Leere Boards bleiben bedienbar. Die Vorschau benötigt keine erfundenen ERP-Datensätze.
 
-```ts
-newCatalog ?? legacyRegistry ?? fallbackRegistry
-```
-
-ohne klares Ende.
-
-Nach erfolgreicher Migration wird Übergangscode gelöscht.
-
----
-
-# 59. Refactoring-Phasen
-
-## Phase 0 – Verhalten und bestehende Verträge einfrieren
-
-Vor größeren Änderungen:
-
-```text
-bestehende Tests grün
-repräsentative Golden Exports erzeugen
-referenzabzug.test.ts prüfen
-History-Verhalten dokumentieren
-Loader-Verträge dokumentieren
-SoftENGINE-Verträge dokumentieren
-laufzeitBauen.mjs analysieren
-feste globale FF.*-Namen dokumentieren
-Tabellen-Spalten-Invariante dokumentieren
-keine neuen Features parallel
-```
-
-Zusätzlich alle Annahmen des Plans gegen die reale Codebasis verifizieren. Der reale Code ist maßgeblich.
-
-## Phase 1 – Project & Session
-
-Einführen beziehungsweise schärfen:
-
-```text
-Project
-EditorSession
-Session-Reconciliation
-eindeutige Source of Truth
-```
+Der technische Typ `kanban-zimmer` bleibt aus Kompatibilitätsgründen erhalten. Seine sichtbare Bezeichnung wird erst nach Klärung des tatsächlichen Arbeitsbegriffs entschieden; weder „Zimmer“ noch „Untergruppe“ wird pauschal erzwungen.
 
-Bestehendes Verhalten erhalten. Noch kein großflächiger Block-/Compiler-Umbau.
+Abnahme: genau eine gültige Vorlage, Bearbeitung aller vorhandenen Card-Stellen, korrekte Bindings, Wirkung auf Laufzeitkarten, Laden/Duplizieren/Löschen/Undo, leeres Board und verschachtelte Unterteilungen, unveränderte ERP-Einsortierung.
 
-## Phase 2 – History-Transaktionen
+## 7. Architekturverträge
 
-Interaction-Grenzen für Slider, Resize, Drag & Drop und weitere hochfrequente Änderungen einführen.
+### 7.1 Abhängigkeiten und Composition
 
-Snapshot-History bleibt bestehen.
+UI verwendet Application/Core-APIs. Application koordiniert fachliche Operationen und benötigt nur kleine Ports für äußere Fähigkeiten. Core importiert keine UI, Application, Adapter, Bootstrap oder Compiler.
 
-## Phase 3 – Persistenz trennen
+**Core ist frei von SoftENGINE-Laufzeit-APIs und Transportmechanismen. ERP-Fachbegriffe, Datenkonfigurationen und Action-Semantik dürfen zur Fachdomäne gehören.** Emitter und Adapter enthalten konkrete SoftENGINE-Ausgabe, Globals, I/O und Verbindungstechnik.
 
-Einführen:
+Compiler/Preparation und Emitter laufen ohne React, Lit, DOM, localStorage oder Browser-Datei-APIs. Für CSS und gebaute Runtime werden plain Daten/Artefakte übergeben oder headless geeignete Eingänge vorgesehen; ein Vitest-Transform allein beweist noch keine eigenständige Node-Ausführbarkeit.
 
-```text
-SerializedProjectV1
-ProjectCodec
-AutosaveStore
-ProjectFileIO
-```
-
-`Project` und persistiertes Format bewusst trennen. Kompatibilitätsregeln explizit definieren.
-
-## Phase 4 – Pilotblock vollständig migrieren
-
-Einen einfachen Block auswählen, bevorzugt `ButtonBlock`, falls die reale Codebasis ihn als geeigneten Pilot bestätigt.
-
-Komplette vertikale Migration durchführen. Alle relevanten Pfade müssen weiterhin funktionieren.
-
-## Phase 5 – BlockManifest / Catalog Muster stabilisieren
-
-Nach dem Pilot prüfen:
+Es gibt getrennte Startpunkte für **Editor** und **exportierte Maskenlaufzeit**. Die exportierte Maske darf nicht vom Editor-Bootstrap abhängen. Gemeinsame fachliche Definitionen bleiben kanonisch; die Maskenlaufzeit erhält die tatsächlich benötigten Definitionen und Renderer.
 
-```text
-Ist das Manifest wirklich frameworkfrei?
-Sind Renderer-Metadaten sauber getrennt?
-Ist der Catalog verständlich?
-Entsteht unnötige Boilerplate?
-```
-
-Erst danach weitere Blocks migrieren.
-
-## Phase 6 – Blocks schrittweise migrieren
+Importregeln gelten mit Einführung neuer Grenzen. Keine Zyklen zwischen Hauptmodulen, auch nicht über Re-Exports. Barrels nur an stabilen Modulgrenzen. Ordner werden nur bei einem konkreten Nutzen verschoben.
 
-Block für Block beziehungsweise in kleinen natürlichen Gruppen.
+### 7.2 Project, Session und Operationen
 
-Nicht zehn halbfertige Blöcke gleichzeitig.
+Project enthält Baum, Datenquellen und Relationen als einzige fachliche Wahrheit. Alte Stores dürfen nur klar zugeordnete Subscription-Fassaden sein. Neue und alte Pfade besitzen dokumentierte Ablösebedingungen.
 
-Bei jedem Block Editor, Lit, Persistenz, Export, Runtime und Tests prüfen.
+Session enthält Auswahl und aktive Seite; Reconciliation nach Delete, Page Delete, Load, Replace, Undo und Redo erfolgt zentral. Die Root-/Page-Regel wird am tatsächlichen Modell festgelegt.
 
-## Phase 7 – Pure Project Operations ausbauen
+Project-Invarianten betreffen eindeutige IDs, erreichbaren zyklusfreien Baum, konsistente Parent-/Child-Beziehungen, Block-Properties und Referenzen. Strukturell gültiger Entwurf und exportfähiges Projekt sind verschieden: explizit ungelöste Bindungen/Formeln können speicherbar sein, blockieren aber den betroffenen Export. Strukturelle Beschädigung wird nicht als Entwurf akzeptiert.
 
-Weitere fachliche Operationen aus `Editor` extrahieren. Globale UI-Side-Effects entfernen. ID-Erzeugung nur dort abstrahieren, wo Determinismus echten Nutzen bringt.
+Delete, Duplicate, Move, Pages, Resize und Property-Updates erhalten klare Referenzregeln. Interne Referenzen einer Kopie werden auf die Kopie umgebogen, externe bleiben nur nach festgelegter Semantik erhalten. Schutzregeln und fachliches Cleanup liegen in puren Operationen. Erwartbare Benutzerfehler liefern kleine strukturierte Issues mit Code und Ort; interne Programmierfehler dürfen Exceptions sein.
 
-## Phase 8 – Exportlogik headless machen
+Öffentlich gelieferte Project-Daten und Snapshots werden nicht außerhalb der Operationen mutiert. Unveränderte Teilstrukturen behalten stabile Referenzen, wo sinnvoll. Keine vollständige Tiefenkopie bei jedem Pointer-Event aus Architekturprinzip.
 
-Bestehenden Export schrittweise aus Browser-/UI-Abhängigkeiten lösen.
+IDs werden an Erstellungsgrenzen erzeugt; mehrfache Erzeugung kann einen kleinen Generator erhalten. Technische IDs bleiben von ERP-Fachcodes getrennt.
 
-Einführen:
+### 7.3 History und Reaktivität
 
-```text
-Export Validation
-SoftENGINE Export Preparation
-strukturierte Diagnostics
-```
-
-Noch keine künstliche Multi-Target-Architektur.
+Vorhandene Snapshot-History, Transaktionen, Gestenklammern und `useSyncExternalStore` weiterverwenden. Keine erneute Einführung derselben Infrastruktur.
 
-## Phase 9 – SoftENGINE Emitter klar isolieren
+History enthält Project und die benötigte Session, keine Dialoge, Notifications oder Laufzeit-Schreibstände. Sie bleibt begrenzt.
 
-SoftENGINE-Ausgabe in pure Funktionen zerlegen:
+Transaktionen brauchen neben Gruppierung klare Regeln: keine leeren Undo-Schritte; unveränderte Gesten löschen Redo nicht; expliziter Abbruch stellt den Ausgangszustand wieder her; Ende/Unmount schließt eine offene Geste genau einmal. Unabhängige Befehle dürfen nicht unbemerkt in eine laufende Geste fallen. Fehler veröffentlichen keine teilweise konsistente fachliche Mehrfachänderung. Undo während einer offenen Geste erhält eine definierte Behandlung.
 
-```text
-HTML
-CSS
-SE-Variablen
-Runtime-Artefakte
-```
+Fachliche Mehrfachänderungen werden konsistent veröffentlicht. UI-Subscriptions sehen keinen Baum mit schon entfernten Quellen bei noch unveränderten Referenzen. Granularere Hooks nur bei gemessenem Nutzen und mit stabilen Snapshots.
 
-Gemeinsame Preparation nicht duplizieren. Golden Master bleibt grün.
+### 7.4 Persistenz
 
-## Phase 10 – Live SoftENGINE Adapter
+Bestehende Dateikennung `aufbau-editor-maske`, Dateiversion 2 und die tatsächlich im Zielrepository unterstützte Schemaversion bleiben zunächst Vertrag. Im Original war Schemaversion 8 vorhanden. Kein Neustart als V1 und kein automatisches Versprechen, sämtliche historischen Versionen lesen zu können.
 
-Bridge nach realen Verantwortlichkeiten entwirren. Globale SoftENGINE APIs an den Rand verschieben. Lifecycle und `dispose()` einführen. Echte Contract Fixtures verwenden.
+Versionierte DTOs sind vom In-Memory-Project getrennt. Reiner ProjectCodec: parse, Schema prüfen, decode/encode, stringify. Historische optionale Felder erhalten versionsfeste Defaults, nicht wechselnde Manifest-Defaults. Aktuelle Neuerstellungsdefaults, historische Decode-Defaults und Lit-Laufzeitinitialwerte werden unterschieden.
 
-## Phase 11 – Runtime Builder modernisieren
+Neue Einheiten-/Formelkonfiguration benötigt eine explizite Format-/Schemaentscheidung mit Tests für bisher unterstützte Projekte. Keine allgemeine Migrationsengine ohne konkrete Migration.
 
-Sourcecode-Regex und harte Architekturannahmen schrittweise entfernen. Strukturierte Blockinformationen als Quelle verwenden. Bestehende globale Namen und Runtime-Verträge bewusst bewahren beziehungsweise kontrolliert ändern.
+AutosaveStore und FileIO behandeln rohe Daten und I/O; Validierung gehört zum Codec/Application-Fluss. Der Browser-Wiederherstellungsstand darf zusätzlich die Session enthalten. Projektdatei und Autosave müssen nicht dieselbe äußere Hülle besitzen; beide verwenden denselben fachlichen Project-Codec.
 
-## Phase 12 – Architekturgrenzen härten
+Fehlgeschlagenes Laden ersetzt das aktuelle Projekt nicht. Ein unlesbarer Browserstand wird nicht durch einen nachfolgenden Autosave überschrieben, solange sein Erhalt oder eine bewusste Verwerfung nicht geklärt ist. Notfallkopien und Speicherfehler bleiben ehrlich sichtbar. Autosave unterscheidet fachliche Änderungen von UI-Änderungen; Timer besitzen Flush/Cleanup und speichern keinen abgebrochenen Zwischenstand als endgültiges Projekt.
 
-ESLint-Regeln ergänzen, Zyklen entfernen, alte Registries löschen, Übergangsadapter entfernen, toten Code und veraltete Pfade entfernen.
+### 7.5 Blocks, Catalog und DOM
 
----
+Fachliche Manifeste enthalten Typ, sichere Neuerstellungsdefaults, Property-Regeln, Layout/Children, Bindings, Events und tatsächliche Fähigkeiten. React/Lit/DOM/Icons/Inspector-Komponenten gehören nicht hinein. Keine Sammlung vorsorglicher Boolean-Capabilities.
 
-# 60. Definition of Done
+Renderer-Metadaten und Editor-Metadaten sind getrennt, über Blocktyp zugeordnet. Ein Catalog wird explizit erzeugt, prüft doppelte Typen und wird anschließend nicht mutiert. Seine Manifeste und Defaults dürfen ebenfalls nicht gemeinsam veränderbar sein.
 
-Der Refactor ist abgeschlossen, wenn:
+Lit kennt das Manifest. Das Manifest entsteht nicht aus der Lit-Klasse. Registrierung fachlicher Metadaten wird von `customElements.define` getrennt.
 
-### Project
-Es existiert genau ein klares persistierbares In-Memory-Fachmodell.
+Manifeste, Exportdefaults und Lit-Initialwerte müssen zusammenpassen. Wenn der Export Defaultwerte weglässt, muss die Runtime exakt dieselbe Bedeutung herstellen.
 
-### Source of Truth
-Jede fachliche Information besitzt genau einen authoritative State.
+React und Lit dürfen verschachtelt sein, aber niemals dieselben DOM-Knoten gegeneinander verwalten. React-Portale/Light DOM und Lit-Shadow-DOM brauchen ausdrückliche Eigentümerschaft. Kommunikation über Daten, Properties und definierte Events.
 
-### Session
-Editor-only-State ist vom Project getrennt und enthält keine ungültigen Referenzen.
+Generische Boundary-Typen werden nach Validierung konkret. Kein dauerhaftes `Record<string, unknown>` im gesamten Feature, keine unnötige Typakrobatik. Bestehende Vererbung wird nur bei nachgewiesenem Vorteil durch Composition ersetzt.
 
-### History
-Undo/Redo arbeitet entlang sinnvoller Benutzeraktionen und erzeugt keine Event-Lawinen.
+### 7.6 Export und Runtime-Builder
 
-### Editor
-Der Editor koordiniert, enthält aber keine Persistenz-, Export- oder SoftENGINE-Infrastruktur.
+`prepareSoftEngineExport` berechnet gemeinsam verwendete Quellen, Felder, Relationen, Bindings, Events, Layout und Runtime-Anforderungen. Keine vorab erfundene Universal-IR. Strukturierte Fehler/Warnungen nennen betroffene Objekte. Der bestehende Dateiformvalidator bleibt für Dateiform zuständig; fachliche Prüfung wird nicht damit verwechselt.
 
-### Core
-Frameworkfrei, browserfrei und SoftENGINE-frei.
+Pure Emitter erzeugen Artefakte; Browserdownload/Übertragung liegt außen. Bestehende Verpackung, Dateinamen, Einbettung, ASCII/LF-Regeln und SoftENGINE-Marker bleiben geschützt. Interne Teilung in CSS/Runtime darf nicht versehentlich zusätzliche externe Dateien oder Nachladeabhängigkeiten erzeugen.
 
-### Blocks
-Fachliche Blockbeschreibung funktioniert ohne Lit, React und DOM.
+Der Buildervertrag umfasst Ordner, `blockType`, Imports/Re-Exports, Teilabhängigkeiten, Ladereihenfolge und `FF.*`-Namen. Vor jedem betroffenen Schritt wird dessen Auswirkung geprüft. Eine Manifest-Liste allein ersetzt keine Abhängigkeitsanalyse.
 
-### Catalog
-Kein versteckter global mutierbarer Registry-State.
+Ziel: explizite Runtime-Einstiege und strukturierte Block-/Teilzuordnung; Modulabhängigkeiten möglichst aus dem aufgelösten Bundlergraphen, andernfalls bewusst aus geeigneter strukturierter Analyse. Keine neue Regex über verschobene TS-Dateien. Externe globale Verträge von internen Verbindungen gemeinsam ausgelieferter Teile unterscheiden.
 
-### React / Lit
-Beide besitzen klar getrennte DOM-Bereiche.
+Übergangsadapter dürfen den bisherigen Builder bedienen, besitzen aber eine eindeutige Quelle und konkrete Löschbedingung. Kein Catalog zieht versehentlich alle Renderer in jeden Export.
 
-### Persistenz
-Serialized DTOs sind vom In-Memory-Project getrennt.
+### 7.7 Live-Adapter
 
-### Versionierung
-Formatversionierung existiert ausschließlich an Persistenzgrenzen.
+SoftENGINE-Anbindung nur entlang realer Verantwortungen schneiden: Empfang, Commands/Refresh, Antworten/Meldungen, Fokus. Kleine konsumentenbezogene Ports. Externe Daten an der Grenze prüfen, echte anonymisierte Fixtures verwenden.
 
-### Loading
-Bekannte Kompatibilitätsfälle werden kontrolliert unterstützt; beschädigte Daten werden nicht stillschweigend gesundgelogen.
+Verbindung, Listener, Timer, Subscriptions und Polling besitzen einen klaren Besitzer und `dispose`. Reconnect, HMR und Unmount erzeugen keine Doppelanmeldung. Späte Antworten nach Dispose oder Kontextwechsel werden nicht auf einen neuen Zustand angewendet. Fokus und lokale Eingaben überleben passende ERP-Pushes.
 
-### Export
-Export Preparation und SoftENGINE Emitter sind headless.
+## 8. Ausführbare Reihenfolge nach Phase 0
 
-### SoftENGINE
-SoftENGINE ist äußeres Zielsystem beziehungsweise Adapter.
+**Planungsschritt P – Produkt- und Designvertrag:** Bestand/Entscheidungen, konkrete Berechnungsgruppe, Tabellenübergänge und visuelle Entwürfe aus Kapitel 2–6 fertigstellen. Offene Produktfragen gebündelt entscheiden. Erst danach Freigabe der Umsetzung.
 
-### Tabellen
-Sichtbarkeit und physikalische ERP-Spaltenposition können nicht versehentlich verwechselt werden.
+**1 – Project/Session/History:** Eine Wahrheit, zentrale Reconciliation, Mutationsschutz und konsistente Mehrfachänderungen. Vorhandene Transaktionen auf echte Lücken prüfen. Abnahme: Load/Edit/Undo/Save, Pages, Quellen/Relationen, unveränderte und abgebrochene Gesten.
 
-### Runtime
-Builder benötigt keine Regex über TypeScript-Quellcode, um Architekturinformationen zu entdecken.
+**2 – Persistenz:** Bestehenden Vertrag hinter Codec, Autosave und FileIO abtrennen. Session-Wiederherstellung und Notfallkopien bewahren. Abnahme: Roundtrip, unterstützte alte Dateien, kaputte/unbekannte Daten, gescheiterter Speicher und Abbruch.
 
-### Tests
-Wenige hochwertige Core-, Contract-, Persistenz-, Integration- und Golden-Tests schützen die relevanten Verträge.
+**3 – Vertikaler Button-Pilot:** Nur die benötigten puren Operationen und Grenzen extrahieren. Manifest, Catalog, Lit, Editor-Metadaten, Inspector, Codec, Export und Runtime-Builder als vollständigen Weg prüfen. Nötige Headless-/Builder-Grundlagen gehören hierher; sie werden nicht auf eine spätere Phase vertagt.
 
-### Architektur
-Keine zyklischen Hauptmodul-Abhängigkeiten.
+**4 – Komplexe Gegenprobe:** Tabelle/Erfassung einschließlich Spalten- und Quellenfähigkeiten über denselben Weg führen. Erst danach das Manifestmuster für ausreichend erklären. Keine neue allgemeine Abstraktion allein aus dem einfachen Button ableiten.
 
-### Cleanup
-Alte Registries, Übergangspfade, tote Adapter und Doppelimplementierungen sind entfernt.
+**5 – Tabelle und Berechnung vollständig:** Nach dem freigegebenen Bedienentwurf Schreibzustände und konkrete Berechnungsgruppe umsetzen. Datenauflösung, Einheiten, Config-UI, Persistenz, Vorbereitung/Export und Laufzeit gemeinsam abschließen. Bestätigungsregeln nur im Rahmen nachgewiesener Hostfähigkeiten umsetzen. Neue Schemaänderung ausdrücklich behandeln.
 
----
+**6 – Kanban vollständig:** Board/Muster/Spalten/Unterteilungen und Card migrieren und den festgelegten Bearbeitungsmodus umsetzen. Eine Vorlage, korrekte Zuordnung, reale Laufzeitkarten und Undo prüfen.
 
-# 61. Entscheidungsregel während der Umsetzung
+**7 – Übrige Blocks:** Kleine vollständige Scheiben für Text/Trenner/Datum, Formfeld, Navigation/Ansicht/Popup und verbleibende Layoutblocks. Jeweils Editor, Codec, Export und Runtime fertigstellen, bevor der nächste zusammenhängende Bereich beginnt.
 
-Wenn während des Refactors festgestellt wird, dass eine geplante Abstraktion mehr Dateien erzeugt, mehr Weiterleitungen benötigt, schwerer zu verstehen ist oder nur für hypothetische Zukunftsfälle existiert und kein aktuelles Problem löst, wird sie nicht umgesetzt.
+**8 – Gemeinsame Infrastruktur abschließen:** Noch verbliebene Export- und Adapterkopplungen entfernen, Runtime-Builder-Übergang vollständig ablösen, beide Composition Roots abschließen. Diese Phase vervollständigt die bereits funktionierenden Pfade; sie ist kein später Reparaturtermin für unvollständige Piloten.
 
-Wenn die reale Codebasis eine bessere natürliche Grenze zeigt als dieser Plan, wird der Plan angepasst.
+**9 – Oberfläche konsolidieren:** Den bereits vorab festgelegten Shell-/Inspector-Entwurf über alle migrierten Funktionen vollständig anwenden. Responsivität, Fokus, Tastatur und Fehlerdarstellung prüfen. Keine grundlegende Bedienentscheidung erst jetzt erfinden.
 
-Dieser Plan ist eine Architekturleitlinie, kein religiöser Text.
+**10 – Abschluss:** Verbleibende Übergangswege löschen, Architekturgrenzen und CI vervollständigen, Dokumentation und Abnahmen abschließen. Cleanup erfolgt zusätzlich laufend in jeder Phase.
 
----
+Jedes Paket nennt Zielverhalten, betroffene Dateien/Verträge, Abhängigkeiten, konkrete Prüfung und Löschbedingungen für Übergangscode. Ein fertig migrierter Bereich muss nutzbar sein. Kein Paket heißt nur „Dateien verschieben“.
 
-# 62. Zielbild für einen neuen Entwickler
+## 9. Tests, visuelle Prüfung und CI
 
-Nach dem Umbau soll sich das System ungefähr so erklären lassen:
+Die abgeschlossenen Phase-0-Referenzen schützen Ausgangsverhalten. Bewusste UX-/Fachänderungen erhalten überprüfte neue Erwartungen; Golden-Dateien werden nicht pauschal erneuert, nur damit Tests grün werden.
 
-```text
-Project enthält die Maske.
+Gezielte Prüfungen:
 
-Editor verwaltet Project, Session und History.
+- Core: Delete/Duplicate/Move, Raster, Pages, Property-Cleanup, Referenzen, History-Grenzen.
+- Block Contracts: gültige Defaults, Fähigkeiten, Property-Bezüge, Parent-/Child-Regeln und Zuordnung zu Runtime/Renderer. Keine tautologischen Tests pro Getter oder Property.
+- Codec: unterstützte Versionen, Roundtrip, versionsfeste Defaults, defekte Struktur, ungelöste zulässige Entwürfe, unbekannte Version.
+- Export: Quellen-/Feldsammlung einschließlich Formel-only-Felder, Bindings, Relationen, Events, Layout, Runtime-Auswahl, Dateiform.
+- Live: echte Contract-Fixtures, relevante Lieferungen, Fehler, späte Antworten und Dispose.
+- Integration: Load/Edit/Undo/Save; Add/Edit/Export; Page Delete/Undo; Quelle/Relation/Export; Rechnung mit Datensatzwechsel; Kanban-Muster.
 
-Pure Core-Funktionen verändern das Project.
+Der vorhandene HTML-Golden-Test entfernt das Runtime-Skript. Der vorhandene Runtime-Test prüft Reproduzierbarkeit. **Beides zusammen beweist nicht unverändertes Runtime-Verhalten.** Deshalb wenige Browser-Smokes mit dem tatsächlich exportierten HTML: Custom-Element-Registrierung, verschachtelte Container, Bindings, Actions und Datenlieferungen. Echte Hostsemantik weiterhin getrennt in SoftENGINE prüfen.
 
-BlockManifest beschreibt fachliche Eigenschaften der Bausteine.
+Sichtproben erweitern: Hauptansicht, normal/geändert/ausstehend/fehlerhaft, Zellherkunft, Berechnungsdialog mit allen vier Richtungen und Fehler, Kanban normal/Muster, Inspector schmal/breit, Exportmenü, leere und umfangreiche Maske.
 
-BlockCatalog kennt die verfügbaren Bausteintypen.
+Performance mit repräsentativem Projekt und langen Tabellen messen: flüssige Eingabe, keine unnötigen Gesamtrenders, keine wiederholte vollständige Formel-/Quellenauswertung pro Zelle, keine Listener- oder Timerlecks. Grenzwerte aus realen Ausgangsmessungen festlegen.
 
-React baut die Editoroberfläche.
+CI mindestens TypeScript, ESLint, Tests einschließlich Contracts/Golden, Runtime-Build und Application-Build. Keine unnötige Matrix. Grüne lokale Scripts sind kein Nachweis, dass CI bereits eingerichtet ist.
 
-Lit rendert die Maskenbausteine.
+## 10. Abschlusskriterien
 
-ProjectCodec übersetzt zwischen Dateiformat und Project.
+- Genau eine fachliche Project-Wahrheit, separate konsistente Session und zuverlässige Snapshot-History.
+- Pure Operationen und headless Export; klare kleine Adapter und getrennte Startpunkte für Editor/Maskenruntime.
+- Frameworkfreie Manifeste, unveränderlicher Catalog, keine konkurrierenden Defaultquellen oder Legacy-Registries.
+- Unterstützte Projekte bleiben ladbar; neue Schemaänderungen sind ausdrücklich behandelt; Autosave verliert keine unlesbaren Daten stillschweigend.
+- Der Anwender versteht Zellherkunft und Schreibstatus. Unbekannter Ausgang wird nicht als Fehler oder Erfolg ausgegeben.
+- Die konkrete Vier-Wege-Berechnung funktioniert mit Datenfeldern, passender Zeile, Einheiten, Rundung und exportierter Ausgabe ohne Hilfsspalten/Verpackungslogik.
+- Kanban-Muster ist verständlich bearbeitbar; genau eine Vorlage versorgt die Laufzeitkarten.
+- Hauptoberfläche und komplexe Dialoge besitzen visuell und praktisch geprüfte Gestaltung.
+- Runtime-Builder benötigt keine TS-Quelltext-Regex zur Architekturentdeckung; externe Verträge bleiben geschützt.
+- Gezielte Tests, Browser-Smokes, notwendige SoftENGINE-Echttests und CI sind nachweisbar abgeschlossen.
+- Übergangscode, tote Adapter und alte maßgebliche Planverweise sind entfernt.
 
-Export Preparation berechnet die für SoftENGINE benötigte Semantik.
+## 11. Offene Entscheidungen und Grenzen
 
-SoftENGINE Emitter erzeugen daraus die Exportartefakte.
+Vor Umsetzung zu klären, ohne den Nutzer mit technischen Detailfragen zu belasten:
 
-Adapter kümmern sich um Browser und das laufende ERP-System.
+1. Eindeutiger Datensatzbezug und gültige Feldlänge der Behandlungseinheit; passende fachliche Zeitbasis der Behandlungsmenge.
+2. Zulässige Ergebnispräzision für Tiere/Tage und gewünschtes Verhalten manueller Werte beim Datensatzwechsel.
+3. Tatsächliche Nachweis-/Wiederholungsmöglichkeiten der schreibenden SoftENGINE-Aktionen.
+4. Sichtbare Bezeichnung der Kanban-Unterteilung und Freigabe der konkreten Designentwürfe.
 
-Bootstrap steckt alles zusammen.
-```
+Der Agent liefert jeweils einen begründeten Vorschlag und stellt gebündelte, verständliche Produktfragen. Fehlende echte ERP-Nachweise werden nicht geraten. Architekturentscheidungen mit überschaubarem, reversiblem Einfluss trifft der Agent innerhalb dieses Plans selbst.
 
-Wenn man für diese Erklärung ein Architekturdiagramm mit 27 Kästen benötigt, ist der Refactor zu kompliziert geworden.
+Die bisherige Remote-Analyse hat weder Build/Tests ausgeführt noch die Oberfläche praktisch gesehen. Lokale Prüfungen des Originals sind kein Nachweis für den genannten Remote-Commit. Diese Grenzen bleiben bei der Übergabe sichtbar.
 
----
+## 12. Übernahme des ursprünglichen EditorAufbauV3
 
-# 63. Arbeitsregel für Codex-Chats
+| Ursprüngliche Abschnitte | In dieser Fassung |
+|---|---|
+| 0–3 Ziel, Abhängigkeiten, keine Großabstraktionen, eine Wahrheit | 1, 7.1, 7.2 |
+| 4–11 Project, Invarianten, Session, History, Fassade, pure Operationen, Issues, IDs | 7.2–7.3 |
+| 12–17 DTO, Codec, kompatibles Laden, Versionen, Autosave, FileIO | 7.4 |
+| 18–23 Manifest, Defaults, Metadatentrennung, Catalog | 7.5 |
+| 24–26 React/Lit, Reaktivität, komplexe Editor-UIs | 3, 7.3, 7.5 |
+| 27–29 Spaltenordinalität, Actions, Layout | 4.3, 7.1–7.2, 7.6 |
+| 30–36 konkrete Preparation/Emitter, headless, Diagnostics, Golden | 7.6, 9 |
+| 37–42 Live-Adapter, Ports, Lifecycle, Datenprüfung, Builder | 4.2, 7.6–7.7 |
+| 43–48 Struktur, Bootstrap, Importregeln, Zyklen, Barrels, Typen | 7.1, 7.5 |
+| 49–56 Testphilosophie, Contracts, Core/Export/Persistenz/Integration, CI | 9 |
+| 57–59 vertikale Migration, Übergangscode, Phasen | 8 |
+| 60–62 DoD, Nutzen statt Architekturtheater, verständliches Zielbild | 1, 10–11 |
+| 63 Arbeitsregel für Refactoring-Chats im bisherigen Repo-Plan | 13 |
 
-Jeder Refactoring-Chat liest diesen Plan vollständig, bearbeitet aber **nur seine ausdrücklich zugewiesene Phase**.
+Die ursprüngliche eigenständige Einführung von History-Transaktionen und `useSyncExternalStore` entfällt, weil diese Grundlagen bereits existieren. Die Beispiel-Dateiversion V1 wird durch den tatsächlichen bestehenden Vertrag ersetzt. „SoftENGINE-frei“ wird auf Infrastrukturabhängigkeiten präzisiert. Die Phasenfolge wird durch Kapitel 8 ersetzt. Design- und Fachentscheidungen werden vorgezogen; ihre Implementierung erfolgt in vollständigen vertikalen Paketen.
 
-Jeder Chat muss:
+Das Endsystem soll kurz erklärbar bleiben: Project enthält die Maske. Editor koordiniert Project, Session und History. Pure Funktionen ändern fachliche Daten. Manifeste beschreiben Blocks. React bedient, Lit rendert. Codec übersetzt Dateien. Preparation und Emitter erzeugen SoftENGINE-Artefakte. Adapter verbinden Browser und ERP. Klare Startpunkte setzen die Teile zusammen.
 
-1. den tatsächlichen Repository-Zustand selbst verifizieren,
-2. sich nicht blind auf Ergebnisse früherer Chats verlassen,
-3. vor Änderungen relevante Konsumenten und bestehende Verträge finden,
-4. keine spätere Phase eigenmächtig beginnen,
-5. relevante Tests, Typechecks und Builds ausführen,
-6. am Ende offen dokumentieren, was geändert wurde und was absichtlich noch nicht migriert ist.
+## 13. Arbeitsregel für umsetzende Chats
 
-Der reale Code ist maßgeblich. Dieser Plan setzt Leitplanken, ersetzt aber keine Prüfung der tatsächlichen Implementierung.
+Jeder umsetzende Chat liest diese Fassung vollständig und bearbeitet nur das ausdrücklich zugewiesene Paket. Er bestätigt den aktuellen Repository-Stand, prüft betroffene Konsumenten und Verträge, führt passende Checks aus und beginnt keine spätere Phase eigenmächtig. Abschließend nennt er Änderungen, Prüfergebnisse, verbleibende Grenzen und absichtlich noch vorhandene Übergangspfade. Vorherige Chatberichte ersetzen keine Prüfung des aktuellen Codes. Maßgeblich sind dieser Plan und ausdrücklich nachfolgende Nutzerentscheidungen.
