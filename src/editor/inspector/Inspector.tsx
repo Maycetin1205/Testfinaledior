@@ -4,7 +4,12 @@ import { Copy, MousePointer2 } from '@/ui/zeichen'
 import { eigenschaftenFuer } from '../../core/blocks/eigenschaftsOrt'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
 import { type PropertyDescription } from '../../core/blocks/PropertyDescription'
-import { darfAuswahlFolgen, kannRechnen, traegtEigeneQuelle } from '../../core/blocks/treeQuery'
+import {
+  darfAuswahlFolgen,
+  kannGruppenRechnen,
+  kannRechnen,
+  traegtEigeneQuelle,
+} from '../../core/blocks/treeQuery'
 import { useDataSources } from '../../state/useDataSources'
 import { useEditor } from '../../state/useEditor'
 import { Gruppe } from '@/ui/werkbank/Gruppe'
@@ -14,6 +19,7 @@ import { bausteinName } from '../../core/blocks/bausteinName'
 import { useAbschnitt } from './abschnittStand'
 import { AktionenSektion } from './AktionenSektion'
 import { AuswahlFolgeSektion } from './AuswahlFolgeSektion'
+import { BerechnungSektion } from './BerechnungSektion'
 import { PropControl } from './PropControl'
 import { QuellenListe } from './QuellenListe'
 import { RechnungSektion } from './RechnungSektion'
@@ -189,6 +195,7 @@ export function Inspector() {
 
         {/* Zielbild-Reihenfolge: ... Aktionen -> Rechnung (nur die Erfassung). */}
         {kannRechnen(block) && <RechnungSektion block={block} />}
+        {kannGruppenRechnen(block) && <BerechnungSektion block={block} />}
 
         {generalProps.length === 0 && !showDataSection && !hatAktionen
           && !darfAuswahlFolgen(block) && (

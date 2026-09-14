@@ -1,5 +1,6 @@
 // Haelt Tipp-Lauf und erfasste Zeilen einer Tabelle zusammen.
 import type { GeschriebeneZeile, Lieferung } from '../../core/blocks/BlockDefinition'
+import type { Berechnung } from '../../core/data/berechnung'
 import { verknuepfungenVon } from '../shared/fremdeQuellen'
 import { ankunftPruefen, fehlenMeldung, type FehlendeZeile } from './ankunft'
 import { ErfassungsLauf } from './erfassungsLauf'
@@ -67,11 +68,17 @@ export class ErfassungsAnschluss {
     return this._zeilen.map((z) => z.kennung)
   }
 
-  umfeld(el: HTMLElement, spalten: readonly ErfassungsSpalte[], quelleId: string): ErfassungsUmfeld {
+  umfeld(
+    el: HTMLElement,
+    spalten: readonly ErfassungsSpalte[],
+    quelleId: string,
+    berechnungen: readonly Berechnung[],
+  ): ErfassungsUmfeld {
     const verknuepfungen = verknuepfungenVon(el)
     return {
       baustein: el,
       spalten,
+      berechnungen,
       quelleId,
       paareZu: (id) => verknuepfungen.find((v) => v.quelleId === id)?.keyPairs ?? [],
       partnerVon: (id) => verknuepfungen.find((v) => v.quelleId === id)?.partnerId ?? '',

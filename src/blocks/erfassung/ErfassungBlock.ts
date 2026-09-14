@@ -20,6 +20,7 @@ import { OHNE_SCHMUCK, type Unterzeilen, type Zeilenschmuck } from '../shared/ze
 import { schliesseNachschlagenFuer } from '../tabelle/nachschlagen'
 import { hatSatzNummer } from '../tabelle/seRuntime'
 import { standardSpalten } from '../tabelle/spalten'
+import { BERECHNUNGEN_PROP, berechnungenAus, type Berechnung } from '../../core/data/berechnung'
 import { TabelleBlock } from '../tabelle/TabelleBlock'
 import { ErfassungsAnschluss } from './erfassungsAnschluss'
 import { erfassungsZeileFuer, type ErfassungsWirt } from './erfassungsBedienung'
@@ -60,6 +61,8 @@ export class ErfassungBlock extends TabelleBlock {
 
   static readonly kannErfassen: ErfassungsFaehigkeit = {}
 
+  static readonly rechenGruppen = { prop: BERECHNUNGEN_PROP }
+
   static readonly aenderungsSchluessel = 'aenderbar'
 
   static readonly kannLoeschen: ErfassungsFaehigkeit = {
@@ -86,6 +89,7 @@ export class ErfassungBlock extends TabelleBlock {
     ...TabelleBlock.defaultProps,
     spalten: standardSpalten(),
     loeschbar: 'nein',
+    [BERECHNUNGEN_PROP]: [],
   }
 
   static override readonly customProperties = ERFASSUNG_EIGENSCHAFTEN
@@ -107,6 +111,21 @@ export class ErfassungBlock extends TabelleBlock {
   override spalten: ErfassungsSpalte[] = standardSpalten()
 
   @property() loeschbar = 'nein'
+
+  @property({
+    converter: {
+      fromAttribute: (v: string | null): Berechnung[] => {
+        if (!v) return []
+        try {
+          return berechnungenAus(JSON.parse(v))
+        } catch {
+          return []
+        }
+      },
+      toAttribute: (v: Berechnung[]): string => JSON.stringify(v),
+    },
+  })
+  berechnungen: Berechnung[] = []
 
   private readonly _erfassung = new ErfassungsAnschluss()
 
@@ -197,7 +216,12 @@ export class ErfassungBlock extends TabelleBlock {
   }
 
   private erfassungsUmfeld(): ErfassungsUmfeld {
-    return this._erfassung.umfeld(this, this.spaltenListe(), this.source)
+    return this._erfassung.umfeld(
+      this,
+      this.spaltenListe(),
+      this.source,
+      berechnungenAus(this.berechnungen),
+    )
   }
 
   private erfassungsWirt(): ErfassungsWirt {
