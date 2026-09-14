@@ -4,6 +4,7 @@ import { property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BasicBlock } from '../base/BasicBlock'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Berechnung } from '../../core/data/berechnung'
 import type { ListenBindung, SatzWahl } from '../../core/blocks/BlockDefinition'
 import { geberIdVon, setzeAuswahl } from '../shared/auswahl'
 import { LEER_TEXT_STANDARD, leerStil } from '../shared/leerZustand'
@@ -148,7 +149,7 @@ export class TabelleBlock extends BasicBlock {
   }
 
   set bereitgestellteZeilen(zeilen: readonly BereitgestellteZeile[]) {
-    const abgeleitet = leiteZeilenAb(zeilen, this.spaltenListe())
+    const abgeleitet = leiteZeilenAb(zeilen, this.spaltenListe(), this.berechnungsListe())
     this.rohzeilen = abgeleitet.rohzeilen
     this.datenzeilen = abgeleitet.datenzeilen
     this.datenGeliefert = true
@@ -186,6 +187,11 @@ export class TabelleBlock extends BasicBlock {
 
   protected spaltenListe(): Spalte[] {
     return coerceSpalten(this.spalten)
+  }
+
+  // Die Liste rechnet nicht; eine erbende Tabelle bringt ihre Berechnungen mit.
+  protected berechnungsListe(): readonly Berechnung[] {
+    return []
   }
 
   private get zeilenHoehe(): number {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   berechnungenAus,
   berechnungsMaengel,
+  ergaenzeZeile,
   einheitenProbe,
   rechneBerechnung,
   richtungAlsText,
@@ -194,5 +195,48 @@ describe('Aufbau', () => {
     const zurueck = berechnungenAus(JSON.parse(JSON.stringify([gruppe()])))
     expect(zurueck).toHaveLength(1)
     expect(rechne(zurueck[0], VOLL)).toMatchObject({ art: 'ergebnis', zahl: 4.8 })
+  })
+})
+
+describe('eine ganze Zeile', () => {
+  const doppelt: Berechnung = {
+    kennung: 'b1',
+    name: 'Doppelt',
+    leit: { art: 'spalte', kennung: 'f0', spalte: 'k3', einheit: 'anzahl', ergebnis: true, runden: { stellen: 2, richtung: 'kfm' } },
+    zaehler: [
+      { art: 'spalte', kennung: 'f1', spalte: 'k1', einheit: 'anzahl', ergebnis: false, runden: { stellen: 3, richtung: 'kfm' } },
+      { art: 'spalte', kennung: 'f2', spalte: 'k2', einheit: 'anzahl', ergebnis: false, runden: { stellen: 3, richtung: 'kfm' } },
+    ],
+    nenner: [],
+  }
+  const mitSteuer: Berechnung = {
+    kennung: 'b2',
+    name: 'Mit Steuer',
+    leit: { art: 'spalte', kennung: 'f0', spalte: 'k4', einheit: 'anzahl', ergebnis: true, runden: { stellen: 2, richtung: 'kfm' } },
+    zaehler: [
+      { art: 'spalte', kennung: 'f1', spalte: 'k3', einheit: 'anzahl', ergebnis: false, runden: { stellen: 3, richtung: 'kfm' } },
+      { art: 'zahl', kennung: 'f2', name: '1,19', zahl: 1.19, einheit: 'anzahl' },
+    ],
+    nenner: [],
+  }
+  const platzVon = (k: string): number => ['k1', 'k2', 'k3', 'k4'].indexOf(k)
+  const zahl = (t: string): number | null => (/^-?\d+(,\d+)?$/.test(t) ? Number(t.replace(',', '.')) : null)
+  const texte = (werte: ReadonlyMap<number, { text: string }>): Record<number, string> =>
+    Object.fromEntries([...werte].map(([p, w]) => [p, w.text]))
+
+  it('fuellt die Ergebnisspalten einer gelieferten Zeile, auch eine aus der anderen', () => {
+    const werte = ergaenzeZeile([doppelt, mitSteuer], platzVon, (p) => ['5', '2', '', ''][p], zahl)
+    expect(texte(werte)).toEqual({ 2: '10', 3: '11,9' })
+  })
+
+  it('laesst die Zelle leer, wo eine Groesse keine Zahl ist', () => {
+    const werte = ergaenzeZeile([doppelt], platzVon, (p) => ['—', '2', ''][p], zahl)
+    expect(werte.size).toBe(0)
+  })
+
+  it('haelt zwei Berechnungen an, die einander brauchen', () => {
+    const a: Berechnung = { ...doppelt, zaehler: [{ art: 'spalte', kennung: 'f1', spalte: 'k4', einheit: 'anzahl', ergebnis: false, runden: { stellen: 3, richtung: 'kfm' } }] }
+    const werte = ergaenzeZeile([a, mitSteuer], platzVon, () => '', zahl)
+    expect(werte.size).toBe(0)
   })
 })

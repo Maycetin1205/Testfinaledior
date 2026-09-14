@@ -4,7 +4,7 @@ import { pruefeRelationsVorlagen, type RelationTemplate } from '../core/data/rel
 import { BEREICH_QUELLEN, BEREICH_RELATIONEN } from '../core/data/ladeProblem'
 import { bibliothekPruefen } from './bibliothekDatei'
 import { pruefeBaumStand } from './ladeKette'
-import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
+import { CURRENT_SCHEMA_VERSION, schemaLesbar } from './maskenSchema'
 import { meldungen } from './meldungen'
 import { kopieSatz, legeKopieAn, meldeSpeicherPanne, merkeSpeicherErfolg, sichereUnlesbaren } from './notfallkopie'
 
@@ -30,14 +30,14 @@ export function loadFromStorage(): LoadedState | null {
     const parsed: unknown = JSON.parse(raw)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Kein Maskenstand')
     const stand = parsed as Record<string, unknown>
-    if (stand.schemaVersion !== CURRENT_SCHEMA_VERSION) {
+    if (!schemaLesbar(stand.schemaVersion)) {
       const richtung = typeof stand.schemaVersion === 'number' && stand.schemaVersion > CURRENT_SCHEMA_VERSION
         ? 'einer neueren Version' : 'einem nicht unterstützten Format'
       meldungen.melde(`Die gespeicherte Maske stammt aus ${richtung}. Sie wurde nicht geladen. `
         + kopieSatz(STORAGE_KEY, legeKopieAn(STORAGE_KEY, raw)))
       return null
     }
-    const baum = pruefeBaumStand({ schemaVersion: CURRENT_SCHEMA_VERSION, tree: stand.tree, selectedId: stand.selectedId })
+    const baum = pruefeBaumStand({ schemaVersion: stand.schemaVersion, tree: stand.tree, selectedId: stand.selectedId })
     const quellen = bibliothekPruefen(stand.datenquellen, pruefeDatenquellen, BEREICH_QUELLEN)
     const relationen = bibliothekPruefen(stand.relationen, pruefeRelationsVorlagen, BEREICH_RELATIONEN)
     if (baum.art === 'abgelehnt' || !quellen.ok || !relationen.ok) {

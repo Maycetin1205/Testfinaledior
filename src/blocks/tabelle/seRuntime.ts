@@ -6,8 +6,9 @@ import { findRuntimeDataSource, satzIndexVon } from '../../softengine/data'
 import { auswahlWiederfinden, geberIdVon, merkmalVon, zeilenNachAuswahl } from '../shared/auswahl'
 import { macheDatenAnschluss } from '../shared/datenAnschluss'
 import { holeDatenVorspann, type DatenVorspann } from '../shared/datenVorspann'
-import { tryCoerceSpalten, type Spalte } from './spalten'
-import { zeileGerechnet } from './zeilenRechnung'
+import { berechnungenAus, ergaenzeZeile, type Berechnung } from '../../core/data/berechnung'
+import { alsZahl } from './sortierung'
+import { spalteMitKennung, tryCoerceSpalten, type Spalte } from './spalten'
 
 export interface RuntimeTableElement extends HTMLElement {
   datenzeilen: string[][]
@@ -33,6 +34,31 @@ function pruefeAnkunft(el: HTMLElement, vorspann: DatenVorspann | null): void {
 
 function spaltenVon(el: HTMLElement): Spalte[] {
   return tryCoerceSpalten(el.getAttribute('spalten') ?? '')
+}
+
+// Welche Tabelle rechnet, sagt die Registry; die Berechnungen stehen als
+// Eigenschaft am Element.
+function berechnungenVon(el: HTMLElement): Berechnung[] {
+  const prop = definitionFuerTag(el.tagName)?.rechenGruppen?.prop
+  return prop === undefined ? [] : berechnungenAus((el as unknown as Record<string, unknown>)[prop])
+}
+
+// Die Zeile, wie sie kam, und in jeder leeren Ergebnisspalte das Gerechnete.
+export function zeileGerechnet(
+  spalten: readonly Spalte[],
+  berechnungen: readonly Berechnung[],
+  gegeben: (platz: number) => string,
+): string[] {
+  const werte = ergaenzeZeile(
+    berechnungen,
+    (kennung) => spalteMitKennung(spalten, kennung),
+    gegeben,
+    alsZahl,
+  )
+  return spalten.map((_, platz) => {
+    const eigen = gegeben(platz)
+    return eigen !== '' ? eigen : werte.get(platz)?.text ?? ''
+  })
 }
 
 export function zeilenIndexVon(el: HTMLElement, rohzeile: unknown): string {
@@ -66,6 +92,7 @@ function hydrateTable(el: RuntimeTableElement, lieferung: boolean): void {
     return
   }
   const spalten = spaltenVon(el)
+  const berechnungen = berechnungenVon(el)
 
   const { rows, gefiltert } = zeilenNachAuswahl(el, vorspann.zeilen)
 
@@ -79,6 +106,7 @@ function hydrateTable(el: RuntimeTableElement, lieferung: boolean): void {
   el.durchAuswahlGefiltert = gefiltert
   el.datenzeilen = rows.map((row) => zeileGerechnet(
     spalten,
+    berechnungen,
     (platz) => {
       const feld = spalten[platz]?.feld ?? ''
       return feld === '' ? '' : lies(row, feld)
@@ -107,9 +135,10 @@ export interface AbgeleiteteZeilen {
 export function leiteZeilenAb(
   zeilen: readonly BereitgestellteZeile[],
   spalten: readonly Spalte[],
+  berechnungen: readonly Berechnung[],
 ): AbgeleiteteZeilen {
   return {
     rohzeilen: zeilen.map((z) => z.rohzeile),
-    datenzeilen: zeilen.map((z) => zeileGerechnet(spalten, (platz) => z.zellen[platz] ?? '')),
+    datenzeilen: zeilen.map((z) => zeileGerechnet(spalten, berechnungen, (platz) => z.zellen[platz] ?? '')),
   }
 }

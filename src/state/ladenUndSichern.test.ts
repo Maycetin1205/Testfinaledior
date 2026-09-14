@@ -223,3 +223,49 @@ test('ein unlesbarer Bibliothekseintrag verhindert einen gekuerzten Maskenstand'
   expect(speicher.getItem(STORAGE_KEY)).toBe(roh)
   expect(kopien(STORAGE_KEY).map((k) => speicher.getItem(k))).toEqual([roh])
 })
+
+test('eine Formel aus Schema 8 wird zur Berechnung mit der Spalte als Leitgroesse', () => {
+  const tree = {
+    ...wurzelBaum(['t1']),
+    t1: {
+      id: 't1', type: 'erfassung', parentId: ROOT_ID, childIds: [],
+      props: {
+        rasterX: 0, rasterY: 0, rasterW: 16, rasterH: 10,
+        spalten: [
+          { kennung: 's1', titel: 'Menge', feld: '164_8' },
+          { kennung: 's2', titel: 'Doppelt', feld: '', formel: { glieder: [{ spalte: 's1' }, { zahl: 2 }], zeichen: ['*'], runden: { stellen: 2, richtung: 'kfm' } } },
+        ],
+      },
+    },
+  }
+  const stand = pruefeBaumStand({ schemaVersion: 8, tree })
+  expect(stand.art).toBe('ok')
+  if (stand.art !== 'ok') return
+  const props = stand.baum.tree.t1.props as { spalten: Record<string, unknown>[]; berechnungen: Record<string, unknown>[] }
+  expect(props.spalten[1]).not.toHaveProperty('formel')
+  expect(props.berechnungen).toHaveLength(1)
+  expect(props.berechnungen[0]).toMatchObject({
+    name: 'Doppelt',
+    leit: { spalte: 's2', ergebnis: true, runden: { stellen: 2 } },
+    zaehler: [{ art: 'spalte', spalte: 's1', ergebnis: false }, { art: 'zahl', zahl: 2 }],
+  })
+})
+
+test('eine Formel mit Plus aus Schema 8 wird als benannter Verlust abgelehnt', () => {
+  const tree = {
+    ...wurzelBaum(['t1']),
+    t1: {
+      id: 't1', type: 'erfassung', parentId: ROOT_ID, childIds: [],
+      props: {
+        spalten: [
+          { kennung: 's1', titel: 'A', feld: '' },
+          { kennung: 's2', titel: 'Summe', feld: '', formel: { glieder: [{ spalte: 's1' }, { zahl: 1 }], zeichen: ['+'], runden: { stellen: 2, richtung: 'kfm' } } },
+        ],
+      },
+    },
+  }
+  const stand = pruefeBaumStand({ schemaVersion: 8, tree })
+  expect(stand.art).toBe('abgelehnt')
+  if (stand.art !== 'abgelehnt') return
+  expect(stand.probleme[0]?.grund).toContain('Summe')
+})

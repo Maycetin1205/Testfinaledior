@@ -103,18 +103,19 @@ export function referenzBaum(): BlockTree {
         { kennung: 'sp-art', titel: 'ArtNr', feld: '18_25', art: 'text' },
         { kennung: 'sp-bez', titel: 'Bezeichnung', feld: '45_60', art: 'text', fuellFeld: 'q-art::bez' },
         { kennung: 'sp-menge', titel: 'Menge', feld: '164_8', art: 'text', aenderbar: true },
-        {
-          kennung: 'sp-doppelt',
-          titel: 'Doppelt',
-          feld: '',
-          formel: {
-            glieder: [{ spalte: 'sp-menge' }, { zahl: 2 }],
-            zeichen: ['*'],
-            runden: { stellen: 2, richtung: 'kfm' },
-          },
-        },
+        { kennung: 'sp-doppelt', titel: 'Doppelt', feld: '' },
       ],
       loeschbar: 'ja',
+      berechnungen: [{
+        kennung: 'b1',
+        name: 'Doppelt',
+        leit: { art: 'spalte', kennung: 'f0', spalte: 'sp-doppelt', einheit: 'anzahl', ergebnis: true, runden: { stellen: 2, richtung: 'kfm' } },
+        zaehler: [
+          { art: 'spalte', kennung: 'f1', spalte: 'sp-menge', einheit: 'anzahl', ergebnis: false, runden: { stellen: 3, richtung: 'kfm' } },
+          { art: 'zahl', kennung: 'f2', name: '2', zahl: 2, einheit: 'anzahl' },
+        ],
+        nenner: [],
+      }],
     }),
     t2: knoten('t2', 'tabelle', ROOT_ID, {
       rasterX: 20, rasterY: 25, rasterW: 28, rasterH: 12,

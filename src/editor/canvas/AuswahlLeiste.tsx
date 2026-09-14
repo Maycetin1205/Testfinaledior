@@ -6,7 +6,7 @@ import type { BlockNode } from '../../core/blocks/BlockData'
 import { listeLesen, type BlockDefinition } from '../../core/blocks/BlockDefinition'
 import { useEditorInstance } from '../../state/EditorContext'
 import { wendeProps } from '../../state/propsPatch'
-import { firstDescendantOfType, kannGruppenRechnen } from '../../core/blocks/treeQuery'
+import { firstDescendantOfType, kannRechnen } from '../../core/blocks/treeQuery'
 import { eigenschaftenFuer } from '../../core/blocks/eigenschaftsOrt'
 import { Popover } from '@/ui/werkbank/Popover'
 import { PropControl } from '../inspector/PropControl'
@@ -113,7 +113,7 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
       )}
       {/* Die Berechnungen gehoeren an den Baustein, dessen Spalten sie rechnen,
           nicht in den Inspector zwischen Quellen, Felder und Ketten. */}
-      {kannGruppenRechnen(block) && (
+      {kannRechnen(block) && (
         <Knopf className="h-6 px-1.5 text-dicht" title="Berechnungen dieser Erfassung: drei Werte ergeben den vierten"
           onClick={() => oeffneBerechnungenFenster(block.id)}>
           <Link2 size={12} /> Berechnungen

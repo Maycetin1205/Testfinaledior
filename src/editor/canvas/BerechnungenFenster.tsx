@@ -42,7 +42,6 @@ function Fenster({ blockId }: { blockId: string }) {
   const spalten: Spaltenkopf[] = coerceSpalten(block.props.spalten).map((s) => ({
     kennung: s.kennung,
     titel: s.titel,
-    hatFormel: s.formel !== undefined,
   }))
   const quellen = quellenInReichweite(ed.tree, block.id, bibliothek)
 

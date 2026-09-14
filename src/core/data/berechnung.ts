@@ -1,8 +1,77 @@
-// Eine Berechnung der Erfassungszeile: EINE Produktgleichung, die sich nach
-// jedem ihrer Faktoren aufloesen laesst. Damit stehen alle Rechenrichtungen
-// einer Gruppe in einer Angabe, ohne dass irgendwo ein Gleichungsloeser stuende.
-import { bildAlsText, bilderGleich, bildMit, EINHEIT_STANDARD, einheitKurz, GROESSENBILD_LEER, inBasis, ausBasis, type Groessenbild } from './einheiten'
-import { rundeWert, zahlText, RUNDEN_STANDARD, STELLEN_MAX, type Rundung } from './rechnung'
+// Die Berechnung einer Tabellenzeile: EINE Produktgleichung ueber Spalten,
+// Datenfelder und feste Zahlen, die sich nach jeder ihrer Groessen aufloesen
+// laesst. Damit stehen alle Rechenrichtungen in einer Angabe, ohne dass irgendwo
+// ein Gleichungsloeser stuende.
+import {
+  ausBasis,
+  bildAlsText,
+  bilderGleich,
+  bildMit,
+  EINHEIT_STANDARD,
+  einheitKurz,
+  GROESSENBILD_LEER,
+  inBasis,
+  type Groessenbild,
+} from './einheiten'
+
+// ---- Zahlen und Rundung ----
+
+export type RundungsRichtung = 'auf' | 'ab' | 'kfm'
+
+export interface Rundung {
+  stellen: number
+  richtung: RundungsRichtung
+}
+
+export const RUNDEN_STANDARD: Rundung = { stellen: 3, richtung: 'kfm' }
+
+export const STELLEN_MAX = 6
+
+// Getippte Zahl, deutsch und STRENG: '0.750' bleibt ungelesen, denn raten hiesse
+// hier Faktor 1000.
+const STRENG = /^-?\d+(,\d+)?$|^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/
+
+export function zahlStreng(text: string): number | null {
+  const t = text.trim()
+  if (t === '' || !STRENG.test(t)) return null
+  const n = Number(t.replace(/\./g, '').replace(',', '.'))
+  return Number.isFinite(n) ? n : null
+}
+
+export function rundeWert(wert: number, runden: Rundung): number {
+  const f = Math.pow(10, Math.max(0, runden.stellen))
+  const x = wert * f
+  // Epsilon gegen Gleitkomma-Reste: 9.000000001 darf nicht auf 10 aufrunden.
+  const grob = runden.richtung === 'auf'
+    ? Math.ceil(x - 1e-9)
+    : runden.richtung === 'ab' ? Math.floor(x + 1e-9) : Math.round(x)
+  return grob / f
+}
+
+// Gerechnete Werte reisen ohne Tausender-Gruppierung, so liest jeder Parser sie
+// eindeutig zurueck.
+export function zahlText(wert: number, stellen: number): string {
+  return wert.toLocaleString('de-DE', {
+    useGrouping: false,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: Math.max(0, stellen),
+  })
+}
+
+export function alsRundung(roh: unknown): Rundung {
+  if (!roh || typeof roh !== 'object') return { ...RUNDEN_STANDARD }
+  const o = roh as Record<string, unknown>
+  const stellen = typeof o.stellen === 'number' && Number.isInteger(o.stellen)
+    && o.stellen >= 0 && o.stellen <= STELLEN_MAX
+    ? o.stellen
+    : RUNDEN_STANDARD.stellen
+  const richtung = o.richtung === 'auf' || o.richtung === 'ab' || o.richtung === 'kfm'
+    ? o.richtung
+    : RUNDEN_STANDARD.richtung
+  return { stellen, richtung }
+}
+
+// ---- Die Berechnung ----
 
 // Ein Faktor ist eine Spalte der Zeile, ein Feld des zugeordneten Datensatzes
 // oder eine feste Zahl. Ergebnis werden kann nur eine Spalte: ein Datenfeld
@@ -281,20 +350,103 @@ export function rechneBerechnung(
   }
 }
 
-// ---- Lesen und Schreiben ----
+// ---- Alle Berechnungen einer Zeile ----
 
-function alsRundung(roh: unknown): Rundung {
-  if (!roh || typeof roh !== 'object') return { ...RUNDEN_STANDARD }
-  const o = roh as Record<string, unknown>
-  const stellen = typeof o.stellen === 'number' && Number.isInteger(o.stellen)
-    && o.stellen >= 0 && o.stellen <= STELLEN_MAX
-    ? o.stellen
-    : RUNDEN_STANDARD.stellen
-  const richtung = o.richtung === 'auf' || o.richtung === 'ab' || o.richtung === 'kfm'
-    ? o.richtung
-    : RUNDEN_STANDARD.richtung
-  return { stellen, richtung }
+export interface Zeilenwert {
+  zahl: number
+  text: string
 }
+
+export interface Zeilenrechnung {
+  // Je Platz in der vollen Spaltenliste das Ergebnis, das dort hingehoert.
+  werte: ReadonlyMap<number, Zeilenwert>
+
+  // Je Berechnung, wie sie zuletzt ausging.
+  lagen: ReadonlyMap<string, BerechnungsLage>
+}
+
+// Alle Berechnungen einer Zeile, so oft, wie eine der naechsten noch einen
+// Wert liefern kann. Jede Zelle wird hoechstens EINMAL gefuellt, darum steht
+// die Runde nach endlich vielen Durchgaengen still: gegenseitiges Neuberechnen
+// ist so nicht moeglich. `standVon` liefert nur das GEGEBENE einer Zelle; was
+// eine Berechnung gefuellt hat, reicht diese Stelle selbst an die naechste.
+export function rechneZeile(
+  berechnungen: readonly Berechnung[],
+  platzVon: (spaltenKennung: string) => number,
+  standVon: (f: Faktor) => FaktorStand,
+  maengelVon: (b: Berechnung) => readonly string[],
+  spaltenTitel: (kennung: string) => string,
+): Zeilenrechnung {
+  const werte = new Map<number, Zeilenwert>()
+  const lagen = new Map<string, BerechnungsLage>()
+  const stand = (f: Faktor): FaktorStand => {
+    if (f.art === 'spalte') {
+      const wert = werte.get(platzVon(f.spalte))
+      if (wert !== undefined) return { art: 'zahl', zahl: wert.zahl }
+    }
+    return standVon(f)
+  }
+  for (let runde = 0; runde <= berechnungen.length; runde++) {
+    let gefuellt = false
+    for (const b of berechnungen) {
+      if (lagen.get(b.kennung)?.art === 'ergebnis') continue
+      const lage = rechneBerechnung(b, stand, spaltenTitel, maengelVon(b))
+      if (lage.art === 'ergebnis') {
+        const platz = platzVon(lage.spalte)
+        if (platz !== -1 && !werte.has(platz)) {
+          werte.set(platz, { zahl: lage.zahl, text: lage.text })
+          gefuellt = true
+        }
+      }
+      lagen.set(b.kennung, lage)
+    }
+    if (!gefuellt) break
+  }
+  return { werte, lagen }
+}
+
+// Eine FERTIGE Zeile, geliefert oder gebucht: was leer ist, wird gefuellt, wo
+// eine Berechnung es kann. Ein Datenfeld hat hier keinen gewaehlten Satz.
+export function ergaenzeZeile(
+  berechnungen: readonly Berechnung[],
+  platzVon: (spaltenKennung: string) => number,
+  gegeben: (platz: number) => string,
+  zahlVon: (text: string) => number | null,
+): ReadonlyMap<number, Zeilenwert> {
+  if (berechnungen.length === 0) return new Map()
+  return rechneZeile(
+    berechnungen,
+    platzVon,
+    (f) => {
+      if (f.art === 'zahl') return { art: 'zahl', zahl: f.zahl }
+      if (f.art === 'datenfeld') return { art: 'ohneSatz' }
+      const platz = platzVon(f.spalte)
+      const text = platz === -1 ? '' : gegeben(platz).trim()
+      if (text === '') return { art: 'leer' }
+      const zahl = zahlVon(text)
+      return zahl === null ? { art: 'ungueltig', text } : { art: 'zahl', zahl }
+    },
+    () => [],
+    () => '',
+  ).werte
+}
+
+// Die Plaetze, die eine der Berechnungen fuellen kann.
+export function ergebnisPlaetze(
+  berechnungen: readonly Berechnung[],
+  platzVon: (spaltenKennung: string) => number,
+): Set<number> {
+  const raus = new Set<number>()
+  for (const b of berechnungen) {
+    for (const f of ergebnisFaktoren(b)) {
+      const platz = platzVon(f.spalte)
+      if (platz !== -1) raus.add(platz)
+    }
+  }
+  return raus
+}
+
+// ---- Lesen und Schreiben ----
 
 function text(v: unknown): string {
   return typeof v === 'string' ? v.trim() : ''
@@ -397,13 +549,18 @@ export function neuerFaktor(kennung: string): SpaltenFaktor {
   }
 }
 
-export function neueBerechnung(vorhandene: readonly Berechnung[]): Berechnung {
+export function freieBerechnungsKennung(vorhandene: readonly Berechnung[]): string {
   let nr = vorhandene.length + 1
   const vergeben = new Set(vorhandene.map((b) => b.kennung))
   while (vergeben.has(`b${nr}`)) nr++
+  return `b${nr}`
+}
+
+export function neueBerechnung(vorhandene: readonly Berechnung[]): Berechnung {
+  const kennung = freieBerechnungsKennung(vorhandene)
   return {
-    kennung: `b${nr}`,
-    name: `Berechnung ${nr}`,
+    kennung,
+    name: `Berechnung ${kennung.slice(1)}`,
     leit: neuerFaktor('f0'),
     zaehler: [neuerFaktor('f100')],
     nenner: [],
@@ -425,7 +582,6 @@ export function berechnungsMaengel(
   b: Berechnung,
   spaltenTitel: (kennung: string) => string | null,
   feldName: (feld: string) => string | null,
-  hatFormel: (kennung: string) => boolean = () => false,
 ): string[] {
   const maengel: string[] = []
   const name = (f: Faktor): string => faktorName(f, (k) => spaltenTitel(k) ?? '')
@@ -436,8 +592,6 @@ export function berechnungsMaengel(
         maengel.push('Eine Größe der Berechnung hat noch keine Spalte.')
       } else if (spaltenTitel(f.spalte) === null) {
         maengel.push(`Die Spalte einer Größe der Berechnung gibt es nicht mehr (${f.spalte}).`)
-      } else if (f.ergebnis && hatFormel(f.spalte)) {
-        maengel.push(`„${name(f)}" hat schon eine Formel und kann nicht zugleich Ergebnis sein.`)
       }
       continue
     }

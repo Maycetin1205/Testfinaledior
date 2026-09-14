@@ -47,9 +47,9 @@ Der Transaktionsvertrag ist mit `src/state/historyVertrag.test.ts` explizit eing
 
 - Local-Storage-Key: `aufbau_editor_mvp_v1`
 - Debounce: 500 ms
-- aktuelles `schemaVersion`: **8**
+- aktuelles `schemaVersion`: **9** (seit der Zusammenlegung der Rechenwerke; 8 hatte je Spalte eine `formel`)
 - gespeicherte Form: `{ schemaVersion, tree, selectedId, datenquellen, relationen, activePageId }`
-- der aktuelle Loader akzeptiert nur exakt Schema 8. Ältere und neuere Schemas werden nicht konvertiert; unlesbare/inkompatible Stände werden nach Möglichkeit als Notfallkopie gesichert.
+- der aktuelle Loader liest Schema 9 und hebt Schema 8 an (`formel` einer Spalte wird zur Berechnung mit dieser Spalte als Leitgröße; Plus/Minus lässt sich nicht heben und wird als benannter Verlust abgelehnt). Ältere und neuere Schemas werden nicht konvertiert; unlesbare/inkompatible Stände werden nach Möglichkeit als Notfallkopie gesichert.
 
 ### Maskendatei
 
@@ -59,14 +59,14 @@ Aktuelles Format:
 {
   "art": "aufbau-editor-maske",
   "dateiVersion": 2,
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "tree": {},
   "datenquellen": [],
   "relationen": []
 }
 ```
 
-Der aktuelle Loader akzeptiert nur `dateiVersion === 2` und Schema 8. Die mitgelieferte `masken/mustermaske.json` hat genau diese Form.
+Der aktuelle Loader akzeptiert nur `dateiVersion === 2` und Schema 8 oder 9. Die mitgelieferte `masken/mustermaske.json` hat genau diese Form.
 
 ### Bibliotheksdatei
 
@@ -217,8 +217,8 @@ Dieser TypeScript-Baselinefehler wurde in Phase 0 bewusst **nicht** nebenbei rep
 ## Widerlegte oder korrigierte Annahmen
 
 - Gesten-Gruppierung ist **nicht erst in einer späteren Phase einzuführen**; sie existiert bereits für Zahlenbearbeitung, Block-Resize und Lit-Gesten. Spätere Arbeit muss dieses Verhalten erhalten oder bewusst vereinheitlichen.
-- Der aktuelle Projektdatei-Vertrag ist **nicht** ein hypothetisches `format/version: 1`-Objekt. Heute gelten `art: "aufbau-editor-maske"`, `dateiVersion: 2`, `schemaVersion: 8`.
-- Der aktuelle Loader migriert alte Projektstände **nicht** mehr. Alt-Migrationen wurden unmittelbar vor diesem Plan bewusst entfernt.
+- Der aktuelle Projektdatei-Vertrag ist **nicht** ein hypothetisches `format/version: 1`-Objekt. Heute gelten `art: "aufbau-editor-maske"`, `dateiVersion: 2`, `schemaVersion: 9`.
+- Der aktuelle Loader migriert alte Projektstände bis auf den einen Schritt 8 → 9 **nicht**. Alt-Migrationen wurden unmittelbar vor diesem Plan bewusst entfernt.
 - Im aktuellen Inspector gibt es keinen eigenen Slider-Control; Zahlenwerte sind Textfelder mit Eingabesitzung. Der kontinuierliche Änderungsvertrag liegt derzeit bei Zahleneingabe und Pointer-Gesten.
 
 ## Gefährliche / noch nicht außerhalb des Repos verifizierte Bereiche

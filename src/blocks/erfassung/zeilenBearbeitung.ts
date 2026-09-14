@@ -1,9 +1,10 @@
 // Vormerkungen an gebuchten Zeilen: Zellwerte aendern, Zeilen zum Loeschen merken.
 import type { Lieferung, VormerkArt } from '../../core/blocks/BlockDefinition'
 import { geheInZelle, zellenFelder } from '../shared/zellenEingabe'
+import { ergaenzeZeile, ergebnisPlaetze, type Berechnung } from '../../core/data/berechnung'
 import { zeilenIndexVon } from '../tabelle/seRuntime'
-import type { Spalte } from '../tabelle/spalten'
-import { zellWertGerechnet } from '../tabelle/zeilenRechnung'
+import { alsZahl } from '../tabelle/sortierung'
+import { spalteMitKennung, type Spalte } from '../tabelle/spalten'
 import {
   aenderungAngekommen,
   loeschungAngekommen,
@@ -22,6 +23,8 @@ export interface ZeilenWirt {
   baustein: HTMLElement
 
   spalten: () => readonly Spalte[]
+
+  berechnungen: () => readonly Berechnung[]
 
   rohzeilen: () => readonly unknown[]
 
@@ -302,9 +305,12 @@ export class ZeilenBearbeitung {
     return this.wirt.datenzeilen()[rohIndex]?.[spaltenIndex] ?? ''
   }
 
-  // Eine Formelspalte folgt dem, was JETZT in der Zeile steht; in der Lieferung
-  // steht das Ergebnis von vorhin. null heisst: hier ist nichts nachzurechnen —
-  // die Lieferung hat schon gerechnet, und ohne Vormerkung aendert sich nichts.
+  // Eine Ergebnisspalte folgt dem, was JETZT in der Zeile steht; in der
+  // Lieferung steht das Ergebnis von vorhin. null heisst: hier ist nichts
+  // nachzurechnen — die Lieferung hat schon gerechnet, und ohne Vormerkung
+  // aendert sich nichts. In einer gebuchten Zeile rechnet nur die Leitgroesse
+  // nach; die uebrigen Richtungen gelten der Erfassungszeile, denn hier stehen
+  // alle Werte schon da und keiner sagt, welcher weichen soll.
   private gerechneteZelle(
     rohIndex: number,
     satz: string,
@@ -312,17 +318,24 @@ export class ZeilenBearbeitung {
   ): string | null {
     if (this.aenderungen.anzahl === 0 && this.gesendet.anzahl === 0) return null
     if (!this.aenderungen.hatSatz(satz) && !this.gesendet.hatSatz(satz)) return null
+    const berechnungen = this.wirt.berechnungen()
     const spalten = this.wirt.spalten()
-    if (spalten[spaltenIndex]?.formel === undefined) return null
+    const platzVon = (kennung: string): number => spalteMitKennung(spalten, kennung)
+    if (!ergebnisPlaetze(berechnungen, platzVon).has(spaltenIndex)) return null
+    const leitPlaetze = new Set(berechnungen.map((b) => platzVon(b.leit.spalte)))
     const zeile = this.wirt.datenzeilen()[rohIndex]
-    return zellWertGerechnet(spalten, spaltenIndex, (platz) => {
-      // Was die Lieferung in einer Formelspalte zeigt, ist selbst gerechnet und
-      // darf die neue Rechnung nicht vorwegnehmen.
-      if (spalten[platz]?.formel !== undefined) return ''
-      return this.aenderungen.wert(satz, platz)
-        ?? this.gesendet.wert(satz, platz)
-        ?? zeile?.[platz] ?? ''
-    })
+    const gerechnet = ergaenzeZeile(
+      berechnungen,
+      platzVon,
+      (platz) => {
+        const eigen = this.aenderungen.wert(satz, platz) ?? this.gesendet.wert(satz, platz)
+        // Die Leitgroesse der Lieferung ist selbst gerechnet und darf die neue
+        // Rechnung nicht vorwegnehmen; vorgemerkt gilt sie als Eingabe.
+        return eigen ?? (leitPlaetze.has(platz) ? '' : zeile?.[platz] ?? '')
+      },
+      alsZahl,
+    )
+    return gerechnet.get(spaltenIndex)?.text ?? null
   }
 
   istGeaendert(rohIndex: number, spaltenIndex: number): boolean {

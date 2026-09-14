@@ -16,13 +16,15 @@ import {
   neuerFaktor,
   rechneBerechnung,
   richtungAlsText,
+  zahlStreng,
+  STELLEN_MAX,
   type Berechnung,
   type Faktor,
   type FaktorStand,
+  type RundungsRichtung,
   type SpaltenFaktor,
 } from '../../core/data/berechnung'
 import { einheitKurz } from '../../core/data/einheiten'
-import { zahlStreng, STELLEN_MAX, type RundungsRichtung } from '../../core/data/rechnung'
 import type { QuelleInReichweite } from '../../core/data/sourceLinks'
 import { FaktorZeile } from './BerechnungFaktor'
 
@@ -35,7 +37,6 @@ const RICHTUNGEN: WahlOption[] = [
 export interface Spaltenkopf {
   kennung: string
   titel: string
-  hatFormel: boolean
 }
 
 function Schritt({ nr, titel, hinweis, children }: {
@@ -100,7 +101,6 @@ export function BerechnungDialog({
     berechnung,
     titelVon,
     (feld) => (feld === '' ? null : feld),
-    (kennung) => spalten.find((s) => s.kennung === kennung)?.hatFormel === true,
   ))]
   const probe = einheitenProbe(berechnung)
 

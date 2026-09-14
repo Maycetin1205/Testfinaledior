@@ -7,13 +7,12 @@ import {
 import { getField } from '../../softengine/data'
 import { vorschlaegeImFensterStand } from '../tabelle/nachschlagStand'
 import { VorschlagStand, type TastenFolge } from '../shared/vorschlagStand'
-import { rechneFormel, zahlStreng, zahlText } from '../../core/data/rechnung'
 import {
   alleFaktoren,
   berechnungsMaengel,
-  rechneBerechnung,
+  ergebnisPlaetze,
+  rechneZeile,
   type Berechnung,
-  type BerechnungsLage,
   type Faktor,
   type FaktorStand,
 } from '../../core/data/berechnung'
@@ -30,9 +29,6 @@ import {
   type ErfassungsUmfeld,
 } from './erfassungsZeile'
 
-// null = leer, 'fehler' = belegt, aber nicht als Zahl lesbar.
-type GegebeneZahl = number | null | 'fehler'
-
 export class ErfassungsLauf {
   private getippt = new Map<number, string>()
 
@@ -46,12 +42,9 @@ export class ErfassungsLauf {
 
   private readonly liste = new VorschlagStand<Eintrag>()
 
-  // Je Formelspalte ihr gerechneter Text, solange nichts Getipptes davor steht.
-  private readonly _gerechnet = new Map<number, string>()
-
-  // Je Ergebnisspalte einer Berechnung ihr Wert. Getrennt von den Formeln, weil
-  // eine Gruppe je nach Fuellstand eine ANDERE Spalte fuellt.
-  private readonly _gruppenWert = new Map<number, string>()
+  // Je Platz, den eine Berechnung gefuellt hat, ihr Text; welcher das ist,
+  // haengt vom Fuellstand der Zeile ab.
+  private _gerechnet = new Map<number, string>()
 
   private _hinweise: string[] = []
 
@@ -76,8 +69,6 @@ export class ErfassungsLauf {
     if (getippt !== undefined && getippt !== '') return getippt
     const gerechnet = this._gerechnet.get(index)
     if (gerechnet !== undefined) return gerechnet
-    const ausGruppe = this._gruppenWert.get(index)
-    if (ausGruppe !== undefined) return ausGruppe
     if (getippt !== undefined) return getippt
     const ziel = zielIn(umfeld, index)
     if (ziel.quelleId === '' || ziel.code === '') return ''
@@ -85,65 +76,25 @@ export class ErfassungsLauf {
     return satz === undefined ? '' : getField(satz, ziel.code)
   }
 
-  private gegebeneZahl(umfeld: ErfassungsUmfeld, index: number): GegebeneZahl {
-    const getippt = this.getippt.get(index)
-    if (getippt !== undefined && getippt.trim() !== '') {
-      const zahl = zahlStreng(getippt)
-      return zahl === null ? 'fehler' : zahl
-    }
-    // Was eine Berechnung gefuellt hat, ist fuer eine Formel ein gegebener Wert.
-    const ausGruppe = this._gruppenWert.get(index)
-    if (ausGruppe !== undefined) return alsZahl(ausGruppe) ?? 'fehler'
-    if (getippt !== undefined) return null
-    const ziel = zielIn(umfeld, index)
-    if (ziel.quelleId === '' || ziel.code === '') return null
-    const satz = this.gewaehlt.get(ziel.quelleId)
-    if (satz === undefined) return null
-    const wert = getField(satz, ziel.code).trim()
-    if (wert === '') return null
-    const zahl = alsZahl(wert)
-    return zahl === null ? 'fehler' : zahl
-  }
-
-  // Erst die Formeln, dann die Berechnungen, und das so oft, wie eine Gruppe
-  // der naechsten noch einen Wert liefern kann. Jede Zelle wird hoechstens
-  // EINMAL gefuellt, darum steht die Runde nach endlich vielen Durchgaengen
-  // still: gegenseitiges Neuberechnen ist so nicht moeglich.
   rechne(umfeld: ErfassungsUmfeld): void {
-    this._gruppenWert.clear()
+    const titelVon = (kennung: string): string | null => {
+      const i = spalteMitKennung(umfeld.spalten, kennung)
+      return i === -1 ? null : (umfeld.spalten[i].titel || kennung)
+    }
+    const zeile = rechneZeile(
+      umfeld.berechnungen,
+      (kennung) => spalteMitKennung(umfeld.spalten, kennung),
+      (faktor) => this.faktorStand(umfeld, faktor),
+      // Ob es die Quelle noch gibt, weiss in der Maske nur die Lieferung; ein
+      // fehlender Satz meldet sich als eigener Stand.
+      (b) => berechnungsMaengel(b, titelVon, (feld) => (feld === '' ? null : feld)),
+      (kennung) => titelVon(kennung) ?? '',
+    )
+    this._gerechnet = new Map([...zeile.werte].map(([platz, wert]) => [platz, wert.text]))
     this._hinweise = []
-    const fertig = new Set<string>()
-    for (let runde = 0; runde <= umfeld.berechnungen.length; runde++) {
-      this.rechneFormeln(umfeld)
-      if (!this.rechneGruppen(umfeld, fertig)) break
-    }
-    this.sammleHinweise(umfeld, fertig)
-  }
-
-  // Ein Durchgang ueber alle noch offenen Gruppen. true, wenn eine davon eine
-  // Zelle gefuellt hat.
-  private rechneGruppen(umfeld: ErfassungsUmfeld, fertig: Set<string>): boolean {
-    let gefuellt = false
     for (const berechnung of umfeld.berechnungen) {
-      if (fertig.has(berechnung.kennung)) continue
-      const lage = this.lageVon(umfeld, berechnung)
-      if (lage.art !== 'ergebnis') continue
-      const platz = spalteMitKennung(umfeld.spalten, lage.spalte)
-      // Eine Formel hat auf dieser Spalte Vorrang; beides zugleich meldet der
-      // Editor als Mangel.
-      if (platz === -1 || this._gerechnet.has(platz)) continue
-      this._gruppenWert.set(platz, lage.text)
-      fertig.add(berechnung.kennung)
-      gefuellt = true
-    }
-    return gefuellt
-  }
-
-  private sammleHinweise(umfeld: ErfassungsUmfeld, fertig: ReadonlySet<string>): void {
-    for (const berechnung of umfeld.berechnungen) {
-      if (fertig.has(berechnung.kennung)) continue
-      const lage = this.lageVon(umfeld, berechnung)
-      if (lage.art !== 'widerspruch' && lage.art !== 'unvollstaendig') continue
+      const lage = zeile.lagen.get(berechnung.kennung)
+      if (lage === undefined || (lage.art !== 'widerspruch' && lage.art !== 'unvollstaendig')) continue
       // In einer noch leeren Zeile fehlt naturgemaess alles; das ist kein Fehler.
       if (!this.gruppeAngefasst(umfeld, berechnung)) continue
       if (!this._hinweise.includes(lage.text)) this._hinweise.push(lage.text)
@@ -158,32 +109,10 @@ export class ErfassungsLauf {
     })
   }
 
-  private lageVon(umfeld: ErfassungsUmfeld, berechnung: Berechnung): BerechnungsLage {
-    const titelVon = (kennung: string): string | null => {
-      const i = spalteMitKennung(umfeld.spalten, kennung)
-      return i === -1 ? null : (umfeld.spalten[i].titel || kennung)
-    }
-    const maengel = berechnungsMaengel(
-      berechnung,
-      titelVon,
-      // Ob es die Quelle noch gibt, weiss in der Maske nur die Lieferung; ein
-      // fehlender Satz meldet sich unten als eigener Stand.
-      (feld) => (feld === '' ? null : feld),
-      (kennung) => {
-        const i = spalteMitKennung(umfeld.spalten, kennung)
-        return i !== -1 && umfeld.spalten[i].formel !== undefined
-      },
-    )
-    return rechneBerechnung(
-      berechnung,
-      (faktor) => this.faktorStand(umfeld, faktor),
-      (kennung) => titelVon(kennung) ?? '',
-      maengel,
-    )
-  }
-
-  // Was ein Faktor beitraegt. Der Datensatz ist der FUER DIESE ZEILE gewaehlte;
-  // die erste Zeile einer Quelle mit vielen Saetzen waere geraten.
+  // Was ein Faktor an GEGEBENEM beitraegt; die Ergebnisse der anderen
+  // Berechnungen reicht rechneZeile selbst weiter. Der Datensatz ist der FUER
+  // DIESE ZEILE gewaehlte; die erste Zeile einer Quelle mit vielen Saetzen
+  // waere geraten.
   private faktorStand(umfeld: ErfassungsUmfeld, faktor: Faktor): FaktorStand {
     if (faktor.art === 'zahl') return { art: 'zahl', zahl: faktor.zahl }
     if (faktor.art === 'datenfeld') {
@@ -200,10 +129,6 @@ export class ErfassungsLauf {
     if (platz === -1) return { art: 'leer' }
     const getippt = this.getippt.get(platz)
     if (getippt !== undefined && getippt.trim() !== '') return this.textStand(getippt)
-    const gerechnet = this._gerechnet.get(platz)
-    if (gerechnet !== undefined) return this.textStand(gerechnet)
-    const ausGruppe = this._gruppenWert.get(platz)
-    if (ausGruppe !== undefined) return this.textStand(ausGruppe)
     // Leergetipptes bleibt leer: so wird die Zelle wieder zum Ergebnis.
     if (getippt !== undefined) return { art: 'leer' }
     const ziel = zielIn(umfeld, platz)
@@ -220,36 +145,6 @@ export class ErfassungsLauf {
     return zahl === null ? { art: 'ungueltig', text: t } : { art: 'zahl', zahl }
   }
 
-  // Jede Formelspalte rechnet aus Gegebenem und aus anderen Formelspalten; ein
-  // Kreis bleibt leer.
-  private rechneFormeln(umfeld: ErfassungsUmfeld): void {
-    this._gerechnet.clear()
-    const zahlen = new Map<number, number | null>()
-    const unterwegs = new Set<number>()
-    const zahlVon = (index: number): number | null => {
-      const bekannt = zahlen.get(index)
-      if (bekannt !== undefined) return bekannt
-      if (unterwegs.has(index)) return null
-      unterwegs.add(index)
-      const gegeben = this.gegebeneZahl(umfeld, index)
-      let zahl: number | null = gegeben === 'fehler' ? null : gegeben
-      const formel = umfeld.spalten[index]?.formel
-      if (gegeben === null && formel !== undefined) {
-        zahl = rechneFormel(formel, (kennung) => {
-          const i = spalteMitKennung(umfeld.spalten, kennung)
-          return i === -1 ? null : zahlVon(i)
-        })
-        if (zahl !== null) this._gerechnet.set(index, zahlText(zahl, formel.runden.stellen))
-      }
-      unterwegs.delete(index)
-      zahlen.set(index, zahl)
-      return zahl
-    }
-    umfeld.spalten.forEach((spalte, index) => {
-      if (spalte.formel !== undefined) zahlVon(index)
-    })
-  }
-
   tippe(index: number, text: string): void {
     this.getippt.set(index, text)
     this._tippSpalte = index
@@ -263,12 +158,11 @@ export class ErfassungsLauf {
     this.liste.ruhe()
   }
 
-  // Eine leergetippte Formel- oder Ergebniszelle zeigt wieder ihren gerechneten
-  // Wert und bleibt als berechnet erkennbar.
+  // Eine leergetippte Ergebniszelle zeigt wieder ihren gerechneten Wert und
+  // bleibt als berechnet erkennbar.
   istAutomatisch(umfeld: ErfassungsUmfeld, index: number): boolean {
     const getippt = this.getippt.get(index)
-    const gerechnet = getippt === ''
-      && (this._gerechnet.has(index) || this._gruppenWert.has(index))
+    const gerechnet = getippt === '' && this._gerechnet.has(index)
     return (getippt === undefined || gerechnet) && this.wertVon(umfeld, index) !== ''
   }
 
@@ -441,15 +335,17 @@ export class ErfassungsLauf {
   // sonst rechnet die Spalte nicht mehr. Erkannt wird er daran, dass er genau
   // dem entspricht, was sich ohne ihn aus den uebrigen rechnet.
   private gibDenGerechnetenIhreLuecke(umfeld: ErfassungsUmfeld): void {
-    umfeld.spalten.forEach((spalte, index) => {
-      if (spalte.formel === undefined) return
+    const plaetze = ergebnisPlaetze(
+      umfeld.berechnungen,
+      (kennung) => spalteMitKennung(umfeld.spalten, kennung),
+    )
+    for (const index of plaetze) {
       const wert = this.getippt.get(index)
-      if (wert === undefined || wert === '') return
+      if (wert === undefined || wert === '') continue
       this.getippt.delete(index)
       this.rechne(umfeld)
-      const selbst = this._gerechnet.get(index) ?? this._gruppenWert.get(index)
-      if (selbst !== wert) this.getippt.set(index, wert)
-    })
+      if (this._gerechnet.get(index) !== wert) this.getippt.set(index, wert)
+    }
   }
 
   zuruecksetzen(): void {
@@ -457,7 +353,6 @@ export class ErfassungsLauf {
     this.gewaehlt.clear()
     this.vonHand.clear()
     this._gerechnet.clear()
-    this._gruppenWert.clear()
     this._hinweise = []
     this._tippSpalte = -1
     this._listeAuf = -1

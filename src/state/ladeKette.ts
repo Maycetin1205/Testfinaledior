@@ -4,7 +4,7 @@ import { BELEG_RAHMEN_PROP } from '../core/blocks/belegRahmen'
 import { MASKEN_NAME_PROP } from '../core/blocks/maskenName'
 import { sanitizeBlockEvents } from '../core/data/aktionen'
 import { BEREICH_AUFBAU, type LadeProblem } from '../core/data/ladeProblem'
-import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
+import { CURRENT_SCHEMA_VERSION, hebeAufAktuell, schemaLesbar } from './maskenSchema'
 import { topologieProbleme } from './topologie'
 import { normalizeProps } from './treeOps'
 
@@ -21,7 +21,7 @@ export function pruefeBaumStand(roh: {
   tree?: unknown
   selectedId?: unknown
 }): LadeAusgang {
-  if (roh.schemaVersion !== CURRENT_SCHEMA_VERSION) {
+  if (!schemaLesbar(roh.schemaVersion)) {
     return { art: 'abgelehnt', ursache: 'version', probleme: [{
       bereich: BEREICH_AUFBAU, stelle: '',
       grund: `Maskenformat ${roh.schemaVersion} wird nicht unterstützt. Dieser Editor verwendet Format ${CURRENT_SCHEMA_VERSION}.`,
@@ -30,10 +30,14 @@ export function pruefeBaumStand(roh: {
   if (!objekt(roh.tree) || !objekt(roh.tree[ROOT_ID])) {
     return { art: 'abgelehnt', ursache: 'unlesbar', probleme: [] }
   }
+  const angehoben = hebeAufAktuell(roh.schemaVersion, roh.tree)
+  if (angehoben.probleme.length > 0) {
+    return { art: 'abgelehnt', ursache: 'verlust', probleme: angehoben.probleme }
+  }
   const tree: BlockTree = Object.create(null) as BlockTree
   const probleme: LadeProblem[] = []
   const fund = (stelle: string, grund: string): void => { probleme.push({ bereich: BEREICH_AUFBAU, stelle, grund }) }
-  for (const [id, node] of Object.entries(roh.tree)) {
+  for (const [id, node] of Object.entries(angehoben.tree)) {
     if (!objekt(node) || node.id !== id || typeof node.type !== 'string'
       || !objekt(node.props) || !Array.isArray(node.childIds)
       || !node.childIds.every((kind): kind is string => typeof kind === 'string')

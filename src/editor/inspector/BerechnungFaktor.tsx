@@ -5,9 +5,8 @@ import { Wahl, type WahlOption } from '@/ui/werkbank/Wahl'
 import { Zahl } from '@/ui/werkbank/Zahl'
 import { X } from '@/ui/zeichen'
 import { bindungMitQuelle, zerlegeBindung } from '../../core/blocks/bindung'
-import type { Faktor } from '../../core/data/berechnung'
+import { neuerFaktor, zahlStreng, zahlText, STELLEN_MAX, type Faktor } from '../../core/data/berechnung'
 import { EINHEITEN } from '../../core/data/einheiten'
-import { zahlStreng, zahlText, STELLEN_MAX } from '../../core/data/rechnung'
 import type { QuelleInReichweite } from '../../core/data/sourceLinks'
 
 const ARTEN: WahlOption[] = [
@@ -41,14 +40,7 @@ function mitArt(faktor: Faktor, art: string): Faktor {
   const { kennung, einheit } = faktor
   if (art === 'datenfeld') return { art: 'datenfeld', kennung, einheit, name: '', feld: '' }
   if (art === 'zahl') return { art: 'zahl', kennung, einheit, name: '', zahl: 1 }
-  return {
-    art: 'spalte',
-    kennung,
-    einheit,
-    spalte: '',
-    ergebnis: true,
-    runden: { stellen: 3, richtung: 'kfm' },
-  }
+  return { ...neuerFaktor(kennung), einheit }
 }
 
 export interface FaktorZeileProps {

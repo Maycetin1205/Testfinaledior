@@ -11,7 +11,6 @@ export type AbschnittName =
   | 'felder'
   | 'auswahlFolgen'
   | 'aktionen'
-  | 'rechnung'
 
 // Zugeklappt ist die Vorgabe: offen ist der Inspector einer Tabelle laenger als
 // das Fenster.

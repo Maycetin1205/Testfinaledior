@@ -14,7 +14,7 @@ import {
   type SuchFenster,
 } from '../../core/blocks/BlockDefinition'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
-import { kannGruppenRechnen } from '../../core/blocks/treeQuery'
+import { kannRechnen } from '../../core/blocks/treeQuery'
 import { quellenKennung } from '../../core/data/dataSources'
 import { paarKlartext, type QuelleInReichweite } from '../../core/data/sourceLinks'
 import type { Editor } from '../../state/Editor'
@@ -298,7 +298,7 @@ export function useFeldBindung({
                   setListenPicker(null)
                 },
               }]),
-              ...(!kannGruppenRechnen(block) ? [] : [{
+              ...(!kannRechnen(block) ? [] : [{
                 label: 'Berechnung…',
                 hinweis: 'Eine Gleichung über mehrere Spalten: drei Werte ergeben den vierten.',
                 onOeffne: () => {

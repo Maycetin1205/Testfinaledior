@@ -134,6 +134,7 @@ export class ErfassungBlock extends TabelleBlock {
   private readonly _zeilen = new ZeilenBearbeitung({
     baustein: this,
     spalten: () => this.spaltenListe(),
+    berechnungen: () => this.berechnungsListe(),
     rohzeilen: () => this.rohzeilen,
     datenzeilen: () => this.datenzeilen,
     melde: () => this.requestUpdate(),
@@ -215,12 +216,16 @@ export class ErfassungBlock extends TabelleBlock {
     return coerceErfassungsSpalten(this.spalten)
   }
 
+  protected override berechnungsListe(): readonly Berechnung[] {
+    return berechnungenAus(this.berechnungen)
+  }
+
   private erfassungsUmfeld(): ErfassungsUmfeld {
     return this._erfassung.umfeld(
       this,
       this.spaltenListe(),
       this.source,
-      berechnungenAus(this.berechnungen),
+      this.berechnungsListe(),
     )
   }
 

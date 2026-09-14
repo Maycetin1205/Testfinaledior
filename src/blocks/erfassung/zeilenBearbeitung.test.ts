@@ -31,6 +31,7 @@ beforeEach(() => {
   bearbeitung = new ZeilenBearbeitung({
     baustein: {} as HTMLElement,
     spalten: () => SPALTEN,
+    berechnungen: () => [],
     rohzeilen: () => [{ satz: '1' }, { satz: '2' }],
     datenzeilen: () => datenzeilen,
     melde: () => {},

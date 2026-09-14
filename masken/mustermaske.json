@@ -1,7 +1,7 @@
 {
   "art": "aufbau-editor-maske",
   "dateiVersion": 2,
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "tree": {
     "root": {
       "id": "root",
@@ -518,28 +518,7 @@
             "kennung": "s14",
             "titel": "Abgabemenge",
             "feld": "946_30",
-            "breite": 65,
-            "formel": {
-              "glieder": [
-                {
-                  "spalte": "s11"
-                },
-                {
-                  "spalte": "s8"
-                },
-                {
-                  "spalte": "s5"
-                }
-              ],
-              "zeichen": [
-                "*",
-                "*"
-              ],
-              "runden": {
-                "stellen": 3,
-                "richtung": "kfm"
-              }
-            }
+            "breite": 65
           },
           {
             "kennung": "s11",
@@ -575,7 +554,60 @@
         "kopfzeile": "ja",
         "spaltenwahl": "nein",
         "tagField": "",
-        "leerText": "Keine Datensätze."
+        "leerText": "Keine Datensätze.",
+        "berechnungen": [
+          {
+            "kennung": "b1",
+            "name": "Abgabemenge",
+            "leit": {
+              "art": "spalte",
+              "kennung": "f0",
+              "spalte": "s14",
+              "einheit": "anzahl",
+              "ergebnis": true,
+              "runden": {
+                "stellen": 3,
+                "richtung": "kfm"
+              }
+            },
+            "zaehler": [
+              {
+                "art": "spalte",
+                "kennung": "f1",
+                "spalte": "s11",
+                "einheit": "anzahl",
+                "ergebnis": false,
+                "runden": {
+                  "stellen": 3,
+                  "richtung": "kfm"
+                }
+              },
+              {
+                "art": "spalte",
+                "kennung": "f2",
+                "spalte": "s8",
+                "einheit": "anzahl",
+                "ergebnis": false,
+                "runden": {
+                  "stellen": 3,
+                  "richtung": "kfm"
+                }
+              },
+              {
+                "art": "spalte",
+                "kennung": "f3",
+                "spalte": "s5",
+                "einheit": "anzahl",
+                "ergebnis": false,
+                "runden": {
+                  "stellen": 3,
+                  "richtung": "kfm"
+                }
+              }
+            ],
+            "nenner": []
+          }
+        ]
       },
       "parentId": "root",
       "childIds": []

@@ -183,16 +183,8 @@ export function firstDescendantOfType(
   return undefined
 }
 
-// Rechnen kann, was gerade eine Erfassungszeile HAT. Ohne sie gibt es nichts zu
-// rechnen.
-// Traegt dieser Baustein Berechnungsgruppen? Steht in der Registry, nicht als
+// Traegt dieser Baustein Berechnungen? Steht in der Registry, nicht als
 // Abfrage auf einen Bausteintyp.
-export function kannGruppenRechnen(node: BlockNode): boolean {
-  return getBlockDefinition(node.type)?.rechenGruppen !== undefined
-}
-
 export function kannRechnen(node: BlockNode): boolean {
-  const def = getBlockDefinition(node.type)
-  if (!def?.listenBindung || !def.kannErfassen) return false
-  return propertySichtbar(def.kannErfassen.wenn, node.props)
+  return getBlockDefinition(node.type)?.rechenGruppen !== undefined
 }

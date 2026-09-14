@@ -1,10 +1,9 @@
 // Die Spaltenliste einer Tabelle: Form, Kennungen, Reihenfolge, Sicht beim Zeichnen.
 import { kennungenVergeben } from '../../core/blocks/listenBindung'
-import { formelVonRoh, type Formel } from '../../core/data/rechnung'
 
 export interface Spalte {
-  // Ketten und Formeln zeigen auf die Kennung, nie auf Platz oder Feld: ein
-  // Belegfeld kann doppelt vergeben sein.
+  // Ketten und Berechnungen zeigen auf die Kennung, nie auf Platz oder Feld:
+  // ein Belegfeld kann doppelt vergeben sein.
   kennung: string
   titel: string
   feld: string
@@ -12,9 +11,6 @@ export interface Spalte {
   breite?: number
 
   summe?: boolean
-
-  // Rechnet die Zelle aus anderen Spalten; Getipptes geht vor.
-  formel?: Formel
 
   // Jeder Zustand und jeder ERP-Kontrakt haengt am PLATZ in der vollen Liste;
   // versteckte Spalten fallen erst beim Zeichnen weg.
@@ -64,8 +60,8 @@ export function neueSpalte(index: number): Spalte {
   return { kennung: '', titel: standardTitelFuer(index), feld: '' }
 }
 
-// Der Platz der Spalte mit DIESER Kennung, -1 wenn keine sie traegt. Formeln
-// und Ketten finden ihre Spalte nur so wieder.
+// Der Platz der Spalte mit DIESER Kennung, -1 wenn keine sie traegt.
+// Berechnungen und Ketten finden ihre Spalte nur so wieder.
 export function spalteMitKennung(spalten: readonly Spalte[], kennung: string): number {
   const t = kennung.trim()
   if (t === '') return -1
@@ -88,7 +84,7 @@ function alsBreite(v: unknown): number | undefined {
   return gerundet < SPALTEN_MIN_BREITE ? SPALTEN_MIN_BREITE : gerundet
 }
 
-const BEKANNTE_ANGABEN = ['kennung', 'titel', 'feld', 'breite', 'summe', 'versteckt', 'formel']
+const BEKANNTE_ANGABEN = ['kennung', 'titel', 'feld', 'breite', 'summe', 'versteckt']
 
 // Was eine erbende Tabelle an IHRER Spalte fuehrt, reist unberuehrt mit: die
 // Erfassung haengt Fuellfeld, Schalter und Suchfenster daran. Ohne das verlor
@@ -106,7 +102,6 @@ function alsSpalte(x: unknown, index: number): Spalte {
   if (x && typeof x === 'object') {
     const o = x as Record<string, unknown>
     const breite = o.breite === undefined ? undefined : alsBreite(o.breite)
-    const formel = formelVonRoh(o.formel)
     const spalte: Spalte = {
       kennung: typeof o.kennung === 'string' ? o.kennung.trim() : '',
       titel: typeof o.titel === 'string' ? o.titel : standardTitelFuer(index),
@@ -117,8 +112,6 @@ function alsSpalte(x: unknown, index: number): Spalte {
       ...(typeof o.summe === 'boolean' ? { summe: o.summe } : {}),
 
       ...(typeof o.versteckt === 'boolean' ? { versteckt: o.versteckt } : {}),
-
-      ...(formel === undefined ? {} : { formel }),
     }
     // Die geprueften Angaben gewinnen; die mitgereisten fuellen nur auf.
     return Object.assign(weitereAngaben(o), spalte)
@@ -173,31 +166,17 @@ export function fuegeSpalteAn(spalten: readonly Spalte[]): Spalte[] {
 }
 
 // Dieselbe Liste zurueck heisst „nicht erlaubt" (letzte Spalte, Platz ausserhalb).
-// Die Formeln der anderen BEHALTEN ihr Glied auf die gestrichene Spalte: es
-// zeigt nun ins Leere, die Formel rechnet nicht mehr und der Inspector sagt,
-// welche Spalte fehlt. Das Glied still wegzunehmen hiesse, mit einer ANDEREN
-// Formel weiterzurechnen, und niemand saehe es.
+// Die Berechnungen BEHALTEN ihre Groesse auf der gestrichenen Spalte: sie zeigt
+// nun ins Leere, die Berechnung rechnet nicht mehr und das Fenster sagt, welche
+// Spalte fehlt. Die Groesse still wegzunehmen hiesse, mit einer ANDEREN Formel
+// weiterzurechnen, und niemand saehe es.
 export function ohneSpalte(spalten: readonly Spalte[], index: number): readonly Spalte[] {
   if (spalten.length <= SPALTEN_MIN || index < 0 || index >= spalten.length) return spalten
   return spalten.filter((_, i) => i !== index)
 }
 
-// Die Glieder einer Formel, deren Spalte es nicht mehr gibt.
-export function fehlendeGlieder(
-  formel: Formel,
-  spalten: readonly Spalte[],
-): string[] {
-  const raus: string[] = []
-  for (const glied of formel.glieder) {
-    if (!('spalte' in glied)) continue
-    if (glied.spalte === '' || spalteMitKennung(spalten, glied.spalte) !== -1) continue
-    if (!raus.includes(glied.spalte)) raus.push(glied.spalte)
-  }
-  return raus
-}
-
-// Dieselbe Liste zurueck heisst „nichts zu tun". Ketten und Rechnung zeigen auf
-// die Kennung und brauchen kein Nachziehen.
+// Dieselbe Liste zurueck heisst „nichts zu tun". Ketten und Berechnungen zeigen
+// auf die Kennung und brauchen kein Nachziehen.
 export function mitVerschobenerSpalte(
   spalten: readonly Spalte[],
   von: number,

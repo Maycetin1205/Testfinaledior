@@ -4,11 +4,7 @@ import { Copy, MousePointer2 } from '@/ui/zeichen'
 import { eigenschaftenFuer } from '../../core/blocks/eigenschaftsOrt'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
 import { type PropertyDescription } from '../../core/blocks/PropertyDescription'
-import {
-  darfAuswahlFolgen,
-  kannRechnen,
-  traegtEigeneQuelle,
-} from '../../core/blocks/treeQuery'
+import { darfAuswahlFolgen, traegtEigeneQuelle } from '../../core/blocks/treeQuery'
 import { useDataSources } from '../../state/useDataSources'
 import { useEditor } from '../../state/useEditor'
 import { Gruppe } from '@/ui/werkbank/Gruppe'
@@ -20,7 +16,6 @@ import { AktionenSektion } from './AktionenSektion'
 import { AuswahlFolgeSektion } from './AuswahlFolgeSektion'
 import { PropControl } from './PropControl'
 import { QuellenListe } from './QuellenListe'
-import { RechnungSektion } from './RechnungSektion'
 
 interface InspectorZeile {
   row?: string
@@ -190,9 +185,6 @@ export function Inspector() {
             <AktionenSektion block={block} events={def.blockEvents ?? []} />
           </Gruppe>
         )}
-
-        {/* Zielbild-Reihenfolge: ... Aktionen -> Rechnung (nur die Erfassung). */}
-        {kannRechnen(block) && <RechnungSektion block={block} />}
 
         {generalProps.length === 0 && !showDataSection && !hatAktionen
           && !darfAuswahlFolgen(block) && (

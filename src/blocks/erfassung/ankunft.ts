@@ -1,7 +1,7 @@
 // Ist die hinausgeschickte Zeile im Beleg angekommen? Ein PUT antwortet nicht;
 // beweisen kann es allein die naechste Lieferung.
 import type { Lieferung } from '../../core/blocks/BlockDefinition'
-import { zahlStreng } from '../../core/data/rechnung'
+import { zahlStreng } from '../../core/data/berechnung'
 import type { Spalte } from '../tabelle/spalten'
 
 export interface GesendeteZeile {
