@@ -185,6 +185,10 @@ export function Inspector() {
           </div>
         )}
 
+        {/* Eine Berechnung besteht aus Spalten und Datenfeldern und steht darum
+            bei ihnen, nicht hinter den Ketten am Ende des Inspectors. */}
+        {kannGruppenRechnen(block) && <BerechnungSektion block={block} />}
+
         {darfAuswahlFolgen(block) && <AuswahlFolgeSektion block={block} />}
 
         {hatAktionen && (
@@ -195,7 +199,6 @@ export function Inspector() {
 
         {/* Zielbild-Reihenfolge: ... Aktionen -> Rechnung (nur die Erfassung). */}
         {kannRechnen(block) && <RechnungSektion block={block} />}
-        {kannGruppenRechnen(block) && <BerechnungSektion block={block} />}
 
         {generalProps.length === 0 && !showDataSection && !hatAktionen
           && !darfAuswahlFolgen(block) && (
