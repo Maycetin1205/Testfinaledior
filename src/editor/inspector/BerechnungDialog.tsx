@@ -84,12 +84,13 @@ export function BerechnungDialog({
   }
   const name = (f: Faktor): string => faktorName(f, (k) => titelVon(k) ?? '')
 
-  const maengel = berechnungsMaengel(
+  // Zwei Groessen ohne Spalte melden denselben Satz; einmal reicht.
+  const maengel = [...new Set(berechnungsMaengel(
     berechnung,
     titelVon,
     (feld) => (feld === '' ? null : feld),
     (kennung) => spalten.find((s) => s.kennung === kennung)?.hatFormel === true,
-  )
+  ))]
   const probe = einheitenProbe(berechnung)
 
   const setzeFaktor = (alt: Faktor, neu: Faktor): void => {
