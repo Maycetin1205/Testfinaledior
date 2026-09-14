@@ -1,15 +1,16 @@
 // Die Werkzeugleiste am gewaehlten Baustein: Kind anlegen, Eintrag anfuegen, entfernen.
 import { useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { Minus, Plus, SlidersHorizontal, Trash2 } from '@/ui/zeichen'
+import { Link2, Minus, Plus, SlidersHorizontal, Trash2 } from '@/ui/zeichen'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import type { BlockNode } from '../../core/blocks/BlockData'
 import { listeLesen, type BlockDefinition } from '../../core/blocks/BlockDefinition'
 import { useEditorInstance } from '../../state/EditorContext'
 import { wendeProps } from '../../state/propsPatch'
-import { firstDescendantOfType } from '../../core/blocks/treeQuery'
+import { firstDescendantOfType, kannGruppenRechnen } from '../../core/blocks/treeQuery'
 import { eigenschaftenFuer } from '../../core/blocks/eigenschaftsOrt'
 import { Popover } from '@/ui/werkbank/Popover'
 import { PropControl } from '../inspector/PropControl'
+import { oeffneBerechnungenFenster } from './berechnungenStand'
 
 interface AuswahlLeisteProps {
   block: BlockNode
@@ -108,6 +109,14 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
           aria-expanded={gestalten} aria-haspopup="dialog"
           onClick={() => setGestalten((offen) => !offen)}>
           <SlidersHorizontal size={12} /> Gestalten
+        </Knopf>
+      )}
+      {/* Die Berechnungen gehoeren an den Baustein, dessen Spalten sie rechnen,
+          nicht in den Inspector zwischen Quellen, Felder und Ketten. */}
+      {kannGruppenRechnen(block) && (
+        <Knopf className="h-6 px-1.5 text-dicht" title="Berechnungen dieser Erfassung: drei Werte ergeben den vierten"
+          onClick={() => oeffneBerechnungenFenster(block.id)}>
+          <Link2 size={12} /> Berechnungen
         </Knopf>
       )}
       {muster && (

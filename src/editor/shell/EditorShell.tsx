@@ -3,6 +3,7 @@ import { useEffect, useState, type KeyboardEvent as ReactKeyboardEvent } from 'r
 import { Trenner } from '@/ui/werkbank/Trenner'
 import { useKeyboardShortcuts } from '../../state/useKeyboardShortcuts'
 import { Canvas } from '../canvas/Canvas'
+import { BerechnungenFenster } from '../canvas/BerechnungenFenster'
 import { FensterSpalten } from '../canvas/FensterSpalten'
 import { SeitenLeiste } from '../canvas/SeitenLeiste'
 import { Inspector } from '../inspector/Inspector'
@@ -101,6 +102,7 @@ export function EditorShell() {
       <StatusBar />
 
       <FensterSpalten />
+      <BerechnungenFenster />
 
       <Meldungen />
     </div>

@@ -6,7 +6,6 @@ import { getBlockDefinition } from '../../core/blocks/blockRegistry'
 import { type PropertyDescription } from '../../core/blocks/PropertyDescription'
 import {
   darfAuswahlFolgen,
-  kannGruppenRechnen,
   kannRechnen,
   traegtEigeneQuelle,
 } from '../../core/blocks/treeQuery'
@@ -19,7 +18,6 @@ import { bausteinName } from '../../core/blocks/bausteinName'
 import { useAbschnitt } from './abschnittStand'
 import { AktionenSektion } from './AktionenSektion'
 import { AuswahlFolgeSektion } from './AuswahlFolgeSektion'
-import { BerechnungSektion } from './BerechnungSektion'
 import { PropControl } from './PropControl'
 import { QuellenListe } from './QuellenListe'
 import { RechnungSektion } from './RechnungSektion'
@@ -184,10 +182,6 @@ export function Inspector() {
             )}
           </div>
         )}
-
-        {/* Eine Berechnung besteht aus Spalten und Datenfeldern und steht darum
-            bei ihnen, nicht hinter den Ketten am Ende des Inspectors. */}
-        {kannGruppenRechnen(block) && <BerechnungSektion block={block} />}
 
         {darfAuswahlFolgen(block) && <AuswahlFolgeSektion block={block} />}
 

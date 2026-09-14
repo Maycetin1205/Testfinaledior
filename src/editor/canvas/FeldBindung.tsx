@@ -14,6 +14,7 @@ import {
   type SuchFenster,
 } from '../../core/blocks/BlockDefinition'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
+import { kannGruppenRechnen } from '../../core/blocks/treeQuery'
 import { quellenKennung } from '../../core/data/dataSources'
 import { paarKlartext, type QuelleInReichweite } from '../../core/data/sourceLinks'
 import type { Editor } from '../../state/Editor'
@@ -21,6 +22,7 @@ import { wendeProps } from '../../state/propsPatch'
 import { quellenTraeger } from '../../state/quellenOps'
 import { useDataSources } from '../../state/useDataSources'
 import { breiteAusZeichen, zeichenVon } from './feldBreite'
+import { oeffneBerechnungenFenster } from './berechnungenStand'
 import { oeffneFensterImEditor } from './fensterStand'
 import { useEingabeSitzung } from '../inspector/controls/eingabeSitzung'
 import { oeffneDatencenter } from '../zentrale/oeffnen'
@@ -286,15 +288,25 @@ export function useFeldBindung({
               onSchalte: (an) => schreibeInEintrag(listenPicker, { [s.key]: an }),
             }))}
             current={String(eintrag[listenBindung.feldKey] ?? '')}
-            weiter={!eigenesFenster || suchFenster === undefined ? undefined : {
-              label: 'Suchfenster…',
-              onOeffne: () => {
-                oeffneFenster(listenPicker.index)
-                // Der Spaltenkopf-Picker macht zu: sonst laege eine zweite
-                // Einstellflaeche fuer dieselbe Spalte darueber.
-                setListenPicker(null)
-              },
-            }}
+            weiter={[
+              ...(!eigenesFenster || suchFenster === undefined ? [] : [{
+                label: 'Suchfenster…',
+                onOeffne: () => {
+                  oeffneFenster(listenPicker.index)
+                  // Der Spaltenkopf-Picker macht zu: sonst laege eine zweite
+                  // Einstellflaeche fuer dieselbe Spalte darueber.
+                  setListenPicker(null)
+                },
+              }]),
+              ...(!kannGruppenRechnen(block) ? [] : [{
+                label: 'Berechnung…',
+                hinweis: 'Eine Gleichung über mehrere Spalten: drei Werte ergeben den vierten.',
+                onOeffne: () => {
+                  oeffneBerechnungenFenster(block.id)
+                  setListenPicker(null)
+                },
+              }]),
+            ]}
             entfernenLabel={`${listenBindung.standardTitel.replace(/\s*\{n\}/, '')} entfernen`}
             onEntfernen={listenBindung.eintragWeg === undefined ? undefined : () => {
               const weg = listenBindung.eintragWeg

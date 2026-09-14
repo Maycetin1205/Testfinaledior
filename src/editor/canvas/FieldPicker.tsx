@@ -88,13 +88,13 @@ interface FieldPickerProps {
   onEntfernen?: () => void
   entfernenLabel?: string
 
-  // Weiterfuehrende Einstellung dieses Eintrags, die ein eigenes Fenster braucht.
-  // Steht in der Fusszeile, damit sie immer zu sehen ist.
-  weiter?: {
+  // Weiterfuehrende Einstellungen dieses Eintrags, die ein eigenes Fenster
+  // brauchen. Stehen in der Fusszeile, damit sie immer zu sehen sind.
+  weiter?: readonly {
     label: string
     hinweis?: string
     onOeffne: () => void
-  }
+  }[]
 
   // Ein Zeigerdruck auf den Griff schliesst nicht: sonst raeumt der Druck das
   // Fenster ab und der Klick danach oeffnet es wieder.
@@ -371,13 +371,15 @@ export function FieldPicker({
         />
           </>
         )}
-        {(weiter !== undefined || onEntfernen !== undefined) && (
+        {((weiter?.length ?? 0) > 0 || onEntfernen !== undefined) && (
       // Klebt am unteren Rand: beide Tasten sind immer zu sehen, egal wie lang die
       // Feldliste ist.
           <div className="sticky bottom-0 -mb-1 flex items-center justify-between gap-2 border-t border-linie bg-panel px-1.5 py-1.5">
-            {weiter !== undefined ? (
-              <Knopf title={weiter.hinweis} onClick={weiter.onOeffne}>{weiter.label}</Knopf>
-            ) : <span />}
+            <div className="flex items-center gap-1.5">
+              {(weiter ?? []).map((w) => (
+                <Knopf key={w.label} title={w.hinweis} onClick={w.onOeffne}>{w.label}</Knopf>
+              ))}
+            </div>
             {onEntfernen !== undefined && (
               <Knopf art="gefahr" onClick={onEntfernen}>{entfernenLabel ?? 'Entfernen'}</Knopf>
             )}

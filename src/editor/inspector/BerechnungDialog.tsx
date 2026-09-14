@@ -61,8 +61,18 @@ function vorschauStand(text: string | undefined): FaktorStand {
   return zahl === null ? { art: 'ungueltig', text: t } : { art: 'zahl', zahl }
 }
 
+// Die anderen Berechnungen desselben Bausteins: im Fenster wechseln, anlegen,
+// die offene entfernen.
+export interface BerechnungsListe {
+  berechnungen: readonly Berechnung[]
+  onWaehle: (kennung: string) => void
+  onNeu: () => void
+  onWeg: () => void
+}
+
 export interface BerechnungDialogProps {
   berechnung: Berechnung
+  liste?: BerechnungsListe
   spalten: readonly Spaltenkopf[]
   quellen: readonly QuelleInReichweite[]
   onBerechnung: (b: Berechnung) => void
@@ -71,6 +81,7 @@ export interface BerechnungDialogProps {
 
 export function BerechnungDialog({
   berechnung,
+  liste,
   spalten,
   quellen,
   onBerechnung,
@@ -143,6 +154,23 @@ export function BerechnungDialog({
       onClose={onClose}
     >
       <div className="flex flex-col gap-5">
+        {liste !== undefined && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Wahl
+              className="min-w-0 flex-1"
+              aria-label="Berechnung wählen"
+              optionen={liste.berechnungen.map((b) => ({
+                wert: b.kennung,
+                name: b.name === '' ? b.kennung : b.name,
+              }))}
+              wert={berechnung.kennung}
+              onWaehle={liste.onWaehle}
+            />
+            <Knopf onClick={liste.onNeu}>+ Berechnung</Knopf>
+            <Knopf art="gefahr" onClick={liste.onWeg}>Diese entfernen</Knopf>
+          </div>
+        )}
+
         {maengel.length > 0 && (
           <ul className="flex flex-col gap-0.5 rounded border border-fehler/60 p-2 text-dicht text-fehler">
             {maengel.map((m) => <li key={m}>{m}</li>)}

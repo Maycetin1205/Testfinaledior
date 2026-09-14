@@ -154,7 +154,7 @@ Diese vier Richtungen bilden eine Berechnungsgruppe. Kein universeller Gleichung
 
 ### 5.2 So bedient der Maskenbauer die Konfiguration
 
-1. Erfassungstabelle auswählen, Inspector **Berechnungen → + Berechnung**.
+1. Erfassungstabelle auswählen, in der Leiste am Baustein **Berechnungen** (oder im Spaltenkopf **Berechnung…**), dann **+ Berechnung**. Der Inspector trägt keinen eigenen Abschnitt dafür.
 2. Namen vergeben und T/D/K/A den vorhandenen Spalten anhand ihrer stabilen Kennungen zuordnen.
 3. Für jede Richtung das Ergebnis und die Formelglieder anzeigen; Spalte, Datenfeld oder feste Zahl auswählen.
 4. Datenquelle, Feld und Datensatzbezug für B, S und die Einheit auswählen. Der Bezug muss sich auf das in dieser Erfassungszeile ausgewählte Medikament/die Verabreichungsart auflösen. Niemals blind den ersten Datensatz einer Liste verwenden.
