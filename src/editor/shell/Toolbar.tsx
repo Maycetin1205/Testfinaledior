@@ -54,8 +54,8 @@ export function Toolbar({ onDatencenter }: { onDatencenter: () => void }) {
   // ist EIN Undo-Schritt.
   const nameSitzung = useEingabeSitzung(() => ed.beginTransaction(), () => ed.endTransaction())
   const rahmenSitzung = useEingabeSitzung(() => ed.beginTransaction(), () => ed.endTransaction())
-  const maskenName = String(ed.tree[WURZEL_ID]?.props[MASKEN_NAME_PROP] ?? '')
-  const rahmenRoh = String(ed.tree[WURZEL_ID]?.props[BELEG_RAHMEN_PROP] ?? '')
+  const maskenName = String(ed.tree[WURZEL_ID]?.werte[MASKEN_NAME_PROP] ?? '')
+  const rahmenRoh = String(ed.tree[WURZEL_ID]?.werte[BELEG_RAHMEN_PROP] ?? '')
   const rahmen = rahmenNummerVon(ed.tree)
 
   // Dieselbe Maske, nur unter anderem Dateinamen: ein Layoutrahmen der

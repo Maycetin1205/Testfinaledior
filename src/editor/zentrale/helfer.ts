@@ -27,8 +27,8 @@ export const VERB_KURZ: Record<RelationsVorlage['verb'], string> = {
 }
 
 export const RELATION_GRUPPEN: Wahloption[] = [
-  { value: 'lesen', label: 'Lesen' },
-  { value: 'schreiben', label: 'Schreiben' },
+  { wert: 'lesen', name: 'Lesen' },
+  { wert: 'schreiben', name: 'Schreiben' },
 ]
 
 // Zwei Texte je Platzhalter, weil zwei Stellen ihn zeigen: `name` als
@@ -121,15 +121,15 @@ export function erfassungsOptionen(
   sources: readonly Datenquelle[],
 ): ErfassungsOption[] {
   return traeger.map((node) => {
-    const bindung = faehigkeit(bausteinArt(node.type), 'liste')?.bindung
-    const kennungKey = bindung?.kennungKey
-    const roh = bindung ? node.props[bindung.prop] : undefined
+    const bindung = faehigkeit(bausteinArt(node.typ), 'liste')?.bindung
+    const kennungKey = bindung?.kennungSchluessel
+    const roh = bindung ? node.werte[bindung.prop] : undefined
     const spalten = bindung && kennungKey !== undefined && Array.isArray(roh)
       ? roh.flatMap((eintrag) => {
           const e = eintrag as Record<string, unknown>
           const kennung = e[kennungKey]
           if (typeof kennung !== 'string' || kennung === '') return []
-          const titel = e[bindung.titelKey]
+          const titel = e[bindung.titelSchluessel]
           return [{
             kennung,
             titel: typeof titel === 'string' && titel !== '' ? titel : bindung.standardTitel,
@@ -151,7 +151,7 @@ export function auswahlGeberOptionen(
       label: quelle
         ? `${bausteinName(node, sources)} (${quelle.name})`
         : bausteinName(node, sources),
-      felder: quelle?.fields ?? [],
+      felder: quelle?.felder ?? [],
     }
   })
 }

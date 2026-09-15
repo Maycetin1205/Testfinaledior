@@ -8,14 +8,14 @@ import { heuteSchluessel, tagPlus } from '../shared/datumSchluessel'
 import { aufTagHoeren, gewaehlterTag, setzeGewaehltenTag } from '../shared/gewaehlterTag'
 
 export class DatumBlock extends Grundbaustein {
-  static readonly blockType = 'datum'
-  static readonly tagName = 'ff-datum'
-  static readonly displayName = 'Datum'
-  static readonly category: Kategorie = 'anzeige'
-  static readonly defaultProps = {}
-  static override readonly customProperties: Eigenschaft[] = []
+  static readonly typ = 'datum'
+  static readonly tag = 'ff-datum'
+  static readonly anzeigeName = 'Datum'
+  static readonly kategorie: Kategorie = 'anzeige'
+  static readonly vorgaben = {}
+  static override readonly eigenschaften: Eigenschaft[] = []
 
-  static readonly raster = { startW: 18, startH: 2, minW: 10, minH: 2 }
+  static readonly raster = { startBreite: 18, startHoehe: 2, minBreite: 10, minHoehe: 2 }
 
   static override styles = [
     Grundbaustein.styles,

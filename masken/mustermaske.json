@@ -1,14 +1,14 @@
 {
   "art": "aufbau-editor-maske",
   "dateiVersion": 2,
-  "schemaVersion": 9,
+  "schemaVersion": 10,
   "tree": {
     "root": {
       "id": "root",
-      "type": "root",
-      "props": {},
-      "parentId": null,
-      "childIds": [
+      "typ": "root",
+      "werte": {},
+      "elternId": null,
+      "kinderIds": [
         "bb4e2548-4a57-42be-a76b-62ea8a277428",
         "ba12801d-372a-43b8-9df6-5a2a1a1a66c2",
         "f4dea980-4568-4730-abe8-099cc69171a0",
@@ -20,8 +20,8 @@
     },
     "bb4e2548-4a57-42be-a76b-62ea8a277428": {
       "id": "bb4e2548-4a57-42be-a76b-62ea8a277428",
-      "type": "button",
-      "props": {
+      "typ": "button",
+      "werte": {
         "width": "auto",
         "rasterX": 42,
         "rasterY": 0,
@@ -29,295 +29,295 @@
         "rasterH": 2,
         "label": "Speichern"
       },
-      "events": {
+      "ketten": {
         "onClick": [
           {
             "id": "e548c56a-29ab-4a1c-a9bd-3208239aacad",
-            "type": "RELATION",
-            "resultKey": "",
             "relationId": "9c5d2276-c003-4865-ae28-371c84ab6d90",
-            "params": [
+            "art": "RELATION",
+            "ergebnisName": "",
+            "parameter": [
               {
-                "source": "fixed",
-                "value": "0"
+                "quelle": "fixed",
+                "wert": "0"
               },
               {
-                "source": "fixed",
-                "value": "R"
+                "quelle": "fixed",
+                "wert": "R"
               },
               {
-                "source": "data_field",
-                "value": "3_8",
-                "dataSourceId": "86e2d91f-e1c3-4348-981d-79dcff3ad11b"
+                "quelle": "data_field",
+                "wert": "3_8",
+                "quelleId": "86e2d91f-e1c3-4348-981d-79dcff3ad11b"
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "erfassungszelle",
-                "value": "s2",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s2",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "erfassungszelle",
-                "value": "s14",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s14",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": "412"
+                "quelle": "fixed",
+                "wert": "412"
               },
               {
-                "source": "fixed",
-                "value": "30"
+                "quelle": "fixed",
+                "wert": "30"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s4",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s4",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               }
             ],
-            "extraParams": [
+            "zusatzParameter": [
               {
-                "source": "fixed",
-                "value": "1808"
+                "quelle": "fixed",
+                "wert": "1808"
               },
               {
-                "source": "fixed",
-                "value": "30"
+                "quelle": "fixed",
+                "wert": "30"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s9",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s9",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": "930"
+                "quelle": "fixed",
+                "wert": "930"
               },
               {
-                "source": "fixed",
-                "value": "3"
+                "quelle": "fixed",
+                "wert": "3"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s6",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s6",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": "933"
+                "quelle": "fixed",
+                "wert": "933"
               },
               {
-                "source": "fixed",
-                "value": "3"
+                "quelle": "fixed",
+                "wert": "3"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s5",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s5",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": "1646"
+                "quelle": "fixed",
+                "wert": "1646"
               },
               {
-                "source": "fixed",
-                "value": "5"
+                "quelle": "fixed",
+                "wert": "5"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s7",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s7",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": "936"
+                "quelle": "fixed",
+                "wert": "936"
               },
               {
-                "source": "fixed",
-                "value": "10"
+                "quelle": "fixed",
+                "wert": "10"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s11",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s11",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": "1536"
+                "quelle": "fixed",
+                "wert": "1536"
               },
               {
-                "source": "fixed",
-                "value": "100"
+                "quelle": "fixed",
+                "wert": "100"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s8",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s8",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": "946"
+                "quelle": "fixed",
+                "wert": "946"
               },
               {
-                "source": "fixed",
-                "value": "30"
+                "quelle": "fixed",
+                "wert": "30"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s14",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s14",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": "1695"
+                "quelle": "fixed",
+                "wert": "1695"
               },
               {
-                "source": "fixed",
-                "value": "60"
+                "quelle": "fixed",
+                "wert": "60"
               },
               {
-                "source": "fixed",
-                "value": "L"
+                "quelle": "fixed",
+                "wert": "L"
               },
               {
-                "source": "erfassungszelle",
-                "value": "s1",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "erfassungszelle",
+                "wert": "s1",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               }
             ]
           }
         ]
       },
-      "parentId": "root",
-      "childIds": []
+      "elternId": "root",
+      "kinderIds": []
     },
     "ba12801d-372a-43b8-9df6-5a2a1a1a66c2": {
       "id": "ba12801d-372a-43b8-9df6-5a2a1a1a66c2",
-      "type": "button",
-      "props": {
+      "typ": "button",
+      "werte": {
         "width": "auto",
         "rasterX": 36,
         "rasterY": 0,
@@ -325,84 +325,84 @@
         "rasterH": 2,
         "label": "Position Löschen"
       },
-      "events": {
+      "ketten": {
         "onClick": [
           {
             "id": "2fe08967-c4f4-4365-89a5-e69666d6bc0b",
-            "type": "RELATION",
-            "resultKey": "",
             "relationId": "92e7ac22-5bee-4180-a47a-7d3397661666",
-            "params": [
+            "art": "RELATION",
+            "ergebnisName": "",
+            "parameter": [
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": "R"
+                "quelle": "fixed",
+                "wert": "R"
               },
               {
-                "source": "data_field",
-                "value": "3_8",
-                "dataSourceId": "86e2d91f-e1c3-4348-981d-79dcff3ad11b"
+                "quelle": "data_field",
+                "wert": "3_8",
+                "quelleId": "86e2d91f-e1c3-4348-981d-79dcff3ad11b"
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "gewaehlte_zeile",
-                "value": "18_25",
-                "blockId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
+                "quelle": "gewaehlte_zeile",
+                "wert": "18_25",
+                "bausteinId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88"
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": "N"
+                "quelle": "fixed",
+                "wert": "N"
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": "0"
+                "quelle": "fixed",
+                "wert": "0"
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               },
               {
-                "source": "fixed",
-                "value": ""
+                "quelle": "fixed",
+                "wert": ""
               }
             ],
-            "extraParams": []
+            "zusatzParameter": []
           }
         ]
       },
-      "parentId": "root",
-      "childIds": []
+      "elternId": "root",
+      "kinderIds": []
     },
     "f4dea980-4568-4730-abe8-099cc69171a0": {
       "id": "f4dea980-4568-4730-abe8-099cc69171a0",
-      "type": "trenner",
-      "props": {
+      "typ": "trenner",
+      "werte": {
         "width": "fill",
         "rasterX": 0,
         "rasterY": 2,
@@ -410,13 +410,13 @@
         "rasterH": 1,
         "richtung": "waagerecht"
       },
-      "parentId": "root",
-      "childIds": []
+      "elternId": "root",
+      "kinderIds": []
     },
     "039fea30-1c9d-434c-8d06-8ba88ae6ae88": {
       "id": "039fea30-1c9d-434c-8d06-8ba88ae6ae88",
-      "type": "erfassung",
-      "props": {
+      "typ": "erfassung",
+      "werte": {
         "width": "fill",
         "rasterX": 0,
         "rasterY": 3,
@@ -426,30 +426,30 @@
           {
             "quelleId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
             "partnerId": "0e74871f-a3d7-40df-a1f5-8215b01f1e1b",
-            "keyPairs": [
+            "paare": [
               {
-                "fromField": "18_25",
-                "toField": "ART_1_25"
+                "vonFeld": "18_25",
+                "nachFeld": "ART_1_25"
               }
             ]
           },
           {
             "quelleId": "a6349f7b-8505-4fc6-8187-18a7cf0378cf",
             "partnerId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
-            "keyPairs": [
+            "paare": [
               {
-                "fromField": "ART_1_25",
-                "toField": "IDB_110_25"
+                "vonFeld": "ART_1_25",
+                "nachFeld": "IDB_110_25"
               }
             ]
           },
           {
             "quelleId": "fac73611-1408-4b3f-ae7b-6858b3c71033",
             "partnerId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
-            "keyPairs": [
+            "paare": [
               {
-                "fromField": "ART_1_25",
-                "toField": "26_25"
+                "vonFeld": "ART_1_25",
+                "nachFeld": "26_25"
               }
             ]
           }
@@ -609,13 +609,13 @@
           }
         ]
       },
-      "parentId": "root",
-      "childIds": []
+      "elternId": "root",
+      "kinderIds": []
     },
     "986171b3-8680-4448-8066-54aa3c89cdd7": {
       "id": "986171b3-8680-4448-8066-54aa3c89cdd7",
-      "type": "trenner",
-      "props": {
+      "typ": "trenner",
+      "werte": {
         "width": "fill",
         "rasterX": 0,
         "rasterY": 25,
@@ -623,13 +623,13 @@
         "rasterH": 1,
         "richtung": "waagerecht"
       },
-      "parentId": "root",
-      "childIds": []
+      "elternId": "root",
+      "kinderIds": []
     },
     "1ad177b5-27d1-4898-8e5c-d2a8c730fa6c": {
       "id": "1ad177b5-27d1-4898-8e5c-d2a8c730fa6c",
-      "type": "tabelle",
-      "props": {
+      "typ": "tabelle",
+      "werte": {
         "width": "fill",
         "rasterX": 0,
         "rasterY": 26,
@@ -639,10 +639,10 @@
         "folgtAuswahl": [
           {
             "geberId": "039fea30-1c9d-434c-8d06-8ba88ae6ae88",
-            "keyPairs": [
+            "paare": [
               {
-                "fromField": "1268_8",
-                "toField": "11_8"
+                "vonFeld": "1268_8",
+                "nachFeld": "11_8"
               }
             ]
           }
@@ -697,13 +697,13 @@
         "tagField": "",
         "leerText": "Keine Datensätze."
       },
-      "parentId": "root",
-      "childIds": []
+      "elternId": "root",
+      "kinderIds": []
     },
     "919192aa-e8a6-45ea-96fc-7a2c1038a3a4": {
       "id": "919192aa-e8a6-45ea-96fc-7a2c1038a3a4",
-      "type": "tabelle",
-      "props": {
+      "typ": "tabelle",
+      "werte": {
         "width": "fill",
         "rasterX": 28,
         "rasterY": 30,
@@ -713,7 +713,7 @@
         "folgtAuswahl": [
           {
             "geberId": "1ad177b5-27d1-4898-8e5c-d2a8c730fa6c",
-            "keyPairs": []
+            "paare": []
           }
         ],
         "source": "57d71a71-85f3-4844-aa9c-e158eb86e8a3",
@@ -764,637 +764,635 @@
         "tagField": "",
         "leerText": "Keine Datensätze."
       },
-      "parentId": "root",
-      "childIds": []
+      "elternId": "root",
+      "kinderIds": []
     }
   },
   "datenquellen": [
     {
       "id": "86e2d91f-e1c3-4348-981d-79dcff3ad11b",
       "name": "TestBelegnummer",
-      "kind": "beleg",
       "lieferung": "offenerSatz",
-      "fields": [
+      "art": "beleg",
+      "felder": [
         {
           "code": "0_11",
-          "label": "Satzschlüssel"
+          "name": "Satzschlüssel"
         },
         {
           "code": "2_1",
-          "label": "Belegart"
+          "name": "Belegart"
         },
         {
           "code": "3_8",
-          "label": "Belegnummer"
+          "name": "Belegnummer"
         },
         {
           "code": "11_8",
-          "label": "Kundennummer"
+          "name": "Kundennummer"
         },
         {
           "code": "19_10",
-          "label": "Belegdatum"
+          "name": "Belegdatum"
         },
         {
           "code": "393_12",
-          "label": "Warenwert"
+          "name": "Warenwert"
         },
         {
           "code": "441_12",
-          "label": "MwSt-Betrag"
+          "name": "MwSt-Betrag"
         },
         {
           "code": "453_12",
-          "label": "Gesamtbetrag"
+          "name": "Gesamtbetrag"
         },
         {
           "code": "3440_60",
-          "label": "Name"
+          "name": "Name"
         }
       ]
     },
     {
       "id": "0e74871f-a3d7-40df-a1f5-8215b01f1e1b",
       "name": "TESTBELEG",
-      "kind": "belegposition",
-      "indexField": "0_10",
       "kopfsatzIndex": "BEL_0_11",
-      "fields": [
+      "art": "belegposition",
+      "felder": [
         {
           "code": "2_1",
-          "label": "Belegart"
+          "name": "Belegart"
         },
         {
           "code": "3_8",
-          "label": "Belegnummer"
+          "name": "Belegnummer"
         },
         {
           "code": "11_6",
-          "label": "Positionsnummer"
+          "name": "Positionsnummer"
         },
         {
           "code": "17_1",
-          "label": "Zeilenart"
+          "name": "Zeilenart"
         },
         {
           "code": "18_25",
-          "label": "Artikelnummer"
+          "name": "Artikelnummer"
         },
         {
           "code": "45_60",
-          "label": "Bezeichnung"
+          "name": "Bezeichnung"
         },
         {
           "code": "164_8",
-          "label": "Menge"
+          "name": "Menge"
         },
         {
           "code": "246_9",
-          "label": "Einzelpreis"
+          "name": "Einzelpreis"
         },
         {
           "code": "280_12",
-          "label": "Gesamtpreis"
+          "name": "Gesamtpreis"
         },
         {
           "code": "372_5",
-          "label": "MwSt-Satz"
+          "name": "MwSt-Satz"
         },
         {
           "code": "645_10",
-          "label": "Satznummer"
+          "name": "Satznummer"
         },
         {
           "code": "689_5",
-          "label": "Mengeneinheit"
+          "name": "Mengeneinheit"
         },
         {
           "code": "1401_12",
-          "label": "Rohertrag"
+          "name": "Rohertrag"
         },
         {
           "code": "2558_1",
-          "label": "Farbkennzeichen"
+          "name": "Farbkennzeichen"
         },
         {
           "code": "412_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "900_30",
-          "label": "Dosierung pro Tier"
+          "name": "Dosierung pro Tier"
         },
         {
           "code": "930_3",
-          "label": "Körpergewicht"
+          "name": "Körpergewicht"
         },
         {
           "code": "933_3",
-          "label": "Behandlungstage"
+          "name": "Behandlungstage"
         },
         {
           "code": "936_10",
-          "label": "Anzahl der Tiere (Ausgerechnet)"
+          "name": "Anzahl der Tiere (Ausgerechnet)"
         },
         {
           "code": "946_30",
-          "label": "Abgabemenge"
+          "name": "Abgabemenge"
         },
         {
           "code": "1536_100",
-          "label": "Dosierung"
+          "name": "Dosierung"
         },
         {
           "code": "1636_5",
-          "label": "Behandlungsdauer"
+          "name": "Behandlungsdauer"
         },
         {
           "code": "1641_5",
-          "label": "Behandlungsmenge"
+          "name": "Behandlungsmenge"
         },
         {
           "code": "1646_5",
-          "label": "Behandlungseinheit"
+          "name": "Behandlungseinheit"
         },
         {
           "code": "1651_5",
-          "label": "Behandlungsintervall"
+          "name": "Behandlungsintervall"
         },
         {
           "code": "1656_5",
-          "label": "Behandlungsintervalleinheit"
+          "name": "Behandlungsintervalleinheit"
         },
         {
           "code": "1661_4",
-          "label": "Dosierungseinheit"
+          "name": "Dosierungseinheit"
         },
         {
           "code": "1665_30",
-          "label": "Art der Verabreichung"
+          "name": "Art der Verabreichung"
         },
         {
           "code": "1808_30",
-          "label": "Gewicht"
+          "name": "Gewicht"
         },
         {
           "code": "1695_60",
-          "label": "Chargennummer"
+          "name": "Chargennummer"
         },
         {
           "code": "1268_8",
-          "label": "Stat:Adressnummer"
+          "name": "Stat:Adressnummer"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
       "name": "Artikelstamm",
-      "kind": "erpabfrage",
       "idbId": "ARTIKEL.GET",
       "feldVorsatz": "ART_",
-      "fields": [
+      "art": "erpabfrage",
+      "felder": [
         {
           "code": "ART_2305_8",
-          "label": "Menge"
+          "name": "Menge"
         },
         {
           "code": "ART_7666_3",
-          "label": "UP Marketplace-Uploadstatus"
+          "name": "UP Marketplace-Uploadstatus"
         },
         {
           "code": "ART_1_25",
-          "label": "Artikelnummer"
+          "name": "Artikelnummer"
         },
         {
           "code": "ART_51_60",
-          "label": "Bezeichnung"
+          "name": "Bezeichnung"
         },
         {
           "code": "ART_759_10",
-          "label": "Bestand"
+          "name": "Bestand"
         },
         {
           "code": "ART_769_10",
-          "label": "Bestand Kalk."
+          "name": "Bestand Kalk."
         },
         {
           "code": "ART_8202_10",
-          "label": "Einkaufspreis"
+          "name": "Einkaufspreis"
         },
         {
           "code": "ART_8320_9",
-          "label": "Verkaufspreis"
+          "name": "Verkaufspreis"
         },
         {
           "code": "ART_2228_1",
-          "label": "BS Bestellstatus"
+          "name": "BS Bestellstatus"
         },
         {
           "code": "ART_26_10",
-          "label": "Kurzname"
+          "name": "Kurzname"
         },
         {
           "code": "ART_36_5",
-          "label": "WGR"
+          "name": "WGR"
         },
         {
           "code": "ART_2115_2",
-          "label": "V Bitmap Lagerstatus"
+          "name": "V Bitmap Lagerstatus"
         },
         {
           "code": "ART_1706_5",
-          "label": "Lagereinheit"
+          "name": "Lagereinheit"
         },
         {
           "code": "ART_2035_80",
-          "label": "Bilddateiname"
+          "name": "Bilddateiname"
         }
       ]
     },
     {
       "id": "a6349f7b-8505-4fc6-8187-18a7cf0378cf",
       "name": "Verabreichungsart",
-      "kind": "erpabfrage",
       "idbId": "IDBID0001.GET",
-      "indexField": "0_10",
       "feldVorsatz": "IDB_",
-      "fields": [
+      "art": "erpabfrage",
+      "felder": [
         {
           "code": "IDB_0_55",
-          "label": "TierArtID"
+          "name": "TierArtID"
         },
         {
           "code": "IDB_55_55",
-          "label": "Bezeichnung"
+          "name": "Bezeichnung"
         },
         {
           "code": "IDB_110_25",
-          "label": "Artikel"
+          "name": "Artikel"
         },
         {
           "code": "IDB_135_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "IDB_165_5",
-          "label": "Wartezeit"
+          "name": "Wartezeit"
         },
         {
           "code": "IDB_170_5",
-          "label": "Behandlungsdauer"
+          "name": "Behandlungsdauer"
         },
         {
           "code": "IDB_175_8",
-          "label": "Behandlungsmenge"
+          "name": "Behandlungsmenge"
         },
         {
           "code": "IDB_183_5",
-          "label": "Behandlungseinheit"
+          "name": "Behandlungseinheit"
         },
         {
           "code": "IDB_188_5",
-          "label": "Behandlungsinterval"
+          "name": "Behandlungsinterval"
         },
         {
           "code": "IDB_193_20",
-          "label": "Behandlungsintervaleinheit"
+          "name": "Behandlungsintervaleinheit"
         },
         {
           "code": "IDB_213_100",
-          "label": "Dosierung"
+          "name": "Dosierung"
         },
         {
           "code": "IDB_313_5",
-          "label": "Körpergewicht"
+          "name": "Körpergewicht"
         },
         {
           "code": "IDB_318_1",
-          "label": "Flag 1"
+          "name": "Flag 1"
         },
         {
           "code": "IDB_319_1",
-          "label": "Flag 2"
+          "name": "Flag 2"
         },
         {
           "code": "IDB_320_1",
-          "label": "Flag 3"
+          "name": "Flag 3"
         },
         {
           "code": "IDB_321_100",
-          "label": "Zusatz 1"
+          "name": "Zusatz 1"
         },
         {
           "code": "IDB_421_100",
-          "label": "Zusatz 2"
+          "name": "Zusatz 2"
         },
         {
           "code": "IDB_521_100",
-          "label": "Zusatz 3"
+          "name": "Zusatz 3"
         },
         {
           "code": "IDB_621_1",
-          "label": "Auswahl gesperrt"
+          "name": "Auswahl gesperrt"
         },
         {
           "code": "IDB_622_1",
-          "label": "Vorgel.Auswahl gesperrt"
+          "name": "Vorgel.Auswahl gesperrt"
         },
         {
           "code": "IDB_623_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "IDB_626_10",
-          "label": "Erfasst am"
+          "name": "Erfasst am"
         },
         {
           "code": "IDB_636_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "IDB_641_3",
-          "label": "Geändert von"
+          "name": "Geändert von"
         },
         {
           "code": "IDB_644_10",
-          "label": "Geändert am"
+          "name": "Geändert am"
         },
         {
           "code": "IDB_654_5",
-          "label": "Geändert um"
+          "name": "Geändert um"
         },
         {
           "code": "IDB_659_4",
-          "label": "Dosierungseinheit"
+          "name": "Dosierungseinheit"
         },
         {
           "code": "IDB_663_8",
-          "label": "Min"
+          "name": "Min"
         },
         {
           "code": "IDB_671_8",
-          "label": "Max"
+          "name": "Max"
         },
         {
           "code": "IDB_679_5",
-          "label": "Milch"
+          "name": "Milch"
         },
         {
           "code": "IDB_684_5",
-          "label": "Eier"
+          "name": "Eier"
         },
         {
           "code": "IDB_689_100",
-          "label": "Dauer"
+          "name": "Dauer"
         },
         {
           "code": "IDB_789_2",
-          "label": "Intervall der Abgabe in Stunden"
+          "name": "Intervall der Abgabe in Stunden"
         },
         {
           "code": "IDB_791_1",
-          "label": "Keine Milchlühe"
+          "name": "Keine Milchlühe"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "fac73611-1408-4b3f-ae7b-6858b3c71033",
       "name": "Chargen",
-      "kind": "datei",
       "idbId": "CHA",
-      "indexField": "0_10",
-      "fields": [
+      "art": "datei",
+      "felder": [
         {
           "code": "1_25",
-          "label": "Chargennummer"
+          "name": "Chargennummer"
         },
         {
           "code": "26_25",
-          "label": "Artikelnummer"
+          "name": "Artikelnummer"
         },
         {
           "code": "77_60",
-          "label": "Bezeichnung"
+          "name": "Bezeichnung"
         },
         {
           "code": "61_8",
-          "label": "Lieferant"
+          "name": "Lieferant"
         },
         {
           "code": "1054_10",
-          "label": "Mindesthalbarkeitsdatum"
+          "name": "Mindesthalbarkeitsdatum"
         },
         {
           "code": "198_10",
-          "label": "Lagerbestand"
+          "name": "Lagerbestand"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "5c6c3be6-dbed-44d6-92cf-24ba89e59c31",
       "name": "Belege",
-      "kind": "beleg",
-      "indexField": "0_11",
-      "fields": [
+      "art": "beleg",
+      "felder": [
         {
           "code": "0_11",
-          "label": "Satzschluessel"
+          "name": "Satzschluessel"
         },
         {
           "code": "107_30",
-          "label": "Firmenname"
+          "name": "Firmenname"
         },
         {
           "code": "3437_3",
-          "label": "FI - Fibu gebucht"
+          "name": "FI - Fibu gebucht"
         },
         {
           "code": "3434_3",
-          "label": "DR - Beleg gedruckt"
+          "name": "DR - Beleg gedruckt"
         },
         {
           "code": "3_8",
-          "label": "Beleg-Nr."
+          "name": "Beleg-Nr."
         },
         {
           "code": "11_8",
-          "label": "Ad.Nr."
+          "name": "Ad.Nr."
         },
         {
           "code": "19_10",
-          "label": "Belegdatum"
+          "name": "Belegdatum"
         },
         {
           "code": "3440_60",
-          "label": "Name"
+          "name": "Name"
         },
         {
           "code": "1610_12",
-          "label": "Netto EUR"
+          "name": "Netto EUR"
         },
         {
           "code": "7335_12",
-          "label": "Mwst EUR"
+          "name": "Mwst EUR"
         },
         {
           "code": "8204_12",
-          "label": "Brutto EUR"
+          "name": "Brutto EUR"
         },
         {
           "code": "1574_12",
-          "label": "Rohertrag EUR"
+          "name": "Rohertrag EUR"
         },
         {
           "code": "1313_8",
-          "label": "Vorgang"
+          "name": "Vorgang"
         },
         {
           "code": "29_10",
-          "label": "Liefer-/Versanddatum"
+          "name": "Liefer-/Versanddatum"
         },
         {
           "code": "39_8",
-          "label": "Projektnummer"
+          "name": "Projektnummer"
         },
         {
           "code": "47_10",
-          "label": "Kurzname"
+          "name": "Kurzname"
         },
         {
           "code": "57_10",
-          "label": "Postleitzahl"
+          "name": "Postleitzahl"
         },
         {
           "code": "1893_2",
-          "label": "Beleggruppe"
+          "name": "Beleggruppe"
         },
         {
           "code": "747_8",
-          "label": "Lieferadresse"
+          "name": "Lieferadresse"
         },
         {
           "code": "631_12",
-          "label": "Belegnummer Lieferant"
+          "name": "Belegnummer Lieferant"
         },
         {
           "code": "2_1",
-          "label": "Belegart"
+          "name": "Belegart"
         },
         {
           "code": "11_6",
-          "label": "Positionsnummer"
+          "name": "Positionsnummer"
         },
         {
           "code": "17_1",
-          "label": "Zeilenart"
+          "name": "Zeilenart"
         },
         {
           "code": "18_25",
-          "label": "Artikelnummer"
+          "name": "Artikelnummer"
         },
         {
           "code": "45_60",
-          "label": "Bezeichnung"
+          "name": "Bezeichnung"
         },
         {
           "code": "164_8",
-          "label": "Menge"
+          "name": "Menge"
         },
         {
           "code": "246_9",
-          "label": "Einzelpreis"
+          "name": "Einzelpreis"
         },
         {
           "code": "280_12",
-          "label": "Gesamtpreis"
+          "name": "Gesamtpreis"
         },
         {
           "code": "372_5",
-          "label": "MwSt-Satz"
+          "name": "MwSt-Satz"
         },
         {
           "code": "645_10",
-          "label": "Satznummer"
+          "name": "Satznummer"
         },
         {
           "code": "689_5",
-          "label": "Mengeneinheit"
+          "name": "Mengeneinheit"
         },
         {
           "code": "1401_12",
-          "label": "Rohertrag"
+          "name": "Rohertrag"
         },
         {
           "code": "2558_1",
-          "label": "Farbkennzeichen"
+          "name": "Farbkennzeichen"
         },
         {
           "code": "412_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "900_30",
-          "label": "Dosierung pro Tier"
+          "name": "Dosierung pro Tier"
         },
         {
           "code": "930_3",
-          "label": "Körpergewicht"
+          "name": "Körpergewicht"
         },
         {
           "code": "933_3",
-          "label": "Behandlungstage"
+          "name": "Behandlungstage"
         },
         {
           "code": "936_10",
-          "label": "Anzahl der Tiere (Ausgerechnet)"
+          "name": "Anzahl der Tiere (Ausgerechnet)"
         },
         {
           "code": "946_30",
-          "label": "Abgabemenge"
+          "name": "Abgabemenge"
         },
         {
           "code": "1536_100",
-          "label": "Dosierung"
+          "name": "Dosierung"
         },
         {
           "code": "1636_5",
-          "label": "Behandlungsdauer"
+          "name": "Behandlungsdauer"
         },
         {
           "code": "1641_5",
-          "label": "Behandlungsmenge"
+          "name": "Behandlungsmenge"
         },
         {
           "code": "1646_5",
-          "label": "Behandlungseinheit"
+          "name": "Behandlungseinheit"
         },
         {
           "code": "1651_5",
-          "label": "Behandlungsintervall"
+          "name": "Behandlungsintervall"
         },
         {
           "code": "1656_5",
-          "label": "Behandlungsintervalleinheit"
+          "name": "Behandlungsintervalleinheit"
         },
         {
           "code": "1661_4",
-          "label": "Dosierungseinheit"
+          "name": "Dosierungseinheit"
         },
         {
           "code": "1665_30",
-          "label": "Art der Verabreichung"
+          "name": "Art der Verabreichung"
         },
         {
           "code": "1808_30",
-          "label": "Gewicht"
+          "name": "Gewicht"
         }
-      ]
+      ],
+      "satzFeld": "0_11"
     },
     {
       "id": "57d71a71-85f3-4844-aa9c-e158eb86e8a3",
       "name": "BelegPositionenHistorie",
-      "kind": "belegposition",
-      "indexField": "0_10",
       "kopfsatzIndex": "BEL_0_11",
       "ladeRelation": {
         "nr": "69",
@@ -1407,776 +1405,778 @@
           "18_25"
         ]
       },
-      "fields": [
+      "art": "belegposition",
+      "felder": [
         {
           "code": "2_1",
-          "label": "Belegart"
+          "name": "Belegart"
         },
         {
           "code": "3_8",
-          "label": "Belegnummer"
+          "name": "Belegnummer"
         },
         {
           "code": "11_6",
-          "label": "Positionsnummer"
+          "name": "Positionsnummer"
         },
         {
           "code": "17_1",
-          "label": "Zeilenart"
+          "name": "Zeilenart"
         },
         {
           "code": "18_25",
-          "label": "Artikelnummer"
+          "name": "Artikelnummer"
         },
         {
           "code": "45_60",
-          "label": "Bezeichnung"
+          "name": "Bezeichnung"
         },
         {
           "code": "164_8",
-          "label": "Menge"
+          "name": "Menge"
         },
         {
           "code": "246_9",
-          "label": "Einzelpreis"
+          "name": "Einzelpreis"
         },
         {
           "code": "280_12",
-          "label": "Gesamtpreis"
+          "name": "Gesamtpreis"
         },
         {
           "code": "372_5",
-          "label": "MwSt-Satz"
+          "name": "MwSt-Satz"
         },
         {
           "code": "645_10",
-          "label": "Satznummer"
+          "name": "Satznummer"
         },
         {
           "code": "689_5",
-          "label": "Mengeneinheit"
+          "name": "Mengeneinheit"
         },
         {
           "code": "1401_12",
-          "label": "Rohertrag"
+          "name": "Rohertrag"
         },
         {
           "code": "2558_1",
-          "label": "Farbkennzeichen"
+          "name": "Farbkennzeichen"
         },
         {
           "code": "412_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "900_30",
-          "label": "Dosierung pro Tier"
+          "name": "Dosierung pro Tier"
         },
         {
           "code": "930_3",
-          "label": "Körpergewicht"
+          "name": "Körpergewicht"
         },
         {
           "code": "933_3",
-          "label": "Behandlungstage"
+          "name": "Behandlungstage"
         },
         {
           "code": "936_10",
-          "label": "Anzahl der Tiere (Ausgerechnet)"
+          "name": "Anzahl der Tiere (Ausgerechnet)"
         },
         {
           "code": "946_30",
-          "label": "Abgabemenge"
+          "name": "Abgabemenge"
         },
         {
           "code": "1536_100",
-          "label": "Dosierung"
+          "name": "Dosierung"
         },
         {
           "code": "1636_5",
-          "label": "Behandlungsdauer"
+          "name": "Behandlungsdauer"
         },
         {
           "code": "1641_5",
-          "label": "Behandlungsmenge"
+          "name": "Behandlungsmenge"
         },
         {
           "code": "1646_5",
-          "label": "Behandlungseinheit"
+          "name": "Behandlungseinheit"
         },
         {
           "code": "1651_5",
-          "label": "Behandlungsintervall"
+          "name": "Behandlungsintervall"
         },
         {
           "code": "1656_5",
-          "label": "Behandlungsintervalleinheit"
+          "name": "Behandlungsintervalleinheit"
         },
         {
           "code": "1661_4",
-          "label": "Dosierungseinheit"
+          "name": "Dosierungseinheit"
         },
         {
           "code": "1665_30",
-          "label": "Art der Verabreichung"
+          "name": "Art der Verabreichung"
         },
         {
           "code": "1808_30",
-          "label": "Gewicht"
+          "name": "Gewicht"
         },
         {
           "code": "1695_60",
-          "label": "Chargennummer"
+          "name": "Chargennummer"
         },
         {
           "code": "1268_8",
-          "label": "Stat:Adressnummer"
+          "name": "Stat:Adressnummer"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "f4341c6c-a69f-46b8-afe1-bfcdd1adf4a4",
       "name": "Tierart",
-      "kind": "erpabfrage",
       "idbId": "IDBID0002.GET",
-      "indexField": "0_10",
       "feldVorsatz": "IDB_",
-      "fields": [
+      "art": "erpabfrage",
+      "felder": [
         {
           "code": "IDB_0_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "IDB_30_30",
-          "label": "Sekundärtierart"
+          "name": "Sekundärtierart"
         },
         {
           "code": "IDB_60_1",
-          "label": "Ohrmarke"
+          "name": "Ohrmarke"
         },
         {
           "code": "IDB_61_1",
-          "label": "Stall"
+          "name": "Stall"
         },
         {
           "code": "IDB_62_1",
-          "label": "Abteilung"
+          "name": "Abteilung"
         },
         {
           "code": "IDB_63_1",
-          "label": "Bucht"
+          "name": "Bucht"
         },
         {
           "code": "IDB_64_1",
-          "label": "Name"
+          "name": "Name"
         },
         {
           "code": "IDB_65_1",
-          "label": "Flag 1"
+          "name": "Flag 1"
         },
         {
           "code": "IDB_66_1",
-          "label": "Flag 2"
+          "name": "Flag 2"
         },
         {
           "code": "IDB_67_1",
-          "label": "Flag 3"
+          "name": "Flag 3"
         },
         {
           "code": "IDB_68_100",
-          "label": "Rang"
+          "name": "Rang"
         },
         {
           "code": "IDB_168_100",
-          "label": "Zusatz 2"
+          "name": "Zusatz 2"
         },
         {
           "code": "IDB_268_100",
-          "label": "Zusatz 3"
+          "name": "Zusatz 3"
         },
         {
           "code": "IDB_368_1",
-          "label": "Auswahl gesperrt"
+          "name": "Auswahl gesperrt"
         },
         {
           "code": "IDB_369_1",
-          "label": "Vorgel.Auswahl gesperrt"
+          "name": "Vorgel.Auswahl gesperrt"
         },
         {
           "code": "IDB_370_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "IDB_373_10",
-          "label": "Erfasst am"
+          "name": "Erfasst am"
         },
         {
           "code": "IDB_383_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "IDB_388_3",
-          "label": "Geändert von"
+          "name": "Geändert von"
         },
         {
           "code": "IDB_391_10",
-          "label": "Geändert am"
+          "name": "Geändert am"
         },
         {
           "code": "IDB_401_5",
-          "label": "Geändert um"
+          "name": "Geändert um"
         },
         {
           "code": "IDB_406_4",
-          "label": "QS Tierart"
+          "name": "QS Tierart"
         },
         {
           "code": "IDB_410_6",
-          "label": "HiT Key"
+          "name": "HiT Key"
         },
         {
           "code": "IDB_416_3",
-          "label": "HiT Codenr"
+          "name": "HiT Codenr"
         },
         {
           "code": "IDB_419_3",
-          "label": "HiT Code"
+          "name": "HiT Code"
         },
         {
           "code": "IDB_422_75",
-          "label": "HiT Bez"
+          "name": "HiT Bez"
         },
         {
           "code": "IDB_497_1",
-          "label": "Nur HiT melden"
+          "name": "Nur HiT melden"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "bd0a66fa-6505-4333-b27c-4d4adbf4b36a",
       "name": "Stall",
-      "kind": "erpabfrage",
       "idbId": "IDBID0003.GET",
-      "indexField": "0_10",
       "feldVorsatz": "IDB_",
-      "fields": [
+      "art": "erpabfrage",
+      "felder": [
         {
           "code": "IDB_0_30",
-          "label": "Wert"
+          "name": "Wert"
         },
         {
           "code": "IDB_30_255",
-          "label": "Parameter"
+          "name": "Parameter"
         },
         {
           "code": "IDB_76_30",
-          "label": "Stallbezeichnung"
+          "name": "Stallbezeichnung"
         },
         {
           "code": "IDB_106_1",
-          "label": "Flag 1"
+          "name": "Flag 1"
         },
         {
           "code": "IDB_107_1",
-          "label": "Flag 2"
+          "name": "Flag 2"
         },
         {
           "code": "IDB_108_1",
-          "label": "Flag 2"
+          "name": "Flag 2"
         },
         {
           "code": "IDB_109_100",
-          "label": "Zusatz 1"
+          "name": "Zusatz 1"
         },
         {
           "code": "IDB_209_100",
-          "label": "Zusatz 2"
+          "name": "Zusatz 2"
         },
         {
           "code": "IDB_285_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "IDB_298_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "IDB_303_3",
-          "label": "Geändert von"
+          "name": "Geändert von"
         },
         {
           "code": "IDB_306_10",
-          "label": "Geändert am"
+          "name": "Geändert am"
         },
         {
           "code": "IDB_309_100",
-          "label": "Zusatz 3"
+          "name": "Zusatz 3"
         },
         {
           "code": "IDB_316_5",
-          "label": "Geändert um"
+          "name": "Geändert um"
         },
         {
           "code": "IDB_409_1",
-          "label": "Speicherfähig"
+          "name": "Speicherfähig"
         },
         {
           "code": "IDB_410_1",
-          "label": "Auswahl gesperrt"
+          "name": "Auswahl gesperrt"
         },
         {
           "code": "IDB_411_1",
-          "label": "Vorgel.Auswahl gesperrt"
+          "name": "Vorgel.Auswahl gesperrt"
         },
         {
           "code": "IDB_412_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "IDB_425_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "IDB_449_30",
-          "label": "Chipnummer/Lebensnummer"
+          "name": "Chipnummer/Lebensnummer"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "1c4cf597-f3cc-4a82-bb25-b8bd1e354ed4",
       "name": "Anzahl Tiere Pro Stall",
-      "kind": "idb",
       "idbId": "IDBID0006",
-      "indexField": "0_10",
-      "fields": [
+      "art": "idb",
+      "felder": [
         {
           "code": "0_10",
-          "label": "Index"
+          "name": "Index"
         },
         {
           "code": "10_3",
-          "label": "Bediener"
+          "name": "Bediener"
         },
         {
           "code": "13_30",
-          "label": "Stall"
+          "name": "Stall"
         },
         {
           "code": "43_12",
-          "label": "Anzahl Tiere"
+          "name": "Anzahl Tiere"
         },
         {
           "code": "55_12",
-          "label": "Menge"
+          "name": "Menge"
         },
         {
           "code": "67_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "70_10",
-          "label": "Erfasst am"
+          "name": "Erfasst am"
         },
         {
           "code": "80_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "85_3",
-          "label": "Geändert von"
+          "name": "Geändert von"
         },
         {
           "code": "88_10",
-          "label": "Geändert am"
+          "name": "Geändert am"
         },
         {
           "code": "98_5",
-          "label": "Geändert um"
+          "name": "Geändert um"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "ef6d6b24-70e6-4857-88e2-1bd6534b3090",
       "name": "Tierarten pro Adresse",
-      "kind": "idb",
       "idbId": "IDBID0017",
-      "indexField": "0_10",
-      "fields": [
+      "art": "idb",
+      "felder": [
         {
           "code": "0_38",
-          "label": "Index Adr + Tierart"
+          "name": "Index Adr + Tierart"
         },
         {
           "code": "38_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "68_8",
-          "label": "Adresse"
+          "name": "Adresse"
         },
         {
           "code": "76_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "79_10",
-          "label": "Erfasst am"
+          "name": "Erfasst am"
         },
         {
           "code": "89_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "94_3",
-          "label": "Geändert von"
+          "name": "Geändert von"
         },
         {
           "code": "97_10",
-          "label": "Geändert am"
+          "name": "Geändert am"
         },
         {
           "code": "107_5",
-          "label": "Geändert um"
+          "name": "Geändert um"
         },
         {
           "code": "112_1",
-          "label": "Keine Meldung HiT"
+          "name": "Keine Meldung HiT"
         },
         {
           "code": "113_1",
-          "label": "Keine Meldung QS"
+          "name": "Keine Meldung QS"
         },
         {
           "code": "114_8",
-          "label": "Stalladresse"
+          "name": "Stalladresse"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "97724f45-3bf2-4a09-a57f-dcd61dc0d1fd",
       "name": "Diagnose pro Tierart und Artikel",
-      "kind": "idb",
       "idbId": "IDBID0112",
-      "indexField": "0_10",
-      "fields": [
+      "art": "idb",
+      "felder": [
         {
           "code": "0_100",
-          "label": "ID"
+          "name": "ID"
         },
         {
           "code": "100_25",
-          "label": "Artikelnummer"
+          "name": "Artikelnummer"
         },
         {
           "code": "125_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "155_200",
-          "label": "Diagnose"
+          "name": "Diagnose"
         },
         {
           "code": "355_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "358_10",
-          "label": "Erfasst am"
+          "name": "Erfasst am"
         },
         {
           "code": "368_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "373_3",
-          "label": "Geändert von"
+          "name": "Geändert von"
         },
         {
           "code": "376_10",
-          "label": "Geändert am"
+          "name": "Geändert am"
         },
         {
           "code": "386_5",
-          "label": "Geändert um"
+          "name": "Geändert um"
         },
         {
           "code": "391_8",
-          "label": "Behandlungsmenge"
+          "name": "Behandlungsmenge"
         },
         {
           "code": "399_5",
-          "label": "Behandlungseinheit"
+          "name": "Behandlungseinheit"
         },
         {
           "code": "404_5",
-          "label": "Körpergewicht"
+          "name": "Körpergewicht"
         },
         {
           "code": "409_100",
-          "label": "Dosierungstext"
+          "name": "Dosierungstext"
         },
         {
           "code": "509_5",
-          "label": "Indikation"
+          "name": "Indikation"
         },
         {
           "code": "514_8",
-          "label": "MIN"
+          "name": "MIN"
         },
         {
           "code": "522_8",
-          "label": "Max"
+          "name": "Max"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "63012f31-43c6-4053-b03c-0eba72f9f119",
       "name": "Stücklisten vet",
-      "kind": "idb",
       "idbId": "IDBID0901",
-      "indexField": "0_10",
-      "fields": [
+      "art": "idb",
+      "felder": [
         {
           "code": "0_30",
-          "label": "Index Art+Pos"
+          "name": "Index Art+Pos"
         },
         {
           "code": "30_25",
-          "label": "Artikel"
+          "name": "Artikel"
         },
         {
           "code": "55_5",
-          "label": "Position"
+          "name": "Position"
         },
         {
           "code": "60_60",
-          "label": "Text"
+          "name": "Text"
         },
         {
           "code": "120_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "150_100",
-          "label": "Ind."
+          "name": "Ind."
         },
         {
           "code": "250_8",
-          "label": "Verabr."
+          "name": "Verabr."
         },
         {
           "code": "258_8",
-          "label": "Menge"
+          "name": "Menge"
         },
         {
           "code": "266_9",
-          "label": "D-Menge"
+          "name": "D-Menge"
         },
         {
           "code": "275_50",
-          "label": "D-Text"
+          "name": "D-Text"
         },
         {
           "code": "325_5",
-          "label": "WZ"
+          "name": "WZ"
         },
         {
           "code": "330_5",
-          "label": "Bhd"
+          "name": "Bhd"
         },
         {
           "code": "335_5",
-          "label": "BI(h)"
+          "name": "BI(h)"
         },
         {
           "code": "340_9",
-          "label": "Preis"
+          "name": "Preis"
         },
         {
           "code": "349_3",
-          "label": "Erfasst von"
+          "name": "Erfasst von"
         },
         {
           "code": "352_10",
-          "label": "Erfasst am"
+          "name": "Erfasst am"
         },
         {
           "code": "362_5",
-          "label": "Erfasst um"
+          "name": "Erfasst um"
         },
         {
           "code": "367_3",
-          "label": "Geändert von"
+          "name": "Geändert von"
         },
         {
           "code": "370_10",
-          "label": "Geändert am"
+          "name": "Geändert am"
         },
         {
           "code": "380_5",
-          "label": "Geändert um"
+          "name": "Geändert um"
         },
         {
           "code": "385_25",
-          "label": "Hauptartikel"
+          "name": "Hauptartikel"
         },
         {
           "code": "410_1",
-          "label": "Kein Preis in der Stückliste"
+          "name": "Kein Preis in der Stückliste"
         },
         {
           "code": "411_1",
-          "label": "Steuerspalte"
+          "name": "Steuerspalte"
         },
         {
           "code": "412_1",
-          "label": "Anwendung(J)/Abgabe(N)"
+          "name": "Anwendung(J)/Abgabe(N)"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "d1bb1a4e-5ab4-4cf0-97e5-2e4d338b7788",
       "name": "Adressstamm",
-      "kind": "erpabfrage",
       "idbId": "ADRESSE.GET",
-      "indexField": "0_10",
       "feldVorsatz": "ADR_",
-      "fields": [
+      "art": "erpabfrage",
+      "felder": [
         {
           "code": "ADR_1988_2",
-          "label": "Adressgruppe"
+          "name": "Adressgruppe"
         },
         {
           "code": "ADR_3292_30",
-          "label": "Vorname"
+          "name": "Vorname"
         },
         {
           "code": "ADR_3322_40",
-          "label": "Nachname"
+          "name": "Nachname"
         },
         {
           "code": "ADR_6608_6",
-          "label": "I - Info Adresse"
+          "name": "I - Info Adresse"
         },
         {
           "code": "ADR_2_8",
-          "label": "Adress-Nr."
+          "name": "Adress-Nr."
         },
         {
           "code": "ADR_3460_60",
-          "label": "Name"
+          "name": "Name"
         },
         {
           "code": "ADR_2187_46",
-          "label": "Strasse"
+          "name": "Strasse"
         },
         {
           "code": "ADR_1450_3",
-          "label": "Land"
+          "name": "Land"
         },
         {
           "code": "ADR_110_10",
-          "label": "PLZ"
+          "name": "PLZ"
         },
         {
           "code": "ADR_2233_40",
-          "label": "Ort"
+          "name": "Ort"
         },
         {
           "code": "ADR_50_30",
-          "label": "Branche"
+          "name": "Branche"
         },
         {
           "code": "ADR_2332_20",
-          "label": "Telefon"
+          "name": "Telefon"
         },
         {
           "code": "ADR_242_20",
-          "label": "Telefax"
+          "name": "Telefax"
         },
         {
           "code": "ADR_1330_60",
-          "label": "E-Mail-Adresse"
+          "name": "E-Mail-Adresse"
         },
         {
           "code": "ADR_1390_60",
-          "label": "Webseite"
+          "name": "Webseite"
         },
         {
           "code": "ADR_10_30",
-          "label": "Kurzname"
+          "name": "Kurzname"
         },
         {
           "code": "ADR_120_30",
-          "label": "Ortsname"
+          "name": "Ortsname"
         },
         {
           "code": "ADR_1881_30",
-          "label": "Suchbegriff"
+          "name": "Suchbegriff"
         },
         {
           "code": "ADR_222_20",
-          "label": "Telefon 2"
+          "name": "Telefon 2"
         },
         {
           "code": "ADR_1114_20",
-          "label": "Mobiltelefon"
+          "name": "Mobiltelefon"
         },
         {
           "code": "ADR_1219_2",
-          "label": "Adressgruppe 1-99"
+          "name": "Adressgruppe 1-99"
         },
         {
           "code": "ADR_20_30",
-          "label": "Firmenname"
+          "name": "Firmenname"
         },
         {
           "code": "ADR_158_25",
-          "label": "Bankname"
+          "name": "Bankname"
         },
         {
           "code": "ADR_150_8",
-          "label": "Bankleitzahl"
+          "name": "Bankleitzahl"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     },
     {
       "id": "8363c6c3-fdb0-48ea-b5ac-b201ea3d16d0",
       "name": "Haustiere",
-      "kind": "erpabfrage",
       "idbId": "LIEFERADRESSE.GET",
-      "indexField": "0_10",
       "feldVorsatz": "LFA_",
-      "fields": [
+      "art": "erpabfrage",
+      "felder": [
         {
           "code": "LFA_2_8",
-          "label": "Lieferadressnummer"
+          "name": "Lieferadressnummer"
         },
         {
           "code": "LFA_10_8",
-          "label": "Kundennummer"
+          "name": "Kundennummer"
         },
         {
           "code": "LFA_400_30",
-          "label": "Tiername"
+          "name": "Tiername"
         },
         {
           "code": "LFA_960_10",
-          "label": "Geburtsdatum"
+          "name": "Geburtsdatum"
         },
         {
           "code": "LFA_971_30",
-          "label": "Tierart"
+          "name": "Tierart"
         },
         {
           "code": "LFA_430_30",
-          "label": "Rasse"
+          "name": "Rasse"
         },
         {
           "code": "LFA_2072_6",
-          "label": "Gewicht"
+          "name": "Gewicht"
         }
-      ]
+      ],
+      "satzFeld": "0_10"
     }
   ],
   "relationen": [
@@ -2185,7 +2185,7 @@
       "name": "Standard-Schreiben (PUT)",
       "verb": "PUT_RELATION",
       "nr": "174",
-      "params": [
+      "parameter": [
         "{FELD_POS}",
         "{FELD_LEN}",
         "L",
@@ -2193,14 +2193,14 @@
         "{RELID}",
         "{VALUE}"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "9c5d2276-c003-4865-ae28-371c84ab6d90",
       "name": "PUT82",
       "verb": "PUT_RELATION",
       "nr": "82",
-      "params": [
+      "parameter": [
         "GJ",
         "BELART",
         "BELNR",
@@ -2234,25 +2234,25 @@
         "A",
         "W"
       ],
-      "allowExtraParams": true
+      "zusatzParameterErlaubt": true
     },
     {
       "id": "57297460-ff0f-44bb-8fb1-2f9ee3c3b46b",
       "name": "IDB-Datensatz löschen",
       "verb": "PUT_RELATION",
       "nr": "176",
-      "params": [
+      "parameter": [
         "IDBID",
         "PINDEX"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "33b389d8-9263-4d7a-96d7-b2ccc01ea3c6",
       "name": "IDB-Datenbank",
       "verb": "PUT_RELATION",
       "nr": "174",
-      "params": [
+      "parameter": [
         "POS",
         "LEN",
         "VART",
@@ -2260,39 +2260,39 @@
         "IDBID",
         "QUELLDATEN"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "f63ea5de-85b3-4a07-bb6b-c6745fc0f3ed",
       "name": "Neuen IDB-Satz automatisch anlegen",
       "verb": "GET_RELATION",
       "nr": "640",
-      "params": [
+      "parameter": [
         "IDBID",
         "DATUMBEDIENER",
         "PROTOKOLL"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "519fdabc-ff49-48ac-9862-ed7fd4c3249f",
       "name": "Relation IDB-Datenbank",
       "verb": "GET_RELATION",
       "nr": "620",
-      "params": [
+      "parameter": [
         "PINDEX",
         "POS",
         "LEN",
         "IDBID"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "5036796c-deea-4c7d-b1c9-d5788e9d2cf1",
       "name": "Neuanlage Belegkopf Rückgabe BEL_0_11",
       "verb": "GET_RELATION",
       "nr": "1020",
-      "params": [
+      "parameter": [
         "BELEGART",
         "BGRUPPE",
         "ADRNR",
@@ -2301,14 +2301,14 @@
         "BELNR",
         "JAHR"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "0941ca0d-efa2-4d6e-aaaf-3374418938ba",
       "name": "Index BEL",
       "verb": "GET_RELATION",
       "nr": "53",
-      "params": [
+      "parameter": [
         "BELART",
         "107",
         "30",
@@ -2316,14 +2316,14 @@
         "JAHR",
         "ARCHIV"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "b4c5b9b8-9372-4558-acf6-5fc4f43efed7",
       "name": "Relation Belege",
       "verb": "GET_RELATION",
       "nr": "53",
-      "params": [
+      "parameter": [
         "BELART",
         "POS",
         "LEN",
@@ -2331,14 +2331,14 @@
         "JAHR",
         "ARCHIV"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "92e7ac22-5bee-4180-a47a-7d3397661666",
       "name": "Position aus Beleg löschen",
       "verb": "PUT_RELATION",
       "nr": "53",
-      "params": [
+      "parameter": [
         "",
         "",
         "",
@@ -2354,15 +2354,15 @@
         "POS_17_1",
         "SNR"
       ],
-      "allowExtraParams": false
+      "zusatzParameterErlaubt": false
     },
     {
       "id": "0ee58017-5da5-4897-a85e-200a2c9cbc13",
       "name": "AdresseBelege",
       "verb": "GET_RELATION",
       "nr": "408",
-      "params": [],
-      "allowExtraParams": false
+      "parameter": [],
+      "zusatzParameterErlaubt": false
     }
   ]
 }

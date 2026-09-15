@@ -40,10 +40,10 @@ import { fokussierterRohIndex } from './zeilenAktivierung'
 
 export class TabelleBlock extends Grundbaustein {
   // Als string, nicht als Literal: die Erfassung erbt und traegt eigene Namen.
-  static readonly blockType: string = 'tabelle'
-  static readonly tagName: string = 'ff-tabelle'
-  static readonly displayName: string = 'Tabelle'
-  static readonly category: Kategorie = 'anzeige'
+  static readonly typ: string = 'tabelle'
+  static readonly tag: string = 'ff-tabelle'
+  static readonly anzeigeName: string = 'Tabelle'
+  static readonly kategorie: Kategorie = 'anzeige'
 
   static readonly faehigkeiten: readonly Faehigkeit[] = [
     { art: 'quelle' },
@@ -53,13 +53,13 @@ export class TabelleBlock extends Grundbaustein {
     {
       art: 'ereignisse',
       liste: [
-        { key: 'onRowClick', name: 'Zeile gewählt' },
-        { key: 'onRowDblClick', name: 'Zeile doppelt geklickt' },
-        { key: 'onF4', name: 'F4 – Aktion an der Zeile' },
+        { schluessel: 'onRowClick', name: 'Zeile gewählt' },
+        { schluessel: 'onRowDblClick', name: 'Zeile doppelt geklickt' },
+        { schluessel: 'onF4', name: 'F4 – Aktion an der Zeile' },
       ],
     },
   ]
-  static readonly defaultProps = {
+  static readonly vorgaben = {
     width: 'fill',
     source: '',
     spalten: standardSpalten(),
@@ -70,9 +70,9 @@ export class TabelleBlock extends Grundbaustein {
     tagField: '',
     leerText: LEER_TEXT_STANDARD,
   }
-  static override readonly customProperties = TABELLE_EIGENSCHAFTEN
+  static override readonly eigenschaften = TABELLE_EIGENSCHAFTEN
 
-  static readonly raster = { startW: 48, startH: 14, minW: 12, minH: 4 }
+  static readonly raster = { startBreite: 48, startHoehe: 14, minBreite: 12, minHoehe: 4 }
 
   static override styles: CSSResultGroup = [Grundbaustein.styles, leerStil, tabelleStil]
 

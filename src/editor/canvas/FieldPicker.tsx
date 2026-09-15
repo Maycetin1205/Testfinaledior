@@ -128,7 +128,7 @@ function anzeigeVon(wert: string, gruppen: readonly PickerGruppe[]): Anzeige {
   for (const g of gruppen) {
     for (const f of g.fields) {
       if (bindungMitQuelle(g.quelleId, f.code) !== wert) continue
-      return { name: f.label, kennung: f.code, leer: false, unbekannt: false }
+      return { name: f.name, kennung: f.code, leer: false, unbekannt: false }
     }
   }
   return { name: wert, leer: false, unbekannt: true }
@@ -142,7 +142,7 @@ function listeGruppen(gruppen: readonly PickerGruppe[]): ListeGruppe[] {
     hinweis: g.hinweis === undefined || g.hinweis === '' ? undefined : `über ${g.hinweis}`,
     eintraege: g.fields.map((f) => ({
       wert: bindungMitQuelle(g.quelleId, f.code),
-      name: f.label,
+      name: f.name,
       kennung: f.code,
     })),
   }))

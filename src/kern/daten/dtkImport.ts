@@ -1,7 +1,7 @@
 // Liest eine DTK-Datei aus SoftEngine: Tabellen mit ihren Feldern.
 export interface DtkFeld {
   code: string
-  label: string
+  name: string
 }
 
 export interface DtkTabelle {
@@ -199,7 +199,7 @@ function parseDtk(text: string): DtkTabelle[] {
     raus.push({
       kennung: `IDB${id}`,
       name: namen.get(id) ?? '',
-      felder: felder.map((f) => ({ code: codeVon(f), label: f.label })),
+      felder: felder.map((f) => ({ code: codeVon(f), name: f.label })),
       soll: sollZahl,
     })
   }

@@ -66,13 +66,13 @@ export function SchrittListe({
   const dupliziere = (at: number): void => {
     if (!onAendern) return
     const quelle = steps[at]
-    const kopie: Schritt = quelle.type === 'START_TOOL'
-      ? { ...quelle, toolParams: [...quelle.toolParams], id: crypto.randomUUID() }
-      : quelle.type === 'RELATION'
+    const kopie: Schritt = quelle.art === 'START_TOOL'
+      ? { ...quelle, toolParameter: [...quelle.toolParameter], id: crypto.randomUUID() }
+      : quelle.art === 'RELATION'
         ? {
             ...quelle,
-            params: quelle.params.map((binding) => ({ ...binding })),
-            extraParams: quelle.extraParams.map((binding) => ({ ...binding })),
+            parameter: quelle.parameter.map((binding) => ({ ...binding })),
+            zusatzParameter: quelle.zusatzParameter.map((binding) => ({ ...binding })),
             id: crypto.randomUUID(),
           }
         : { ...quelle, id: crypto.randomUUID() }
@@ -91,15 +91,15 @@ export function SchrittListe({
           geberIds,
           steps.slice(0, i),
         )
-        const relation = s.type === 'RELATION' ? relations.get(s.relationId) : undefined
-        const popupName = s.type === 'POPUP_OPEN' || s.type === 'POPUP_CLOSE'
+        const relation = s.art === 'RELATION' ? relations.get(s.relationId) : undefined
+        const popupName = s.art === 'POPUP_OPEN' || s.art === 'POPUP_CLOSE'
           ? popupSeiten.find((seite) => seite.id === s.popupId)?.name
           : undefined
   // Eine Relation mit eigenem Namen nennt IHN; eine ungetaufte Vorlage heisst
   // schlicht „Relation", und welche es ist, sagt die Marke rechts.
-        const was = s.type === 'RELATION' && relation && !istUngetaufteVorlage(relation)
+        const was = s.art === 'RELATION' && relation && !istUngetaufteVorlage(relation)
           ? relation.name
-          : schrittName(s.type)
+          : schrittName(s.art)
         const zus = schrittZusammenfassung(
           s, was, relation, ed.tree, dataSources.list,
           (id) => steps.findIndex((x) => x.id === id) + 1,
@@ -140,8 +140,8 @@ export function SchrittListe({
               >
                 <span className="block w-full truncate text-dicht">
                   {zus.was}
-                  {s.type === 'START_TOOL' && s.toolNr.trim() !== '' ? ` — Nr. ${s.toolNr}` : ''}
-                  {s.type === 'BW_LINK' && s.befehl.trim() !== '' ? ` — ${s.befehl}` : ''}
+                  {s.art === 'START_TOOL' && s.toolNr.trim() !== '' ? ` — Nr. ${s.toolNr}` : ''}
+                  {s.art === 'BW_LINK' && s.befehl.trim() !== '' ? ` — ${s.befehl}` : ''}
                   {popupName ? ` — ${popupName}` : ''}
                   {problem !== null ? ' — unvollständig' : ''}
                 </span>

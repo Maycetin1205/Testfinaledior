@@ -19,26 +19,26 @@ import { kartenAbstandStil } from './kartenAbstand'
 import { KanbanZimmerBlock, ZIMMER_INHALT_EVENT } from './KanbanZimmerBlock'
 
 export class KanbanSpalteBlock extends Grundbaustein {
-  static readonly blockType = 'kanban-spalte'
-  static readonly tagName = 'ff-kanban-spalte'
-  static readonly displayName = 'Kanban-Spalte'
-  static readonly category: Kategorie = 'anzeige'
-  static readonly acceptsChildren = true
+  static readonly typ = 'kanban-spalte'
+  static readonly tag = 'ff-kanban-spalte'
+  static readonly anzeigeName = 'Kanban-Spalte'
+  static readonly kategorie: Kategorie = 'anzeige'
+  static readonly nimmtKinder = true
 
-  static readonly allowedChildTypes: string[] = [
-    KanbanZimmerBlock.blockType,
+  static readonly erlaubteKinder: string[] = [
+    KanbanZimmerBlock.typ,
   ]
 
-  static readonly addChildButton = { label: 'Zimmer', childType: KanbanZimmerBlock.blockType }
-  static readonly childDirection: Richtung = 'column'
-  static readonly showInPalette = false
-  static readonly containerHint = false
+  static readonly kindKnopf = { label: 'Zimmer', childType: KanbanZimmerBlock.typ }
+  static readonly kinderRichtung: Richtung = 'column'
+  static readonly inPalette = false
+  static readonly behaelterRahmen = false
 
-  static readonly allowedParentTypes = ['kanban']
-  static readonly lockedWidth: FlussBreite = 'fill'
-  static readonly resizableWidth = false
+  static readonly erlaubteEltern = ['kanban']
+  static readonly festeBreite: FlussBreite = 'fill'
+  static readonly breiteAenderbar = false
 
-  static readonly defaultProps = {
+  static readonly vorgaben = {
     variant: 'info',
     heading: 'Neue Spalte',
     wert: '',
@@ -46,7 +46,7 @@ export class KanbanSpalteBlock extends Grundbaustein {
     zimmerField: '',
   }
 
-  static override readonly customProperties: Eigenschaft[] = [
+  static override readonly eigenschaften: Eigenschaft[] = [
     statusVariantProperty(
       'variant',
       'Bedeutung der Spalte — bestimmt ihre Farbwelt (Kopf, Fläche, Rahmen).',
@@ -55,22 +55,22 @@ export class KanbanSpalteBlock extends Grundbaustein {
       'auffang',
       'Auffangspalte',
       'Eintr\u00E4ge ohne passenden Wert landen hier.',
-      { requiresDataSource: true, exclusiveAmongSiblings: true },
+      { brauchtQuelle: true, einzigUnterGeschwistern: true },
     ),
 
     {
-      attributeName: 'wert',
+      schluessel: 'wert',
       bearbeitung: 'inspector',
       name: 'Wert im ERP',
-      description: 'Steht im Statusfeld, wenn eine Karte hier liegt. Leer: der Titel.',
-      kind: 'text',
+      beschreibung: 'Steht im Statusfeld, wenn eine Karte hier liegt. Leer: der Titel.',
+      art: 'text',
     },
 
     {
-      attributeName: 'zimmerField',
+      schluessel: 'zimmerField',
       name: 'Unterteilen nach',
-      description: 'Wähle das Datenfeld für die Zimmer, z. B. Mitarbeiter oder Raum. Trage an jedem Zimmer den passenden ERP-Wert ein. Unbekannte Werte landen im ersten Zimmer.',
-      kind: 'field',
+      beschreibung: 'Wähle das Datenfeld für die Zimmer, z. B. Mitarbeiter oder Raum. Trage an jedem Zimmer den passenden ERP-Wert ein. Unbekannte Werte landen im ersten Zimmer.',
+      art: 'field',
     },
   ]
 
@@ -168,7 +168,7 @@ export class KanbanSpalteBlock extends Grundbaustein {
   }
 
   private zaehle(): void {
-    this._count = Array.from(this.querySelectorAll(CardBlock.tagName))
+    this._count = Array.from(this.querySelectorAll(CardBlock.tag))
       .filter((el) => !el.hasAttribute('data-ff-editor-helper'))
       .length
   }

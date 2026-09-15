@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest'
-import type { RuntimeLadeRelation } from './data'
+import type { LaufzeitLadeRelation } from './data'
 
 interface Sollantwort { wert: string; fehler?: string }
 
@@ -8,7 +8,7 @@ const gemeldet: string[] = []
 let anstoesse = 0
 
 vi.mock('./relations', () => ({
-  executeRelation: () => {
+  relationAusfuehren: () => {
     const naechste = antworten.shift()
     if (naechste === undefined) return Promise.resolve({ wert: '', roh: undefined })
     return Promise.resolve({ wert: naechste.wert, roh: undefined, fehler: naechste.fehler })
@@ -31,7 +31,7 @@ const QUELLE = { id: 'q-pos', name: 'POS' }
 // 11 steht etwas.
 const SATZ = 'x'.repeat(11) + 'ABC'
 
-function lade(zusatzFelder: readonly string[] = []): RuntimeLadeRelation {
+function lade(zusatzFelder: readonly string[] = []): LaufzeitLadeRelation {
   return {
     nr: '69',
     belegartFeld: '2_1',

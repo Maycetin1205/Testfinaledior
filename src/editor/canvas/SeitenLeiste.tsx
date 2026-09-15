@@ -14,7 +14,7 @@ export function SeitenLeiste() {
   const aktiv = ed.activePageId
 
   const [umbenennen, setUmbenennen] = useState<{ id: string; text: string } | null>(null)
-  const seitenArten = alleBausteinArten().filter((def) => def.pageBlock)
+  const seitenArten = alleBausteinArten().filter((def) => def.seite)
 
   const uebernehmen = () => {
     if (!umbenennen) return
@@ -71,11 +71,11 @@ export function SeitenLeiste() {
       ))}
       {seitenArten.map((def) => (
         <Reiter
-          key={def.type}
-          onClick={() => ed.addSeite(def.type)}
-          title={`Neue Seite anlegen: ${def.displayName}`}
+          key={def.typ}
+          onClick={() => ed.addSeite(def.typ)}
+          title={`Neue Seite anlegen: ${def.name}`}
         >
-          ＋ {def.displayName}
+          ＋ {def.name}
         </Reiter>
       ))}
     </div>

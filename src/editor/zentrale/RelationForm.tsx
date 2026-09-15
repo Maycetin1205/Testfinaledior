@@ -41,8 +41,8 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
       name: name.trim(),
       verb: syntax.verb,
       nr: syntax.nr,
-      params: [...syntax.params],
-      allowExtraParams: syntax.allowExtraParams,
+      parameter: [...syntax.parameter],
+      zusatzParameterErlaubt: syntax.zusatzParameterErlaubt,
     }
     if (relation) store.update(relation.id, daten)
     else store.add(daten)
@@ -84,17 +84,17 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
         {syntax && (
           <div className="rounded border border-linie bg-control p-2 text-dicht">
             <div className="font-medium text-tinte">
-              {syntax.verb.replace('_RELATION', '')} {syntax.nr} · {syntax.params.length} Parameter
-              {syntax.allowExtraParams ? ' · weitere erlaubt' : ''}
+              {syntax.verb.replace('_RELATION', '')} {syntax.nr} · {syntax.parameter.length} Parameter
+              {syntax.zusatzParameterErlaubt ? ' · weitere erlaubt' : ''}
             </div>
             <div className="mt-1 max-h-32 overflow-y-auto font-mono text-matt">
-              {syntax.params.map((param, i) => (
+              {syntax.parameter.map((param, i) => (
                 <div key={i} className="flex gap-2">
                   <span className="w-5 shrink-0 text-right">{i + 1}.</span>
                   <span>{param === '' ? '(leer)' : param}</span>
                 </div>
               ))}
-              {syntax.params.length === 0 && <div>Keine Parameter.</div>}
+              {syntax.parameter.length === 0 && <div>Keine Parameter.</div>}
             </div>
           </div>
         )}

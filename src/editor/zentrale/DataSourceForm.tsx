@@ -53,7 +53,7 @@ interface DataSourceFormProps {
 export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const store = useDataSources()
   const [name, setName] = useState(source?.name ?? '')
-  const [kind, setKind] = useState<QuellenArtKennung>(source?.kind ?? 'idb')
+  const [kind, setKind] = useState<QuellenArtKennung>(source?.art ?? 'idb')
   const [kennungEingabe, setKennungEingabe] = useState(kennungAnzeige(source?.idbId))
   const [kopfsatzEingabe, setKopfsatzEingabe] = useState(source?.kopfsatzIndex ?? '')
 
@@ -74,15 +74,15 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     endeFelder: lade?.endeFelder ?? LADE_RELATION_STANDARD.endeFelder,
   }
   const [zeilen, setZeilen] = useState<FeldZeile[]>(
-    source && source.fields.length > 0
+    source && source.felder.length > 0
 
-      ? source.fields.map((f) => zeileFromField(
-          f, source.feldVorsatz ?? '', artFuer(source.kind).spaltenNamen,
+      ? source.felder.map((f) => zeileFromField(
+          f, source.feldVorsatz ?? '', artFuer(source.art).spaltenNamen,
         ))
       : [{ ...LEERE_ZEILE }],
   )
 
-  const [satzNummer, setSatzNummer] = useState(source?.indexField ?? '')
+  const [satzNummer, setSatzNummer] = useState(source?.satzFeld ?? '')
 
   const [zeigeFehler, setZeigeFehler] = useState(false)
 
@@ -90,7 +90,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const holVorlagen = relationen.list
   const [holRelationId, setHolRelationId] = useState(source?.holWert?.relationId ?? '')
   const [holParams, setHolParams] = useState<Parameter[]>(
-    source?.holWert ? [...source.holWert.params] : [],
+    source?.holWert ? [...source.holWert.parameter] : [],
   )
   const [holSuche, setHolSuche] = useState('')
 
@@ -142,9 +142,9 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     const vorlage = holVorlagen.find((r) => r.id === id)
     setHolParams(vorlage
       ? relationsParameterVorgabe(vorlage).map((binding) =>
-          holWertQuelleErlaubt(binding.source)
+          holWertQuelleErlaubt(binding.quelle)
             ? binding
-            : { source: 'fixed' as const, value: '' })
+            : { quelle: 'fixed' as const, wert: '' })
       : [])
   }
 
@@ -204,17 +204,17 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
     // Gewaehlt wird ein FELD der Quelle, nicht ein getippter Code.
   const satzNummerOptionen = [
-    { value: '', label: 'Nicht gebunden' },
+    { wert: '', name: 'Nicht gebunden' },
     ...zeilen
       .map((z, i) => ({ code: codes[i] ?? '', label: z.label.trim() }))
       .filter((e) => e.code !== '' && e.label !== '')
-      .map((e) => ({ value: e.code, label: e.label, detail: e.code })),
+      .map((e) => ({ wert: e.code, name: e.label, detail: e.code })),
   ]
       // Ein Wert, der zu keinem Feld gehoert, bleibt sichtbar statt still zu
       // verschwinden: sonst aendert das blosse Oeffnen die Quelle.
-  if (satzNummer !== '' && !satzNummerOptionen.some((o) => o.value === satzNummer)) {
+  if (satzNummer !== '' && !satzNummerOptionen.some((o) => o.wert === satzNummer)) {
     satzNummerOptionen.push({
-      value: satzNummer, label: satzNummer, detail: 'kein Feld dieser Quelle',
+      wert: satzNummer, name: satzNummer, detail: 'kein Feld dieser Quelle',
     })
   }
 
@@ -234,7 +234,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     }
     const daten: Omit<Datenquelle, 'id'> = {
       name: name.trim(),
-      kind,
+      art: kind,
       ...(kennungEingeben ? { idbId: kennungAusEingabe(kennungEingabe, art.idbKurzform) } : {}),
 
       ...(kopfsatzEingeben && kopfsatzAusEingabe(kopfsatzEingabe) !== ''
@@ -246,7 +246,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
       ...(offenerSatz ? { lieferung: 'offenerSatz' as const } : {}),
 
       ...(art.satzNummerMoeglich && satzNummer !== ''
-        ? { indexField: satzNummer }
+        ? { satzFeld: satzNummer }
         : {}),
 
       ...(holtZeilen
@@ -259,13 +259,13 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         : {}),
 
       ...(holtWert && holRelationId !== ''
-        ? { holWert: { relationId: holRelationId, params: holParams } }
+        ? { holWert: { relationId: holRelationId, parameter: holParams } }
         : {}),
-      fields: zeilen.map((z) => {
+      felder: zeilen.map((z) => {
         const zeichen = zeilenZeichen(z)
         return {
           code: zeilenCode(z, vorsatz, art.spaltenNamen),
-          label: z.label.trim(),
+          name: z.label.trim(),
           ...(zeichen === undefined ? {} : { zeichen }),
         }
       }),
@@ -292,7 +292,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         <SelectControl
           label="Art"
           value={kind}
-          options={QUELLEN_ARTEN.map((a) => ({ value: a.id, label: quellenWorte(a.id).name }))}
+          options={QUELLEN_ARTEN.map((a) => ({ wert: a.id, name: quellenWorte(a.id).name }))}
           onChange={(v) => waehleArt(v as QuellenArtKennung)}
         />
 
@@ -329,8 +329,8 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
             label="Was liefert die Quelle?"
             value={lieferung}
             options={[
-              { value: 'liste', label: 'Mehrere Sätze — eine Liste' },
-              { value: 'offenerSatz', label: 'Nur den Satz, der gerade offen ist' },
+              { wert: 'liste', name: 'Mehrere Sätze — eine Liste' },
+              { wert: 'offenerSatz', name: 'Nur den Satz, der gerade offen ist' },
             ]}
             onChange={(v) => setLieferung(v as 'liste' | 'offenerSatz')}
           />
@@ -341,8 +341,8 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
             label="Woher kommen die Zeilen?"
             value={zeilenWeg}
             options={[
-              { value: 'geschoben', label: 'SoftEngine schickt sie beim Laden' },
-              { value: 'holen', label: 'Die Maske holt sie, sobald ein Beleg angeklickt ist' },
+              { wert: 'geschoben', name: 'SoftEngine schickt sie beim Laden' },
+              { wert: 'holen', name: 'Die Maske holt sie, sobald ein Beleg angeklickt ist' },
             ]}
             onChange={(v) => setZeilenWeg(v as 'geschoben' | 'holen')}
           />
@@ -401,12 +401,12 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
             )}
             {holRelation && (
               <Gruppe titel="Parameter">
-                {holRelation.params.map((raw, index) => (
+                {holRelation.parameter.map((raw, index) => (
                   <ParameterZeile
                     key={index}
                     nummer={index + 1}
                     kennung={raw === '' ? '(leer)' : raw}
-                    binding={holParams[index] ?? { source: 'fixed', value: '' }}
+                    binding={holParams[index] ?? { quelle: 'fixed', wert: '' }}
                     wahlen={holWahlen}
                     platzhalter={raw === '' ? '(leer)' : raw}
                     onChange={(naechste) => setHolParams((alt) => {
@@ -416,7 +416,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                     })}
                   />
                 ))}
-                {holRelation.params.length === 0 && (
+                {holRelation.parameter.length === 0 && (
                   <p className="text-ui text-matt">Keine Parameter.</p>
                 )}
               </Gruppe>

@@ -11,14 +11,14 @@ import { holSchluesselJeGeber } from './benutzteQuellen'
 const belege: Datenquelle = {
   id: 'q-bel',
   name: 'Belege',
-  kind: 'beleg',
-  fields: [{ code: '3_8', label: 'Belegnummer' }],
+  art: 'beleg',
+  felder: [{ code: '3_8', name: 'Belegnummer' }],
 }
 
 const positionen: Datenquelle = {
   id: 'q-pos',
   name: 'Positionen',
-  kind: 'belegposition',
+  art: 'belegposition',
   ladeRelation: {
     nr: '69',
     belegartFeld: '2_1',
@@ -27,30 +27,30 @@ const positionen: Datenquelle = {
     archivFeld: '',
     endeFelder: ['11_6'],
   },
-  fields: [{ code: '18_25', label: 'Artikelnummer' }],
+  felder: [{ code: '18_25', name: 'Artikelnummer' }],
 }
 
 function baum(folge: unknown): Maskenbaum {
   return {
     [WURZEL_ID]: {
-      id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: '', childIds: ['bel', 'pos'],
+      id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: '', kinderIds: ['bel', 'pos'],
     },
     bel: {
-      id: 'bel', type: 'tabelle', props: { source: 'q-bel' }, parentId: WURZEL_ID, childIds: [],
+      id: 'bel', typ: 'tabelle', werte: { source: 'q-bel' }, elternId: WURZEL_ID, kinderIds: [],
     },
     pos: {
       id: 'pos',
-      type: 'tabelle',
-      props: { source: 'q-pos', folgtAuswahl: folge },
-      parentId: WURZEL_ID,
-      childIds: [],
+      typ: 'tabelle',
+      werte: { source: 'q-pos', folgtAuswahl: folge },
+      elternId: WURZEL_ID,
+      kinderIds: [],
     },
   } as unknown as Maskenbaum
 }
 
 test('die Schluesselfelder werden bei der Quelle des Geber-Bausteins bestellt', () => {
   const proGeber = holSchluesselJeGeber(
-    baum([{ geberId: 'bel', keyPairs: [] }]),
+    baum([{ geberId: 'bel', paare: [] }]),
     [belege, positionen],
   )
   // Ohne Archivfeld: ein leerer Code wird nicht bestellt.
@@ -63,7 +63,7 @@ test('ohne Auswahl-Geber bestellt niemand etwas', () => {
 
 test('Feldpaare sind fuer die Bestellung gleichgueltig', () => {
   const mitPaaren = holSchluesselJeGeber(
-    baum([{ geberId: 'bel', keyPairs: [{ fromField: '3_8', toField: '3_8' }] }]),
+    baum([{ geberId: 'bel', paare: [{ vonFeld: '3_8', nachFeld: '3_8' }] }]),
     [belege, positionen],
   )
   expect(mitPaaren.get('q-bel')).toEqual(['2_1', '3_8', '0_1'])

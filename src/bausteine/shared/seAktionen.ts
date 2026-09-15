@@ -21,18 +21,18 @@ import {
   type Platzhalterwerte,
 } from '../../kern/daten/relationen'
 import { sendeBwLink, sendeStartTool } from '../../softengine/befehle'
-import { bootSe, frischeDatenAnfordern } from '../../softengine/bridge'
+import { starteSe, frischeDatenAnfordern } from '../../softengine/bridge'
 import { meldeFehler } from '../../softengine/meldung'
-import { executeRelation, laufzeitRelation, resolveActionParam } from '../../softengine/relations'
+import { relationAusfuehren, laufzeitRelation, parameterAufloesen } from '../../softengine/relations'
 
 export function applyPopupStep(root: ParentNode, name: string, oeffnen: boolean): void {
   if (name.trim() === '') return
   // Nach dem Fenster-Baustein wird die Registry gefragt: eine Maske ohne
   // Fenster laedt seinen Code gar nicht erst.
   const fensterArt = bausteinArt('popup')
-  const alle = fensterArt === undefined ? [] : Array.from(root.querySelectorAll(fensterArt.tagName))
+  const alle = fensterArt === undefined ? [] : Array.from(root.querySelectorAll(fensterArt.tag))
   const treffer = alle.filter(
-    (el) => (el.getAttribute('name') ?? fensterArt?.defaultProps.name) === name,
+    (el) => (el.getAttribute('name') ?? fensterArt?.vorgaben.name) === name,
   )
   if (treffer.length === 0) {
     meldeFehler('Fenster „' + name + '“ gibt es in dieser Maske nicht.')
@@ -172,8 +172,8 @@ export async function laufeSchritte(
   })
   for (const [platz, step] of steps.entries()) {
     if (nur && !nur.has(platz)) continue
-    if (step.type === 'START_TOOL') {
-      if (!sendeStartTool(step.toolNr, platzhalterEinsetzen({ params: step.toolParams }, values))) {
+    if (step.art === 'START_TOOL') {
+      if (!sendeStartTool(step.toolNr, platzhalterEinsetzen({ parameter: step.toolParameter }, values))) {
         const text = step.toolNr.trim() === ''
           ? `Schritt ${platz + 1} der Kette: START_TOOL ohne Werkzeug-Nummer.`
           : `Schritt ${platz + 1} der Kette: START_TOOL ${step.toolNr} ging nicht hinaus `
@@ -183,8 +183,8 @@ export async function laufeSchritte(
       }
       continue
     }
-    if (step.type === 'BW_LINK') {
-      const befehl = platzhalterEinsetzen({ params: [step.befehl] }, values)[0] ?? ''
+    if (step.art === 'BW_LINK') {
+      const befehl = platzhalterEinsetzen({ parameter: [step.befehl] }, values)[0] ?? ''
       if (!sendeBwLink(befehl)) {
         const text = befehl.trim() === ''
           ? `Schritt ${platz + 1} der Kette: BW_LINK ohne Befehl.`
@@ -194,8 +194,8 @@ export async function laufeSchritte(
       }
       continue
     }
-    if (step.type === 'POPUP_OPEN' || step.type === 'POPUP_CLOSE') {
-      applyPopupStep(el.ownerDocument ?? document, step.popup ?? '', step.type === 'POPUP_OPEN')
+    if (step.art === 'POPUP_OPEN' || step.art === 'POPUP_CLOSE') {
+      applyPopupStep(el.ownerDocument ?? document, step.popup ?? '', step.art === 'POPUP_OPEN')
       continue
     }
     const relation = laufzeitRelation(step.relationId)
@@ -207,12 +207,12 @@ export async function laufeSchritte(
       return { geschrieben, fehler: text, mitschrift: mitschrift() }
     }
 
-    const bindungen = [...step.params, ...step.extraParams]
+    const bindungen = [...step.parameter, ...step.zusatzParameter]
 
     // Eine leere Satznummer trifft keinen Satz: der PUT schriebe ins Nichts, die
     // Loesch-Relation loeschte nichts — und beide meldeten nichts zurueck.
     const fehlenderSatz = SATZ_PLATZHALTER.find((name) =>
-      bindungen.some((b) => b.source === 'context' && b.value === name)
+      bindungen.some((b) => b.quelle === 'context' && b.wert === name)
       && (values[name] ?? '') === '')
     if (fehlenderSatz !== undefined) {
       const loeschen = fehlenderSatz === 'DROP_PINDEX'
@@ -231,8 +231,8 @@ export async function laufeSchritte(
       gewaehlteZeile: auswahlFuer,
       ...(zeilenZelle ? { zeilenZelle } : {}),
     }
-    const params = bindungen.map((binding) => resolveActionParam(binding, runtimeValues))
-    const antwort = await executeRelation(relation, params)
+    const params = bindungen.map((binding) => parameterAufloesen(binding, runtimeValues))
+    const antwort = await relationAusfuehren(relation, params)
     const result = antwort.wert
     stepResults[platz] = result
     rohErgebnisse[platz] = antwort.roh
@@ -244,7 +244,7 @@ export async function laufeSchritte(
     if (antwort.fehler !== undefined && antwort.fehler !== '') {
       return { geschrieben, fehler: antwort.fehler, mitschrift: mitschrift() }
     }
-    if (step.resultKey !== '') values[step.resultKey] = result
+    if (step.ergebnisName !== '') values[step.ergebnisName] = result
   }
   return { geschrieben, fehler: '', mitschrift: mitschrift() }
 }
@@ -360,8 +360,8 @@ export function connectClickAktionen(el: HTMLElement, eventKey: string): void {
   if (verdrahtet.has(el)) return
   verdrahtet.add(el)
   const chains = kettenLesen(el.getAttribute('data-ff-aktionen'))
-  if (Object.values(chains).some((steps) => steps.some((step) => step.type === 'RELATION'))) {
-    bootSe()
+  if (Object.values(chains).some((steps) => steps.some((step) => step.art === 'RELATION'))) {
+    starteSe()
   }
   el.addEventListener('click', () => {
     runEvent(el, eventKey, {}).catch(meldeKettenFehler)

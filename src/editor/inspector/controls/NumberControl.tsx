@@ -52,12 +52,12 @@ function Zahlenfeld({
   return (
     <Zahl
       id={id}
-      einheit={property.unit}
+      einheit={property.einheit}
       min={property.min}
       max={property.max}
       step={0.5}
       aria-label={property.name}
-      title={property.description}
+      title={property.beschreibung}
       value={entwurf}
       className="w-16"
       onChange={(e) => uebernehmen(e.currentTarget.value)}
@@ -81,7 +81,7 @@ function Zahlenfeld({
 export function NumberControl({ label, ...rest }: NumberControlProps) {
   if (!label) return <Zahlenfeld {...rest} />
   return (
-    <Zeile label={label} hinweis={rest.property.description}>
+    <Zeile label={label} hinweis={rest.property.beschreibung}>
       {(kind) => <Zahlenfeld {...rest} id={kind.id} />}
     </Zeile>
   )

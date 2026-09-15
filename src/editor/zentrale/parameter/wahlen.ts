@@ -34,9 +34,9 @@ export interface BindungsProps {
   onChange: (binding: Parameter) => void
 }
 
-// Der Startwert beim Umschalten der Herkunft, ohne `source`: ein Eintrag der
+// Der Startwert beim Umschalten der Herkunft, ohne `quelle`: ein Eintrag der
 // Registry soll sich nicht auf eine fremde Quelle schreiben koennen.
-export type BindungsStart = Omit<Parameter, 'source'>
+export type BindungsStart = Omit<Parameter, 'quelle'>
 
 export interface QuellenEintrag {
   name: string

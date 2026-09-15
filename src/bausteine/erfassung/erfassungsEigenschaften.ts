@@ -10,16 +10,16 @@ const LOESCHBAR = jaNeinProperty(
   'loeschbar',
   'Zeilen löschbar',
   'Kreuz an jeder Zeile: merkt sie zum Löschen vor.',
-  { requiresDataSource: true },
+  { brauchtQuelle: true },
 )
 
 // Hinter der Suchzeile, wo der Schalter in der Tabelle stand.
 export const ERFASSUNG_EIGENSCHAFTEN: Eigenschaft[] = TABELLE_EIGENSCHAFTEN
-  .flatMap((p) => (p.attributeName === 'suche' ? [p, LOESCHBAR] : [p]))
+  .flatMap((p) => (p.schluessel === 'suche' ? [p, LOESCHBAR] : [p]))
 
 const AENDERBAR: EintragsSchalter = {
-  key: 'aenderbar',
-  label: 'In der Zeile änderbar',
+  schluessel: 'aenderbar',
+  name: 'In der Zeile änderbar',
   kurz: 'änderbar',
   standard: true,
   nurEigeneQuelle: true,
@@ -29,13 +29,13 @@ export const ERFASSUNG_SPALTEN_BINDUNG: ListenBindung = {
   ...SPALTEN_BINDUNG,
 
   eintragsSchalter: (SPALTEN_BINDUNG.eintragsSchalter ?? [])
-    .flatMap((s) => (s.key === 'summe' ? [s, AENDERBAR] : [s])),
+    .flatMap((s) => (s.schluessel === 'summe' ? [s, AENDERBAR] : [s])),
 
   eintragsFeldWahl: [
     {
-      key: 'fuellFeld',
+      schluessel: 'fuellFeld',
       // Die Beschriftung muss sagen, WANN das Feld gilt.
-      label: 'Nachschlagen',
+      name: 'Nachschlagen',
       hinweis: 'Beim Erfassen füllt der gewählte Satz der Hilfsquelle diese Zelle.',
       nurFremdeQuellen: true,
     },

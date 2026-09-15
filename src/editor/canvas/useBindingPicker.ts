@@ -78,7 +78,7 @@ export function useBindingPicker({
     if (!hit) return
     const pos = pickerPos(hit.el)
 
-    if (bindingCode(blockRef.current.props, hit.spot) !== '') {
+    if (bindingCode(blockRef.current.werte, hit.spot) !== '') {
       setPicker({ spot: hit.spot, ...pos })
       return
     }
@@ -95,7 +95,7 @@ export function useBindingPicker({
     clearPickerTimer()
     if (!hatAngebot) return
     const hit = spotAt(e)
-    if (!hit || bindingCode(blockRef.current.props, hit.spot) === '') return
+    if (!hit || bindingCode(blockRef.current.werte, hit.spot) === '') return
     e.stopPropagation()
     setPicker({ spot: hit.spot, ...pickerPos(hit.el) })
   }

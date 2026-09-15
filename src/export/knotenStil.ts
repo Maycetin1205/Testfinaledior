@@ -26,12 +26,12 @@ export function styleAttr(
   } else if (istRandBaustein(node)) {
     style = randStil()
   } else if (rasterEbene) {
-    style = rasterPlatzStil(rasterPlatzLesen(node.props))
+    style = rasterPlatzStil(rasterPlatzLesen(node.werte))
   } else {
     style = {
-      ...flussBreiteStil(flussBreiteLesen(node.props.width), parentDirection, lockedWidth),
+      ...flussBreiteStil(flussBreiteLesen(node.werte.width), parentDirection, lockedWidth),
 
-      ...flussHoeheStil(flussHoeheLesen(node.props.height), parentDirection),
+      ...flussHoeheStil(flussHoeheLesen(node.werte.height), parentDirection),
     }
   }
   const css = stilAlsCss(style)

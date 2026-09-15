@@ -5,7 +5,7 @@ import { alleBausteinArten } from '../../kern/maske/registry'
 import { eigenschaftSichtbar } from '../../kern/maske/eigenschaft'
 import { QUELLE_PROP } from '../../kern/maske/quelleProp'
 import { BAUSTEIN_ID_ATTR } from '../../kern/daten/aktionen'
-import { hasSeData, onSeDaten } from '../../softengine/bridge'
+import { hatSeDaten, onSeDaten } from '../../softengine/bridge'
 import { laufzeitQuellen } from '../../softengine/laufzeitQuellen'
 import { meldeFehler } from '../../softengine/meldung'
 import { ladeZeilenPerRelation } from '../../softengine/relationLader'
@@ -31,7 +31,7 @@ let verdrahtet = false
 export function defsMitSatzWahl(): Map<string, BausteinArt> {
   const map = new Map<string, BausteinArt>()
   for (const def of alleBausteinArten()) {
-    if (hatFaehigkeit(def, 'satzwahl')) map.set(def.tagName.toLowerCase(), def)
+    if (hatFaehigkeit(def, 'satzwahl')) map.set(def.tag.toLowerCase(), def)
   }
   return map
 }
@@ -44,8 +44,8 @@ function quellenAttrFuer(el: Element, def: BausteinArt): string {
   if (!wahl) return ''
   let aktiv = true
   if (wahl.wenn) {
-    const name = wahl.wenn.attributeName
-    const wert = el.getAttribute(name.toLowerCase()) ?? def.defaultProps[name]
+    const name = wahl.wenn.schluessel
+    const wert = el.getAttribute(name.toLowerCase()) ?? def.vorgaben[name]
     aktiv = eigenschaftSichtbar(wahl.wenn, { [name]: wert })
   }
   return (aktiv ? wahl.quelleProp ?? QUELLE_PROP : QUELLE_PROP).toLowerCase()
@@ -139,5 +139,5 @@ export function verdrahteHolendeQuellen(): void {
 
   // Stand die Lieferung schon, als der erste Baustein sich anschloss, kommt
   // fuer sie kein `lieferung`-Ruf mehr.
-  if (hasSeData()) holeWertQuellen()
+  if (hatSeDaten()) holeWertQuellen()
 }

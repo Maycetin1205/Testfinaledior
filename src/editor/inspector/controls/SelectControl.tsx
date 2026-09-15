@@ -20,7 +20,7 @@ export function SelectControl({ label, description, value, options, onChange }: 
         <Wahl
           {...kind}
           wert={value ?? ''}
-          optionen={options.map((o) => ({ wert: o.value, name: o.label, kennung: o.detail }))}
+          optionen={options.map((o) => ({ wert: o.wert, name: o.name, kennung: o.detail }))}
           onWaehle={onChange}
         />
       )}

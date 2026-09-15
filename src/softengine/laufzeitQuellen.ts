@@ -1,23 +1,23 @@
 // Die Quellen und Zeilen der laufenden Maske, wie ein Baustein sie bekommt.
-import { seGlobal } from './bridge'
-import { findRuntimeDataSource, isRecord, rowsFor, type RuntimeDataSource } from './data'
+import { seFenster } from './bridge'
+import { quelleAusListe, istObjekt, zeilenAusLieferung, type LaufzeitQuelle } from './data'
 
-export function laufzeitQuelle(id: string): RuntimeDataSource | undefined {
-  return findRuntimeDataSource(seGlobal().FF_DATA_SOURCES, id)
+export function laufzeitQuelle(id: string): LaufzeitQuelle | undefined {
+  return quelleAusListe(seFenster().FF_DATA_SOURCES, id)
 }
 
-export function laufzeitQuellen(): RuntimeDataSource[] {
-  const liste: unknown = seGlobal().FF_DATA_SOURCES
+export function laufzeitQuellen(): LaufzeitQuelle[] {
+  const liste: unknown = seFenster().FF_DATA_SOURCES
   if (!Array.isArray(liste)) return []
-  const raus: RuntimeDataSource[] = []
+  const raus: LaufzeitQuelle[] = []
   for (const eintrag of liste) {
-    if (!isRecord(eintrag) || typeof eintrag.id !== 'string') continue
-    const quelle = findRuntimeDataSource(liste, eintrag.id)
+    if (!istObjekt(eintrag) || typeof eintrag.id !== 'string') continue
+    const quelle = quelleAusListe(liste, eintrag.id)
     if (quelle) raus.push(quelle)
   }
   return raus
 }
 
-export function zeilenDerQuelle(quelle: RuntimeDataSource): unknown[] {
-  return rowsFor(seGlobal().SEDATA, quelle.name, quelle.tableId, quelle.offenerSatz)
+export function zeilenDerQuelle(quelle: LaufzeitQuelle): unknown[] {
+  return zeilenAusLieferung(seFenster().SEDATA, quelle.name, quelle.tabellenId, quelle.offenerSatz)
 }

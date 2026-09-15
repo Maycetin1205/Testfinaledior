@@ -11,18 +11,18 @@ export interface RasterPlatz {
 }
 
 export interface RasterMass {
-  startW: number
-  startH: number
-  minW: number
-  minH: number
+  startBreite: number
+  startHoehe: number
+  minBreite: number
+  minHoehe: number
   breiteZiehbar: boolean
 }
 
 const RASTER_FALLBACK: RasterMass = {
-  startW: 12,
-  startH: 3,
-  minW: 2,
-  minH: 1,
+  startBreite: 12,
+  startHoehe: 3,
+  minBreite: 2,
+  minHoehe: 1,
   breiteZiehbar: true,
 }
 

@@ -11,14 +11,14 @@ interface KachelControlProps {
 // Welche zwei Werte ein Ja/Nein speichert, steht in der Eigenschaft selbst und
 // nicht hier: die exportierte Maske haengt an genau diesen Werten.
 export function KachelControl({ property, value, onChange }: KachelControlProps) {
-  const optionen = property.options ?? []
-  const aus = optionen[0]?.value ?? 'nein'
-  const an = optionen[1]?.value ?? 'ja'
+  const optionen = property.optionen ?? []
+  const aus = optionen[0]?.wert ?? 'nein'
+  const an = optionen[1]?.wert ?? 'ja'
 
   return (
     <Kachel
       beschriftung={property.name}
-      hinweis={property.description}
+      hinweis={property.beschreibung}
       an={String(value ?? '') === an}
       onSchalte={(jetztAn) => onChange(jetztAn ? an : aus)}
     />

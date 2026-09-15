@@ -16,9 +16,9 @@ export function vorschauRoh(
   sources: readonly Datenquelle[],
   standard: unknown,
 ): string {
-  const bindung = String(node.props[bindungsProp(spot.prop)] ?? '')
+  const bindung = String(node.werte[bindungsProp(spot.prop)] ?? '')
   if (bindung === '') {
-    return String(node.props[spot.vorschauProp ?? spot.prop] ?? standard ?? '')
+    return String(node.werte[spot.vorschauProp ?? spot.prop] ?? standard ?? '')
   }
-  return feldKlarname(bindung, String(node.props[QUELLE_PROP] ?? ''), sources)
+  return feldKlarname(bindung, String(node.werte[QUELLE_PROP] ?? ''), sources)
 }

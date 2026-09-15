@@ -77,7 +77,7 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
     onEndeBearbeitung: () => editor.endTransaction(),
   }), [editor])
   const eigenschaften = def ? eigenschaftenFuer(block, def, 'inline') : []
-  const muster = def?.templateChild ? ersterNachfahreVomTyp(editor.tree, block.id, def.templateChild.type) : undefined
+  const muster = def?.musterKind ? ersterNachfahreVomTyp(editor.tree, block.id, def.musterKind.type) : undefined
   // Die Lage wird gemessen und direkt ans Element geschrieben: kein Zustand,
   // kein zweiter Render.
   const leisteRef = useRef<HTMLDivElement | null>(null)
@@ -85,13 +85,13 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
     const el = leisteRef.current
     if (el) Object.assign(el.style, STIL[lageFuer(wirt.current, amRand)])
   }, [wirt, amRand, block])
-  const kind = def?.addChildButton
+  const kind = def?.kindKnopf
   const liste = faehigkeit(def, 'liste')?.bindung
   const neu = liste?.eintragNeu
   const weg = liste?.eintragWeg
   const eintragName = liste?.standardTitel.replace(/\s*\{n\}/, '') ?? 'Eintrag'
-  const neuMoeglich = neu !== undefined && Object.keys(neu(block.props)).length > 0
-  const eintraege = liste ? listeLesen(block.props[liste.prop], liste) : []
+  const neuMoeglich = neu !== undefined && Object.keys(neu(block.werte)).length > 0
+  const eintraege = liste ? listeLesen(block.werte[liste.prop], liste) : []
   const wegMoeglich = weg !== undefined && eintraege.length > 1
 
   return (
@@ -128,12 +128,12 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
           onClick={onEntfernen}><Trash2 size={12} /></Knopf>
       )}
       {gestalten && (
-        <Popover bezeichnung={`${def?.displayName ?? 'Baustein'} gestalten`} anker={anker}
+        <Popover bezeichnung={`${def?.name ?? 'Baustein'} gestalten`} anker={anker}
           breite={280} maxHoehe={420} escapeAbfangen onClose={() => setGestalten(false)}>
           <div className="flex flex-col gap-3 p-2">
-            <strong className="text-ui">{def?.displayName} gestalten</strong>
+            <strong className="text-ui">{def?.name} gestalten</strong>
             {eigenschaften.map((property) => (
-              <PropControl key={property.attributeName} block={block} property={property}
+              <PropControl key={property.schluessel} block={block} property={property}
                 sourceInReach={editor.dataSourceFor(block.id)} sitzung={sitzung} />
             ))}
           </div>
@@ -153,7 +153,7 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
           className="h-6 px-1.5 text-dicht"
           title={`${eintragName} anfügen`}
           disabled={!neuMoeglich}
-          onClick={() => wendeProps(editor, block.id, neu(block.props))}
+          onClick={() => wendeProps(editor, block.id, neu(block.werte))}
         >
           <Plus size={12} /> {eintragName}
         </Knopf>
@@ -166,7 +166,7 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
           onClick={() => {
             const index = eintraege.length - 1
             if (index >= 0) {
-              wendeProps(editor, block.id, weg(block.props, index))
+              wendeProps(editor, block.id, weg(block.werte, index))
             }
           }}
         >

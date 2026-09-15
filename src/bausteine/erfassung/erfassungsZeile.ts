@@ -10,7 +10,7 @@ import type { ErfassungsSpalte } from './erfassungsSpalte'
 import { zerlegeBindung } from '../../kern/maske/bausteinArt'
 import type { Berechnung } from '../../kern/daten/berechnung'
 import type { SchluesselPaar } from '../../kern/daten/weitereQuellen'
-import { getField } from '../../softengine/data'
+import { feldLesen } from '../../softengine/data'
 
 export interface ErfassungsLage {
   spalten: readonly Spalte[]
@@ -184,10 +184,10 @@ export function passendeSaetze(
   kandidaten: readonly unknown[],
 ): unknown[] {
   const bekannte = paare
-    .map((p) => ({ toField: p.toField, soll: schluesselWert(p.fromField) }))
+    .map((p) => ({ toField: p.nachFeld, soll: schluesselWert(p.vonFeld) }))
     .filter((b): b is { toField: string; soll: string } => b.soll !== undefined)
   if (bekannte.length === 0) return [...kandidaten]
   return kandidaten.filter((satz) => bekannte.every(
-    (b) => b.soll !== '' && b.soll === getField(satz, b.toField),
+    (b) => b.soll !== '' && b.soll === feldLesen(satz, b.toField),
   ))
 }

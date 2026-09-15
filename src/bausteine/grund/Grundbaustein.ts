@@ -13,9 +13,9 @@ import { starteUmbenennen } from '../shared/umbenennen'
 
 // Maskenhaelfte der Anmeldung: aus der Klasse wird ein Element.
 function definiere(BlockClass: BausteinKlasse): void {
-  if (!customElements.get(BlockClass.tagName)) {
+  if (!customElements.get(BlockClass.tag)) {
     customElements.define(
-      BlockClass.tagName,
+      BlockClass.tag,
       BlockClass as unknown as CustomElementConstructor,
     )
   }
@@ -25,35 +25,35 @@ function definiere(BlockClass: BausteinKlasse): void {
 function beschreibe(BlockClass: BausteinKlasse): void {
   const faehig = { faehigkeiten: BlockClass.faehigkeiten ?? [] }
   meldeBausteinArt({
-    type: BlockClass.blockType,
-    tagName: BlockClass.tagName,
-    displayName: BlockClass.displayName,
-    category: BlockClass.category,
+    typ: BlockClass.typ,
+    tag: BlockClass.tag,
+    name: BlockClass.name,
+    kategorie: BlockClass.kategorie,
 
-    defaultProps: {
+    vorgaben: {
       ...FLUSS_VORGABEN,
       ...RASTER_VORGABEN,
       ...(hatFaehigkeit(faehig, 'quelle') ? QUELLEN_DEFAULTS : null),
 
       ...(hatFaehigkeit(faehig, 'auswahlFolgen') ? AUSWAHL_FOLGE_DEFAULTS : null),
-      ...BlockClass.defaultProps,
+      ...BlockClass.vorgaben,
     },
-    customProperties: BlockClass.customProperties,
-    acceptsChildren: BlockClass.acceptsChildren ?? false,
-    resizableWidth: BlockClass.resizableWidth ?? true,
-    resizableHeight: BlockClass.resizableHeight ?? false,
-    allowedChildTypes: BlockClass.allowedChildTypes,
-    allowedParentTypes: BlockClass.allowedParentTypes,
-    lockedWidth: BlockClass.lockedWidth,
-    defaultChildren: BlockClass.defaultChildren,
-    childDirection: BlockClass.childDirection,
-    showInPalette: BlockClass.showInPalette,
-    templateChild: BlockClass.templateChild,
-    editorSlot: BlockClass.editorSlot,
-    containerHint: BlockClass.containerHint,
-    addChildButton: BlockClass.addChildButton,
+    eigenschaften: BlockClass.eigenschaften,
+    nimmtKinder: BlockClass.nimmtKinder ?? false,
+    breiteAenderbar: BlockClass.breiteAenderbar ?? true,
+    hoeheAenderbar: BlockClass.hoeheAenderbar ?? false,
+    erlaubteKinder: BlockClass.erlaubteKinder,
+    erlaubteEltern: BlockClass.erlaubteEltern,
+    festeBreite: BlockClass.festeBreite,
+    kinderVorgabe: BlockClass.kinderVorgabe,
+    kinderRichtung: BlockClass.kinderRichtung,
+    inPalette: BlockClass.inPalette,
+    musterKind: BlockClass.musterKind,
+    editorPlatz: BlockClass.editorPlatz,
+    behaelterRahmen: BlockClass.behaelterRahmen,
+    kindKnopf: BlockClass.kindKnopf,
     faehigkeiten: faehig.faehigkeiten,
-    pageBlock: BlockClass.pageBlock,
+    seite: BlockClass.seite,
     flaechenSeite: BlockClass.flaechenSeite,
     maskenRand: BlockClass.maskenRand,
     raster: BlockClass.raster,
@@ -76,13 +76,13 @@ export abstract class Grundbaustein extends LitElement implements BausteinElemen
     :host([data-ff-editor][data-editable]) [data-ff-bound] { cursor: pointer; }
   `
 
-  static readonly customProperties: Eigenschaft[] = []
+  static readonly eigenschaften: Eigenschaft[] = []
 
   @property({ type: Boolean, reflect: true, attribute: 'data-editable' })
   editable = false
 
-  get customProperties(): Eigenschaft[] {
-    return (this.constructor as typeof Grundbaustein).customProperties
+  get eigenschaften(): Eigenschaft[] {
+    return (this.constructor as typeof Grundbaustein).eigenschaften
   }
 
   // Steht der Baustein auf der Leinwand des Editors oder in der fertigen Maske?

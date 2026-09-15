@@ -6,18 +6,18 @@ import { eigenschaftSichtbar, type Bedingung } from './eigenschaft'
 
 export interface BindbareStelle {
   prop: string
-  label: string
+  name: string
   wenn?: Bedingung
   vorschauProp?: string
 }
 
 export interface Wertstelle {
   prop: string
-  label: string
+  name: string
 }
 
 export interface Ereignis {
-  key: string
+  schluessel: string
   name: string
 }
 
@@ -28,16 +28,16 @@ export interface SuchFenster {
   // Ohne Angabe hat der Baustein EIN Fenster in seinen eigenen Eigenschaften.
   // Mit ihr hat jeder Eintrag dieser Liste eines (die Spalten der Erfassung).
   eintraegeProp?: string
-  spaltenKey: string
-  breiteKey: string
-  hoeheKey: string
+  spaltenSchluessel: string
+  breiteSchluessel: string
+  hoeheSchluessel: string
   // Woher die Felder des Fensters kommen: eine Quellen-Eigenschaft am Baustein
   // oder die Bindung in diesem Schluessel des Eintrags.
   quelleProp?: string
-  quelleKey?: string
+  quelleSchluessel?: string
   speicherFeldProp?: string
   speicherTitelProp?: string
-  titelKey?: string
+  titelSchluessel?: string
   // Was ohne gestellte Spalten geschieht, in Worten fuer den Bauer.
   automatik: string
   // CSS-Auswahl der Stelle im Baustein, deren Klick das Fenster aufmacht.
@@ -125,7 +125,7 @@ export type BindbareStellenFuer<Props> = ReadonlyArray<
 
 export type WertstellenFuer<Props> = ReadonlyArray<{
   prop: keyof Props & string
-  label: string
+  name: string
 }>
 
 // Die zwei Faehigkeiten, deren Stellen zu den Eigenschaften des Bausteins

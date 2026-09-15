@@ -52,7 +52,7 @@ function alsZahl(v: unknown): number | undefined {
 }
 
 function rohEintraege(block: Baustein, prop: string): Record<string, unknown>[] {
-  const roh = block.props[prop]
+  const roh = block.werte[prop]
   if (!Array.isArray(roh)) return []
   // Rohe Kopien: geschrieben wird die ganze Liste zurueck, und alles, was hier
   // nicht vorkommt, muss unangetastet mitfahren.
@@ -65,12 +65,12 @@ function standAmBaustein(
   block: Baustein,
   fenster: SuchFenster,
 ): FensterStand | null {
-  const quelleId = String(block.props[fenster.quelleProp ?? ''] ?? '')
+  const quelleId = String(block.werte[fenster.quelleProp ?? ''] ?? '')
   if (quelleId === '') return null
-  const standard = bausteinArt(block.type)?.defaultProps ?? {}
-  const gestellt = coerceNachschlagSpalten(block.props[fenster.spaltenKey])
-  const speicherFeld = String(block.props[fenster.speicherFeldProp ?? ''] ?? '')
-  const speicherTitel = String(block.props[fenster.speicherTitelProp ?? ''] ?? '')
+  const standard = bausteinArt(block.typ)?.vorgaben ?? {}
+  const gestellt = coerceNachschlagSpalten(block.werte[fenster.spaltenSchluessel])
+  const speicherFeld = String(block.werte[fenster.speicherFeldProp ?? ''] ?? '')
+  const speicherTitel = String(block.werte[fenster.speicherTitelProp ?? ''] ?? '')
   const spalten = gestellt.length > 0
     ? gestellt
     : automatikSpalten({ speicherFeld, speicherTitel })
@@ -81,19 +81,19 @@ function standAmBaustein(
     titel: 'Nachschlagen',
     spalten,
     gestellt: gestellt.length > 0,
-    breite: alsZahl(block.props[fenster.breiteKey])
-      ?? alsZahl(standard[fenster.breiteKey])
+    breite: alsZahl(block.werte[fenster.breiteSchluessel])
+      ?? alsZahl(standard[fenster.breiteSchluessel])
       ?? fensterBreiteFuer(spalten.length),
-    hoehe: alsZahl(block.props[fenster.hoeheKey])
-      ?? alsZahl(standard[fenster.hoeheKey])
+    hoehe: alsZahl(block.werte[fenster.hoeheSchluessel])
+      ?? alsZahl(standard[fenster.hoeheSchluessel])
       ?? FENSTER_HOEHE,
     setzeSpalten: (neu) => {
-      ed.updateProperty(block.id, fenster.spaltenKey, [...neu])
+      ed.updateProperty(block.id, fenster.spaltenSchluessel, [...neu])
     },
     // Ohne Mass gilt am Baustein die Vorgabe seines Typs: eine Eigenschaft dort
     // ist nie leer.
     setzeMass: (achse, wert) => {
-      const key = achse === 'breite' ? fenster.breiteKey : fenster.hoeheKey
+      const key = achse === 'breite' ? fenster.breiteSchluessel : fenster.hoeheSchluessel
       ed.updateProperty(block.id, key, wert ?? standard[key])
     },
   }
@@ -110,17 +110,17 @@ function standJeEintrag(
   if (prop === undefined) return null
   const eintrag = rohEintraege(block, prop)[platz]
   if (eintrag === undefined) return null
-  const { quelleId, code } = zerlegeBindung(String(eintrag[fenster.quelleKey ?? ''] ?? ''))
+  const { quelleId, code } = zerlegeBindung(String(eintrag[fenster.quelleSchluessel ?? ''] ?? ''))
   // Nur eine Zelle mit Hilfsquelle schlaegt nach; die anderen haben kein Fenster.
   if (quelleId === '') return null
-  const titel = String(eintrag[fenster.titelKey ?? ''] ?? '')
+  const titel = String(eintrag[fenster.titelSchluessel ?? ''] ?? '')
   // Grundsatz 1: dieselbe Spaltenliste wie beim Bediener, auch die automatische.
   // Sie aus den Nachbarspalten zu bilden kann heute nur die Erfassung selbst;
   // ein Registry-Eintrag dafuer waere die saubere Form, wenn es der zweite
   // Baustein braucht.
   const ausSpalten = fensterSpaltenIn({
-    spalten: coerceErfassungsSpalten(block.props[prop]),
-    quelleId: String(block.props.source ?? ''),
+    spalten: coerceErfassungsSpalten(block.werte[prop]),
+    quelleId: String(block.werte.source ?? ''),
     berechnungen: [],
     paareZu: () => [],
     partnerVon: () => '',
@@ -153,14 +153,14 @@ function standJeEintrag(
     speicherTitel: titel,
     titel: titel !== '' ? titel : `Spalte ${platz + 1}`,
     spalten,
-    gestellt: coerceNachschlagSpalten(eintrag[fenster.spaltenKey]).length > 0,
-    breite: alsZahl(eintrag[fenster.breiteKey]) ?? fensterBreiteFuer(spalten.length),
-    hoehe: alsZahl(eintrag[fenster.hoeheKey]) ?? FENSTER_HOEHE,
+    gestellt: coerceNachschlagSpalten(eintrag[fenster.spaltenSchluessel]).length > 0,
+    breite: alsZahl(eintrag[fenster.breiteSchluessel]) ?? fensterBreiteFuer(spalten.length),
+    hoehe: alsZahl(eintrag[fenster.hoeheSchluessel]) ?? FENSTER_HOEHE,
     setzeSpalten: (neu) => schreibe({
-      [fenster.spaltenKey]: neu.length === 0 ? undefined : [...neu],
+      [fenster.spaltenSchluessel]: neu.length === 0 ? undefined : [...neu],
     }),
     setzeMass: (achse, wert) => schreibe({
-      [achse === 'breite' ? fenster.breiteKey : fenster.hoeheKey]: wert,
+      [achse === 'breite' ? fenster.breiteSchluessel : fenster.hoeheSchluessel]: wert,
     }),
   }
 }

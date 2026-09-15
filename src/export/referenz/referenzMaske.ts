@@ -11,21 +11,21 @@ export const REFERENZ_QUELLEN: readonly Datenquelle[] = [
   {
     id: 'q-pos',
     name: 'Belegpositionen',
-    kind: 'belegposition',
-    indexField: '645_10',
-    fields: [
-      { code: '18_25', label: 'ArtNr' },
-      { code: '45_60', label: 'Bezeichnung' },
-      { code: '164_8', label: 'Menge' },
+    art: 'belegposition',
+    satzFeld: '645_10',
+    felder: [
+      { code: '18_25', name: 'ArtNr' },
+      { code: '45_60', name: 'Bezeichnung' },
+      { code: '164_8', name: 'Menge' },
     ],
   },
   {
     id: 'q-art',
     name: 'Artikelstamm',
-    kind: 'artikelstamm',
-    fields: [
-      { code: 'bez', label: 'Bezeichnung' },
-      { code: 'einheit', label: 'Einheit' },
+    art: 'artikelstamm',
+    felder: [
+      { code: 'bez', name: 'Bezeichnung' },
+      { code: 'einheit', name: 'Einheit' },
     ],
   },
 ]
@@ -36,48 +36,48 @@ export const REFERENZ_RELATIONEN: readonly RelationsVorlage[] = [
     name: 'Positionsfeld lesen',
     verb: 'GET_RELATION',
     nr: '69',
-    params: ['BELART', 'POS', 'LEN', 'BELNR'],
+    parameter: ['BELART', 'POS', 'LEN', 'BELNR'],
   },
   {
     id: 'r-put',
     name: 'Feld schreiben',
     verb: 'PUT_RELATION',
     nr: '174',
-    params: ['{PINDEX}', '45_60', 'L', ''],
-    allowExtraParams: true,
+    parameter: ['{PINDEX}', '45_60', 'L', ''],
+    zusatzParameterErlaubt: true,
   },
 ]
 
 const KETTE: Schritt[] = [
   {
     id: 's0',
-    type: 'RELATION',
-    resultKey: 'gelesen',
+    art: 'RELATION',
+    ergebnisName: 'gelesen',
     relationId: 'r-get',
-    params: [
-      { source: 'fixed', value: 'R' },
-      { source: 'fixed', value: '0' },
-      { source: 'fixed', value: '255' },
-      { source: 'previous_result', value: '' },
+    parameter: [
+      { quelle: 'fixed', wert: 'R' },
+      { quelle: 'fixed', wert: '0' },
+      { quelle: 'fixed', wert: '255' },
+      { quelle: 'previous_result', wert: '' },
     ],
-    extraParams: [],
+    zusatzParameter: [],
   },
   {
     id: 's1',
-    type: 'RELATION',
-    resultKey: '',
+    art: 'RELATION',
+    ergebnisName: '',
     relationId: 'r-put',
-    params: [
-      { source: 'context', value: 'PINDEX' },
-      { source: 'erfassungszelle', value: 'sp-menge', blockId: 't1' },
-      { source: 'fixed', value: 'L' },
-      { source: 'step_result', value: 's0' },
+    parameter: [
+      { quelle: 'context', wert: 'PINDEX' },
+      { quelle: 'erfassungszelle', wert: 'sp-menge', bausteinId: 't1' },
+      { quelle: 'fixed', wert: 'L' },
+      { quelle: 'step_result', wert: 's0' },
     ],
-    extraParams: [{ source: 'fixed', value: 'X' }],
+    zusatzParameter: [{ quelle: 'fixed', wert: 'X' }],
   },
-  { id: 's2', type: 'START_TOOL', resultKey: '', toolNr: '42', toolParams: ['a b'] },
-  { id: 's3', type: 'BW_LINK', resultKey: '', befehl: '0,REFRESH' },
-  { id: 's4', type: 'POPUP_OPEN', resultKey: '', popupId: 'p1' },
+  { id: 's2', art: 'START_TOOL', ergebnisName: '', toolNr: '42', toolParameter: ['a b'] },
+  { id: 's3', art: 'BW_LINK', ergebnisName: '', befehl: '0,REFRESH' },
+  { id: 's4', art: 'POPUP_OPEN', ergebnisName: '', popupId: 'p1' },
 ]
 
 function knoten(
@@ -87,7 +87,7 @@ function knoten(
   props: Record<string, unknown>,
   childIds: string[] = [],
 ): Baustein {
-  return { id, type, props, parentId, childIds }
+  return { id, typ: type, werte: props, elternId: parentId, kinderIds: childIds }
 }
 
 export function referenzBaum(): Maskenbaum {
@@ -157,6 +157,6 @@ export function referenzBaum(): Maskenbaum {
     p1: knoten('p1', 'popup', WURZEL_ID, { name: 'Hinweis' }, ['tx2']),
     tx2: knoten('tx2', 'text', 'p1', {}),
   }
-  tree.b1 = { ...tree.b1, events: { onClick: KETTE } }
+  tree.b1 = { ...tree.b1, ketten: { onClick: KETTE } }
   return tree
 }

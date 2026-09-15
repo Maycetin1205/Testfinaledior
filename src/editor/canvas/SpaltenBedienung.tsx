@@ -155,7 +155,7 @@ export function SpaltenBedienung({
   // Beide Zahlen im selben Raum: der Platz in der vollen Liste.
       const von = stellen[index]?.platz ?? index
       const nachRoh = stellen[s]?.platz ?? (stellen[stellen.length - 1]?.platz ?? 0) + 1
-      wendeProps(editor, block.id, verschieben(block.props, von, nachRoh > von ? nachRoh - 1 : nachRoh))
+      wendeProps(editor, block.id, verschieben(block.werte, von, nachRoh > von ? nachRoh - 1 : nachRoh))
     }
     function beiAbbruch(): void {
       aufraeumen()

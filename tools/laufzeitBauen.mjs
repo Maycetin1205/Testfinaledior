@@ -93,7 +93,7 @@ function aufloesen(spec, vonOrdner) {
 }
 
 // Auch mit override und ausgeschriebenem Typ: ein erbender Baustein schreibt beides.
-const BAUSTEIN_TYP = /static\s+(?:override\s+)?(?:readonly\s+)?blockType(?:\s*:\s*string)?\s*=\s*['"]([^'"]+)['"]/g
+const BAUSTEIN_TYP = /static\s+(?:override\s+)?(?:readonly\s+)?typ(?:\s*:\s*string)?\s*=\s*['"]([^'"]+)['"]/g
 
 // Liest den Bauplan aus den Quellen: welcher Teil traegt welche Bausteine,
 // welche Module muss er den anderen hinstellen, welchen Teil braucht er selbst.

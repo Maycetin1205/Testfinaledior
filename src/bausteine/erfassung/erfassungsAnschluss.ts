@@ -80,7 +80,7 @@ export class ErfassungsAnschluss {
       spalten,
       berechnungen,
       quelleId,
-      paareZu: (id) => verknuepfungen.find((v) => v.quelleId === id)?.keyPairs ?? [],
+      paareZu: (id) => verknuepfungen.find((v) => v.quelleId === id)?.paare ?? [],
       partnerVon: (id) => verknuepfungen.find((v) => v.quelleId === id)?.partnerId ?? '',
     }
   }

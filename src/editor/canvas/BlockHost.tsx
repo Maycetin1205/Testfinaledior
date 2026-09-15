@@ -47,8 +47,8 @@ const KEINE_QUELLEN: readonly QuelleInReichweite[] = []
 export function BlockHost({ block, selected, onSelect, raster = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
   const rootRef = useRef<HTMLDivElement | null>(null)
-  const def = bausteinArt(block.type)
-  const isContainer = def?.acceptsChildren ?? false
+  const def = bausteinArt(block.typ)
+  const isContainer = def?.nimmtKinder ?? false
   const liste = faehigkeit(def, 'liste')?.bindung
   const suchFenster = faehigkeit(def, 'suchfenster')?.fenster
 
@@ -61,7 +61,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
   const bibliothek = quellenBibliothek.list
   const quellen = useMemo(
     () => (braucht && traeger
-      ? quellenAufloesen(traeger.props.source, traeger.props[WEITERE_QUELLEN_PROP], bibliothek)
+      ? quellenAufloesen(traeger.werte.source, traeger.werte[WEITERE_QUELLEN_PROP], bibliothek)
       : KEINE_QUELLEN),
     [braucht, traeger, bibliothek],
   )
@@ -114,15 +114,15 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
 
   const { startResize, startRasterResize } = useBlockResize(editor, blockRef, elementRef, rootRef)
 
-  const resizable = def?.resizableWidth ?? true
-  const heightResizable = def?.resizableHeight === true
+  const resizable = def?.breiteAenderbar ?? true
+  const heightResizable = def?.hoeheAenderbar === true
 
   const rasterSpec = rasterMassVon(def)
 
   const rand = istRandBaustein(block)
   const rasterZiehbar = raster && !rand
 
-  const eltern = block.parentId ? editor.getNode(block.parentId) : undefined
+  const eltern = block.elternId ? editor.getNode(block.elternId) : undefined
   const amRand = rand || (eltern ? istRandBaustein(eltern) : false)
 
 
@@ -159,7 +159,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           pointerEvents: 'auto',
           height: '100%',
 
-          ...(isContainer && def?.containerHint !== false
+          ...(isContainer && def?.behaelterRahmen !== false
             ? {
                 border: '1.5px dashed hsl(var(--wb-linie))',
                 borderRadius: 4,
@@ -201,7 +201,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startRasterResize(e, 'x')}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'rasterW', rasterMassVon(bausteinArt(node.type)).startW)
+            editor.updateProperty(node.id, 'rasterW', rasterMassVon(bausteinArt(node.typ)).startBreite)
           }}
         />
       )}
@@ -212,7 +212,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startRasterResize(e, 'y')}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'rasterH', rasterMassVon(bausteinArt(node.type)).startH)
+            editor.updateProperty(node.id, 'rasterH', rasterMassVon(bausteinArt(node.typ)).startHoehe)
           }}
         />
       )}
@@ -223,7 +223,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startResize(e, 'width', 40)}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'width', bausteinArt(node.type)?.defaultProps.width ?? 'auto')
+            editor.updateProperty(node.id, 'width', bausteinArt(node.typ)?.vorgaben.width ?? 'auto')
           }}
         />
       )}
@@ -234,7 +234,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startResize(e, 'height', 120)}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'height', bausteinArt(node.type)?.defaultProps.height ?? 'auto')
+            editor.updateProperty(node.id, 'height', bausteinArt(node.typ)?.vorgaben.height ?? 'auto')
           }}
         />
       )}

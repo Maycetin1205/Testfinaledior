@@ -6,11 +6,11 @@ export const LEER_TEXT_STANDARD = 'Keine Datensätze.'
 
 export function leerTextProperty(): Eigenschaft {
   return {
-    attributeName: 'leerText',
+    schluessel: 'leerText',
     name: 'Text ohne Datensätze',
-    description: 'Text, wenn die Quelle keine Zeilen liefert. Leer: gar nichts.',
-    kind: 'text',
-    requiresDataSource: true,
+    beschreibung: 'Text, wenn die Quelle keine Zeilen liefert. Leer: gar nichts.',
+    art: 'text',
+    brauchtQuelle: true,
   }
 }
 

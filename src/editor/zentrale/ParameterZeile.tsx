@@ -39,7 +39,7 @@ export function ParameterZeile({
   onChange: (binding: Parameter) => void
   onAusloeser?: (anchor: HTMLElement) => void
 }) {
-  const { Control } = PARAM_QUELLEN[binding.source]
+  const { Control } = PARAM_QUELLEN[binding.quelle]
   const klarname = platzhalterName(kennung)
   const label = kennung === '' ? `${nummer}.` : `${nummer}. ${klarname || kennung}`
 
@@ -63,7 +63,7 @@ export function ParameterZeile({
         <PickerControl
           bezeichnung={`Herkunft für ${label}`}
           gruppen={[{ key: 'herkunft', eintraege: herkunftsEintraege(binding, wahlen) }]}
-          wert={binding.source}
+          wert={binding.quelle}
           onWaehle={(source) => onChange(neueBindung(source as ParameterQuelle, wahlen))}
         />
       </div>

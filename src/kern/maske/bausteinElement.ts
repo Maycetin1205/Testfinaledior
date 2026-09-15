@@ -4,14 +4,14 @@ import type { Eigenschaft } from './eigenschaft'
 export type Kategorie = 'eingabe' | 'anzeige' | 'layout'
 
 export interface BausteinElement {
-  get customProperties(): Eigenschaft[]
+  get eigenschaften(): Eigenschaft[]
 }
 
 type KlassenAngaben =
-  Omit<BausteinArt, 'type' | 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>
-  & Partial<Pick<BausteinArt, 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>>
+  Omit<BausteinArt, 'typ' | 'faehigkeiten' | 'nimmtKinder' | 'breiteAenderbar' | 'hoeheAenderbar'>
+  & Partial<Pick<BausteinArt, 'faehigkeiten' | 'nimmtKinder' | 'breiteAenderbar' | 'hoeheAenderbar'>>
 
 export interface BausteinKlasse extends Readonly<KlassenAngaben> {
-  readonly blockType: string
+  readonly typ: string
   new(): BausteinElement
 }

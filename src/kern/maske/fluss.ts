@@ -7,12 +7,12 @@ export type FlussBreite = 'auto' | 'fill' | number
 export type FlussHoehe = 'auto' | 'fill' | number
 
 export function richtungDerKinder(
-  def: Pick<BausteinArt, 'childDirection'> | undefined,
+  def: Pick<BausteinArt, 'kinderRichtung'> | undefined,
   props: Record<string, unknown>,
 ): Richtung {
   if (props.direction === 'row') return 'row'
   if (props.direction === 'column') return 'column'
-  return def?.childDirection ?? 'column'
+  return def?.kinderRichtung ?? 'column'
 }
 
 export const WURZEL_FLUSS = { gap: 12, padding: 16 } as const

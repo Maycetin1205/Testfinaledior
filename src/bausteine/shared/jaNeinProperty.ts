@@ -4,19 +4,19 @@ import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 // Die eine Stelle fuer eine Ja/Nein-Eigenschaft. Die REIHENFOLGE der Optionen
 // ist ein Kontrakt: erste = aus, zweite = ein; der Inspector liest sie hier heraus.
 export function jaNeinProperty(
-  attributeName: string,
+  schluessel: string,
   name: string,
   description: string,
   extra?: Partial<Eigenschaft>,
 ): Eigenschaft {
   return {
-    attributeName,
+    schluessel,
     name,
-    description,
-    kind: 'jaNein',
-    options: [
-      { value: 'nein', label: 'Nein' },
-      { value: 'ja', label: 'Ja' },
+    beschreibung: description,
+    art: 'jaNein',
+    optionen: [
+      { wert: 'nein', name: 'Nein' },
+      { wert: 'ja', name: 'Ja' },
     ],
     ...extra,
   }

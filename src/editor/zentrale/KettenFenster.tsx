@@ -27,13 +27,13 @@ export function KettenFenster({ block, eventKey, eventName, onClose }: KettenFen
 
   const [neu, setNeu] = useState(false)
 
-  const kette = ed.tree[block.id]?.events?.[eventKey] ?? []
+  const kette = ed.tree[block.id]?.ketten?.[eventKey] ?? []
   const offen = offeneId === null ? undefined : kette.find((s) => s.id === offeneId)
 
   const setzeKette = (steps: Schritt[]): void => {
     const node = ed.tree[block.id]
     if (!node) return
-    ed.updateBlockEvents(block.id, { ...(node.events ?? {}), [eventKey]: steps })
+    ed.updateBlockEvents(block.id, { ...(node.ketten ?? {}), [eventKey]: steps })
   }
 
   const speichere = (step: Schritt): void => {

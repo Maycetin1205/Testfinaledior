@@ -30,18 +30,18 @@ import { TrennerBlock } from '../bausteine/trenner/TrennerBlock'
 
 // Sie stehen hier und nicht am Baustein, damit die Maske keinen Editor-Code traegt.
 const SYMBOLE = [
-  [ButtonBlock.blockType, ZeichenSchaltflaeche],
-  [CardBlock.blockType, ZeichenKarte],
-  [DatumBlock.blockType, ZeichenDatum],
-  [FormFeldBlock.blockType, ZeichenFormularfeld],
-  [KanbanBlock.blockType, ZeichenKanban],
-  [KanbanSpalteBlock.blockType, ZeichenKanbanSpalte],
-  [NaviBlock.blockType, ZeichenNavi],
-  [NaviEintragBlock.blockType, ZeichenNavi],
-  [PopupBlock.blockType, ZeichenPopup],
-  [TabelleBlock.blockType, ZeichenTabelle],
-  [TextBlock.blockType, ZeichenText],
-  [TrennerBlock.blockType, ZeichenTrenner],
+  [ButtonBlock.typ, ZeichenSchaltflaeche],
+  [CardBlock.typ, ZeichenKarte],
+  [DatumBlock.typ, ZeichenDatum],
+  [FormFeldBlock.typ, ZeichenFormularfeld],
+  [KanbanBlock.typ, ZeichenKanban],
+  [KanbanSpalteBlock.typ, ZeichenKanbanSpalte],
+  [NaviBlock.typ, ZeichenNavi],
+  [NaviEintragBlock.typ, ZeichenNavi],
+  [PopupBlock.typ, ZeichenPopup],
+  [TabelleBlock.typ, ZeichenTabelle],
+  [TextBlock.typ, ZeichenText],
+  [TrennerBlock.typ, ZeichenTrenner],
 ] as const
 
 for (const [typ, symbol] of SYMBOLE) ergaenzeEditorAngaben(typ, { symbol })

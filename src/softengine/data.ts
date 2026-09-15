@@ -3,39 +3,39 @@ import { pruefeHolWert, type HolWert } from '../kern/daten/holWert'
 import { POS_LEN, pruefeLadeRelation, type LadeRelation } from '../kern/daten/ladeRelation'
 import { geholteZeilenFuer } from './geholteZeilen'
 
-export type UnknownRecord = Record<string, unknown>
+export type Objekt = Record<string, unknown>
 
-export function isRecord(v: unknown): v is UnknownRecord {
+export function istObjekt(v: unknown): v is Objekt {
   return typeof v === 'object' && v !== null
 }
 
-export type RuntimeLadeRelation = LadeRelation & { zusatzFelder: readonly string[] }
+export type LaufzeitLadeRelation = LadeRelation & { zusatzFelder: readonly string[] }
 
 // Die Feldnamen reisen MIT: ohne sie wuesste der Wert-Lader nicht, unter welchem
 // Namen er die Antwort ablegen soll.
-export type RuntimeHolWert = HolWert & { felder: readonly string[] }
+export type LaufzeitHolWert = HolWert & { felder: readonly string[] }
 
-export interface RuntimeDataSource {
+export interface LaufzeitQuelle {
   id: string
   name: string
-  tableId: string
-  indexField: string
+  tabellenId: string
+  satzFeld: string
 
   // Diese Quelle ist keine Liste, sondern DER Satz, der gerade offen ist.
   offenerSatz: boolean
-  ladeRelation?: RuntimeLadeRelation
-  holWert?: RuntimeHolWert
+  ladeRelation?: LaufzeitLadeRelation
+  holWert?: LaufzeitHolWert
 }
 
-export function findRuntimeDataSource(list: unknown, id: string): RuntimeDataSource | undefined {
+export function quelleAusListe(list: unknown, id: string): LaufzeitQuelle | undefined {
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {
-    if (!isRecord(entry) || entry.id !== id) continue
-    if (typeof entry.name !== 'string' || typeof entry.tableId !== 'string') continue
+    if (!istObjekt(entry) || entry.id !== id) continue
+    if (typeof entry.name !== 'string' || typeof entry.tabellenId !== 'string') continue
 
-    let ladeRelation: RuntimeLadeRelation | undefined
+    let ladeRelation: LaufzeitLadeRelation | undefined
     const geprueft = pruefeLadeRelation(entry.ladeRelation)
-    if (geprueft && isRecord(entry.ladeRelation)) {
+    if (geprueft && istObjekt(entry.ladeRelation)) {
       const zf = entry.ladeRelation.zusatzFelder
       const zusatzFelder = Array.isArray(zf)
         ? zf.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
@@ -43,9 +43,9 @@ export function findRuntimeDataSource(list: unknown, id: string): RuntimeDataSou
       ladeRelation = { ...geprueft, zusatzFelder }
     }
 
-    let holWert: RuntimeHolWert | undefined
+    let holWert: LaufzeitHolWert | undefined
     const gepruefterWert = pruefeHolWert(entry.holWert)
-    if (gepruefterWert && isRecord(entry.holWert)) {
+    if (gepruefterWert && istObjekt(entry.holWert)) {
       const roh = entry.holWert.felder
       const felder = Array.isArray(roh)
         ? roh.filter((f): f is string => typeof f === 'string' && f !== '')
@@ -55,8 +55,8 @@ export function findRuntimeDataSource(list: unknown, id: string): RuntimeDataSou
     return {
       id,
       name: entry.name,
-      tableId: entry.tableId,
-      indexField: typeof entry.indexField === 'string' ? entry.indexField : '',
+      tabellenId: entry.tabellenId,
+      satzFeld: typeof entry.satzFeld === 'string' ? entry.satzFeld : '',
       offenerSatz: entry.offenerSatz === true,
       ...(ladeRelation ? { ladeRelation } : {}),
       ...(holWert ? { holWert } : {}),
@@ -69,8 +69,8 @@ function asTrimmedString(v: unknown): string {
   return v == null ? '' : String(v).trim()
 }
 
-export function getField(row: unknown, code: string): string {
-  if (!isRecord(row) || code === '') return ''
+export function feldLesen(row: unknown, code: string): string {
+  if (!istObjekt(row) || code === '') return ''
   const key = code.trim()
   const direct = asTrimmedString(row[key])
   if (direct !== '') return direct
@@ -94,12 +94,12 @@ export function getField(row: unknown, code: string): string {
 
 // Die Satznummer EINER Zeile, die Ketten als {PINDEX} weitergeben. Die eine
 // Stelle dafuer, statt einer Kopie je Baustein.
-export function satzIndexVon(source: { indexField: string }, row: unknown): string {
-  return source.indexField === '' ? '' : getField(row, source.indexField)
+export function satzIndexVon(source: { satzFeld: string }, row: unknown): string {
+  return source.satzFeld === '' ? '' : feldLesen(row, source.satzFeld)
 }
 
-export function setField(row: unknown, code: string, value: string): boolean {
-  if (!isRecord(row) || code === '') return false
+export function feldSchreiben(row: unknown, code: string, value: string): boolean {
+  if (!istObjekt(row) || code === '') return false
   const key = code.trim()
   let written = false
 
@@ -130,7 +130,7 @@ export function setField(row: unknown, code: string, value: string): boolean {
 }
 
 function rowsOfEntry(entry: unknown): unknown[] {
-  if (!isRecord(entry)) return Array.isArray(entry) ? entry : []
+  if (!istObjekt(entry)) return Array.isArray(entry) ? entry : []
   const candidates = [
     entry.Zeilen, entry.zeilen, entry.Saetze, entry.saetze,
     entry.Rows, entry.rows, entry.Daten, entry.daten,
@@ -151,10 +151,10 @@ function sameAlias(a: unknown, alias: string): boolean {
   return asTrimmedString(a).toLowerCase() === alias.trim().toLowerCase()
 }
 
-function varBlockVon(daten: UnknownRecord): UnknownRecord | undefined {
+function varBlockVon(daten: Objekt): Objekt | undefined {
   for (const key of ['Var', 'VAR', 'var']) {
     const block = daten[key]
-    if (isRecord(block)) return block
+    if (istObjekt(block)) return block
   }
   return undefined
 }
@@ -164,22 +164,22 @@ function varBlockVon(daten: UnknownRecord): UnknownRecord | undefined {
 // zu DIESER Tabelle gehoert, sonst zoege ein fremder Eintrag in den Satz ein.
 // Herausgereicht wird EINE Zeile, damit jede vorhandene Bindung weiterliest.
 function offenerSatzZeilen(seData: unknown, tableId: string): unknown[] {
-  if (!isRecord(seData) || !isRecord(seData.Daten)) return []
+  if (!istObjekt(seData) || !istObjekt(seData.Daten)) return []
   const id = tableId.trim()
   if (id === '') return []
   const varBlock = varBlockVon(seData.Daten)
   if (!varBlock) return []
 
-  const satz: UnknownRecord = {}
+  const satz: Objekt = {}
   const fenster = varBlock.WINDOW_VARIABLE ?? varBlock.Window_Variable
-  if (isRecord(fenster)) {
+  if (istObjekt(fenster)) {
     const vorsatz = id.toUpperCase() + '_'
     for (const key of Object.keys(fenster)) {
       if (key.toUpperCase().startsWith(vorsatz)) satz[key] = fenster[key]
     }
   }
   const eigen = varBlock[id] ?? varBlock[id.toUpperCase()]
-  if (isRecord(eigen)) {
+  if (istObjekt(eigen)) {
     for (const key of Object.keys(eigen)) {
       if (asTrimmedString(eigen[key]) !== '' || !(key in satz)) satz[key] = eigen[key]
     }
@@ -187,7 +187,7 @@ function offenerSatzZeilen(seData: unknown, tableId: string): unknown[] {
   return Object.keys(satz).length === 0 ? [] : [satz]
 }
 
-export function rowsFor(
+export function zeilenAusLieferung(
   seData: unknown,
   alias: string,
   idbId: string,
@@ -196,23 +196,23 @@ export function rowsFor(
   // Schleife soll nicht heimlich den Kopfsatz als Zeile ausgeben.
   offenerSatz = false,
 ): unknown[] {
-  if (!isRecord(seData) || !isRecord(seData.Daten)) return []
+  if (!istObjekt(seData) || !istObjekt(seData.Daten)) return []
   if (offenerSatz) return offenerSatzZeilen(seData, idbId)
   const daten = seData.Daten
 
   const sfl = daten.SEFileLoop
   if (Array.isArray(sfl)) {
     for (const entry of sfl) {
-      if (isRecord(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias))) {
+      if (istObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias))) {
         const rows = rowsOfEntry(entry)
         if (rows.length > 0) return rows
       }
     }
-  } else if (isRecord(sfl)) {
+  } else if (istObjekt(sfl)) {
     for (const key of Object.keys(sfl)) {
       const entry = sfl[key]
       if (sameAlias(key, alias)
-        || (isRecord(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias)))) {
+        || (istObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias)))) {
         const rows = rowsOfEntry(entry)
         if (rows.length > 0) return rows
       }
@@ -221,7 +221,7 @@ export function rowsFor(
 
   for (const key of ['ErpApiCall', 'ERPAPICALL', 'erpapicall']) {
     const api = daten[key]
-    if (!isRecord(api)) continue
+    if (!istObjekt(api)) continue
     for (const eintrag of Object.keys(api)) {
       if (!sameAlias(eintrag, alias)) continue
       const rows = rowsOfEntry(api[eintrag])
@@ -230,7 +230,7 @@ export function rowsFor(
   }
 
   const tab = daten.Tabellen
-  if (isRecord(tab)) {
+  if (istObjekt(tab)) {
     const keys = [alias, alias.toUpperCase(), alias.toLowerCase(), idbId]
     for (const key of keys) {
       if (key !== '' && key in tab) {
@@ -249,12 +249,12 @@ export function rowsFor(
   return geholteZeilenFuer(alias) ?? []
 }
 
-export function payloadDaten(raw: unknown): UnknownRecord | undefined {
+export function datenAusInhalt(raw: unknown): Objekt | undefined {
   let data = raw
   if (typeof data === 'string') {
     try { data = JSON.parse(data) } catch { return undefined }
   }
-  if (!isRecord(data) || !isRecord(data.Daten)) return undefined
+  if (!istObjekt(data) || !istObjekt(data.Daten)) return undefined
   const daten = data.Daten
   if (!daten.SEFileLoop && !daten.Tabellen && !daten.ErpApiCall && !varBlockVon(daten)) {
     return undefined
@@ -262,11 +262,11 @@ export function payloadDaten(raw: unknown): UnknownRecord | undefined {
   return daten
 }
 
-export function messagePayload(eventData: unknown): unknown {
+export function nachrichtenInhalt(eventData: unknown): unknown {
   let d = eventData
   if (typeof d === 'string') {
     try { d = JSON.parse(d) } catch { return undefined }
   }
-  if (!isRecord(d) || !isRecord(d.MSG)) return undefined
+  if (!istObjekt(d) || !istObjekt(d.MSG)) return undefined
   return d.MSG.DATA
 }

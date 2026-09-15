@@ -3,16 +3,16 @@ import type { Datenquelle } from '../../kern/daten/datenquellen'
 import type { QuelleInReichweite } from '../../kern/daten/weitereQuellen'
 import { breiteAusZeichen, zeichenVon } from './feldBreite'
 
-function quelle(id: string, fields: Datenquelle['fields']): QuelleInReichweite {
-  return { source: { id, name: id, kind: 'artikelstamm', fields } }
+function quelle(id: string, fields: Datenquelle['felder']): QuelleInReichweite {
+  return { quelle: { id, name: id, art: 'artikelstamm', felder: fields } }
 }
 
 const QUELLEN: QuelleInReichweite[] = [
   quelle('q-pos', [
-    { code: '18_25', label: 'ArtNr', zeichen: 10 },
-    { code: '45_60', label: 'Bezeichnung' },
+    { code: '18_25', name: 'ArtNr', zeichen: 10 },
+    { code: '45_60', name: 'Bezeichnung' },
   ]),
-  quelle('q-art', [{ code: 'bez', label: 'Bezeichnung', zeichen: 30 }]),
+  quelle('q-art', [{ code: 'bez', name: 'Bezeichnung', zeichen: 30 }]),
 ]
 
 describe('breiteAusZeichen', () => {

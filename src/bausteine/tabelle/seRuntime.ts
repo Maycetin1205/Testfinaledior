@@ -73,7 +73,7 @@ export function zeilenMerkmalVon(el: HTMLElement, rohzeile: unknown): string {
 
 export function hatSatzNummer(el: HTMLElement): boolean {
   const source = laufzeitQuelle(el.getAttribute('source') ?? '')
-  return source !== undefined && source.indexField !== ''
+  return source !== undefined && source.satzFeld !== ''
 }
 
 function hydrateTable(el: RuntimeTableElement, lieferung: boolean): void {

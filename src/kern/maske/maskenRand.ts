@@ -5,7 +5,7 @@ import type { Baustein, Maskenbaum } from './baum'
 export const RAND = { breite: 56, breiteOffen: 224 } as const
 
 export function istRandBaustein(node: Baustein): boolean {
-  return bausteinArt(node.type)?.maskenRand === true
+  return bausteinArt(node.typ)?.maskenRand === true
 }
 
 export function randStil(): Record<string, string | number> {

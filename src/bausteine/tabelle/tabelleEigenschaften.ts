@@ -17,7 +17,7 @@ export const TABELLE_EIGENSCHAFTEN: Eigenschaft[] = [
     'suche',
     'Suchzeile',
     'Zeigt über der Tabelle ein Feld, mit dem der Bediener den Inhalt durchsucht.',
-    { requiresDataSource: true },
+    { brauchtQuelle: true },
   ),
 
   jaNeinProperty(
@@ -39,10 +39,10 @@ export const TABELLE_EIGENSCHAFTEN: Eigenschaft[] = [
       + 'und holt sie zurück. Braucht die Kopfzeile.',
   ),
   {
-    attributeName: 'tagField',
+    schluessel: 'tagField',
     name: 'Tag filtern nach',
-    description: 'Datumsfeld. Gesetzt: nur Sätze des gewählten Tages.',
-    kind: 'field',
+    beschreibung: 'Datumsfeld. Gesetzt: nur Sätze des gewählten Tages.',
+    art: 'field',
   },
 
   leerTextProperty(),
@@ -50,9 +50,9 @@ export const TABELLE_EIGENSCHAFTEN: Eigenschaft[] = [
 
 export const SPALTEN_BINDUNG: ListenBindung = {
   prop: 'spalten',
-  titelKey: 'titel',
-  feldKey: 'feld',
-  kennungKey: 'kennung',
+  titelSchluessel: 'titel',
+  feldSchluessel: 'feld',
+  kennungSchluessel: 'kennung',
   standardTitel: STANDARD_TITEL,
 
   eintragNeu: (props) => {
@@ -74,13 +74,13 @@ export const SPALTEN_BINDUNG: ListenBindung = {
 
   eintragsSchalter: [
     {
-      key: 'summe',
-      label: 'Summe in der Fußzeile',
+      schluessel: 'summe',
+      name: 'Summe in der Fußzeile',
       kurz: 'Summe',
     },
     {
-      key: 'versteckt',
-      label: 'In der Maske ausblenden',
+      schluessel: 'versteckt',
+      name: 'In der Maske ausblenden',
       kurz: 'ausgeblendet',
     },
   ],

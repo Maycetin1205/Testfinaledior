@@ -3,18 +3,18 @@ import { Grundbaustein } from '../grund/Grundbaustein'
 import type { Kategorie } from '../../kern/maske/bausteinElement'
 
 export class KanbanMusterBlock extends Grundbaustein {
-  static readonly blockType = 'kanban-muster'
-  static readonly tagName = 'ff-kanban-muster'
-  static readonly displayName = 'Kartenmuster'
-  static readonly category: Kategorie = 'anzeige'
-  static readonly acceptsChildren = true
-  static readonly allowedChildTypes = ['card']
-  static readonly allowedParentTypes = ['kanban']
-  static readonly showInPalette = false
-  static readonly resizableWidth = false
-  static readonly containerHint = false
-  static readonly editorSlot = 'muster'
-  static readonly defaultProps = {}
+  static readonly typ = 'kanban-muster'
+  static readonly tag = 'ff-kanban-muster'
+  static readonly anzeigeName = 'Kartenmuster'
+  static readonly kategorie: Kategorie = 'anzeige'
+  static readonly nimmtKinder = true
+  static readonly erlaubteKinder = ['card']
+  static readonly erlaubteEltern = ['kanban']
+  static readonly inPalette = false
+  static readonly breiteAenderbar = false
+  static readonly behaelterRahmen = false
+  static readonly editorPlatz = 'muster'
+  static readonly vorgaben = {}
   static override styles = [Grundbaustein.styles, css`
     :host { display: none; }
     :host([data-ff-editor]) { display: block; max-width: 420px; }

@@ -43,7 +43,7 @@ export function SchluesselPaarZeilen({
       bezeichnung={bezeichnung}
       gruppen={[{
         key: 'felder',
-        eintraege: felder.map((f) => ({ wert: f.code, name: f.label, kennung: f.code })),
+        eintraege: felder.map((f) => ({ wert: f.code, name: f.name, kennung: f.code })),
       }]}
       wert={wert}
       leerText="Nicht gebunden"
@@ -76,17 +76,17 @@ export function SchluesselPaarZeilen({
               </Knopf>
             )}
           </div>
-          {feldWaehler(linkeBezeichnung(at), linkeFelder, paar.fromField,
-            (code) => setzePaar(at, { fromField: code }))}
+          {feldWaehler(linkeBezeichnung(at), linkeFelder, paar.vonFeld,
+            (code) => setzePaar(at, { vonFeld: code }))}
           <span className="text-dicht text-matt">{rechteBezeichnung(at)}</span>
-          {feldWaehler(rechteBezeichnung(at), rechteFelder, paar.toField,
-            (code) => setzePaar(at, { toField: code }))}
+          {feldWaehler(rechteBezeichnung(at), rechteFelder, paar.nachFeld,
+            (code) => setzePaar(at, { nachFeld: code }))}
         </div>
       ))}
       {paare.length < MAX_SCHLUESSELPAARE && (
         <Knopf
           className="self-start"
-          onClick={() => onAendern([...paare, { fromField: '', toField: '' }])}
+          onClick={() => onAendern([...paare, { vonFeld: '', nachFeld: '' }])}
         >
           <Plus size={13} /> Feld dazu
         </Knopf>

@@ -22,13 +22,13 @@ class SpeicherStub {
 }
 
 const QUELLE_A: Datenquelle = {
-  id: 'q-a', name: 'Artikel', kind: 'idb', idbId: 'IDB0001', fields: [{ code: '3_8', label: 'Nummer' }],
+  id: 'q-a', name: 'Artikel', art: 'idb', idbId: 'IDB0001', felder: [{ code: '3_8', name: 'Nummer' }],
 }
 const QUELLE_B: Datenquelle = {
-  id: 'q-b', name: 'Chargen', kind: 'idb', idbId: 'IDB0002', fields: [],
+  id: 'q-b', name: 'Chargen', art: 'idb', idbId: 'IDB0002', felder: [],
 }
 const REL_NEU: RelationsVorlage = {
-  id: 'r-neu', name: 'Position holen', verb: 'GET_RELATION', nr: '640', params: ['{PINDEX}'],
+  id: 'r-neu', name: 'Position holen', verb: 'GET_RELATION', nr: '640', parameter: ['{PINDEX}'],
 }
 
 function bibliothek(datenquellen: unknown[], relationen: unknown[]): File {
@@ -49,7 +49,7 @@ beforeEach(() => {
   vi.stubGlobal('localStorage', new SpeicherStub())
   meldungen.leere()
   ed = new Editor({ tree: leererBaum(), datenquellen: [QUELLE_A], relationen: [{
-    id: 'standard-put', name: 'Standard-Schreiben (PUT)', verb: 'PUT_RELATION', nr: '174', params: ['{VALUE}'],
+    id: 'standard-put', name: 'Standard-Schreiben (PUT)', verb: 'PUT_RELATION', nr: '174', parameter: ['{VALUE}'],
   }] })
 })
 
@@ -119,13 +119,13 @@ test('Maskendatei und Bibliotheksdatei zeigen aufeinander statt still zu scheite
 test('die Spaltenbreite am Feld uebersteht den Weg durch die Datei', async () => {
   await ladeBibliothekAusDatei(ed, bibliothek([{
     ...QUELLE_B,
-    fields: [
-      { code: '3_8', label: 'Nummer', zeichen: 8 },
-      { code: '45_60', label: 'Bezeichnung' },
+    felder: [
+      { code: '3_8', name: 'Nummer', zeichen: 8 },
+      { code: '45_60', name: 'Bezeichnung' },
     ],
   }], []))
 
-  const felder = ed.datenquellen.list.find((q) => q.id === 'q-b')?.fields ?? []
+  const felder = ed.datenquellen.list.find((q) => q.id === 'q-b')?.felder ?? []
   expect(felder.map((f) => f.zeichen)).toEqual([8, undefined])
 })
 
@@ -134,7 +134,7 @@ test('die Spaltenbreite am Feld uebersteht den Weg durch die Datei', async () =>
 test('eine unmoegliche Spaltenbreite laesst die Datei stehen und sagt wo', async () => {
   await ladeBibliothekAusDatei(ed, bibliothek([{
     ...QUELLE_B,
-    fields: [{ code: '3_8', label: 'Nummer', zeichen: 0 }],
+    felder: [{ code: '3_8', name: 'Nummer', zeichen: 0 }],
   }], []))
 
   expect(ed.datenquellen.list.map((q) => q.id)).toEqual(['q-a'])

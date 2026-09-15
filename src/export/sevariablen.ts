@@ -40,8 +40,8 @@ export function baueSevariablen(
   holSchluessel: ReadonlyMap<string, string[]>,
 ): string {
   const bestellbar = used.filter((s) => !holtSelbst(s))
-  const perApi = bestellbar.filter((s) => artFuer(s.kind).bestellBlock === 'erpapicall')
-  const perDataSet = bestellbar.filter((s) => artFuer(s.kind).bestellBlock === 'dataset')
+  const perApi = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'erpapicall')
+  const perDataSet = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'dataset')
 
   // Der offene Satz wird NICHT als Loop bestellt: SoftEngine liefert ihn im
   // VAR-Abschnitt (kontrakte.md 6). Ein Loop daneben waere eine zweite
@@ -50,7 +50,7 @@ export function baueSevariablen(
 
   const geordnet = loopReihenfolge(
     bestellbar.filter(
-      (s) => artFuer(s.kind).bestellBlock === 'sefileloop' && !istOffenerSatz(s),
+      (s) => artFuer(s.art).bestellBlock === 'sefileloop' && !istOffenerSatz(s),
     ),
   )
 

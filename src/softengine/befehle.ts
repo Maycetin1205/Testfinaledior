@@ -1,5 +1,5 @@
 // Befehle an SoftEngine senden: START_TOOL und BW-Link.
-import { seGlobal } from './bridge'
+import { seFenster } from './bridge'
 
 function startToolLink(nr: string, params: readonly string[]): string {
   let link = '0,START_TOOL,' + nr
@@ -14,7 +14,7 @@ function startToolLink(nr: string, params: readonly string[]): string {
 export function sendeBwLink(befehl: string): boolean {
   const zeile = befehl.trim()
   if (zeile === '') return false
-  const g = seGlobal()
+  const g = seFenster()
   try {
     if (typeof g.sendBWLink === 'function') {
       g.sendBWLink(zeile)
@@ -34,7 +34,7 @@ export function sendeBwLink(befehl: string): boolean {
 // Nachrichten-Weg und nur ohne ihn der Link.
 export function sendeStartTool(nr: string, params: readonly string[]): boolean {
   if (nr.trim() === '') return false
-  const g = seGlobal()
+  const g = seFenster()
   try {
     if (typeof g.basisHTML_SND_MSG === 'function') {
       const obj: Record<string, unknown> = { NR: nr }

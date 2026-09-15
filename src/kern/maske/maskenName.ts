@@ -7,7 +7,7 @@ export const MASKEN_NAME_PROP = 'maskenName'
 export const MASKEN_NAME_STANDARD = 'Maske'
 
 export function maskenNameVon(tree: Maskenbaum): string {
-  const roh = tree[WURZEL_ID]?.props[MASKEN_NAME_PROP]
+  const roh = tree[WURZEL_ID]?.werte[MASKEN_NAME_PROP]
   const name = typeof roh === 'string' ? roh.trim() : ''
   return name === '' ? MASKEN_NAME_STANDARD : name
 }

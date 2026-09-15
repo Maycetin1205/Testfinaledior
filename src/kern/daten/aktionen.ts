@@ -60,13 +60,13 @@ export const ZELLEN_PARAM_QUELLEN: Record<string, VormerkArt> = {
 export type ParameterQuelle = (typeof GESPEICHERTE_PARAM_QUELLEN)[number]
 
 export interface Parameter {
-  source: ParameterQuelle
+  quelle: ParameterQuelle
 
-  value: string
+  wert: string
 
-  dataSourceId?: string
+  quelleId?: string
 
-  blockId?: string
+  bausteinId?: string
 
   ergebnisFeld?: string
 }
@@ -98,12 +98,12 @@ export function ergebnisSchritteVor(
   const out: ErgebnisSchritt[] = []
   for (let i = 0; i < vorher.length; i++) {
     const s = vorher[i]
-    if (s.type !== 'RELATION') continue
+    if (s.art !== 'RELATION') continue
     const rel = relations?.find((r) => r.id === s.relationId)
     if (!rel || rel.verb !== 'GET_RELATION') continue
-    const quelleId = [...s.params, ...s.extraParams]
-      .find((b) => b.source === 'data_field' && (b.dataSourceId ?? '') !== '')
-      ?.dataSourceId
+    const quelleId = [...s.parameter, ...s.zusatzParameter]
+      .find((b) => b.quelle === 'data_field' && (b.quelleId ?? '') !== '')
+      ?.quelleId
     out.push({
       id: s.id, nr: i + 1, name: rel.name,
       ...(quelleId === undefined ? {} : { quelleId }),
@@ -114,44 +114,44 @@ export function ergebnisSchritteVor(
 
 interface ActionStepBase {
   id: string
-  type: SchrittArt
+  art: SchrittArt
 
-  resultKey: string
+  ergebnisName: string
 
   notiz?: string
 }
 
 export interface StartToolSchritt extends ActionStepBase {
-  type: 'START_TOOL'
+  art: 'START_TOOL'
   toolNr: string
-  toolParams: string[]
+  toolParameter: string[]
 }
 
 // Ein freier BueroWARE-Befehl. START_TOOL hat eine eigene Art, weil sein Link
 // fest aufgebaut ist; hier gibt der Bediener die ganze Zeile vor.
 export interface BwLinkSchritt extends ActionStepBase {
-  type: 'BW_LINK'
+  art: 'BW_LINK'
 
   befehl: string
 }
 
 export interface RelationsSchritt extends ActionStepBase {
-  type: 'RELATION'
+  art: 'RELATION'
 
   relationId: string
 
-  params: Parameter[]
+  parameter: Parameter[]
 
-  extraParams: Parameter[]
+  zusatzParameter: Parameter[]
 }
 
 export interface PopupOeffnenSchritt extends ActionStepBase {
-  type: 'POPUP_OPEN'
+  art: 'POPUP_OPEN'
   popupId: string
 }
 
 export interface PopupSchliessenSchritt extends ActionStepBase {
-  type: 'POPUP_CLOSE'
+  art: 'POPUP_CLOSE'
   popupId: string
 }
 
@@ -167,25 +167,25 @@ export const SATZ_PLATZHALTER = ['PINDEX', 'DROP_PINDEX'] as const
 export const AKTIONS_PLATZHALTER = [...SATZ_PLATZHALTER, 'VALUE', 'ZIMMER', 'NOW_DATE'] as const
 
 export function relationsParameterVorgabe(
-  relation: Pick<RelationsVorlage, 'params'>,
+  relation: Pick<RelationsVorlage, 'parameter'>,
 ): Parameter[] {
-  return relation.params.map((raw) => {
+  return relation.parameter.map((raw) => {
     const placeholder = /^\{([A-Za-z0-9_]+)\}$/.exec(raw)?.[1]
     return placeholder && (AKTIONS_PLATZHALTER as readonly string[]).includes(placeholder)
-      ? { source: 'context', value: placeholder }
-      : { source: 'fixed', value: '' }
+      ? { quelle: 'context', wert: placeholder }
+      : { quelle: 'fixed', wert: '' }
   })
 }
 
 interface RuntimePopupFields {
-  resultKey: string
+  ergebnisName: string
   popupId?: string
   popup?: string
 }
 
 export type LaufzeitPopupSchritt =
-  | (RuntimePopupFields & { type: 'POPUP_OPEN' })
-  | (RuntimePopupFields & { type: 'POPUP_CLOSE' })
+  | (RuntimePopupFields & { art: 'POPUP_OPEN' })
+  | (RuntimePopupFields & { art: 'POPUP_CLOSE' })
 
 export type LaufzeitSchritt =
   | Omit<StartToolSchritt, 'id'>
@@ -193,85 +193,85 @@ export type LaufzeitSchritt =
   | Omit<RelationsSchritt, 'id'>
   | LaufzeitPopupSchritt
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+function istObjekt(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
 export function pruefeParameterBindung(raw: unknown): Parameter | null {
-  if (!isRecord(raw)) return null
+  if (!istObjekt(raw)) return null
   if (
-    typeof raw.source !== 'string'
-    || !(GESPEICHERTE_PARAM_QUELLEN as readonly string[]).includes(raw.source)
-    || typeof raw.value !== 'string'
+    typeof raw.quelle !== 'string'
+    || !(GESPEICHERTE_PARAM_QUELLEN as readonly string[]).includes(raw.quelle)
+    || typeof raw.wert !== 'string'
   ) return null
-  if (raw.dataSourceId !== undefined && typeof raw.dataSourceId !== 'string') return null
-  if (raw.blockId !== undefined && typeof raw.blockId !== 'string') return null
+  if (raw.quelleId !== undefined && typeof raw.quelleId !== 'string') return null
+  if (raw.bausteinId !== undefined && typeof raw.bausteinId !== 'string') return null
   if (raw.ergebnisFeld !== undefined && typeof raw.ergebnisFeld !== 'string') return null
   return {
-    source: raw.source as ParameterQuelle,
-    value: raw.value,
-    ...(typeof raw.dataSourceId === 'string' ? { dataSourceId: raw.dataSourceId } : {}),
-    ...(typeof raw.blockId === 'string' ? { blockId: raw.blockId } : {}),
+    quelle: raw.quelle as ParameterQuelle,
+    wert: raw.wert,
+    ...(typeof raw.quelleId === 'string' ? { quelleId: raw.quelleId } : {}),
+    ...(typeof raw.bausteinId === 'string' ? { bausteinId: raw.bausteinId } : {}),
 
-    ...(raw.source === 'step_result' && typeof raw.ergebnisFeld === 'string'
+    ...(raw.quelle === 'step_result' && typeof raw.ergebnisFeld === 'string'
       ? { ergebnisFeld: raw.ergebnisFeld }
       : {}),
   }
 }
 
 function stepFields(raw: unknown): LaufzeitSchritt | null {
-  if (!isRecord(raw) || typeof raw.type !== 'string' || typeof raw.resultKey !== 'string') {
+  if (!istObjekt(raw) || typeof raw.art !== 'string' || typeof raw.ergebnisName !== 'string') {
     return null
   }
-  if (raw.type === 'START_TOOL') {
+  if (raw.art === 'START_TOOL') {
     if (typeof raw.toolNr !== 'string') return null
-    if (!Array.isArray(raw.toolParams) || raw.toolParams.some((p) => typeof p !== 'string')) return null
+    if (!Array.isArray(raw.toolParameter) || raw.toolParameter.some((p) => typeof p !== 'string')) return null
     return {
-      type: 'START_TOOL',
-      resultKey: raw.resultKey,
+      art: 'START_TOOL',
+      ergebnisName: raw.ergebnisName,
       toolNr: raw.toolNr,
-      toolParams: [...raw.toolParams] as string[],
+      toolParameter: [...raw.toolParameter] as string[],
     }
   }
-  if (raw.type === 'BW_LINK') {
+  if (raw.art === 'BW_LINK') {
     if (typeof raw.befehl !== 'string') return null
-    return { type: 'BW_LINK', resultKey: raw.resultKey, befehl: raw.befehl }
+    return { art: 'BW_LINK', ergebnisName: raw.ergebnisName, befehl: raw.befehl }
   }
-  if (raw.type === 'POPUP_OPEN' || raw.type === 'POPUP_CLOSE') {
+  if (raw.art === 'POPUP_OPEN' || raw.art === 'POPUP_CLOSE') {
     const popupId = typeof raw.popupId === 'string' ? raw.popupId : undefined
     const popup = typeof raw.popup === 'string' ? raw.popup : undefined
     if (popupId === undefined && popup === undefined) return null
     return {
-      type: raw.type,
-      resultKey: raw.resultKey,
+      art: raw.art,
+      ergebnisName: raw.ergebnisName,
       ...(popupId !== undefined ? { popupId } : {}),
       ...(popup !== undefined ? { popup } : {}),
     }
   }
-  if (raw.type === 'RELATION') {
+  if (raw.art === 'RELATION') {
     if (typeof raw.relationId !== 'string') return null
-    if (!Array.isArray(raw.extraParams)) return null
+    if (!Array.isArray(raw.zusatzParameter)) return null
   // Mit LEEREN params ginge die Relation mit lauter leeren Parametern ins ERP.
-    if (!Array.isArray(raw.params)) return null
+    if (!Array.isArray(raw.parameter)) return null
     const params: Parameter[] = []
-    for (const value of raw.params) {
+    for (const value of raw.parameter) {
       const binding = pruefeParameterBindung(value)
       if (!binding) return null
       params.push(binding)
     }
 
     const extraParams: Parameter[] = []
-    for (const value of raw.extraParams) {
+    for (const value of raw.zusatzParameter) {
       const binding = pruefeParameterBindung(value)
       if (!binding) return null
       extraParams.push(binding)
     }
     return {
-      type: 'RELATION',
-      resultKey: raw.resultKey,
+      art: 'RELATION',
+      ergebnisName: raw.ergebnisName,
       relationId: raw.relationId,
-      params,
-      extraParams,
+      parameter: params,
+      zusatzParameter: extraParams,
     }
   }
   return null
@@ -281,7 +281,7 @@ export function kettenBereinigen(
   raw: unknown,
   allowedEvents: readonly string[],
 ): Ketten | undefined {
-  if (!isRecord(raw)) return undefined
+  if (!istObjekt(raw)) return undefined
   const out: Ketten = {}
   for (const key of allowedEvents) {
     const chain = raw[key]
@@ -291,14 +291,14 @@ export function kettenBereinigen(
     let broken = false
     for (const entry of chain) {
       const fields = stepFields(entry)
-      const id = isRecord(entry) && typeof entry.id === 'string' ? entry.id : ''
+      const id = istObjekt(entry) && typeof entry.id === 'string' ? entry.id : ''
       if (!fields || id === '' || seenIds.has(id)) {
         broken = true
         break
       }
       seenIds.add(id)
 
-      const notiz = isRecord(entry) && typeof entry.notiz === 'string' ? entry.notiz.trim() : ''
+      const notiz = istObjekt(entry) && typeof entry.notiz === 'string' ? entry.notiz.trim() : ''
       steps.push({ id, ...fields, ...(notiz !== '' ? { notiz } : {}) } as Schritt)
     }
     if (!broken && steps.length > 0) out[key] = steps
@@ -315,38 +315,38 @@ function withoutEditorId(
   spaltenIndex: (blockId: string, kennung: string) => string,
 ): LaufzeitSchritt {
   const binding = (b: Parameter): Parameter => {
-    if (b.source === 'step_result') return { ...b, value: stepPosition(b.value) }
+    if (b.quelle === 'step_result') return { ...b, wert: stepPosition(b.wert) }
     // Spalten-Kennung -> Platz: die Laufzeit greift die Zeilenwerte ueber den
     // Index, sie kennt keine Kennungen.
-    if (ZELLEN_PARAM_QUELLEN[b.source] !== undefined) {
-      return { ...b, value: spaltenIndex(b.blockId ?? '', b.value) }
+    if (ZELLEN_PARAM_QUELLEN[b.quelle] !== undefined) {
+      return { ...b, wert: spaltenIndex(b.bausteinId ?? '', b.wert) }
     }
     return { ...b }
   }
-  if (step.type === 'START_TOOL') {
+  if (step.art === 'START_TOOL') {
     return {
-      type: step.type,
-      resultKey: step.resultKey,
+      art: step.art,
+      ergebnisName: step.ergebnisName,
       toolNr: step.toolNr,
-      toolParams: [...step.toolParams],
+      toolParameter: [...step.toolParameter],
     }
   }
-  if (step.type === 'BW_LINK') {
-    return { type: step.type, resultKey: step.resultKey, befehl: step.befehl }
+  if (step.art === 'BW_LINK') {
+    return { art: step.art, ergebnisName: step.ergebnisName, befehl: step.befehl }
   }
-  if (step.type === 'POPUP_OPEN' || step.type === 'POPUP_CLOSE') {
+  if (step.art === 'POPUP_OPEN' || step.art === 'POPUP_CLOSE') {
     return {
-      type: step.type,
-      resultKey: step.resultKey,
+      art: step.art,
+      ergebnisName: step.ergebnisName,
       popup: popupName(step.popupId),
     }
   }
   return {
-    type: step.type,
-    resultKey: step.resultKey,
+    art: step.art,
+    ergebnisName: step.ergebnisName,
     relationId: step.relationId,
-    params: step.params.map(binding),
-    extraParams: step.extraParams.map(binding),
+    parameter: step.parameter.map(binding),
+    zusatzParameter: step.zusatzParameter.map(binding),
   }
 }
 
@@ -380,7 +380,7 @@ export function kettenLesen(raw: string | null): Record<string, LaufzeitSchritt[
   } catch {
     return {}
   }
-  if (!isRecord(parsed)) return {}
+  if (!istObjekt(parsed)) return {}
   const out: Record<string, LaufzeitSchritt[]> = {}
   for (const [key, chain] of Object.entries(parsed)) {
     if (!Array.isArray(chain) || chain.length === 0) continue
@@ -413,11 +413,11 @@ interface ZeilenBezug {
 
 // Kein Bausteintyp kommt vor: es zaehlt allein, was in den Parametern steht.
 function zeilenBezugVon(step: SchrittForm): ZeilenBezug | null {
-  if (step.type !== 'RELATION') return null
+  if (step.art !== 'RELATION') return null
   let treffer: ZeilenBezug | null = null
-  for (const binding of [...step.params, ...step.extraParams]) {
-    const art = ZELLEN_PARAM_QUELLEN[binding.source]
-    const blockId = binding.blockId ?? ''
+  for (const binding of [...step.parameter, ...step.zusatzParameter]) {
+    const art = ZELLEN_PARAM_QUELLEN[binding.quelle]
+    const blockId = binding.bausteinId ?? ''
     if (art === undefined || blockId === '') continue
     if (treffer && (treffer.art !== art || treffer.blockId !== blockId)) {
       return { art, blockId: '' } // zwei Listen in EINEM Schritt -> Fehler im Lauf

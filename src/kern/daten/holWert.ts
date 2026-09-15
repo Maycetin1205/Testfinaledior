@@ -18,7 +18,7 @@ export function holWertQuelleErlaubt(source: ParameterQuelle): boolean {
 export interface HolWert {
   relationId: string
 
-  params: readonly Parameter[]
+  parameter: readonly Parameter[]
 }
 
 export function pruefeHolWert(raw: unknown): HolWert | null {
@@ -26,35 +26,35 @@ export function pruefeHolWert(raw: unknown): HolWert | null {
   const e = raw as Record<string, unknown>
   const relationId = typeof e.relationId === 'string' ? e.relationId.trim() : ''
   if (relationId === '') return null
-  if (!Array.isArray(e.params)) return null
+  if (!Array.isArray(e.parameter)) return null
   const params: Parameter[] = []
-  for (const roh of e.params) {
+  for (const roh of e.parameter) {
     const binding = pruefeParameterBindung(roh)
   // Ein unlesbarer Parameter macht die ganze Angabe ungueltig: ihn einzeln
   // wegzulassen verschoebe stumm das Parameter-Feld.
-    if (!binding || !holWertQuelleErlaubt(binding.source)) return null
+    if (!binding || !holWertQuelleErlaubt(binding.quelle)) return null
     params.push(binding)
   }
-  return { relationId, params }
+  return { relationId, parameter: params }
 }
 
 export function holWertVon(
-  source: { kind: QuellenArtKennung; holWert?: HolWert },
+  source: { art: QuellenArtKennung; holWert?: HolWert },
 ): HolWert | null {
-  if (!artFuer(source.kind).holWertMoeglich) return null
+  if (!artFuer(source.art).holWertMoeglich) return null
   return source.holWert ?? null
 }
 
 // Die Quellen, aus denen ein Parameter liest: sie muessen mit in die Maske, sonst
 // faende die Laufzeit sie nicht.
 export function quellenAusHolWert(
-  source: { kind: QuellenArtKennung; holWert?: HolWert },
+  source: { art: QuellenArtKennung; holWert?: HolWert },
 ): { quelleId: string; code: string }[] {
   const raus: { quelleId: string; code: string }[] = []
-  for (const binding of holWertVon(source)?.params ?? []) {
-    if (binding.source !== 'data_field') continue
-    const quelleId = binding.dataSourceId ?? ''
-    if (quelleId !== '') raus.push({ quelleId, code: binding.value })
+  for (const binding of holWertVon(source)?.parameter ?? []) {
+    if (binding.quelle !== 'data_field') continue
+    const quelleId = binding.quelleId ?? ''
+    if (quelleId !== '') raus.push({ quelleId, code: binding.wert })
   }
   return raus
 }

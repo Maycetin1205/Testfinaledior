@@ -17,14 +17,14 @@ export function AktionenSektion({
 
   const [offenesEreignis, setOffenesEreignis] = useState<Ereignis | null>(null)
 
-  const kette = (eventKey: string) => ed.tree[block.id]?.events?.[eventKey] ?? []
+  const kette = (eventKey: string) => ed.tree[block.id]?.ketten?.[eventKey] ?? []
 
   return (
     <div className="flex flex-col gap-2">
       {events.map((ev) => {
-        const steps = kette(ev.key)
+        const steps = kette(ev.schluessel)
         return (
-          <div key={ev.key} className="flex min-h-steuer items-center justify-between gap-2">
+          <div key={ev.schluessel} className="flex min-h-steuer items-center justify-between gap-2">
             <span className="min-w-0 truncate text-ui text-tinte">
               {ev.name}
               {steps.length > 0 && (
@@ -41,7 +41,7 @@ export function AktionenSektion({
       {offenesEreignis && (
         <KettenFenster
           block={block}
-          eventKey={offenesEreignis.key}
+          eventKey={offenesEreignis.schluessel}
           eventName={offenesEreignis.name}
           onClose={() => setOffenesEreignis(null)}
         />

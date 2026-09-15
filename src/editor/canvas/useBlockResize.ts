@@ -32,8 +32,8 @@ export function useBlockResize(
     const el = rootRef.current
     if (!el) return
     const node = blockRef.current
-    const pos = rasterPlatzLesen(node.props)
-    const spec = rasterMassVon(bausteinArt(node.type))
+    const pos = rasterPlatzLesen(node.werte)
+    const spec = rasterMassVon(bausteinArt(node.typ))
     const rect = el.getBoundingClientRect()
     if (achse === 'x') {
       zieheGroesse(editor, e, {
@@ -41,7 +41,7 @@ export function useBlockResize(
         prop: 'rasterW',
         getId: () => blockRef.current.id,
         start: pos.w,
-        min: Math.max(1, spec.minW),
+        min: Math.max(1, spec.minBreite),
         schritt: (rect.width + RASTER.gapPx) / pos.w,
 
         anwenden: (id, wert) => editor.resizeNodeToCells(id, 'x', wert),
@@ -52,7 +52,7 @@ export function useBlockResize(
         prop: 'rasterH',
         getId: () => blockRef.current.id,
         start: pos.h,
-        min: Math.max(1, spec.minH),
+        min: Math.max(1, spec.minHoehe),
         schritt: (rect.height + RASTER.gapPx) / pos.h,
 
         anwenden: (id, wert) => editor.resizeNodeToCells(id, 'y', wert),

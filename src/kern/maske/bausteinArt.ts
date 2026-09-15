@@ -8,9 +8,9 @@ import type { Eigenschaft } from './eigenschaft'
 export type { Kategorie }
 
 export interface KindVorgabe {
-  type: string
-  props?: Record<string, unknown>
-  children?: readonly KindVorgabe[]
+  typ: string
+  werte?: Record<string, unknown>
+  kinder?: readonly KindVorgabe[]
 }
 
 export {
@@ -33,30 +33,30 @@ export {
 } from './bindung'
 
 export interface BausteinArt {
-  type: string
-  tagName: string
-  displayName: string
-  category: Kategorie
-  defaultProps: Record<string, unknown>
-  customProperties: Eigenschaft[]
+  typ: string
+  tag: string
+  name: string
+  kategorie: Kategorie
+  vorgaben: Record<string, unknown>
+  eigenschaften: Eigenschaft[]
 
   // Was der Baustein ueber Anzeige und Layout hinaus kann (faehigkeiten.ts).
   faehigkeiten: readonly Faehigkeit[]
 
-  acceptsChildren: boolean
-  resizableWidth: boolean
-  resizableHeight: boolean
-  allowedChildTypes?: readonly string[]
-  allowedParentTypes?: readonly string[]
-  lockedWidth?: FlussBreite
-  defaultChildren?: readonly KindVorgabe[]
-  childDirection?: Richtung
-  showInPalette?: boolean
-  templateChild?: { type: string; label: string }
-  editorSlot?: string
-  containerHint?: boolean
-  addChildButton?: { label: string; childType: string }
-  pageBlock?: boolean
+  nimmtKinder: boolean
+  breiteAenderbar: boolean
+  hoeheAenderbar: boolean
+  erlaubteKinder?: readonly string[]
+  erlaubteEltern?: readonly string[]
+  festeBreite?: FlussBreite
+  kinderVorgabe?: readonly KindVorgabe[]
+  kinderRichtung?: Richtung
+  inPalette?: boolean
+  musterKind?: { type: string; label: string }
+  editorPlatz?: string
+  behaelterRahmen?: boolean
+  kindKnopf?: { label: string; childType: string }
+  seite?: boolean
   flaechenSeite?: boolean
   maskenRand?: boolean
   raster?: Partial<RasterMass>

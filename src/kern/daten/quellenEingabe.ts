@@ -39,8 +39,8 @@ export function kennungAnzeige(kennung: string | undefined): string {
   return m ? m[1] : (kennung ?? '')
 }
 
-export function quellenKennung(source: { kind: QuellenArtKennung; idbId?: string }): string {
-  const feste = artFuer(source.kind).tabellenId
+export function quellenKennung(source: { art: QuellenArtKennung; idbId?: string }): string {
+  const feste = artFuer(source.art).tabellenId
   return feste !== '' ? feste : kennungAnzeige(source.idbId)
 }
 

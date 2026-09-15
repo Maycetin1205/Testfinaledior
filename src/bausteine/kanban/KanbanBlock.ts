@@ -13,25 +13,25 @@ import { KanbanMusterBlock } from './KanbanMusterBlock'
 import { KanbanSpalteBlock } from './KanbanSpalteBlock'
 import { connectBoard, disconnectBoard, type KanbanZiel } from './seRuntime'
 
-const SPALTE = KanbanSpalteBlock.blockType
+const SPALTE = KanbanSpalteBlock.typ
 
 export class KanbanBlock extends Grundbaustein {
-  static readonly blockType = 'kanban'
-  static readonly tagName = 'ff-kanban'
-  static readonly displayName = 'Kanban'
-  static readonly category: Kategorie = 'anzeige'
-  static readonly acceptsChildren = true
-  static readonly allowedChildTypes = [KanbanMusterBlock.blockType, SPALTE]
-  static readonly childDirection: Richtung = 'row'
+  static readonly typ = 'kanban'
+  static readonly tag = 'ff-kanban'
+  static readonly anzeigeName = 'Kanban'
+  static readonly kategorie: Kategorie = 'anzeige'
+  static readonly nimmtKinder = true
+  static readonly erlaubteKinder = [KanbanMusterBlock.typ, SPALTE]
+  static readonly kinderRichtung: Richtung = 'row'
 
-  static readonly lockedWidth: FlussBreite = 'fill'
-  static readonly resizableWidth = false
-  static readonly containerHint = false
-  static readonly addChildButton = { label: 'Spalte', childType: SPALTE }
+  static readonly festeBreite: FlussBreite = 'fill'
+  static readonly breiteAenderbar = false
+  static readonly behaelterRahmen = false
+  static readonly kindKnopf = { label: 'Spalte', childType: SPALTE }
 
-  static readonly templateChild = { type: CardBlock.blockType, label: 'Muster' }
+  static readonly musterKind = { type: CardBlock.typ, label: 'Muster' }
 
-  static readonly resizableHeight = true
+  static readonly hoeheAenderbar = true
 
   static readonly faehigkeiten: readonly Faehigkeit[] = [
     { art: 'quelle' },
@@ -39,43 +39,43 @@ export class KanbanBlock extends Grundbaustein {
     {
       art: 'ereignisse',
       liste: [
-        { key: 'onCardClick', name: 'Karte angeklickt' },
-        { key: 'onCardDrop', name: 'Karte verschoben' },
+        { schluessel: 'onCardClick', name: 'Karte angeklickt' },
+        { schluessel: 'onCardDrop', name: 'Karte verschoben' },
       ],
     },
   ]
 
-  static readonly defaultProps = {
+  static readonly vorgaben = {
     width: 'fill', height: 'fill' as const,
     source: '', statusField: '', tagField: '',
     leerText: LEER_TEXT_STANDARD,
   }
 
-  static readonly raster = { startW: 48, startH: 20, minW: 12, minH: 8 }
-  static override readonly customProperties: Eigenschaft[] = [
+  static readonly raster = { startBreite: 48, startHoehe: 20, minBreite: 12, minHoehe: 8 }
+  static override readonly eigenschaften: Eigenschaft[] = [
     {
-      attributeName: 'statusField',
+      schluessel: 'statusField',
       name: 'Einsortieren nach',
-      description: 'Feld, das die Spalte bestimmt. Leer: alle in die Auffang-Spalte.',      kind: 'field',
+      beschreibung: 'Feld, das die Spalte bestimmt. Leer: alle in die Auffang-Spalte.',      art: 'field',
     },
     {
-      attributeName: 'tagField',
+      schluessel: 'tagField',
       name: 'Tag filtern nach',
-      description: 'Datumsfeld. Gesetzt: nur Einträge des gewählten Tages.',
-      kind: 'field',
+      beschreibung: 'Datumsfeld. Gesetzt: nur Einträge des gewählten Tages.',
+      art: 'field',
     },
 
     leerTextProperty(),
   ]
 
-  static readonly defaultChildren: KindVorgabe[] = [
-    { type: KanbanMusterBlock.blockType, children: [{ type: CardBlock.blockType }] },
+  static readonly kinderVorgabe: KindVorgabe[] = [
+    { typ: KanbanMusterBlock.typ, kinder: [{ typ: CardBlock.typ }] },
     {
-      type: SPALTE,
-      props: { heading: 'Offen', variant: 'warning' },
+      typ: SPALTE,
+      werte: { heading: 'Offen', variant: 'warning' },
     },
-    { type: SPALTE, props: { heading: 'In Arbeit', variant: 'info' } },
-    { type: SPALTE, props: { heading: 'Fertig', variant: 'success' } },
+    { typ: SPALTE, werte: { heading: 'In Arbeit', variant: 'info' } },
+    { typ: SPALTE, werte: { heading: 'Fertig', variant: 'success' } },
   ]
 
   static override styles = [

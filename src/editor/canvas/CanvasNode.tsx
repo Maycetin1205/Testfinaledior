@@ -72,9 +72,9 @@ interface CanvasNodeProps {
 function CanvasNode({ node, index, parentId, listDirection, raster = false }: CanvasNodeProps) {
   const ed = useEditor()
   const dnd = useDnd()
-  const def = bausteinArt(node.type)
-  const isContainer = def?.acceptsChildren ?? false
-  const childDirection = richtungDerKinder(def, node.props)
+  const def = bausteinArt(node.typ)
+  const isContainer = def?.nimmtKinder ?? false
+  const childDirection = richtungDerKinder(def, node.werte)
 
   const invalidTarget = (targetParentId: string) =>
     dnd.dragId !== null && ed.isInSubtree(dnd.dragId, targetParentId)
@@ -94,14 +94,14 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
     const rect = e.currentTarget.getBoundingClientRect()
 
     const draggedType = dnd.dragId !== null
-      ? ed.getNode(dnd.dragId)?.type ?? null
+      ? ed.getNode(dnd.dragId)?.typ ?? null
       : newBlockDragType(e.dataTransfer)
 
     const allowedIn = (containerType: string) =>
       draggedType !== null && darfEnthalten(containerType, draggedType)
-    const parentType = ed.getNode(parentId)?.type ?? ''
+    const parentType = ed.getNode(parentId)?.typ ?? ''
 
-    if (isContainer && !invalidTarget(node.id) && allowedIn(node.type)) {
+    if (isContainer && !invalidTarget(node.id) && allowedIn(node.typ)) {
       const before = listDirection === 'row'
         ? e.clientX < rect.left + CONTAINER_EDGE
         : e.clientY < rect.top + CONTAINER_EDGE
@@ -142,7 +142,7 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
         onPointerDown={rand ? undefined : (e) => ziehePosition(ed, dnd, e, node, parentId)}
         style={{
           opacity: dnd.dragId === node.id ? 0.4 : 1,
-          ...(rand ? randStil() : rasterPlatzStil(rasterPlatzLesen(node.props))),
+          ...(rand ? randStil() : rasterPlatzStil(rasterPlatzLesen(node.werte))),
         }}
       >
         {inhalt}
@@ -152,7 +152,7 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
 
   return (
     <div
-      slot={def?.editorSlot}
+      slot={def?.editorPlatz}
       draggable
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -164,8 +164,8 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
       onDragEnd={dnd.reset}
       style={{
         opacity: dnd.dragId === node.id ? 0.4 : 1,
-        ...flussBreiteStil(flussBreiteLesen(node.props.width), listDirection, def?.lockedWidth),
-        ...flussHoeheStil(flussHoeheLesen(node.props.height), listDirection),
+        ...flussBreiteStil(flussBreiteLesen(node.werte.width), listDirection, def?.festeBreite),
+        ...flussHoeheStil(flussHoeheLesen(node.werte.height), listDirection),
       }}
     >
       {inhalt}

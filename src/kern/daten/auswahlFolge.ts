@@ -8,7 +8,7 @@ import {
 export interface AuswahlFolge {
   geberId: string
 
-  keyPairs: SchluesselPaar[]
+  paare: SchluesselPaar[]
 }
 
 export const AUSWAHL_FOLGE_PROP = 'folgtAuswahl'
@@ -28,14 +28,14 @@ export function auswahlFolgenAus(roh: unknown): AuswahlFolge[] {
     if (!entry || typeof entry !== 'object') continue
     const e = entry as Record<string, unknown>
     if (typeof e.geberId !== 'string') continue
-    const keyPairs: SchluesselPaar[] = []
-    for (const p of Array.isArray(e.keyPairs) ? e.keyPairs : []) {
+    const paare: SchluesselPaar[] = []
+    for (const p of Array.isArray(e.paare) ? e.paare : []) {
       if (!p || typeof p !== 'object') continue
       const pp = p as Record<string, unknown>
-      if (typeof pp.fromField !== 'string' || typeof pp.toField !== 'string') continue
-      keyPairs.push({ fromField: pp.fromField, toField: pp.toField })
+      if (typeof pp.vonFeld !== 'string' || typeof pp.nachFeld !== 'string') continue
+      paare.push({ vonFeld: pp.vonFeld, nachFeld: pp.nachFeld })
     }
-    acc.push({ geberId: e.geberId, keyPairs: keyPairs.slice(0, MAX_SCHLUESSELPAARE) })
+    acc.push({ geberId: e.geberId, paare: paare.slice(0, MAX_SCHLUESSELPAARE) })
   }
   return acc
 }

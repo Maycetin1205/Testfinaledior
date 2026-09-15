@@ -1,5 +1,5 @@
 import { BAUSTEIN_ID_ATTR } from '../../kern/daten/aktionen'
-import { getField } from '../../softengine/data'
+import { feldLesen } from '../../softengine/data'
 import { passendeVorschlaege, VORSCHLAEGE_MAX, type Vorschlag } from '../shared/vorschlagListe'
 import { coerceSpalten, type Spalte } from './spalten'
 import { gemerkteSortierung, sortiereIndizes } from './sortierung'
@@ -24,7 +24,7 @@ export function vorschlaegeImFensterStand<T extends Vorschlag & { satz: unknown 
     : nachschlagSpalten(spalten).find((s) => s.kennung === stand.kennung)
   // Erst alle passenden Treffer sortieren, dann kuerzen. Die Tabelle benutzt denselben Vergleich.
   if (spalte !== undefined && stand !== null) {
-    const werte = treffer.map((e) => [getField(e.satz, spalte.feld)])
+    const werte = treffer.map((e) => [feldLesen(e.satz, spalte.feld)])
     return sortiereIndizes(werte, 0, stand.auf).slice(0, VORSCHLAEGE_MAX).map((i) => treffer[i])
   }
   return treffer.slice(0, VORSCHLAEGE_MAX)

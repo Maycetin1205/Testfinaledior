@@ -11,22 +11,22 @@ const FARBEN: Record<string, string> = {
 }
 
 export class TrennerBlock extends Grundbaustein {
-  static readonly blockType = 'trenner'
-  static readonly tagName = 'ff-trenner'
-  static readonly displayName = 'Trennlinie'
-  static readonly category: Kategorie = 'layout'
-  static readonly defaultProps = STANDARD
-  static readonly resizableWidth = true
-  static readonly resizableHeight = true
-  static readonly raster = { startW: 48, startH: 1, minW: 1, minH: 1 }
-  static override readonly customProperties: Eigenschaft[] = [
-    { attributeName: 'richtung', name: 'Richtung', description: 'Die Linie waagerecht oder senkrecht ausrichten.',
-      kind: 'segment', options: [{ value: 'waagerecht', label: 'Waagerecht' }, { value: 'senkrecht', label: 'Senkrecht' }] },
-    { attributeName: 'stil', name: 'Linienstil', description: 'Durchgezogen, gestrichelt oder gepunktet.',
-      kind: 'select', options: [{ value: 'solid', label: 'Durchgezogen' }, { value: 'dashed', label: 'Gestrichelt' }, { value: 'dotted', label: 'Gepunktet' }] },
-    { attributeName: 'staerke', name: 'Stärke', description: 'Dicke der Linie in Pixeln.', kind: 'number', min: 1, max: 8, unit: 'px' },
-    { attributeName: 'farbe', name: 'Farbe', description: 'Farbe aus dem Design der Maske.', kind: 'select',
-      options: [{ value: 'linie', label: 'Standard' }, { value: 'dezent', label: 'Dezent' }, { value: 'dunkel', label: 'Dunkel' }, { value: 'akzent', label: 'Akzent' }] },
+  static readonly typ = 'trenner'
+  static readonly tag = 'ff-trenner'
+  static readonly anzeigeName = 'Trennlinie'
+  static readonly kategorie: Kategorie = 'layout'
+  static readonly vorgaben = STANDARD
+  static readonly breiteAenderbar = true
+  static readonly hoeheAenderbar = true
+  static readonly raster = { startBreite: 48, startHoehe: 1, minBreite: 1, minHoehe: 1 }
+  static override readonly eigenschaften: Eigenschaft[] = [
+    { schluessel: 'richtung', name: 'Richtung', beschreibung: 'Die Linie waagerecht oder senkrecht ausrichten.',
+      art: 'segment', optionen: [{ wert: 'waagerecht', name: 'Waagerecht' }, { wert: 'senkrecht', name: 'Senkrecht' }] },
+    { schluessel: 'stil', name: 'Linienstil', beschreibung: 'Durchgezogen, gestrichelt oder gepunktet.',
+      art: 'select', optionen: [{ wert: 'solid', name: 'Durchgezogen' }, { wert: 'dashed', name: 'Gestrichelt' }, { wert: 'dotted', name: 'Gepunktet' }] },
+    { schluessel: 'staerke', name: 'Stärke', beschreibung: 'Dicke der Linie in Pixeln.', art: 'number', min: 1, max: 8, einheit: 'px' },
+    { schluessel: 'farbe', name: 'Farbe', beschreibung: 'Farbe aus dem Design der Maske.', art: 'select',
+      optionen: [{ wert: 'linie', name: 'Standard' }, { wert: 'dezent', name: 'Dezent' }, { wert: 'dunkel', name: 'Dunkel' }, { wert: 'akzent', name: 'Akzent' }] },
   ]
   static override styles = [Grundbaustein.styles, css`
     :host { height: 100%; min-height: 12px; }

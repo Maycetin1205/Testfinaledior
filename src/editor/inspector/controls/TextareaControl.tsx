@@ -22,12 +22,12 @@ export function TextareaControl({
 }: TextareaControlProps) {
   const sitzung = useEingabeSitzung(onBeginBearbeitung, onEndeBearbeitung)
   return (
-    <Zeile breit label={property.name} hinweis={property.description}>
+    <Zeile breit label={property.name} hinweis={property.beschreibung}>
       {(kind) => (
         <FeldMehrzeilig
           {...kind}
           value={value ?? ''}
-          maxLength={property.maxLength || undefined}
+          maxLength={property.maxLaenge || undefined}
           onChange={(e) => {
             sitzung.beginnen()
             onChange(e.currentTarget.value)

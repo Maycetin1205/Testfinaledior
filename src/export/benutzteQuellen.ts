@@ -40,29 +40,29 @@ export function collectDataSources(
     if (!node) return
 
     if (traegtEigeneQuelle(node)) {
-      add(node.props.source)
+      add(node.werte.source)
 
-      for (const q of weitereQuellenAus(node.props[WEITERE_QUELLEN_PROP])) {
+      for (const q of weitereQuellenAus(node.werte[WEITERE_QUELLEN_PROP])) {
         if (quelleBrauchbar(q)) add(q.quelleId)
       }
     }
 
-    const def = bausteinArt(node.type)
-    for (const prop of def?.customProperties ?? []) {
-      if (prop.kind === 'quelle' && eigenschaftSichtbar(prop.visibleWhen, node.props)) {
-        add(node.props[prop.attributeName])
+    const def = bausteinArt(node.typ)
+    for (const prop of def?.eigenschaften ?? []) {
+      if (prop.art === 'quelle' && eigenschaftSichtbar(prop.wenn, node.werte)) {
+        add(node.werte[prop.schluessel])
       }
     }
 
     const rechnen = faehigkeit(def, 'rechnen')
     if (rechnen) {
-      for (const feld of datenfelderAus(node.props[rechnen.prop])) {
+      for (const feld of datenfelderAus(node.werte[rechnen.prop])) {
         add(zerlegeBindung(feld).quelleId)
       }
     }
 
     for (const id of quellenIdsInKettenVon(node)) add(id)
-    node.childIds.forEach((id) => visit(tree[id]))
+    node.kinderIds.forEach((id) => visit(tree[id]))
   }
   visit(tree[WURZEL_ID])
 
@@ -89,7 +89,7 @@ export function benutzteFelderJeQuelle(
 
   const visit = (node: Baustein | undefined): void => {
     if (!node) return
-    const def = bausteinArt(node.type)
+    const def = bausteinArt(node.typ)
 
     let reichweite: QuelleInReichweite[] | undefined
     const inReichweite = (): QuelleInReichweite[] => (
@@ -101,12 +101,12 @@ export function benutzteFelderJeQuelle(
       const { quelleId, code } = zerlegeBindung(wert)
       const ziel = quelleId === ''
         ? inReichweite()[0]
-        : inReichweite().find((q) => q.source.id === quelleId)
-      if (ziel) merke(ziel.source.id, code)
+        : inReichweite().find((q) => q.quelle.id === quelleId)
+      if (ziel) merke(ziel.quelle.id, code)
     }
 
     for (const spot of bindbareStellenVon(node)) {
-      merkeBindung(node.props[bindungsProp(spot.prop)])
+      merkeBindung(node.werte[bindungsProp(spot.prop)])
     }
 
     const b = faehigkeit(def, 'liste')?.bindung
@@ -117,14 +117,14 @@ export function benutzteFelderJeQuelle(
     // falsch: dann bestellt der Export ihre Felder gar nicht.
       const eigeneQuelle = b.quelleProp === undefined
         ? undefined
-        : String(node.props[b.quelleProp] ?? '')
+        : String(node.werte[b.quelleProp] ?? '')
       const merkeEintragsFeld = (wert: unknown): void => {
         if (eigeneQuelle === undefined) merkeBindung(wert)
         else merke(eigeneQuelle, wert)
       }
 
-      for (const eintrag of listeLesen(node.props[b.prop], b)) {
-        merkeEintragsFeld(eintrag[b.feldKey])
+      for (const eintrag of listeLesen(node.werte[b.prop], b)) {
+        merkeEintragsFeld(eintrag[b.feldSchluessel])
         // Das Fuellfeld zeigt auf eine HILFSQUELLE; bliebe es aussen vor, faende
         // die Erfassungszeile in SoftEngine nichts zum Vorschlagen.
         for (const { wert } of feldWahlenLesen(b, eintrag)) merkeEintragsFeld(wert)
@@ -135,59 +135,59 @@ export function benutzteFelderJeQuelle(
     // sonst rechnete die Laufzeit mit einem leeren Feld.
     const rechnen = faehigkeit(def, 'rechnen')
     if (rechnen) {
-      for (const feld of datenfelderAus(node.props[rechnen.prop])) {
+      for (const feld of datenfelderAus(node.werte[rechnen.prop])) {
         merkeBindung(feld)
       }
     }
 
-    for (const prop of def?.customProperties ?? []) {
-      if (prop.kind !== 'field') continue
-      if (!eigenschaftSichtbar(prop.visibleWhen, node.props)) continue
+    for (const prop of def?.eigenschaften ?? []) {
+      if (prop.art !== 'field') continue
+      if (!eigenschaftSichtbar(prop.wenn, node.werte)) continue
       // Ohne `quelleProp` steht im Wert dieselbe Form wie in einer Bindung; er
       // muss aufgeloest werden, sonst bestellt der Export den ganzen Token.
-      if (prop.quelleProp === undefined) merkeBindung(node.props[prop.attributeName])
-      else merke(String(node.props[prop.quelleProp] ?? ''), node.props[prop.attributeName])
+      if (prop.quelleProp === undefined) merkeBindung(node.werte[prop.schluessel])
+      else merke(String(node.werte[prop.quelleProp] ?? ''), node.werte[prop.schluessel])
     }
 
     if (traegtEigeneQuelle(node)) {
-      const erste = typeof node.props.source === 'string' ? node.props.source : ''
-      for (const q of weitereQuellenAus(node.props[WEITERE_QUELLEN_PROP])) {
+      const erste = typeof node.werte.source === 'string' ? node.werte.source : ''
+      for (const q of weitereQuellenAus(node.werte[WEITERE_QUELLEN_PROP])) {
         if (!quelleBrauchbar(q)) continue
   // Die linke Seite eines Paares gehoert der PARTNER-Quelle, nicht zwangslaeufig
   // der ersten: sonst kaeme das Schluesselfeld nicht mit.
         const partner = q.partnerId === '' ? erste : q.partnerId
         for (const paar of vollstaendigePaare(q)) {
-          merke(partner, paar.fromField)
-          merke(q.quelleId, paar.toField)
+          merke(partner, paar.vonFeld)
+          merke(q.quelleId, paar.nachFeld)
         }
       }
     }
 
     if (darfAuswahlFolgen(node)) {
       const eigene = auswahlQuelleIdVon(node)
-      for (const folge of auswahlFolgenAus(node.props[AUSWAHL_FOLGE_PROP])) {
+      for (const folge of auswahlFolgenAus(node.werte[AUSWAHL_FOLGE_PROP])) {
         if (!folgeBrauchbar(folge)) continue
         const geber = auswahlQuelleIdVon(tree[folge.geberId])
         for (const paar of vollstaendigePaare(folge)) {
-          merke(geber, paar.fromField)
-          merke(eigene, paar.toField)
+          merke(geber, paar.vonFeld)
+          merke(eigene, paar.nachFeld)
         }
       }
     }
 
     for (const event of faehigkeit(def, 'ereignisse')?.liste ?? []) {
-      for (const step of node.events?.[event.key] ?? []) {
-        if (step.type !== 'RELATION') continue
-        for (const binding of [...step.params, ...step.extraParams]) {
-          if (binding.source === 'data_field') {
-            merke(binding.dataSourceId ?? '', binding.value)
-          } else if (binding.source === 'gewaehlte_zeile') {
-            merke(auswahlQuelleIdVon(tree[binding.blockId ?? '']), binding.value)
+      for (const step of node.ketten?.[event.schluessel] ?? []) {
+        if (step.art !== 'RELATION') continue
+        for (const binding of [...step.parameter, ...step.zusatzParameter]) {
+          if (binding.quelle === 'data_field') {
+            merke(binding.quelleId ?? '', binding.wert)
+          } else if (binding.quelle === 'gewaehlte_zeile') {
+            merke(auswahlQuelleIdVon(tree[binding.bausteinId ?? '']), binding.wert)
           }
         }
       }
     }
-    node.childIds.forEach((id) => visit(tree[id]))
+    node.kinderIds.forEach((id) => visit(tree[id]))
   }
   visit(tree[WURZEL_ID])
 
@@ -222,14 +222,14 @@ export function holSchluesselJeGeber(
     if (lade) {
       // Ohne Feldpaare ist die Folge fuer den Filter unbrauchbar, fuer die
       // Holung reicht sie: die Schluessel nennt die Relation selbst.
-      for (const folge of auswahlFolgenAus(node.props[AUSWAHL_FOLGE_PROP])) {
+      for (const folge of auswahlFolgenAus(node.werte[AUSWAHL_FOLGE_PROP])) {
         merke(
           auswahlQuelleIdVon(tree[folge.geberId]),
           [lade.belegartFeld, lade.belegnummerFeld, lade.jahrFeld, lade.archivFeld],
         )
       }
     }
-    node.childIds.forEach((id) => visit(tree[id]))
+    node.kinderIds.forEach((id) => visit(tree[id]))
   }
   visit(tree[WURZEL_ID])
   return proGeber

@@ -4,13 +4,13 @@ import { zerlegeBindung } from './bindung'
 export interface ListenBindung {
   prop: string
 
-  titelKey: string
+  titelSchluessel: string
 
-  feldKey: string
+  feldSchluessel: string
 
   // Gesetzt: jeder Eintrag traegt hier eine dauerhafte Kennung, und Ketten und
   // Formulare zeigen auf SIE statt auf den Platz, der beim Loeschen verrutscht.
-  kennungKey?: string
+  kennungSchluessel?: string
 
   standardTitel: string
 
@@ -41,9 +41,9 @@ export interface ListenBindung {
 // Hauptquelle, das Fuellfeld holt den Wert beim Erfassen aus einer Hilfsquelle.
 // `nurFremdeQuellen` haelt die Wahl bei den Hilfsquellen.
 export interface EintragsFeldWahl {
-  key: string
+  schluessel: string
 
-  label: string
+  name: string
 
   hinweis?: string
 
@@ -51,9 +51,9 @@ export interface EintragsFeldWahl {
 }
 
 export interface EintragsSchalter {
-  key: string
+  schluessel: string
 
-  label: string
+  name: string
 
   // Gespeichert wird nur die ABWEICHUNG davon, sonst stuende in jedem Eintrag
   // derselbe Wert.
@@ -73,7 +73,7 @@ export function schalterAn(
   schalter: EintragsSchalter,
   eintrag: Record<string, unknown>,
 ): boolean {
-  const wert = eintrag[schalter.key]
+  const wert = eintrag[schalter.schluessel]
   return typeof wert === 'boolean' ? wert : schalter.standard === true
 }
 
@@ -84,7 +84,7 @@ export function schalterFuer(
   b: ListenBindung,
   eintrag: Record<string, unknown>,
 ): readonly EintragsSchalter[] {
-  const feld = eintrag[b.feldKey]
+  const feld = eintrag[b.feldSchluessel]
   const ausFremderQuelle = typeof feld === 'string'
     && zerlegeBindung(feld).quelleId !== ''
   return (b.eintragsSchalter ?? [])
@@ -98,7 +98,7 @@ export function feldWahlenLesen(
   eintrag: Record<string, unknown>,
 ): { wahl: EintragsFeldWahl; wert: string }[] {
   return (b.eintragsFeldWahl ?? []).map((wahl) => {
-    const roh = eintrag[wahl.key]
+    const roh = eintrag[wahl.schluessel]
     return { wahl, wert: typeof roh === 'string' ? roh : '' }
   })
 }
@@ -112,8 +112,8 @@ export function listeLesen(roh: unknown, b: ListenBindung): Record<string, unkno
   return roh.map((x, i) => {
     if (x && typeof x === 'object') return { ...(x as Record<string, unknown>) }
     return {
-      [b.titelKey]: typeof x === 'string' ? x : listenStandardTitel(b, i),
-      [b.feldKey]: '',
+      [b.titelSchluessel]: typeof x === 'string' ? x : listenStandardTitel(b, i),
+      [b.feldSchluessel]: '',
     }
   })
 }
@@ -130,7 +130,7 @@ function bedingteSchluessel(b: ListenBindung): BedingterSchluessel[] {
   // Behalten wird ein Schalterwert nur, wenn er sichtbar ist UND vom Standard
   // abweicht.
     regeln.push({
-      key: schalter.key,
+      key: schalter.schluessel,
       erlaubt: (e) => schalterFuer(b, e).includes(schalter)
         && schalterAn(schalter, e) !== (schalter.standard === true),
     })

@@ -5,18 +5,18 @@ import type { Kategorie } from '../../kern/maske/bausteinElement'
 import { WURZEL_TYP } from '../../kern/maske/baum'
 
 export class AnsichtBlock extends Grundbaustein {
-  static readonly blockType = 'ansicht'
-  static readonly tagName = 'ff-ansicht'
-  static readonly displayName = 'Ansicht'
-  static readonly category: Kategorie = 'layout'
-  static readonly acceptsChildren = true
+  static readonly typ = 'ansicht'
+  static readonly tag = 'ff-ansicht'
+  static readonly anzeigeName = 'Ansicht'
+  static readonly kategorie: Kategorie = 'layout'
+  static readonly nimmtKinder = true
 
-  static readonly showInPalette = false
-  static readonly allowedParentTypes = [WURZEL_TYP]
-  static readonly pageBlock = true
+  static readonly inPalette = false
+  static readonly erlaubteEltern = [WURZEL_TYP]
+  static readonly seite = true
   static readonly flaechenSeite = true
 
-  static readonly defaultProps = {
+  static readonly vorgaben = {
     name: 'Ansicht',
   }
 

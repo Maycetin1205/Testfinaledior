@@ -25,11 +25,11 @@ export function QuellenListe({ block }: QuellenListeProps) {
   const ed = useEditor()
   const bibliothek = useDataSources().list
 
-  const erste = typeof block.props.source === 'string' ? block.props.source : ''
-  const weitere = weitereQuellenAus(block.props[WEITERE_QUELLEN_PROP])
+  const erste = typeof block.werte.source === 'string' ? block.werte.source : ''
+  const weitere = weitereQuellenAus(block.werte[WEITERE_QUELLEN_PROP])
 
   const fehlt = (id: string) => id !== '' && !bibliothek.some((s) => s.id === id)
-  const felderVon = (id: string) => bibliothek.find((s) => s.id === id)?.fields ?? []
+  const felderVon = (id: string) => bibliothek.find((s) => s.id === id)?.felder ?? []
 
   function setzeWeitere(next: BausteinQuelle[]) {
     ed.updateProperty(block.id, WEITERE_QUELLEN_PROP, next)
@@ -60,7 +60,7 @@ export function QuellenListe({ block }: QuellenListeProps) {
 // des ersten Feldes zurueck auf „keine".
   function partnerVon(index: number): string {
     const eigen = weitere[index]
-    if (!eigen || eigen.keyPairs.length === 0) return ''
+    if (!eigen || eigen.paare.length === 0) return ''
     return eigen.partnerId === '' || eigen.partnerId === eigen.quelleId ? erste : eigen.partnerId
   }
 
@@ -69,14 +69,14 @@ export function QuellenListe({ block }: QuellenListeProps) {
   function setzePartner(index: number, wert: string): void {
     const eigen = weitere[index]
     if (wert === '') {
-      aendere(index, { partnerId: '', keyPairs: [] })
+      aendere(index, { partnerId: '', paare: [] })
       return
     }
     aendere(index, {
       partnerId: wert === erste ? '' : wert,
-      keyPairs: (eigen?.keyPairs.length ?? 0) === 0
-        ? [{ fromField: '', toField: '' }]
-        : (eigen?.keyPairs ?? []),
+      paare: (eigen?.paare.length ?? 0) === 0
+        ? [{ vonFeld: '', nachFeld: '' }]
+        : (eigen?.paare ?? []),
     })
   }
 
@@ -165,13 +165,13 @@ export function QuellenListe({ block }: QuellenListeProps) {
           {partnerVon(i) !== '' && (
             <SchluesselPaarZeilen
               frage="Verbindende Felder (freiwillig)"
-              paare={q.keyPairs}
+              paare={q.paare}
               linkeFelder={felderVon(partnerVon(i))}
               rechteFelder={felderVon(q.quelleId)}
               linkeBezeichnung={(at) => `Feld ${at + 1} der ${stelle(partnerVon(i))}`}
               rechteBezeichnung={(at) => `Feld ${at + 1} der Datenquelle ${i + 2}`}
               entfernenBezeichnung={(at) => `Zeile ${at + 1} entfernen`}
-              onAendern={(keyPairs) => aendere(i, { keyPairs })}
+              onAendern={(keyPairs) => aendere(i, { paare: keyPairs })}
             />
           )}
         </div>
@@ -180,7 +180,7 @@ export function QuellenListe({ block }: QuellenListeProps) {
       {erste !== '' && (
         <Knopf
           className="self-start"
-          onClick={() => setzeWeitere([...weitere, { quelleId: '', partnerId: '', keyPairs: [] }])}
+          onClick={() => setzeWeitere([...weitere, { quelleId: '', partnerId: '', paare: [] }])}
         >
           <Plus size={13} /> Datenquelle
         </Knopf>

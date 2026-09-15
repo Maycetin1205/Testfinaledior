@@ -6,10 +6,10 @@ function stand(wert: number): EditorSnapshot {
   const tree: Maskenbaum = {
     [WURZEL_ID]: {
       id: WURZEL_ID,
-      type: WURZEL_TYP,
-      parentId: null,
-      childIds: [],
-      props: { pruefwert: wert },
+      typ: WURZEL_TYP,
+      elternId: null,
+      kinderIds: [],
+      werte: { pruefwert: wert },
     },
   }
   return {
@@ -34,11 +34,11 @@ test('eine Transaktion fasst mehrere Zwischenstaende zu einem Undo-Schritt zusam
   historie.end()
 
   const vorher = historie.undo(snapshot)
-  expect(vorher?.tree[WURZEL_ID]?.props.pruefwert).toBe(0)
+  expect(vorher?.tree[WURZEL_ID]?.werte.pruefwert).toBe(0)
   expect(historie.canUndo).toBe(false)
   expect(historie.canRedo).toBe(true)
 
   wert = 0
   const nachher = historie.redo(snapshot)
-  expect(nachher?.tree[WURZEL_ID]?.props.pruefwert).toBe(2)
+  expect(nachher?.tree[WURZEL_ID]?.werte.pruefwert).toBe(2)
 })

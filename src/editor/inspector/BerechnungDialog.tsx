@@ -293,7 +293,7 @@ export function BerechnungDialog({
             ? <p className="text-dicht text-matt">Diese Berechnung liest kein Datenfeld.</p>
             : datenFaktoren.map((f) => {
               const quelle = quellen.find(
-                (q) => f.art === 'datenfeld' && f.feld.startsWith(`${q.source.id}::`),
+                (q) => f.art === 'datenfeld' && f.feld.startsWith(`${q.quelle.id}::`),
               )
               const paare = quelle?.paare ?? []
               return (
@@ -303,10 +303,10 @@ export function BerechnungDialog({
                     {quelle === undefined
                       ? 'Noch keine Datenquelle gewählt.'
                       : paare.length === 0
-                        ? `Quelle „${quelle.source.name}" ist über kein Schlüsselpaar verbunden — `
+                        ? `Quelle „${quelle.quelle.name}" ist über kein Schlüsselpaar verbunden — `
                           + 'die Zeile kann keinen Satz zuordnen.'
-                        : `Quelle „${quelle.source.name}", verbunden über `
-                          + paare.map((p) => `${p.fromField} → ${p.toField}`).join(', ')}
+                        : `Quelle „${quelle.quelle.name}", verbunden über `
+                          + paare.map((p) => `${p.vonFeld} → ${p.nachFeld}`).join(', ')}
                   </div>
                 </div>
               )

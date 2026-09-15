@@ -1,13 +1,13 @@
 // Den einen Wert einer holenden Quelle per Relation holen und ablegen.
-import { meldeAnstoss, seGlobal } from './bridge'
-import type { RuntimeHolWert } from './data'
+import { meldeAnstoss, seFenster } from './bridge'
+import type { LaufzeitHolWert } from './data'
 import { setzeGeholteZeilen } from './geholteZeilen'
 import { meldeFehler } from './meldung'
 import {
-  executeRelation,
-  extractRelationFeld,
-  findRuntimeRelation,
-  resolveActionParam,
+  relationAusfuehren,
+  feldAusAntwort,
+  relationAusListe,
+  parameterAufloesen,
 } from './relations'
 
 export interface WertQuelle {
@@ -28,17 +28,17 @@ export function zeileAusAntwort(
 ): Record<string, string> {
   const zeile: Record<string, string> = {}
   felder.forEach((code, platz) => {
-    const ausAntwort = extractRelationFeld(roh, code)
+    const ausAntwort = feldAusAntwort(roh, code)
     zeile[code] = ausAntwort !== '' ? ausAntwort : (platz === 0 ? wert : '')
   })
   return zeile
 }
 
-export function holeWertQuelle(quelle: WertQuelle, hol: RuntimeHolWert): void {
+export function holeWertQuelle(quelle: WertQuelle, hol: LaufzeitHolWert): void {
   const gen = (generationen.get(quelle.id) ?? 0) + 1
   generationen.set(quelle.id, gen)
 
-  const relation = findRuntimeRelation(seGlobal().FF_RELATIONS, hol.relationId)
+  const relation = relationAusListe(seFenster().FF_RELATIONS, hol.relationId)
     // Ohne Vorlage kaeme nie ein Wert, und das gebundene Feld bliebe leer — von
     // einer leeren Antwort nicht zu unterscheiden.
   if (!relation) {
@@ -52,13 +52,13 @@ export function holeWertQuelle(quelle: WertQuelle, hol: RuntimeHolWert): void {
     return
   }
 
-  const params = hol.params.map((binding) =>
-    resolveActionParam(binding, { context: {}, previousResult: '' }))
+  const params = hol.parameter.map((binding) =>
+    parameterAufloesen(binding, { context: {}, previousResult: '' }))
 
   void (async () => {
-    const antwort = await executeRelation(relation, params)
+    const antwort = await relationAusfuehren(relation, params)
     if (generationen.get(quelle.id) !== gen) return
-  // executeRelation hat den Fehler schon in den Balken gelegt; den alten Stand
+  // relationAusfuehren hat den Fehler schon in den Balken gelegt; den alten Stand
   // stehen zu lassen ist richtiger, als ihn gegen Leere zu tauschen.
     if (antwort.fehler !== undefined && antwort.fehler !== '') return
     setzeGeholteZeilen(quelle.name, [zeileAusAntwort(antwort.wert, antwort.roh, hol.felder)])

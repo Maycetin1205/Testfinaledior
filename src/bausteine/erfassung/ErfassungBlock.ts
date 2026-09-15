@@ -47,17 +47,17 @@ const NICHT_GEAENDERT = 'Im Beleg unverändert geblieben.'
 const NICHT_GELOESCHT = 'Steht noch im Beleg.'
 
 export class ErfassungBlock extends TabelleBlock {
-  static override readonly blockType = 'erfassung'
-  static override readonly tagName = 'ff-erfassung'
-  static override readonly displayName = 'Erfassung'
-  static override readonly category: Kategorie = 'eingabe'
+  static override readonly typ = 'erfassung'
+  static override readonly tag = 'ff-erfassung'
+  static override readonly anzeigeName = 'Erfassung'
+  static override readonly kategorie: Kategorie = 'eingabe'
 
   static override readonly faehigkeiten: readonly Faehigkeit[] = [
     ...TabelleBlock.faehigkeiten.filter((f) => f.art !== 'liste'),
     { art: 'liste', bindung: ERFASSUNG_SPALTEN_BINDUNG },
     { art: 'erfassen' },
     { art: 'aendern', schluessel: 'aenderbar' },
-    { art: 'loeschen', wenn: { attributeName: 'loeschbar', equals: 'ja' } },
+    { art: 'loeschen', wenn: { schluessel: 'loeschbar', gleich: 'ja' } },
     { art: 'haeltGesendete' },
     { art: 'rechnen', prop: BERECHNUNGEN_PROP },
     // Jede Spalte mit Hilfsquelle hat ihr eigenes Suchfenster (F5); eingestellt
@@ -66,24 +66,24 @@ export class ErfassungBlock extends TabelleBlock {
       art: 'suchfenster',
       fenster: {
         eintraegeProp: 'spalten',
-        titelKey: 'titel',
-        quelleKey: 'fuellFeld',
-        spaltenKey: 'fensterSpalten',
-        breiteKey: 'fensterBreite',
-        hoeheKey: 'fensterHoehe',
+        titelSchluessel: 'titel',
+        quelleSchluessel: 'fuellFeld',
+        spaltenSchluessel: 'fensterSpalten',
+        breiteSchluessel: 'fensterBreite',
+        hoeheSchluessel: 'fensterHoehe',
         automatik: 'Ohne Spalten nimmt das Fenster die Spalten derselben Hilfsquelle.',
       },
     },
   ]
 
-  static override readonly defaultProps = {
-    ...TabelleBlock.defaultProps,
+  static override readonly vorgaben = {
+    ...TabelleBlock.vorgaben,
     spalten: standardSpalten(),
     loeschbar: 'nein',
     [BERECHNUNGEN_PROP]: [],
   }
 
-  static override readonly customProperties = ERFASSUNG_EIGENSCHAFTEN
+  static override readonly eigenschaften = ERFASSUNG_EIGENSCHAFTEN
 
   static override styles: CSSResultGroup = [
     TabelleBlock.styles,
@@ -353,7 +353,7 @@ export class ErfassungBlock extends TabelleBlock {
   private readonly maskenTaste = (e: KeyboardEvent): void => {
     if (this.imEditor || e.key !== 'Insert') return
     const alle = Array.from(
-      this.ownerDocument.querySelectorAll<ErfassungBlock>(ErfassungBlock.tagName),
+      this.ownerDocument.querySelectorAll<ErfassungBlock>(ErfassungBlock.tag),
     )
     const pfad = e.composedPath()
     const zustaendig = alle.find((t) => pfad.includes(t)) ?? alle[0]

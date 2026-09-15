@@ -18,11 +18,11 @@ export function ColorTileControl({ label, description, value, options, onChange 
         <div {...kind} className="flex flex-wrap items-center gap-1.5">
           {options.map((o) => (
             <Farbfeld
-              key={o.value}
+              key={o.wert}
               farbe={o.farbe}
-              name={o.label}
-              gewaehlt={o.value === value}
-              onWaehle={() => onChange(o.value)}
+              name={o.name}
+              gewaehlt={o.wert === value}
+              onWaehle={() => onChange(o.wert)}
             />
           ))}
         </div>

@@ -51,8 +51,8 @@ export function PopupSeite({ popupId }: { popupId: string }) {
   const node = ed.getNode(popupId)
   if (!node) return null
   const selected = ed.selectedId === node.id
-  const breite = popupZahl(node.props.breite, 520)
-  const hoehe = popupZahl(node.props.hoehe, 380)
+  const breite = popupZahl(node.werte.breite, 520)
+  const hoehe = popupZahl(node.werte.hoehe, 380)
 
   const sichtbareBreite = stage ? Math.min(breite, Math.max(40, stage.b - DIALOG_RAND)) : breite
   const sichtbareHoehe = stage ? Math.min(hoehe, Math.max(40, stage.h - DIALOG_RAND)) : hoehe
@@ -73,11 +73,11 @@ export function PopupSeite({ popupId }: { popupId: string }) {
     })
   }
 
-  const def = bausteinArt(node.type)
-  const standard = def?.defaultProps ?? {}
+  const def = bausteinArt(node.typ)
+  const standard = def?.vorgaben ?? {}
 
   const rumpf = (): HTMLElement | null =>
-    flaecheIn(def ? wrapRef.current?.querySelector(def.tagName) : null)
+    flaecheIn(def ? wrapRef.current?.querySelector(def.tag) : null)
   const geist = dnd.dropTarget?.kind === 'raster' && dnd.dropTarget.parentId === node.id
     ? dnd.dropTarget
     : null
@@ -132,7 +132,7 @@ export function PopupSeite({ popupId }: { popupId: string }) {
         <div
           className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
         >
-          <LeerHinweis titel={`Leeres Fenster „${String(node.props.name ?? '')}“`} />
+          <LeerHinweis titel={`Leeres Fenster „${String(node.werte.name ?? '')}“`} />
         </div>
       )}
       {selected && (

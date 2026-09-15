@@ -32,16 +32,16 @@ function eigenerText(
 function verdeckteProps(node: Baustein): Set<string> {
   const raus = new Set<string>()
   for (const stelle of bindbareStellenVon(node)) {
-    const bindung = String(node.props[bindungsProp(stelle.prop)] ?? '')
+    const bindung = String(node.werte[bindungsProp(stelle.prop)] ?? '')
     if (bindung !== '') raus.add(stelle.vorschauProp ?? stelle.prop)
   }
   return raus
 }
 
 function gebundenerAlias(node: Baustein, quellen: readonly Datenquelle[]): string {
-  const eigeneQuelle = String(node.props[QUELLE_PROP] ?? '')
+  const eigeneQuelle = String(node.werte[QUELLE_PROP] ?? '')
   for (const stelle of bindbareStellenVon(node)) {
-    const bindung = String(node.props[bindungsProp(stelle.prop)] ?? '')
+    const bindung = String(node.werte[bindungsProp(stelle.prop)] ?? '')
     if (bindung === '') continue
     const alias = feldKlarname(bindung, eigeneQuelle, quellen)
     if (alias !== '') return alias
@@ -50,10 +50,10 @@ function gebundenerAlias(node: Baustein, quellen: readonly Datenquelle[]): strin
 }
 
 export function bausteinName(node: Baustein, quellen: readonly Datenquelle[]): string {
-  const def = bausteinArt(node.type)
-  const text = eigenerText(node.props, def?.defaultProps, verdeckteProps(node))
+  const def = bausteinArt(node.typ)
+  const text = eigenerText(node.werte, def?.vorgaben, verdeckteProps(node))
   if (text !== '') return text
   const alias = gebundenerAlias(node, quellen)
   if (alias !== '') return alias
-  return def?.displayName ?? node.type
+  return def?.name ?? node.typ
 }

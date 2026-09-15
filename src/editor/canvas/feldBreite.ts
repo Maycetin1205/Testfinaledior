@@ -26,7 +26,7 @@ export function zeichenVon(
 ): number | undefined {
   const { quelleId, code } = zerlegeBindung(wert)
   const quelle = quelleId === ''
-    ? quellen[0]?.source
-    : quellen.find((q) => q.source.id === quelleId)?.source
-  return quelle?.fields.find((f) => f.code === code)?.zeichen
+    ? quellen[0]?.quelle
+    : quellen.find((q) => q.quelle.id === quelleId)?.quelle
+  return quelle?.felder.find((f) => f.code === code)?.zeichen
 }

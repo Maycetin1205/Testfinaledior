@@ -22,12 +22,12 @@ export function TextControl({
 }: TextControlProps) {
   const sitzung = useEingabeSitzung(onBeginBearbeitung, onEndeBearbeitung)
   return (
-    <Zeile label={property.name} hinweis={property.description}>
+    <Zeile label={property.name} hinweis={property.beschreibung}>
       {(kind) => (
         <Feld
           {...kind}
           value={value}
-          maxLength={property.maxLength || undefined}
+          maxLength={property.maxLaenge || undefined}
           onChange={(e) => {
             sitzung.beginnen()
             onChange(e.currentTarget.value)

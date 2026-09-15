@@ -9,26 +9,26 @@ import { RAND } from '../../kern/maske/maskenRand'
 import { NaviEintragBlock } from './NaviEintragBlock'
 import { naviAktualisiert, trenneNavi, verbindeNavi, zeigeBreite } from './seRuntime'
 
-const EINTRAG = NaviEintragBlock.blockType
+const EINTRAG = NaviEintragBlock.typ
 
 export class NaviBlock extends Grundbaustein {
-  static readonly blockType = 'navi'
-  static readonly tagName = 'ff-navi'
-  static readonly displayName = 'Navigation'
-  static readonly category: Kategorie = 'layout'
-  static readonly acceptsChildren = true
-  static readonly allowedChildTypes = [EINTRAG]
-  static readonly addChildButton = { label: 'Eintrag', childType: EINTRAG }
-  static readonly containerHint = false
-  static readonly defaultProps = {}
-  static readonly defaultChildren = [
-    { type: EINTRAG, props: { seite: WURZEL_ID, seitename: 'Hauptseite' } },
+  static readonly typ = 'navi'
+  static readonly tag = 'ff-navi'
+  static readonly anzeigeName = 'Navigation'
+  static readonly kategorie: Kategorie = 'layout'
+  static readonly nimmtKinder = true
+  static readonly erlaubteKinder = [EINTRAG]
+  static readonly kindKnopf = { label: 'Eintrag', childType: EINTRAG }
+  static readonly behaelterRahmen = false
+  static readonly vorgaben = {}
+  static readonly kinderVorgabe = [
+    { typ: EINTRAG, werte: { seite: WURZEL_ID, seitename: 'Hauptseite' } },
   ]
-  static override readonly customProperties: Eigenschaft[] = []
+  static override readonly eigenschaften: Eigenschaft[] = []
 
   static readonly maskenRand = true
 
-  static readonly allowedParentTypes = [WURZEL_TYP]
+  static readonly erlaubteEltern = [WURZEL_TYP]
 
   static override styles = [
     Grundbaustein.styles,

@@ -52,17 +52,17 @@ function coerceFarbe(v: unknown): string {
 }
 
 export class TextBlock extends Grundbaustein {
-  static readonly blockType = 'text'
-  static readonly tagName = 'ff-text'
-  static readonly displayName = 'Text'
-  static readonly category: Kategorie = 'anzeige'
+  static readonly typ = 'text'
+  static readonly tag = 'ff-text'
+  static readonly anzeigeName = 'Text'
+  static readonly kategorie: Kategorie = 'anzeige'
   static readonly faehigkeiten: readonly Faehigkeit[] = [
     { art: 'quelle' },
     { art: 'auswahlFolgen' },
-    bindbar<typeof TextBlock.defaultProps>([{ prop: 'text', label: 'Text' }]),
+    bindbar<typeof TextBlock.vorgaben>([{ prop: 'text', name: 'Text' }]),
   ]
 
-  static readonly defaultProps = {
+  static readonly vorgaben = {
     width: 'fill',
     groesse: GROESSE_STANDARD,
     gewicht: 'normal',
@@ -74,47 +74,47 @@ export class TextBlock extends Grundbaustein {
     textField: '',
   }
 
-  static readonly raster = { startW: 12, startH: 2, minW: 2, minH: 1 }
+  static readonly raster = { startBreite: 12, startHoehe: 2, minBreite: 2, minHoehe: 1 }
 
-  static override readonly customProperties: Eigenschaft[] = [
+  static override readonly eigenschaften: Eigenschaft[] = [
     {
-      attributeName: 'groesse',
+      schluessel: 'groesse',
       name: 'Größe',
-      description: 'Schriftgröße in Pixeln.',      kind: 'number',
-      unit: 'px',
+      beschreibung: 'Schriftgröße in Pixeln.',      art: 'number',
+      einheit: 'px',
       min: GROESSE_MIN,
       max: GROESSE_MAX,
-      inspectorRow: 'Text-Stil',
+      zeile: 'Text-Stil',
     },
     {
-      attributeName: 'gewicht',
+      schluessel: 'gewicht',
       name: 'Gewicht',
-      description: 'Strichstärke der Schrift.',      kind: 'segment',
-      options: [
-        { value: 'duenn', label: 'Dünn' },
-        { value: 'normal', label: 'Normal' },
-        { value: 'fett', label: 'Fett' },
+      beschreibung: 'Strichstärke der Schrift.',      art: 'segment',
+      optionen: [
+        { wert: 'duenn', name: 'Dünn' },
+        { wert: 'normal', name: 'Normal' },
+        { wert: 'fett', name: 'Fett' },
       ],
-      inspectorRow: 'Text-Stil',
+      zeile: 'Text-Stil',
     },
     {
-      attributeName: 'ausrichtung',
+      schluessel: 'ausrichtung',
       name: 'Ausrichtung',
-      description: 'Wo der Text in seiner Breite sitzt.',      kind: 'segment',
-      options: [
-        { value: 'links', label: 'Links' },
-        { value: 'mitte', label: 'Mitte' },
-        { value: 'rechts', label: 'Rechts' },
+      beschreibung: 'Wo der Text in seiner Breite sitzt.',      art: 'segment',
+      optionen: [
+        { wert: 'links', name: 'Links' },
+        { wert: 'mitte', name: 'Mitte' },
+        { wert: 'rechts', name: 'Rechts' },
       ],
-      inspectorRow: 'Text-Stil',
+      zeile: 'Text-Stil',
     },
 
     {
-      attributeName: 'farbe',
+      schluessel: 'farbe',
       name: 'Farbe',
-      description: 'Textfarbe aus den Farben der Maske.',      kind: 'select',
-      options: [
-        ...NEUTRALE_FARBEN.map((f) => ({ value: f.wert, label: f.name, farbe: `var(${f.token})` })),
+      beschreibung: 'Textfarbe aus den Farben der Maske.',      art: 'select',
+      optionen: [
+        ...NEUTRALE_FARBEN.map((f) => ({ wert: f.wert, name: f.name, farbe: `var(${f.token})` })),
         ...farbweltOptionen(),
       ],
     },

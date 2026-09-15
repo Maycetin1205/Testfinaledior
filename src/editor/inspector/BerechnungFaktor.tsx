@@ -28,9 +28,9 @@ function spaltenOptionen(
 // Der Techniker sieht den Feldcode als Kennung, beschriftet ist das Feld mit
 // seinem Klarnamen.
 function feldOptionen(quelle: QuelleInReichweite | undefined): WahlOption[] {
-  return (quelle?.source.fields ?? []).map((f) => ({
+  return (quelle?.quelle.felder ?? []).map((f) => ({
     wert: f.code,
-    name: f.label === '' ? f.code : f.label,
+    name: f.name === '' ? f.code : f.name,
     kennung: f.code,
   }))
 }
@@ -64,7 +64,7 @@ export function FaktorZeile({
   onWeg,
 }: FaktorZeileProps) {
   const ziel = faktor.art === 'datenfeld' ? zerlegeBindung(faktor.feld) : { quelleId: '', code: '' }
-  const quelle = quellen.find((q) => q.source.id === ziel.quelleId)
+  const quelle = quellen.find((q) => q.quelle.id === ziel.quelleId)
 
   return (
     <div className="flex flex-col gap-1.5 rounded border border-linie p-2">
@@ -112,7 +112,7 @@ export function FaktorZeile({
       {faktor.art === 'datenfeld' && (
         <div className="flex items-center gap-1.5">
           <Wahl
-            optionen={quellen.map((q) => ({ wert: q.source.id, name: q.source.name }))}
+            optionen={quellen.map((q) => ({ wert: q.quelle.id, name: q.quelle.name }))}
             wert={ziel.quelleId}
             leerText="Datenquelle wählen"
             onWaehle={(id) => onFaktor({ ...faktor, feld: bindungMitQuelle(id, ziel.code) })}

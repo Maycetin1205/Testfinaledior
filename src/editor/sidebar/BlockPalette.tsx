@@ -29,14 +29,14 @@ export function BlockPalette() {
   const ed = useEditor()
   const [query, setQuery] = useState('')
 
-  const definitions = alleBausteinArten().filter((d) => d.showInPalette !== false)
+  const definitions = alleBausteinArten().filter((d) => d.inPalette !== false)
 
   const q = query.trim().toLowerCase()
   const filtered = definitions.filter((d) => {
     if (!q) return true
-    return d.displayName.toLowerCase().includes(q)
-      || d.type.toLowerCase().includes(q)
-      || d.tagName.toLowerCase().includes(q)
+    return d.name.toLowerCase().includes(q)
+      || d.typ.toLowerCase().includes(q)
+      || d.tag.toLowerCase().includes(q)
   })
 
   const grouped: Record<Kategorie, BausteinArt[]> = {
@@ -44,17 +44,17 @@ export function BlockPalette() {
     eingabe: [],
     anzeige: [],
   }
-  for (const def of filtered) grouped[def.category]?.push(def)
+  for (const def of filtered) grouped[def.kategorie]?.push(def)
 
   const insertParentFor = (type: string): string | undefined => {
     let cur = ed.selectedId ? ed.getNode(ed.selectedId) : null
     while (cur) {
-      if (darfEnthalten(cur.type, type)) return cur.id
-      cur = cur.parentId ? ed.getNode(cur.parentId) : null
+      if (darfEnthalten(cur.typ, type)) return cur.id
+      cur = cur.elternId ? ed.getNode(cur.elternId) : null
     }
 
     const aktiveSeite = ed.getNode(ed.rootId)
-    if (aktiveSeite && !darfEnthalten(aktiveSeite.type, type) && darfEnthalten(WURZEL_TYP, type)) {
+    if (aktiveSeite && !darfEnthalten(aktiveSeite.typ, type) && darfEnthalten(WURZEL_TYP, type)) {
       return WURZEL_ID
     }
     return undefined
@@ -80,9 +80,9 @@ export function BlockPalette() {
           <div className="flex flex-col gap-1">
             {grouped[cat].map((def) => (
               <PaletteKarte
-                key={def.type}
+                key={def.typ}
                 def={def}
-                onAdd={() => ed.addBlock(def.type, insertParentFor(def.type))}
+                onAdd={() => ed.addBlock(def.typ, insertParentFor(def.typ))}
               />
             ))}
           </div>
@@ -103,15 +103,15 @@ function PaletteKarte({ def, onAdd }: PaletteKarteProps) {
       onClick={onAdd}
       draggable
       onDragStart={(e) => {
-        setNewBlockDrag(e.dataTransfer, def.type)
+        setNewBlockDrag(e.dataTransfer, def.typ)
         e.dataTransfer.effectAllowed = 'copy'
       }}
       className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 px-2 text-left hover:border-akzent"
     >
       <span className="flex shrink-0 items-center text-matt group-hover:text-tinte">
-        {createElement(symbolVon(def.type), { size: 15 })}
+        {createElement(symbolVon(def.typ), { size: 15 })}
       </span>
-      <span className="truncate">{def.displayName}</span>
+      <span className="truncate">{def.name}</span>
       <span className="flex shrink-0 items-center text-matt opacity-0 transition-opacity group-hover:opacity-100">
         <Plus size={13} />
       </span>

@@ -20,18 +20,18 @@ export type EigenschaftsArt =
 
 
 export interface Wahloption {
-  value: string
-  label: string
+  wert: string
+  name: string
 // Traegt die Option eine Farbe, zeichnet der Inspector Kacheln statt einer
 // Liste — aber nur, wenn ALLE Optionen eine haben. Der Wert ist fertiges CSS.
   farbe?: string
 }
 
 export interface Bedingung {
-  attributeName: string
+  schluessel: string
 
-  equals?: unknown
-  notEquals?: unknown
+  gleich?: unknown
+  ungleich?: unknown
 
   keinesVon?: readonly unknown[]
 }
@@ -41,34 +41,34 @@ export function eigenschaftSichtbar(
   props: Record<string, unknown>,
 ): boolean {
   if (!bedingung) return true
-  const wert = props[bedingung.attributeName]
+  const wert = props[bedingung.schluessel]
   if (bedingung.keinesVon) {
     return !bedingung.keinesVon.some((v) => Object.is(wert, v))
   }
-  if ('notEquals' in bedingung) {
-    return !Object.is(wert, bedingung.notEquals)
+  if ('ungleich' in bedingung) {
+    return !Object.is(wert, bedingung.ungleich)
   }
-  return Object.is(wert, bedingung.equals)
+  return Object.is(wert, bedingung.gleich)
 }
 
 export interface Eigenschaft {
-  attributeName: string
+  schluessel: string
   name: string
-  description: string
-  maxLength?: number
-  kind: EigenschaftsArt
-  options?: Wahloption[]
+  beschreibung: string
+  maxLaenge?: number
+  art: EigenschaftsArt
+  optionen?: Wahloption[]
 
-  unit?: string
+  einheit?: string
   min?: number
   max?: number
 
   bearbeitung?: 'inline' | 'inspector'
 
-  inspectorRow?: string
-  visibleWhen?: Bedingung
-  requiresDataSource?: boolean
-  exclusiveAmongSiblings?: boolean
+  zeile?: string
+  wenn?: Bedingung
+  brauchtQuelle?: boolean
+  einzigUnterGeschwistern?: boolean
 
   quelleProp?: string
 

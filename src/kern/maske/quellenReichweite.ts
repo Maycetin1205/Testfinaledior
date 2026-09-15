@@ -15,7 +15,7 @@ export function quellenTraeger(tree: Maskenbaum, id: string): Baustein | undefin
   let cur: Baustein | undefined = tree[id]
   while (cur) {
     if (traegtEigeneQuelle(cur)) return cur
-    cur = cur.parentId ? tree[cur.parentId] : undefined
+    cur = cur.elternId ? tree[cur.elternId] : undefined
   }
   return undefined
 }
@@ -27,7 +27,7 @@ export function quellenInReichweite(
 ): QuelleInReichweite[] {
   const traeger = quellenTraeger(tree, id)
   if (!traeger) return []
-  return quellenAufloesen(traeger.props.source, traeger.props[WEITERE_QUELLEN_PROP], bibliothek)
+  return quellenAufloesen(traeger.werte.source, traeger.werte[WEITERE_QUELLEN_PROP], bibliothek)
 }
 
 export function bausteineMitQuelle(tree: Maskenbaum, quelleId: string): Baustein[] {
@@ -37,16 +37,16 @@ export function bausteineMitQuelle(tree: Maskenbaum, quelleId: string): Baustein
 
 function nutztQuelle(n: Baustein, quelleId: string): boolean {
   if (traegtEigeneQuelle(n)) {
-    if (n.props.source === quelleId) return true
-    if (weitereQuellenAus(n.props[WEITERE_QUELLEN_PROP]).some((q) => q.quelleId === quelleId)) {
+    if (n.werte.source === quelleId) return true
+    if (weitereQuellenAus(n.werte[WEITERE_QUELLEN_PROP]).some((q) => q.quelleId === quelleId)) {
       return true
     }
   }
-  const def = bausteinArt(n.type)
+  const def = bausteinArt(n.typ)
 
-  for (const prop of def?.customProperties ?? []) {
-    if (prop.kind !== 'quelle' || !eigenschaftSichtbar(prop.visibleWhen, n.props)) continue
-    if (n.props[prop.attributeName] === quelleId) return true
+  for (const prop of def?.eigenschaften ?? []) {
+    if (prop.art !== 'quelle' || !eigenschaftSichtbar(prop.wenn, n.werte)) continue
+    if (n.werte[prop.schluessel] === quelleId) return true
   }
 
   return quellenIdsInKettenVon(n).includes(quelleId)
@@ -58,6 +58,6 @@ export function ersteQuelleInReichweite(
   bibliothek: readonly Datenquelle[],
 ): Datenquelle | undefined {
   const traeger = quellenTraeger(tree, id)
-  if (!traeger || typeof traeger.props.source !== 'string') return undefined
-  return bibliothek.find((s) => s.id === traeger.props.source)
+  if (!traeger || typeof traeger.werte.source !== 'string') return undefined
+  return bibliothek.find((s) => s.id === traeger.werte.source)
 }

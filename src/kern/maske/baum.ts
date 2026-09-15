@@ -3,12 +3,12 @@ import type { Ketten } from '../daten/aktionen'
 
 export interface Baustein {
   id: string
-  type: string
-  props: Record<string, unknown>
+  typ: string
+  werte: Record<string, unknown>
 
-  events?: Ketten
-  parentId: string | null
-  childIds: string[]
+  ketten?: Ketten
+  elternId: string | null
+  kinderIds: string[]
 }
 
 export type Maskenbaum = Record<string, Baustein>

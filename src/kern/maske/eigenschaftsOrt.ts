@@ -13,12 +13,12 @@ export function eigenschaftenFuer(
   const direktGebunden = new Set<string>(
     (faehigkeit(def, 'bindbar')?.stellen ?? []).map((s) => bindungsProp(s.prop)),
   )
-  const klarnamen = new Set(def.customProperties.map((p) => p.klarnameProp))
-  return def.customProperties.filter((p) => {
-    if (direktGebunden.has(p.attributeName) || klarnamen.has(p.attributeName)) return false
-    if (!eigenschaftSichtbar(p.visibleWhen, block.props)) return false
+  const klarnamen = new Set(def.eigenschaften.map((p) => p.klarnameProp))
+  return def.eigenschaften.filter((p) => {
+    if (direktGebunden.has(p.schluessel) || klarnamen.has(p.schluessel)) return false
+    if (!eigenschaftSichtbar(p.wenn, block.werte)) return false
     const ziel = p.bearbeitung ?? (
-      p.kind === 'field' || p.kind === 'quelle' || p.kind === 'relation' ? 'inspector' : 'inline'
+      p.art === 'field' || p.art === 'quelle' || p.art === 'relation' ? 'inspector' : 'inline'
     )
     return ziel === ort
   })

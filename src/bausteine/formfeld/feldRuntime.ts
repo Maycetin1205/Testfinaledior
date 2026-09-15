@@ -1,6 +1,6 @@
 // Das Formularfeld am SoftEngine-Datenstrom: Wert setzen und die Zeile weitergeben.
 import { bindungsAttr } from '../../kern/maske/faehigkeiten'
-import { satzIndexVon, setField } from '../../softengine/data'
+import { satzIndexVon, feldSchreiben } from '../../softengine/data'
 import { geberIdVon, klareAuswahl, setzeAuswahl } from '../shared/auswahl'
 import { macheDatenAnschluss } from '../shared/datenAnschluss'
 import { leseGebundeneStelle } from '../shared/gebundeneStelle'
@@ -66,7 +66,7 @@ function hydrateField(field: RuntimeFieldElement): void {
 
 function writeLocal(field: RuntimeFieldElement): FieldData | undefined {
   const data = fieldData.get(field)
-  if (data) setField(data.row, data.code, currentValue(field))
+  if (data) feldSchreiben(data.row, data.code, currentValue(field))
   return data
 }
 

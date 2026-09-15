@@ -26,7 +26,7 @@ export function AuswahlFolgeSektion({ block }: AuswahlFolgeSektionProps) {
   const ed = useEditor()
   const bibliothek = useDataSources().list
 
-  const folge: AuswahlFolge | undefined = auswahlFolgenAus(block.props[AUSWAHL_FOLGE_PROP])[0]
+  const folge: AuswahlFolge | undefined = auswahlFolgenAus(block.werte[AUSWAHL_FOLGE_PROP])[0]
 
   const kandidaten = Object.values(ed.tree).filter(
     (n) => n.id !== block.id && istAuswahlGeber(n),
@@ -60,10 +60,10 @@ export function AuswahlFolgeSektion({ block }: AuswahlFolgeSektionProps) {
       setze([])
       return
     }
-    const keyPairs = folge && folge.keyPairs.length > 0 ? folge.keyPairs : []
+    const keyPairs = folge && folge.paare.length > 0 ? folge.paare : []
     setze([{
       geberId: v,
-      keyPairs: holtZeilen || keyPairs.length > 0 ? keyPairs : [{ fromField: '', toField: '' }],
+      paare: holtZeilen || keyPairs.length > 0 ? keyPairs : [{ vonFeld: '', nachFeld: '' }],
     }])
   }
   return (
@@ -88,13 +88,13 @@ export function AuswahlFolgeSektion({ block }: AuswahlFolgeSektionProps) {
           )}
           <SchluesselPaarZeilen
             frage="Verbindende Felder"
-            paare={folge.keyPairs}
-            linkeFelder={geberQuelle?.fields ?? []}
-            rechteFelder={eigeneQuelle?.fields ?? []}
+            paare={folge.paare}
+            linkeFelder={geberQuelle?.felder ?? []}
+            rechteFelder={eigeneQuelle?.felder ?? []}
             linkeBezeichnung={(at) => `Feld ${at + 1} beim Auswahl-Geber`}
             rechteBezeichnung={(at) => `Feld ${at + 1} in diesem Baustein`}
             entfernenBezeichnung={(at) => `Feldpaar ${at + 1} entfernen`}
-            onAendern={(keyPairs) => setze([{ ...folge, keyPairs }])}
+            onAendern={(keyPairs) => setze([{ ...folge, paare: keyPairs }])}
           />
 
           {(!geberQuelle || !eigeneQuelle) && (

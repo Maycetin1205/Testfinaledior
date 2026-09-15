@@ -10,21 +10,21 @@ import { freiePositionFuerKopie } from '../../kern/maske/rasterFlaeche'
 export type NeueIdFuer = (alteId: string) => string | undefined
 
 function schreibeBlockReferenzenUm(node: Baustein, neueIdFuer: NeueIdFuer): Baustein {
-  const folgen = umgeschriebeneFolgen(node.props[AUSWAHL_FOLGE_PROP], neueIdFuer)
-  const events = node.events === undefined
+  const folgen = umgeschriebeneFolgen(node.werte[AUSWAHL_FOLGE_PROP], neueIdFuer)
+  const events = node.ketten === undefined
     ? undefined
-    : umgeschriebeneEreignisse(node.events, neueIdFuer)
+    : umgeschriebeneEreignisse(node.ketten, neueIdFuer)
 
   const seiten = umgeschriebeneSeiten(node, neueIdFuer)
-  const propsNeu = folgen !== node.props[AUSWAHL_FOLGE_PROP] || seiten !== null
-  const eventsNeu = events !== undefined && events !== node.events
+  const propsNeu = folgen !== node.werte[AUSWAHL_FOLGE_PROP] || seiten !== null
+  const eventsNeu = events !== undefined && events !== node.ketten
   if (!propsNeu && !eventsNeu) return node
   return {
     ...node,
     ...(propsNeu
-      ? { props: { ...node.props, ...seiten, [AUSWAHL_FOLGE_PROP]: folgen } }
+      ? { werte: { ...node.werte, ...seiten, [AUSWAHL_FOLGE_PROP]: folgen } }
       : {}),
-    ...(eventsNeu ? { events } : {}),
+    ...(eventsNeu ? { ketten: events } : {}),
   }
 }
 
@@ -52,11 +52,11 @@ function umgeschriebeneSeiten(
   neueIdFuer: NeueIdFuer,
 ): Record<string, unknown> | null {
   let treffer: Record<string, unknown> | null = null
-  for (const p of bausteinArt(node.type)?.customProperties ?? []) {
-    if (p.kind !== 'seite') continue
-    const ziel = ersatzId(node.props[p.attributeName], neueIdFuer)
+  for (const p of bausteinArt(node.typ)?.eigenschaften ?? []) {
+    if (p.art !== 'seite') continue
+    const ziel = ersatzId(node.werte[p.schluessel], neueIdFuer)
     if (ziel === undefined) continue
-    treffer = { ...(treffer ?? {}), [p.attributeName]: ziel }
+    treffer = { ...(treffer ?? {}), [p.schluessel]: ziel }
   }
   return treffer
 }
@@ -65,21 +65,21 @@ function umgeschriebeneBindung(
   bindung: Parameter,
   neueIdFuer: NeueIdFuer,
 ): Parameter {
-  const ziel = ersatzId(bindung.blockId, neueIdFuer)
-  return ziel === undefined ? bindung : { ...bindung, blockId: ziel }
+  const ziel = ersatzId(bindung.bausteinId, neueIdFuer)
+  return ziel === undefined ? bindung : { ...bindung, bausteinId: ziel }
 }
 
 function umgeschriebenerSchritt(schritt: Schritt, neueIdFuer: NeueIdFuer): Schritt {
-  if (schritt.type === 'POPUP_OPEN' || schritt.type === 'POPUP_CLOSE') {
+  if (schritt.art === 'POPUP_OPEN' || schritt.art === 'POPUP_CLOSE') {
     const ziel = ersatzId(schritt.popupId, neueIdFuer)
     return ziel === undefined ? schritt : { ...schritt, popupId: ziel }
   }
-  if (schritt.type !== 'RELATION') return schritt
-  const params = schritt.params.map((b) => umgeschriebeneBindung(b, neueIdFuer))
-  const extraParams = schritt.extraParams.map((b) => umgeschriebeneBindung(b, neueIdFuer))
-  const geaendert = params.some((b, i) => b !== schritt.params[i])
-    || extraParams.some((b, i) => b !== schritt.extraParams[i])
-  return geaendert ? { ...schritt, params, extraParams } : schritt
+  if (schritt.art !== 'RELATION') return schritt
+  const params = schritt.parameter.map((b) => umgeschriebeneBindung(b, neueIdFuer))
+  const extraParams = schritt.zusatzParameter.map((b) => umgeschriebeneBindung(b, neueIdFuer))
+  const geaendert = params.some((b, i) => b !== schritt.parameter[i])
+    || extraParams.some((b, i) => b !== schritt.zusatzParameter[i])
+  return geaendert ? { ...schritt, parameter: params, zusatzParameter: extraParams } : schritt
 }
 
 function umgeschriebeneEreignisse(
@@ -106,19 +106,19 @@ function kloneTeilbaum(
     const quelle = tree[quellId]
     const neueId = crypto.randomUUID()
     neueIds.set(quellId, neueId)
-    const childIds = quelle.childIds.map((c) => kopiere(c, neueId))
+    const childIds = quelle.kinderIds.map((c) => kopiere(c, neueId))
     nodes[neueId] = {
       id: neueId,
-      type: quelle.type,
-      props: deepClone(quelle.props),
+      typ: quelle.typ,
+      werte: deepClone(quelle.werte),
 
-      ...(quelle.events ? { events: deepClone(quelle.events) } : {}),
-      parentId,
-      childIds,
+      ...(quelle.ketten ? { ketten: deepClone(quelle.ketten) } : {}),
+      elternId: parentId,
+      kinderIds: childIds,
     }
     return neueId
   }
-  const kopieId = kopiere(id, tree[id].parentId)
+  const kopieId = kopiere(id, tree[id].elternId)
   for (const neueId of neueIds.values()) {
     nodes[neueId] = schreibeBlockReferenzenUm(nodes[neueId], (alt) => neueIds.get(alt))
   }
@@ -130,16 +130,16 @@ export function dupliziereTeilbaum(
   id: string,
 ): { tree: Maskenbaum; kopieId: string } | null {
   const original = tree[id]
-  if (!original || id === WURZEL_ID || original.parentId === null) return null
+  if (!original || id === WURZEL_ID || original.elternId === null) return null
   if (istSeitenBaustein(original)) return null
-  const parent = tree[original.parentId]
+  const parent = tree[original.elternId]
   if (!parent) return null
   const { nodes, kopieId } = kloneTeilbaum(tree, id)
   nodes[kopieId] = freiePositionFuerKopie(tree, parent.id, nodes[kopieId])
-  const childIds = [...parent.childIds]
-  childIds.splice(parent.childIds.indexOf(id) + 1, 0, kopieId)
+  const childIds = [...parent.kinderIds]
+  childIds.splice(parent.kinderIds.indexOf(id) + 1, 0, kopieId)
   return {
-    tree: { ...tree, ...nodes, [parent.id]: { ...parent, childIds } },
+    tree: { ...tree, ...nodes, [parent.id]: { ...parent, kinderIds: childIds } },
     kopieId,
   }
 }

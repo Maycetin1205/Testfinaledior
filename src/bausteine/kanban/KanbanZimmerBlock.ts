@@ -14,30 +14,30 @@ export const ZIMMER_LEER_TEXT = 'frei · hierher ziehen'
 export const ZIMMER_INHALT_EVENT = 'ff-zimmer-inhalt'
 
 export class KanbanZimmerBlock extends Grundbaustein {
-  static readonly blockType = 'kanban-zimmer'
-  static readonly tagName = 'ff-kanban-zimmer'
-  static readonly displayName = 'Kanban-Zimmer'
-  static readonly category: Kategorie = 'anzeige'
-  static readonly acceptsChildren = false
-  static readonly showInPalette = false
-  static readonly containerHint = false
+  static readonly typ = 'kanban-zimmer'
+  static readonly tag = 'ff-kanban-zimmer'
+  static readonly anzeigeName = 'Kanban-Zimmer'
+  static readonly kategorie: Kategorie = 'anzeige'
+  static readonly nimmtKinder = false
+  static readonly inPalette = false
+  static readonly behaelterRahmen = false
 
-  static readonly allowedParentTypes = ['kanban-spalte']
+  static readonly erlaubteEltern = ['kanban-spalte']
 
-  static readonly lockedWidth: FlussBreite = 'fill'
-  static readonly resizableWidth = false
-  static readonly defaultProps = {
+  static readonly festeBreite: FlussBreite = 'fill'
+  static readonly breiteAenderbar = false
+  static readonly vorgaben = {
     heading: 'Neues Zimmer',
     wert: '',
   }
 
-  static override readonly customProperties: Eigenschaft[] = [
+  static override readonly eigenschaften: Eigenschaft[] = [
     {
-      attributeName: 'wert',
+      schluessel: 'wert',
       bearbeitung: 'inspector',
       name: 'Wert im ERP',
-      description: 'Steht im Feld der Unterteilung, wenn eine Karte hier liegt. Leer: der Titel.',
-      kind: 'text',
+      beschreibung: 'Steht im Feld der Unterteilung, wenn eine Karte hier liegt. Leer: der Titel.',
+      art: 'text',
     },
   ]
 

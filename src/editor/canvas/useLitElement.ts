@@ -54,14 +54,14 @@ export function useLitElement({
   const [element, setElement] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
-    const def = bausteinArt(block.type)
+    const def = bausteinArt(block.typ)
     if (!def) {
-      console.warn(`BlockHost: keine Bausteinart für Typ "${block.type}"`)
+      console.warn(`BlockHost: keine Bausteinart für Typ "${block.typ}"`)
       return
     }
     const container = containerRef.current
     if (!container) return
-    const el = document.createElement(def.tagName)
+    const el = document.createElement(def.tag)
 
     el.setAttribute('data-ff-editor', '')
     container.appendChild(el)
@@ -96,27 +96,27 @@ export function useLitElement({
       elementRef.current = null
       setElement(null)
     }
-  }, [block.type, editor, blockRef])
+  }, [block.typ, editor, blockRef])
 
   useEffect(() => {
     const el = elementRef.current
     if (!el) return
     const elAny = el as unknown as Record<string, unknown>
-    for (const [key, value] of Object.entries(block.props)) {
+    for (const [key, value] of Object.entries(block.werte)) {
       elAny[key] = value
     }
 
     for (const spot of bindableSpots) {
-      const wert = block.props[bindungsProp(spot.prop)]
+      const wert = block.werte[bindungsProp(spot.prop)]
       if (typeof wert !== 'string' || wert === '') continue
 
       const { quelleId, code } = zerlegeBindung(wert)
       const quelle = quelleId === ''
-        ? quellen[0]?.source
-        : quellen.find((q) => q.source.id === quelleId)?.source
-      const field = quelle?.fields.find((f) => f.code === code)
+        ? quellen[0]?.quelle
+        : quellen.find((q) => q.quelle.id === quelleId)?.quelle
+      const field = quelle?.felder.find((f) => f.code === code)
       if (field) {
-        elAny[spot.vorschauProp ?? spot.prop] = field.label
+        elAny[spot.vorschauProp ?? spot.prop] = field.name
           + (quelleId === '' ? '' : FREMD_ZEICHEN)
       } else {
         elAny[bindungsProp(spot.prop)] = ''
@@ -126,7 +126,7 @@ export function useLitElement({
     elAny.editable = !!selected
 
     el.toggleAttribute('fuellt', !!raster)
-  }, [element, block.type, block.props, selected, bindableSpots, quellen, raster])
+  }, [element, block.typ, block.werte, selected, bindableSpots, quellen, raster])
 
   return { containerRef, elementRef, element }
 }

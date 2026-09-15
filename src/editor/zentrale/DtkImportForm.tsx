@@ -46,11 +46,11 @@ export function DtkImportForm({ dateiName, tabellen, pannenGrund, onClose }: Dtk
       if (!angehakt.has(t.kennung) || vorhanden.has(t.kennung)) continue
       store.add({
         name: t.name !== '' ? t.name : kennungAnzeige(t.kennung),
-        kind: 'idb',
+        art: 'idb',
         idbId: t.kennung,
 
-        indexField: '0_10',
-        fields: t.felder,
+        satzFeld: '0_10',
+        felder: t.felder,
       })
     }
     onClose()

@@ -41,20 +41,20 @@ import {
 import type { Spalte } from '../tabelle/spalten'
 
 export class FormFeldBlock extends Grundbaustein {
-  static readonly blockType = 'formfeld'
-  static readonly tagName = 'ff-formfeld'
-  static readonly displayName = 'Formularfeld'
-  static readonly category: Kategorie = 'eingabe'
+  static readonly typ = 'formfeld'
+  static readonly tag = 'ff-formfeld'
+  static readonly anzeigeName = 'Formularfeld'
+  static readonly kategorie: Kategorie = 'eingabe'
 
   static readonly faehigkeiten: readonly Faehigkeit[] = [
-    { art: 'quelle', wenn: { attributeName: 'fieldType', notEquals: 'nachschlagen' } },
+    { art: 'quelle', wenn: { schluessel: 'fieldType', ungleich: 'nachschlagen' } },
     { art: 'auswahlFolgen' },
     // Das Feld GIBT seine Zeile: beim Typ Nachschlagen die im Fenster gewaehlte,
     // sonst die angezeigte Zeile seiner Datenquelle.
     {
       art: 'satzwahl',
       quelleProp: 'nachschlagQuelle',
-      wenn: { attributeName: 'fieldType', equals: 'nachschlagen' },
+      wenn: { schluessel: 'fieldType', gleich: 'nachschlagen' },
     },
     { art: 'liste', bindung: NACHSCHLAG_SPALTEN_BINDUNG },
     // Die Angaben des Fensters wohnen am Feld; eingestellt wird es IM Fenster,
@@ -62,31 +62,31 @@ export class FormFeldBlock extends Grundbaustein {
     {
       art: 'suchfenster',
       fenster: {
-        spaltenKey: 'nachschlagSpalten',
-        breiteKey: 'fensterBreite',
-        hoeheKey: 'fensterHoehe',
+        spaltenSchluessel: 'nachschlagSpalten',
+        breiteSchluessel: 'fensterBreite',
+        hoeheSchluessel: 'fensterHoehe',
         quelleProp: 'nachschlagQuelle',
         speicherFeldProp: 'speicherFeld',
         speicherTitelProp: 'speicherTitel',
         automatik: 'Ohne Spalten zeigt das Fenster eine: das gespeicherte Feld.'
           + ' Die erste Spalte ist, was nach der Wahl im Feld steht.',
         stelle: '.lupe',
-        wenn: { attributeName: 'fieldType', equals: 'nachschlagen' },
+        wenn: { schluessel: 'fieldType', gleich: 'nachschlagen' },
       },
     },
-    bindbar<typeof FormFeldBlock.defaultProps>([
+    bindbar<typeof FormFeldBlock.vorgaben>([
       {
         prop: 'value',
-        label: 'Wert',
-        wenn: { attributeName: 'fieldType', keinesVon: ['checkbox', 'nachschlagen'] satisfies readonly FeldTyp[] },
+        name: 'Wert',
+        wenn: { schluessel: 'fieldType', keinesVon: ['checkbox', 'nachschlagen'] satisfies readonly FeldTyp[] },
         vorschauProp: 'placeholder',
       },
     ]),
-    aktionswert<typeof FormFeldBlock.defaultProps>([{ prop: 'value', label: 'Wert' }]),
-    { art: 'ereignisse', liste: [{ key: 'onChange', name: 'Wert geändert' }] },
+    aktionswert<typeof FormFeldBlock.vorgaben>([{ prop: 'value', name: 'Wert' }]),
+    { art: 'ereignisse', liste: [{ schluessel: 'onChange', name: 'Wert geändert' }] },
   ]
 
-  static readonly defaultProps = {
+  static readonly vorgaben = {
     width: 240,
     fieldType: 'text',
     placeholder: 'Feldname',
@@ -108,9 +108,9 @@ export class FormFeldBlock extends Grundbaustein {
     darstellung: 'standard',
   }
 
-  static readonly raster = { startW: 12, startH: 2, minW: 4, minH: 2 }
+  static readonly raster = { startBreite: 12, startHoehe: 2, minBreite: 4, minHoehe: 2 }
 
-  static override readonly customProperties = FELD_EIGENSCHAFTEN
+  static override readonly eigenschaften = FELD_EIGENSCHAFTEN
 
   static override styles = [Grundbaustein.styles, feldStil, vorschlagStil]
 

@@ -32,7 +32,7 @@ describe('belegDateinamen', () => {
 describe('rahmenNummerVon', () => {
   it('liest die Nummer aus der Maskenwurzel', () => {
     const baum = {
-      [WURZEL_ID]: { id: WURZEL_ID, type: 'root', props: { [BELEG_RAHMEN_PROP]: '7' }, children: [] },
+      [WURZEL_ID]: { id: WURZEL_ID, typ: 'root', werte: { [BELEG_RAHMEN_PROP]: '7' }, kinderIds: [] },
     } as unknown as Maskenbaum
     expect(rahmenNummerVon(baum)).toBe('00007')
   })

@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest'
-import { extractRelationResult, type RuntimeRelation } from './relations'
+import { ergebnisAusAntwort, type LaufzeitRelation } from './relations'
 
 // Was die Maske als Bruecke sieht. Nur diese eine Funktion entscheidet, ob ein
 // Ruf ueberhaupt hinausgeht.
@@ -17,8 +17,8 @@ vi.mock('./bridge', async (echte) => {
   const modul = await echte<typeof import('./bridge')>()
   return {
     ...modul,
-    bootSe: () => {},
-    seGlobal: () => brueckeGlobal,
+    starteSe: () => {},
+    seFenster: () => brueckeGlobal,
     onSeAntwort: (cb: (raw: unknown) => void) => {
       antwortZuhoerer.add(cb)
       return () => { antwortZuhoerer.delete(cb) }
@@ -31,10 +31,10 @@ vi.mock('./meldung', async (echte) => {
   return { ...modul, meldeFehler: (text: string) => { gemeldet.push(text) } }
 })
 
-const { executeRelation, setzeVerfallZurueck } = await import('./relations')
+const { relationAusfuehren: relationAusfuehren, setzeVerfallZurueck } = await import('./relations')
 
-function vorlage(verb: RuntimeRelation['verb']): RuntimeRelation {
-  return { id: 'x', verb, nr: '174', params: [] }
+function vorlage(verb: LaufzeitRelation['verb']): LaufzeitRelation {
+  return { id: 'x', verb, nr: '174', parameter: [] }
 }
 
 beforeEach(() => {
@@ -47,7 +47,7 @@ beforeEach(() => {
 // Ohne diesen Rueckweg kann die Kette keinen Zeilen-Bericht liefern: bis
 // Etappe 3 loeste ein gescheitertes PUT genauso auf wie ein gegluecktes.
 test('PUT ohne Bruecke meldet den Fehler ZURUECK, nicht nur auf den Balken', async () => {
-  const antwort = await executeRelation(vorlage('PUT_RELATION'), ['a'])
+  const antwort = await relationAusfuehren(vorlage('PUT_RELATION'), ['a'])
   expect(antwort.fehler).toBe(
     'Speichern nicht möglich: keine Verbindung zu SoftEngine. Die Eingabe wurde NICHT übernommen.',
   )
@@ -56,7 +56,7 @@ test('PUT ohne Bruecke meldet den Fehler ZURUECK, nicht nur auf den Balken', asy
 
 test('ein PUT, der wirft, meldet den Grund zurueck', async () => {
   brueckeGlobal.basisHTML_SND_MSG = () => { throw new Error('Leitung tot') }
-  const antwort = await executeRelation(vorlage('PUT_RELATION'), ['a'])
+  const antwort = await relationAusfuehren(vorlage('PUT_RELATION'), ['a'])
   expect(antwort.fehler).toBe('Speichern fehlgeschlagen (Relation Nr. 174): Leitung tot')
 })
 
@@ -65,14 +65,14 @@ test('ein PUT, der wirft, meldet den Grund zurueck', async () => {
 test('ein abgeschickter PUT meldet keinen Fehler', async () => {
   const gesendet: unknown[] = []
   brueckeGlobal.basisHTML_SND_MSG = (verb, obj) => { gesendet.push([verb, obj]) }
-  const antwort = await executeRelation(vorlage('PUT_RELATION'), ['a'])
+  const antwort = await relationAusfuehren(vorlage('PUT_RELATION'), ['a'])
   expect(antwort.fehler).toBeUndefined()
   expect(gesendet).toEqual([['PUT_RELATION', { NR: '174', PARAMS: ['a'] }]])
   expect(gemeldet).toEqual([])
 })
 
 test('GET ohne Bruecke meldet den Fehler zurueck', async () => {
-  const antwort = await executeRelation(vorlage('GET_RELATION'), ['a'])
+  const antwort = await relationAusfuehren(vorlage('GET_RELATION'), ['a'])
   expect(antwort.wert).toBe('')
   expect(antwort.fehler).toBe('Daten laden nicht möglich: keine Verbindung zu SoftEngine.')
 })
@@ -80,7 +80,7 @@ test('GET ohne Bruecke meldet den Fehler zurueck', async () => {
 // Der Balken bleibt beim Hintergrund-Nachladen stumm — der Bericht an die
 // Kette nie, sonst braeche ein Lauf ab, ohne dass jemand sagen kann, woran.
 test('still schweigt auf dem Balken, meldet aber trotzdem zurueck', async () => {
-  const antwort = await executeRelation(vorlage('GET_RELATION'), ['a'], { still: true })
+  const antwort = await relationAusfuehren(vorlage('GET_RELATION'), ['a'], { still: true })
   expect(antwort.fehler).toBe('Daten laden nicht möglich: keine Verbindung zu SoftEngine.')
   expect(gemeldet).toEqual([])
 })
@@ -94,12 +94,12 @@ test('eine verspaetete Antwort loest den naechsten Frager NICHT auf', async () =
   try {
     brueckeGlobal.basisHTML_SND_MSG = () => {}
 
-    const ersterRuf = executeRelation(vorlage('GET_RELATION'), ['1'])
+    const ersterRuf = relationAusfuehren(vorlage('GET_RELATION'), ['1'])
     await vi.advanceTimersByTimeAsync(20_000)
     expect((await ersterRuf).fehler)
       .toBe('Daten laden: SoftEngine hat nicht geantwortet (Relation Nr. 174).')
 
-    const zweiterRuf = executeRelation(vorlage('GET_RELATION'), ['2'])
+    const zweiterRuf = relationAusfuehren(vorlage('GET_RELATION'), ['2'])
     let erledigt = false
     void zweiterRuf.then(() => { erledigt = true })
 
@@ -117,8 +117,8 @@ test('eine verspaetete Antwort loest den naechsten Frager NICHT auf', async () =
 // Eine leere Antwort IST eine Antwort: {"RESULT":""} heisst „kein Treffer",
 // nicht „noch keine Nachricht". Bliebe der Job sonst offen bis zum Timeout,
 // verwuerfe die Verfallsmarke danach die erste Antwort des naechsten Rufs.
-test('extractRelationResult loest eine leere RESULT-Antwort als leeren Text auf', () => {
-  expect(extractRelationResult('{"RESULT":""}')).toBe('')
-  expect(extractRelationResult({ RESULT: '', PINDEX: '48' })).toBe('48')
-  expect(extractRelationResult({ MSG: { DATA: [] } })).toBeUndefined()
+test('ergebnisAusAntwort loest eine leere RESULT-Antwort als leeren Text auf', () => {
+  expect(ergebnisAusAntwort('{"RESULT":""}')).toBe('')
+  expect(ergebnisAusAntwort({ RESULT: '', PINDEX: '48' })).toBe('48')
+  expect(ergebnisAusAntwort({ MSG: { DATA: [] } })).toBeUndefined()
 })

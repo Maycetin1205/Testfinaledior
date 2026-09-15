@@ -55,14 +55,14 @@ export function PropControl({
   const relations = useRelations()
 
   const quellen = useDataSources()
-  const def = bausteinArt(block.type)
+  const def = bausteinArt(block.typ)
 
-  const value = block.props[property.attributeName]
-  const kind = property.kind
-  const set = (v: unknown) => ed.updateProperty(block.id, property.attributeName, v)
+  const value = block.werte[property.schluessel]
+  const kind = property.art
+  const set = (v: unknown) => ed.updateProperty(block.id, property.schluessel, v)
 
   const feldQuelle = property.quelleProp
-    ? quellen.get(String(block.props[property.quelleProp] ?? ''))
+    ? quellen.get(String(block.werte[property.quelleProp] ?? ''))
     : sourceInReach
 
   if (kompakt) {
@@ -73,8 +73,8 @@ export function PropControl({
       return (
         <SegmentControl
           name={property.name}
-          description={property.description}
-          options={property.options ?? []}
+          description={property.beschreibung}
+          options={property.optionen ?? []}
           value={String(value ?? '')}
           onChange={set}
         />
@@ -82,7 +82,7 @@ export function PropControl({
     }
   }
 
-  if (property.requiresDataSource && !sourceInReach) return null
+  if (property.brauchtQuelle && !sourceInReach) return null
   if (kind === 'field' && !feldQuelle) {
     return <p className="text-dicht text-matt">{property.name}: zuerst eine passende Datenquelle verbinden.</p>
   }
@@ -114,9 +114,9 @@ export function PropControl({
             ed.transaktion(() => {
               set(neueId)
 
-              for (const andere of def?.customProperties ?? []) {
-                if (andere.quelleProp !== property.attributeName) continue
-                ed.updateProperty(block.id, andere.attributeName, '')
+              for (const andere of def?.eigenschaften ?? []) {
+                if (andere.quelleProp !== property.schluessel) continue
+                ed.updateProperty(block.id, andere.schluessel, '')
                 if (andere.klarnameProp) {
                   ed.updateProperty(block.id, andere.klarnameProp, '')
                 }
@@ -124,8 +124,8 @@ export function PropControl({
   // Auch eine Liste, die ihre Feldcodes aus DIESER Quelle nimmt, zeigt nach dem
   // Wechsel ins Leere: sie behielte sonst Codes der alten Quelle.
               const liste = faehigkeit(def, 'liste')?.bindung
-              const alteListe = liste ? block.props[liste.prop] : undefined
-              if (liste?.quelleProp === property.attributeName
+              const alteListe = liste ? block.werte[liste.prop] : undefined
+              if (liste?.quelleProp === property.schluessel
                 && Array.isArray(alteListe) && alteListe.length > 0) {
                 ed.updateProperty(block.id, liste.prop, [])
               }
@@ -140,9 +140,9 @@ export function PropControl({
             key: 'felder',
             name: feldQuelle?.name,
             kennung: feldQuelle ? quellenKennung(feldQuelle) : undefined,
-            eintraege: (feldQuelle?.fields ?? []).map((f) => ({
+            eintraege: (feldQuelle?.felder ?? []).map((f) => ({
               wert: f.code,
-              name: f.label,
+              name: f.name,
               kennung: f.code,
             })),
           }],
@@ -153,7 +153,7 @@ export function PropControl({
               set(code)
 
               if (property.klarnameProp) {
-                const klarname = feldQuelle?.fields.find((f) => f.code === code)?.label ?? ''
+                const klarname = feldQuelle?.felder.find((f) => f.code === code)?.name ?? ''
                 ed.updateProperty(block.id, property.klarnameProp, klarname)
               }
             })
@@ -209,7 +209,7 @@ export function PropControl({
     return (
       <PickerControl
         label={property.name}
-        hinweis={property.description}
+        hinweis={property.beschreibung}
         bezeichnung={`${nenner} für ${property.name}`}
         {...rest}
       />
@@ -229,17 +229,17 @@ export function PropControl({
         <SegmentControl
           label={property.name}
           name={property.name}
-          description={property.description}
-          options={property.options ?? []}
+          description={property.beschreibung}
+          options={property.optionen ?? []}
           value={String(value ?? '')}
           onChange={set}
         />
       )
     case 'select': {
-      const opts = property.options ?? []
+      const opts = property.optionen ?? []
       const gemeinsam = {
         label: property.name,
-        description: property.description,
+        description: property.beschreibung,
         options: opts,
         value: String(value ?? ''),
         onChange: set,

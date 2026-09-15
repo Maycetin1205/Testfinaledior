@@ -44,7 +44,7 @@ export function ziehePosition(
   const rect = wrapper.getBoundingClientRect()
 
   const greif = { x: startX - rect.left, y: startY - rect.top }
-  const pos = rasterPlatzLesen(node.props)
+  const pos = rasterPlatzLesen(node.werte)
   const id = node.id
   let aktiv = false
   let letztes: { x: number; y: number } | null = null

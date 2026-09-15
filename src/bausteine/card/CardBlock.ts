@@ -17,18 +17,18 @@ import { kartenStil } from './kartenStil'
 type TextSpotProp = 'heading' | 'heading2' | 'time' | 'date' | 'meta' | 'text'
 
 export class CardBlock extends Grundbaustein {
-  static readonly blockType = 'card'
-  static readonly tagName = 'ff-card'
-  static readonly displayName = 'Karte'
-  static readonly category: Kategorie = 'anzeige'
+  static readonly typ = 'card'
+  static readonly tag = 'ff-card'
+  static readonly anzeigeName = 'Karte'
+  static readonly kategorie: Kategorie = 'anzeige'
 
-  static readonly allowedParentTypes = ['kanban-muster']
-  static readonly showInPalette = false
+  static readonly erlaubteEltern = ['kanban-muster']
+  static readonly inPalette = false
 
-  static readonly lockedWidth: FlussBreite = 'fill'
-  static readonly resizableWidth = false
+  static readonly festeBreite: FlussBreite = 'fill'
+  static readonly breiteAenderbar = false
 
-  static readonly defaultProps = {
+  static readonly vorgaben = {
     chipVariant: 'info',
     heading: '',
     heading2: '',
@@ -48,18 +48,18 @@ export class CardBlock extends Grundbaustein {
   }
 
   static readonly faehigkeiten: readonly Faehigkeit[] = [
-    bindbar<typeof CardBlock.defaultProps>([
-      { prop: 'time', label: 'Zeit' },
-      { prop: 'date', label: 'Datum' },
-      { prop: 'heading', label: 'Titel' },
-      { prop: 'heading2', label: 'Titel 2' },
-      { prop: 'meta', label: 'Unterzeile' },
-      { prop: 'text', label: 'Textzeile' },
-      { prop: 'chipText', label: 'Chip' },
+    bindbar<typeof CardBlock.vorgaben>([
+      { prop: 'time', name: 'Zeit' },
+      { prop: 'date', name: 'Datum' },
+      { prop: 'heading', name: 'Titel' },
+      { prop: 'heading2', name: 'Titel 2' },
+      { prop: 'meta', name: 'Unterzeile' },
+      { prop: 'text', name: 'Textzeile' },
+      { prop: 'chipText', name: 'Chip' },
     ]),
   ]
 
-  static override readonly customProperties: Eigenschaft[] = [
+  static override readonly eigenschaften: Eigenschaft[] = [
     statusVariantProperty(
       'chipVariant',
       'Bedeutung des Chips auf der Karte — bestimmt die Chip-Farbe.',

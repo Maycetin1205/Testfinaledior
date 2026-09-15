@@ -43,7 +43,7 @@ export const ZEICHEN_MAX = 200
 export interface Datenfeld {
   code: string
 
-  label: string
+  name: string
 
   // Wie breit eine Spalte auf dieses Feld beim Anlegen wird, in Zeichen. Nur
   // ein Startwert: danach ist es eine gewoehnliche Spaltenbreite zum Ziehen.
@@ -56,11 +56,11 @@ export interface Datenquelle {
 
   name: string
 
-  kind: QuellenArtKennung
+  art: QuellenArtKennung
 
   idbId?: string
 
-  indexField?: string
+  satzFeld?: string
 
   kopfsatzIndex?: string
 
@@ -72,7 +72,7 @@ export interface Datenquelle {
 
   feldVorsatz?: string
 
-  fields: readonly Datenfeld[]
+  felder: readonly Datenfeld[]
 }
 
 // Diese Quelle wartet auf keine Lieferung, sie fragt selbst; darum steht sie
@@ -90,18 +90,18 @@ export function feldKlarname(
   const gesucht = quelleId === '' ? eigeneQuelleId : quelleId
   if (gesucht === '' || code === '') return ''
   const quelle = sources.find((s) => s.id === gesucht)
-  return quelle?.fields.find((f) => f.code === code)?.label ?? ''
+  return quelle?.felder.find((f) => f.code === code)?.name ?? ''
 }
 
 export function istOffenerSatz(source: Datenquelle): boolean {
-  return artFuer(source.kind).varMoeglich && source.lieferung === 'offenerSatz'
+  return artFuer(source.art).varMoeglich && source.lieferung === 'offenerSatz'
 }
 
 // Arten ohne Satznummer geben '': sonst bestellte der Export einen Feldcode, den
 // ihre Quelle nicht kennt, und die Tabelle boete Aendern und Loeschen an.
 export function satzNummerVon(source: Datenquelle): string {
-  if (!artFuer(source.kind).satzNummerMoeglich) return ''
-  return (source.indexField ?? '').trim()
+  if (!artFuer(source.art).satzNummerMoeglich) return ''
+  return (source.satzFeld ?? '').trim()
 }
 
 // SoftEngine legt die Zeilen unter dem ALIAS ab, und die Laufzeit sucht sie ueber
@@ -122,7 +122,7 @@ export function mitEindeutigenNamen(sources: readonly Datenquelle[]): Datenquell
 }
 
 export function tabellenIdVon(source: Datenquelle): string {
-  const feste = artFuer(source.kind).tabellenId
+  const feste = artFuer(source.art).tabellenId
   return feste === '' ? (source.idbId ?? '') : feste
 }
 
@@ -141,7 +141,7 @@ export function bestellteFelder(
   // SoftEngine schlaegt zu jedem gelieferten Wert nach.
   const nurBenutzte = (vorne: readonly string[], gelesen: ReadonlySet<string>): string[] => {
     const codes = [...vorne]
-    for (const f of source.fields) {
+    for (const f of source.felder) {
       if (gelesen.has(f.code) && !codes.includes(f.code)) codes.push(f.code)
     }
     for (const code of gelesen) {
@@ -155,11 +155,11 @@ export function bestellteFelder(
   const index = satzNummerVon(source)
   const vorne = index === '' ? [] : [index]
 
-  if (artFuer(source.kind).felderEinzeln) {
+  if (artFuer(source.art).felderEinzeln) {
     // Ohne bekannte Verwendung bleibt es bei der ganzen Liste: eine leere
     // Bestellung waere ein stiller Ausfall.
     if (!benutzt || benutzt.size === 0) {
-      return mitSchluesseln(source.fields.map((f) => f.code)).join(',')
+      return mitSchluesseln(source.felder.map((f) => f.code)).join(',')
     }
     return nurBenutzte(vorne, benutzt).join(',')
   }
@@ -177,14 +177,14 @@ export function loopReihenfolge(sources: readonly Datenquelle[]): Datenquelle[] 
   const alleinstehend: Datenquelle[] = []
   const unterKopfsatz: Datenquelle[] = []
   for (const source of sources) {
-    if (artFuer(source.kind).kopfsatzMoeglich) unterKopfsatz.push(source)
+    if (artFuer(source.art).kopfsatzMoeglich) unterKopfsatz.push(source)
     else alleinstehend.push(source)
   }
   return [...alleinstehend, ...unterKopfsatz]
 }
 
 export function kopfsatzVon(source: Datenquelle): string {
-  if (!artFuer(source.kind).kopfsatzMoeglich) return ''
+  if (!artFuer(source.art).kopfsatzMoeglich) return ''
   return (source.kopfsatzIndex ?? '').trim()
 }
 
@@ -244,20 +244,20 @@ export function pruefeDatenquellen(
       weg('der Klarname fehlt')
       continue
     }
-    if (typeof e.kind !== 'string' || !QUELLEN_ART_KENNUNGEN.includes(e.kind as QuellenArtKennung)) {
+    if (typeof e.art !== 'string' || !QUELLEN_ART_KENNUNGEN.includes(e.art as QuellenArtKennung)) {
       weg('die Art der Datenquelle fehlt oder ist unbekannt')
       continue
     }
     // Fehlt sie, bestellte der Export einen SEFILELOOP-Eintrag mit leerer ID, und
     // SoftEngine bricht dann die ganze Loop-Liste ab.
-    if (tabellenKennungNoetig(artFuer(e.kind as QuellenArtKennung))
+    if (tabellenKennungNoetig(artFuer(e.art as QuellenArtKennung))
       && (typeof e.idbId !== 'string' || e.idbId.trim() === '')) {
       weg('die Tabellen-Kennung fehlt (z. B. IDB0001)')
       continue
     }
     const fields: Datenfeld[] = []
     let feldNr = 0
-    for (const f of Array.isArray(e.fields) ? e.fields : []) {
+    for (const f of Array.isArray(e.felder) ? e.felder : []) {
       feldNr++
       const feldWeg = (grund: string): void => {
         probleme.push({ stelle: `${stelle} · Feld ${feldNr}`, grund })
@@ -276,7 +276,7 @@ export function pruefeDatenquellen(
         feldWeg(`der Feldcode enthält „${QUELLEN_TRENNER}" und wäre damit mehrdeutig`)
         continue
       }
-      if (typeof ff.label !== 'string' || ff.label === '') {
+      if (typeof ff.name !== 'string' || ff.name === '') {
         feldWeg('dem Feld fehlt sein Klarname')
         continue
       }
@@ -287,7 +287,7 @@ export function pruefeDatenquellen(
         : undefined
       fields.push({
         code: ff.code,
-        label: ff.label,
+        name: ff.name,
         ...(zeichen === undefined ? {} : { zeichen }),
       })
     }
@@ -304,9 +304,9 @@ export function pruefeDatenquellen(
     acc.push({
       id: e.id,
       name: e.name,
-      kind: e.kind as QuellenArtKennung,
+      art: e.art as QuellenArtKennung,
       ...(typeof e.idbId === 'string' && e.idbId !== '' ? { idbId: e.idbId } : {}),
-      ...(typeof e.indexField === 'string' && e.indexField !== '' ? { indexField: e.indexField } : {}),
+      ...(typeof e.satzFeld === 'string' && e.satzFeld !== '' ? { satzFeld: e.satzFeld } : {}),
       ...(typeof e.kopfsatzIndex === 'string' && e.kopfsatzIndex !== ''
         ? { kopfsatzIndex: e.kopfsatzIndex }
         : {}),
@@ -316,7 +316,7 @@ export function pruefeDatenquellen(
         : {}),
       ...(ladeRelation ? { ladeRelation } : {}),
       ...(holWert ? { holWert } : {}),
-      fields,
+      felder: fields,
     })
   }
   return { liste: acc, probleme }

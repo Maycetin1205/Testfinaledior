@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest'
-import type { RuntimeHolWert } from './data'
+import type { LaufzeitHolWert } from './data'
 
 interface Sollantwort { wert: string; roh?: unknown; fehler?: string }
 
@@ -9,13 +9,13 @@ const gerufen: { nr: string; params: readonly string[] }[] = []
 let anstoesse = 0
 
 const RELATIONEN = [
-  { id: 'r-408', verb: 'GET_RELATION', nr: '408', params: [] },
-  { id: 'r-put', verb: 'PUT_RELATION', nr: '174', params: [] },
+  { id: 'r-408', verb: 'GET_RELATION', nr: '408', parameter: [] },
+  { id: 'r-put', verb: 'PUT_RELATION', nr: '174', parameter: [] },
 ]
 
 vi.mock('./bridge', () => ({
   meldeAnstoss: () => { anstoesse += 1 },
-  seGlobal: () => ({ FF_RELATIONS: RELATIONEN }),
+  seFenster: () => ({ FF_RELATIONS: RELATIONEN }),
 }))
 
 vi.mock('./meldung', () => ({ meldeFehler: (text: string) => { gemeldet.push(text) } }))
@@ -24,7 +24,7 @@ vi.mock('./relations', async () => {
   const original = await vi.importActual<typeof import('./relations')>('./relations')
   return {
     ...original,
-    executeRelation: (
+    relationAusfuehren: (
       template: { nr: string },
       params: readonly string[],
     ) => {
@@ -41,8 +41,8 @@ const { geholteZeilenFuer, setzeGeholteZeilenZurueck } = await import('./geholte
 
 const QUELLE = { id: 'q-adrnr', name: 'Adressnummer' }
 
-function hol(felder: readonly string[], teil: Partial<RuntimeHolWert> = {}): RuntimeHolWert {
-  return { relationId: 'r-408', params: [], felder, ...teil }
+function hol(felder: readonly string[], teil: Partial<LaufzeitHolWert> = {}): LaufzeitHolWert {
+  return { relationId: 'r-408', parameter: [], felder, ...teil }
 }
 
 function abwarten(): Promise<void> {
@@ -58,7 +58,7 @@ beforeEach(() => {
   setzeWertLaderZurueck()
 })
 
-test('die Antwort liegt unter dem Quellennamen — dort sucht rowsFor sie', async () => {
+test('die Antwort liegt unter dem Quellennamen — dort sucht zeilenAusLieferung sie', async () => {
   antworten.push({ wert: '12345' })
   holeWertQuelle(QUELLE, hol(['NUMMER']))
   await abwarten()
@@ -115,7 +115,7 @@ test('eine schreibende Relation holt keinen Wert', () => {
 test('feste Parameter gehen so hinaus, wie sie dastehen', async () => {
   antworten.push({ wert: 'ok' })
   holeWertQuelle(QUELLE, hol(['NUMMER'], {
-    params: [{ source: 'fixed', value: 'AB' }, { source: 'fixed', value: '' }],
+    parameter: [{ quelle: 'fixed', wert: 'AB' }, { quelle: 'fixed', wert: '' }],
   }))
   await abwarten()
 

@@ -63,14 +63,14 @@ export function uebernahmeFelder(
 ): UebernahmeFeld[] {
   const felder: UebernahmeFeld[] = []
   for (const source of dataSources) {
-    for (const field of source.fields) {
+    for (const field of source.felder) {
       const pl = feldPosLen(source, field.code)
       if (!pl) continue
       felder.push({
         sourceId: source.id,
         sourceName: source.name,
         code: field.code,
-        label: field.label,
+        label: field.name,
         posLen: `${pl.pos}_${pl.len}`,
       })
     }
@@ -95,16 +95,16 @@ export function feldUebernehmen(
   ziel: FeldUebernahmeZiel,
 ): FeldUebernahmeResult {
   const defaults = relationsParameterVorgabe(relation)
-  const next = relation.params.map((_, index) => ({
+  const next = relation.parameter.map((_, index) => ({
     ...(params[index] ?? defaults[index]),
   }))
   const gesetzt: UebernahmeTreffer[] = []
 
-  relation.params.forEach((param, index) => {
+  relation.parameter.forEach((param, index) => {
     const art = feldUebernahmeArt(param)
     if (ziel === 'idb' && art === 'relid') {
       const relId = relIdAusIdbId(tabellenIdVon(source))
-      next[index] = { source: 'fixed', value: relId }
+      next[index] = { quelle: 'fixed', wert: relId }
       gesetzt.push({ art, wert: relId })
       return
     }
@@ -112,10 +112,10 @@ export function feldUebernehmen(
     const posLen = feldPosLen(source, code)
     if (!posLen) return
     if (art === 'pos') {
-      next[index] = { source: 'fixed', value: posLen.pos }
+      next[index] = { quelle: 'fixed', wert: posLen.pos }
       gesetzt.push({ art, wert: posLen.pos })
     } else if (art === 'len') {
-      next[index] = { source: 'fixed', value: posLen.len }
+      next[index] = { quelle: 'fixed', wert: posLen.len }
       gesetzt.push({ art, wert: posLen.len })
     }
   })

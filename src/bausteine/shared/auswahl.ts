@@ -1,7 +1,7 @@
 // Welche Zeile gerade gewaehlt ist, je Auswahl-Geber, und wer davon erfaehrt.
 import { BAUSTEIN_ID_ATTR } from '../../kern/daten/aktionen'
 import { AUSWAHL_FOLGE_PROP, type AuswahlFolge } from '../../kern/daten/auswahlFolge'
-import { getField } from '../../softengine/data'
+import { feldLesen } from '../../softengine/data'
 import { paarListeAusAttribut } from './paarListe'
 
 export function merkmalVon(zeile: unknown): string {
@@ -129,7 +129,7 @@ const AUSWAHL_FOLGE_ATTR = AUSWAHL_FOLGE_PROP.toLowerCase()
 
 function folgenAusAttribut(el: HTMLElement): AuswahlFolge[] {
   return paarListeAusAttribut(el, AUSWAHL_FOLGE_ATTR, 'geberId')
-    .map((e) => ({ geberId: e.id, keyPairs: e.keyPairs }))
+    .map((e) => ({ geberId: e.id, paare: e.paare }))
 }
 
 // Die Bausteine, deren Auswahl dieser hier folgt. Der Filter braucht dazu die
@@ -148,15 +148,15 @@ export function zeilenNachAuswahl(
     const auswahl = auswahlFuer(folge.geberId)
     if (auswahl === undefined) continue
 
-    const aktivePaare = folge.keyPairs
-      .map((p) => ({ soll: getField(auswahl, p.fromField), toField: p.toField }))
+    const aktivePaare = folge.paare
+      .map((p) => ({ soll: feldLesen(auswahl, p.vonFeld), toField: p.nachFeld }))
       .filter((p) => p.soll !== '')
 
     if (aktivePaare.length === 0) continue
 
     gefiltert = true
     raus = raus.filter((row) =>
-      aktivePaare.every((p) => p.soll === getField(row, p.toField)),
+      aktivePaare.every((p) => p.soll === feldLesen(row, p.toField)),
     )
   }
   return { rows: raus, gefiltert }

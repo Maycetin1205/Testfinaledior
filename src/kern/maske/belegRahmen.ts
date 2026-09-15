@@ -19,7 +19,7 @@ export function rahmenNummer(roh: unknown): string {
 }
 
 export function rahmenNummerVon(tree: Maskenbaum): string {
-  return rahmenNummer(tree[WURZEL_ID]?.props[BELEG_RAHMEN_PROP])
+  return rahmenNummer(tree[WURZEL_ID]?.werte[BELEG_RAHMEN_PROP])
 }
 
 // Die zwei Dateinamen, die SoftEngine im Rahmenordner erwartet.

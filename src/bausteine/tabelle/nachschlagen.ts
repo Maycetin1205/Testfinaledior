@@ -1,7 +1,7 @@
 // Das Nachschlage-Fenster: dieselbe Flaeche fuer die Editor-Lupe und die Laufzeit-Wahl.
 import { html, render, type TemplateResult } from 'lit'
 import type { ListenBindung } from '../../kern/maske/listenBindung'
-import { getField } from '../../softengine/data'
+import { feldLesen } from '../../softengine/data'
 import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { meldeFehler } from '../../softengine/meldung'
 import { zeilenNachAuswahl } from '../shared/auswahl'
@@ -32,8 +32,8 @@ export function fensterBreiteFuer(spalten: number): number {
 // Leer heisst Automatik: eine Spalte, mit eigenem Anzeigefeld zwei.
 export const NACHSCHLAG_SPALTEN_BINDUNG: ListenBindung = {
   prop: 'nachschlagSpalten',
-  titelKey: 'titel',
-  feldKey: 'feld',
+  titelSchluessel: 'titel',
+  feldSchluessel: 'feld',
   standardTitel: STANDARD_TITEL,
   quelleProp: 'nachschlagQuelle',
 }
@@ -130,8 +130,8 @@ export function nachschlagEintraege(
   const einspaltig = nurEineSpalte(anzeigeFeld, speicherFeld)
   const gesehen = new Set<string>()
   for (const row of rows) {
-    const wert = getField(row, speicherFeld).trim()
-    const anzeige = anzeigeCode === '' ? wert : getField(row, anzeigeCode).trim()
+    const wert = feldLesen(row, speicherFeld).trim()
+    const anzeige = anzeigeCode === '' ? wert : feldLesen(row, anzeigeCode).trim()
     if (anzeige === '' && wert === '') continue
     if (einspaltig) {
       if (gesehen.has(wert)) continue
@@ -272,7 +272,7 @@ function laufzeitTabelleTpl(args: NachschlagenArgs, eintraege: readonly Eintrag[
     .bereitgestellteZeilen=${eintraege.map((e) => ({
       rohzeile: e.satz,
       zellen: eigene.length > 0
-        ? eigene.map((s) => (s.feld === '' ? '' : getField(e.satz, s.feld)))
+        ? eigene.map((s) => (s.feld === '' ? '' : feldLesen(e.satz, s.feld)))
         : (einspaltig ? [e.wert] : [e.anzeige, e.wert]),
     }))}
   ></ff-tabelle>`

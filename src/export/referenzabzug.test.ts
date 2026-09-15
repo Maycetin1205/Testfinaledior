@@ -37,9 +37,9 @@ test('Struktur und ERP-Konfiguration entsprechen der Referenz', () => {
 // Jeder Baustein einmal in einen Baum: an die Wurzel, wenn erlaubt, sonst
 // unter den ersten Typ, der ihn aufnimmt (Kanban-Spalte, Navi-Eintrag, ...).
 function alleBausteineBaum(marker: (type: string) => Record<string, unknown>): Maskenbaum {
-  const defs = [...alleBausteinArten()].sort((a, b) => a.type.localeCompare(b.type))
+  const defs = [...alleBausteinArten()].sort((a, b) => a.typ.localeCompare(b.typ))
   const tree: Maskenbaum = {
-    [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: [] },
+    [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: [] },
   }
   const instanz = new Map<string, string>()
 
@@ -47,29 +47,29 @@ function alleBausteineBaum(marker: (type: string) => Record<string, unknown>): M
     const vorhanden = instanz.get(type)
     if (vorhanden !== undefined) return vorhanden
     const id = `g-${type}`
-    const node: Baustein = { id, type, props: marker(type), parentId: WURZEL_ID, childIds: [] }
+    const node: Baustein = { id, typ: type, werte: marker(type), elternId: WURZEL_ID, kinderIds: [] }
     if (darfEnthalten(WURZEL_TYP, type)) {
-      tree[WURZEL_ID].childIds.push(id)
+      tree[WURZEL_ID].kinderIds.push(id)
     } else {
-      const elternDef = defs.find((p) => p.type !== type && darfEnthalten(p.type, type))
+      const elternDef = defs.find((p) => p.typ !== type && darfEnthalten(p.typ, type))
       if (!elternDef) throw new Error(`Baustein ${type} ist nirgends platzierbar`)
-      const elternId = platziere(elternDef.type)
-      node.parentId = elternId
-      tree[elternId].childIds.push(id)
+      const elternId = platziere(elternDef.typ)
+      node.elternId = elternId
+      tree[elternId].kinderIds.push(id)
     }
     tree[id] = node
     instanz.set(type, id)
     return id
   }
 
-  for (const def of defs) platziere(def.type)
+  for (const def of defs) platziere(def.typ)
   return tree
 }
 
 test('jeder Registry-Baustein exportiert seinen Tag', () => {
   const html = exportMask(alleBausteineBaum(() => ({})), 'Alle', [], []).html
   for (const def of alleBausteinArten()) {
-    expect(html, `Baustein ${def.type} fehlt im Export`).toContain('<' + def.tagName)
+    expect(html, `Baustein ${def.typ} fehlt im Export`).toContain('<' + def.tag)
   }
 })
 
@@ -80,21 +80,21 @@ test('eine geänderte Eigenschaft erreicht den Export als Attribut', () => {
   const LAYOUT = new Set(['width', 'height', 'rasterX', 'rasterY', 'rasterW', 'rasterH'])
   const pruefbar = new Map<string, string>()
   for (const def of alleBausteinArten()) {
-    const seitenProps = new Set(def.customProperties
-      .filter((p) => p.kind === 'seite')
-      .flatMap((p) => [p.attributeName, p.klarnameProp ?? '']))
-    const nurEditor = new Set(def.customProperties
+    const seitenProps = new Set(def.eigenschaften
+      .filter((p) => p.art === 'seite')
+      .flatMap((p) => [p.schluessel, p.klarnameProp ?? '']))
+    const nurEditor = new Set(def.eigenschaften
       .filter((p) => p.nurImEditor === true)
-      .map((p) => p.attributeName))
-    const key = Object.keys(def.defaultProps).find((k) =>
-      typeof def.defaultProps[k] === 'string'
+      .map((p) => p.schluessel))
+    const key = Object.keys(def.vorgaben).find((k) =>
+      typeof def.vorgaben[k] === 'string'
       && !LAYOUT.has(k)
       && k !== 'source'
       && k !== WEITERE_QUELLEN_PROP
       && !k.toLowerCase().endsWith('field')
       && !seitenProps.has(k)
       && !nurEditor.has(k))
-    if (key !== undefined) pruefbar.set(def.type, key)
+    if (key !== undefined) pruefbar.set(def.typ, key)
   }
   expect(pruefbar.size, 'kaum ein Baustein hat eine pruefbare Text-Eigenschaft').toBeGreaterThan(7)
 

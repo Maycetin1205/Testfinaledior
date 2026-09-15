@@ -12,26 +12,26 @@ import {
 } from '../shared/statusVariant'
 
 export class NaviEintragBlock extends Grundbaustein {
-  static readonly blockType = 'navi-eintrag'
-  static readonly tagName = 'ff-navi-eintrag'
-  static readonly displayName = 'Navi-Eintrag'
-  static readonly category: Kategorie = 'layout'
-  static readonly acceptsChildren = false
-  static readonly showInPalette = false
-  static readonly allowedParentTypes = ['navi']
-  static readonly resizableWidth = false
-  static readonly defaultProps = {
+  static readonly typ = 'navi-eintrag'
+  static readonly tag = 'ff-navi-eintrag'
+  static readonly anzeigeName = 'Navi-Eintrag'
+  static readonly kategorie: Kategorie = 'layout'
+  static readonly nimmtKinder = false
+  static readonly inPalette = false
+  static readonly erlaubteEltern = ['navi']
+  static readonly breiteAenderbar = false
+  static readonly vorgaben = {
     seite: '',
     seitename: '',
     ton: 'info',
   }
 
-  static override readonly customProperties: Eigenschaft[] = [
+  static override readonly eigenschaften: Eigenschaft[] = [
     {
-      attributeName: 'seite',
+      schluessel: 'seite',
       name: 'Seite',
-      description: 'Welche Seite dieser Maske der Eintrag zeigt.',
-      kind: 'seite',
+      beschreibung: 'Welche Seite dieser Maske der Eintrag zeigt.',
+      art: 'seite',
       klarnameProp: 'seitename',
     },
     statusVariantProperty('ton', 'Farbe des Zeichens vor dem Namen.', 'Farbe'),

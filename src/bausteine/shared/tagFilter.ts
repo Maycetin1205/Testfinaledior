@@ -1,5 +1,5 @@
 // Die Zeilen eines Tages aus einer Quelle heraussuchen.
-import { getField } from '../../softengine/data'
+import { feldLesen } from '../../softengine/data'
 import { tagSchluessel } from './datumSchluessel'
 
 export function zeilenAmTag(
@@ -8,5 +8,5 @@ export function zeilenAmTag(
   tag: string,
 ): unknown[] {
   if (tagCode === '' || tag === '') return [...rows]
-  return rows.filter((row) => tagSchluessel(getField(row, tagCode)) === tag)
+  return rows.filter((row) => tagSchluessel(feldLesen(row, tagCode)) === tag)
 }

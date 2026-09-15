@@ -23,7 +23,7 @@ export function collectRelations(
   const visit = (node: Baustein | undefined): void => {
     if (!node) return
     for (const id of relationIdsVon(node)) add(id)
-    node.childIds.forEach((id) => visit(tree[id]))
+    node.kinderIds.forEach((id) => visit(tree[id]))
   }
   visit(tree[WURZEL_ID])
   for (const quelle of quellen) {

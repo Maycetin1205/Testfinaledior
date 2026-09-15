@@ -1,8 +1,8 @@
 // Die Positionen einer Quelle Zeile fuer Zeile per Hol-Relation holen.
 import { meldeAnstoss } from './bridge'
-import { getField, type RuntimeLadeRelation } from './data'
+import { feldLesen, type LaufzeitLadeRelation } from './data'
 import { geholteZeilenFuer, setzeGeholteZeilen } from './geholteZeilen'
-import { executeRelation, type RelationAntwort } from './relations'
+import { relationAusfuehren, type RelationAntwort } from './relations'
 import { meldeFehler } from './meldung'
 
 const MAX_POSITIONEN = 999
@@ -24,14 +24,14 @@ function leereQuelle(name: string): void {
 }
 
 async function frage(
-  lade: RuntimeLadeRelation,
+  lade: LaufzeitLadeRelation,
   schluessel: { belegart: string; belegnummer: string; jahr: string; archiv: string },
   posNr: number,
   pos: string,
   len: string,
 ): Promise<RelationAntwort> {
-  return executeRelation(
-    { id: 'relation-lader', verb: 'GET_RELATION', nr: lade.nr, params: [] },
+  return relationAusfuehren(
+    { id: 'relation-lader', verb: 'GET_RELATION', nr: lade.nr, parameter: [] },
     [
       schluessel.belegart,
       pos,
@@ -61,7 +61,7 @@ function meldeAbbruch(nr: string, posNr: number, grund: string): void {
 
 export function ladeZeilenPerRelation(
   quelle: HolQuelle,
-  lade: RuntimeLadeRelation,
+  lade: LaufzeitLadeRelation,
   geberZeile: unknown,
 ): void {
   const gen = (generationen.get(quelle.id) ?? 0) + 1
@@ -73,11 +73,11 @@ export function ladeZeilenPerRelation(
   }
 
   const schluessel = {
-    belegart: getField(geberZeile, lade.belegartFeld),
-    belegnummer: getField(geberZeile, lade.belegnummerFeld),
+    belegart: feldLesen(geberZeile, lade.belegartFeld),
+    belegnummer: feldLesen(geberZeile, lade.belegnummerFeld),
 
-    jahr: lade.jahrFeld === '' ? '' : getField(geberZeile, lade.jahrFeld),
-    archiv: lade.archivFeld === '' ? '' : getField(geberZeile, lade.archivFeld),
+    jahr: lade.jahrFeld === '' ? '' : feldLesen(geberZeile, lade.jahrFeld),
+    archiv: lade.archivFeld === '' ? '' : feldLesen(geberZeile, lade.archivFeld),
   }
 
   // Ohne Belegart und Belegnummer ist die Relation nicht zu fragen. Still
@@ -115,7 +115,7 @@ export function ladeZeilenPerRelation(
       }
       const satz = antwort.wert
 
-      if (lade.endeFelder.every((feld) => getField({ SATZ: satz }, feld) === '')) {
+      if (lade.endeFelder.every((feld) => feldLesen({ SATZ: satz }, feld) === '')) {
         endeGesehen = true
         break
       }

@@ -6,7 +6,7 @@ const verbindungen = new WeakMap<Element, () => void>()
 const aktiveSeiten = new WeakMap<Element, string>()
 
 function eintraegeVon(navi: Element): NaviEintragBlock[] {
-  return Array.from(navi.querySelectorAll(NaviEintragBlock.tagName))
+  return Array.from(navi.querySelectorAll(NaviEintragBlock.tag))
 }
 
 function wurzelVon(navi: Element): Element | null {

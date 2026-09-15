@@ -22,19 +22,19 @@ function ersteFokusStelle(wurzel: ParentNode): HTMLElement | null {
 import '../shared/DialogRahmen'
 
 export class PopupBlock extends Grundbaustein {
-  static readonly blockType = 'popup'
-  static readonly tagName = 'ff-popup'
-  static readonly displayName = 'Popup'
-  static readonly category: Kategorie = 'layout'
-  static readonly acceptsChildren = true
+  static readonly typ = 'popup'
+  static readonly tag = 'ff-popup'
+  static readonly anzeigeName = 'Popup'
+  static readonly kategorie: Kategorie = 'layout'
+  static readonly nimmtKinder = true
 
-  static readonly showInPalette = false
-  static readonly allowedParentTypes = [WURZEL_TYP]
-  static readonly pageBlock = true
+  static readonly inPalette = false
+  static readonly erlaubteEltern = [WURZEL_TYP]
+  static readonly seite = true
 
-  static readonly resizableWidth = false
-  static readonly containerHint = false
-  static readonly defaultProps = {
+  static readonly breiteAenderbar = false
+  static readonly behaelterRahmen = false
+  static readonly vorgaben = {
     name: 'Popup',
     breite: 520,
     hoehe: 380,

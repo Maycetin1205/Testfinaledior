@@ -5,7 +5,7 @@ import { END_MARKER, START_MARKER, failedChecks, validateMaskHtml } from './vali
 
 function maske(): Maskenbaum {
   return {
-    [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: [] },
+    [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: [] },
   }
 }
 

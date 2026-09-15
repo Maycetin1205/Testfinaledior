@@ -1,5 +1,5 @@
 // Der gemeinsame Anschluss eines Bausteins an den SoftEngine-Datenstrom.
-import { bootSe, hasSeData, onSeDaten } from '../../softengine/bridge'
+import { starteSe, hatSeDaten, onSeDaten } from '../../softengine/bridge'
 import { aufAuswahlHoeren } from './auswahl'
 import { aufTagHoeren } from './gewaehlterTag'
 import { verdrahteHolendeQuellen } from './holendeQuellen'
@@ -21,7 +21,7 @@ export function macheDatenAnschluss<T extends HTMLElement>(opts: {
   let angemeldet = false
 
   const hydriereAlle = (lieferung: boolean): void => {
-    if (!hasSeData()) return
+    if (!hatSeDaten()) return
     elemente.forEach((el) => { opts.hydriere(el, lieferung) })
   }
 
@@ -40,9 +40,9 @@ export function macheDatenAnschluss<T extends HTMLElement>(opts: {
 
       verdrahteHolendeQuellen()
     }
-    bootSe()
+    starteSe()
 
-    if (hasSeData()) opts.hydriere(el, false)
+    if (hatSeDaten()) opts.hydriere(el, false)
   }
 
   const disconnect = (el: T): void => {

@@ -48,7 +48,7 @@ export function RelationAuswahl({
   const sucht = suche.trim().length > 0
   const tabOptionen = RELATION_GRUPPEN.map((gruppe) => ({
     ...gruppe,
-    label: sucht ? `${gruppe.label} · ${zaehler[gruppe.value as RelationsGruppe]}` : gruppe.label,
+    label: sucht ? `${gruppe.name} · ${zaehler[gruppe.wert as RelationsGruppe]}` : gruppe.name,
   }))
   return (
     <div className="flex flex-col gap-2">

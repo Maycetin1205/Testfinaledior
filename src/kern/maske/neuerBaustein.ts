@@ -11,24 +11,24 @@ function createBlockNode(type: string, id?: string): Baustein {
   }
   return {
     id: id ?? crypto.randomUUID(),
-    type,
-    props: deepClone(def.defaultProps),
-    parentId: null,
-    childIds: [],
+    typ: type,
+    werte: deepClone(def.vorgaben),
+    elternId: null,
+    kinderIds: [],
   }
 }
 
 export function neuerTeilbaum(type: string): { nodes: Maskenbaum; rootId: string } {
   const nodes: Maskenbaum = {}
   const build = (spec: KindVorgabe, parentId: string | null): string => {
-    const node = createBlockNode(spec.type)
-    node.parentId = parentId
-    if (spec.props) node.props = { ...node.props, ...deepClone(spec.props) }
+    const node = createBlockNode(spec.typ)
+    node.elternId = parentId
+    if (spec.werte) node.werte = { ...node.werte, ...deepClone(spec.werte) }
     nodes[node.id] = node
-    const children = spec.children ?? bausteinArt(spec.type)?.defaultChildren ?? []
-    node.childIds = children.map((child) => build(child, node.id))
+    const children = spec.kinder ?? bausteinArt(spec.typ)?.kinderVorgabe ?? []
+    node.kinderIds = children.map((child) => build(child, node.id))
     return node.id
   }
-  const rootId = build({ type }, null)
+  const rootId = build({ typ: type }, null)
   return { nodes, rootId }
 }

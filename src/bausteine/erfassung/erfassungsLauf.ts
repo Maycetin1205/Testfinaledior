@@ -4,7 +4,7 @@ import {
   quellenZeilen,
   type Eintrag,
 } from '../tabelle/nachschlagen'
-import { getField } from '../../softengine/data'
+import { feldLesen } from '../../softengine/data'
 import { vorschlaegeImFensterStand } from '../tabelle/nachschlagStand'
 import { VorschlagStand, type TastenFolge } from '../shared/vorschlagStand'
 import {
@@ -73,7 +73,7 @@ export class ErfassungsLauf {
     const ziel = zielIn(umfeld, index)
     if (ziel.quelleId === '' || ziel.code === '') return ''
     const satz = this.gewaehlt.get(ziel.quelleId)
-    return satz === undefined ? '' : getField(satz, ziel.code)
+    return satz === undefined ? '' : feldLesen(satz, ziel.code)
   }
 
   rechne(umfeld: ErfassungsUmfeld): void {
@@ -123,7 +123,7 @@ export class ErfassungsLauf {
       if (satz === undefined) {
         return quellenZeilen(id) === null ? { art: 'nichtGeladen' } : { art: 'ohneSatz' }
       }
-      return this.textStand(getField(satz, code))
+      return this.textStand(feldLesen(satz, code))
     }
     const platz = spalteMitKennung(umfeld.spalten, faktor.spalte)
     if (platz === -1) return { art: 'leer' }
@@ -135,7 +135,7 @@ export class ErfassungsLauf {
     if (ziel.quelleId === '' || ziel.code === '') return { art: 'leer' }
     const satz = this.gewaehlt.get(ziel.quelleId)
     if (satz === undefined) return { art: 'leer' }
-    return this.textStand(getField(satz, ziel.code))
+    return this.textStand(feldLesen(satz, ziel.code))
   }
 
   private textStand(roh: string): FaktorStand {
@@ -254,10 +254,10 @@ export class ErfassungsLauf {
   ): string | undefined {
     if (partnerId !== '' && partnerId !== umfeld.quelleId) {
       const satz = this.gewaehlt.get(partnerId)
-      return satz === undefined ? undefined : getField(satz, feld)
+      return satz === undefined ? undefined : feldLesen(satz, feld)
     }
     const basis = this.gewaehlt.get(umfeld.quelleId)
-    if (basis !== undefined) return getField(basis, feld)
+    if (basis !== undefined) return feldLesen(basis, feld)
     for (const quelleId of verknuepfteQuellenIn(umfeld)) {
       if (quelleId === ausser || !this.vonHand.has(quelleId)) continue
       // Nur was an der Hauptquelle haengt, kann deren Felder vertreten.
@@ -266,8 +266,8 @@ export class ErfassungsLauf {
       const satz = this.gewaehlt.get(quelleId)
       if (satz === undefined) continue
       for (const paar of umfeld.paareZu(quelleId)) {
-        if (paar.fromField !== feld) continue
-        const wert = getField(satz, paar.toField)
+        if (paar.vonFeld !== feld) continue
+        const wert = feldLesen(satz, paar.nachFeld)
         if (wert !== '') return wert
       }
     }
@@ -297,8 +297,8 @@ export class ErfassungsLauf {
         const satz = this.gewaehlt.get(quelleId)
         if (satz !== undefined) {
           const passt = paare.every((p) => {
-            const soll = this.schluesselWert(umfeld, partnerId, p.fromField, quelleId)
-            return soll === undefined || (soll !== '' && soll === getField(satz, p.toField))
+            const soll = this.schluesselWert(umfeld, partnerId, p.vonFeld, quelleId)
+            return soll === undefined || (soll !== '' && soll === feldLesen(satz, p.nachFeld))
           })
           if (!passt) {
             this.setze(umfeld, quelleId, undefined)
@@ -306,7 +306,7 @@ export class ErfassungsLauf {
           }
           continue
         }
-        if (!paare.some((p) => this.schluesselWert(umfeld, partnerId, p.fromField, quelleId) !== undefined)) continue
+        if (!paare.some((p) => this.schluesselWert(umfeld, partnerId, p.vonFeld, quelleId) !== undefined)) continue
         const rows = quellenZeilen(quelleId)
         if (rows === null) continue
         const passend = this.moegliche(umfeld, quelleId, rows)

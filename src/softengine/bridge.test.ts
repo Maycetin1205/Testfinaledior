@@ -11,14 +11,14 @@ g.HTMLSelectElement = class {}
 g.document = { activeElement: null, title: 'Pruefmaske' }
 g.window = { addEventListener: () => {} }
 
-// Der 300-ms-Poll aus bootSe darf hier nie feuern — er verteilte sonst
+// Der 300-ms-Poll aus starteSe darf hier nie feuern — er verteilte sonst
 // mitten in einem Test ein zweites Mal.
 vi.useFakeTimers()
 
 let schiebe: ((raw: unknown) => void) | undefined
 g.basisHTML_REGISTER = (cb: (raw: unknown) => void) => { schiebe = cb }
 
-const { bootSe, frischeDatenAnfordern, meldeAnstoss, onSeDaten } = await import('./bridge')
+const { starteSe: starteSe, frischeDatenAnfordern, meldeAnstoss, onSeDaten } = await import('./bridge')
 
 const gerufen: string[] = []
 let wirft = false
@@ -32,7 +32,7 @@ onSeDaten(() => {
 })
 onSeDaten((lieferung) => { gerufen.push(lieferung ? 'B:lieferung' : 'B:anstoss') })
 
-bootSe()
+starteSe()
 
 function schub(marke: string): void {
   schiebe?.({ Daten: { Tabellen: { T: [{ wert: marke }] } } })

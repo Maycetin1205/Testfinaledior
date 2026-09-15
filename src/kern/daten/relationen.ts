@@ -22,14 +22,14 @@ export interface RelationsVorlage {
 
   nr: string
 
-  params: readonly string[]
+  parameter: readonly string[]
 
-  allowExtraParams?: boolean
+  zusatzParameterErlaubt?: boolean
 }
 
 export type RelationsSyntax = Pick<
   RelationsVorlage,
-  'verb' | 'nr' | 'params' | 'allowExtraParams'
+  'verb' | 'nr' | 'parameter' | 'zusatzParameterErlaubt'
 >
 
 export const EINGEBAUTE_RELATIONEN: readonly RelationsVorlage[] = [
@@ -38,7 +38,7 @@ export const EINGEBAUTE_RELATIONEN: readonly RelationsVorlage[] = [
     name: 'Standard-Schreiben (PUT)',
     verb: 'PUT_RELATION',
     nr: '174',
-    params: ['{FELD_POS}', '{FELD_LEN}', 'L', '{PINDEX}', '{RELID}', '{VALUE}'],
+    parameter: ['{FELD_POS}', '{FELD_LEN}', 'L', '{PINDEX}', '{RELID}', '{VALUE}'],
   },
 ]
 
@@ -81,16 +81,16 @@ export function relationsSyntaxLesen(input: string): RelationsSyntax | null {
   return {
     verb: head[1].toUpperCase() as RelationsVerb,
     nr,
-    params,
-    allowExtraParams,
+    parameter: params,
+    zusatzParameterErlaubt: allowExtraParams,
   }
 }
 
 export function relationsSyntaxAlsText(
-  relation: Pick<RelationsVorlage, 'verb' | 'nr' | 'params' | 'allowExtraParams'>,
+  relation: Pick<RelationsVorlage, 'verb' | 'nr' | 'parameter' | 'zusatzParameterErlaubt'>,
 ): string {
-  const parts = [relation.nr, ...relation.params]
-  if (relation.allowExtraParams) parts.push('...')
+  const parts = [relation.nr, ...relation.parameter]
+  if (relation.zusatzParameterErlaubt) parts.push('...')
   return `${relation.verb}[${parts.join('!')}]`
 }
 
@@ -101,7 +101,7 @@ export function relationsGruppe(relation: Pick<RelationsVorlage, 'verb'>): Relat
 }
 
 export function relationPasstZurSuche(
-  relation: Pick<RelationsVorlage, 'name' | 'verb' | 'nr' | 'params' | 'allowExtraParams'>,
+  relation: Pick<RelationsVorlage, 'name' | 'verb' | 'nr' | 'parameter' | 'zusatzParameterErlaubt'>,
   query: string,
 ): boolean {
   const needle = query.trim().toLocaleLowerCase('de')
@@ -111,10 +111,10 @@ export function relationPasstZurSuche(
 }
 
 export function platzhalterEinsetzen(
-  template: Pick<RelationsVorlage, 'params'>,
+  template: Pick<RelationsVorlage, 'parameter'>,
   context: Platzhalterwerte,
 ): string[] {
-  return template.params.map((p) =>
+  return template.parameter.map((p) =>
     p.replace(/\{([A-Za-z0-9_]+)\}/g, (_, key: string) =>
       String(context[key] ?? ''),
     ),
@@ -173,7 +173,7 @@ export function pruefeRelationsVorlagen(
       weg('die Relations-Nummer fehlt')
       continue
     }
-    if (!Array.isArray(e.params) || e.params.some((p) => typeof p !== 'string')) {
+    if (!Array.isArray(e.parameter) || e.parameter.some((p) => typeof p !== 'string')) {
       weg('die Parameter-Syntax ist unbrauchbar')
       continue
     }
@@ -183,8 +183,8 @@ export function pruefeRelationsVorlagen(
       name: e.name,
       verb: e.verb as RelationsVerb,
       nr: e.nr,
-      params: [...(e.params as string[])],
-      allowExtraParams: e.allowExtraParams === true,
+      parameter: [...(e.parameter as string[])],
+      zusatzParameterErlaubt: e.zusatzParameterErlaubt === true,
     })
   }
   return { liste: acc, probleme }

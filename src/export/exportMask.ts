@@ -80,10 +80,10 @@ interface TemplateCtx {
 function spaltenIndexFuer(tree: Maskenbaum): (blockId: string, kennung: string) => string {
   return (blockId, kennung) => {
     const ziel = tree[blockId]
-    const bindung = ziel ? faehigkeit(bausteinArt(ziel.type), 'liste')?.bindung : undefined
-    const key = bindung?.kennungKey
+    const bindung = ziel ? faehigkeit(bausteinArt(ziel.typ), 'liste')?.bindung : undefined
+    const key = bindung?.kennungSchluessel
     if (!ziel || !bindung || key === undefined) return '-1'
-    return String(listeLesen(ziel.props[bindung.prop], bindung)
+    return String(listeLesen(ziel.werte[bindung.prop], bindung)
       .findIndex((eintrag) => eintrag[key] === kennung))
   }
 }
@@ -103,12 +103,12 @@ function nodeToHtml(
 
   rasterEbene = false,
 ): string {
-  const def = bausteinArt(node.type)
+  const def = bausteinArt(node.typ)
   if (!def) return ''
   const liste = faehigkeit(def, 'liste')?.bindung
 
   const pad = '  '.repeat(depth)
-  if (templateCtx && node.type === templateCtx.type) {
+  if (templateCtx && node.typ === templateCtx.type) {
     if (node.id !== templateCtx.id) return ''
     const inner = nodeToHtml(tree, node, parentDirection, depth + 1, popupName, spaltenIndex, sources, undefined, rasterEbene)
     return `${pad}<template data-ff-template>\n${inner}\n${pad}</template>`
@@ -125,15 +125,15 @@ function nodeToHtml(
   const vorschauStellen = vorschauStellenVon(node)
 
   const nurImEditor = new Set(
-    def.customProperties.filter((p) => p.nurImEditor).map((p) => p.attributeName),
+    def.eigenschaften.filter((p) => p.nurImEditor).map((p) => p.schluessel),
   )
 
   const seitenKlarname = new Map<string, string>()
-  for (const p of def.customProperties) {
-    if (p.kind === 'seite' && p.klarnameProp) seitenKlarname.set(p.klarnameProp, p.attributeName)
+  for (const p of def.eigenschaften) {
+    if (p.art === 'seite' && p.klarnameProp) seitenKlarname.set(p.klarnameProp, p.schluessel)
   }
 
-  const attrs = Object.keys(def.defaultProps)
+  const attrs = Object.keys(def.vorgaben)
     .filter((key) => !LAYOUT_ATTR_AUSNAHME.has(key))
     .map((key) => {
       if (key === AUSWAHL_FOLGE_PROP && !darfAuswahlFolgen(node)) return ''
@@ -142,14 +142,14 @@ function nodeToHtml(
       if (stilleBindungen.has(key)) return ''
 
       if (nurImEditor.has(key)) return ''
-      const standard = def.defaultProps[key]
+      const standard = def.vorgaben[key]
 
       const seitenIdProp = seitenKlarname.get(key)
       const wert = seitenIdProp !== undefined
-        ? popupName(String(node.props[seitenIdProp] ?? ''))
+        ? popupName(String(node.werte[seitenIdProp] ?? ''))
         : liste !== undefined && key === liste.prop
-          ? listeFuerExport(node.props[key] ?? standard, liste)
-          : (node.props[key] ?? standard)
+          ? listeFuerExport(node.werte[key] ?? standard, liste)
+          : (node.werte[key] ?? standard)
       const roh = vorschauStellen.has(key)
         ? vorschauRoh(node, vorschauStellen.get(key)!, sources, standard)
         : attributWert(wert)
@@ -159,35 +159,35 @@ function nodeToHtml(
     })
     .join('')
 
-  const aktionen = kettenFuerExport(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((e) => e.key), popupName, spaltenIndex)
+  const aktionen = kettenFuerExport(node.ketten, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((e) => e.schluessel), popupName, spaltenIndex)
   const aktionenAttr = aktionen ? ` data-ff-aktionen="${escapeHtmlAttr(aktionen)}"` : ''
   // Die EINE Kennung eines Bausteins in der Maske. Sie traegt, wer fuer eine
   // Kette adressierbar sein muss und wer eine Zeile gibt; alle Leser der
   // Laufzeit greifen ueber dieses Attribut.
   const adressierbar = (faehigkeit(def, 'aktionswert')?.stellen.length ?? 0) > 0
-    || gilt(faehigkeit(def, 'erfassen'), node.props)
+    || gilt(faehigkeit(def, 'erfassen'), node.werte)
     || traegtAenderungen(node)
     || traegtLoeschungen(node)
     || istAuswahlGeber(node)
   const kennungAttr = adressierbar ? ` ${BAUSTEIN_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
 
-  const fuelltAttr = rasterEbene && def.pageBlock !== true ? ' fuellt' : ''
+  const fuelltAttr = rasterEbene && def.seite !== true ? ' fuellt' : ''
 
   const seitenAttr = def.flaechenSeite === true
     ? ` data-ff-seite-id="${escapeHtmlAttr(node.id)}"`
-    : node.parentId === WURZEL_ID && !def.pageBlock && !def.maskenRand ? ' data-ff-hauptinhalt' : ''
+    : node.elternId === WURZEL_ID && !def.seite && !def.maskenRand ? ' data-ff-hauptinhalt' : ''
   const verborgenAttr = def.flaechenSeite === true ? ' hidden' : ''
-  const open = `${pad}<${def.tagName}${attrs}${aktionenAttr}${kennungAttr}${seitenAttr}${fuelltAttr}${verborgenAttr}${styleAttr(node, parentDirection, def.lockedWidth, rasterEbene, def.pageBlock === true)}>`
-  if (!def.acceptsChildren || node.childIds.length === 0) {
-    return `${open}</${def.tagName}>`
+  const open = `${pad}<${def.tag}${attrs}${aktionenAttr}${kennungAttr}${seitenAttr}${fuelltAttr}${verborgenAttr}${styleAttr(node, parentDirection, def.festeBreite, rasterEbene, def.seite === true)}>`
+  if (!def.nimmtKinder || node.kinderIds.length === 0) {
+    return `${open}</${def.tag}>`
   }
 
-  const childDirection = richtungDerKinder(def, node.props)
+  const childDirection = richtungDerKinder(def, node.werte)
 
-  const childCtx: TemplateCtx | undefined = def.templateChild
-    ? { type: def.templateChild.type, id: ersterNachfahreVomTyp(tree, node.id, def.templateChild.type) }
+  const childCtx: TemplateCtx | undefined = def.musterKind
+    ? { type: def.musterKind.type, id: ersterNachfahreVomTyp(tree, node.id, def.musterKind.type) }
     : templateCtx
-  const children = node.childIds
+  const children = node.kinderIds
     .map((id) => tree[id])
     .filter((c): c is Baustein => Boolean(c))
     // Ist dieser Knoten eine FLAECHE, liegen seine Kinder in Zellen. Gefragt
@@ -197,8 +197,8 @@ function nodeToHtml(
     .filter((html) => html !== '')
     .join('\n')
   return children === ''
-    ? `${open}</${def.tagName}>`
-    : `${open}\n${children}\n${pad}</${def.tagName}>`
+    ? `${open}</${def.tag}>`
+    : `${open}\n${children}\n${pad}</${def.tag}>`
 }
 
 export function exportMask(
@@ -215,7 +215,7 @@ export function exportMask(
   const popupName = (id: string): string => seitenNameById.get(id) ?? ''
   const spaltenIndex = spaltenIndexFuer(tree)
 
-  const blocks = (root?.childIds ?? [])
+  const blocks = (root?.kinderIds ?? [])
     .map((id) => tree[id])
     .filter((n): n is Baustein => Boolean(n))
     .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, spaltenIndex, sources, undefined, true))
@@ -243,13 +243,13 @@ export function exportMask(
       return {
         id: s.id,
         name: s.name,
-        tableId: tabellenIdVon(s),
-        indexField: satzNummerVon(s),
+        tabellenId: tabellenIdVon(s),
+        satzFeld: satzNummerVon(s),
         ...(istOffenerSatz(s) ? { offenerSatz: true } : {}),
         ...(lade
           ? { ladeRelation: { ...lade, zusatzFelder: felderHinterSchnitt(benutzteFelder.get(s.id)) } }
           : {}),
-        ...(hol ? { holWert: { ...hol, felder: s.fields.map((f) => f.code) } } : {}),
+        ...(hol ? { holWert: { ...hol, felder: s.felder.map((f) => f.code) } } : {}),
       }
     })) + ';',
   ))
@@ -259,8 +259,8 @@ export function exportMask(
       id: r.id,
       verb: r.verb,
       nr: r.nr,
-      params: r.params,
-      allowExtraParams: r.allowExtraParams === true,
+      parameter: r.parameter,
+      zusatzParameterErlaubt: r.zusatzParameterErlaubt === true,
     }))) + ';',
   ))
 
@@ -319,8 +319,8 @@ function benutzteTypen(tree: Maskenbaum): Set<string> {
   const gehe = (id: string): void => {
     const node = tree[id]
     if (!node) return
-    if (id !== WURZEL_ID) typen.add(node.type)
-    for (const kindId of node.childIds) gehe(kindId)
+    if (id !== WURZEL_ID) typen.add(node.typ)
+    for (const kindId of node.kinderIds) gehe(kindId)
   }
   gehe(WURZEL_ID)
   return typen

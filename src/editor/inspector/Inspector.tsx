@@ -27,8 +27,8 @@ function inspectorZeilen(props: Eigenschaft[]): InspectorZeile[] {
   const zeilen: InspectorZeile[] = []
   for (const p of props) {
     const letzte = zeilen[zeilen.length - 1]
-    if (p.inspectorRow && letzte?.row === p.inspectorRow) letzte.props.push(p)
-    else zeilen.push({ row: p.inspectorRow, props: [p] })
+    if (p.zeile && letzte?.row === p.zeile) letzte.props.push(p)
+    else zeilen.push({ row: p.zeile, props: [p] })
   }
   return zeilen
 }
@@ -75,13 +75,13 @@ export function Inspector() {
     )
   }
 
-  const def = bausteinArt(block.type)
+  const def = bausteinArt(block.typ)
 
   if (!def) {
     return (
       <Panel titel="Inspector">
         <p className="text-dicht text-fehler">
-          Keine Definition für Block-Typ &quot;{block.type}&quot; gefunden.
+          Keine Definition für Block-Typ &quot;{block.typ}&quot; gefunden.
         </p>
       </Panel>
     )
@@ -93,7 +93,7 @@ export function Inspector() {
 
   const propControl = (property: Eigenschaft, kompakt = false) => (
     <PropControl
-      key={property.attributeName}
+      key={property.schluessel}
       block={block}
       property={property}
       sourceInReach={sourceInReach}
@@ -109,14 +109,14 @@ export function Inspector() {
   // gewoehnlichen Ja/Nein-Schaltern, die sonst auf zwei Seiten des Trennstrichs
   // laegen.
   const dataProps = visibleProps.filter(
-    (p) => p.kind === 'field' || p.kind === 'quelle' || p.kind === 'relation',
+    (p) => p.art === 'field' || p.art === 'quelle' || p.art === 'relation',
   )
   const generalProps = visibleProps.filter((p) => !dataProps.includes(p))
 
   // Getrennt nach FORM, nicht nach Thema: ein Ja/Nein ist eine Kachel und steht
   // neben seinesgleichen, ein Wert ist eine Zeile mit Beschriftung darueber.
-  const kachelProps = generalProps.filter((p) => p.kind === 'jaNein')
-  const wertProps = generalProps.filter((p) => p.kind !== 'jaNein')
+  const kachelProps = generalProps.filter((p) => p.art === 'jaNein')
+  const wertProps = generalProps.filter((p) => p.art !== 'jaNein')
 
   const showDataSection = traegtEigeneQuelle(block) || dataProps.length > 0
 

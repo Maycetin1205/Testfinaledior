@@ -9,7 +9,7 @@ import { bausteinArt } from './registry'
 import { deepClone } from '../deepClone'
 
 function createRootNode(): Baustein {
-  return { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: [] }
+  return { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: [] }
 }
 
 export function leererBaum(): Maskenbaum {
@@ -19,7 +19,7 @@ export function leererBaum(): Maskenbaum {
 export function werteBereinigen(type: string, rawProps: Record<string, unknown>): Record<string, unknown> {
   const def = bausteinArt(type)
   if (!def) return {}
-  const next = deepClone(def.defaultProps)
+  const next = deepClone(def.vorgaben)
 
   for (const key of Object.keys(next)) {
     if (Object.prototype.hasOwnProperty.call(rawProps, key)) {
@@ -35,7 +35,7 @@ export function teilbaumIds(tree: Maskenbaum, id: string): string[] {
     const n = tree[nid]
     if (!n) return
     acc.push(nid)
-    n.childIds.forEach(rec)
+    n.kinderIds.forEach(rec)
   }
   rec(id)
   return acc

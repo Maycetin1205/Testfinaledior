@@ -34,7 +34,7 @@ function leerHinweisFuer(
 ): string {
   if (quellen.length === 0) return 'Es ist keine Datenquelle angelegt.'
   const gesehen = quellen
-    .map((q) => `${q.name} (${quellenWorte(q.kind).name}, ${q.fields.length} Felder)`)
+    .map((q) => `${q.name} (${quellenWorte(q.art).name}, ${q.felder.length} Felder)`)
     .join(' · ')
   return ziel === 'idb'
     ? `Keine Quelle mit Tabellen-Kennung. Angesehen: ${gesehen}`

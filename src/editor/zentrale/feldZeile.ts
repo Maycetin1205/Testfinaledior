@@ -30,13 +30,13 @@ export function zeileFromField(
   // Bei spaltenNamen ist der Code der Spaltenname, auch wenn er wie
   // Position_Laenge aussieht.
   const zeichen = f.zeichen === undefined ? '' : String(f.zeichen)
-  if (spaltenNamen) return { label: f.label, pos: '', len: '', rawCode: f.code, zeichen }
+  if (spaltenNamen) return { label: f.name, pos: '', len: '', rawCode: f.code, zeichen }
   const ohneVorsatz = vorsatz !== '' && f.code.startsWith(vorsatz)
     ? f.code.slice(vorsatz.length)
     : f.code
   const pl = feldCodeZerlegen(ohneVorsatz)
   return {
-    label: f.label,
+    label: f.name,
     pos: pl?.pos ?? '',
     len: pl?.len ?? '',
     rawCode: pl ? '' : f.code,

@@ -48,34 +48,34 @@ interface FeldBindungArgs {
 }
 
 function pickerGruppen(quellen: readonly QuelleInReichweite[]): PickerGruppe[] {
-  const erste = quellen[0]?.source
+  const erste = quellen[0]?.quelle
   return quellen.map((q, i) => (i === 0
     ? {
         quelleId: '',
-        name: q.source.name,
-        kennung: quellenKennung(q.source),
-        fields: q.source.fields,
+        name: q.quelle.name,
+        kennung: quellenKennung(q.quelle),
+        fields: q.quelle.felder,
       }
     : {
-        quelleId: q.source.id,
-        name: q.source.name,
-        kennung: quellenKennung(q.source),
+        quelleId: q.quelle.id,
+        name: q.quelle.name,
+        kennung: quellenKennung(q.quelle),
     // Die linke Seite eines Paares gehoert der PARTNER-Quelle; sonst schlaegt der
     // Klartext im falschen Feldbestand nach und bleibt leer.
         hinweis: paarKlartext(
           q.paare ?? [],
-          q.partnerId ? quellen.find((x) => x.source.id === q.partnerId)?.source : erste,
+          q.partnerId ? quellen.find((x) => x.quelle.id === q.partnerId)?.quelle : erste,
         ),
-        fields: q.source.fields,
+        fields: q.quelle.felder,
       }))
 }
 
 function klarnameVon(wert: string, quellen: readonly QuelleInReichweite[]): string {
   const { quelleId, code } = zerlegeBindung(wert)
   const quelle = quelleId === ''
-    ? quellen[0]?.source
-    : quellen.find((q) => q.source.id === quelleId)?.source
-  return quelle?.fields.find((f) => f.code === code)?.label ?? ''
+    ? quellen[0]?.quelle
+    : quellen.find((q) => q.quelle.id === quelleId)?.quelle
+  return quelle?.felder.find((f) => f.code === code)?.name ?? ''
 }
 
 export function useFeldBindung({
@@ -131,7 +131,7 @@ export function useFeldBindung({
   // dieser Block-Eigenschaft steht, nie aus den Quellen in Reichweite.
   const quelleAusProp = listenBindung?.quelleProp === undefined
     ? undefined
-    : bibliothek.find((s) => s.id === String(block.props[listenBindung.quelleProp ?? ''] ?? ''))
+    : bibliothek.find((s) => s.id === String(block.werte[listenBindung.quelleProp ?? ''] ?? ''))
   const listenPickerHatFelder = listenBindung?.quelleProp !== undefined
     ? quelleAusProp !== undefined
     : hatAngebot
@@ -195,7 +195,7 @@ export function useFeldBindung({
 
   const eintraegeVon = (picker: PickerStand): Record<string, unknown>[] => {
     if (!listenBindung) return []
-    const ausProps = listeLesen(block.props[listenBindung.prop], listenBindung)
+    const ausProps = listeLesen(block.werte[listenBindung.prop], listenBindung)
     return ausProps.length > 0 ? ausProps : listeLesen(picker.liste, listenBindung)
   }
 
@@ -219,9 +219,9 @@ export function useFeldBindung({
     <>
       {selected && picker && hatAngebot && (
         <FieldPicker
-          spotLabel={picker.spot.label}
+          spotLabel={picker.spot.name}
           gruppen={gruppen}
-          current={bindingCode(block.props, picker.spot)}
+          current={bindingCode(block.werte, picker.spot)}
           top={picker.top}
           left={picker.left}
           quellenWahl={quellenWahl}
@@ -245,10 +245,10 @@ export function useFeldBindung({
               quelleId: '',
               name: quelleAusProp.name,
               kennung: quellenKennung(quelleAusProp),
-              fields: quelleAusProp.fields,
+              fields: quelleAusProp.felder,
             }]
           : gruppen
-        const titelJetzt = String(eintrag[listenBindung.titelKey] ?? '')
+        const titelJetzt = String(eintrag[listenBindung.titelSchluessel] ?? '')
         const standardTitel = listenStandardTitel(listenBindung, listenPicker.index)
         return (
           <FieldPicker
@@ -262,30 +262,30 @@ export function useFeldBindung({
               standard: standardTitel,
               onAendern: (neu) => {
                 tippSitzung.beginnen()
-                schreibeInEintrag(listenPicker, { [listenBindung.titelKey]: neu })
+                schreibeInEintrag(listenPicker, { [listenBindung.titelSchluessel]: neu })
               },
               sitzung: tippSitzung,
             }}
             weitereFelder={feldWahlenLesen(listenBindung, eintrag).map(({ wahl: fw, wert }) => ({
-              key: fw.key,
-              label: fw.label,
+              key: fw.schluessel,
+              label: fw.name,
               hinweis: fw.hinweis,
               aktuell: wert,
               nurFremdeQuellen: fw.nurFremdeQuellen,
               onWaehle: (neu) => schreibeInEintrag(
                 listenPicker,
-                { [fw.key]: neu === '' ? undefined : neu },
+                { [fw.schluessel]: neu === '' ? undefined : neu },
               ),
             }))}
             schalter={schalterFuer(listenBindung, eintrag).map((s) => ({
-              key: s.key,
-              label: s.label,
+              key: s.schluessel,
+              label: s.name,
               kurz: s.kurz,
               standard: s.standard,
               an: schalterAn(s, eintrag),
-              onSchalte: (an) => schreibeInEintrag(listenPicker, { [s.key]: an }),
+              onSchalte: (an) => schreibeInEintrag(listenPicker, { [s.schluessel]: an }),
             }))}
-            current={String(eintrag[listenBindung.feldKey] ?? '')}
+            current={String(eintrag[listenBindung.feldSchluessel] ?? '')}
             weiter={[
               ...(!eigenesFenster || suchFenster === undefined ? [] : [{
                 label: 'Suchfenster…',
@@ -309,7 +309,7 @@ export function useFeldBindung({
             onEntfernen={listenBindung.eintragWeg === undefined ? undefined : () => {
               const weg = listenBindung.eintragWeg
               if (!weg) return
-              if (!wendeProps(editor, block.id, weg(block.props, listenPicker.index))) return
+              if (!wendeProps(editor, block.id, weg(block.werte, listenPicker.index))) return
               setListenPicker(null)
             }}
             quellenWahl={proQuelle ? undefined : quellenWahl}
@@ -327,19 +327,19 @@ export function useFeldBindung({
   // geht danach jederzeit, bis zur naechsten Feldwahl. Kehrseite: wer eine Spalte
   // benannt hat und danach umbindet, muss den Namen neu tippen.
                 const klarname = (feldWert: string): string => (proQuelle
-                  ? (quelleAusProp.fields.find((f) => f.code === feldWert)?.label ?? '')
+                  ? (quelleAusProp.felder.find((f) => f.code === feldWert)?.name ?? '')
                   : klarnameVon(feldWert, quellen)) || feldWert
 
                 // Die Breite kommt vom Feld MIT, wenn es eine nennt. Nennt es
                 // keine, bleibt die Spalte, wie der Bauer sie gezogen hat: ein
                 // Feld ohne Angabe hat zur Breite keine Meinung.
                 const zeichen = proQuelle
-                  ? quelleAusProp.fields.find((f) => f.code === wert)?.zeichen
+                  ? quelleAusProp.felder.find((f) => f.code === wert)?.zeichen
                   : zeichenVon(wert, quellen)
                 const breite = breiteAusZeichen(zeichen)
 
-                ziel[listenBindung.titelKey] = wert === '' ? standardTitel : klarname(wert)
-                ziel[listenBindung.feldKey] = wert
+                ziel[listenBindung.titelSchluessel] = wert === '' ? standardTitel : klarname(wert)
+                ziel[listenBindung.feldSchluessel] = wert
                 if (breite !== undefined) ziel.breite = breite
                 editor.updateProperty(block.id, listenBindung.prop, next)
               })

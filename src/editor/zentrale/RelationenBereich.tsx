@@ -49,7 +49,7 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
   const sucht = suche.trim().length > 0
   const filterOptionen = RELATION_GRUPPEN.map((gruppe) => ({
     ...gruppe,
-    label: sucht ? `${gruppe.label} · ${zaehler[gruppe.value as RelationsGruppe]}` : gruppe.label,
+    label: sucht ? `${gruppe.name} · ${zaehler[gruppe.wert as RelationsGruppe]}` : gruppe.name,
   }))
   const auswahl = sichtbareRelationen.find((r) => r.id === auswahlId) ?? sichtbareRelationen[0]
 
@@ -145,7 +145,7 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
               <div className="overflow-hidden rounded border border-linie">
                 <table className="w-full">
                   <tbody>
-                    {auswahl.params.map((p, i) => (
+                    {auswahl.parameter.map((p, i) => (
                       <tr key={i} className="border-b border-linie last:border-b-0">
                         <td className="w-6 px-2 py-1 text-right font-mono text-dicht text-matt">
                           {i + 1}
@@ -156,7 +156,7 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
                         <td className="px-2 py-1 text-matt">{parameterBedeutung(p)}</td>
                       </tr>
                     ))}
-                    {auswahl.params.length === 0 && (
+                    {auswahl.parameter.length === 0 && (
                       <tr><td className="px-2.5 py-1 text-matt">Keine Parameter.</td></tr>
                     )}
                   </tbody>

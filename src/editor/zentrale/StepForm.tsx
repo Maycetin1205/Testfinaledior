@@ -82,14 +82,14 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
   // Memo laeuft jeder Tastendruck durch den ganzen Baum.
   const auswahlen = useMemo(() => {
     const blockValues: BlockValueOption[] = wertstellenImBaum(baum).map(({ node, spot }) => {
-      const def = bausteinArt(node.type)
+      const def = bausteinArt(node.typ)
       const name = bausteinName(node, quellen)
       const mehrereStellen = (faehigkeit(def, 'aktionswert')?.stellen.length ?? 0) > 1
       return {
         key: blockValueKey(node.id, spot.prop),
         blockId: node.id,
         prop: spot.prop,
-        label: mehrereStellen ? `${name} — ${spot.label}` : name,
+        label: mehrereStellen ? `${name} — ${spot.name}` : name,
       }
     })
     const geber = auswahlGeberOptionen(auswahlGeberImBaum(baum), quellen)
@@ -162,22 +162,22 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
   const fehlerText = entwurf.zeigeFehler ? problem ?? undefined : undefined
 
   const ausgelassen = relation
-    ? relation.params.map((_, index) => index).filter((i) => bindung(i).source === 'aus')
+    ? relation.parameter.map((_, index) => index).filter((i) => bindung(i).quelle === 'aus')
     : []
 
   const feldAusloeserAktiv = relation
-    ? relation.params.some((raw) => feldUebernahmeArt(raw) === 'pos')
-      && relation.params.some((raw) => feldUebernahmeArt(raw) === 'len')
+    ? relation.parameter.some((raw) => feldUebernahmeArt(raw) === 'pos')
+      && relation.parameter.some((raw) => feldUebernahmeArt(raw) === 'len')
     : false
 
   // Uebernommen wird als fixed-Wert: der Haken im Picker entsteht aus den
   // POS/LEN-Parametern, nicht aus einer Feld-Bindung.
   const uebernommenerWert = (art: 'pos' | 'len'): string | null => {
     if (!relation) return null
-    const index = relation.params.findIndex((raw) => feldUebernahmeArt(raw) === art)
+    const index = relation.parameter.findIndex((raw) => feldUebernahmeArt(raw) === art)
     if (index < 0) return null
     const b = bindung(index)
-    return b.source === 'fixed' && /^\d+$/.test(b.value) ? b.value : null
+    return b.quelle === 'fixed' && /^\d+$/.test(b.wert) ? b.wert : null
   }
   const uebernahmePos = uebernommenerWert('pos')
   const uebernahmeLen = uebernommenerWert('len')
@@ -200,14 +200,14 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
     if (!relation || !ziel) return
     const source = quellen.find((entry) => entry.id === sourceId)
     if (!source) return
-    const field = ziel === 'feld' ? source.fields.find((entry) => entry.code === code) : undefined
+    const field = ziel === 'feld' ? source.felder.find((entry) => entry.code === code) : undefined
     if (ziel === 'feld' && !field) return
-    const aktuelle = relation.params.map((_, index) => bindung(index))
+    const aktuelle = relation.parameter.map((_, index) => bindung(index))
     const result = feldUebernehmen(aktuelle, relation, source, code, ziel)
     dispatch({
       art: 'uebernahme',
       params: result.params,
-      meldung: uebernahmeMeldung(result.gesetzt, field?.label ?? source.name),
+      meldung: uebernahmeMeldung(result.gesetzt, field?.name ?? source.name),
     })
   }
 
@@ -225,7 +225,7 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
       <SelectControl
         label="Aktion"
         value={entwurf.typ}
-        options={SCHRITT_ARTEN.map((key) => ({ value: key, label: schrittName(key) }))}
+        options={SCHRITT_ARTEN.map((key) => ({ wert: key, name: schrittName(key) }))}
         onChange={(value) => dispatch({ art: 'typ', typ: value as SchrittArt })}
       />
 
@@ -291,8 +291,8 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
                   Groesse, halbfett, Strich DARUNTER — sonst stuenden zwei
                   Ueberschriften-Systeme in einem Formular. */}
               <Gruppe titel="Parameter">
-                {relation.params.map((raw, index) => {
-                  if (bindung(index).source === 'aus') return null
+                {relation.parameter.map((raw, index) => {
+                  if (bindung(index).quelle === 'aus') return null
                   const parameterArt = feldUebernahmeArt(raw)
                   const ausloeser = parameterArt === 'relid'
                     ? 'idb'
@@ -310,7 +310,7 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
                       entfernen={{
                         label: `Parameter ${index + 1} für diese Aktion weglassen`,
                         onClick: () =>
-                          dispatch({ art: 'bindung', index, bindung: { source: 'aus', value: '' } }),
+                          dispatch({ art: 'bindung', index, bindung: { quelle: 'aus', wert: '' } }),
                       }}
                       ausloeser={ausloeser}
                       onChange={(next) => dispatch({ art: 'bindung', index, bindung: next })}
@@ -320,7 +320,7 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
                     />
                   )
                 })}
-                {relation.params.length === 0 && (
+                {relation.parameter.length === 0 && (
                   <p className="text-ui text-matt">Keine Parameter.</p>
                 )}
                 {ausgelassen.length > 0 && (
@@ -336,9 +336,9 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
               {/* Was der Schritt wirklich hinausschickt, in einer Zeile: dieselbe
                   Syntax wie im ERP, an den offenen Stellen der Klartext der
                   Bindung. Sie haengt am Kandidaten, folgt also jeder Aenderung. */}
-              {kandidat.type === 'RELATION' && (
+              {kandidat.art === 'RELATION' && (
                 <p className="break-all font-mono text-dicht text-matt">
-                  {relationsVorschau(relation, kandidat.params, kandidat.extraParams, wahlen)}
+                  {relationsVorschau(relation, kandidat.parameter, kandidat.zusatzParameter, wahlen)}
                 </p>
               )}
               {entwurf.uebernahmeBestaetigung && (
@@ -357,7 +357,7 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
             </>
           )}
 
-          {relation?.allowExtraParams && (
+          {relation?.zusatzParameterErlaubt && (
             <Gruppe
               titel="Zusatzparameter"
               aktionen={(

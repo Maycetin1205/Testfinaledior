@@ -31,7 +31,7 @@ function feldGruppe(felder: readonly Datenfeld[], quelle?: Datenquelle): ListeGr
     key: 'felder',
     name: quelle?.name,
     kennung: quelle ? quellenKennung(quelle) : undefined,
-    eintraege: felder.map((f) => ({ wert: f.code, name: f.label, kennung: f.code })),
+    eintraege: felder.map((f) => ({ wert: f.code, name: f.name, kennung: f.code })),
   }
 }
 
@@ -67,9 +67,9 @@ export function VorigesErgebnisBindung() {
 export function TextBindung({ binding, platzhalter, onChange }: BindungsProps) {
   return (
     <Feld
-      value={binding.value}
-      placeholder={platzhalter ?? (binding.source === 'se_variable' ? 'Variablenname' : 'Wert')}
-      onChange={(e) => onChange({ ...binding, value: e.currentTarget.value })}
+      value={binding.wert}
+      placeholder={platzhalter ?? (binding.quelle === 'se_variable' ? 'Variablenname' : 'Wert')}
+      onChange={(e) => onChange({ ...binding, wert: e.currentTarget.value })}
     />
   )
 }
@@ -79,14 +79,14 @@ export function PlatzhalterBindung({ binding, onChange }: BindungsProps) {
     <PickerControl
       bezeichnung="Ereigniswert"
       gruppen={[{ key: 'platzhalter', eintraege: PLATZHALTER_EINTRAEGE }]}
-      wert={binding.value}
-      onWaehle={(wert) => onChange({ ...binding, value: wert })}
+      wert={binding.wert}
+      onWaehle={(wert) => onChange({ ...binding, wert: wert })}
     />
   )
 }
 
 export function DatenfeldBindung({ binding, wahlen, onChange }: BindungsProps) {
-  const quelle = wahlen.dataSources.find((s) => s.id === binding.dataSourceId)
+  const quelle = wahlen.dataSources.find((s) => s.id === binding.quelleId)
   return (
     <Paar>
       <PickerControl
@@ -99,57 +99,57 @@ export function DatenfeldBindung({ binding, wahlen, onChange }: BindungsProps) {
             kennung: quellenKennung(s),
           })),
         }]}
-        wert={binding.dataSourceId ?? ''}
+        wert={binding.quelleId ?? ''}
         platzhalter="— Quelle —"
-        onWaehle={(id) => onChange({ ...binding, dataSourceId: id, value: '' })}
+        onWaehle={(id) => onChange({ ...binding, quelleId: id, wert: '' })}
       />
       <PickerControl
         bezeichnung="Feld der Datenquelle"
-        gruppen={[feldGruppe(quelle?.fields ?? [], quelle)]}
-        wert={binding.value}
+        gruppen={[feldGruppe(quelle?.felder ?? [], quelle)]}
+        wert={binding.wert}
         platzhalter="— Feld —"
-        onWaehle={(code) => onChange({ ...binding, value: code })}
+        onWaehle={(code) => onChange({ ...binding, wert: code })}
       />
     </Paar>
   )
 }
 
 export function GewaehlteZeileBindung({ binding, wahlen, onChange }: BindungsProps) {
-  const gewaehlter = wahlen.geber.find((g) => g.blockId === binding.blockId)
+  const gewaehlter = wahlen.geber.find((g) => g.blockId === binding.bausteinId)
   return (
     <Paar>
       <PickerControl
         bezeichnung="Auswahl-Geber"
-        gruppen={[{ key: 'geber', eintraege: bausteinEintraege(wahlen.geber, binding.blockId) }]}
-        wert={binding.blockId ?? ''}
+        gruppen={[{ key: 'geber', eintraege: bausteinEintraege(wahlen.geber, binding.bausteinId) }]}
+        wert={binding.bausteinId ?? ''}
         platzhalter="— Baustein —"
-        onWaehle={(id) => onChange({ ...binding, blockId: id, value: '' })}
+        onWaehle={(id) => onChange({ ...binding, bausteinId: id, wert: '' })}
       />
       <PickerControl
         bezeichnung="Feld der gewählten Zeile"
         gruppen={[feldGruppe(gewaehlter?.felder ?? [])]}
-        wert={binding.value}
+        wert={binding.wert}
         platzhalter="— Feld —"
-        onWaehle={(code) => onChange({ ...binding, value: code })}
+        onWaehle={(code) => onChange({ ...binding, wert: code })}
       />
     </Paar>
   )
 }
 
 export function ZellenBindung({ binding, wahlen, onChange }: BindungsProps) {
-  const erfasst = binding.source === 'erfassungszelle'
+  const erfasst = binding.quelle === 'erfassungszelle'
   const liste = erfasst
     ? wahlen.erfassungen
-    : binding.source === 'aenderungszelle' ? wahlen.aenderungen : wahlen.loeschungen
-  const tabelle = liste.find((t) => t.blockId === binding.blockId)
+    : binding.quelle === 'aenderungszelle' ? wahlen.aenderungen : wahlen.loeschungen
+  const tabelle = liste.find((t) => t.blockId === binding.bausteinId)
   return (
     <Paar>
       <PickerControl
         bezeichnung="Erfassung"
-        gruppen={[{ key: 'tabellen', eintraege: bausteinEintraege(liste, binding.blockId) }]}
-        wert={binding.blockId ?? ''}
+        gruppen={[{ key: 'tabellen', eintraege: bausteinEintraege(liste, binding.bausteinId) }]}
+        wert={binding.bausteinId ?? ''}
         platzhalter="— Erfassung —"
-        onWaehle={(id) => onChange({ ...binding, blockId: id, value: '' })}
+        onWaehle={(id) => onChange({ ...binding, bausteinId: id, wert: '' })}
       />
       <PickerControl
         bezeichnung={erfasst ? 'Spalte der Erfassungszeile' : 'Spalte der Zeile'}
@@ -160,17 +160,17 @@ export function ZellenBindung({ binding, wahlen, onChange }: BindungsProps) {
             name: s.titel,
           })),
         }]}
-        wert={binding.value}
+        wert={binding.wert}
         platzhalter="— Spalte —"
-        onWaehle={(kennung) => onChange({ ...binding, value: kennung })}
+        onWaehle={(kennung) => onChange({ ...binding, wert: kennung })}
       />
     </Paar>
   )
 }
 
 export function BausteinBindung({ binding, wahlen, onChange }: BindungsProps) {
-  const aktuell = binding.blockId !== undefined && binding.blockId !== ''
-    ? blockValueKey(binding.blockId, binding.value)
+  const aktuell = binding.bausteinId !== undefined && binding.bausteinId !== ''
+    ? blockValueKey(binding.bausteinId, binding.wert)
     : ''
   return (
     <PickerControl
@@ -184,17 +184,17 @@ export function BausteinBindung({ binding, wahlen, onChange }: BindungsProps) {
       onWaehle={(key) => {
         const gewaehlt = wahlen.blockValues.find((option) => option.key === key)
         onChange(gewaehlt
-          ? { source: 'block_value', blockId: gewaehlt.blockId, value: gewaehlt.prop }
-          : { source: 'block_value', blockId: '', value: '' })
+          ? { quelle: 'block_value', bausteinId: gewaehlt.blockId, wert: gewaehlt.prop }
+          : { quelle: 'block_value', bausteinId: '', wert: '' })
       }}
     />
   )
 }
 
 export function SchrittErgebnisBindung({ binding, wahlen, onChange }: BindungsProps) {
-  const ziel = wahlen.schritte.find((s) => s.id === binding.value)
+  const ziel = wahlen.schritte.find((s) => s.id === binding.wert)
   const quelle = wahlen.dataSources.find((q) => q.id === ziel?.quelleId)
-  const felder = quelle?.fields ?? []
+  const felder = quelle?.felder ?? []
   const feld = binding.ergebnisFeld ?? ''
 
   const setzeFeld = (wert: string) => {
@@ -215,10 +215,10 @@ export function SchrittErgebnisBindung({ binding, wahlen, onChange }: BindungsPr
             name: `Schritt ${s.nr} — ${s.name}`,
           })),
         }]}
-        wert={binding.value}
+        wert={binding.wert}
         platzhalter={wahlen.schritte.length === 0 ? '(kein GET-Schritt davor)' : '— wählen —'}
         onWaehle={(id) => {
-          const naechste: Parameter = { ...binding, value: id }
+          const naechste: Parameter = { ...binding, wert: id }
           delete naechste.ergebnisFeld
           onChange(naechste)
         }}

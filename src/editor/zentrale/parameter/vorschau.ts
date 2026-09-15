@@ -14,10 +14,10 @@ export function relationsVorschau(
   return relationsSyntaxAlsText({
     verb: relation.verb,
     nr: relation.nr,
-    params: [...params, ...extraParams].map((binding) => bindungsText(binding, wahlen)),
+    parameter: [...params, ...extraParams].map((binding) => bindungsText(binding, wahlen)),
 
     // Kein `...` am Ende: die Zeile zeigt den Aufruf DIESES Schritts, und was
     // die Vorlage noch erlauben wuerde, geht nicht mit hinaus.
-    allowExtraParams: false,
+    zusatzParameterErlaubt: false,
   })
 }

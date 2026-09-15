@@ -20,7 +20,7 @@ export function freieZeileAuf(tree: Maskenbaum, parentId: string): number {
   return naechsteFreieZeile(
     kinderImFluss(tree, parentId)
       .filter((n) => !istRandBaustein(n))
-      .map((n) => rasterPlatzLesen(n.props)),
+      .map((n) => rasterPlatzLesen(n.werte)),
   )
 }
 
@@ -31,12 +31,12 @@ export function freiePositionFuerKopie(
 ): Baustein {
   const eltern = tree[parentId]
   if (!eltern || !istRasterFlaeche(eltern)) return kopie
-  const pos = rasterPlatzLesen(kopie.props)
+  const pos = rasterPlatzLesen(kopie.werte)
   const y = freieZeileAuf(tree, parentId)
   if (y === pos.y) return kopie
   return {
     ...kopie,
-    props: { ...kopie.props, rasterX: pos.x, rasterY: y, rasterW: pos.w, rasterH: pos.h },
+    werte: { ...kopie.werte, rasterX: pos.x, rasterY: y, rasterW: pos.w, rasterH: pos.h },
   }
 }
 
@@ -52,8 +52,8 @@ export function verschiebeInContainer(
 
   if (teilbaumIds(tree, id).includes(newParentId)) return null
 
-  if (!darfEnthalten(newParent.type, node.type)) return null
-  const oldParentId = node.parentId
+  if (!darfEnthalten(newParent.typ, node.typ)) return null
+  const oldParentId = node.elternId
   if (!oldParentId) return null
   const oldParent = tree[oldParentId]
   if (!oldParent) return null
@@ -61,23 +61,23 @@ export function verschiebeInContainer(
   const next: Maskenbaum = { ...tree }
 
   if (oldParentId === newParentId) {
-    const arr = oldParent.childIds.filter((c) => c !== id)
-    const oldIndex = oldParent.childIds.indexOf(id)
+    const arr = oldParent.kinderIds.filter((c) => c !== id)
+    const oldIndex = oldParent.kinderIds.indexOf(id)
     let target = oldIndex < index ? index - 1 : index
     target = Math.max(0, Math.min(target, arr.length))
     arr.splice(target, 0, id)
-    next[oldParentId] = { ...oldParent, childIds: arr }
+    next[oldParentId] = { ...oldParent, kinderIds: arr }
   } else {
-    next[oldParentId] = { ...oldParent, childIds: oldParent.childIds.filter((c) => c !== id) }
-    const arr = [...newParent.childIds]
+    next[oldParentId] = { ...oldParent, kinderIds: oldParent.kinderIds.filter((c) => c !== id) }
+    const arr = [...newParent.kinderIds]
     const target = Math.max(0, Math.min(index, arr.length))
     arr.splice(target, 0, id)
-    next[newParentId] = { ...newParent, childIds: arr }
-    next[id] = { ...node, parentId: newParentId }
+    next[newParentId] = { ...newParent, kinderIds: arr }
+    next[id] = { ...node, elternId: newParentId }
     if (istRasterFlaeche(newParent)) {
-      const pos = rasterPlatzLesen(node.props)
+      const pos = rasterPlatzLesen(node.werte)
       const y = freieZeileAuf(tree, newParentId)
-      next[id] = { ...next[id], props: { ...node.props, rasterX: 0, rasterY: y, rasterW: pos.w, rasterH: pos.h } }
+      next[id] = { ...next[id], werte: { ...node.werte, rasterX: 0, rasterY: y, rasterW: pos.w, rasterH: pos.h } }
     }
   }
   return next
@@ -94,33 +94,33 @@ export function zelleneinzug(
   const parent = tree[parentId]
   if (!node || !parent || id === WURZEL_ID) return null
   if (!istRasterFlaeche(parent)) return null
-  if (!darfEnthalten(parent.type, node.type)) return null
+  if (!darfEnthalten(parent.typ, node.typ)) return null
 
   if (teilbaumIds(tree, id).includes(parentId)) return null
-  const gleicheFlaeche = node.parentId === parentId
-  const cur = rasterPlatzLesen(node.props)
-  const spec = rasterMassVon(bausteinArt(node.type))
-  const w = gleicheFlaeche ? cur.w : spec.startW
-  const h = gleicheFlaeche ? cur.h : spec.startH
+  const gleicheFlaeche = node.elternId === parentId
+  const cur = rasterPlatzLesen(node.werte)
+  const spec = rasterMassVon(bausteinArt(node.typ))
+  const w = gleicheFlaeche ? cur.w : spec.startBreite
+  const h = gleicheFlaeche ? cur.h : spec.startHoehe
   const nx = Math.max(0, Math.min(x, RASTER.spalten - w))
   const ny = Math.max(0, y)
 
   if (gleicheFlaeche && nx === cur.x && ny === cur.y && w === cur.w && h === cur.h) return null
   // Ohne bekannten alten und neuen Elternteil laesst sich der Baustein nicht
   // umhaengen: Canvas und Export gehen ueber childIds, er waere verwaist.
-  if (!gleicheFlaeche && (!node.parentId || !tree[node.parentId] || !tree[parentId])) return null
+  if (!gleicheFlaeche && (!node.elternId || !tree[node.elternId] || !tree[parentId])) return null
   const next: Maskenbaum = { ...tree }
-  if (!gleicheFlaeche && node.parentId && next[node.parentId]) {
-    next[node.parentId] = {
-      ...next[node.parentId],
-      childIds: next[node.parentId].childIds.filter((c) => c !== id),
+  if (!gleicheFlaeche && node.elternId && next[node.elternId]) {
+    next[node.elternId] = {
+      ...next[node.elternId],
+      kinderIds: next[node.elternId].kinderIds.filter((c) => c !== id),
     }
-    next[parentId] = { ...next[parentId], childIds: [...next[parentId].childIds, id] }
+    next[parentId] = { ...next[parentId], kinderIds: [...next[parentId].kinderIds, id] }
   }
   next[id] = {
     ...node,
-    parentId,
-    props: { ...node.props, rasterX: nx, rasterY: ny, rasterW: w, rasterH: h },
+    elternId: parentId,
+    werte: { ...node.werte, rasterX: nx, rasterY: ny, rasterW: w, rasterH: h },
   }
   return next
 }
@@ -132,16 +132,16 @@ export function zellenGroesse(
   value: number,
 ): Maskenbaum | null {
   const node = tree[id]
-  if (!node || !node.parentId) return null
-  const parent = tree[node.parentId]
+  if (!node || !node.elternId) return null
+  const parent = tree[node.elternId]
   if (!parent || !istRasterFlaeche(parent)) return null
-  const cur = rasterPlatzLesen(node.props)
+  const cur = rasterPlatzLesen(node.werte)
   const w = achse === 'x' ? Math.max(1, Math.min(value, RASTER.spalten - cur.x)) : cur.w
   const h = achse === 'y' ? Math.max(1, value) : cur.h
   if (w === cur.w && h === cur.h) return null
   return {
     ...tree,
-    [id]: { ...node, props: { ...node.props, rasterW: w, rasterH: h } },
+    [id]: { ...node, werte: { ...node.werte, rasterW: w, rasterH: h } },
   }
 }
 
@@ -153,19 +153,19 @@ export function neuerBlockAnZelle(
   y: number,
 ): { tree: Maskenbaum; node: Baustein } | null {
   const parent = tree[parentId]
-  if (!parent || !istRasterFlaeche(parent) || !darfEnthalten(parent.type, type)) return null
+  if (!parent || !istRasterFlaeche(parent) || !darfEnthalten(parent.typ, type)) return null
   const { nodes, rootId } = neuerTeilbaum(type)
   const node = nodes[rootId]
-  node.parentId = parent.id
+  node.elternId = parent.id
   const spec = rasterMassVon(bausteinArt(type))
-  const nx = Math.max(0, Math.min(x, RASTER.spalten - spec.startW))
+  const nx = Math.max(0, Math.min(x, RASTER.spalten - spec.startBreite))
   const ny = Math.max(0, y)
-  node.props = { ...node.props, rasterX: nx, rasterY: ny, rasterW: spec.startW, rasterH: spec.startH }
+  node.werte = { ...node.werte, rasterX: nx, rasterY: ny, rasterW: spec.startBreite, rasterH: spec.startHoehe }
   return {
     tree: {
       ...tree,
       ...nodes,
-      [parent.id]: { ...parent, childIds: [...parent.childIds, node.id] },
+      [parent.id]: { ...parent, kinderIds: [...parent.kinderIds, node.id] },
     },
     node,
   }

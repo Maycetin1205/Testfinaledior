@@ -22,7 +22,7 @@ import type { BindungsStart, ParameterWahlen, QuellenEintrag } from './wahlen'
 
 // Steht nur eine Tabelle zur Wahl, ist sie gemeint.
 function einziger(liste: readonly { blockId: string }[]): BindungsStart {
-  return liste.length === 1 ? { blockId: liste[0].blockId, value: '' } : { value: '' }
+  return liste.length === 1 ? { bausteinId: liste[0].blockId, wert: '' } : { wert: '' }
 }
 
 // Was noch niemand gewaehlt hat, steht als Fragezeichen da: die Zeile soll
@@ -52,9 +52,9 @@ function spaltenTitel(
   liste: readonly { blockId: string; spalten: readonly { kennung: string; titel: string }[] }[],
   binding: Parameter,
 ): string {
-  const spalte = liste.find((e) => e.blockId === binding.blockId)
-    ?.spalten.find((s) => s.kennung === binding.value)
-  return spalte?.titel ?? gewaehlt(binding.value)
+  const spalte = liste.find((e) => e.blockId === binding.bausteinId)
+    ?.spalten.find((s) => s.kennung === binding.wert)
+  return spalte?.titel ?? gewaehlt(binding.wert)
 }
 
 // Geschluesselt ueber ALLE Quellen, `aus` eingeschlossen: das Record erzwingt
@@ -63,14 +63,14 @@ export const PARAM_QUELLEN: Record<ParameterQuelle, QuellenEintrag> = {
   fixed: {
     name: 'Fest',
     Control: TextBindung,
-    text: (b) => b.value,
+    text: (b) => b.wert,
   },
   context: {
     name: 'Ereigniswert',
     Control: PlatzhalterBindung,
-    start: () => ({ value: 'VALUE' }),
+    start: () => ({ wert: 'VALUE' }),
     text: (b) => eingeklammert(
-      PLATZHALTER_KLARTEXT[b.value]?.name ?? gewaehlt(b.value),
+      PLATZHALTER_KLARTEXT[b.wert]?.name ?? gewaehlt(b.wert),
     ),
   },
   data_field: {
@@ -79,9 +79,9 @@ export const PARAM_QUELLEN: Record<ParameterQuelle, QuellenEintrag> = {
     leer: (w) => w.dataSources.length === 0,
     text: (b, w) => eingeklammert(
       'Feld',
-      gewaehlt(b.value),
+      gewaehlt(b.wert),
       'aus',
-      gewaehlt(w.dataSources.find((q) => q.id === b.dataSourceId)?.name),
+      gewaehlt(w.dataSources.find((q) => q.id === b.quelleId)?.name),
     ),
   },
   block_value: {
@@ -89,11 +89,11 @@ export const PARAM_QUELLEN: Record<ParameterQuelle, QuellenEintrag> = {
     Control: BausteinBindung,
     leer: (w) => w.blockValues.length === 0,
     start: (w) => (w.blockValues.length === 1
-      ? { blockId: w.blockValues[0].blockId, value: w.blockValues[0].prop }
-      : { value: '' }),
+      ? { bausteinId: w.blockValues[0].blockId, wert: w.blockValues[0].prop }
+      : { wert: '' }),
     text: (b, w) => eingeklammert(
       'Baustein',
-      gewaehlt(w.blockValues.find((o) => o.key === blockValueKey(b.blockId ?? '', b.value))?.label),
+      gewaehlt(w.blockValues.find((o) => o.key === blockValueKey(b.bausteinId ?? '', b.wert))?.label),
     ),
   },
   gewaehlte_zeile: {
@@ -102,12 +102,12 @@ export const PARAM_QUELLEN: Record<ParameterQuelle, QuellenEintrag> = {
     leer: (w) => w.geber.length === 0,
     start: (w) => einziger(w.geber),
     text: (b, w) => {
-      const geber = w.geber.find((g) => g.blockId === b.blockId)
-      const feld = geber?.felder.find((f) => f.code === b.value)?.label
+      const geber = w.geber.find((g) => g.blockId === b.bausteinId)
+      const feld = geber?.felder.find((f) => f.code === b.wert)?.name
       return eingeklammert(
         'Gewählte Zeile',
-        `${bausteinLabel(w.geber, b.blockId)}:`,
-        feld ?? gewaehlt(b.value),
+        `${bausteinLabel(w.geber, b.bausteinId)}:`,
+        feld ?? gewaehlt(b.wert),
       )
     },
   },
@@ -141,9 +141,9 @@ export const PARAM_QUELLEN: Record<ParameterQuelle, QuellenEintrag> = {
     name: 'Ergebnis von Schritt',
     Control: SchrittErgebnisBindung,
     leer: (w) => w.schritte.length === 0,
-    start: (w) => ({ value: w.schritte.length === 1 ? w.schritte[0].id : '' }),
+    start: (w) => ({ wert: w.schritte.length === 1 ? w.schritte[0].id : '' }),
     text: (b, w) => {
-      const nr = w.schritte.find((s) => s.id === b.value)?.nr
+      const nr = w.schritte.find((s) => s.id === b.wert)?.nr
       const feld = b.ergebnisFeld ?? ''
       return eingeklammert(
         'Ergebnis Schritt',
@@ -155,7 +155,7 @@ export const PARAM_QUELLEN: Record<ParameterQuelle, QuellenEintrag> = {
   se_variable: {
     name: 'SE VAR-Array',
     Control: TextBindung,
-    text: (b) => eingeklammert('VAR', gewaehlt(b.value)),
+    text: (b) => eingeklammert('VAR', gewaehlt(b.wert)),
   },
   aus: {
     name: 'Weggelassen',
@@ -170,7 +170,7 @@ export function neueBindung(
   source: ParameterQuelle,
   wahlen: ParameterWahlen,
 ): Parameter {
-  return { source, ...(PARAM_QUELLEN[source].start?.(wahlen) ?? { value: '' }) }
+  return { quelle: source, ...(PARAM_QUELLEN[source].start?.(wahlen) ?? { wert: '' }) }
 }
 
 // `aus` steht nicht in der Wahl: weggelassen wird ueber das Kreuz an der Zeile.
@@ -186,7 +186,7 @@ export function herkunftsEintraege(
       name: PARAM_QUELLEN[source].name,
       deaktiviert: PARAM_QUELLEN[source].leer?.(wahlen) ?? false,
     }))
-  if (binding.source === 'aus') {
+  if (binding.quelle === 'aus') {
     eintraege.push({ wert: 'aus', name: PARAM_QUELLEN.aus.name, deaktiviert: true })
   }
   return eintraege
@@ -196,5 +196,5 @@ export function bindungsText(
   binding: Parameter,
   wahlen: ParameterWahlen,
 ): string {
-  return PARAM_QUELLEN[binding.source].text(binding, wahlen)
+  return PARAM_QUELLEN[binding.quelle].text(binding, wahlen)
 }

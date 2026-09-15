@@ -1,6 +1,6 @@
 // Warum eine gebundene Stelle leer bleibt, in Worten fuer den Bediener.
 import { zerlegeBindung } from '../../kern/maske/bausteinArt'
-import { getField, type RuntimeDataSource } from '../../softengine/data'
+import { feldLesen, type LaufzeitQuelle } from '../../softengine/data'
 import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { ersteZeileNachAuswahl } from './auswahl'
 import { macheFeldLeser } from './fremdeQuellen'
@@ -18,7 +18,7 @@ export type GebundeneStelle =
     art: 'wert'
     wert: string
     zeile: unknown
-    quelle: RuntimeDataSource
+    quelle: LaufzeitQuelle
 
     quelleId: string
     reinerCode: string
@@ -38,7 +38,7 @@ export function leseGebundeneStelle(el: HTMLElement, bindungsAttr: string): Gebu
   const { quelleId, code: reinerCode } = zerlegeBindung(code)
 
   const wert = quelleId === ''
-    ? getField(zeile, reinerCode)
+    ? feldLesen(zeile, reinerCode)
     : macheFeldLeser(el)(zeile, code)
   return { art: 'wert', wert, zeile, quelle, quelleId, reinerCode }
 }

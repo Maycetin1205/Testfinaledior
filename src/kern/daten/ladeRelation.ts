@@ -50,9 +50,9 @@ export function relationNrAusEingabe(raw: string): string {
 }
 
 export function ladeRelationVon(
-  source: { kind: QuellenArtKennung; ladeRelation?: LadeRelation },
+  source: { art: QuellenArtKennung; ladeRelation?: LadeRelation },
 ): LadeRelation | null {
-  if (!artFuer(source.kind).relationLadenMoeglich) return null
+  if (!artFuer(source.art).relationLadenMoeglich) return null
   return source.ladeRelation ?? null
 }
 

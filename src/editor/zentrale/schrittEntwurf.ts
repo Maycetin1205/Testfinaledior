@@ -41,17 +41,17 @@ export function entwurfAus(
   step: Schritt | undefined,
   relationen: readonly RelationsVorlage[],
 ): SchrittEntwurf {
-  const relationStep = step?.type === 'RELATION' ? step : undefined
+  const relationStep = step?.art === 'RELATION' ? step : undefined
   const relation = vorlageVon(relationen, relationStep?.relationId)
   return {
     id: step?.id ?? crypto.randomUUID(),
-    typ: step?.type ?? 'START_TOOL',
-    toolNr: step?.type === 'START_TOOL' ? step.toolNr : '',
-    befehl: step?.type === 'BW_LINK' ? step.befehl : '',
-    popupId: step?.type === 'POPUP_OPEN' || step?.type === 'POPUP_CLOSE' ? step.popupId : '',
+    typ: step?.art ?? 'START_TOOL',
+    toolNr: step?.art === 'START_TOOL' ? step.toolNr : '',
+    befehl: step?.art === 'BW_LINK' ? step.befehl : '',
+    popupId: step?.art === 'POPUP_OPEN' || step?.art === 'POPUP_CLOSE' ? step.popupId : '',
     relationId: relationStep?.relationId ?? '',
     relationParams: anfangsParams(relationStep, relation),
-    extraParams: relationStep ? relationStep.extraParams.map((b) => ({ ...b })) : [],
+    extraParams: relationStep ? relationStep.zusatzParameter.map((b) => ({ ...b })) : [],
     suche: '',
     zeigeFehler: false,
     pickerZiel: null,
@@ -60,16 +60,16 @@ export function entwurfAus(
 }
 
 function anfangsParams(
-  step: { params: Parameter[] } | undefined,
+  step: { parameter: Parameter[] } | undefined,
   relation: RelationsVorlage | undefined,
 ): Parameter[] {
   if (!step) return []
     // Die Vorlage hat Parameter bekommen oder verloren: dann zaehlt die Vorlage,
     // nicht der alte Stand.
-  if (relation && step.params.length !== relation.params.length) {
+  if (relation && step.parameter.length !== relation.parameter.length) {
     return relationsParameterVorgabe(relation)
   }
-  return step.params.map((b) => ({ ...b }))
+  return step.parameter.map((b) => ({ ...b }))
 }
 
 export function bindungFuer(
@@ -77,7 +77,7 @@ export function bindungFuer(
   vorgaben: readonly Parameter[],
   index: number,
 ): Parameter {
-  return entwurf.relationParams[index] ?? vorgaben[index] ?? { source: 'fixed', value: '' }
+  return entwurf.relationParams[index] ?? vorgaben[index] ?? { quelle: 'fixed', wert: '' }
 }
 
 // Auf Vorlagenlaenge bringen, ohne das Getippte zu verlieren: eine Relation kann
@@ -147,7 +147,7 @@ export function schrittReducer(relationen: readonly RelationsVorlage[]) {
         return {
           ...rumpf,
           relationParams: relationsParameterVorgabe(gewaehlt),
-          extraParams: gewaehlt.allowExtraParams ? rumpf.extraParams : [],
+          extraParams: gewaehlt.zusatzParameterErlaubt ? rumpf.extraParams : [],
         }
       }
       case 'bindung': {
@@ -160,13 +160,13 @@ export function schrittReducer(relationen: readonly RelationsVorlage[]) {
         return {
           ...entwurf,
           relationParams: entwurf.relationParams.map((binding, index) =>
-            binding.source === 'aus'
-              ? vorgaben[index] ?? { source: 'fixed', value: '' }
+            binding.quelle === 'aus'
+              ? vorgaben[index] ?? { quelle: 'fixed', wert: '' }
               : binding),
         }
       }
       case 'extraHinzu':
-        return { ...entwurf, extraParams: [...entwurf.extraParams, { source: 'fixed', value: '' }] }
+        return { ...entwurf, extraParams: [...entwurf.extraParams, { quelle: 'fixed', wert: '' }] }
       case 'extraAendern':
         return {
           ...entwurf,
@@ -203,41 +203,41 @@ export function kandidatAus(
   if (typ === 'POPUP_OPEN' || typ === 'POPUP_CLOSE') {
     return {
       id,
-      type: typ,
-      resultKey: vorher?.type === typ ? vorher.resultKey : '',
+      art: typ,
+      ergebnisName: vorher?.art === typ ? vorher.ergebnisName : '',
       popupId: entwurf.popupId,
     }
   }
   if (typ === 'BW_LINK') {
     return {
       id,
-      type: 'BW_LINK',
-      resultKey: vorher?.type === 'BW_LINK' ? vorher.resultKey : '',
+      art: 'BW_LINK',
+      ergebnisName: vorher?.art === 'BW_LINK' ? vorher.ergebnisName : '',
       befehl: entwurf.befehl.trim(),
     }
   }
   if (typ === 'START_TOOL') {
-    const alt = vorher?.type === 'START_TOOL' ? vorher : undefined
+    const alt = vorher?.art === 'START_TOOL' ? vorher : undefined
     return {
       id,
-      type: 'START_TOOL',
-      resultKey: alt?.resultKey ?? '',
+      art: 'START_TOOL',
+      ergebnisName: alt?.ergebnisName ?? '',
       toolNr: entwurf.toolNr.trim(),
-      toolParams: alt ? [...alt.toolParams] : [],
+      toolParameter: alt ? [...alt.toolParameter] : [],
     }
   }
   const vorgaben = relation ? relationsParameterVorgabe(relation) : []
   return {
     id,
-    type: 'RELATION',
+    art: 'RELATION',
     relationId: entwurf.relationId,
-    params: relation
-      ? relation.params.map((_, index) => {
+    parameter: relation
+      ? relation.parameter.map((_, index) => {
           const binding = bindungFuer(entwurf, vorgaben, index)
-          return { ...binding, value: binding.value.trim() }
+          return { ...binding, value: binding.wert.trim() }
         })
       : [],
-    extraParams: entwurf.extraParams.map((b) => ({ ...b, value: b.value.trim() })),
-    resultKey: vorher?.resultKey ?? '',
+    zusatzParameter: entwurf.extraParams.map((b) => ({ ...b, value: b.wert.trim() })),
+    ergebnisName: vorher?.ergebnisName ?? '',
   }
 }

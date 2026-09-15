@@ -21,9 +21,9 @@ function Segmente({ name, description, value, options, onChange, id }: SegmentCo
       hinweis={description}
       wert={value}
       optionen={options.map((o) => ({
-        wert: o.value,
-        name: o.label,
-        zeichen: segmentIcon(o.value, { size: 13 }),
+        wert: o.wert,
+        name: o.name,
+        zeichen: segmentIcon(o.wert, { size: 13 }),
       }))}
       onWaehle={onChange}
     />

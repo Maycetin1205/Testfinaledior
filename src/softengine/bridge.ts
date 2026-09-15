@@ -1,28 +1,28 @@
 // Die Bruecke zu SoftEngine: anmelden, Pushes annehmen, den Datenstand verteilen.
-import { isRecord, messagePayload, payloadDaten, type UnknownRecord } from './data'
+import { istObjekt, nachrichtenInhalt, datenAusInhalt, type Objekt } from './data'
 
 import { meldeFehler } from './meldung'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SEDATA/selib sind
    fremde, untypisierte SoftEngine-Globals (Formen siehe Referenzmaske). */
-export function seGlobal(): any {
+export function seFenster(): any {
   return globalThis as any
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export function hasSeData(): boolean {
-  const g = seGlobal()
-  return isRecord(g.SEDATA) && isRecord(g.SEDATA.Daten)
+export function hatSeDaten(): boolean {
+  const g = seFenster()
+  return istObjekt(g.SEDATA) && istObjekt(g.SEDATA.Daten)
 }
 
 function tryInitSe(): void {
-  const g = seGlobal()
+  const g = seFenster()
   try { g.selib?.Json?.InitializeERPConnection?.() } catch { /* nicht in SE */ }
   try { if (typeof g.InitialisiereSchnittstelle === 'function') g.InitialisiereSchnittstelle() } catch { /* s.o. */ }
 }
 
 function refreshDataBasis(): void {
-  const g = seGlobal()
+  const g = seFenster()
   try { if (typeof g.ResetDataBasis === 'function') g.ResetDataBasis() } catch { /* nicht in SE */ }
   try { if (typeof g.InitialisiereDatenBasis === 'function') g.InitialisiereDatenBasis() } catch { /* s.o. */ }
 }
@@ -120,7 +120,7 @@ export function meldeAnstoss(): void {
 // nur SoftEngine selbst: ReloadInputJSON holt die Eingabedatei neu, der
 // Modul-Lebenszyklus leert bloss die eigene Seite (kontrakte.md 7).
 export function frischeDatenAnfordern(): void {
-  const g = seGlobal()
+  const g = seFenster()
   let angefordert = false
   try {
     if (typeof g.ReloadInputJSON === 'function') {
@@ -140,9 +140,9 @@ export function frischeDatenAnfordern(): void {
 // SoftEngine ruft auch dann, wenn sich nichts geaendert hat, und daran darf keine
 // hinausgeschickte Zeile verschwinden.
 function datenSindNeu(): boolean {
-  const g = seGlobal()
-  const roh = isRecord(g.SEDATA) ? g.SEDATA.Daten : undefined
-  if (!isRecord(roh)) return false
+  const g = seFenster()
+  const roh = istObjekt(g.SEDATA) ? g.SEDATA.Daten : undefined
+  if (!istObjekt(roh)) return false
   const signatur = signaturVon(roh)
   if (signatur !== '' && signatur === letzteSignatur) return false
   offeneSignatur = signatur
@@ -163,7 +163,7 @@ const SIGNATUR_GRENZE = 2_000_000
 let letzteSignatur = ''
 let offeneSignatur: string | null = null
 
-function signaturVon(daten: UnknownRecord): string {
+function signaturVon(daten: Objekt): string {
   try {
     const roh = JSON.stringify(daten)
     return roh.length > SIGNATUR_GRENZE ? '' : roh
@@ -173,13 +173,13 @@ function signaturVon(daten: UnknownRecord): string {
 }
 
 function seConsume(raw: unknown): void {
-  const daten = payloadDaten(raw)
+  const daten = datenAusInhalt(raw)
   if (!daten) {
     antwortKlingeln(raw)
     return
   }
-  const g = seGlobal()
-  if (!isRecord(g.SEDATA)) g.SEDATA = {}
+  const g = seFenster()
+  if (!istObjekt(g.SEDATA)) g.SEDATA = {}
   g.SEDATA.Daten = daten
   refreshDataBasis()
 
@@ -190,7 +190,7 @@ function seConsume(raw: unknown): void {
 }
 
 function registerSe(tries = 0): void {
-  const g = seGlobal()
+  const g = seFenster()
   if (typeof g.basisHTML_REGISTER === 'function') {
     try { g.basisHTML_SetConsoleLog?.(true, true) } catch { /* optional */ }
     try {
@@ -221,7 +221,7 @@ function registerSe(tries = 0): void {
 export const SE_FOKUS_EVENT = 'ff-se-fokus'
 
 function fokusBrueckeBauen(): void {
-  seGlobal().basisHTML_DoSetFocusToHTML = (): boolean => {
+  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
     const frage = new CustomEvent(SE_FOKUS_EVENT, { cancelable: true })
     document.dispatchEvent(frage)
     return frage.defaultPrevented
@@ -230,11 +230,11 @@ function fokusBrueckeBauen(): void {
 
 let booted = false
 
-export function bootSe(): void {
+export function starteSe(): void {
   if (booted) return
   booted = true
   tryInitSe()
-  const g = seGlobal()
+  const g = seFenster()
 
   // SoftEngines eigene Suche (Strg+F) durchsucht keine Schatten-Wurzeln und
   // meldet an jeder Maske "0 / 0".
@@ -247,14 +247,14 @@ export function bootSe(): void {
   registerSe()
 
   window.addEventListener('message', (evt) => {
-    if (typeof seGlobal().basisHTML_REGISTER === 'function') return
-    const payload = messagePayload(evt.data)
+    if (typeof seFenster().basisHTML_REGISTER === 'function') return
+    const payload = nachrichtenInhalt(evt.data)
     if (payload !== undefined) seConsume(payload)
   }, true)
   let tries = 0
   const poll = setInterval(() => {
     tries += 1
-    if (hasSeData()) {
+    if (hatSeDaten()) {
       clearInterval(poll)
       refreshDataBasis()
       klingeln(datenSindNeu())

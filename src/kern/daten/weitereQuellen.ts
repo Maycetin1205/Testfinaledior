@@ -2,14 +2,14 @@
 import type { Datenquelle } from './datenquellen'
 
 export interface SchluesselPaar {
-  fromField: string
-  toField: string
+  vonFeld: string
+  nachFeld: string
 }
 
 export const MAX_SCHLUESSELPAARE = 3
 
-export function vollstaendigePaare(traeger: { keyPairs: readonly SchluesselPaar[] }): SchluesselPaar[] {
-  return traeger.keyPairs.filter((p) => p.fromField.trim() !== '' && p.toField.trim() !== '')
+export function vollstaendigePaare(traeger: { paare: readonly SchluesselPaar[] }): SchluesselPaar[] {
+  return traeger.paare.filter((p) => p.vonFeld.trim() !== '' && p.nachFeld.trim() !== '')
 }
 
 export interface BausteinQuelle {
@@ -19,7 +19,7 @@ export interface BausteinQuelle {
   // so muessen nicht alle Quellen sternfoermig an der ersten haengen.
   partnerId: string
 
-  keyPairs: SchluesselPaar[]
+  paare: SchluesselPaar[]
 }
 
 export const WEITERE_QUELLEN_PROP = 'weitereQuellen'
@@ -42,25 +42,25 @@ export function weitereQuellenAus(roh: unknown): BausteinQuelle[] {
     if (!entry || typeof entry !== 'object') continue
     const e = entry as Record<string, unknown>
     if (typeof e.quelleId !== 'string') continue
-    const keyPairs: SchluesselPaar[] = []
-    for (const p of Array.isArray(e.keyPairs) ? e.keyPairs : []) {
+    const paare: SchluesselPaar[] = []
+    for (const p of Array.isArray(e.paare) ? e.paare : []) {
       if (!p || typeof p !== 'object') continue
       const pp = p as Record<string, unknown>
-      if (typeof pp.fromField !== 'string' || typeof pp.toField !== 'string') continue
-      keyPairs.push({ fromField: pp.fromField, toField: pp.toField })
+      if (typeof pp.vonFeld !== 'string' || typeof pp.nachFeld !== 'string') continue
+      paare.push({ vonFeld: pp.vonFeld, nachFeld: pp.nachFeld })
     }
     acc.push({
       quelleId: e.quelleId,
       // Ohne ausdruecklichen Partner verbinden die Paare mit der Hauptquelle.
       partnerId: typeof e.partnerId === 'string' ? e.partnerId : '',
-      keyPairs: keyPairs.slice(0, MAX_SCHLUESSELPAARE),
+      paare: paare.slice(0, MAX_SCHLUESSELPAARE),
     })
   }
   return acc
 }
 
 export interface QuelleInReichweite {
-  source: Datenquelle
+  quelle: Datenquelle
 
   paare?: SchluesselPaar[]
 
@@ -77,7 +77,7 @@ export function quellenAufloesen(
     ? bibliothek.find((s) => s.id === sourceId)
     : undefined
   if (!erste) return []
-  const acc: QuelleInReichweite[] = [{ source: erste }]
+  const acc: QuelleInReichweite[] = [{ quelle: erste }]
   const gesehen = new Set<string>([erste.id])
   for (const q of weitereQuellenAus(weitereRoh)) {
     if (gesehen.has(q.quelleId) || !quelleBrauchbar(q)) continue
@@ -87,7 +87,7 @@ export function quellenAufloesen(
   // Eine Quelle, die auf sich selbst zeigt, ist kein Partner: sie fiele der
   // Kettenaufloesung als Kreis vor die Fuesse.
     const partnerId = q.partnerId === source.id ? '' : q.partnerId
-    acc.push({ source, paare: vollstaendigePaare(q), partnerId })
+    acc.push({ quelle: source, paare: vollstaendigePaare(q), partnerId })
   }
   return acc
 }
@@ -97,7 +97,7 @@ export function paarKlartext(
   erste: Datenquelle | undefined,
 ): string {
   return paare
-    .map((p) => erste?.fields.find((f) => f.code === p.fromField)?.label ?? '')
+    .map((p) => erste?.felder.find((f) => f.code === p.vonFeld)?.name ?? '')
     .filter((n) => n !== '')
     .join(' + ')
 }

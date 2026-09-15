@@ -20,7 +20,7 @@ export function gestricheneKennungen(
   neu: unknown,
 ): string[] {
   const b = faehigkeit(def, 'liste')?.bindung
-  const key = b?.kennungKey
+  const key = b?.kennungSchluessel
   if (!b || key === undefined || b.prop !== attr) return []
   const kennungen = (wert: unknown): string[] => listeLesen(wert, b)
     .map((eintrag) => String(eintrag[key] ?? ''))
@@ -34,22 +34,22 @@ function schrittOhneZeiger(
   blockId: string,
   weg: ReadonlySet<string>,
 ): { schritt: Schritt; getroffen: number } | null {
-  if (schritt.type !== 'RELATION') return null
+  if (schritt.art !== 'RELATION') return null
   let getroffen = 0
   const abraeumen = (liste: Parameter[]): Parameter[] =>
     liste.map((b) => {
-      const zeigt = ZELLEN_PARAM_QUELLEN[b.source] !== undefined
-        && (b.blockId ?? '') === blockId
-        && weg.has(b.value)
+      const zeigt = ZELLEN_PARAM_QUELLEN[b.quelle] !== undefined
+        && (b.bausteinId ?? '') === blockId
+        && weg.has(b.wert)
       if (!zeigt) return b
       getroffen++
   // 'aus' ist die sichtbare Antwort: die Steuerung zeigt den Parameter
   // ausgegraut, die Laufzeit liefert ''.
-      return { source: 'aus' as const, value: '' }
+      return { quelle: 'aus' as const, wert: '' }
     })
-  const params = abraeumen(schritt.params)
-  const extraParams = abraeumen(schritt.extraParams)
-  return getroffen > 0 ? { schritt: { ...schritt, params, extraParams }, getroffen } : null
+  const params = abraeumen(schritt.parameter)
+  const extraParams = abraeumen(schritt.zusatzParameter)
+  return getroffen > 0 ? { schritt: { ...schritt, parameter: params, zusatzParameter: extraParams }, getroffen } : null
 }
 
 export interface Abgeraeumt {
@@ -73,10 +73,10 @@ export function ohneSpaltenZeiger(
   let bausteine = 0
   const next: Maskenbaum = { ...tree }
   for (const node of Object.values(tree) as Baustein[]) {
-    if (!node.events) continue
+    if (!node.ketten) continue
     const events: Record<string, Schritt[]> = {}
     let nodeGetroffen = 0
-    for (const [key, schritte] of Object.entries(node.events)) {
+    for (const [key, schritte] of Object.entries(node.ketten)) {
       events[key] = schritte.map((s) => {
         const neu = schrittOhneZeiger(s, blockId, weg)
         if (!neu) return s
@@ -85,7 +85,7 @@ export function ohneSpaltenZeiger(
       })
     }
     if (nodeGetroffen === 0) continue
-    next[node.id] = { ...node, events }
+    next[node.id] = { ...node, ketten: events }
     parameter += nodeGetroffen
     bausteine++
   }

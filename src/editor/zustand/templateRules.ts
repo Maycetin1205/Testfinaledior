@@ -7,13 +7,13 @@ import { teilbaumIds } from '../../kern/maske/baumOps'
 function owningTemplateBoardId(tree: Maskenbaum, id: string): string | undefined {
   const node = tree[id]
   if (!node) return undefined
-  let cur: Baustein | undefined = node.parentId ? tree[node.parentId] : undefined
+  let cur: Baustein | undefined = node.elternId ? tree[node.elternId] : undefined
   while (cur) {
-    const tc = bausteinArt(cur.type)?.templateChild
-    if (tc && tc.type === node.type) {
+    const tc = bausteinArt(cur.typ)?.musterKind
+    if (tc && tc.type === node.typ) {
       return ersterNachfahreVomTyp(tree, cur.id, tc.type) === id ? cur.id : undefined
     }
-    cur = cur.parentId ? tree[cur.parentId] : undefined
+    cur = cur.elternId ? tree[cur.elternId] : undefined
   }
   return undefined
 }
@@ -21,7 +21,7 @@ function owningTemplateBoardId(tree: Maskenbaum, id: string): string | undefined
 export function templateMarkFor(tree: Maskenbaum, id: string): string | undefined {
   const boardId = owningTemplateBoardId(tree, id)
   return boardId
-    ? bausteinArt(tree[boardId].type)?.templateChild?.label
+    ? bausteinArt(tree[boardId].typ)?.musterKind?.label
     : undefined
 }
 

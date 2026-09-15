@@ -14,21 +14,21 @@ import {
 } from '../shared/vormerkStand'
 
 export class ButtonBlock extends Grundbaustein {
-  static readonly blockType = 'button'
-  static readonly tagName = 'ff-button'
-  static readonly displayName = 'Schaltfläche'
-  static readonly category: Kategorie = 'eingabe'
-  static readonly defaultProps = { label: 'Schaltfläche' }
+  static readonly typ = 'button'
+  static readonly tag = 'ff-button'
+  static readonly anzeigeName = 'Schaltfläche'
+  static readonly kategorie: Kategorie = 'eingabe'
+  static readonly vorgaben = { label: 'Schaltfläche' }
 
-  static readonly resizableWidth = false
+  static readonly breiteAenderbar = false
 
   static readonly faehigkeiten: readonly Faehigkeit[] = [
-    { art: 'ereignisse', liste: [{ key: 'onClick', name: 'Klick' }] },
+    { art: 'ereignisse', liste: [{ schluessel: 'onClick', name: 'Klick' }] },
   ]
 
-  static readonly raster = { startW: 8, startH: 2, minW: 4, minH: 2 }
+  static readonly raster = { startBreite: 8, startHoehe: 2, minBreite: 4, minHoehe: 2 }
 
-  static override readonly customProperties: Eigenschaft[] = []
+  static override readonly eigenschaften: Eigenschaft[] = []
 
   static override styles = [
     Grundbaustein.styles,

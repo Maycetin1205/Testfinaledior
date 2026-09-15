@@ -16,11 +16,11 @@ test('versteckte Tabellenspalten behalten ihren Platz fuer Laufzeit-Parameter', 
   const events: Ketten = {
     onSave: [{
       id: 'schritt-1',
-      type: 'RELATION',
-      resultKey: '',
+      art: 'RELATION',
+      ergebnisName: '',
       relationId: 'relation-1',
-      params: [{ source: 'erfassungszelle', value: 'c', blockId: 'tabelle-1' }],
-      extraParams: [],
+      parameter: [{ quelle: 'erfassungszelle', wert: 'c', bausteinId: 'tabelle-1' }],
+      zusatzParameter: [],
     }],
   }
   const serialisiert = kettenFuerExport(
@@ -33,7 +33,7 @@ test('versteckte Tabellenspalten behalten ihren Platz fuer Laufzeit-Parameter', 
 
   const laufzeit = JSON.parse(serialisiert ?? '{}') as Record<
     string,
-    Array<{ params: Array<{ value: string }> }>
+    Array<{ parameter: Array<{ wert: string }> }>
   >
-  expect(laufzeit.onSave?.[0]?.params[0]?.value).toBe('2')
+  expect(laufzeit.onSave?.[0]?.parameter[0]?.wert).toBe('2')
 })

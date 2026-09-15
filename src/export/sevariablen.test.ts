@@ -15,28 +15,28 @@ function bestellung(
   return JSON.parse(baueSevariablen(used, benutzt, new Map())) as Bestellung
 }
 
-function felder(codes: readonly string[]): Datenquelle['fields'] {
-  return codes.map((code) => ({ code, label: code }))
+function felder(codes: readonly string[]): Datenquelle['felder'] {
+  return codes.map((code) => ({ code, name: code }))
 }
 
 const artikel: Datenquelle = {
-  id: 'q-art', name: 'ART', kind: 'artikelstamm', fields: felder(['18_25', '45_60']),
+  id: 'q-art', name: 'ART', art: 'artikelstamm', felder: felder(['18_25', '45_60']),
 }
 
 const positionen: Datenquelle = {
   id: 'q-pos',
   name: 'POS',
-  kind: 'belegposition',
+  art: 'belegposition',
   kopfsatzIndex: 'BEL_0_11',
-  fields: felder(['18_25', '164_8']),
+  felder: felder(['18_25', '164_8']),
 }
 
 const belegkopf: Datenquelle = {
   id: 'q-bel',
   name: 'BEL',
-  kind: 'beleg',
+  art: 'beleg',
   lieferung: 'offenerSatz',
-  fields: felder(['2_1', '3_8']),
+  felder: felder(['2_1', '3_8']),
 }
 
 // Der Grund: steht ein Kopfsatz-Loop VORNE, liefert SoftEngine aus KEINER
@@ -73,7 +73,7 @@ test('Kopfsatz und offener Satz derselben Tabelle werden EIN VAR-Eintrag', () =>
 test('dasselbe Feld zweimal bestellt wird einmal geschrieben', () => {
   const belegMitSatzschluessel: Datenquelle = {
     ...belegkopf,
-    fields: felder(['0_11', '2_1']),
+    felder: felder(['0_11', '2_1']),
   }
   const raus = bestellung([positionen, belegMitSatzschluessel])
   expect(raus.VAR).toEqual([{ ID: 'BEL', FELDER: '0_11,2_1' }])
@@ -88,8 +88,8 @@ test('ohne VAR-Bedarf fehlt der VAR-Abschnitt ganz', () => {
 const langePos: Datenquelle = {
   id: 'q-pos-lang',
   name: 'POS',
-  kind: 'belegposition',
-  fields: felder(['2_1', '3_8', '11_6', '18_25', '45_60', '164_8']),
+  art: 'belegposition',
+  felder: felder(['2_1', '3_8', '11_6', '18_25', '45_60', '164_8']),
 }
 
 test('bestellt werden nur die Felder, die die Maske liest', () => {
@@ -101,10 +101,10 @@ test('das gilt auch fuer die ERP-Abfrage', () => {
   const abfrage: Datenquelle = {
     id: 'q-api',
     name: 'Artikelstamm',
-    kind: 'erpabfrage',
+    art: 'erpabfrage',
     idbId: 'ARTIKEL.GET',
     feldVorsatz: 'ART',
-    fields: felder(['ART_1_25', 'ART_51_60', 'ART_759_10', 'ART_2035_80']),
+    felder: felder(['ART_1_25', 'ART_51_60', 'ART_759_10', 'ART_2035_80']),
   }
   const raus = bestellung([abfrage], new Map([['q-api', new Set(['ART_51_60'])]]))
   expect(raus.ERPAPICALL).toEqual([
@@ -129,7 +129,7 @@ test('ein gebundener Code ausserhalb der Feldliste kommt trotzdem mit', () => {
 // Aendern wie Loeschen schreibt ins Nichts. Still, denn ein PUT ist ein
 // Einweg-Ruf: seine Ablehnung sieht die Maske nicht.
 test('die Satznummer kommt mit, auch wenn keine Spalte an ihr haengt', () => {
-  const mitSatznummer: Datenquelle = { ...langePos, indexField: '645_10' }
+  const mitSatznummer: Datenquelle = { ...langePos, satzFeld: '645_10' }
   const raus = bestellung([mitSatznummer], new Map([['q-pos-lang', new Set(['18_25'])]]))
   expect(raus.SEFILELOOP[0]?.FELDER).toBe('645_10,18_25')
 })
@@ -146,11 +146,11 @@ test('eine Lesequelle bestellt keine Satznummer', () => {
   const lesequelle: Datenquelle = {
     id: 'q-lese',
     name: 'Artikelstamm',
-    kind: 'erpabfrage',
+    art: 'erpabfrage',
     idbId: 'ARTIKEL.GET',
     feldVorsatz: 'ART',
-    indexField: '0_10',
-    fields: felder(['ART_1_25', 'ART_51_60']),
+    satzFeld: '0_10',
+    felder: felder(['ART_1_25', 'ART_51_60']),
   }
   const raus = bestellung([lesequelle], new Map([['q-lese', new Set(['ART_51_60'])]]))
   expect(raus.ERPAPICALL[0]?.FELDER).toBe('ART_51_60')
@@ -164,9 +164,9 @@ test('„Wert per Relation" wird nicht bestellt', () => {
   const adressnummer: Datenquelle = {
     id: 'q-adrnr',
     name: 'Adressnummer',
-    kind: 'relationswert',
-    holWert: { relationId: 'r-408', params: [] },
-    fields: [{ code: 'NUMMER', label: 'Nummer' }],
+    art: 'relationswert',
+    holWert: { relationId: 'r-408', parameter: [] },
+    felder: [{ code: 'NUMMER', name: 'Nummer' }],
   }
   const raus = bestellung([adressnummer, artikel])
   expect(raus.SEFILELOOP.map((e) => e.ALIAS)).toEqual(['ART'])

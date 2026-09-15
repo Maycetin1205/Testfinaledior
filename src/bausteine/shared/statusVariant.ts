@@ -29,20 +29,20 @@ export function coerceStatusVariant(value: string): StatusVariant {
 }
 
 export function farbweltOptionen(): Wahloption[] {
-  return FARBWELTEN.map((f) => ({ value: f.wert, label: f.name, farbe: `var(${f.stark})` }))
+  return FARBWELTEN.map((f) => ({ wert: f.wert, name: f.name, farbe: `var(${f.stark})` }))
 }
 
 export function statusVariantProperty(
-  attributeName: string,
+  schluessel: string,
   description: string,
   name = 'Bedeutung',
 ): Eigenschaft {
   return {
-    attributeName,
+    schluessel,
     name,
-    description,
-    kind: 'select',
-    options: farbweltOptionen(),
+    beschreibung: description,
+    art: 'select',
+    optionen: farbweltOptionen(),
   }
 }
 

@@ -64,7 +64,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
     bausteineMitQuelle(ed.tree, id).map((n) => bausteinName(n, store.list))
 
   const unvollstaendig = (s: Datenquelle): boolean =>
-    artFuer(s.kind).felderEinzeln && s.fields.length === 0
+    artFuer(s.art).felderEinzeln && s.felder.length === 0
 
   const kennung = (s: Datenquelle): string => quellenKennung(s)
 
@@ -121,7 +121,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
             const verwendet = verwendungFor(s.id).length
             const aktiv =
               (modus === 'lesen' || modus === 'bearbeiten') && auswahl?.id === s.id
-            const Icon = ikonFuer(s.kind)
+            const Icon = ikonFuer(s.art)
             return (
               <Eintrag
                 key={s.id}
@@ -134,7 +134,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
                     {unvollstaendig(s) && (
                       <TriangleAlert size={12} className="shrink-0 text-fehler" />
                     )}
-                    <Marke technisch={false}>{quellenWorte(s.kind).name}</Marke>
+                    <Marke technisch={false}>{quellenWorte(s.art).name}</Marke>
                   </>
                 )}
                 unten={(
@@ -142,7 +142,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
                     {kennung(s) !== '' && (
                       <span className="font-mono">{kennung(s)} · </span>
                     )}
-                    {s.fields.length} Felder · {verwendet > 0 ? `verwendet von ${verwendet}` : 'nicht verwendet'}
+                    {s.felder.length} Felder · {verwendet > 0 ? `verwendet von ${verwendet}` : 'nicht verwendet'}
                   </>
                 )}
               />
@@ -179,7 +179,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
             <div>
               <h3 className="text-ui font-semibold text-tinte">{auswahl.name}</h3>
               <p className="text-matt">
-                {quellenWorte(auswahl.kind).name}
+                {quellenWorte(auswahl.art).name}
                 {kennung(auswahl) !== '' ? ` · ${kennung(auswahl)}` : ''}
               </p>
             </div>
@@ -188,15 +188,15 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
               <div className="overflow-hidden rounded border border-linie">
                 <table className="w-full">
                   <tbody>
-                    {auswahl.fields.map((f) => (
+                    {auswahl.felder.map((f) => (
                       <tr key={f.code} className="border-b border-linie last:border-b-0">
-                        <td className="px-2.5 py-1">{f.label}</td>
+                        <td className="px-2.5 py-1">{f.name}</td>
                         <td className="px-2.5 py-1 text-right font-mono text-dicht text-matt">
                           {f.code}
                         </td>
                       </tr>
                     ))}
-                    {auswahl.fields.length === 0 && (
+                    {auswahl.felder.length === 0 && (
                       <tr><td className="px-2.5 py-1 text-matt">Keine Felder.</td></tr>
                     )}
                   </tbody>

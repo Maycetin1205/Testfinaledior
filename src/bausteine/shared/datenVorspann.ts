@@ -1,12 +1,12 @@
 // Der eine Einstieg jeder Datenanzeige: Quelle finden, Zeilen holen, Feldleser bauen.
-import type { RuntimeDataSource } from '../../softengine/data'
+import type { LaufzeitQuelle } from '../../softengine/data'
 import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { macheFeldLeser, type FeldLeser } from './fremdeQuellen'
 import { gewaehlterTag } from './gewaehlterTag'
 import { zeilenAmTag } from './tagFilter'
 
 export interface DatenVorspann {
-  quelle: RuntimeDataSource
+  quelle: LaufzeitQuelle
 
   zeilen: unknown[]
 

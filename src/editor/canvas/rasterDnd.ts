@@ -62,15 +62,15 @@ function gezogeneGroesse(
   if (!parent) return null
   if (dnd.dragId !== null) {
     const node = ed.getNode(dnd.dragId)
-    if (!node || !darfEnthalten(parent.type, node.type)) return null
-    const spec = rasterMassVon(bausteinArt(node.type))
-    return { w: spec.startW, h: spec.startH }
+    if (!node || !darfEnthalten(parent.typ, node.typ)) return null
+    const spec = rasterMassVon(bausteinArt(node.typ))
+    return { w: spec.startBreite, h: spec.startHoehe }
   }
   const type = newBlockDragType(dt)
   const def = type ? bausteinArt(type) : undefined
-  if (!type || !def || !darfEnthalten(parent.type, type)) return null
+  if (!type || !def || !darfEnthalten(parent.typ, type)) return null
   const spec = rasterMassVon(def)
-  return { w: spec.startW, h: spec.startH }
+  return { w: spec.startBreite, h: spec.startHoehe }
 }
 
 export function rasterZiel(

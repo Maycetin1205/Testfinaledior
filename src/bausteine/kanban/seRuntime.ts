@@ -1,7 +1,7 @@
 // Die Tafel am SoftEngine-Datenstrom: Karten einsortieren und das Ziehen verdrahten.
 import { bindungsAttr, faehigkeit } from '../../kern/maske/faehigkeiten'
 import { alleBausteinArten } from '../../kern/maske/registry'
-import { getField, satzIndexVon } from '../../softengine/data'
+import { feldLesen, satzIndexVon } from '../../softengine/data'
 import { auswahlWiederfinden, geberIdVon, merkmalVon, waehleAuswahl } from '../shared/auswahl'
 import { macheDatenAnschluss } from '../shared/datenAnschluss'
 import { holeDatenVorspann } from '../shared/datenVorspann'
@@ -28,9 +28,9 @@ function catchColumnIndex(flags: readonly (string | null | undefined)[]): number
 
 const templates = new WeakMap<HTMLElement, HTMLElement>()
 
-const SPALTE_TAG = KanbanSpalteBlock.tagName
-const ZIMMER_TAG = KanbanZimmerBlock.tagName
-const CARD_TAG = CardBlock.tagName
+const SPALTE_TAG = KanbanSpalteBlock.tag
+const ZIMMER_TAG = KanbanZimmerBlock.tag
+const CARD_TAG = CardBlock.tag
 
 function columnsOf(board: HTMLElement): HTMLElement[] {
   return Array.from(board.children).filter(
@@ -64,7 +64,7 @@ function setzeLeerHinweise(board: HTMLElement, columns: readonly HTMLElement[]):
 }
 
 function spotsForTag(tagName: string) {
-  const def = alleBausteinArten().find((d) => d.tagName === tagName.toLowerCase())
+  const def = alleBausteinArten().find((d) => d.tag === tagName.toLowerCase())
   return faehigkeit(def, 'bindbar')?.stellen ?? []
 }
 
@@ -83,8 +83,8 @@ function zielZimmer(column: HTMLElement, row: unknown): HTMLElement | null {
   const feld = column.getAttribute('zimmerfield') ?? ''
   if (feld === '') return zimmer[0]
 
-  const werte = zimmer.map((z) => zuordnungsWert(z, KanbanZimmerBlock.defaultProps.heading))
-  const idx = columnIndexFor(getField(row, feld), werte)
+  const werte = zimmer.map((z) => zuordnungsWert(z, KanbanZimmerBlock.vorgaben.heading))
+  const idx = columnIndexFor(feldLesen(row, feld), werte)
   return idx >= 0 ? zimmer[idx] : zimmer[0]
 }
 
@@ -187,7 +187,7 @@ function hydrate(board: HTMLElement, lieferung: boolean): void {
     for (const [zi, raum] of (zimmer.length > 0 ? zimmer : [null]).entries()) {
       const id = `${si}:${zi}`
       ziele.set(id, { spalte, zimmer: raum })
-      const name = spalte.getAttribute('heading') ?? KanbanSpalteBlock.defaultProps.heading
+      const name = spalte.getAttribute('heading') ?? KanbanSpalteBlock.vorgaben.heading
       zielListe.push({ id, name: raum ? `${name} / ${raum.getAttribute('heading') ?? 'Zimmer'}` : name })
     }
   })
@@ -195,7 +195,7 @@ function hydrate(board: HTMLElement, lieferung: boolean): void {
   bedienung(board).ziele = zielListe
 
   const statusField = board.getAttribute('statusfield') ?? ''
-  const werte = columns.map((c) => zuordnungsWert(c, KanbanSpalteBlock.defaultProps.heading))
+  const werte = columns.map((c) => zuordnungsWert(c, KanbanSpalteBlock.vorgaben.heading))
   const auffang = catchColumnIndex(columns.map((c) => c.getAttribute('auffang')))
   const spots = spotsForTag(template.tagName)
   if (lieferung && stand.erwartet) stand.erwartet.angekommen = false
@@ -226,18 +226,18 @@ function hydrate(board: HTMLElement, lieferung: boolean): void {
     }
     const titel = String((card as unknown as { heading: string }).heading || 'Karte')
     card.setAttribute('aria-label', eindeutig ? titel : `${titel} – keine eindeutige Satznummer, Verschieben nicht möglich`)
-    const index = statusField === '' ? -1 : columnIndexFor(getField(row, statusField), werte)
+    const index = statusField === '' ? -1 : columnIndexFor(feldLesen(row, statusField), werte)
     const spalte = columns[index >= 0 ? index : auffang >= 0 ? auffang : 0]
     const ablage = zielZimmer(spalte, row) ?? spalte
     const liste = reihenfolge.get(ablage) ?? []
     liste.push(card)
     reihenfolge.set(ablage, liste)
     if (lieferung && stand.erwartet?.schluessel === schluessel && stand.erwartet.ziel === ablage) {
-      const statusPasst = statusField !== '' && columnIndexFor(getField(row, statusField),
-        [zuordnungsWert(spalte, KanbanSpalteBlock.defaultProps.heading)]) === 0
+      const statusPasst = statusField !== '' && columnIndexFor(feldLesen(row, statusField),
+        [zuordnungsWert(spalte, KanbanSpalteBlock.vorgaben.heading)]) === 0
       const zimmerFeld = spalte.getAttribute('zimmerfield') ?? ''
-      const zimmerPasst = ablage === spalte || (zimmerFeld !== '' && columnIndexFor(getField(row, zimmerFeld),
-        [zuordnungsWert(ablage, KanbanZimmerBlock.defaultProps.heading)]) === 0)
+      const zimmerPasst = ablage === spalte || (zimmerFeld !== '' && columnIndexFor(feldLesen(row, zimmerFeld),
+        [zuordnungsWert(ablage, KanbanZimmerBlock.vorgaben.heading)]) === 0)
       stand.erwartet.angekommen = statusPasst && zimmerPasst
     }
   }
@@ -309,8 +309,8 @@ async function verschiebe(board: HTMLElement, card: HTMLElement, spalte: HTMLEle
   try {
     const ergebnis = await runEvent(board, 'onCardDrop', {
       PINDEX: data.pindex,
-      VALUE: zuordnungsWert(spalte, KanbanSpalteBlock.defaultProps.heading),
-      ZIMMER: ablage === spalte ? '' : zuordnungsWert(ablage, KanbanZimmerBlock.defaultProps.heading),
+      VALUE: zuordnungsWert(spalte, KanbanSpalteBlock.vorgaben.heading),
+      ZIMMER: ablage === spalte ? '' : zuordnungsWert(ablage, KanbanZimmerBlock.vorgaben.heading),
     })
     if (ergebnis.abgebrochen) {
       stand.erwartet = null

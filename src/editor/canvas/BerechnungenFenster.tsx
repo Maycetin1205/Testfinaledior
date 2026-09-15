@@ -31,7 +31,7 @@ function Fenster({ blockId }: { blockId: string }) {
   const [gewaehlt, setGewaehlt] = useState<string | null>(null)
 
   const block = ed.getNode(blockId)
-  const prop = block === undefined ? undefined : faehigkeit(bausteinArt(block.type), 'rechnen')?.prop
+  const prop = block === undefined ? undefined : faehigkeit(bausteinArt(block.typ), 'rechnen')?.prop
 
   // Ist der Baustein weg (Loeschen, Undo), geht das Fenster mit.
   useEffect(() => {
@@ -39,8 +39,8 @@ function Fenster({ blockId }: { blockId: string }) {
   }, [block, prop])
   if (block === undefined || prop === undefined) return null
 
-  const berechnungen = berechnungenAus(block.props[prop])
-  const spalten: Spaltenkopf[] = coerceSpalten(block.props.spalten).map((s) => ({
+  const berechnungen = berechnungenAus(block.werte[prop])
+  const spalten: Spaltenkopf[] = coerceSpalten(block.werte.spalten).map((s) => ({
     kennung: s.kennung,
     titel: s.titel,
   }))

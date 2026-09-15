@@ -11,11 +11,11 @@ export interface SeitenEintrag {
 }
 
 export function istSeitenBaustein(node: Baustein): boolean {
-  return bausteinArt(node.type)?.pageBlock === true
+  return bausteinArt(node.typ)?.seite === true
 }
 
 export function istFlaechenSeite(node: Baustein): boolean {
-  return bausteinArt(node.type)?.flaechenSeite === true
+  return bausteinArt(node.typ)?.flaechenSeite === true
 }
 
 export function istFensterSeite(eintrag: SeitenEintrag): boolean {
@@ -38,20 +38,20 @@ export function seiteVon(tree: Maskenbaum, id: string): string {
   let cur: Baustein | undefined = tree[id]
   while (cur) {
     if (istSeitenBaustein(cur)) return cur.id
-    cur = cur.parentId ? tree[cur.parentId] : undefined
+    cur = cur.elternId ? tree[cur.elternId] : undefined
   }
   return WURZEL_ID
 }
 
 export function seitenDerMaske(tree: Maskenbaum): SeitenEintrag[] {
-  const seiten = (tree[WURZEL_ID]?.childIds ?? [])
+  const seiten = (tree[WURZEL_ID]?.kinderIds ?? [])
     .map((id) => tree[id])
     .filter((n): n is Baustein => Boolean(n) && istSeitenBaustein(n))
     .map((n) => ({
       id: n.id,
-      name: typeof n.props.name === 'string' && n.props.name !== ''
-        ? n.props.name
-        : bausteinArt(n.type)?.displayName ?? 'Seite',
+      name: typeof n.werte.name === 'string' && n.werte.name !== ''
+        ? n.werte.name
+        : bausteinArt(n.typ)?.name ?? 'Seite',
       istHauptseite: false,
       istFlaeche: istFlaechenSeite(n),
     }))
@@ -74,13 +74,13 @@ function eindeutigerSeitenName(
 }
 
 export function schreibWert(
-  def: { pageBlock?: boolean } | undefined,
+  def: { seite?: boolean } | undefined,
   seiten: readonly SeitenEintrag[],
   id: string,
   attr: string,
   wunsch: unknown,
 ): unknown {
-  if (attr !== 'name' || def?.pageBlock !== true) return wunsch
+  if (attr !== 'name' || def?.seite !== true) return wunsch
   const name = eindeutigerSeitenName(seiten, id, typeof wunsch === 'string' ? wunsch : '')
   return name === '' ? null : name
 }
@@ -88,12 +88,12 @@ export function schreibWert(
 export function klarnamenNachziehen(tree: Maskenbaum, seitenId: string, name: string): Maskenbaum {
   let next = tree
   for (const knotenId of Object.keys(tree)) {
-    for (const p of bausteinArt(next[knotenId].type)?.customProperties ?? []) {
-      if (p.kind !== 'seite' || !p.klarnameProp) continue
+    for (const p of bausteinArt(next[knotenId].typ)?.eigenschaften ?? []) {
+      if (p.art !== 'seite' || !p.klarnameProp) continue
       const aktuell = next[knotenId]
-      if (aktuell.props[p.attributeName] !== seitenId) continue
+      if (aktuell.werte[p.schluessel] !== seitenId) continue
       if (next === tree) next = { ...tree }
-      next[knotenId] = { ...aktuell, props: { ...aktuell.props, [p.klarnameProp]: name } }
+      next[knotenId] = { ...aktuell, werte: { ...aktuell.werte, [p.klarnameProp]: name } }
     }
   }
   return next
@@ -102,7 +102,7 @@ export function klarnamenNachziehen(tree: Maskenbaum, seitenId: string, name: st
 export function kinderImFluss(tree: Maskenbaum, parentId: string): Baustein[] {
   const parent = tree[parentId]
   if (!parent) return []
-  return parent.childIds
+  return parent.kinderIds
     .map((id) => tree[id])
     .filter((n): n is Baustein => Boolean(n) && !istSeitenBaustein(n))
 }

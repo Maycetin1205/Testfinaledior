@@ -115,8 +115,8 @@ export class Editor extends Subject<Editor> {
 
   addSeite(typ: string): Baustein | null {
     const def = bausteinArt(typ)
-    if (def?.pageBlock !== true) return null
-    const name = freierSeitenName(this.pages.map((p) => p.name), def.displayName)
+    if (def?.seite !== true) return null
+    const name = freierSeitenName(this.pages.map((p) => p.name), def.name)
     return this.transaktion(() => {
       const node = this.addBlock(typ, WURZEL_ID)
       if (node) {
@@ -217,18 +217,18 @@ export class Editor extends Subject<Editor> {
 
   addBlock(type: string, parentId?: string, index?: number): Baustein | null {
     const parent = this._tree[parentId ?? this.rootId]
-    if (!parent || !darfEnthalten(parent.type, type)) return null
+    if (!parent || !darfEnthalten(parent.typ, type)) return null
     this.pushHistory()
     const { nodes, rootId } = neuerTeilbaum(type)
     const node = nodes[rootId]
-    node.parentId = parent.id
+    node.elternId = parent.id
 
     if (istRasterFlaeche(parent)) {
       const spec = rasterMassVon(bausteinArt(type))
       const y = freieZeileAuf(this._tree, parent.id)
-      node.props = { ...node.props, rasterX: 0, rasterY: y, rasterW: spec.startW, rasterH: spec.startH }
+      node.werte = { ...node.werte, rasterX: 0, rasterY: y, rasterW: spec.startBreite, rasterH: spec.startHoehe }
     }
-    const childIds = [...parent.childIds]
+    const childIds = [...parent.kinderIds]
     const at = index === undefined
       ? childIds.length
       : Math.max(0, Math.min(index, childIds.length))
@@ -236,7 +236,7 @@ export class Editor extends Subject<Editor> {
     this._tree = {
       ...this._tree,
       ...nodes,
-      [parent.id]: { ...parent, childIds },
+      [parent.id]: { ...parent, kinderIds: childIds },
     }
     this._selectedId = node.id
     this.notify(this)
@@ -247,7 +247,7 @@ export class Editor extends Subject<Editor> {
     let cur: string | null | undefined = id
     while (cur) {
       if (cur === ancestorId) return true
-      cur = this._tree[cur]?.parentId
+      cur = this._tree[cur]?.elternId
     }
     return false
   }
@@ -263,9 +263,9 @@ export class Editor extends Subject<Editor> {
     for (const [key, value] of Object.entries(this._tree)) {
       if (!remove.has(key)) next[key] = value
     }
-    if (node.parentId && next[node.parentId]) {
-      const parent = next[node.parentId]
-      next[node.parentId] = { ...parent, childIds: parent.childIds.filter((c) => c !== id) }
+    if (node.elternId && next[node.elternId]) {
+      const parent = next[node.elternId]
+      next[node.elternId] = { ...parent, kinderIds: parent.kinderIds.filter((c) => c !== id) }
     }
     this._tree = next
     if (this._selectedId && remove.has(this._selectedId)) this._selectedId = null
@@ -304,24 +304,24 @@ export class Editor extends Subject<Editor> {
   updateProperty(id: string, attr: string, value: unknown): boolean {
     const node = this._tree[id]
     if (!node) return false
-    const def = bausteinArt(node.type)
+    const def = bausteinArt(node.typ)
 
     const wert = schreibWert(def, this.pages, id, attr, value)
     if (wert === null) return false
 
-    if (Object.is(node.props[attr], wert)) return true
+    if (Object.is(node.werte[attr], wert)) return true
     this.pushHistory()
     const next: Maskenbaum = {
       ...this._tree,
-      [id]: { ...node, props: { ...node.props, [attr]: wert } },
+      [id]: { ...node, werte: { ...node.werte, [attr]: wert } },
     }
 
-    const prop = def?.customProperties.find((p) => p.attributeName === attr)
-    if (prop?.exclusiveAmongSiblings && wert === 'ja' && node.parentId) {
-      for (const sibId of this._tree[node.parentId]?.childIds ?? []) {
+    const prop = def?.eigenschaften.find((p) => p.schluessel === attr)
+    if (prop?.einzigUnterGeschwistern && wert === 'ja' && node.elternId) {
+      for (const sibId of this._tree[node.elternId]?.kinderIds ?? []) {
         const sib = next[sibId]
-        if (sibId !== id && sib?.type === node.type && sib.props[attr] === 'ja') {
-          next[sibId] = { ...sib, props: { ...sib.props, [attr]: 'nein' } }
+        if (sibId !== id && sib?.typ === node.typ && sib.werte[attr] === 'ja') {
+          next[sibId] = { ...sib, werte: { ...sib.werte, [attr]: 'nein' } }
         }
       }
     }
@@ -331,7 +331,7 @@ export class Editor extends Subject<Editor> {
     const geputzt = ohneSpaltenZeiger(
       next,
       id,
-      gestricheneKennungen(def, attr, node.props[attr], wert),
+      gestricheneKennungen(def, attr, node.werte[attr], wert),
     )
     if (geputzt.parameter > 0) {
       meldungen.melde(
@@ -341,7 +341,7 @@ export class Editor extends Subject<Editor> {
       )
     }
 
-    this._tree = typeof wert === 'string' && def?.pageBlock === true && attr === 'name'
+    this._tree = typeof wert === 'string' && def?.seite === true && attr === 'name'
       ? klarnamenNachziehen(geputzt.tree, id, wert)
       : geputzt.tree
     this.notify(this)
@@ -357,8 +357,8 @@ export class Editor extends Subject<Editor> {
       if (steps.length > 0) clean[key] = steps
     }
     const next: Baustein = { ...node }
-    if (Object.keys(clean).length > 0) next.events = clean
-    else delete next.events
+    if (Object.keys(clean).length > 0) next.ketten = clean
+    else delete next.ketten
     this._tree = { ...this._tree, [id]: next }
     this.notify(this)
   }
@@ -415,7 +415,7 @@ export class Editor extends Subject<Editor> {
     this.pushHistory()
     // Die Bausteine gehen, der Name der Maske bleibt — er ist kein Baustein.
     const leer = leererBaum()
-    leer[WURZEL_ID] = { ...leer[WURZEL_ID], props: { ...this._tree[WURZEL_ID].props } }
+    leer[WURZEL_ID] = { ...leer[WURZEL_ID], werte: { ...this._tree[WURZEL_ID].werte } }
     this._tree = leer
     this._selectedId = null
     this.notify(this)

@@ -5,12 +5,12 @@ import {
   type RelationsVerb,
 } from '../kern/daten/relationen'
 import { BAUSTEIN_ID_ATTR, type Parameter } from '../kern/daten/aktionen'
-import { bootSe, onSeAntwort, seGlobal } from './bridge'
+import { starteSe, onSeAntwort, seFenster } from './bridge'
 import {
-  findRuntimeDataSource,
-  getField,
-  isRecord,
-  rowsFor,
+  quelleAusListe,
+  feldLesen,
+  istObjekt,
+  zeilenAusLieferung,
 } from './data'
 import { meldeFehler } from './meldung'
 
@@ -28,20 +28,20 @@ function fehlertext(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-export type RuntimeRelation = Pick<RelationsVorlage, 'id' | 'verb' | 'nr' | 'params'>
+export type LaufzeitRelation = Pick<RelationsVorlage, 'id' | 'verb' | 'nr' | 'parameter'>
 
-export function laufzeitRelation(id: string): RuntimeRelation | undefined {
-  return findRuntimeRelation(seGlobal().FF_RELATIONS, id)
+export function laufzeitRelation(id: string): LaufzeitRelation | undefined {
+  return relationAusListe(seFenster().FF_RELATIONS, id)
 }
 
-export function findRuntimeRelation(list: unknown, id: string): RuntimeRelation | undefined {
+export function relationAusListe(list: unknown, id: string): LaufzeitRelation | undefined {
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {
-    if (!isRecord(entry) || entry.id !== id) continue
+    if (!istObjekt(entry) || entry.id !== id) continue
     if (typeof entry.verb !== 'string' || !RELATIONS_VERBEN.includes(entry.verb as RelationsVerb)) continue
     if (typeof entry.nr !== 'string' || entry.nr === '') continue
-    if (!Array.isArray(entry.params) || entry.params.some((p) => typeof p !== 'string')) continue
-    return { id, verb: entry.verb as RelationsVerb, nr: entry.nr, params: entry.params as string[] }
+    if (!Array.isArray(entry.parameter) || entry.parameter.some((p) => typeof p !== 'string')) continue
+    return { id, verb: entry.verb as RelationsVerb, nr: entry.nr, parameter: entry.parameter as string[] }
   }
   return undefined
 }
@@ -78,7 +78,7 @@ function firstScalar(value: unknown, depth: number): string | undefined {
     }
     return undefined
   }
-  if (!isRecord(value)) return undefined
+  if (!istObjekt(value)) return undefined
   for (const key of RESULT_KEYS) {
     if (!(key in value)) continue
     const found = firstScalar(value[key], depth + 1)
@@ -91,9 +91,9 @@ function firstScalar(value: unknown, depth: number): string | undefined {
   return undefined
 }
 
-export function extractRelationResult(raw: unknown): string | undefined {
+export function ergebnisAusAntwort(raw: unknown): string | undefined {
   const value = parsed(raw)
-  if (!isRecord(value)) return undefined
+  if (!istObjekt(value)) return undefined
   for (const key of RESULT_KEYS) {
     if (!(key in value)) continue
     const found = firstScalar(value[key], 0)
@@ -108,11 +108,11 @@ export function extractRelationResult(raw: unknown): string | undefined {
   for (const entry of Object.values(value)) {
     if (Array.isArray(entry)) {
       for (const item of entry) {
-        const found = extractRelationResult(item)
+        const found = ergebnisAusAntwort(item)
         if (found !== undefined) return found
       }
-    } else if (isRecord(entry)) {
-      const found = extractRelationResult(entry)
+    } else if (istObjekt(entry)) {
+      const found = ergebnisAusAntwort(entry)
       if (found !== undefined) return found
     }
   }
@@ -129,7 +129,7 @@ function extractSatzAntwort(raw: unknown, tiefe = 0): string | undefined {
     }
     return undefined
   }
-  if (!isRecord(value)) return undefined
+  if (!istObjekt(value)) return undefined
   for (const key of SATZ_SCHLUESSEL) {
     const wert = value[key]
     if (typeof wert === 'string') return wert
@@ -142,28 +142,28 @@ function extractSatzAntwort(raw: unknown, tiefe = 0): string | undefined {
   return undefined
 }
 
-export function extractRelationFeld(raw: unknown, code: string, tiefe = 0): string {
+export function feldAusAntwort(raw: unknown, code: string, tiefe = 0): string {
   if (code.trim() === '' || tiefe > 12) return ''
   const value = typeof raw === 'string' ? parsed(raw) : raw
   if (Array.isArray(value)) {
     for (const entry of value) {
-      const found = extractRelationFeld(entry, code, tiefe + 1)
+      const found = feldAusAntwort(entry, code, tiefe + 1)
       if (found !== '') return found
     }
     return ''
   }
-  if (!isRecord(value)) return ''
-  const direkt = getField(value, code)
+  if (!istObjekt(value)) return ''
+  const direkt = feldLesen(value, code)
   if (direkt !== '') return direkt
   for (const entry of Object.values(value)) {
-    const found = extractRelationFeld(entry, code, tiefe + 1)
+    const found = feldAusAntwort(entry, code, tiefe + 1)
     if (found !== '') return found
   }
   return ''
 }
 
 function seMessageKeys(seData: unknown): string[] {
-  if (!isRecord(seData)) return []
+  if (!istObjekt(seData)) return []
   return Object.keys(seData).filter((key) => /^Message\d+$/.test(key))
 }
 
@@ -176,12 +176,12 @@ function newSeMessageResult(
   before: ReadonlySet<string>,
   satzAntwort = false,
 ): NeueNachricht | undefined {
-  if (!isRecord(seData)) return undefined
+  if (!istObjekt(seData)) return undefined
   const keys = seMessageKeys(seData)
     .filter((key) => !before.has(key))
     .sort((a, b) => Number(b.slice(7)) - Number(a.slice(7)))
   for (const key of keys) {
-    const found = satzAntwort ? extractSatzAntwort(seData[key]) : extractRelationResult(seData[key])
+    const found = satzAntwort ? extractSatzAntwort(seData[key]) : ergebnisAusAntwort(seData[key])
     if (found !== undefined) return { wert: found, roh: seData[key], schluessel: key }
   }
   return undefined
@@ -193,7 +193,7 @@ export interface RelationOptionen {
 }
 
 interface GetJob {
-  template: RuntimeRelation
+  template: LaufzeitRelation
   params: string[]
   resolve: (antwort: RelationAntwort) => void
   optionen: RelationOptionen
@@ -256,12 +256,12 @@ function runNextGet(): void {
   }
 
   try {
-    const g = seGlobal()
+    const g = seFenster()
     const before = new Set(seMessageKeys(g.SEDATA))
     const satzAntwort = job.optionen.satzAntwort === true
 
     unsubscribe = onSeAntwort((raw) => {
-      const result = satzAntwort ? extractSatzAntwort(raw) : extractRelationResult(raw)
+      const result = satzAntwort ? extractSatzAntwort(raw) : ergebnisAusAntwort(raw)
       if (result === undefined) return
       if (verfaelltRueckruf && markeGilt()) {
         verfaelltRueckruf = false
@@ -272,7 +272,7 @@ function runNextGet(): void {
     })
 
     poll = setInterval(() => {
-      const nachricht = newSeMessageResult(seGlobal().SEDATA, before, satzAntwort)
+      const nachricht = newSeMessageResult(seFenster().SEDATA, before, satzAntwort)
       if (nachricht === undefined) return
       if (verfaelltNachlese && markeGilt()) {
         verfaelltNachlese = false
@@ -306,13 +306,13 @@ function runNextGet(): void {
   }
 }
 
-export function executeRelation(
-  template: RuntimeRelation,
+export function relationAusfuehren(
+  template: LaufzeitRelation,
   params: readonly string[],
   optionen: RelationOptionen = {},
 ): Promise<RelationAntwort> {
-  bootSe()
-  const g = seGlobal()
+  starteSe()
+  const g = seFenster()
   if (template.verb !== 'GET_RELATION') {
     if (typeof g.basisHTML_SND_MSG !== 'function') {
       const text = 'Speichern nicht möglich: keine Verbindung zu SoftEngine. Die Eingabe wurde NICHT übernommen.'
@@ -335,7 +335,7 @@ export function executeRelation(
   })
 }
 
-export interface RuntimeActionValues {
+export interface LaufzeitWerte {
   context: Readonly<Record<string, string | undefined>>
   previousResult: string
 
@@ -351,61 +351,61 @@ export interface RuntimeActionValues {
 }
 
 function resolveBlockValue(binding: Parameter, runtime: unknown): string {
-  if (!isRecord(runtime)) return ''
+  if (!istObjekt(runtime)) return ''
   const doc = runtime.document as ParentNode | undefined
   if (!doc || typeof doc.querySelectorAll !== 'function') return ''
   const element = Array.from(doc.querySelectorAll<HTMLElement>(`[${BAUSTEIN_ID_ATTR}]`))
-    .find((candidate) => candidate.getAttribute(BAUSTEIN_ID_ATTR) === binding.blockId)
+    .find((candidate) => candidate.getAttribute(BAUSTEIN_ID_ATTR) === binding.bausteinId)
   if (!element) return ''
-  const raw = (element as unknown as Record<string, unknown>)[binding.value]
+  const raw = (element as unknown as Record<string, unknown>)[binding.wert]
   return raw == null ? '' : String(raw)
 }
 
-export function resolveActionParam(
+export function parameterAufloesen(
   binding: Parameter,
-  values: RuntimeActionValues,
-  runtime: unknown = seGlobal(),
+  values: LaufzeitWerte,
+  runtime: unknown = seFenster(),
 ): string {
-  if (binding.source === 'aus') return ''
-  if (binding.source === 'fixed') return binding.value
-  if (binding.source === 'context') return values.context[binding.value] ?? ''
-  if (binding.source === 'previous_result') return values.previousResult
-  if (binding.source === 'step_result') {
-    const idx = Number(binding.value)
+  if (binding.quelle === 'aus') return ''
+  if (binding.quelle === 'fixed') return binding.wert
+  if (binding.quelle === 'context') return values.context[binding.wert] ?? ''
+  if (binding.quelle === 'previous_result') return values.previousResult
+  if (binding.quelle === 'step_result') {
+    const idx = Number(binding.wert)
     if (!Number.isInteger(idx) || idx < 0) return ''
 
     const feld = binding.ergebnisFeld ?? ''
     if (feld === '') return values.stepResults?.[idx] ?? ''
-    return extractRelationFeld(values.stepRohErgebnisse?.[idx], feld)
+    return feldAusAntwort(values.stepRohErgebnisse?.[idx], feld)
   }
-  if (binding.source === 'block_value') return resolveBlockValue(binding, runtime)
-  if (binding.source === 'erfassungszelle'
-    || binding.source === 'aenderungszelle'
-    || binding.source === 'loeschzelle') {
-    const index = Number(binding.value)
+  if (binding.quelle === 'block_value') return resolveBlockValue(binding, runtime)
+  if (binding.quelle === 'erfassungszelle'
+    || binding.quelle === 'aenderungszelle'
+    || binding.quelle === 'loeschzelle') {
+    const index = Number(binding.wert)
     if (!Number.isInteger(index) || index < 0) return ''
-    return values.zeilenZelle?.(binding.blockId ?? '', index) ?? ''
+    return values.zeilenZelle?.(binding.bausteinId ?? '', index) ?? ''
   }
-  if (binding.source === 'gewaehlte_zeile') {
-    const zeile = values.gewaehlteZeile?.(binding.blockId ?? '')
-    return zeile === undefined ? '' : getField(zeile, binding.value)
+  if (binding.quelle === 'gewaehlte_zeile') {
+    const zeile = values.gewaehlteZeile?.(binding.bausteinId ?? '')
+    return zeile === undefined ? '' : feldLesen(zeile, binding.wert)
   }
-  if (!isRecord(runtime)) return ''
+  if (!istObjekt(runtime)) return ''
 
-  if (binding.source === 'se_variable') {
+  if (binding.quelle === 'se_variable') {
     const seData = runtime.SEDATA
-    if (!isRecord(seData) || !isRecord(seData.Daten) || !isRecord(seData.Daten.VARArrays)) return ''
-    const value = seData.Daten.VARArrays[binding.value]
+    if (!istObjekt(seData) || !istObjekt(seData.Daten) || !istObjekt(seData.Daten.VARArrays)) return ''
+    const value = seData.Daten.VARArrays[binding.wert]
     return value == null ? '' : String(value)
   }
 
-  const source = findRuntimeDataSource(runtime.FF_DATA_SOURCES, binding.dataSourceId ?? '')
+  const source = quelleAusListe(runtime.FF_DATA_SOURCES, binding.quelleId ?? '')
   if (!source) return ''
-  const rows = rowsFor(runtime.SEDATA, source.name, source.tableId, source.offenerSatz)
+  const rows = zeilenAusLieferung(runtime.SEDATA, source.name, source.tabellenId, source.offenerSatz)
   const pindex = values.context.PINDEX ?? ''
 
-  const row = pindex !== '' && source.indexField !== ''
-    ? rows.find((entry) => getField(entry, source.indexField) === pindex)
+  const row = pindex !== '' && source.satzFeld !== ''
+    ? rows.find((entry) => feldLesen(entry, source.satzFeld) === pindex)
     : rows[0]
-  return row ? getField(row, binding.value) : ''
+  return row ? feldLesen(row, binding.wert) : ''
 }

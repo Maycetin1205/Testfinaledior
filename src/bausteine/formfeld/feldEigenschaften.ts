@@ -2,74 +2,74 @@
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 import { jaNeinProperty } from '../shared/jaNeinProperty'
 
-const NUR_NACHSCHLAGEN = { attributeName: 'fieldType', equals: 'nachschlagen' } as const
+const NUR_NACHSCHLAGEN = { schluessel: 'fieldType', gleich: 'nachschlagen' } as const
 
 export const FELD_EIGENSCHAFTEN: Eigenschaft[] = [
   {
-    attributeName: 'fieldType',
+    schluessel: 'fieldType',
     name: 'Feldtyp',
-    description: 'Welche Art Eingabe das Feld annimmt.',
-    kind: 'select',
-    options: [
-      { value: 'text', label: 'Text' },
-      { value: 'number', label: 'Zahl' },
-      { value: 'textarea', label: 'Mehrzeilig' },
-      { value: 'select', label: 'Auswahl' },
-      { value: 'date', label: 'Datum' },
+    beschreibung: 'Welche Art Eingabe das Feld annimmt.',
+    art: 'select',
+    optionen: [
+      { wert: 'text', name: 'Text' },
+      { wert: 'number', name: 'Zahl' },
+      { wert: 'textarea', name: 'Mehrzeilig' },
+      { wert: 'select', name: 'Auswahl' },
+      { wert: 'date', name: 'Datum' },
 
-      { value: 'time', label: 'Uhrzeit' },
-      { value: 'checkbox', label: 'Ankreuzfeld' },
-      { value: 'nachschlagen', label: 'Nachschlagen' },
+      { wert: 'time', name: 'Uhrzeit' },
+      { wert: 'checkbox', name: 'Ankreuzfeld' },
+      { wert: 'nachschlagen', name: 'Nachschlagen' },
     ],
   },
   {
-    attributeName: 'options',
+    schluessel: 'options',
     name: 'Auswahl-Optionen',
-    description: 'Einträge durch Komma getrennt, z. B. "Zimmer 1, Zimmer 2".',
-    kind: 'text',
-    visibleWhen: { attributeName: 'fieldType', equals: 'select' },
+    beschreibung: 'Einträge durch Komma getrennt, z. B. "Zimmer 1, Zimmer 2".',
+    art: 'text',
+    wenn: { schluessel: 'fieldType', gleich: 'select' },
   },
   {
-    attributeName: 'nachschlagQuelle',
+    schluessel: 'nachschlagQuelle',
     name: 'Quelle',
-    description: 'Quelle, aus der der Bediener eine Zeile wählt.',
-    kind: 'quelle',
-    visibleWhen: NUR_NACHSCHLAGEN,
+    beschreibung: 'Quelle, aus der der Bediener eine Zeile wählt.',
+    art: 'quelle',
+    wenn: NUR_NACHSCHLAGEN,
   },
   {
-    attributeName: 'speicherFeld',
+    schluessel: 'speicherFeld',
     name: 'Gespeichert wird',
-    description: 'Feld, dessen Wert die Maske sich merkt (z. B. die Nummer).',
-    kind: 'field',
+    beschreibung: 'Feld, dessen Wert die Maske sich merkt (z. B. die Nummer).',
+    art: 'field',
     quelleProp: 'nachschlagQuelle',
     klarnameProp: 'speicherTitel',
-    visibleWhen: NUR_NACHSCHLAGEN,
+    wenn: NUR_NACHSCHLAGEN,
   },
 
   jaNeinProperty(
     'einzigerTreffer',
     'Einzigen Treffer übernehmen',
     'Bleibt genau ein Satz übrig, übernimmt das Feld ihn von selbst.',
-    { visibleWhen: NUR_NACHSCHLAGEN },
+    { wenn: NUR_NACHSCHLAGEN },
   ),
   {
-    attributeName: 'valueField',
+    schluessel: 'valueField',
     name: 'Feld',
-    description: 'Feld, dessen Wert angezeigt wird.',
-    kind: 'field',
+    beschreibung: 'Feld, dessen Wert angezeigt wird.',
+    art: 'field',
 
     // Das Ankreuzfeld bleibt unbindbar, bis der SE-Wert-Kontrakt belegt ist.
-    visibleWhen: { attributeName: 'fieldType', keinesVon: ['checkbox', 'nachschlagen'] },
+    wenn: { schluessel: 'fieldType', keinesVon: ['checkbox', 'nachschlagen'] },
   },
   {
-    attributeName: 'darstellung',
+    schluessel: 'darstellung',
     name: 'Darstellung',
-    description: 'Kasten oder dezente Linie (z. B. Unterschriftsbereich).',
-    kind: 'select',
-    options: [
-      { value: 'standard', label: 'Standard (Kasten)' },
-      { value: 'linie', label: 'Linie (Unterstrichen)' },
+    beschreibung: 'Kasten oder dezente Linie (z. B. Unterschriftsbereich).',
+    art: 'select',
+    optionen: [
+      { wert: 'standard', name: 'Standard (Kasten)' },
+      { wert: 'linie', name: 'Linie (Unterstrichen)' },
     ],
-    visibleWhen: { attributeName: 'fieldType', keinesVon: ['checkbox'] },
+    wenn: { schluessel: 'fieldType', keinesVon: ['checkbox'] },
   },
 ]

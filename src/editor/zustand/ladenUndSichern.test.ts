@@ -50,7 +50,7 @@ function meldungsText(): string {
 
 function wurzelBaum(kinder: string[]): Record<string, unknown> {
   return {
-    [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: kinder },
+    [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: kinder },
   }
 }
 
@@ -99,10 +99,10 @@ test('ein Stand aus einem neueren Editor wird gesichert, gemeldet und nicht gela
 test('ein entfernter Kanban-Bausteintyp wird ohne Teilimport abgelehnt', () => {
   const tree = {
     ...wurzelBaum(['kb']),
-    kb: { id: 'kb', type: 'kanban', props: {}, parentId: WURZEL_ID, childIds: ['vor'] },
-    vor: { id: 'vor', type: 'kanban-vorlage', props: {}, parentId: 'kb', childIds: ['c1', 'c2'] },
-    c1: { id: 'c1', type: 'card', props: {}, parentId: 'vor', childIds: [] },
-    c2: { id: 'c2', type: 'card', props: {}, parentId: 'vor', childIds: [] },
+    kb: { id: 'kb', typ: 'kanban', werte: {}, elternId: WURZEL_ID, kinderIds: ['vor'] },
+    vor: { id: 'vor', typ: 'kanban-vorlage', werte: {}, elternId: 'kb', kinderIds: ['c1', 'c2'] },
+    c1: { id: 'c1', typ: 'card', werte: {}, elternId: 'vor', kinderIds: [] },
+    c2: { id: 'c2', typ: 'card', werte: {}, elternId: 'vor', kinderIds: [] },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
@@ -120,12 +120,12 @@ test('Maskenname und Rahmennummer ueberstehen den Weg durch den Speicher', () =>
     ...wurzelBaum(['t1']),
     [WURZEL_ID]: {
       id: WURZEL_ID,
-      type: WURZEL_TYP,
-      props: { maskenName: 'Belegerfassung', belegRahmen: '00001' },
-      parentId: null,
-      childIds: ['t1'],
+      typ: WURZEL_TYP,
+      werte: { maskenName: 'Belegerfassung', belegRahmen: '00001' },
+      elternId: null,
+      kinderIds: ['t1'],
     },
-    t1: { id: 't1', type: 'text', props: {}, parentId: WURZEL_ID, childIds: [] },
+    t1: { id: 't1', typ: 'text', werte: {}, elternId: WURZEL_ID, kinderIds: [] },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
@@ -133,7 +133,7 @@ test('Maskenname und Rahmennummer ueberstehen den Weg durch den Speicher', () =>
   }))
 
   const geladen = loadFromStorage()
-  expect(geladen?.tree[WURZEL_ID]?.props).toEqual({
+  expect(geladen?.tree[WURZEL_ID]?.werte).toEqual({
     maskenName: 'Belegerfassung',
     belegRahmen: '00001',
   })
@@ -144,11 +144,11 @@ test('Maskenname und Rahmennummer ueberstehen den Weg durch den Speicher', () =>
 // Maskendatei wird gar nicht geladen und nennt die Stelle, sonst faende der
 // Bediener den Verlust erst in SoftEngine.
 test('eine unbekannte Angabe an der Maske laesst die Datei stehen und sagt es', () => {
-  const mitProp = (props: Record<string, unknown>) => ({
+  const mitProp = (werte: Record<string, unknown>) => ({
     schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: {
-      [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props, parentId: null, childIds: ['t1'] },
-      t1: { id: 't1', type: 'text', props: {}, parentId: WURZEL_ID, childIds: [] },
+      [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte, elternId: null, kinderIds: ['t1'] },
+      t1: { id: 't1', typ: 'text', werte: {}, elternId: WURZEL_ID, kinderIds: [] },
     },
   })
 
@@ -164,8 +164,8 @@ test('eine unbekannte Angabe an der Maske laesst die Datei stehen und sagt es', 
 test('ein entfernter Container wird nicht mehr still aufgeloest', () => {
   const tree = {
     ...wurzelBaum(['z1']),
-    z1: { id: 'z1', type: 'zeile', props: {}, parentId: WURZEL_ID, childIds: ['t1'] },
-    t1: { id: 't1', type: 'text', props: {}, parentId: 'z1', childIds: [] },
+    z1: { id: 'z1', typ: 'zeile', werte: {}, elternId: WURZEL_ID, kinderIds: ['t1'] },
+    t1: { id: 't1', typ: 'text', werte: {}, elternId: 'z1', kinderIds: [] },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
@@ -182,12 +182,12 @@ test('alte Rasterformate werden gesichert und ohne Konvertierung abgelehnt', () 
   const tree = {
     ...wurzelBaum(['t1', 'b1']),
     t1: {
-      id: 't1', type: 'tabelle', parentId: WURZEL_ID, childIds: [],
-      props: { rasterX: 0, rasterY: 3, rasterW: 24, rasterH: 14 },
+      id: 't1', typ: 'tabelle', elternId: WURZEL_ID, kinderIds: [],
+      werte: { rasterX: 0, rasterY: 3, rasterW: 24, rasterH: 14 },
     },
     b1: {
-      id: 'b1', type: 'button', parentId: WURZEL_ID, childIds: [],
-      props: { rasterX: 20, rasterY: 0, rasterW: 4, rasterH: 2 },
+      id: 'b1', typ: 'button', elternId: WURZEL_ID, kinderIds: [],
+      werte: { rasterX: 20, rasterY: 0, rasterW: 4, rasterH: 2 },
     },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: 6, tree, selectedId: null }))
@@ -202,14 +202,14 @@ test('ein Stand im feinen Raster wird nicht noch einmal verdoppelt', () => {
   const props = { rasterX: 40, rasterY: 0, rasterW: 8, rasterH: 2 }
   const tree = {
     ...wurzelBaum(['b1']),
-    b1: { id: 'b1', type: 'button', parentId: WURZEL_ID, childIds: [], props },
+    b1: { id: 'b1', typ: 'button', elternId: WURZEL_ID, kinderIds: [], werte: props },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
     datenquellen: [], relationen: [], activePageId: WURZEL_ID,
   }))
 
-  expect(loadFromStorage()?.tree.b1?.props).toMatchObject(props)
+  expect(loadFromStorage()?.tree.b1?.werte).toMatchObject(props)
 })
 
 test('ein unlesbarer Bibliothekseintrag verhindert einen gekuerzten Maskenstand', () => {
@@ -222,50 +222,4 @@ test('ein unlesbarer Bibliothekseintrag verhindert einen gekuerzten Maskenstand'
   expect(loadFromStorage()).toBeNull()
   expect(speicher.getItem(STORAGE_KEY)).toBe(roh)
   expect(kopien(STORAGE_KEY).map((k) => speicher.getItem(k))).toEqual([roh])
-})
-
-test('eine Formel aus Schema 8 wird zur Berechnung mit der Spalte als Leitgroesse', () => {
-  const tree = {
-    ...wurzelBaum(['t1']),
-    t1: {
-      id: 't1', type: 'erfassung', parentId: WURZEL_ID, childIds: [],
-      props: {
-        rasterX: 0, rasterY: 0, rasterW: 16, rasterH: 10,
-        spalten: [
-          { kennung: 's1', titel: 'Menge', feld: '164_8' },
-          { kennung: 's2', titel: 'Doppelt', feld: '', formel: { glieder: [{ spalte: 's1' }, { zahl: 2 }], zeichen: ['*'], runden: { stellen: 2, richtung: 'kfm' } } },
-        ],
-      },
-    },
-  }
-  const stand = pruefeBaumStand({ schemaVersion: 8, tree })
-  expect(stand.art).toBe('ok')
-  if (stand.art !== 'ok') return
-  const props = stand.baum.tree.t1.props as { spalten: Record<string, unknown>[]; berechnungen: Record<string, unknown>[] }
-  expect(props.spalten[1]).not.toHaveProperty('formel')
-  expect(props.berechnungen).toHaveLength(1)
-  expect(props.berechnungen[0]).toMatchObject({
-    name: 'Doppelt',
-    leit: { spalte: 's2', ergebnis: true, runden: { stellen: 2 } },
-    zaehler: [{ art: 'spalte', spalte: 's1', ergebnis: false }, { art: 'zahl', zahl: 2 }],
-  })
-})
-
-test('eine Formel mit Plus aus Schema 8 wird als benannter Verlust abgelehnt', () => {
-  const tree = {
-    ...wurzelBaum(['t1']),
-    t1: {
-      id: 't1', type: 'erfassung', parentId: WURZEL_ID, childIds: [],
-      props: {
-        spalten: [
-          { kennung: 's1', titel: 'A', feld: '' },
-          { kennung: 's2', titel: 'Summe', feld: '', formel: { glieder: [{ spalte: 's1' }, { zahl: 1 }], zeichen: ['+'], runden: { stellen: 2, richtung: 'kfm' } } },
-        ],
-      },
-    },
-  }
-  const stand = pruefeBaumStand({ schemaVersion: 8, tree })
-  expect(stand.art).toBe('abgelehnt')
-  if (stand.art !== 'abgelehnt') return
-  expect(stand.probleme[0]?.grund).toContain('Summe')
 })

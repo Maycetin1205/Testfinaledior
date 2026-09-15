@@ -14,7 +14,7 @@ vi.mock('../tabelle/nachschlagen', () => ({
 }))
 
 vi.mock('../../softengine/data', () => ({
-  getField: (satz: unknown, code: string) => (satz as Satz)[code] ?? '',
+  feldLesen: (satz: unknown, code: string) => (satz as Satz)[code] ?? '',
 }))
 
 // A = Abgabemenge, T = Tiere, D = Tage, K = Koerpergewicht; B und S kommen aus

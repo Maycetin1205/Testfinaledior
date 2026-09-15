@@ -172,7 +172,7 @@ function Koepfe({ offen }: { offen: OffenesFenster }) {
     quelleId: '',
     name: quelle.name,
     kennung: quellenKennung(quelle),
-    fields: quelle.fields,
+    fields: quelle.felder,
   }]
 
   const aendere = (platz: number, teil: Partial<Spalte>): void => {
@@ -278,8 +278,8 @@ function Koepfe({ offen }: { offen: OffenesFenster }) {
           // Die Feldwahl setzt den Titel IMMER auf den Klarnamen des Feldes, wie
           // am Kopf der Erfassungszeile. Umbenennen geht danach jederzeit.
           onPick={(wert) => {
-            const feld = quelle?.fields.find((f) => f.code === wert)
-            const klarname = feld?.label ?? ''
+            const feld = quelle?.felder.find((f) => f.code === wert)
+            const klarname = feld?.name ?? ''
             const breite = breiteAusZeichen(feld?.zeichen)
             aendere(gewaehlt, {
               feld: wert,

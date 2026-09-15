@@ -5,7 +5,7 @@ import { BELEG_RAHMEN_PROP } from '../../kern/maske/belegRahmen'
 import { MASKEN_NAME_PROP } from '../../kern/maske/maskenName'
 import { kettenBereinigen } from '../../kern/daten/aktionen'
 import { BEREICH_AUFBAU, type LadeProblem } from '../../kern/daten/ladeProblem'
-import { CURRENT_SCHEMA_VERSION, hebeAufAktuell, schemaLesbar } from './maskenSchema'
+import { CURRENT_SCHEMA_VERSION, schemaLesbar } from './maskenSchema'
 import { topologieProbleme } from './topologie'
 import { werteBereinigen } from '../../kern/maske/baumOps'
 
@@ -31,40 +31,36 @@ export function pruefeBaumStand(roh: {
   if (!objekt(roh.tree) || !objekt(roh.tree[WURZEL_ID])) {
     return { art: 'abgelehnt', ursache: 'unlesbar', probleme: [] }
   }
-  const angehoben = hebeAufAktuell(roh.schemaVersion, roh.tree)
-  if (angehoben.probleme.length > 0) {
-    return { art: 'abgelehnt', ursache: 'verlust', probleme: angehoben.probleme }
-  }
   const tree: Maskenbaum = Object.create(null) as Maskenbaum
   const probleme: LadeProblem[] = []
   const fund = (stelle: string, grund: string): void => { probleme.push({ bereich: BEREICH_AUFBAU, stelle, grund }) }
-  for (const [id, node] of Object.entries(angehoben.tree)) {
-    if (!objekt(node) || node.id !== id || typeof node.type !== 'string'
-      || !objekt(node.props) || !Array.isArray(node.childIds)
-      || !node.childIds.every((kind): kind is string => typeof kind === 'string')
-      || !(node.parentId === null || typeof node.parentId === 'string')) {
+  for (const [id, node] of Object.entries(roh.tree)) {
+    if (!objekt(node) || node.id !== id || typeof node.typ !== 'string'
+      || !objekt(node.werte) || !Array.isArray(node.kinderIds)
+      || !node.kinderIds.every((kind): kind is string => typeof kind === 'string')
+      || !(node.elternId === null || typeof node.elternId === 'string')) {
       fund(id, `der Baustein „${id}“ ist unlesbar`)
       continue
     }
-    const def = bausteinArt(node.type)
+    const def = bausteinArt(node.typ)
     if (id !== WURZEL_ID && !def) {
-      fund(id, `der Bausteintyp „${node.type}“ wird nicht unterstützt`)
+      fund(id, `der Bausteintyp „${node.typ}“ wird nicht unterstützt`)
       continue
     }
-    if (id === WURZEL_ID && (node.type !== WURZEL_TYP || node.parentId !== null)) {
+    if (id === WURZEL_ID && (node.typ !== WURZEL_TYP || node.elternId !== null)) {
       fund(id, 'die Wurzel des Masken-Aufbaus ist ungültig')
     }
     const props = id === WURZEL_ID
-      ? Object.fromEntries(Object.entries(node.props).filter(([key, wert]) =>
+      ? Object.fromEntries(Object.entries(node.werte).filter(([key, wert]) =>
         [MASKEN_NAME_PROP, BELEG_RAHMEN_PROP].includes(key) && typeof wert === 'string'))
-      : werteBereinigen(node.type, node.props)
-    const events = kettenBereinigen(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((event) => event.key))
-    if (!keinVerlust(node.props, props)) {
+      : werteBereinigen(node.typ, node.werte)
+    const events = kettenBereinigen(node.ketten, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((event) => event.schluessel))
+    if (!keinVerlust(node.werte, props)) {
       fund(id, id === WURZEL_ID ? 'an der Maske selbst stimmen Angaben nicht' : `am Baustein „${id}“ stimmen Angaben nicht`)
     }
-    if (!keinVerlust(node.events, events)) fund(id, `eine Aktion am Baustein „${id}“ ist unlesbar`)
-    tree[id] = { id, type: node.type, parentId: node.parentId, props,
-      childIds: [...node.childIds], ...(events ? { events } : {}) }
+    if (!keinVerlust(node.ketten, events)) fund(id, `eine Aktion am Baustein „${id}“ ist unlesbar`)
+    tree[id] = { id, typ: node.typ, elternId: node.elternId, werte: props,
+      kinderIds: [...node.kinderIds], ...(events ? { ketten: events } : {}) }
   }
   if (probleme.length === 0) probleme.push(...topologieProbleme(tree))
   if (probleme.length > 0) return { art: 'abgelehnt', ursache: 'verlust', probleme }
