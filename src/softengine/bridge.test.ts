@@ -92,16 +92,24 @@ test('nach dem Schreiben wird die Eingabedatei neu bestellt', () => {
   expect(bestellt).toEqual(['ReloadInputJSON', 'ResetDataBasis'])
 })
 
-// Echttest 15.09.: beantwortet die Maske SoftEngines Fokus-Ruf mit "erledigt",
-// laeuft basis_HTML_DoSetAutoFocus nie und der WebView bekommt keine Tastatur —
-// ein Klick landet in keinem Feld (kontrakte.md 13).
-test('nur ein Fokus auf der Maske haelt SoftEngines Auto-Fokus auf', () => {
+// Echttest 15.09., zweimal: antwortet die Maske SoftEngines Fokus-Ruf mit
+// "erledigt", laeuft basis_HTML_DoSetAutoFocus nie und der WebView bekommt
+// keine Tastatur — auch dann, wenn ein Feld der Maske die Schreibmarke schon
+// hat (kontrakte.md 13). Darum nie "erledigt", und das Feld bekommt sie zurueck.
+test('SoftEngines Auto-Fokus laeuft immer, das Feld bekommt die Schreibmarke zurueck', () => {
   const fokusRuf = (): boolean => (g.basisHTML_DoSetFocusToHTML as () => boolean)()
   const dok = g.document as { activeElement: unknown }
 
-  dok.activeElement = new (g.HTMLInputElement as new () => object)()
-  expect(fokusRuf()).toBe(true)
+  const feld = new (g.HTMLInputElement as new () => object)() as { focus: () => void }
+  let zurueck = 0
+  feld.focus = () => { zurueck += 1 }
+  dok.activeElement = feld
+  expect(fokusRuf()).toBe(false)
+  vi.advanceTimersByTime(1)
+  expect(zurueck, 'das Feld bekommt die Schreibmarke nach dem Auto-Fokus zurueck').toBe(1)
 
   dok.activeElement = null
   expect(fokusRuf()).toBe(false)
+  vi.advanceTimersByTime(1)
+  expect(zurueck).toBe(1)
 })
