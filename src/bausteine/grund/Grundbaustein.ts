@@ -27,7 +27,7 @@ function beschreibe(BlockClass: BausteinKlasse): void {
   meldeBausteinArt({
     typ: BlockClass.typ,
     tag: BlockClass.tag,
-    name: BlockClass.name,
+    name: BlockClass.anzeigeName,
     kategorie: BlockClass.kategorie,
 
     vorgaben: {
