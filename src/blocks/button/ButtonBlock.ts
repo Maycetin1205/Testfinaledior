@@ -3,6 +3,7 @@ import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Faehigkeit } from '../../core/blocks/faehigkeiten'
 import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
 import { connectClickAktionen } from '../shared/seAktionen'
 import {
@@ -21,7 +22,9 @@ export class ButtonBlock extends BasicBlock {
 
   static readonly resizableWidth = false
 
-  static readonly blockEvents = [{ key: 'onClick', name: 'Klick' }]
+  static readonly faehigkeiten: readonly Faehigkeit[] = [
+    { art: 'ereignisse', liste: [{ key: 'onClick', name: 'Klick' }] },
+  ]
 
   static readonly raster = { startW: 8, startH: 2, minW: 4, minH: 2 }
 

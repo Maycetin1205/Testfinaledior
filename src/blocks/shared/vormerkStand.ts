@@ -5,7 +5,7 @@ import type {
   ErfassungsTraegerElement,
   LoeschTraegerElement,
   VormerkArt,
-} from '../../core/blocks/BlockDefinition'
+} from '../../core/blocks/faehigkeiten'
 import { sucheTraeger } from './seAktionen'
 
 export const VORMERK_EVENT = 'ff-vormerkungen'

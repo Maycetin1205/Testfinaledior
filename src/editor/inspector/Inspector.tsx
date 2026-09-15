@@ -3,6 +3,7 @@ import { useMemo, type ReactNode } from 'react'
 import { Copy, MousePointer2 } from '@/ui/zeichen'
 import { eigenschaftenFuer } from '../../core/blocks/eigenschaftsOrt'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { type PropertyDescription } from '../../core/blocks/PropertyDescription'
 import { darfAuswahlFolgen, traegtEigeneQuelle } from '../../core/blocks/treeQuery'
 import { useDataSources } from '../../state/useDataSources'
@@ -119,7 +120,8 @@ export function Inspector() {
 
   const showDataSection = traegtEigeneQuelle(block) || dataProps.length > 0
 
-  const hatAktionen = def.blockEvents !== undefined && def.blockEvents.length > 0
+  const ereignisse = faehigkeit(def, 'ereignisse')?.liste ?? []
+  const hatAktionen = ereignisse.length > 0
 
   return (
     <Panel
@@ -182,7 +184,7 @@ export function Inspector() {
 
         {hatAktionen && (
           <Gruppe titel="Aktionen" offen={aktionenOffen} onSchalte={schalteAktionen}>
-            <AktionenSektion block={block} events={def.blockEvents ?? []} />
+            <AktionenSektion block={block} events={ereignisse} />
           </Gruppe>
         )}
 

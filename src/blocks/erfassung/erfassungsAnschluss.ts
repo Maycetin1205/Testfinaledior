@@ -1,5 +1,5 @@
 // Haelt Tipp-Lauf und erfasste Zeilen einer Tabelle zusammen.
-import type { GeschriebeneZeile, Lieferung } from '../../core/blocks/BlockDefinition'
+import type { GeschriebeneZeile, Lieferung } from '../../core/blocks/faehigkeiten'
 import type { Berechnung } from '../../core/data/berechnung'
 import { verknuepfungenVon } from '../shared/fremdeQuellen'
 import { ankunftPruefen, fehlenMeldung, type FehlendeZeile } from './ankunft'

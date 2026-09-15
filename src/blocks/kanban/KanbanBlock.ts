@@ -3,7 +3,8 @@ import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { DefaultChildSpec, SatzWahl } from '../../core/blocks/BlockDefinition'
+import type { DefaultChildSpec } from '../../core/blocks/BlockDefinition'
+import type { Faehigkeit } from '../../core/blocks/faehigkeiten'
 import type { FlowDirection, FlowWidth } from '../../core/blocks/flowLayout'
 import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
 import { CardBlock } from '../card/CardBlock'
@@ -32,13 +33,16 @@ export class KanbanBlock extends BasicBlock {
 
   static readonly resizableHeight = true
 
-  static readonly acceptsDataSource = true
-
-  static readonly satzWahl: SatzWahl = {}
-
-  static readonly blockEvents = [
-    { key: 'onCardClick', name: 'Karte angeklickt' },
-    { key: 'onCardDrop', name: 'Karte verschoben' },
+  static readonly faehigkeiten: readonly Faehigkeit[] = [
+    { art: 'quelle' },
+    { art: 'satzwahl' },
+    {
+      art: 'ereignisse',
+      liste: [
+        { key: 'onCardClick', name: 'Karte angeklickt' },
+        { key: 'onCardDrop', name: 'Karte verschoben' },
+      ],
+    },
   ]
 
   static readonly defaultProps = {

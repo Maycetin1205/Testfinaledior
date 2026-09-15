@@ -5,7 +5,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { BasicBlock } from '../base/BasicBlock'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
 import type { Berechnung } from '../../core/data/berechnung'
-import type { ListenBindung, SatzWahl } from '../../core/blocks/BlockDefinition'
+import type { Faehigkeit } from '../../core/blocks/faehigkeiten'
 import { geberIdVon, setzeAuswahl } from '../shared/auswahl'
 import { LEER_TEXT_STANDARD, leerStil } from '../shared/leerZustand'
 import { OHNE_SCHMUCK, type Unterzeilen, type Zeilenschmuck } from '../shared/zeilenNaehte'
@@ -45,18 +45,20 @@ export class TabelleBlock extends BasicBlock {
   static readonly displayName: string = 'Tabelle'
   static readonly category: BlockCategory = 'anzeige'
 
-  static readonly acceptsDataSource = true
-
-  static readonly satzWahl: SatzWahl = {}
-  static readonly kannAuswahlFolgen = true
-
-  static readonly blockEvents = [
-    { key: 'onRowClick', name: 'Zeile gewählt' },
-    { key: 'onRowDblClick', name: 'Zeile doppelt geklickt' },
-    { key: 'onF4', name: 'F4 – Aktion an der Zeile' },
+  static readonly faehigkeiten: readonly Faehigkeit[] = [
+    { art: 'quelle' },
+    { art: 'satzwahl' },
+    { art: 'auswahlFolgen' },
+    { art: 'liste', bindung: SPALTEN_BINDUNG },
+    {
+      art: 'ereignisse',
+      liste: [
+        { key: 'onRowClick', name: 'Zeile gewählt' },
+        { key: 'onRowDblClick', name: 'Zeile doppelt geklickt' },
+        { key: 'onF4', name: 'F4 – Aktion an der Zeile' },
+      ],
+    },
   ]
-
-  static readonly listenBindung: ListenBindung = SPALTEN_BINDUNG
   static readonly defaultProps = {
     width: 'fill',
     source: '',

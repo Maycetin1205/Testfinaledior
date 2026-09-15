@@ -4,6 +4,7 @@ import { property } from 'lit/decorators.js'
 import type { BlockComponent, BlockComponentStatic } from '../../core/blocks/BlockComponent'
 import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
 import { registerBlockType } from '../../core/blocks/blockRegistry'
+import { hatFaehigkeit } from '../../core/blocks/faehigkeiten'
 import { FLOW_DEFAULTS } from '../../core/blocks/flowLayout'
 import { RASTER_DEFAULTS } from '../../core/blocks/rasterLayout'
 import { AUSWAHL_FOLGE_DEFAULTS } from '../../core/data/auswahlFolge'
@@ -22,6 +23,7 @@ function definiere(BlockClass: BlockComponentStatic): void {
 
 // Editorhaelfte der Anmeldung: der Bausteintyp steht in der Registry.
 function beschreibe(BlockClass: BlockComponentStatic): void {
+  const faehig = { faehigkeiten: BlockClass.faehigkeiten ?? [] }
   registerBlockType({
     type: BlockClass.blockType,
     tagName: BlockClass.tagName,
@@ -31,9 +33,9 @@ function beschreibe(BlockClass: BlockComponentStatic): void {
     defaultProps: {
       ...FLOW_DEFAULTS,
       ...RASTER_DEFAULTS,
-      ...(BlockClass.acceptsDataSource ? QUELLEN_DEFAULTS : null),
+      ...(hatFaehigkeit(faehig, 'quelle') ? QUELLEN_DEFAULTS : null),
 
-      ...(BlockClass.kannAuswahlFolgen ? AUSWAHL_FOLGE_DEFAULTS : null),
+      ...(hatFaehigkeit(faehig, 'auswahlFolgen') ? AUSWAHL_FOLGE_DEFAULTS : null),
       ...BlockClass.defaultProps,
     },
     customProperties: BlockClass.customProperties,
@@ -50,19 +52,7 @@ function beschreibe(BlockClass: BlockComponentStatic): void {
     editorSlot: BlockClass.editorSlot,
     containerHint: BlockClass.containerHint,
     addChildButton: BlockClass.addChildButton,
-    acceptsDataSource: BlockClass.acceptsDataSource,
-    satzWahl: BlockClass.satzWahl,
-    kannAuswahlFolgen: BlockClass.kannAuswahlFolgen,
-    kannErfassen: BlockClass.kannErfassen,
-    aenderungsSchluessel: BlockClass.aenderungsSchluessel,
-    kannLoeschen: BlockClass.kannLoeschen,
-    rechenGruppen: BlockClass.rechenGruppen,
-    suchFenster: BlockClass.suchFenster,
-    haeltGesendete: BlockClass.haeltGesendete,
-    bindableSpots: BlockClass.bindableSpots,
-    actionValueSpots: BlockClass.actionValueSpots,
-    listenBindung: BlockClass.listenBindung,
-    blockEvents: BlockClass.blockEvents,
+    faehigkeiten: faehig.faehigkeiten,
     pageBlock: BlockClass.pageBlock,
     flaechenSeite: BlockClass.flaechenSeite,
     maskenRand: BlockClass.maskenRand,

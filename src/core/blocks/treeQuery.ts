@@ -1,6 +1,6 @@
 // Fragen an den Baustein-Baum: wer gibt eine Auswahl, wer erfasst, wer aendert, wer rechnet.
 import { ROOT_ID, type BlockNode, type BlockTree } from './BlockData'
-import type { ActionValueSpot, BindableSpot } from './BlockDefinition'
+import { type ActionValueSpot, type BindableSpot, faehigkeit, gilt, hatFaehigkeit } from './faehigkeiten'
 import { getBlockDefinition } from './blockRegistry'
 import { schalterAn, schalterFuer } from './listenBindung'
 import { propertySichtbar } from './PropertyDescription'
@@ -17,7 +17,7 @@ export function actionValueTargets(tree: BlockTree): ActionValueTarget[] {
   const result: ActionValueTarget[] = []
   const visit = (node: BlockNode | undefined): void => {
     if (!node) return
-    const spots = getBlockDefinition(node.type)?.actionValueSpots ?? []
+    const spots = faehigkeit(getBlockDefinition(node.type), 'aktionswert')?.stellen ?? []
     for (const spot of spots) result.push({ node, spot })
     for (const childId of node.childIds) visit(tree[childId])
   }
@@ -27,7 +27,7 @@ export function actionValueTargets(tree: BlockTree): ActionValueTarget[] {
 
 export function quellenIdsInKettenVon(node: BlockNode): string[] {
   const ids: string[] = []
-  for (const event of getBlockDefinition(node.type)?.blockEvents ?? []) {
+  for (const event of faehigkeit(getBlockDefinition(node.type), 'ereignisse')?.liste ?? []) {
     for (const step of node.events?.[event.key] ?? []) {
       if (step.type !== 'RELATION') continue
       for (const binding of [...step.params, ...step.extraParams]) {
@@ -48,7 +48,7 @@ export function relationIdsVon(node: BlockNode): string[] {
     const wert = node.props[prop.attributeName]
     if (typeof wert === 'string' && wert !== '') ids.push(wert)
   }
-  for (const event of def?.blockEvents ?? []) {
+  for (const event of faehigkeit(def, 'ereignisse')?.liste ?? []) {
     for (const step of node.events?.[event.key] ?? []) {
       if (step.type === 'RELATION' && step.relationId !== '') ids.push(step.relationId)
     }
@@ -58,20 +58,18 @@ export function relationIdsVon(node: BlockNode): string[] {
 
 export function traegtEigeneQuelle(node: BlockNode | undefined): boolean {
   if (!node) return false
-  const kann = getBlockDefinition(node.type)?.acceptsDataSource
-  if (!kann) return false
-  return kann === true || propertySichtbar(kann.wenn, node.props)
+  return gilt(faehigkeit(getBlockDefinition(node.type), 'quelle'), node.props)
 }
 
 export function bindbareStellenVon(node: BlockNode | undefined): readonly BindableSpot[] {
   if (!node) return []
-  const stellen = getBlockDefinition(node.type)?.bindableSpots ?? []
+  const stellen = faehigkeit(getBlockDefinition(node.type), 'bindbar')?.stellen ?? []
   return stellen.filter((s) => propertySichtbar(s.wenn, node.props))
 }
 
 export function auswahlQuelleIdVon(node: BlockNode | undefined): string {
   if (!node) return ''
-  const wahl = getBlockDefinition(node.type)?.satzWahl
+  const wahl = faehigkeit(getBlockDefinition(node.type), 'satzwahl')
   const prop = wahl && propertySichtbar(wahl.wenn, node.props)
     ? wahl.quelleProp ?? QUELLE_PROP
     : QUELLE_PROP
@@ -84,13 +82,13 @@ export function auswahlQuelleIdVon(node: BlockNode | undefined): string {
 // Faehigkeit.
 export function istAuswahlGeber(node: BlockNode | undefined): boolean {
   if (!node) return false
-  if (!getBlockDefinition(node.type)?.satzWahl) return false
+  if (!hatFaehigkeit(getBlockDefinition(node.type), 'satzwahl')) return false
   return auswahlQuelleIdVon(node) !== ''
 }
 
 export function darfAuswahlFolgen(node: BlockNode | undefined): boolean {
   if (!node) return false
-  if (getBlockDefinition(node.type)?.kannAuswahlFolgen !== true) return false
+  if (!hatFaehigkeit(getBlockDefinition(node.type), 'auswahlFolgen')) return false
   return auswahlQuelleIdVon(node) !== ''
 }
 
@@ -111,8 +109,7 @@ export function erfassungsTraegerImBaum(tree: BlockTree): BlockNode[] {
   const result: BlockNode[] = []
   const visit = (node: BlockNode | undefined): void => {
     if (!node) return
-    const kann = getBlockDefinition(node.type)?.kannErfassen
-    if (kann && propertySichtbar(kann.wenn, node.props)) result.push(node)
+    if (gilt(faehigkeit(getBlockDefinition(node.type), 'erfassen'), node.props)) result.push(node)
     for (const childId of node.childIds) visit(tree[childId])
   }
   visit(tree[ROOT_ID])
@@ -131,16 +128,15 @@ export function loeschTraegerImBaum(tree: BlockTree): BlockNode[] {
 }
 
 export function traegtLoeschungen(node: BlockNode): boolean {
-  const kann = getBlockDefinition(node.type)?.kannLoeschen
-  return kann !== undefined && propertySichtbar(kann.wenn, node.props)
+  return gilt(faehigkeit(getBlockDefinition(node.type), 'loeschen'), node.props)
 }
 
 // Gelesen wird ueber die Registry und die Liste des Bausteins; kein Bausteintyp
 // kommt hier vor.
 export function traegtAenderungen(node: BlockNode): boolean {
   const def = getBlockDefinition(node.type)
-  const schluessel = def?.aenderungsSchluessel
-  const bindung = def?.listenBindung
+  const schluessel = faehigkeit(def, 'aendern')?.schluessel
+  const bindung = faehigkeit(def, 'liste')?.bindung
   if (schluessel === undefined || !bindung) return false
   const roh = node.props[bindung.prop]
   if (!Array.isArray(roh)) return false
@@ -186,5 +182,5 @@ export function firstDescendantOfType(
 // Traegt dieser Baustein Berechnungen? Steht in der Registry, nicht als
 // Abfrage auf einen Bausteintyp.
 export function kannRechnen(node: BlockNode): boolean {
-  return getBlockDefinition(node.type)?.rechenGruppen !== undefined
+  return hatFaehigkeit(getBlockDefinition(node.type), 'rechnen')
 }

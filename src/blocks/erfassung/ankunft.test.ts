@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import type { Lieferung } from '../../core/blocks/BlockDefinition'
+import type { Lieferung } from '../../core/blocks/faehigkeiten'
 import {
   aenderungAngekommen,
   loeschungAngekommen,

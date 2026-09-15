@@ -1,6 +1,7 @@
 // Waehlt zu einer Baustein-Eigenschaft das passende Bedienelement.
 import type { BlockNode } from '../../core/blocks/BlockData'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
 import { quellenKennung, type DataSource } from '../../core/data/dataSources'
 import { useDataSources } from '../../state/useDataSources'
@@ -122,7 +123,7 @@ export function PropControl({
               }
   // Auch eine Liste, die ihre Feldcodes aus DIESER Quelle nimmt, zeigt nach dem
   // Wechsel ins Leere: sie behielte sonst Codes der alten Quelle.
-              const liste = def?.listenBindung
+              const liste = faehigkeit(def, 'liste')?.bindung
               const alteListe = liste ? block.props[liste.prop] : undefined
               if (liste?.quelleProp === property.attributeName
                 && Array.isArray(alteListe) && alteListe.length > 0) {

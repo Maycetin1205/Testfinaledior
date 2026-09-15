@@ -15,6 +15,7 @@ import {
 } from '../../core/data/aktionen'
 import { stepProblem } from '../../core/data/schrittPruefung'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import {
   actionValueTargets,
   auswahlGeberImBaum,
@@ -83,7 +84,7 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
     const blockValues: BlockValueOption[] = actionValueTargets(baum).map(({ node, spot }) => {
       const def = getBlockDefinition(node.type)
       const name = bausteinName(node, quellen)
-      const mehrereStellen = (def?.actionValueSpots?.length ?? 0) > 1
+      const mehrereStellen = (faehigkeit(def, 'aktionswert')?.stellen.length ?? 0) > 1
       return {
         key: blockValueKey(node.id, spot.prop),
         blockId: node.id,

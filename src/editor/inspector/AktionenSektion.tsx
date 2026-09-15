@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import type { BlockNode } from '../../core/blocks/BlockData'
-import type { BlockEventSpec } from '../../core/blocks/BlockDefinition'
+import type { BlockEventSpec } from '../../core/blocks/faehigkeiten'
 import { useEditor } from '../../state/useEditor'
 import { KettenFenster } from '../zentrale/KettenFenster'
 

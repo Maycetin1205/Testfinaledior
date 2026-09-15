@@ -1,5 +1,6 @@
 // Quellen, die ihre Zeilen erst auf eine Auswahl hin holen, samt Bremse gegen Kreis-Feuer.
 import type { BlockDefinition } from '../../core/blocks/BlockDefinition'
+import { faehigkeit, hatFaehigkeit } from '../../core/blocks/faehigkeiten'
 import { getAllBlockDefinitions } from '../../core/blocks/blockRegistry'
 import { propertySichtbar } from '../../core/blocks/PropertyDescription'
 import { QUELLE_PROP } from '../../core/blocks/quelleProp'
@@ -30,7 +31,7 @@ let verdrahtet = false
 export function defsMitSatzWahl(): Map<string, BlockDefinition> {
   const map = new Map<string, BlockDefinition>()
   for (const def of getAllBlockDefinitions()) {
-    if (def.satzWahl) map.set(def.tagName.toLowerCase(), def)
+    if (hatFaehigkeit(def, 'satzwahl')) map.set(def.tagName.toLowerCase(), def)
   }
   return map
 }
@@ -39,7 +40,7 @@ export function defsMitSatzWahl(): Map<string, BlockDefinition> {
 // sie nicht, gilt `source`. Pauschal je Tag wuerde ein Text-Formularfeld mit
 // uebriger Nachschlage-Quelle zum falschen Geber.
 function quellenAttrFuer(el: Element, def: BlockDefinition): string {
-  const wahl = def.satzWahl
+  const wahl = faehigkeit(def, 'satzwahl')
   if (!wahl) return ''
   let aktiv = true
   if (wahl.wenn) {

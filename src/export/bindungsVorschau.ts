@@ -1,6 +1,6 @@
 // Der Text, den eine gebundene Stelle im Editor als Vorschau zeigt.
 import type { BlockNode } from '../core/blocks/BlockData'
-import { bindingProp, type BindableSpot } from '../core/blocks/BlockDefinition'
+import { bindingProp, type BindableSpot } from '../core/blocks/faehigkeiten'
 import { bindbareStellenVon, QUELLE_PROP } from '../core/blocks/treeQuery'
 import { feldKlarname, type DataSource } from '../core/data/dataSources'
 

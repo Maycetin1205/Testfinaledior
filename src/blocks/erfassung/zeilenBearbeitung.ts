@@ -1,5 +1,5 @@
 // Vormerkungen an gebuchten Zeilen: Zellwerte aendern, Zeilen zum Loeschen merken.
-import type { Lieferung, VormerkArt } from '../../core/blocks/BlockDefinition'
+import type { Lieferung, VormerkArt } from '../../core/blocks/faehigkeiten'
 import { geheInZelle, zellenFelder } from '../shared/zellenEingabe'
 import { ergaenzeZeile, ergebnisPlaetze, type Berechnung } from '../../core/data/berechnung'
 import { zeilenIndexVon } from '../tabelle/seRuntime'

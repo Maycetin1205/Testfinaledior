@@ -3,7 +3,7 @@ import { html, nothing, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { BindableSpotsFor, BindingProp } from '../../core/blocks/BlockDefinition'
+import { bindbar, type BindingProp, type Faehigkeit } from '../../core/blocks/faehigkeiten'
 import type { FlowWidth } from '../../core/blocks/flowLayout'
 import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
 import {
@@ -47,14 +47,16 @@ export class CardBlock extends BasicBlock {
     chipTextField: '',
   }
 
-  static readonly bindableSpots: BindableSpotsFor<typeof CardBlock.defaultProps> = [
-    { prop: 'time', label: 'Zeit' },
-    { prop: 'date', label: 'Datum' },
-    { prop: 'heading', label: 'Titel' },
-    { prop: 'heading2', label: 'Titel 2' },
-    { prop: 'meta', label: 'Unterzeile' },
-    { prop: 'text', label: 'Textzeile' },
-    { prop: 'chipText', label: 'Chip' },
+  static readonly faehigkeiten: readonly Faehigkeit[] = [
+    bindbar<typeof CardBlock.defaultProps>([
+      { prop: 'time', label: 'Zeit' },
+      { prop: 'date', label: 'Datum' },
+      { prop: 'heading', label: 'Titel' },
+      { prop: 'heading2', label: 'Titel 2' },
+      { prop: 'meta', label: 'Unterzeile' },
+      { prop: 'text', label: 'Textzeile' },
+      { prop: 'chipText', label: 'Chip' },
+    ]),
   ]
 
   static override readonly customProperties: PropertyDescription[] = [

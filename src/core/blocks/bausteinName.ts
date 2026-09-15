@@ -1,6 +1,6 @@
 // Wie ein Baustein in Wahllisten heisst, wenn er keinen eigenen Namen traegt.
 import type { BlockNode } from './BlockData'
-import { bindingProp } from './BlockDefinition'
+import { bindingProp } from './faehigkeiten'
 import { getBlockDefinition } from './blockRegistry'
 import { bindbareStellenVon, QUELLE_PROP } from './treeQuery'
 import { feldKlarname, type DataSource } from '../data/dataSources'

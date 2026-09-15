@@ -1,5 +1,6 @@
 import { ROOT_ID, ROOT_TYPE, type BlockTree } from '../core/blocks/BlockData'
 import { getBlockDefinition } from '../core/blocks/blockRegistry'
+import { faehigkeit } from '../core/blocks/faehigkeiten'
 import { BELEG_RAHMEN_PROP } from '../core/blocks/belegRahmen'
 import { MASKEN_NAME_PROP } from '../core/blocks/maskenName'
 import { sanitizeBlockEvents } from '../core/data/aktionen'
@@ -57,7 +58,7 @@ export function pruefeBaumStand(roh: {
       ? Object.fromEntries(Object.entries(node.props).filter(([key, wert]) =>
         [MASKEN_NAME_PROP, BELEG_RAHMEN_PROP].includes(key) && typeof wert === 'string'))
       : normalizeProps(node.type, node.props)
-    const events = sanitizeBlockEvents(node.events, (def?.blockEvents ?? []).map((event) => event.key))
+    const events = sanitizeBlockEvents(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((event) => event.key))
     if (!keinVerlust(node.props, props)) {
       fund(id, id === ROOT_ID ? 'an der Maske selbst stimmen Angaben nicht' : `am Baustein „${id}“ stimmen Angaben nicht`)
     }

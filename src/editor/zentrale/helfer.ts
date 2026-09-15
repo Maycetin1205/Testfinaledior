@@ -4,6 +4,7 @@ import type { BlockNode } from '../../core/blocks/BlockData'
 import { bausteinName } from '../../core/blocks/bausteinName'
 import type { PropertySelectOption } from '../../core/blocks/PropertyDescription'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { auswahlQuelleIdVon } from '../../core/blocks/treeQuery'
 import type { DataSource, DataSourceField, DataSourceKind } from '../../core/data/dataSources'
 import type { RelationTemplate } from '../../core/data/relations'
@@ -120,7 +121,7 @@ export function erfassungsOptionen(
   sources: readonly DataSource[],
 ): ErfassungsOption[] {
   return traeger.map((node) => {
-    const bindung = getBlockDefinition(node.type)?.listenBindung
+    const bindung = faehigkeit(getBlockDefinition(node.type), 'liste')?.bindung
     const kennungKey = bindung?.kennungKey
     const roh = bindung ? node.props[bindung.prop] : undefined
     const spalten = bindung && kennungKey !== undefined && Array.isArray(roh)

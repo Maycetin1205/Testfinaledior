@@ -6,16 +6,15 @@ import {
   SATZ_PLATZHALTER,
   type RuntimeStep,
 } from '../../core/data/aktionen'
-import type {
-  AenderungsTraegerElement,
-  ErfassungsTraegerElement,
-  GeschriebeneZeile,
-  LaufBerichtElement,
-  LoeschTraegerElement,
-  VormerkArt,
-} from '../../core/blocks/BlockDefinition'
+import {
+  type GeschriebeneZeile,
+  type LaufBerichtElement,
+  type VormerkArt,
+  hatFaehigkeit,
+  vertragVon,
+} from '../../core/blocks/faehigkeiten'
 import { auswahlFuer } from './auswahl'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { definitionFuerTag, getBlockDefinition } from '../../core/blocks/blockRegistry'
 import {
   formatNowDate,
   resolveParams,
@@ -61,13 +60,15 @@ export function meldeKettenFehler(fehler: unknown): void {
   meldeFehler('Aktionskette fehlgeschlagen: ' + text)
 }
 
-// Jedes Stueck des Vertrags ist optional, damit die Kette auch einen Baustein
-// bedienen kann, der nur eine der drei Listen fuehrt.
 type ZeilenTraeger = HTMLElement
-  & Partial<ErfassungsTraegerElement>
-  & Partial<AenderungsTraegerElement>
-  & Partial<LoeschTraegerElement>
-  & Partial<LaufBerichtElement>
+
+// Welche Listen ein Traeger fuehrt, sagt die Registry; der Vertrag dahinter ist
+// verbindlich (vertragVon).
+const FAEHIGKEIT_JE_LISTE = { erfasst: 'erfassen', geaendert: 'aendern', geloescht: 'loeschen' } as const
+
+function berichtAn(traeger: ZeilenTraeger, art: VormerkArt): LaufBerichtElement {
+  return vertragVon(traeger, FAEHIGKEIT_JE_LISTE[art])
+}
 
 export function sucheTraeger(root: ParentNode, blockId: string): ZeilenTraeger | undefined {
   return Array.from(root.querySelectorAll<HTMLElement>(`[${ACTION_VALUE_ID_ATTR}]`))
@@ -105,18 +106,18 @@ export interface Mitschrift {
 }
 
 function zeilenDerListe(traeger: ZeilenTraeger, art: VormerkArt): LaufZeile[] | undefined {
+  if (!hatFaehigkeit(definitionFuerTag(traeger.tagName), FAEHIGKEIT_JE_LISTE[art])) return undefined
   if (art === 'erfasst') {
-    const roh = traeger.erfassteZeilen
-    if (!Array.isArray(roh)) return undefined
-    const kennungen = traeger.erfassteSchluessel
-    return roh.map((werte, platz) => ({
+    const v = vertragVon(traeger, 'erfassen')
+    return v.erfassteZeilen.map((werte, platz) => ({
       satz: '',
-      schluessel: Array.isArray(kennungen) ? (kennungen[platz] ?? String(platz)) : String(platz),
+      schluessel: v.erfassteSchluessel[platz] ?? String(platz),
       werte,
     }))
   }
-  const roh = art === 'geaendert' ? traeger.geaenderteZeilen : traeger.geloeschteZeilen
-  if (!Array.isArray(roh)) return undefined
+  const roh = art === 'geaendert'
+    ? vertragVon(traeger, 'aendern').geaenderteZeilen
+    : vertragVon(traeger, 'loeschen').geloeschteZeilen
   return roh.map((z) => ({ satz: z.satz, schluessel: z.satz, werte: z.werte }))
 }
 
@@ -313,7 +314,7 @@ export async function runEvent(
       const bericht = { traeger, art: abschnitt.art, fertige: [] as GeschriebeneZeile[] }
       berichte.push(bericht)
       for (const zeile of zeilen) {
-        traeger.zeileSchreibt?.(abschnitt.art, zeile.schluessel)
+        berichtAn(traeger, abschnitt.art).zeileSchreibt(abschnitt.art, zeile.schluessel)
         // Die Mitschrift wird hier nur GELESEN: was eine Zeile erarbeitet,
         // gehoert ihr allein.
         const ergebnis = await laufeSchritte(el, steps, zeilenKontext(context, abschnitt.art, zeile),
@@ -324,7 +325,7 @@ export async function runEvent(
         // Haengengeblieben: die Zeilen dahinter bleiben unangetastet stehen,
         // sonst naehme ein Fehler in Zeile 3 auch den Zeilen 4-10 ihre Chance.
         if (ergebnis.fehler !== '') {
-          traeger.zeileGescheitert?.(abschnitt.art, zeile.schluessel, ergebnis.fehler)
+          berichtAn(traeger, abschnitt.art).zeileGescheitert(abschnitt.art, zeile.schluessel, ergebnis.fehler)
           abgebrochen = true
           break
         }
@@ -342,7 +343,7 @@ export async function runEvent(
     }
     // Ausgetragen wird erst, wenn ALLE Abschnitte durch sind: ein spaeterer
     // Abschnitt kann dieselbe Liste noch einmal lesen.
-    for (const { traeger, art, fertige } of berichte) traeger.laufFertig?.(art, fertige)
+    for (const { traeger, art, fertige } of berichte) berichtAn(traeger, art).laufFertig(art, fertige)
     // Geschrieben heisst: der Stand auf dem Schirm ist von gestern.
     if (geschrieben) frischeDatenAnfordern()
     return { ausgefuehrt: true, geschrieben, abgebrochen, beschaeftigt: false }

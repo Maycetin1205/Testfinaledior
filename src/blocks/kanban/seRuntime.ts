@@ -1,5 +1,5 @@
 // Die Tafel am SoftEngine-Datenstrom: Karten einsortieren und das Ziehen verdrahten.
-import { bindingAttr } from '../../core/blocks/BlockDefinition'
+import { bindingAttr, faehigkeit } from '../../core/blocks/faehigkeiten'
 import { getAllBlockDefinitions } from '../../core/blocks/blockRegistry'
 import { getField, satzIndexVon } from '../../softengine/data'
 import { auswahlWiederfinden, geberIdVon, merkmalVon, waehleAuswahl } from '../shared/auswahl'
@@ -65,7 +65,7 @@ function setzeLeerHinweise(board: HTMLElement, columns: readonly HTMLElement[]):
 
 function spotsForTag(tagName: string) {
   const def = getAllBlockDefinitions().find((d) => d.tagName === tagName.toLowerCase())
-  return def?.bindableSpots ?? []
+  return faehigkeit(def, 'bindbar')?.stellen ?? []
 }
 
 // Der Wert, den das ERP kennt. Der Titel ist Anzeige: umbenennen darf die

@@ -3,16 +3,14 @@ import { useCallback, useEffect, useState, type ReactNode, type RefObject } from
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { BlockNode } from '../../core/blocks/BlockData'
 import {
-  bindingProp,
   feldWahlenLesen,
   schalterAn,
   schalterFuer,
   listenStandardTitel,
   listeLesen,
-  type BindableSpot,
   type ListenBindung,
-  type SuchFenster,
 } from '../../core/blocks/BlockDefinition'
+import { bindingProp, type BindableSpot, type SuchFenster } from '../../core/blocks/faehigkeiten'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
 import { kannRechnen } from '../../core/blocks/treeQuery'
 import { quellenKennung } from '../../core/data/dataSources'

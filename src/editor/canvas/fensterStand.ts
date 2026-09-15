@@ -13,7 +13,8 @@ import {
 import { DIALOG_RAHMEN_TAG, type DialogRahmen } from '../../blocks/shared/DialogRahmen'
 import type { Spalte } from '../../blocks/tabelle/spalten'
 import type { BlockNode } from '../../core/blocks/BlockData'
-import { zerlegeBindung, type SuchFenster } from '../../core/blocks/BlockDefinition'
+import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
+import { type SuchFenster } from '../../core/blocks/faehigkeiten'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
 import type { Editor } from '../../state/Editor'
 

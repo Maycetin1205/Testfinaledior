@@ -1,5 +1,6 @@
 import type { BlockNode } from './BlockData'
-import { bindingProp, type BlockDefinition } from './BlockDefinition'
+import { type BlockDefinition } from './BlockDefinition'
+import { bindingProp, faehigkeit } from './faehigkeiten'
 import { propertySichtbar, type PropertyDescription } from './PropertyDescription'
 
 export function eigenschaftenFuer(
@@ -10,7 +11,7 @@ export function eigenschaftenFuer(
   // Ausdruecklich Set<string>: `bindingProp` liefert `${P}Field`, und danach
   // gefragt wird mit einem gewoehnlichen Eigenschaftsnamen.
   const direktGebunden = new Set<string>(
-    (def.bindableSpots ?? []).map((s) => bindingProp(s.prop)),
+    (faehigkeit(def, 'bindbar')?.stellen ?? []).map((s) => bindingProp(s.prop)),
   )
   const klarnamen = new Set(def.customProperties.map((p) => p.klarnameProp))
   return def.customProperties.filter((p) => {

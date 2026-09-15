@@ -1,5 +1,5 @@
 // Das Formularfeld am SoftEngine-Datenstrom: Wert setzen und die Zeile weitergeben.
-import { bindingAttr } from '../../core/blocks/BlockDefinition'
+import { bindingAttr } from '../../core/blocks/faehigkeiten'
 import { satzIndexVon, setField } from '../../softengine/data'
 import { geberIdVon, klareAuswahl, setzeAuswahl } from '../shared/auswahl'
 import { macheDatenAnschluss } from '../shared/datenAnschluss'

@@ -1,11 +1,7 @@
 // Welche Quellen und Felder die Maske wirklich liest — danach wird bestellt.
 import { ROOT_ID, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
-import {
-  bindingProp,
-  feldWahlenLesen,
-  listeLesen,
-  zerlegeBindung,
-} from '../core/blocks/BlockDefinition'
+import { feldWahlenLesen, listeLesen, zerlegeBindung } from '../core/blocks/BlockDefinition'
+import { bindingProp, faehigkeit } from '../core/blocks/faehigkeiten'
 import { getBlockDefinition } from '../core/blocks/blockRegistry'
 import { propertySichtbar } from '../core/blocks/PropertyDescription'
 import {
@@ -58,8 +54,9 @@ export function collectDataSources(
       }
     }
 
-    if (def?.rechenGruppen) {
-      for (const feld of datenfelderAus(node.props[def.rechenGruppen.prop])) {
+    const rechnen = faehigkeit(def, 'rechnen')
+    if (rechnen) {
+      for (const feld of datenfelderAus(node.props[rechnen.prop])) {
         add(zerlegeBindung(feld).quelleId)
       }
     }
@@ -112,8 +109,8 @@ export function benutzteFelderJeQuelle(
       merkeBindung(node.props[bindingProp(spot.prop)])
     }
 
-    if (def?.listenBindung) {
-      const b = def.listenBindung
+    const b = faehigkeit(def, 'liste')?.bindung
+    if (b) {
 
     // Traegt die Bindung ein `quelleProp`, speichern ihre Eintraege den NACKTEN
     // Feldcode einer benannten Quelle. Ihn wie eine Bindung aufzuloesen waere
@@ -136,8 +133,9 @@ export function benutzteFelderJeQuelle(
 
     // Was eine Berechnung aus einem Datensatz liest, muss mit in die Maske;
     // sonst rechnete die Laufzeit mit einem leeren Feld.
-    if (def?.rechenGruppen) {
-      for (const feld of datenfelderAus(node.props[def.rechenGruppen.prop])) {
+    const rechnen = faehigkeit(def, 'rechnen')
+    if (rechnen) {
+      for (const feld of datenfelderAus(node.props[rechnen.prop])) {
         merkeBindung(feld)
       }
     }
@@ -177,7 +175,7 @@ export function benutzteFelderJeQuelle(
       }
     }
 
-    for (const event of def?.blockEvents ?? []) {
+    for (const event of faehigkeit(def, 'ereignisse')?.liste ?? []) {
       for (const step of node.events?.[event.key] ?? []) {
         if (step.type !== 'RELATION') continue
         for (const binding of [...step.params, ...step.extraParams]) {

@@ -4,6 +4,7 @@ import { Link2, Minus, Plus, SlidersHorizontal, Trash2 } from '@/ui/zeichen'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import type { BlockNode } from '../../core/blocks/BlockData'
 import { listeLesen, type BlockDefinition } from '../../core/blocks/BlockDefinition'
+import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { useEditorInstance } from '../../state/EditorContext'
 import { wendeProps } from '../../state/propsPatch'
 import { firstDescendantOfType, kannRechnen } from '../../core/blocks/treeQuery'
@@ -85,7 +86,7 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
     if (el) Object.assign(el.style, STIL[lageFuer(wirt.current, amRand)])
   }, [wirt, amRand, block])
   const kind = def?.addChildButton
-  const liste = def?.listenBindung
+  const liste = faehigkeit(def, 'liste')?.bindung
   const neu = liste?.eintragNeu
   const weg = liste?.eintragWeg
   const eintragName = liste?.standardTitel.replace(/\s*\{n\}/, '') ?? 'Eintrag'

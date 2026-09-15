@@ -1,6 +1,7 @@
 // Schreibt die Maskendatei: aus dem Baustein-Baum wird HTML fuer SoftEngine.
 import { ROOT_ID, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
-import { bindingProp, listeFuerExport, listeLesen } from '../core/blocks/BlockDefinition'
+import { listeFuerExport, listeLesen } from '../core/blocks/BlockDefinition'
+import { bindingProp, faehigkeit, gilt } from '../core/blocks/faehigkeiten'
 import { getBlockDefinition } from '../core/blocks/blockRegistry'
 import {
   bindbareStellenVon,
@@ -13,7 +14,6 @@ import {
   traegtLoeschungen,
 } from '../core/blocks/treeQuery'
 import { ACTION_VALUE_ID_ATTR, serializeBlockEvents } from '../core/data/aktionen'
-import { propertySichtbar } from '../core/blocks/PropertyDescription'
 import { AUSWAHL_FOLGE_PROP } from '../core/data/auswahlFolge'
 import {
   felderHinterSchnitt,
@@ -80,7 +80,7 @@ interface TemplateCtx {
 function spaltenIndexFuer(tree: BlockTree): (blockId: string, kennung: string) => string {
   return (blockId, kennung) => {
     const ziel = tree[blockId]
-    const bindung = ziel ? getBlockDefinition(ziel.type)?.listenBindung : undefined
+    const bindung = ziel ? faehigkeit(getBlockDefinition(ziel.type), 'liste')?.bindung : undefined
     const key = bindung?.kennungKey
     if (!ziel || !bindung || key === undefined) return '-1'
     return String(listeLesen(ziel.props[bindung.prop], bindung)
@@ -105,6 +105,7 @@ function nodeToHtml(
 ): string {
   const def = getBlockDefinition(node.type)
   if (!def) return ''
+  const liste = faehigkeit(def, 'liste')?.bindung
 
   const pad = '  '.repeat(depth)
   if (templateCtx && node.type === templateCtx.type) {
@@ -116,7 +117,7 @@ function nodeToHtml(
   const bindbareStellen = bindbareStellenVon(node)
   const bindbar = new Set(bindbareStellen.map((spot) => spot.prop))
   const stilleBindungen = new Set<string>(
-    (def.bindableSpots ?? [])
+    (faehigkeit(def, 'bindbar')?.stellen ?? [])
       .filter((spot) => !bindbar.has(spot.prop))
       .map((spot) => bindingProp(spot.prop)),
   )
@@ -146,8 +147,8 @@ function nodeToHtml(
       const seitenIdProp = seitenKlarname.get(key)
       const wert = seitenIdProp !== undefined
         ? popupName(String(node.props[seitenIdProp] ?? ''))
-        : key === def.listenBindung?.prop
-          ? listeFuerExport(node.props[key] ?? standard, def.listenBindung)
+        : liste !== undefined && key === liste.prop
+          ? listeFuerExport(node.props[key] ?? standard, liste)
           : (node.props[key] ?? standard)
       const roh = vorschauStellen.has(key)
         ? vorschauRoh(node, vorschauStellen.get(key)!, sources, standard)
@@ -158,13 +159,13 @@ function nodeToHtml(
     })
     .join('')
 
-  const aktionen = serializeBlockEvents(node.events, (def.blockEvents ?? []).map((e) => e.key), popupName, spaltenIndex)
+  const aktionen = serializeBlockEvents(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((e) => e.key), popupName, spaltenIndex)
   const aktionenAttr = aktionen ? ` data-ff-aktionen="${escapeHtmlAttr(aktionen)}"` : ''
   // Die EINE Kennung eines Bausteins in der Maske. Sie traegt, wer fuer eine
   // Kette adressierbar sein muss und wer eine Zeile gibt; alle Leser der
   // Laufzeit greifen ueber dieses Attribut.
-  const adressierbar = (def.actionValueSpots?.length ?? 0) > 0
-    || (def.kannErfassen !== undefined && propertySichtbar(def.kannErfassen.wenn, node.props))
+  const adressierbar = (faehigkeit(def, 'aktionswert')?.stellen.length ?? 0) > 0
+    || gilt(faehigkeit(def, 'erfassen'), node.props)
     || traegtAenderungen(node)
     || traegtLoeschungen(node)
     || istAuswahlGeber(node)

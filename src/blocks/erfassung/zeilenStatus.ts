@@ -1,5 +1,5 @@
 // Woran eine Zeile gerade ist: ein Balken am linken Rand plus Klartext im title.
-import type { VormerkArt } from '../../core/blocks/BlockDefinition'
+import type { VormerkArt } from '../../core/blocks/faehigkeiten'
 
 export type ZeilenStatus =
   | 'gebucht'

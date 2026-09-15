@@ -7,8 +7,9 @@ export interface BlockComponent {
   get customProperties(): PropertyDescription[]
 }
 
-type KlassenAngaben = Omit<BlockDefinition, 'type' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>
-  & Partial<Pick<BlockDefinition, 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>>
+type KlassenAngaben =
+  Omit<BlockDefinition, 'type' | 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>
+  & Partial<Pick<BlockDefinition, 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>>
 
 export interface BlockComponentStatic extends Readonly<KlassenAngaben> {
   readonly blockType: string

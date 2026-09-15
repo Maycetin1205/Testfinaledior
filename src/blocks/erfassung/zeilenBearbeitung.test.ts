@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest'
-import type { Lieferung } from '../../core/blocks/BlockDefinition'
+import type { Lieferung } from '../../core/blocks/faehigkeiten'
 import type { Spalte } from '../tabelle/spalten'
 import { ZeilenBearbeitung } from './zeilenBearbeitung'
 import { LaufStand } from './zeilenStatus'

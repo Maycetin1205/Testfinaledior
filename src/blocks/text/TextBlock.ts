@@ -4,7 +4,7 @@ import { property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BasicBlock } from '../base/BasicBlock'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { BindableSpotsFor } from '../../core/blocks/BlockDefinition'
+import { bindbar, type Faehigkeit } from '../../core/blocks/faehigkeiten'
 import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
 import { FARBWELTEN, farbweltOptionen } from '../shared/statusVariant'
 import { connectText, disconnectText } from './seRuntime'
@@ -56,12 +56,10 @@ export class TextBlock extends BasicBlock {
   static readonly tagName = 'ff-text'
   static readonly displayName = 'Text'
   static readonly category: BlockCategory = 'anzeige'
-  static readonly acceptsDataSource = true
-
-  static readonly kannAuswahlFolgen = true
-
-  static readonly bindableSpots: BindableSpotsFor<typeof TextBlock.defaultProps> = [
-    { prop: 'text', label: 'Text' },
+  static readonly faehigkeiten: readonly Faehigkeit[] = [
+    { art: 'quelle' },
+    { art: 'auswahlFolgen' },
+    bindbar<typeof TextBlock.defaultProps>([{ prop: 'text', label: 'Text' }]),
   ]
 
   static readonly defaultProps = {

@@ -2,14 +2,7 @@
 import { nothing, type CSSResultGroup, type PropertyValues } from 'lit'
 import { property } from 'lit/decorators.js'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type {
-  ErfassungsFaehigkeit,
-  GeschriebeneZeile,
-  Lieferung,
-  ListenBindung,
-  SuchFenster,
-  VormerkArt,
-} from '../../core/blocks/BlockDefinition'
+import type { Faehigkeit, GeschriebeneZeile, Lieferung, VormerkArt } from '../../core/blocks/faehigkeiten'
 import { SE_FOKUS_EVENT } from '../../softengine/bridge'
 import { meldeFehler } from '../../softengine/meldung'
 import { BasicBlock } from '../base/BasicBlock'
@@ -59,31 +52,29 @@ export class ErfassungBlock extends TabelleBlock {
   static override readonly displayName = 'Erfassung'
   static override readonly category: BlockCategory = 'eingabe'
 
-  static readonly kannErfassen: ErfassungsFaehigkeit = {}
-
-  static readonly rechenGruppen = { prop: BERECHNUNGEN_PROP }
-
-  static readonly aenderungsSchluessel = 'aenderbar'
-
-  static readonly kannLoeschen: ErfassungsFaehigkeit = {
-    wenn: { attributeName: 'loeschbar', equals: 'ja' },
-  }
-
-  static readonly haeltGesendete = true
-
-  // Jede Spalte mit Hilfsquelle hat ihr eigenes Suchfenster (F5); eingestellt
-  // wird es IM Fenster, das der Spaltenkopf aufmacht.
-  static readonly suchFenster: SuchFenster = {
-    eintraegeProp: 'spalten',
-    titelKey: 'titel',
-    quelleKey: 'fuellFeld',
-    spaltenKey: 'fensterSpalten',
-    breiteKey: 'fensterBreite',
-    hoeheKey: 'fensterHoehe',
-    automatik: 'Ohne Spalten nimmt das Fenster die Spalten derselben Hilfsquelle.',
-  }
-
-  static override readonly listenBindung: ListenBindung = ERFASSUNG_SPALTEN_BINDUNG
+  static override readonly faehigkeiten: readonly Faehigkeit[] = [
+    ...TabelleBlock.faehigkeiten.filter((f) => f.art !== 'liste'),
+    { art: 'liste', bindung: ERFASSUNG_SPALTEN_BINDUNG },
+    { art: 'erfassen' },
+    { art: 'aendern', schluessel: 'aenderbar' },
+    { art: 'loeschen', wenn: { attributeName: 'loeschbar', equals: 'ja' } },
+    { art: 'haeltGesendete' },
+    { art: 'rechnen', prop: BERECHNUNGEN_PROP },
+    // Jede Spalte mit Hilfsquelle hat ihr eigenes Suchfenster (F5); eingestellt
+    // wird es IM Fenster, das der Spaltenkopf aufmacht.
+    {
+      art: 'suchfenster',
+      fenster: {
+        eintraegeProp: 'spalten',
+        titelKey: 'titel',
+        quelleKey: 'fuellFeld',
+        spaltenKey: 'fensterSpalten',
+        breiteKey: 'fensterBreite',
+        hoeheKey: 'fensterHoehe',
+        automatik: 'Ohne Spalten nimmt das Fenster die Spalten derselben Hilfsquelle.',
+      },
+    },
+  ]
 
   static override readonly defaultProps = {
     ...TabelleBlock.defaultProps,

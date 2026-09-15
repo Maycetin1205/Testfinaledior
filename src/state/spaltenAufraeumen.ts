@@ -1,6 +1,7 @@
 // Nach dem Streichen einer Spalte: Ketten-Parameter, die auf sie zeigten, abschalten.
 import type { BlockNode, BlockTree } from '../core/blocks/BlockData'
 import type { BlockDefinition } from '../core/blocks/BlockDefinition'
+import { faehigkeit } from '../core/blocks/faehigkeiten'
 import { listeLesen } from '../core/blocks/listenBindung'
 import {
   ZELLEN_PARAM_QUELLEN,
@@ -18,7 +19,7 @@ export function gestricheneKennungen(
   alt: unknown,
   neu: unknown,
 ): string[] {
-  const b = def?.listenBindung
+  const b = faehigkeit(def, 'liste')?.bindung
   const key = b?.kennungKey
   if (!b || key === undefined || b.prop !== attr) return []
   const kennungen = (wert: unknown): string[] => listeLesen(wert, b)

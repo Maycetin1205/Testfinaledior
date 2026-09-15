@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, RefObject } from 'react'
 import type { BlockNode } from '../../core/blocks/BlockData'
-import { bindingProp, type BindableSpot } from '../../core/blocks/BlockDefinition'
+import { bindingProp, type BindableSpot } from '../../core/blocks/faehigkeiten'
 import type { Editor } from '../../state/Editor'
 
 export function bindingCode(props: Record<string, unknown>, spot: BindableSpot): string {

@@ -6,6 +6,7 @@ import { Dialog } from '@/ui/werkbank/Dialog'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { coerceSpalten } from '../../blocks/tabelle/spalten'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { berechnungenAus, neueBerechnung, type Berechnung } from '../../core/data/berechnung'
 import { quellenInReichweite } from '../../state/quellenOps'
 import { useDataSources } from '../../state/useDataSources'
@@ -30,7 +31,7 @@ function Fenster({ blockId }: { blockId: string }) {
   const [gewaehlt, setGewaehlt] = useState<string | null>(null)
 
   const block = ed.getNode(blockId)
-  const prop = block === undefined ? undefined : getBlockDefinition(block.type)?.rechenGruppen?.prop
+  const prop = block === undefined ? undefined : faehigkeit(getBlockDefinition(block.type), 'rechnen')?.prop
 
   // Ist der Baustein weg (Loeschen, Undo), geht das Fenster mit.
   useEffect(() => {

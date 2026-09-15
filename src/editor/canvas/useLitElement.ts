@@ -2,11 +2,8 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import type { BlockNode } from '../../core/blocks/BlockData'
-import {
-  bindingProp,
-  zerlegeBindung,
-  type BindableSpot,
-} from '../../core/blocks/BlockDefinition'
+import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
+import { bindingProp, type BindableSpot } from '../../core/blocks/faehigkeiten'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
 import type { QuelleInReichweite } from '../../core/data/sourceLinks'
 import type { Editor } from '../../state/Editor'

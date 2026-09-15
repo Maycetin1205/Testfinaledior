@@ -16,6 +16,7 @@ import {
   type QuelleInReichweite,
 } from '../../core/data/sourceLinks'
 import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { istRandBaustein } from '../../core/blocks/maskenRand'
 import { rasterSpecOf } from '../../core/blocks/rasterLayout'
 import { bindbareStellenVon, traegtEigeneQuelle } from '../../core/blocks/treeQuery'
@@ -48,6 +49,8 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
   const rootRef = useRef<HTMLDivElement | null>(null)
   const def = getBlockDefinition(block.type)
   const isContainer = def?.acceptsChildren ?? false
+  const liste = faehigkeit(def, 'liste')?.bindung
+  const suchFenster = faehigkeit(def, 'suchfenster')?.fenster
 
   const quellenBibliothek = useDataSources()
 
@@ -84,8 +87,8 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
     block,
     selected,
     bindableSpots,
-    listenBindung: def?.listenBindung,
-    suchFenster: def?.suchFenster,
+    listenBindung: liste,
+    suchFenster,
     quellen,
     containerRef,
     element,
@@ -95,7 +98,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
   // Die Lupe macht im Editor dasselbe Fenster auf wie beim Bediener. Der Wirt
   // faengt ihren Klick ab und gibt dem Fenster den Weg zu seinen Eigenschaften;
   // eingestellt wird darin, nicht daneben.
-  const fensterStelle = def?.suchFenster?.stelle
+  const fensterStelle = suchFenster?.stelle
   const aufFensterStelle = (e: ReactMouseEvent<HTMLDivElement>): number | null => {
     if (fensterStelle === undefined) return null
     for (const t of e.nativeEvent.composedPath()) {
@@ -128,9 +131,8 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
       ref={rootRef}
       onClick={(e) => {
         const platz = aufFensterStelle(e)
-        const fenster = def?.suchFenster
-        if (platz !== null && fenster !== undefined && elementRef.current
-          && oeffneFensterImEditor(editor, elementRef.current, block.id, fenster, platz)) {
+        if (platz !== null && suchFenster !== undefined && elementRef.current
+          && oeffneFensterImEditor(editor, elementRef.current, block.id, suchFenster, platz)) {
           e.stopPropagation()
           onSelect?.()
           return
@@ -171,11 +173,11 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           : null}
       </div>
       {pickers}
-      {def?.listenBindung?.eintragStellen !== undefined && (
+      {liste?.eintragStellen !== undefined && (
         <SpaltenBedienung
           block={block}
-          bindung={def.listenBindung}
-          selektor={def.listenBindung.eintragStellen}
+          bindung={liste}
+          selektor={liste.eintragStellen}
           element={element}
           wirt={rootRef}
           container={containerRef}

@@ -3,13 +3,7 @@ import { html, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { property, state } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
 import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type {
-  ActionValueSpotsFor,
-  BindableSpotsFor,
-  QuellenFaehigkeit,
-  SatzWahl,
-  SuchFenster,
-} from '../../core/blocks/BlockDefinition'
+import { aktionswert, bindbar, type Faehigkeit } from '../../core/blocks/faehigkeiten'
 import { geberIdVon, klareAuswahl, setzeAuswahl } from '../shared/auswahl'
 import { vorschlagStil } from '../shared/vorschlagListe'
 import { vorschlaegeImFensterStand } from '../tabelle/nachschlagStand'
@@ -52,50 +46,45 @@ export class FormFeldBlock extends BasicBlock {
   static readonly displayName = 'Formularfeld'
   static readonly category: BlockCategory = 'eingabe'
 
-  static readonly acceptsDataSource: QuellenFaehigkeit = {
-    wenn: { attributeName: 'fieldType', notEquals: 'nachschlagen' },
-  }
-
-  static readonly kannAuswahlFolgen = true
-
-  // Das Feld GIBT seine Zeile: beim Typ Nachschlagen die im Fenster gewaehlte,
-  // sonst die angezeigte Zeile seiner Datenquelle.
-  static readonly satzWahl: SatzWahl = {
-    quelleProp: 'nachschlagQuelle',
-    wenn: { attributeName: 'fieldType', equals: 'nachschlagen' },
-  }
-
-  static readonly listenBindung = NACHSCHLAG_SPALTEN_BINDUNG
-
-  // Die Angaben des Fensters wohnen am Feld; eingestellt wird es IM Fenster,
-  // das die Lupe aufmacht.
-  static readonly suchFenster: SuchFenster = {
-    spaltenKey: 'nachschlagSpalten',
-    breiteKey: 'fensterBreite',
-    hoeheKey: 'fensterHoehe',
-    quelleProp: 'nachschlagQuelle',
-    speicherFeldProp: 'speicherFeld',
-    speicherTitelProp: 'speicherTitel',
-    automatik: 'Ohne Spalten zeigt das Fenster eine: das gespeicherte Feld.'
-      + ' Die erste Spalte ist, was nach der Wahl im Feld steht.',
-    stelle: '.lupe',
-    wenn: { attributeName: 'fieldType', equals: 'nachschlagen' },
-  }
-
-  static readonly bindableSpots: BindableSpotsFor<typeof FormFeldBlock.defaultProps> = [
+  static readonly faehigkeiten: readonly Faehigkeit[] = [
+    { art: 'quelle', wenn: { attributeName: 'fieldType', notEquals: 'nachschlagen' } },
+    { art: 'auswahlFolgen' },
+    // Das Feld GIBT seine Zeile: beim Typ Nachschlagen die im Fenster gewaehlte,
+    // sonst die angezeigte Zeile seiner Datenquelle.
     {
-      prop: 'value',
-      label: 'Wert',
-      wenn: { attributeName: 'fieldType', keinesVon: ['checkbox', 'nachschlagen'] satisfies readonly FeldTyp[] },
-
-      vorschauProp: 'placeholder',
+      art: 'satzwahl',
+      quelleProp: 'nachschlagQuelle',
+      wenn: { attributeName: 'fieldType', equals: 'nachschlagen' },
     },
+    { art: 'liste', bindung: NACHSCHLAG_SPALTEN_BINDUNG },
+    // Die Angaben des Fensters wohnen am Feld; eingestellt wird es IM Fenster,
+    // das die Lupe aufmacht.
+    {
+      art: 'suchfenster',
+      fenster: {
+        spaltenKey: 'nachschlagSpalten',
+        breiteKey: 'fensterBreite',
+        hoeheKey: 'fensterHoehe',
+        quelleProp: 'nachschlagQuelle',
+        speicherFeldProp: 'speicherFeld',
+        speicherTitelProp: 'speicherTitel',
+        automatik: 'Ohne Spalten zeigt das Fenster eine: das gespeicherte Feld.'
+          + ' Die erste Spalte ist, was nach der Wahl im Feld steht.',
+        stelle: '.lupe',
+        wenn: { attributeName: 'fieldType', equals: 'nachschlagen' },
+      },
+    },
+    bindbar<typeof FormFeldBlock.defaultProps>([
+      {
+        prop: 'value',
+        label: 'Wert',
+        wenn: { attributeName: 'fieldType', keinesVon: ['checkbox', 'nachschlagen'] satisfies readonly FeldTyp[] },
+        vorschauProp: 'placeholder',
+      },
+    ]),
+    aktionswert<typeof FormFeldBlock.defaultProps>([{ prop: 'value', label: 'Wert' }]),
+    { art: 'ereignisse', liste: [{ key: 'onChange', name: 'Wert geändert' }] },
   ]
-
-  static readonly actionValueSpots: ActionValueSpotsFor<typeof FormFeldBlock.defaultProps> = [
-    { prop: 'value', label: 'Wert' },
-  ]
-  static readonly blockEvents = [{ key: 'onChange', name: 'Wert geändert' }]
 
   static readonly defaultProps = {
     width: 240,

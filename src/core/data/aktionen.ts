@@ -1,5 +1,5 @@
 // Die Aktionskette eines Bausteins: Schritte, Parameter und wie sie gelesen werden.
-import type { VormerkArt } from '../blocks/BlockDefinition'
+import type { VormerkArt } from '../blocks/faehigkeiten'
 import type { RelationTemplate } from './relations'
 
 export type StepTypeKey =
