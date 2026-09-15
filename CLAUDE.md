@@ -115,7 +115,10 @@ Was die Tabelle als Muster heisst:
 - Jede Faehigkeit wird ein eigener Laufzeitteil wie heute jeder Baustein
   (`tools/laufzeitBauen.mjs`, `teile.json`). Heute traegt jede Maske die
   Basis von 86 kB mit allen Faehigkeiten, auch eine Maske aus einem
-  Textfeld. Danach reist nur, was die Maske einsteckt. Beweis: ein Test
+  Textfeld. Danach reist nur, was die Maske einsteckt. Gemessen am 15.09.:
+  Basis 63 kB, davon 22 kB Lit und 41 kB Kern und Bruecke, die das Bauskript
+  komplett in die Basis packt; auch Kern und Bruecke werden Teile, die nur
+  reisen, wenn ein Baustein der Maske sie importiert. Beweis: ein Test
   exportiert eine Maske aus einem Textfeld und einer Tabelle ohne
   Nachschlagen und nennt die Laufzeitteile im Skript; Nachschlagen, Kanban
   und Erfassen duerfen nicht darin stehen. Die Groesse jedes Teils steht im
