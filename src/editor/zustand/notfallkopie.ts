@@ -32,6 +32,23 @@ export function legeKopieAn(storageKey: string, raw: string): string | null {
   }
 }
 
+// Die juengste Kopie: der Zeitstempel im Schluessel sortiert sich als Text.
+export function letzteKopie(storageKey: string): { key: string; raw: string } | null {
+  try {
+    const praefix = backupKeyFor(storageKey)
+    let juengste: string | null = null
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key !== null && key.startsWith(praefix) && (juengste === null || key > juengste)) juengste = key
+    }
+    if (juengste === null) return null
+    const raw = localStorage.getItem(juengste)
+    return raw === null ? null : { key: juengste, raw }
+  } catch {
+    return null
+  }
+}
+
 export function kopieSatz(storageKey: string, backupKey: string | null): string {
   if (backupKey !== null) {
     return `Der alte Stand ist als Notfallkopie gesichert (Schlüssel „${backupKey}" im `

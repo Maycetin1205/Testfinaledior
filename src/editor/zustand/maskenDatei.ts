@@ -16,7 +16,7 @@ import {
 import type { Editor } from './Editor'
 import { pruefeBaumStand } from './ladeKette'
 import { meldungen } from './meldungen'
-import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
+import { CURRENT_SCHEMA_VERSION, hebeStand } from './maskenSchema'
 
 const MASKEN_DATEI_ART = 'aufbau-editor-maske'
 
@@ -106,7 +106,7 @@ function auspacken(text: string): AuspackErgebnis {
   if (!roh || typeof roh !== 'object' || Array.isArray(roh)) {
     return abgelehnt('Die Datei enthält keine Maske.')
   }
-  const o = roh as Record<string, unknown>
+  const o = hebeStand(roh) as Record<string, unknown>
 
   if (o.art === BIBLIOTHEK_DATEI_ART) {
     return abgelehnt(
@@ -143,7 +143,7 @@ function auspacken(text: string): AuspackErgebnis {
   }
   const wurzel = (o.tree as Record<string, unknown>)[WURZEL_ID]
   if (!wurzel || typeof wurzel !== 'object' || Array.isArray(wurzel)
-    || !Array.isArray((wurzel as Record<string, unknown>).childIds)) {
+    || !Array.isArray((wurzel as Record<string, unknown>).kinderIds)) {
     return abgelehnt('Die Datei enthält keinen lesbaren Masken-Aufbau.')
   }
 

@@ -2,6 +2,7 @@
 import {
   Download,
   FileText,
+  FileUp,
   FolderOpen,
   MoreHorizontal,
   Redo2,
@@ -24,6 +25,7 @@ import { failedChecks, validateMaskHtml } from '../../export/validator'
 import { downloadFile } from '../zustand/dateiDownload'
 import { ladeMaskeAusDatei, speichereMaskeAlsDatei } from '../zustand/maskenDatei'
 import { meldungen } from '../zustand/meldungen'
+import { stelleLetzteKopieWiederHer } from '../zustand/persistence'
 import { useEditor } from '../zustand/useEditor'
 import { Feld } from '@/editor/werkbank/Feld'
 import { Knopf } from '@/editor/werkbank/Knopf'
@@ -86,6 +88,7 @@ export function Toolbar({ onDatencenter }: { onDatencenter: () => void }) {
         clearDisabled={ed.blockCount === 0}
         onSpeichern={() => speichereMaskeAlsDatei(ed)}
         onDatei={(datei) => void ladeMaskeAusDatei(ed, datei)}
+        onNotfallkopie={() => stelleLetzteKopieWiederHer(ed)}
       />
 
       <Trenner senkrecht className="mx-1" />
@@ -180,11 +183,13 @@ function WeitereAktionen({
   clearDisabled,
   onSpeichern,
   onDatei,
+  onNotfallkopie,
 }: {
   onClearAll: () => void
   clearDisabled: boolean
   onSpeichern: () => void
   onDatei: (datei: File) => void
+  onNotfallkopie: () => void
 }) {
   const [offen, setOffen] = useState(false)
   const knopf = useRef<HTMLButtonElement>(null)
@@ -233,6 +238,16 @@ function WeitereAktionen({
           onClose={() => setOffen(false)}
         >
           <div role="menu" className="flex flex-col">
+            <MenueZeile
+              role="menuitem"
+              zeichen={<FileUp size={14} />}
+              onClick={() => {
+                setOffen(false)
+                onNotfallkopie()
+              }}
+            >
+              Notfallkopie wiederherstellen
+            </MenueZeile>
             <MenueZeile
               role="menuitem"
               art="gefahr"

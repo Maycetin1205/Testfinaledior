@@ -11,11 +11,13 @@ import { pruefeRelationsVorlagen, type RelationsVorlage } from '../../kern/daten
 import { downloadFile } from './dateiDownload'
 import type { Editor } from './Editor'
 import { ersteAbweichung, keinVerlust } from './ladeKette'
+import { hebeSchluessel } from './maskenSchema'
 import { meldungen } from './meldungen'
 
 export const BIBLIOTHEK_DATEI_ART = 'aufbau-editor-bibliothek'
 
-const BIBLIOTHEK_DATEI_VERSION = 1
+// Version 1 trug die englischen Schluessel; hebeSchluessel liest sie noch.
+const BIBLIOTHEK_DATEI_VERSION = 2
 
 export interface BibliothekInhalt {
   datenquellen: Datenquelle[]
@@ -101,7 +103,7 @@ export function packeBibliothekAus(text: string): BibliothekErgebnis {
   if (!roh || typeof roh !== 'object' || Array.isArray(roh)) {
     return abgelehnt('Die Datei enthält keine Bibliothek.')
   }
-  const o = roh as Record<string, unknown>
+  const o = hebeSchluessel(roh) as Record<string, unknown>
 
   if (o.art !== BIBLIOTHEK_DATEI_ART) {
     return abgelehnt(

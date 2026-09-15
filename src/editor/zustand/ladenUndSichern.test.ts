@@ -4,7 +4,7 @@ import { WURZEL_ID, WURZEL_TYP } from '../../kern/maske/baum'
 import { meldungen } from './meldungen'
 import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
 import { pruefeBaumStand } from './ladeKette'
-import { backupKeyFor } from './notfallkopie'
+import { backupKeyFor, letzteKopie } from './notfallkopie'
 import { loadFromStorage, STORAGE_KEY } from './persistence'
 
 // Hier haengt, dass kein gespeicherter Stand stumm verschwindet: was der Editor
@@ -222,4 +222,38 @@ test('ein unlesbarer Bibliothekseintrag verhindert einen gekuerzten Maskenstand'
   expect(loadFromStorage()).toBeNull()
   expect(speicher.getItem(STORAGE_KEY)).toBe(roh)
   expect(kopien(STORAGE_KEY).map((k) => speicher.getItem(k))).toEqual([roh])
+})
+
+test('ein Stand im Format 9 wird beim Laden auf 10 gehoben', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: 9,
+    tree: {
+      [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: ['b1'] },
+      b1: {
+        id: 'b1', type: 'button', props: {}, parentId: WURZEL_ID, childIds: [],
+        events: { onClick: [{
+          id: 's1', type: 'RELATION', resultKey: '', relationId: 'r1',
+          params: [{ source: 'data_field', value: '3_8', dataSourceId: 'q1' }], extraParams: [],
+        }] },
+      },
+    },
+    datenquellen: [{ id: 'q1', name: 'Beleg', kind: 'beleg', indexField: '0_11', fields: [{ code: '3_8', label: 'Nummer' }] }],
+    relationen: [{ id: 'r1', name: 'Lesen', verb: 'GET_RELATION', nr: '69', params: ['{PINDEX}'], allowExtraParams: false }],
+  }))
+  const stand = loadFromStorage()
+  expect(stand).not.toBeNull()
+  expect(stand?.tree.b1.typ).toBe('button')
+  expect(stand?.tree.b1.ketten?.onClick[0]).toMatchObject({
+    art: 'RELATION', parameter: [{ quelle: 'data_field', wert: '3_8', quelleId: 'q1' }],
+  })
+  expect(stand?.datenquellen[0]).toMatchObject({ art: 'beleg', satzFeld: '0_11', felder: [{ code: '3_8', name: 'Nummer' }] })
+  expect(stand?.relationen[0]).toMatchObject({ parameter: ['{PINDEX}'], zusatzParameterErlaubt: false })
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
+  expect(meldungsText()).toBe('')
+})
+
+test('die juengste Notfallkopie wird gefunden', () => {
+  speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T08-00-00-000Z', 'alt')
+  speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T09-00-00-000Z', 'neu')
+  expect(letzteKopie(STORAGE_KEY)?.raw).toBe('neu')
 })

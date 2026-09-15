@@ -3,10 +3,18 @@ import { pruefeDatenquellen, type Datenquelle } from '../../kern/daten/datenquel
 import { pruefeRelationsVorlagen, type RelationsVorlage } from '../../kern/daten/relationen'
 import { BEREICH_QUELLEN, BEREICH_RELATIONEN } from '../../kern/daten/ladeProblem'
 import { bibliothekPruefen } from './bibliothekDatei'
+import type { Editor } from './Editor'
 import { pruefeBaumStand } from './ladeKette'
-import { CURRENT_SCHEMA_VERSION, schemaLesbar } from './maskenSchema'
+import { CURRENT_SCHEMA_VERSION, hebeStand, schemaLesbar } from './maskenSchema'
 import { meldungen } from './meldungen'
-import { kopieSatz, legeKopieAn, meldeSpeicherPanne, merkeSpeicherErfolg, sichereUnlesbaren } from './notfallkopie'
+import {
+  kopieSatz,
+  legeKopieAn,
+  letzteKopie,
+  meldeSpeicherPanne,
+  merkeSpeicherErfolg,
+  sichereUnlesbaren,
+} from './notfallkopie'
 
 export const STORAGE_KEY = 'aufbau_editor_mvp_v1'
 export const SAVE_DEBOUNCE_MS = 500
@@ -26,15 +34,21 @@ export function loadFromStorage(): LoadedState | null {
   try { raw = typeof localStorage === 'undefined' ? null : localStorage.getItem(STORAGE_KEY) }
   catch { meldungen.melde('Die gespeicherte Maske konnte nicht aus dem Browser-Speicher gelesen werden.'); return null }
   if (!raw) return null
+  return leseStand(raw, STORAGE_KEY)
+}
+
+// Ein gespeicherter Stand als Text, gepruefte Maske zurueck. Was nicht lesbar
+// ist, wird gemeldet und unter dem genannten Schluessel gesichert.
+export function leseStand(raw: string, storageKey: string): LoadedState | null {
   try {
     const parsed: unknown = JSON.parse(raw)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Kein Maskenstand')
-    const stand = parsed as Record<string, unknown>
+    const stand = hebeStand(parsed) as Record<string, unknown>
     if (!schemaLesbar(stand.schemaVersion)) {
       const richtung = typeof stand.schemaVersion === 'number' && stand.schemaVersion > CURRENT_SCHEMA_VERSION
         ? 'einer neueren Version' : 'einem nicht unterstützten Format'
       meldungen.melde(`Die gespeicherte Maske stammt aus ${richtung}. Sie wurde nicht geladen. `
-        + kopieSatz(STORAGE_KEY, legeKopieAn(STORAGE_KEY, raw)))
+        + kopieSatz(storageKey, legeKopieAn(storageKey, raw)))
       return null
     }
     const baum = pruefeBaumStand({ schemaVersion: stand.schemaVersion, tree: stand.tree, selectedId: stand.selectedId })
@@ -43,15 +57,33 @@ export function loadFromStorage(): LoadedState | null {
     if (baum.art === 'abgelehnt' || !quellen.ok || !relationen.ok) {
       const grund = baum.art === 'abgelehnt' ? baum.probleme[0]?.grund : !quellen.ok ? quellen.grund : !relationen.ok ? relationen.grund : ''
       meldungen.melde(`Die gespeicherte Maske wurde nicht geladen: ${grund ?? 'Aufbau unlesbar'}.`)
-      sichereUnlesbaren(STORAGE_KEY, raw, 'Maske')
+      sichereUnlesbaren(storageKey, raw, 'Maske')
       return null
     }
     return { ...baum.baum, datenquellen: quellen.liste, relationen: relationen.liste,
       activePageId: typeof stand.activePageId === 'string' ? stand.activePageId : WURZEL_ID }
   } catch {
-    sichereUnlesbaren(STORAGE_KEY, raw, 'Maske')
+    sichereUnlesbaren(storageKey, raw, 'Maske')
     return null
   }
+}
+
+// Die juengste Notfallkopie zurueck in den Editor, als ein Undo-Schritt. Die
+// Kopie selbst bleibt liegen, bis sie bewusst entfernt wird.
+export function stelleLetzteKopieWiederHer(editor: Editor): void {
+  const kopie = letzteKopie(STORAGE_KEY)
+  if (kopie === null) {
+    meldungen.melde('Es gibt keine Notfallkopie im Browser-Speicher.')
+    return
+  }
+  const stand = leseStand(kopie.raw, kopie.key)
+  if (stand === null) return
+  editor.ersetzeMaske({
+    tree: stand.tree,
+    datenquellen: [...stand.datenquellen],
+    relationen: [...stand.relationen],
+  })
+  meldungen.melde(`Notfallkopie „${kopie.key}" wiederhergestellt. Strg+Z nimmt es zurück.`)
 }
 
 export function persistState(tree: Maskenbaum, selectedId: string | null, bibliotheken: MaskenBibliotheken): void {
