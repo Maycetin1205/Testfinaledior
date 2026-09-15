@@ -214,36 +214,65 @@ function registerSe(tries = 0): void {
   }
 }
 
-// Echttest 15.09.: die Schreibmarke blinkt im Feld, die Tasten kommen trotzdem
-// nicht an. Der Tastaturfokus liegt also beim Wirt, nicht im Dokument — ein
-// Fokuswechsel im HTML holt ihn nicht (nachgewiesen). window.focus() ist das
-// Einzige, womit eine Seite den Wirt danach fragen kann (kontrakte.md 13).
+// Echttest 15.09.: der Klick setzt die Schreibmarke, sie verschwindet gleich
+// wieder. Genau das tut SoftEngines Auto-Fokus — er entfernt sein Hilfsfeld
+// wieder, danach haelt nichts mehr den Fokus (kontrakte.md 13).
 function fokusBrueckeBauen(): void {
-  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
-    tastaturHolen()
-    return true
-  }
-  // Wer klickt, will tippen: da ist der Griff faellig, nicht nur bei SoftEngines Ruf.
-  document.addEventListener('pointerdown', () => { tastaturHolen() }, true)
+  bruecke()
+  // Ein spaeter geladenes SoftEngine-Skript erklaert beide Funktionen neu und
+  // waere damit wieder die alte Fassung; darum vor jedem Klick noch einmal.
+  document.addEventListener('pointerdown', () => { bruecke(); tastaturHolen() }, true)
 }
 
+function bruecke(): void {
+  const wirt = seFenster()
+  wirt.basisHTML_DoSetFocusToHTML = (): boolean => { tastaturHolen(); return true }
+  wirt.basis_HTML_DoSetAutoFocus = (): void => { autoFokusOhneVerlust() }
+}
+
+// Die Tastatur hat der Wirt, nicht das Dokument; eine Seite kann ihn nur danach
+// fragen. Ein Fokuswechsel im HTML holt sie nicht (Echttest 15.09.).
 function tastaturHolen(): void {
   window.focus()
-  // Steckt die Maske in einem Rahmen, sitzt der Wirt am obersten Fenster.
   try { if (window.top !== null && window.top !== window) window.top.focus() } catch { /* fremder Ursprung */ }
 }
 
-// NUR FUER DIE FEHLERSUCHE 15.09., kommt nach dem Echttest wieder raus: zeigt in
-// der Konsole, ob SoftEngines Fokus-Ruf ankommt und ob Tasten die Maske erreichen.
+// Falls SoftEngines Auto-Fokus doch gerufen wird: derselbe Zweck, aber das Feld
+// behaelt die Schreibmarke.
+function autoFokusOhneVerlust(): void {
+  const vorher = tiefstesAktives()
+  tastaturHolen()
+  if (vorher instanceof HTMLElement) vorher.focus()
+}
+
+// NUR FUER DIE FEHLERSUCHE 15.09., kommt nach dem Echttest wieder raus: sagt in
+// der Konsole, wer die Schreibmarke nimmt und ob Tasten die Maske erreichen.
 function fehlersucheFokus(): void {
-  const stand = (): string => `hasFocus=${document.hasFocus()} aktiv=${tiefstesAktives()?.nodeName ?? '-'}`
+  const wo = (el: unknown): string => (el instanceof HTMLElement ? `${el.nodeName}#${el.id || '-'}` : String(el))
+  const stand = (): string => `hasFocus=${document.hasFocus()} aktiv=${wo(tiefstesAktives())}`
   console.log(`[fokus] Maske bereit, imRahmen=${window.top !== window} ${stand()}`)
+
   const alt = seFenster().basisHTML_DoSetFocusToHTML as (() => boolean) | undefined
   seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
     console.log(`[fokus] WWFOC vom Wirt, ${stand()}`)
     return alt ? alt() : true
   }
+  const altAuto = seFenster().basis_HTML_DoSetAutoFocus as (() => void) | undefined
+  seFenster().basis_HTML_DoSetAutoFocus = (): void => {
+    console.log(`[fokus] Auto-Fokus gerufen, ${stand()}`)
+    altAuto?.()
+  }
+
   window.addEventListener('keydown', (e) => { console.log(`[fokus] Taste "${e.key}" kommt an, ${stand()}`) }, true)
+  window.addEventListener('focusin', (e) => { console.log(`[fokus] + ${wo(e.target)}`) }, true)
+  window.addEventListener('focusout', (e) => { console.log(`[fokus] - ${wo(e.target)} -> ${wo(document.activeElement)}`) }, true)
+  if (document.body) {
+    new MutationObserver((listen) => {
+      for (const l of listen) {
+        for (const k of l.addedNodes) if (k instanceof HTMLElement && k.id === 'AFELM') console.log('[fokus] SoftEngines eigenes AFELM ist da — seine Fassung laeuft, nicht unsere')
+      }
+    }).observe(document.body, { childList: true })
+  }
 }
 
 let booted = false
