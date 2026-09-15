@@ -66,6 +66,24 @@ laufenden Schritt gehoert.
    war die juengste leer, die 20 Datenquellen lagen in einer aelteren.
 5. Ausmisten: Tests und Dateien, die niemand mehr braucht.
 
+Vor der Tabelle, je ein Commit mit einem Test, im Browser belegt am 15.09.:
+
+1. Entfernen, Duplizieren und Rueckgaengig wirken bei offenem Datencenter
+   auf den Baustein dahinter (`useKeyboardShortcuts.ts`). Sie halten sich wie
+   Escape an `fensterOffen()`. Popup-Bausteine auf der Flaeche bleiben davon
+   unberuehrt.
+2. Die Feldwahl ueberschreibt einen von Hand gesetzten Spaltentitel
+   (`FeldBindung.tsx`). Der Klarname kommt nur in einen leeren oder noch
+   nie geaenderten Titel. Regel dazu: wer einen gespeicherten Schluessel
+   umbenennt, laedt alte Masken weiter, und ein Test beweist es.
+3. "Duplizieren" am Popup tut nichts (`Inspector.tsx`, `duplizieren.ts`).
+   Entweder es dupliziert das Popup samt Inhalt, oder der Knopf fehlt dort.
+4. Die Erfassung nimmt SoftEngines Fokus-Ruf blind: Fenster fokussieren,
+   Sprung in Zelle null, geprueft wird nur die eigene Zelle
+   (`ErfassungBlock.ts`, `bridge.ts`). Den Fokus nimmt sie nur, wenn nirgends
+   auf der Maske einer steht; die Pruefung durch alle Schatten-Wurzeln hat
+   die Bruecke schon.
+
 Was die Tabelle als Muster heisst:
 
 - `bausteine/tabelle/` hat am Ende hoechstens drei Dateien: Verhalten
@@ -79,6 +97,17 @@ Was die Tabelle als Muster heisst:
   erneuern und im Commit sagen, welche.
 - Die Erfassung erbt danach nicht mehr von der Tabelle. Sie wird ein eigener
   Baustein, der dieselben Faehigkeiten einsteckt und Erfassen dazu.
+- Optik, vom Nutzer am 15.09. bemaengelt: Der Kopf hat fest 36 px bei 11,5 px
+  Schrift, viel Luft um wenig Text; er folgt kuenftig der Zeilenhoehe. Der
+  Fuss (30 px, immer da) erscheint nur, wenn er etwas zu sagen hat (mehr als
+  eine Seite, Suche aktiv), sonst eine duenne Zeile. Bei eingeschalteter
+  Kopfzeile stehen die Spaltentitel nicht noch einmal in den Zellen der
+  Erfassung; der Platzhalter in der Zelle gilt nur ohne Kopfzeile. Eine
+  Berechnung ohne gewaehlte Spalten wird nicht exportiert.
+- Jede Faehigkeit wird ein eigener Laufzeitteil wie heute jeder Baustein
+  (`tools/laufzeitBauen.mjs`, `teile.json`). Heute traegt jede Maske die
+  Basis von 86 kB mit allen Faehigkeiten, auch eine Maske aus einem
+  Textfeld. Danach reist nur, was die Maske einsteckt.
 - Am Ende: Pruefbuendel gruen, Export, der Nutzer testet in SoftEngine.
 
 Offen aus dem Echttest vom 15.09. (Belege in kontrakte.md ab Abschnitt 17),
