@@ -86,9 +86,12 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
 
 1. Erledigt: Export ohne `JWHtmlStart`/`JWHtmlEnde`, die Bruecke per
    Skriptzeile (kontrakte.md 1 und 13).
-2. `bridge.ts` `frischeDatenAnfordern`: `ReloadInputJSON` gibt es in
-   SoftEngine nur als Nachricht (`basisHTML_SND_MSG`), nicht als Funktion.
-   Der Ruf laeuft heute ins Leere. Echttest noetig.
+2. Wartet auf SoftEngine: `bridge.ts` `frischeDatenAnfordern` bestellt nach
+   dem Schreiben nichts. `ReloadInputJSON` ist eine Nachricht und verlangt
+   ein Feld `ID` (kontrakte.md 7); welche ID, zeigt kein Aufruf in den
+   Vorlagen. Nicht raten. Erst entscheidet der Echttest des Nutzers, ob
+   SoftEngine nach einem PUT von selbst neu liefert; wenn nicht, die Antwort
+   von SoftEngine, was `ID` ist.
 3. Erledigt: kein `basisHTML_SetConsoleLog(true, true)` mehr in der Maske.
 4. Startpaket: GET_RELATION-, REFRESH- und TABELLE-Bloecke in den SEvariablen
    als neue Quellenarten; DATASET ist beim Hersteller unbelegt und faellt.

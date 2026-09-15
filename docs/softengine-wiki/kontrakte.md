@@ -211,11 +211,21 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   `PUT_RELATION[174!…!<Satznr>!…]`.
 - Belegter Fehlerfall: schickt man Feldnamen statt Werte, landen sie als
   INHALTE in SoftEngine — `PUT_RELATION[82!0!L!…!STSPALTE!!TEXT!!EPREIS!…]`.
-- ⚠ Nach dem Schreiben bestellt die Maske die Eingabedatei neu
-  (`ReloadInputJSON()`, aus SoftEngines Auslieferung gelesen); ohne diese
-  Funktion bleibt der Modul-Lebenszyklus als Rueckfall. Ob SoftEngine daraufhin
-  wirklich neu liefert, ist an KEINER echten Maske belegt (die Handmaske
-  schreibt gar nicht zurueck). Das entscheidet ein Echttest.
+- ⚠ Frische Daten nach dem Schreiben: `ReloadInputJSON` gibt es nur als
+  Nachricht, `basisHTML_SND_MSG('ReloadInputJSON', DATA)`
+  (`selib/2.0.0/frontend_api.js`), nicht als Funktion. Das Programm
+  (`SeErpWinUi.exe`) nennt beim Handler das Feld `ID` und die Meldung
+  „ID ist leer“. Welche ID gemeint ist, zeigt keine Vorlage: in beiden
+  Installationen ruft keine Maske den Befehl. Die Maske schickt ihn darum
+  nicht; `frischeDatenAnfordern` (`softengine/bridge.ts`) ruft eine Funktion,
+  die es nicht gibt, und bestellt nichts. Ob SoftEngine nach einem PUT von
+  selbst neu liefert, ist an KEINER echten Maske belegt (die Handmaske schreibt
+  gar nicht zurück). Aus Auslieferung und Programm gelesen, nicht per Echttest.
+- Belegt ist ein anderer Weg: SoftEngines PAN-Layoutrahmen (z. B.
+  `PAN/LAYOUTRAHMEN/Rahmen00221`) schicken nach einem Werkzeugstart
+  `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
+  lädt er die ganze Maske neu; der Schreibstatus der Zeilen ginge dabei
+  verloren. Nicht per Echttest.
 - Gilt in: `kern/daten/relationen.ts`, `bausteine/shared/seAktionen.ts`.
 
 ## 8. Positionen zur Laufzeit lesen (Hol-Relation)
