@@ -214,15 +214,11 @@ function registerSe(tries = 0): void {
   }
 }
 
-// Die Maske antwortet nie "erledigt": nur SoftEngines Auto-Fokus gibt dem
-// WebView die Tastatur (kontrakte.md 13), auch wenn ein Feld die Schreibmarke
-// schon hat. Der Auto-Fokus nimmt sie kurz weg; danach kehrt sie zurueck.
+// Steht die Schreibmarke schon auf der Maske, bleibt sie dort. Sonst antwortet
+// die Maske nicht, damit SoftEngines Auto-Fokus laeuft: nur der gibt dem
+// WebView die Tastatur (kontrakte.md 13).
 function fokusBrueckeBauen(): void {
-  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
-    const vorher = tiefstesAktives()
-    if (fokusBeiUns() && vorher instanceof HTMLElement) setTimeout(() => vorher.focus(), 0)
-    return false
-  }
+  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => fokusBeiUns()
 }
 
 let booted = false

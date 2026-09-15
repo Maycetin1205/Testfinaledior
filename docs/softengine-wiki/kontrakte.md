@@ -317,15 +317,12 @@ steht hier nur als Wissen:
   `basis_HTML_DoSetAutoFocus()` — die Funktion, die ein unsichtbares
   `<input id="AFELM">` anlegt und zweimal fokussiert. Ohne diesen Griff hat der
   WebView keine Tastatur: ein Klick landet in keinem Feld, in keinem Baustein,
-  und erst Öffnen und Schließen der Entwicklerkonsole holt ihn nach. Echttest
-  2026-09-15, Layoutrahmen 00001 in der Belegerfassung, zweimal: mit der
-  Antwort `false` klickt es, mit `true` nicht — auch dann nicht, wenn ein Feld
-  der Maske die Schreibmarke schon hat (zweiter Echttest, Antwort `true` nur
-  in diesem Fall: Klick landete wieder nirgends). Die Maske antwortet darum
-  immer `false` und setzt die Schreibmarke nach dem Auto-Fokus in das Feld
-  zurück, das sie hatte (`softengine/bridge.ts`, `tiefstesAktives` durch alle
-  Schatten-Wurzeln). Eine Maske ohne Layoutrahmen (STDERFASSUNG 990) war nie
-  betroffen — dort fragt niemand nach dem Fokus.
+  und erst Öffnen und Schließen der Entwicklerkonsole holt ihn nach. Die Maske
+  antwortet darum nur `true`, wenn die Schreibmarke schon auf ihr steht
+  (`softengine/bridge.ts` `fokusBeiUns`, durch alle Schatten-Wurzeln). Echttest
+  2026-09-15, Layoutrahmen 00001 in der Belegerfassung: mit der Antwort `false`
+  klickt es, mit `true` nicht. Eine Maske ohne Layoutrahmen (STDERFASSUNG 990)
+  war nie betroffen — dort fragt niemand nach dem Fokus.
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
   und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie
