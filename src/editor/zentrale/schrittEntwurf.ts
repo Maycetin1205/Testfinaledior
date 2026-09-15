@@ -232,12 +232,9 @@ export function kandidatAus(
     art: 'RELATION',
     relationId: entwurf.relationId,
     parameter: relation
-      ? relation.parameter.map((_, index) => {
-          const binding = bindungFuer(entwurf, vorgaben, index)
-          return { ...binding, value: binding.wert.trim() }
-        })
+      ? relation.parameter.map((_, index) => bindungFuer(entwurf, vorgaben, index))
       : [],
-    zusatzParameter: entwurf.extraParams.map((b) => ({ ...b, value: b.wert.trim() })),
+    zusatzParameter: [...entwurf.extraParams],
     ergebnisName: vorher?.ergebnisName ?? '',
   }
 }

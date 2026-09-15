@@ -277,6 +277,20 @@ function stepFields(raw: unknown): LaufzeitSchritt | null {
   return null
 }
 
+// Frueher stand in jedem Parameter `value` neben `wert`, mit demselben Inhalt.
+// Der Lader uebernimmt ihn nicht mehr; ohne dieses Abstreifen gilt jede gesicherte
+// Maske mit einer Relations-Aktion als beschaedigt und wird ganz verworfen.
+export function ohneAltenParameterSchluessel(roh: unknown): unknown {
+  if (Array.isArray(roh)) return roh.map(ohneAltenParameterSchluessel)
+  if (!istObjekt(roh)) return roh
+  const raus: Record<string, unknown> = {}
+  for (const [schluessel, wert] of Object.entries(roh)) {
+    if (schluessel === 'value' && 'wert' in roh) continue
+    raus[schluessel] = ohneAltenParameterSchluessel(wert)
+  }
+  return raus
+}
+
 export function kettenBereinigen(
   raw: unknown,
   allowedEvents: readonly string[],

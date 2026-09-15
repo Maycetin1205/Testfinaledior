@@ -3,7 +3,7 @@ import { bausteinArt } from '../../kern/maske/registry'
 import { faehigkeit } from '../../kern/maske/faehigkeiten'
 import { BELEG_RAHMEN_PROP } from '../../kern/maske/belegRahmen'
 import { MASKEN_NAME_PROP } from '../../kern/maske/maskenName'
-import { kettenBereinigen } from '../../kern/daten/aktionen'
+import { kettenBereinigen, ohneAltenParameterSchluessel } from '../../kern/daten/aktionen'
 import { BEREICH_AUFBAU, type LadeProblem } from '../../kern/daten/ladeProblem'
 import { CURRENT_SCHEMA_VERSION, ohneEntfallene, schemaLesbar } from './maskenSchema'
 import { topologieProbleme } from './topologie'
@@ -59,7 +59,9 @@ export function pruefeBaumStand(roh: {
     if (!keinVerlust(node.werte, props)) {
       fund(id, id === WURZEL_ID ? 'an der Maske selbst stimmen Angaben nicht' : `am Baustein „${id}“ stimmen Angaben nicht`)
     }
-    if (!keinVerlust(node.ketten, events)) fund(id, `eine Aktion am Baustein „${id}“ ist unlesbar`)
+    if (!keinVerlust(ohneAltenParameterSchluessel(node.ketten), events)) {
+      fund(id, `eine Aktion am Baustein „${id}“ ist unlesbar`)
+    }
     tree[id] = { id, typ: node.typ, elternId: node.elternId, werte: props,
       kinderIds: [...node.kinderIds], ...(events ? { ketten: events } : {}) }
   }

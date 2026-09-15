@@ -242,11 +242,13 @@ test('ein Stand im Format 10 wird beim Laden auf die deutschen Bausteinnamen geh
   expect(meldungsText()).toBe('')
 })
 
-// Der Stand des Nutzers vom 15.09.: ein frueherer Editor schrieb in jeden
-// Ketten-Parameter `wert` UND `value`. Das Doppel darf die Maske nicht kosten.
+// Der Stand des Nutzers vom 15.09.: der Editor schrieb in jeden Ketten-Parameter
+// `wert` UND `value`. Im heutigen Format hebt keine Umstellung das Doppel mehr
+// weg, und der Lader verwarf die ganze Maske — dem Nutzer ging sie zehnmal
+// verloren. Darum steht hier das heutige Format, nicht das alte.
 test('ein Ketten-Parameter mit altem value neben wert laedt ohne Verlust', () => {
   speicher.setItem(STORAGE_KEY, JSON.stringify({
-    schemaVersion: 10,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: {
       ...wurzelBaum(['b1']),
       b1: {
