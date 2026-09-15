@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:runtime": "node tools/laufzeitBauen.mjs",
-    "check": "tsc -b && eslint src",
+    "check": "tsc -b && eslint src && node tools/bausteinPruefen.mjs",
     "test": "vitest run",
     "predev": "npm run build:runtime",
     "prebuild": "npm run build:runtime",

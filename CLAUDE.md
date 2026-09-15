@@ -98,7 +98,12 @@ So laeuft jeder Baustein in Schritt 3, ohne Ausnahme:
    Bausteine bleiben, wie sie sind, auch wenn sie haesslich sind.
 3. Nach dem Umbau: Pruefbuendel gruen, Referenzabzug erneuern, wenn er rot
    ist, und im Commit jede geaenderte Attribut- oder Schluesseländerung
-   nennen.
+   nennen. Die Verhaltensdatei heisst wie der Baustein (`Tabelle.ts`, nicht
+   `TabelleBlock.ts`); ab dann prueft `tools/bausteinPruefen.mjs` (Teil von
+   `npm run check`) die Bauweise: Dateizahl, keine shared-Importe, kein Erben,
+   deutsche Eigenschaften, gemeldete Faehigkeiten, Kommentardichte. Ein
+   Baustein ist erst fertig, wenn er dort ohne Beanstandung steht. Gruene
+   Tests allein beweisen nur, dass er laeuft, nicht, dass er gut gebaut ist.
 4. Dem Nutzer eine Klickanleitung geben: Baustein anlegen, Quelle binden,
    exportieren, in SoftEngine oeffnen. Erst nach seinem "laeuft" der
    naechste Baustein.
