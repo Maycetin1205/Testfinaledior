@@ -257,3 +257,22 @@ test('die juengste Notfallkopie wird gefunden', () => {
   speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T09-00-00-000Z', 'neu')
   expect(letzteKopie(STORAGE_KEY)?.raw).toBe('neu')
 })
+
+test('ein entfallener Bausteintyp faellt weg, der Rest wird geladen und es wird gesagt', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: {
+      [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: ['n1', 't1'] },
+      n1: { id: 'n1', typ: 'navi', werte: {}, elternId: WURZEL_ID, kinderIds: ['ne1'] },
+      ne1: { id: 'ne1', typ: 'navi-eintrag', werte: {}, elternId: 'n1', kinderIds: [] },
+      t1: { id: 't1', typ: 'text', werte: {}, elternId: WURZEL_ID, kinderIds: [] },
+    },
+    datenquellen: [],
+    relationen: [],
+  }))
+  const stand = loadFromStorage()
+  expect(Object.keys(stand?.tree ?? {}).sort()).toEqual([WURZEL_ID, 't1'])
+  expect(stand?.tree[WURZEL_ID].kinderIds).toEqual(['t1'])
+  expect(meldungsText()).toContain('„navi"')
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
+})

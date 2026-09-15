@@ -16,6 +16,7 @@ import {
 import type { Editor } from './Editor'
 import { pruefeBaumStand } from './ladeKette'
 import { meldungen } from './meldungen'
+import { meldeEntfallene } from './persistence'
 import { CURRENT_SCHEMA_VERSION, hebeStand } from './maskenSchema'
 
 const MASKEN_DATEI_ART = 'aufbau-editor-maske'
@@ -162,6 +163,7 @@ function auspacken(text: string): AuspackErgebnis {
 
     return { ok: false, grund: beschaedigtSatz(stand.probleme), probleme: stand.probleme }
   }
+  meldeEntfallene(stand.entfallen)
   const baum = stand.baum
 
   const quellen = bibliothekPruefen(o.datenquellen, pruefeDatenquellen, BEREICH_QUELLEN)

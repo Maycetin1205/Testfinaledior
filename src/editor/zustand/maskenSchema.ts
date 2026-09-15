@@ -53,3 +53,37 @@ export function hebeStand(roh: unknown): unknown {
   gehoben.schemaVersion = CURRENT_SCHEMA_VERSION
   return gehoben
 }
+
+// Bausteintypen, die es nicht mehr gibt. Eine Maske mit ihnen wird nicht
+// abgelehnt: die Bausteine fallen samt Kindern weg, und der Lader sagt es.
+export const ENTFALLENE_TYPEN: readonly string[] = ['navi', 'navi-eintrag']
+
+export function ohneEntfallene(
+  tree: Record<string, unknown>,
+): { tree: Record<string, unknown>; entfallen: string[] } {
+  const weg = new Set<string>()
+  const merke = (id: string): void => {
+    const node = tree[id]
+    if (!objekt(node) || weg.has(id)) return
+    weg.add(id)
+    for (const kind of Array.isArray(node.kinderIds) ? node.kinderIds : []) {
+      if (typeof kind === 'string') merke(kind)
+    }
+  }
+  const entfallen: string[] = []
+  for (const [id, node] of Object.entries(tree)) {
+    if (objekt(node) && typeof node.typ === 'string' && ENTFALLENE_TYPEN.includes(node.typ)) {
+      entfallen.push(node.typ)
+      merke(id)
+    }
+  }
+  if (weg.size === 0) return { tree, entfallen }
+  const raus: Record<string, unknown> = {}
+  for (const [id, node] of Object.entries(tree)) {
+    if (weg.has(id) || !objekt(node)) continue
+    raus[id] = Array.isArray(node.kinderIds)
+      ? { ...node, kinderIds: node.kinderIds.filter((k) => typeof k !== 'string' || !weg.has(k)) }
+      : node
+  }
+  return { tree: raus, entfallen }
+}

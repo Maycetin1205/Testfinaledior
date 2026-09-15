@@ -5,7 +5,7 @@ import { BELEG_RAHMEN_PROP } from '../../kern/maske/belegRahmen'
 import { MASKEN_NAME_PROP } from '../../kern/maske/maskenName'
 import { kettenBereinigen } from '../../kern/daten/aktionen'
 import { BEREICH_AUFBAU, type LadeProblem } from '../../kern/daten/ladeProblem'
-import { CURRENT_SCHEMA_VERSION, schemaLesbar } from './maskenSchema'
+import { CURRENT_SCHEMA_VERSION, ohneEntfallene, schemaLesbar } from './maskenSchema'
 import { topologieProbleme } from './topologie'
 import { werteBereinigen } from '../../kern/maske/baumOps'
 
@@ -14,7 +14,7 @@ function objekt(wert: unknown): wert is Record<string, unknown> {
 }
 
 export type LadeAusgang =
-  | { art: 'ok'; baum: { tree: Maskenbaum; selectedId: string | null } }
+  | { art: 'ok'; baum: { tree: Maskenbaum; selectedId: string | null }; entfallen: string[] }
   | { art: 'abgelehnt'; ursache: 'version' | 'unlesbar' | 'verlust'; probleme: LadeProblem[] }
 
 export function pruefeBaumStand(roh: {
@@ -31,10 +31,11 @@ export function pruefeBaumStand(roh: {
   if (!objekt(roh.tree) || !objekt(roh.tree[WURZEL_ID])) {
     return { art: 'abgelehnt', ursache: 'unlesbar', probleme: [] }
   }
+  const bereinigt = ohneEntfallene(roh.tree)
   const tree: Maskenbaum = Object.create(null) as Maskenbaum
   const probleme: LadeProblem[] = []
   const fund = (stelle: string, grund: string): void => { probleme.push({ bereich: BEREICH_AUFBAU, stelle, grund }) }
-  for (const [id, node] of Object.entries(roh.tree)) {
+  for (const [id, node] of Object.entries(bereinigt.tree)) {
     if (!objekt(node) || node.id !== id || typeof node.typ !== 'string'
       || !objekt(node.werte) || !Array.isArray(node.kinderIds)
       || !node.kinderIds.every((kind): kind is string => typeof kind === 'string')
@@ -64,7 +65,7 @@ export function pruefeBaumStand(roh: {
   }
   if (probleme.length === 0) probleme.push(...topologieProbleme(tree))
   if (probleme.length > 0) return { art: 'abgelehnt', ursache: 'verlust', probleme }
-  return { art: 'ok', baum: { tree, selectedId:
+  return { art: 'ok', entfallen: bereinigt.entfallen, baum: { tree, selectedId:
     typeof roh.selectedId === 'string' && roh.selectedId !== WURZEL_ID && tree[roh.selectedId] ? roh.selectedId : null,
   } }
 }

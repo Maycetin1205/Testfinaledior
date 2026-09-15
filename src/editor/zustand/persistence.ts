@@ -60,12 +60,19 @@ export function leseStand(raw: string, storageKey: string): LoadedState | null {
       sichereUnlesbaren(storageKey, raw, 'Maske')
       return null
     }
+    meldeEntfallene(baum.entfallen)
     return { ...baum.baum, datenquellen: quellen.liste, relationen: relationen.liste,
       activePageId: typeof stand.activePageId === 'string' ? stand.activePageId : WURZEL_ID }
   } catch {
     sichereUnlesbaren(storageKey, raw, 'Maske')
     return null
   }
+}
+
+export function meldeEntfallene(entfallen: readonly string[]): void {
+  if (entfallen.length === 0) return
+  const arten = [...new Set(entfallen)].map((t) => `„${t}"`).join(', ')
+  meldungen.melde(`${entfallen.length} Baustein(e) vom Typ ${arten} gibt es nicht mehr und wurden weggelassen. Alles andere ist geladen.`)
 }
 
 // Die juengste Notfallkopie zurueck in den Editor, als ein Undo-Schritt. Die
@@ -76,7 +83,7 @@ export function stelleLetzteKopieWiederHer(editor: Editor): void {
     meldungen.melde('Es gibt keine Notfallkopie im Browser-Speicher.')
     return
   }
-  const stand = leseStand(kopie.raw, kopie.key)
+  const stand = leseStand(kopie.raw, STORAGE_KEY)
   if (stand === null) return
   editor.ersetzeMaske({
     tree: stand.tree,
