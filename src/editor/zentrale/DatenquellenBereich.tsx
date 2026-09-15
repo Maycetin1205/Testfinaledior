@@ -1,24 +1,24 @@
 // Der Datenquellen-Bereich des Datencenters: Liste, Anlegen, Kopieren, Loeschen.
 import { useRef, useState, type ReactNode } from 'react'
-import { FileUp, Plus, TriangleAlert } from '@/ui/zeichen'
-import { Gruppe } from '@/ui/werkbank/Gruppe'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { ListeDetail } from '@/ui/werkbank/ListeDetail'
-import { Eintrag } from '@/ui/werkbank/Eintrag'
-import { Marke } from '@/ui/werkbank/Marke'
+import { FileUp, Plus, TriangleAlert } from '@/editor/zeichen/zeichen'
+import { Gruppe } from '@/editor/werkbank/Gruppe'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { ListeDetail } from '@/editor/werkbank/ListeDetail'
+import { Eintrag } from '@/editor/werkbank/Eintrag'
+import { Marke } from '@/editor/werkbank/Marke'
 import {
   artFuer,
   quellenKennung,
   type Datenquelle,
-} from '../../core/data/dataSources'
+} from '../../kern/daten/datenquellen'
 import { quellenWorte } from './beschriftungen'
-import { dtkLesen, type DtkTabelle } from '../../core/data/dtkImport'
-import { bausteineMitQuelle } from '../../state/quellenOps'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
+import { dtkLesen, type DtkTabelle } from '../../kern/daten/dtkImport'
+import { bausteineMitQuelle } from '../../kern/maske/quellenReichweite'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
 import { DataSourceForm } from './DataSourceForm'
 import { DtkImportForm } from './DtkImportForm'
-import { bausteinName } from '../../core/blocks/bausteinName'
+import { bausteinName } from '../../kern/maske/bausteinName'
 import { ikonFuer } from './helfer'
 
 // „Belege (Kopie)", und wenn es die schon gibt: „Belege (Kopie 2)" — zwei

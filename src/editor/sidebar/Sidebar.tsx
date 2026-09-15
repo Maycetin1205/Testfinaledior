@@ -1,6 +1,6 @@
 // Die linke Leiste des Editors.
-import { ChevronDown } from '@/ui/zeichen'
-import { Knopf } from '@/ui/werkbank/Knopf'
+import { ChevronDown } from '@/editor/zeichen/zeichen'
+import { Knopf } from '@/editor/werkbank/Knopf'
 import { BlockPalette } from './BlockPalette'
 
 interface SidebarProps {

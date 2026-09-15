@@ -1,7 +1,7 @@
 // Eine Wahl aus wenigen Moeglichkeiten als Zungenreihe.
-import type { Wahloption } from '../../../core/blocks/PropertyDescription'
-import { Segment } from '@/ui/werkbank/Segment'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import type { Wahloption } from '../../../kern/maske/eigenschaft'
+import { Segment } from '@/editor/werkbank/Segment'
+import { Zeile } from '@/editor/werkbank/Zeile'
 import { segmentIcon } from '../segmentIcons'
 
 interface SegmentControlProps {

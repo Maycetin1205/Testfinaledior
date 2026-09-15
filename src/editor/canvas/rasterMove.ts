@@ -1,8 +1,8 @@
 // Die Zug-Regel: Druecken und Bewegen zieht immer den Baustein.
 import type { PointerEvent as ReactPointerEvent } from 'react'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { RASTER, rasterPlatzLesen } from '../../core/blocks/rasterLayout'
-import type { Editor } from '../../state/Editor'
+import type { Baustein } from '../../kern/maske/baum'
+import { RASTER, rasterPlatzLesen } from '../../kern/maske/raster'
+import type { Editor } from '../zustand/Editor'
 import type { DndState } from './dndState'
 import { zelleAusZeiger } from './rasterDnd'
 import { flaecheVon } from './rasterFlaeche'

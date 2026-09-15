@@ -9,7 +9,7 @@ import {
   tabellenIdVon,
   varAusKopfsaetzen,
   type Datenquelle,
-} from '../core/data/dataSources'
+} from '../kern/daten/datenquellen'
 import { escapeNonAsciiJs } from './serializer'
 
 // Kopfsatz-Index und offener Satz koennen auf DIESELBE Tabelle zeigen. Zwei

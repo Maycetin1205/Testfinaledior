@@ -1,18 +1,18 @@
 // „Folgt der Auswahl von …" im Inspector.
-import { Gruppe } from '@/ui/werkbank/Gruppe'
-import type { ListeEintrag } from '@/ui/werkbank/Liste'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { auswahlQuelleIdVon, istAuswahlGeber } from '../../core/blocks/treeQuery'
+import { Gruppe } from '@/editor/werkbank/Gruppe'
+import type { ListeEintrag } from '@/editor/werkbank/Liste'
+import type { Baustein } from '../../kern/maske/baum'
+import { auswahlQuelleIdVon, istAuswahlGeber } from '../../kern/maske/baumFragen'
 import {
   AUSWAHL_FOLGE_PROP,
   auswahlFolgenAus,
   folgeBrauchbar,
   type AuswahlFolge,
-} from '../../core/data/auswahlFolge'
-import { ladeRelationVon, quellenKennung } from '../../core/data/dataSources'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
-import { bausteinName } from '../../core/blocks/bausteinName'
+} from '../../kern/daten/auswahlFolge'
+import { ladeRelationVon, quellenKennung } from '../../kern/daten/datenquellen'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
+import { bausteinName } from '../../kern/maske/bausteinName'
 import { useAbschnitt } from './abschnittStand'
 import { PickerControl } from './controls/PickerControl'
 import { SchluesselPaarZeilen } from './SchluesselPaarZeilen'

@@ -1,6 +1,6 @@
 // Ein Ja/Nein als Kachel im Inspector.
-import type { Eigenschaft } from '../../../core/blocks/PropertyDescription'
-import { Kachel } from '@/ui/werkbank/Kachel'
+import type { Eigenschaft } from '../../../kern/maske/eigenschaft'
+import { Kachel } from '@/editor/werkbank/Kachel'
 
 interface KachelControlProps {
   property: Eigenschaft

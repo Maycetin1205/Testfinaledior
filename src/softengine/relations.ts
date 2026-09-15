@@ -3,8 +3,8 @@ import {
   RELATIONS_VERBEN,
   type RelationsVorlage,
   type RelationsVerb,
-} from '../core/data/relations'
-import { BAUSTEIN_ID_ATTR, type Parameter } from '../core/data/aktionen'
+} from '../kern/daten/relationen'
+import { BAUSTEIN_ID_ATTR, type Parameter } from '../kern/daten/aktionen'
 import { bootSe, onSeAntwort, seGlobal } from './bridge'
 import {
   findRuntimeDataSource,

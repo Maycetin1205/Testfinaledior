@@ -1,7 +1,7 @@
 // Der Balken unter der Leinwand: Stand und Meldungen.
-import { bausteinName } from '../../core/blocks/bausteinName'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
+import { bausteinName } from '../../kern/maske/bausteinName'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
 
 export function StatusBar() {
   const ed = useEditor()

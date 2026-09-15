@@ -1,22 +1,22 @@
 // Ein Suchfenster aus der Sicht des Editors: woher es seine Angaben nimmt und
 // wohin der gezogene Rand und der Spaltenkopf sie zurueckschreiben. Eingestellt
 // wird IM Fenster; diese Datei ist nur der Weg dorthin.
-import { coerceErfassungsSpalten } from '../../blocks/erfassung/erfassungsSpalte'
-import { fensterSpaltenIn } from '../../blocks/erfassung/erfassungsZeile'
+import { coerceErfassungsSpalten } from '../../bausteine/erfassung/erfassungsSpalte'
+import { fensterSpaltenIn } from '../../bausteine/erfassung/erfassungsZeile'
 import {
   FENSTER_HOEHE,
   automatikSpalten,
   coerceNachschlagSpalten,
   fensterBreiteFuer,
   oeffneNachschlagen,
-} from '../../blocks/tabelle/nachschlagen'
-import { DIALOG_RAHMEN_TAG, type DialogRahmen } from '../../blocks/shared/DialogRahmen'
-import type { Spalte } from '../../blocks/tabelle/spalten'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
-import { type SuchFenster } from '../../core/blocks/faehigkeiten'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import type { Editor } from '../../state/Editor'
+} from '../../bausteine/tabelle/nachschlagen'
+import { DIALOG_RAHMEN_TAG, type DialogRahmen } from '../../bausteine/shared/DialogRahmen'
+import type { Spalte } from '../../bausteine/tabelle/spalten'
+import type { Baustein } from '../../kern/maske/baum'
+import { zerlegeBindung } from '../../kern/maske/bausteinArt'
+import { type SuchFenster } from '../../kern/maske/faehigkeiten'
+import { bausteinArt } from '../../kern/maske/registry'
+import type { Editor } from '../zustand/Editor'
 
 export interface FensterStand {
   quelleId: string

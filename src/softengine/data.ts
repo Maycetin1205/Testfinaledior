@@ -1,6 +1,6 @@
 // Die gelieferten Daten lesen: Quellen, Zeilen, Felder, Satznummern.
-import { pruefeHolWert, type HolWert } from '../core/data/holWert'
-import { POS_LEN, pruefeLadeRelation, type LadeRelation } from '../core/data/ladeRelation'
+import { pruefeHolWert, type HolWert } from '../kern/daten/holWert'
+import { POS_LEN, pruefeLadeRelation, type LadeRelation } from '../kern/daten/ladeRelation'
 import { geholteZeilenFuer } from './geholteZeilen'
 
 export type UnknownRecord = Record<string, unknown>

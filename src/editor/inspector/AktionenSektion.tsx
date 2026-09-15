@@ -1,9 +1,9 @@
 // Die Aktionsketten eines Bausteins im Inspector.
 import { useState } from 'react'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import type { Baustein } from '../../core/blocks/BlockData'
-import type { Ereignis } from '../../core/blocks/faehigkeiten'
-import { useEditor } from '../../state/useEditor'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import type { Baustein } from '../../kern/maske/baum'
+import type { Ereignis } from '../../kern/maske/faehigkeiten'
+import { useEditor } from '../zustand/useEditor'
 import { KettenFenster } from '../zentrale/KettenFenster'
 
 export function AktionenSektion({

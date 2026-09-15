@@ -1,16 +1,16 @@
 // Die weiteren Quellen eines Bausteins im Inspector: anlegen, verbinden, wegnehmen.
-import { Plus, X } from '@/ui/zeichen'
-import { Gruppe } from '@/ui/werkbank/Gruppe'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { quellenKennung } from '../../core/data/dataSources'
+import { Plus, X } from '@/editor/zeichen/zeichen'
+import { Gruppe } from '@/editor/werkbank/Gruppe'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import type { Baustein } from '../../kern/maske/baum'
+import { quellenKennung } from '../../kern/daten/datenquellen'
 import {
   WEITERE_QUELLEN_PROP,
   weitereQuellenAus,
   type BausteinQuelle,
-} from '../../core/data/sourceLinks'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
+} from '../../kern/daten/weitereQuellen'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
 import { oeffneDatencenter } from '../zentrale/oeffnen'
 import { useAbschnitt } from './abschnittStand'
 import { PickerControl } from './controls/PickerControl'

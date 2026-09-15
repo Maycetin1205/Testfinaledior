@@ -1,6 +1,6 @@
 // Klammert das Tippen in einem Feld zu EINEM Undo-Schritt.
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { gestenKlammer, type GestenKlammer } from '../../../state/history'
+import { gestenKlammer, type GestenKlammer } from '../../zustand/history'
 
 export interface Eingabesitzung {
   beginnen: () => void

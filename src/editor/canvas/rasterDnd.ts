@@ -1,8 +1,8 @@
 // Wohin ein gezogener Baustein im Raster faellt.
 import type { DragEvent } from 'react'
-import { darfEnthalten, bausteinArt } from '../../core/blocks/blockRegistry'
-import { RASTER, rasterMassVon } from '../../core/blocks/rasterLayout'
-import type { useEditor } from '../../state/useEditor'
+import { darfEnthalten, bausteinArt } from '../../kern/maske/registry'
+import { RASTER, rasterMassVon } from '../../kern/maske/raster'
+import type { useEditor } from '../zustand/useEditor'
 import { newBlockDragType } from './dnd'
 import type { DndState, DropTarget } from './dndState'
 

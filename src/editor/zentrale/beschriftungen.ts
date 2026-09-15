@@ -1,8 +1,8 @@
 // Die Wortwahl des Editors: wie eine Quellenart und ein Kettenschritt heissen.
-// Der Kern traegt nur die Schalter (core/data/quellenArten.ts, aktionen.ts),
+// Der Kern traegt nur die Schalter (kern/daten/quellenArten.ts, aktionen.ts),
 // damit die Laufzeit der Maske diese Texte nicht mitschleppt.
-import type { SchrittArt } from '../../core/data/aktionen'
-import type { Datenfeld, QuellenArtKennung } from '../../core/data/dataSources'
+import type { SchrittArt } from '../../kern/daten/aktionen'
+import type { Datenfeld, QuellenArtKennung } from '../../kern/daten/datenquellen'
 
 export interface QuellenWorte {
   name: string

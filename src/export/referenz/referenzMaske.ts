@@ -1,9 +1,9 @@
 // Die feste Referenzmaske des Referenzabzugs: jeder Bausteintyp einmal.
-import { WURZEL_ID, WURZEL_TYP, type Baustein, type Maskenbaum } from '../../core/blocks/BlockData'
-import type { Datenquelle } from '../../core/data/dataSources'
-import type { RelationsVorlage } from '../../core/data/relations'
-import type { Schritt } from '../../core/data/aktionen'
-import { WEITERE_QUELLEN_PROP } from '../../core/data/sourceLinks'
+import { WURZEL_ID, WURZEL_TYP, type Baustein, type Maskenbaum } from '../../kern/maske/baum'
+import type { Datenquelle } from '../../kern/daten/datenquellen'
+import type { RelationsVorlage } from '../../kern/daten/relationen'
+import type { Schritt } from '../../kern/daten/aktionen'
+import { WEITERE_QUELLEN_PROP } from '../../kern/daten/weitereQuellen'
 
 // Feste Kennungen: der Export dieser Maske muss byte-gleich bleiben.
 

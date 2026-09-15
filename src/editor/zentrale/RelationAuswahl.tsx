@@ -1,15 +1,15 @@
 // Die Wahl einer Relations-Vorlage fuer einen Schritt.
 import { useState } from 'react'
-import { Search, Share2 } from '@/ui/zeichen'
-import { Eintrag } from '@/ui/werkbank/Eintrag'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Marke } from '@/ui/werkbank/Marke'
+import { Search, Share2 } from '@/editor/zeichen/zeichen'
+import { Eintrag } from '@/editor/werkbank/Eintrag'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Marke } from '@/editor/werkbank/Marke'
 import {
   relationsSyntaxAlsText,
   relationsGruppe,
   type RelationsGruppe,
   type RelationsVorlage,
-} from '../../core/data/relations'
+} from '../../kern/daten/relationen'
 import { SegmentControl } from '../inspector/controls/SegmentControl'
 import { istUngetaufteVorlage, relationAnzeige } from './relationAnzeige'
 import { RELATION_GRUPPEN, VERB_KURZ } from './helfer'

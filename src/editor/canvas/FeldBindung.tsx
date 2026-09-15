@@ -1,7 +1,7 @@
 // Der Feld-Waehler des Editors: eine Stelle oder einen Listeneintrag an ein Feld binden.
 import { useCallback, useEffect, useState, type ReactNode, type RefObject } from 'react'
 import type { MouseEvent as ReactMouseEvent } from 'react'
-import type { Baustein } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../kern/maske/baum'
 import {
   feldWahlenLesen,
   schalterAn,
@@ -9,16 +9,16 @@ import {
   listenStandardTitel,
   listeLesen,
   type ListenBindung,
-} from '../../core/blocks/BlockDefinition'
-import { bindungsProp, type BindbareStelle, type SuchFenster } from '../../core/blocks/faehigkeiten'
-import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
-import { kannRechnen } from '../../core/blocks/treeQuery'
-import { quellenKennung } from '../../core/data/dataSources'
-import { paarKlartext, type QuelleInReichweite } from '../../core/data/sourceLinks'
-import type { Editor } from '../../state/Editor'
-import { wendeProps } from '../../state/propsPatch'
-import { quellenTraeger } from '../../state/quellenOps'
-import { useDataSources } from '../../state/useDataSources'
+} from '../../kern/maske/bausteinArt'
+import { bindungsProp, type BindbareStelle, type SuchFenster } from '../../kern/maske/faehigkeiten'
+import { zerlegeBindung } from '../../kern/maske/bausteinArt'
+import { kannRechnen } from '../../kern/maske/baumFragen'
+import { quellenKennung } from '../../kern/daten/datenquellen'
+import { paarKlartext, type QuelleInReichweite } from '../../kern/daten/weitereQuellen'
+import type { Editor } from '../zustand/Editor'
+import { wendeProps } from '../zustand/propsPatch'
+import { quellenTraeger } from '../../kern/maske/quellenReichweite'
+import { useDataSources } from '../zustand/useDataSources'
 import { breiteAusZeichen, zeichenVon } from './feldBreite'
 import { oeffneBerechnungenFenster } from './berechnungenStand'
 import { oeffneFensterImEditor } from './fensterStand'

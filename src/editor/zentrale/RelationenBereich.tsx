@@ -1,26 +1,26 @@
 // Der Relations-Bereich des Datencenters: Liste, Anlegen, Loeschen.
 import { useState, type ReactNode } from 'react'
-import { Plus, Search, Share2 } from '@/ui/zeichen'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Gruppe } from '@/ui/werkbank/Gruppe'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { ListeDetail } from '@/ui/werkbank/ListeDetail'
-import { Eintrag } from '@/ui/werkbank/Eintrag'
-import { Marke } from '@/ui/werkbank/Marke'
-import { relationIdsVon } from '../../core/blocks/treeQuery'
+import { Plus, Search, Share2 } from '@/editor/zeichen/zeichen'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Gruppe } from '@/editor/werkbank/Gruppe'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { ListeDetail } from '@/editor/werkbank/ListeDetail'
+import { Eintrag } from '@/editor/werkbank/Eintrag'
+import { Marke } from '@/editor/werkbank/Marke'
+import { relationIdsVon } from '../../kern/maske/baumFragen'
 import {
   relationsSyntaxAlsText,
   relationsGruppe,
   relationPasstZurSuche,
   type RelationsGruppe,
   type RelationsVorlage,
-} from '../../core/data/relations'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
-import { useRelations } from '../../state/useRelations'
+} from '../../kern/daten/relationen'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
+import { useRelations } from '../zustand/useRelations'
 import { SegmentControl } from '../inspector/controls/SegmentControl'
 import { RelationForm } from './RelationForm'
-import { bausteinName } from '../../core/blocks/bausteinName'
+import { bausteinName } from '../../kern/maske/bausteinName'
 import { parameterBedeutung, RELATION_GRUPPEN, VERB_KURZ } from './helfer'
 
 export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {

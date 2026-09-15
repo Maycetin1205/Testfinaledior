@@ -1,7 +1,7 @@
 // Die Farbwahl im Inspector als Reihe von Farbfeldern.
-import type { Wahloption } from '../../../core/blocks/PropertyDescription'
-import { Farbfeld } from '@/ui/werkbank/Farbfeld'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import type { Wahloption } from '../../../kern/maske/eigenschaft'
+import { Farbfeld } from '@/editor/werkbank/Farbfeld'
+import { Zeile } from '@/editor/werkbank/Zeile'
 
 interface ColorTileControlProps {
   label: string

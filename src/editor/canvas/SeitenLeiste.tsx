@@ -1,12 +1,12 @@
 // Die Reiter der Seiten und Ansichten ueber der Leinwand.
-import { Trash } from '@/ui/zeichen'
+import { Trash } from '@/editor/zeichen/zeichen'
 import { Fragment, useState } from 'react'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Reiter } from '@/ui/werkbank/Reiter'
-import { alleBausteinArten } from '../../core/blocks/blockRegistry'
-import { loescheBaustein } from '../../state/loescheBaustein'
-import { useEditor } from '../../state/useEditor'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Reiter } from '@/editor/werkbank/Reiter'
+import { alleBausteinArten } from '../../kern/maske/registry'
+import { loescheBaustein } from '../zustand/loescheBaustein'
+import { useEditor } from '../zustand/useEditor'
 
 export function SeitenLeiste() {
   const ed = useEditor()

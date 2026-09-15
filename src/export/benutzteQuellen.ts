@@ -1,27 +1,27 @@
 // Welche Quellen und Felder die Maske wirklich liest — danach wird bestellt.
-import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
-import { feldWahlenLesen, listeLesen, zerlegeBindung } from '../core/blocks/BlockDefinition'
-import { bindungsProp, faehigkeit } from '../core/blocks/faehigkeiten'
-import { bausteinArt } from '../core/blocks/blockRegistry'
-import { eigenschaftSichtbar } from '../core/blocks/PropertyDescription'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../kern/maske/baum'
+import { feldWahlenLesen, listeLesen, zerlegeBindung } from '../kern/maske/bausteinArt'
+import { bindungsProp, faehigkeit } from '../kern/maske/faehigkeiten'
+import { bausteinArt } from '../kern/maske/registry'
+import { eigenschaftSichtbar } from '../kern/maske/eigenschaft'
 import {
   auswahlQuelleIdVon,
   bindbareStellenVon,
   darfAuswahlFolgen,
   quellenIdsInKettenVon,
   traegtEigeneQuelle,
-} from '../core/blocks/treeQuery'
-import { AUSWAHL_FOLGE_PROP, auswahlFolgenAus, folgeBrauchbar } from '../core/data/auswahlFolge'
-import { datenfelderAus } from '../core/data/berechnung'
-import { ladeRelationVon, quellenAusHolWert, type Datenquelle } from '../core/data/dataSources'
+} from '../kern/maske/baumFragen'
+import { AUSWAHL_FOLGE_PROP, auswahlFolgenAus, folgeBrauchbar } from '../kern/daten/auswahlFolge'
+import { datenfelderAus } from '../kern/daten/berechnung'
+import { ladeRelationVon, quellenAusHolWert, type Datenquelle } from '../kern/daten/datenquellen'
 import {
   quelleBrauchbar,
   vollstaendigePaare,
   WEITERE_QUELLEN_PROP,
   weitereQuellenAus,
   type QuelleInReichweite,
-} from '../core/data/sourceLinks'
-import { quellenInReichweite } from '../state/quellenOps'
+} from '../kern/daten/weitereQuellen'
+import { quellenInReichweite } from '../kern/maske/quellenReichweite'
 
 export function collectDataSources(
   tree: Maskenbaum,

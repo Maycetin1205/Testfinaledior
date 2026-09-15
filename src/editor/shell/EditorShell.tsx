@@ -1,7 +1,7 @@
 // Der Rahmen des Editors: Palette, Leinwand, Inspector, Balken.
 import { useEffect, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
-import { Trenner } from '@/ui/werkbank/Trenner'
-import { useKeyboardShortcuts } from '../../state/useKeyboardShortcuts'
+import { Trenner } from '@/editor/werkbank/Trenner'
+import { useKeyboardShortcuts } from '../zustand/useKeyboardShortcuts'
 import { Canvas } from '../canvas/Canvas'
 import { BerechnungenFenster } from '../canvas/BerechnungenFenster'
 import { FensterSpalten } from '../canvas/FensterSpalten'

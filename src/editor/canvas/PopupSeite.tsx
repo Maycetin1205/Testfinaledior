@@ -1,9 +1,9 @@
 // Ein Popup auf der Leinwand: eigene Flaeche, verschiebbarer Anker.
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { DIALOG_RAND, DIALOG_SCHLIESSEN_EVENT } from '../../blocks/shared/DialogRahmen'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import { rasterPlatzStil } from '../../core/blocks/rasterLayout'
-import { useEditor } from '../../state/useEditor'
+import { DIALOG_RAND, DIALOG_SCHLIESSEN_EVENT } from '../../bausteine/shared/DialogRahmen'
+import { bausteinArt } from '../../kern/maske/registry'
+import { rasterPlatzStil } from '../../kern/maske/raster'
+import { useEditor } from '../zustand/useEditor'
 import { BlockHost } from './BlockHost'
 import { NodeList } from './CanvasNode'
 import { LeerHinweis } from './LeerHinweis'

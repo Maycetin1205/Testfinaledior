@@ -1,0 +1,102 @@
+@import '@fontsource-variable/inter';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ============================================================
+     Werkbank — die Farbwelt des EDITORS. HELL (Nutzer-Ansage 2026-08-27:
+     die dunkle Fassung war unbenutzbar, "ich sehe nichts mehr").
+     Die Maskenwelt hat ihre eigene Liste (design/maske.css, --se-*)
+     und bleibt davon unberuehrt; die zwei Welten mischen nie.
+
+     Die --wb-* halten HSL-TRIPEL, keine Farben — deshalb koennen sie sowohl
+     `hsl(var(--wb-panel))` als auch die Tailwind-Farbliste bedienen.
+     ============================================================ */
+  :root {
+    --wb-grund: 40 20% 95%;
+    --wb-panel: 40 40% 99%;
+    --wb-control: 40 16% 90%;
+    --wb-linie: 38 14% 82%;
+    --wb-tinte: 30 14% 13%;
+    --wb-matt: 32 10% 36%;
+
+    /* EIN Akzent — Auswahl, Fokusring, primaerer Knopf. Sonst keine Farben. */
+    --wb-akzent: 246 52% 44%;
+    --wb-fehler: 4 66% 47%;
+    --wb-vormerkung: 39 68% 54%;
+
+    /* Auswahlrahmen und Anfasser im Canvas. */
+    --wb-auswahl: 246 60% 56%;
+
+    /* Fast kantig — 2 PIXEL, kein rem. Nutzer-Ansage 2026-08-31: die
+       Rundungen sollen runter, "ganz leicht ist ok". In rem haette die Ecke
+       an der Grundgroesse gehangen und waere mit der Schrift mitgewachsen.
+       Die BAUSTEINE haengen NICHT hier dran — die Maskenwelt hat ihre eigenen
+       Werte (--se-r-sm/md/lg in design/maske.css) und bleibt genau so,
+       wie sie ist: im Editor wie im Export (Nutzer-Ansage: "bausteine bleiben
+       unangetastet auch im editor"). */
+    --radius: 2px;
+
+    --canvas-bg: 36 20% 82%;
+  }
+
+  * {
+    border-color: hsl(var(--wb-linie));
+  }
+
+  /* Die Grundgroesse des ganzen Editors — ein PIXELWERT, kein Prozent.
+     Prozent hiesse „soundsoviel von dem, was der Browser gerade als
+     Grundgroesse hat", und das ist eine Einstellung des jeweiligen Rechners:
+     man dreht an einer Zahl, deren Bezugspunkt man nicht kennt, und dieselbe
+     Angabe sieht auf zwei Maschinen verschieden aus (Nutzer-Ansage
+     2026-08-28). Hier steht, was herauskommt.
+
+     Alles in rem haengt daran. Bei 13.5px: Inspector 270, Zeilenhoehe 23,6,
+     Text 11,0, Kennungen 10,1. Bei 16px waeren es die Werte der
+     Designsprache: 320 / 28 / 13 / 12.
+
+     Die exportierte Maske haengt NICHT daran, die hat ihre eigenen Groessen
+     in design/maske.css. */
+
+  html {
+    font-size: 13.5px;
+  }
+
+  body {
+    background-color: hsl(var(--wb-grund));
+    color: hsl(var(--wb-tinte));
+  }
+}
+
+@layer components {
+  /* Zwei Wertezeilen nebeneinander — aber nur, wenn das Panel es HERGIBT.
+
+     Die Untergrenze ist der Punkt der Sache: 240 PIXEL je Bedienelement. Der
+     Grund fuer den ganzen Inspector-Umbau war, dass ein Waehler nur 178 px
+     bekam und Klarnamen darin abgeschnitten standen. Der erste Versuch
+     (Container-Anfrage ab 26rem, zwei feste Spalten) hat genau das
+     wiederhergestellt: bei Panelbreite 400 waren die zwei Spalten 182 px
+     breit — vier Pixel mehr als der Fehler, den sie beheben sollten, und um
+     eine volle Zeile zu bekommen, haette der Bediener das Panel SCHMALER
+     ziehen muessen als die Vorgabe.
+
+     `auto-fit` mit `minmax` dreht das um: das Raster nimmt so viele Spalten,
+     wie bei 240 px hineinpassen, sonst eine. Bei Panelbreite 400 ist das eine
+     ueber die volle Breite, ab etwa 515 px sind es zwei — und kein
+     Bedienelement wird je enger als 240 px.
+
+     PIXEL, kein rem: in rem haenge die Schwelle an der Grundgroesse und
+     wanderte mit, sobald jemand an der Schrift dreht (dieselbe Falle wie bei
+     --radius, ein paar Zeilen weiter oben).
+
+     Damit ist auch `container-type` wieder weg. Es wurde nur fuer die
+     Schwelle gebraucht, brachte aber Layout-Einschliessung mit — und die
+     macht das Panel zum Bezugsrahmen fuer alles absolut Positionierte darin. */
+  .inspektor-werte {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.5rem;
+  }
+}

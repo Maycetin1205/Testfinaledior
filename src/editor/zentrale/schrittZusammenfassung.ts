@@ -1,17 +1,17 @@
 // Der Kurztext eines Ketten-Schritts fuer die Liste.
-import type { Maskenbaum } from '../../core/blocks/BlockData'
-import { bausteinName } from '../../core/blocks/bausteinName'
-import type { Parameter, Schritt } from '../../core/data/aktionen'
+import type { Maskenbaum } from '../../kern/maske/baum'
+import { bausteinName } from '../../kern/maske/bausteinName'
+import type { Parameter, Schritt } from '../../kern/daten/aktionen'
 import {
   quellenKennung,
   tabellenIdVon,
   type Datenquelle,
-} from '../../core/data/dataSources'
+} from '../../kern/daten/datenquellen'
 import {
   relIdAusIdbId,
   feldCodeZerlegen,
   type RelationsVorlage,
-} from '../../core/data/relations'
+} from '../../kern/daten/relationen'
 import { feldUebernahmeArt } from './feldUebernahme'
 
 export interface SchrittZusammenfassung {

@@ -1,14 +1,14 @@
 // Das Formular einer Relations-Vorlage: Verb, Nummer, Parameter.
 import { useState } from 'react'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Zeile } from '@/editor/werkbank/Zeile'
 import {
   relationsSyntaxAlsText,
   relationsSyntaxLesen,
   type RelationsVorlage,
-} from '../../core/data/relations'
-import { useRelations } from '../../state/useRelations'
+} from '../../kern/daten/relationen'
+import { useRelations } from '../zustand/useRelations'
 import { FormularKarte } from './FormularKarte'
 
 interface RelationFormProps {

@@ -1,5 +1,5 @@
 // Der Hinweis auf einer leeren Flaeche.
-import { MousePointerClick } from '@/ui/zeichen'
+import { MousePointerClick } from '@/editor/zeichen/zeichen'
 import type { ReactElement } from 'react'
 
 // Liegt AUF der Maskenflaeche, ist aber Editor-Hilfe: darum Werkbank-Farben und

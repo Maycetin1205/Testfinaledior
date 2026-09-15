@@ -1,11 +1,11 @@
 // Das Fenster einer Berechnung: Formel, Rechenrichtungen, Datensatz, Vorschau.
 import { useState, type ReactNode } from 'react'
-import { Ankreuz } from '@/ui/werkbank/Ankreuz'
-import { Dialog } from '@/ui/werkbank/Dialog'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Wahl, type WahlOption } from '@/ui/werkbank/Wahl'
-import { Zahl } from '@/ui/werkbank/Zahl'
+import { Ankreuz } from '@/editor/werkbank/Ankreuz'
+import { Dialog } from '@/editor/werkbank/Dialog'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Wahl, type WahlOption } from '@/editor/werkbank/Wahl'
+import { Zahl } from '@/editor/werkbank/Zahl'
 import {
   alleFaktoren,
   berechnungsMaengel,
@@ -23,9 +23,9 @@ import {
   type FaktorStand,
   type RundungsRichtung,
   type SpaltenFaktor,
-} from '../../core/data/berechnung'
-import { einheitKurz } from '../../core/data/einheiten'
-import type { QuelleInReichweite } from '../../core/data/sourceLinks'
+} from '../../kern/daten/berechnung'
+import { einheitKurz } from '../../kern/daten/einheiten'
+import type { QuelleInReichweite } from '../../kern/daten/weitereQuellen'
 import { FaktorZeile } from './BerechnungFaktor'
 
 const RICHTUNGEN: WahlOption[] = [

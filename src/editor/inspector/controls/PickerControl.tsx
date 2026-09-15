@@ -1,12 +1,12 @@
 // Der eine Waehler des Inspectors: Knopf plus suchbare Liste.
 import { useRef, useState, type ReactNode } from 'react'
-import { ChevronDown } from '@/ui/zeichen'
-import { cn } from '@/lib/utils'
-import { EINGABE_KANTE } from '@/ui/werkbank/Feld'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Liste, type ListeGruppe } from '@/ui/werkbank/Liste'
-import { Popover } from '@/ui/werkbank/Popover'
-import { Zeile, type ZeileKind } from '@/ui/werkbank/Zeile'
+import { ChevronDown } from '@/editor/zeichen/zeichen'
+import { cn } from '@/editor/werkbank/cn'
+import { EINGABE_KANTE } from '@/editor/werkbank/Feld'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Liste, type ListeGruppe } from '@/editor/werkbank/Liste'
+import { Popover } from '@/editor/werkbank/Popover'
+import { Zeile, type ZeileKind } from '@/editor/werkbank/Zeile'
 
 export interface PickerControlProps {
   // Ohne Beschriftung steht der Waehler blank in einer Zeile (Feldpaare).

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import type { Datenquelle } from '../core/data/dataSources'
+import type { Datenquelle } from '../kern/daten/datenquellen'
 import { baueSevariablen } from './sevariablen'
 
 interface Bestellung {

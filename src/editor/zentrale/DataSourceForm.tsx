@@ -1,13 +1,13 @@
 // Das Formular einer Datenquelle: Art, Kennung, Felder, Satznummer, Hol-Weg.
 import { useMemo, useState } from 'react'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Gruppe } from '@/ui/werkbank/Gruppe'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Gruppe } from '@/editor/werkbank/Gruppe'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Zeile } from '@/editor/werkbank/Zeile'
 import {
   relationsParameterVorgabe,
   type Parameter,
-} from '../../core/data/aktionen'
+} from '../../kern/daten/aktionen'
 import {
   aliasVon,
   artFuer,
@@ -23,10 +23,10 @@ import {
   tabellenKennungNoetig,
   type Datenquelle,
   type QuellenArtKennung,
-} from '../../core/data/dataSources'
-import { relationPasstZurSuche } from '../../core/data/relations'
-import { useDataSources } from '../../state/useDataSources'
-import { useRelations } from '../../state/useRelations'
+} from '../../kern/daten/datenquellen'
+import { relationPasstZurSuche } from '../../kern/daten/relationen'
+import { useDataSources } from '../zustand/useDataSources'
+import { useRelations } from '../zustand/useRelations'
 import { ParameterZeile } from './ParameterZeile'
 import type { ParameterWahlen } from './parameter/wahlen'
 import { RelationAuswahl } from './RelationAuswahl'

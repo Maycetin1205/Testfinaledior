@@ -1,9 +1,9 @@
 // Oeffnet den Feld-Waehler fuer eine gebundene Stelle.
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, RefObject } from 'react'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { bindungsProp, type BindbareStelle } from '../../core/blocks/faehigkeiten'
-import type { Editor } from '../../state/Editor'
+import type { Baustein } from '../../kern/maske/baum'
+import { bindungsProp, type BindbareStelle } from '../../kern/maske/faehigkeiten'
+import type { Editor } from '../zustand/Editor'
 
 export function bindingCode(props: Record<string, unknown>, spot: BindbareStelle): string {
   const code = props[bindungsProp(spot.prop)]

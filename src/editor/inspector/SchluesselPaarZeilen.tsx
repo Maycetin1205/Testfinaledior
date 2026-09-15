@@ -1,8 +1,8 @@
 // Die Feldpaare, mit denen zwei Quellen verbunden werden.
-import { Plus, X } from '@/ui/zeichen'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import type { Datenfeld } from '../../core/data/dataSources'
-import { MAX_SCHLUESSELPAARE, type SchluesselPaar } from '../../core/data/sourceLinks'
+import { Plus, X } from '@/editor/zeichen/zeichen'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import type { Datenfeld } from '../../kern/daten/datenquellen'
+import { MAX_SCHLUESSELPAARE, type SchluesselPaar } from '../../kern/daten/weitereQuellen'
 import { PickerControl } from './controls/PickerControl'
 
 interface SchluesselPaarZeilenProps {

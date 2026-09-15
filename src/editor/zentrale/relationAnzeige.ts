@@ -1,5 +1,5 @@
 // Wie eine Relations-Vorlage in Listen heisst.
-import { relationsSyntaxAlsText, type RelationsVorlage } from '../../core/data/relations'
+import { relationsSyntaxAlsText, type RelationsVorlage } from '../../kern/daten/relationen'
 
 export function istUngetaufteVorlage(entry: RelationsVorlage): boolean {
   const name = entry.name.trim()

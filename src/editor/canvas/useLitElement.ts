@@ -1,13 +1,13 @@
 // Bindet ein Lit-Baustein-Element an den Editor-Baum: Attribute hin, Aenderungen zurueck.
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
-import { bindungsProp, type BindbareStelle } from '../../core/blocks/faehigkeiten'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import type { QuelleInReichweite } from '../../core/data/sourceLinks'
-import type { Editor } from '../../state/Editor'
-import type { GestenKlammer } from '../../state/history'
+import type { Baustein } from '../../kern/maske/baum'
+import { zerlegeBindung } from '../../kern/maske/bausteinArt'
+import { bindungsProp, type BindbareStelle } from '../../kern/maske/faehigkeiten'
+import { bausteinArt } from '../../kern/maske/registry'
+import type { QuelleInReichweite } from '../../kern/daten/weitereQuellen'
+import type { Editor } from '../zustand/Editor'
+import type { GestenKlammer } from '../zustand/history'
 
 const FREMD_ZEICHEN = ' ↗'
 

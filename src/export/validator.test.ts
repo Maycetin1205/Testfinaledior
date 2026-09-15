@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../core/blocks/BlockData'
+import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../kern/maske/baum'
 import { exportMask } from './exportMask'
 import { END_MARKER, START_MARKER, failedChecks, validateMaskHtml } from './validator'
 

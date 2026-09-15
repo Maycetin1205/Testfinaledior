@@ -1,8 +1,8 @@
 // Schreibt die Maskendatei: aus dem Baustein-Baum wird HTML fuer SoftEngine.
-import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
-import { listeFuerExport, listeLesen } from '../core/blocks/BlockDefinition'
-import { bindungsProp, faehigkeit, gilt } from '../core/blocks/faehigkeiten'
-import { bausteinArt } from '../core/blocks/blockRegistry'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../kern/maske/baum'
+import { listeFuerExport, listeLesen } from '../kern/maske/bausteinArt'
+import { bindungsProp, faehigkeit, gilt } from '../kern/maske/faehigkeiten'
+import { bausteinArt } from '../kern/maske/registry'
 import {
   bindbareStellenVon,
   darfAuswahlFolgen,
@@ -12,9 +12,9 @@ import {
   traegtAenderungen,
   traegtEigeneQuelle,
   traegtLoeschungen,
-} from '../core/blocks/treeQuery'
-import { BAUSTEIN_ID_ATTR, kettenFuerExport } from '../core/data/aktionen'
-import { AUSWAHL_FOLGE_PROP } from '../core/data/auswahlFolge'
+} from '../kern/maske/baumFragen'
+import { BAUSTEIN_ID_ATTR, kettenFuerExport } from '../kern/daten/aktionen'
+import { AUSWAHL_FOLGE_PROP } from '../kern/daten/auswahlFolge'
 import {
   felderHinterSchnitt,
   istOffenerSatz,
@@ -24,19 +24,19 @@ import {
   satzNummerVon,
   tabellenIdVon,
   type Datenquelle,
-} from '../core/data/dataSources'
-import type { RelationsVorlage } from '../core/data/relations'
-import { WEITERE_QUELLEN_PROP } from '../core/data/sourceLinks'
-import { seitenDerMaske } from '../state/pageOps'
-import { istRasterFlaeche } from '../state/rasterOps'
+} from '../kern/daten/datenquellen'
+import type { RelationsVorlage } from '../kern/daten/relationen'
+import { WEITERE_QUELLEN_PROP } from '../kern/daten/weitereQuellen'
+import { seitenDerMaske } from '../kern/maske/seiten'
+import { istRasterFlaeche } from '../kern/maske/rasterFlaeche'
 import {
   richtungDerKinder,
   WURZEL_FLUSS,
   type Richtung,
-} from '../core/blocks/flowLayout'
-import { randPlatzLinks } from '../core/blocks/maskenRand'
-import { rasterFlaecheCss } from '../core/blocks/rasterLayout'
-import tokensCssRaw from '../design/masken-tokens.css?raw'
+} from '../kern/maske/fluss'
+import { randPlatzLinks } from '../kern/maske/maskenRand'
+import { rasterFlaecheCss } from '../kern/maske/raster'
+import tokensCssRaw from '../design/maske.css?raw'
 import {
   benutzteFelderJeQuelle,
   collectDataSources,

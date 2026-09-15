@@ -9,27 +9,27 @@ import {
   SlidersHorizontal,
   Trash2,
   Undo2,
-} from '@/ui/zeichen'
+} from '@/editor/zeichen/zeichen'
 import { useRef, useState } from 'react'
 import {
   BELEG_RAHMEN_PROP,
   RAHMEN_STELLEN,
   belegDateinamen,
   rahmenNummerVon,
-} from '../../core/blocks/belegRahmen'
-import { WURZEL_ID } from '../../core/blocks/BlockData'
-import { MASKEN_NAME_PROP, MASKEN_NAME_STANDARD, maskenNameVon } from '../../core/blocks/maskenName'
+} from '../../kern/maske/belegRahmen'
+import { WURZEL_ID } from '../../kern/maske/baum'
+import { MASKEN_NAME_PROP, MASKEN_NAME_STANDARD, maskenNameVon } from '../../kern/maske/maskenName'
 import { exportMask } from '../../export/exportMask'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
-import { downloadFile } from '../../lib/dateiDownload'
-import { ladeMaskeAusDatei, speichereMaskeAlsDatei } from '../../state/maskenDatei'
-import { meldungen } from '../../state/meldungen'
-import { useEditor } from '../../state/useEditor'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { MenueZeile } from '@/ui/werkbank/MenueZeile'
-import { Popover } from '@/ui/werkbank/Popover'
-import { Trenner } from '@/ui/werkbank/Trenner'
+import { downloadFile } from '../zustand/dateiDownload'
+import { ladeMaskeAusDatei, speichereMaskeAlsDatei } from '../zustand/maskenDatei'
+import { meldungen } from '../zustand/meldungen'
+import { useEditor } from '../zustand/useEditor'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { MenueZeile } from '@/editor/werkbank/MenueZeile'
+import { Popover } from '@/editor/werkbank/Popover'
+import { Trenner } from '@/editor/werkbank/Trenner'
 import { useEingabeSitzung } from '../inspector/controls/eingabeSitzung'
 
 const MASKEN_NAMEN = {

@@ -1,9 +1,9 @@
 // Die Feldliste einer Datenquelle im Formular: Klarname, Position, Laenge,
 // Spaltenbreite in Zeichen.
-import { Plus, X } from '@/ui/zeichen'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { ZEICHEN_MAX } from '../../core/data/dataSources'
+import { Plus, X } from '@/editor/zeichen/zeichen'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { ZEICHEN_MAX } from '../../kern/daten/datenquellen'
 import { LEERE_ZEILE, type FeldZeile } from './feldZeile'
 
 const SPALTEN = 'grid grid-cols-[minmax(0,1fr)_72px_72px_64px_auto] items-center gap-x-2'

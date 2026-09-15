@@ -4,8 +4,8 @@ import {
   type Parameter,
   type Schritt,
   type SchrittArt,
-} from '../../core/data/aktionen'
-import type { RelationsVorlage } from '../../core/data/relations'
+} from '../../kern/daten/aktionen'
+import type { RelationsVorlage } from '../../kern/daten/relationen'
 import type { FeldUebernahmeZiel, UebernahmeTreffer } from './feldUebernahme'
 
 export interface SchrittEntwurf {

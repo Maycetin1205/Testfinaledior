@@ -1,8 +1,8 @@
 // Der Text, den eine gebundene Stelle im Editor als Vorschau zeigt.
-import type { Baustein } from '../core/blocks/BlockData'
-import { bindungsProp, type BindbareStelle } from '../core/blocks/faehigkeiten'
-import { bindbareStellenVon, QUELLE_PROP } from '../core/blocks/treeQuery'
-import { feldKlarname, type Datenquelle } from '../core/data/dataSources'
+import type { Baustein } from '../kern/maske/baum'
+import { bindungsProp, type BindbareStelle } from '../kern/maske/faehigkeiten'
+import { bindbareStellenVon, QUELLE_PROP } from '../kern/maske/baumFragen'
+import { feldKlarname, type Datenquelle } from '../kern/daten/datenquellen'
 
 export function vorschauStellenVon(node: Baustein): Map<string, BindbareStelle> {
   return new Map(bindbareStellenVon(node).flatMap((spot) => (spot.vorschauProp === undefined

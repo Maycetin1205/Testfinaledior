@@ -1,8 +1,8 @@
 // Die Meldungskaesten am unteren Rand des Editors.
-import { X } from '@/ui/zeichen'
-import { cn } from '@/lib/utils'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { useMeldungen } from '../../state/useMeldungen'
+import { X } from '@/editor/zeichen/zeichen'
+import { cn } from '@/editor/werkbank/cn'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { useMeldungen } from '../zustand/useMeldungen'
 
 export function Meldungen() {
   const stelle = useMeldungen()

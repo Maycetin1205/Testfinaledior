@@ -1,11 +1,11 @@
 // Startet den Editor im Browser.
-import './index.css'
-import './design/masken-tokens.css'
-import './blocks/registerEditorAngaben'
+import './design/editor.css'
+import './design/maske.css'
+import './editor/bausteinSymbole'
 
 import { createRoot } from 'react-dom/client'
-import { App } from './app/App'
-import { Providers } from './app/providers'
+import { App } from './editor/App'
+import { Providers } from './editor/providers'
 
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('#root nicht gefunden in index.html')

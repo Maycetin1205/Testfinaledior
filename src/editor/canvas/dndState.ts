@@ -1,7 +1,7 @@
 // Der Stand eines laufenden Zugs von der Palette auf die Leinwand.
 import { createContext, useContext, type DragEvent } from 'react'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import type { useEditor } from '../../state/useEditor'
+import { bausteinArt } from '../../kern/maske/registry'
+import type { useEditor } from '../zustand/useEditor'
 import { isNewBlockDrag, NEW_BLOCK_MIME } from './dnd'
 
 type DropTarget =

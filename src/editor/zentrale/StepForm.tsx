@@ -1,10 +1,10 @@
 // Das Formular eines Ketten-Schritts: Art, Relation, Parameter.
 import { useMemo, useReducer, useRef } from 'react'
-import { Plus } from '@/ui/zeichen'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Gruppe } from '@/ui/werkbank/Gruppe'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import { Plus } from '@/editor/zeichen/zeichen'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Gruppe } from '@/editor/werkbank/Gruppe'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Zeile } from '@/editor/werkbank/Zeile'
 import {
   SCHRITT_ARTEN,
   relationsParameterVorgabe,
@@ -12,18 +12,18 @@ import {
   schritteVor,
   type Schritt,
   type SchrittArt,
-} from '../../core/data/aktionen'
-import { schrittProblem } from '../../core/data/schrittPruefung'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import { faehigkeit } from '../../core/blocks/faehigkeiten'
+} from '../../kern/daten/aktionen'
+import { schrittProblem } from '../../kern/daten/schrittPruefung'
+import { bausteinArt } from '../../kern/maske/registry'
+import { faehigkeit } from '../../kern/maske/faehigkeiten'
 import {
   wertstellenImBaum,
   auswahlGeberImBaum,
   aenderungsTraegerImBaum,
   erfassungsTraegerImBaum,
   loeschTraegerImBaum,
-} from '../../core/blocks/treeQuery'
-import { relationPasstZurSuche } from '../../core/data/relations'
+} from '../../kern/maske/baumFragen'
+import { relationPasstZurSuche } from '../../kern/daten/relationen'
 import { schrittName } from './beschriftungen'
 import { FeldUebernahmePicker } from './FeldUebernahmePicker'
 import {
@@ -31,8 +31,8 @@ import {
   feldUebernehmen,
   type FeldUebernahmeZiel,
 } from './feldUebernahme'
-import { bausteinName } from '../../core/blocks/bausteinName'
-import { istFensterSeite, seitenDerMaske } from '../../state/pageOps'
+import { bausteinName } from '../../kern/maske/bausteinName'
+import { istFensterSeite, seitenDerMaske } from '../../kern/maske/seiten'
 import {
   auswahlGeberOptionen,
   blockValueKey,
@@ -51,9 +51,9 @@ import { ParameterZeile } from './ParameterZeile'
 import type { ParameterWahlen } from './parameter/wahlen'
 import { relationsVorschau } from './parameter/vorschau'
 import { RelationAuswahl } from './RelationAuswahl'
-import { useRelations } from '../../state/useRelations'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
+import { useRelations } from '../zustand/useRelations'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
 import { PickerControl } from '../inspector/controls/PickerControl'
 import { SelectControl } from '../inspector/controls/SelectControl'
 

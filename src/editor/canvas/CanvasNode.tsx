@@ -1,7 +1,7 @@
 // Ein Baustein auf der Leinwand samt seinen Kindern.
 import { Fragment, type DragEvent } from 'react'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { darfEnthalten, bausteinArt } from '../../core/blocks/blockRegistry'
+import type { Baustein } from '../../kern/maske/baum'
+import { darfEnthalten, bausteinArt } from '../../kern/maske/registry'
 import {
   flussHoeheStil,
   flussBreiteStil,
@@ -9,14 +9,14 @@ import {
   flussBreiteLesen,
   richtungDerKinder,
   type Richtung,
-} from '../../core/blocks/flowLayout'
-import { istRandBaustein, randStil } from '../../core/blocks/maskenRand'
-import { rasterPlatzLesen, rasterPlatzStil } from '../../core/blocks/rasterLayout'
-import { useEditor } from '../../state/useEditor'
+} from '../../kern/maske/fluss'
+import { istRandBaustein, randStil } from '../../kern/maske/maskenRand'
+import { rasterPlatzLesen, rasterPlatzStil } from '../../kern/maske/raster'
+import { useEditor } from '../zustand/useEditor'
 import { BlockHost } from './BlockHost'
 import { isNewBlockDrag, newBlockDragType } from './dnd'
 import { commitDrop, useDnd } from './dndState'
-import { cn } from '@/lib/utils'
+import { cn } from '@/editor/werkbank/cn'
 import { ziehePosition } from './rasterMove'
 
 const CONTAINER_EDGE = 12

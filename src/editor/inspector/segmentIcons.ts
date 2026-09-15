@@ -6,7 +6,7 @@ import {
   AlignRight,
   type Zeichen,
   type ZeichenProps,
-} from '@/ui/zeichen'
+} from '@/editor/zeichen/zeichen'
 
 const ICONS: Record<string, Zeichen> = {
   links: AlignLeft,

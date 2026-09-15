@@ -3,20 +3,20 @@
 // zeichnet dafuer nichts — gemessen wird sein Kopf, darueber liegt diese Schicht.
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
-import { cn } from '@/lib/utils'
-import { EBENE_UEBER_MASKENFENSTER } from '@/ui/molecules/auswahl-fenster'
-import { Plus } from '@/ui/zeichen'
-import type { DialogRahmen } from '../../blocks/shared/DialogRahmen'
-import type { TabelleBlock } from '../../blocks/tabelle/TabelleBlock'
+import { cn } from '@/editor/werkbank/cn'
+import { EBENE_UEBER_MASKENFENSTER } from '@/editor/werkbank/AuswahlFenster'
+import { Plus } from '@/editor/zeichen/zeichen'
+import type { DialogRahmen } from '../../bausteine/shared/DialogRahmen'
+import type { TabelleBlock } from '../../bausteine/tabelle/TabelleBlock'
 import {
   neueSpalte,
   SPALTEN_MAX,
   STANDARD_TITEL,
   type Spalte,
-} from '../../blocks/tabelle/spalten'
-import { quellenKennung } from '../../core/data/dataSources'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
+} from '../../bausteine/tabelle/spalten'
+import { quellenKennung } from '../../kern/daten/datenquellen'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
 import { useEingabeSitzung } from '../inspector/controls/eingabeSitzung'
 import {
   beiFensterWechsel,

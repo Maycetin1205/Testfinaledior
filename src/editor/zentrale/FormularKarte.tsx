@@ -1,7 +1,7 @@
 // Die Karte, in der ein Formular des Datencenters steht.
 import { useEffect, type ReactNode } from 'react'
-import { X } from '@/ui/zeichen'
-import { Knopf } from '@/ui/werkbank/Knopf'
+import { X } from '@/editor/zeichen/zeichen'
+import { Knopf } from '@/editor/werkbank/Knopf'
 
 interface FormularKarteProps {
   title: string

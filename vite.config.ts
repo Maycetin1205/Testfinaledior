@@ -18,7 +18,7 @@ function exportLaufzeitAktuell(): Plugin {
     apply: 'serve',
     async handleHotUpdate({ file }) {
       const relativ = path.relative(here, file).split(path.sep).join('/')
-      if (!/^src\/(blocks|core|softengine)\/.*\.ts$/.test(relativ) || relativ.endsWith('.test.ts')) return
+      if (!/^src\/(bausteine|kern|softengine)\/.*\.ts$/.test(relativ) || relativ.endsWith('.test.ts')) return
       const bauen = () => ausfuehren(process.execPath, ['tools/laufzeitBauen.mjs'], { cwd: here })
       lauf = lauf.then(bauen, bauen)
       await lauf

@@ -1,11 +1,11 @@
 // Der DTK-Import: aus einer SoftEngine-Ausgabe Datenquellen anlegen.
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { Ankreuz } from '@/ui/werkbank/Ankreuz'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { kennungAnzeige } from '../../core/data/dataSources'
-import type { DtkTabelle } from '../../core/data/dtkImport'
-import { useDataSources } from '../../state/useDataSources'
+import { cn } from '@/editor/werkbank/cn'
+import { Ankreuz } from '@/editor/werkbank/Ankreuz'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { kennungAnzeige } from '../../kern/daten/datenquellen'
+import type { DtkTabelle } from '../../kern/daten/dtkImport'
+import { useDataSources } from '../zustand/useDataSources'
 import { FormularKarte } from './FormularKarte'
 
 interface DtkImportFormProps {

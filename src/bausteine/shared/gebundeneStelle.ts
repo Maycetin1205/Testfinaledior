@@ -1,0 +1,44 @@
+// Warum eine gebundene Stelle leer bleibt, in Worten fuer den Bediener.
+import { zerlegeBindung } from '../../kern/maske/bausteinArt'
+import { getField, type RuntimeDataSource } from '../../softengine/data'
+import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
+import { ersteZeileNachAuswahl } from './auswahl'
+import { macheFeldLeser } from './fremdeQuellen'
+
+export type GebundeneStelle =
+
+  | { art: 'ungebunden' }
+  // Gebunden, aber die Quelle steckt nicht in der Maske. Der Export blockt das
+  // nicht, der Fall erreicht also die laufende Maske.
+  | { art: 'ohneQuelle' }
+  // Quelle da, aber keine Zeile: nichts gewaehlt oder kein Partner in der
+  // eigenen Quelle.
+  | { art: 'ohneZeile' }
+  | {
+    art: 'wert'
+    wert: string
+    zeile: unknown
+    quelle: RuntimeDataSource
+
+    quelleId: string
+    reinerCode: string
+  }
+
+export function leseGebundeneStelle(el: HTMLElement, bindungsAttr: string): GebundeneStelle {
+  const sourceId = el.getAttribute('source') ?? ''
+  const code = el.getAttribute(bindungsAttr) ?? ''
+  if (sourceId === '' || code === '') return { art: 'ungebunden' }
+
+  const quelle = laufzeitQuelle(sourceId)
+  if (!quelle) return { art: 'ohneQuelle' }
+
+  const zeile = ersteZeileNachAuswahl(el, zeilenDerQuelle(quelle))
+  if (zeile === undefined) return { art: 'ohneZeile' }
+
+  const { quelleId, code: reinerCode } = zerlegeBindung(code)
+
+  const wert = quelleId === ''
+    ? getField(zeile, reinerCode)
+    : macheFeldLeser(el)(zeile, code)
+  return { art: 'wert', wert, zeile, quelle, quelleId, reinerCode }
+}

@@ -1,8 +1,8 @@
 // Ein einzeiliger Text im Inspector.
-import type { Eigenschaft } from '../../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../../kern/maske/eigenschaft'
 import { useEingabeSitzung } from './eingabeSitzung'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Zeile } from '@/editor/werkbank/Zeile'
 
 interface TextControlProps {
   property: Eigenschaft

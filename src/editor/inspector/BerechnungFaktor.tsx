@@ -1,13 +1,13 @@
 // Eine Faktorzeile im Berechnungsfenster: was sie ist, worauf sie zeigt, in welcher Einheit.
-import { Feld } from '@/ui/werkbank/Feld'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Wahl, type WahlOption } from '@/ui/werkbank/Wahl'
-import { Zahl } from '@/ui/werkbank/Zahl'
-import { X } from '@/ui/zeichen'
-import { bindungMitQuelle, zerlegeBindung } from '../../core/blocks/bindung'
-import { neuerFaktor, zahlStreng, zahlText, STELLEN_MAX, type Faktor } from '../../core/data/berechnung'
-import { EINHEITEN } from '../../core/data/einheiten'
-import type { QuelleInReichweite } from '../../core/data/sourceLinks'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Wahl, type WahlOption } from '@/editor/werkbank/Wahl'
+import { Zahl } from '@/editor/werkbank/Zahl'
+import { X } from '@/editor/zeichen/zeichen'
+import { bindungMitQuelle, zerlegeBindung } from '../../kern/maske/bindung'
+import { neuerFaktor, zahlStreng, zahlText, STELLEN_MAX, type Faktor } from '../../kern/daten/berechnung'
+import { EINHEITEN } from '../../kern/daten/einheiten'
+import type { QuelleInReichweite } from '../../kern/daten/weitereQuellen'
 
 const ARTEN: WahlOption[] = [
   { wert: 'spalte', name: 'Spalte der Zeile' },

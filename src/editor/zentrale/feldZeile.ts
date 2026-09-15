@@ -6,9 +6,9 @@ import {
   spaltenNameAusEingabe,
   ZEICHEN_MAX,
   type Datenfeld,
-} from '../../core/data/dataSources'
+} from '../../kern/daten/datenquellen'
 
-import { feldCodeZerlegen } from '../../core/data/relations'
+import { feldCodeZerlegen } from '../../kern/daten/relationen'
 
 export interface FeldZeile {
   label: string

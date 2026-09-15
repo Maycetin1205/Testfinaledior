@@ -2,15 +2,15 @@
 // Einstellung der gewaehlten in EINEM Fenster, statt eines Abschnitts im
 // ohnehin vollen Inspector.
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import { Dialog } from '@/ui/werkbank/Dialog'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { coerceSpalten } from '../../blocks/tabelle/spalten'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import { faehigkeit } from '../../core/blocks/faehigkeiten'
-import { berechnungenAus, neueBerechnung, type Berechnung } from '../../core/data/berechnung'
-import { quellenInReichweite } from '../../state/quellenOps'
-import { useDataSources } from '../../state/useDataSources'
-import { useEditor } from '../../state/useEditor'
+import { Dialog } from '@/editor/werkbank/Dialog'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { coerceSpalten } from '../../bausteine/tabelle/spalten'
+import { bausteinArt } from '../../kern/maske/registry'
+import { faehigkeit } from '../../kern/maske/faehigkeiten'
+import { berechnungenAus, neueBerechnung, type Berechnung } from '../../kern/daten/berechnung'
+import { quellenInReichweite } from '../../kern/maske/quellenReichweite'
+import { useDataSources } from '../zustand/useDataSources'
+import { useEditor } from '../zustand/useEditor'
 import { BerechnungDialog, type Spaltenkopf } from '../inspector/BerechnungDialog'
 import {
   beiBerechnungenWechsel,

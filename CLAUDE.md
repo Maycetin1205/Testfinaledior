@@ -69,10 +69,6 @@ stehen, nie ueber einen Schritt hinaus.
 - Design: `src/design/maske.css` (`--se-*`) fuer die Maske, `src/design/editor.css`
   fuer den Editor. Nie mischen; die Maske laeuft ohne Editor.
 
-Bis Schritt 2 durch ist, heissen die Ordner noch `core`, `blocks`, `state`,
-`ui`. Das Laufzeit-Bauwerkzeug `tools/laufzeitBauen.mjs` kennt die Ordnernamen
-und wird mit umgestellt.
-
 ## Regeln
 
 1. **Eine Render-Quelle.** Editor und Maske zeigen dasselbe Element. Kein

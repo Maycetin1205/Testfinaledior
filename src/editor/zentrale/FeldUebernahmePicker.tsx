@@ -1,8 +1,8 @@
 // Die Liste, aus der ein Feld als Parameter-Wert uebernommen wird.
 import { useMemo, type RefObject } from 'react'
-import { Liste, type ListeGruppe } from '@/ui/werkbank/Liste'
-import { Popover } from '@/ui/werkbank/Popover'
-import type { Datenquelle } from '../../core/data/dataSources'
+import { Liste, type ListeGruppe } from '@/editor/werkbank/Liste'
+import { Popover } from '@/editor/werkbank/Popover'
+import type { Datenquelle } from '../../kern/daten/datenquellen'
 import { quellenWorte } from './beschriftungen'
 import {
   uebernahmeFelder,

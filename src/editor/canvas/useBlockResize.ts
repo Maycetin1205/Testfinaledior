@@ -1,9 +1,9 @@
 // Das Ziehen an Breite und Hoehe eines Bausteins.
 import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import { RASTER, rasterPlatzLesen, rasterMassVon } from '../../core/blocks/rasterLayout'
-import type { Editor } from '../../state/Editor'
+import type { Baustein } from '../../kern/maske/baum'
+import { bausteinArt } from '../../kern/maske/registry'
+import { RASTER, rasterPlatzLesen, rasterMassVon } from '../../kern/maske/raster'
+import type { Editor } from '../zustand/Editor'
 import { zieheGroesse } from './zieheGroesse'
 
 export function useBlockResize(

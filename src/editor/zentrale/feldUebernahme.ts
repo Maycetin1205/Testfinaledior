@@ -1,12 +1,12 @@
 // Felder einer Quelle als Vorschlag fuer die Parameter einer Relation.
-import type { Parameter } from '../../core/data/aktionen'
-import { relationsParameterVorgabe } from '../../core/data/aktionen'
-import { tabellenIdVon, type Datenquelle } from '../../core/data/dataSources'
+import type { Parameter } from '../../kern/daten/aktionen'
+import { relationsParameterVorgabe } from '../../kern/daten/aktionen'
+import { tabellenIdVon, type Datenquelle } from '../../kern/daten/datenquellen'
 import {
   relIdAusIdbId,
   feldCodeZerlegen,
   type RelationsVorlage,
-} from '../../core/data/relations'
+} from '../../kern/daten/relationen'
 
 export interface UebernahmeFeld {
   sourceId: string

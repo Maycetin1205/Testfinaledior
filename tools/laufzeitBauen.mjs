@@ -4,15 +4,21 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, w
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+// Die Maske bekommt Lit immer als Produktionsfassung, egal was in der Umgebung
+// steht: sonst traegt sie je nach Aufruf 15 kB Entwicklungswarnungen mit.
+process.env.NODE_ENV = 'production'
+
 const WURZEL = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const QUELLE = pfad(path.join(WURZEL, 'src'))
-const BAUSTEIN_ORDNER = QUELLE + '/blocks'
+const BAUSTEIN_ORDNER = QUELLE + '/bausteine'
 // Nur diese drei Schichten laufen in der Maske; der Editor bleibt draussen.
-const LAUFZEIT_WURZELN = ['blocks', 'core', 'softengine'].map((name) => `${QUELLE}/${name}`)
-// blocks/base und blocks/shared sind kein Baustein, sondern Grundlage.
-const KEIN_BAUSTEIN = new Set(['base', 'shared'])
+const LAUFZEIT_WURZELN = ['bausteine', 'kern', 'softengine'].map((name) => `${QUELLE}/${name}`)
+// bausteine/grund und bausteine/shared sind kein Baustein, sondern Grundlage.
+const KEIN_BAUSTEIN = new Set(['grund', 'shared'])
 const BASIS = 'basis'
-const ENTWURF = pfad(path.join(WURZEL, 'node_modules/.tmp/laufzeit-entwurf'))
+// Je Lauf ein eigener Entwurfsordner: Dev-Server, Test und Handaufruf bauen
+// sonst in denselben Ordner und loeschen einander die Einstiege weg.
+const ENTWURF = pfad(path.join(WURZEL, `node_modules/.tmp/laufzeit-entwurf-${process.pid}`))
 
 function pfad(p) {
   return p.split(path.sep).join('/')
@@ -195,6 +201,7 @@ async function baueTeil(vite, name, plan, ziel) {
 
   await vite.build({
     configFile: false,
+    mode: 'production',
     logLevel: 'warn',
     publicDir: false,
     define: { 'process.env.NODE_ENV': '"production"' },

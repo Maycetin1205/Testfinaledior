@@ -1,7 +1,7 @@
 // Der Aufruf eines Relationsschritts in Worten: dieselbe Syntax, die hinausgeht,
 // nur mit Klartext statt Feldcodes an den Stellen, die erst zur Laufzeit fallen.
-import { relationsSyntaxAlsText, type RelationsVorlage } from '../../../core/data/relations'
-import type { Parameter } from '../../../core/data/aktionen'
+import { relationsSyntaxAlsText, type RelationsVorlage } from '../../../kern/daten/relationen'
+import type { Parameter } from '../../../kern/daten/aktionen'
 import { bindungsText } from './bindungsRegistry'
 import type { ParameterWahlen } from './wahlen'
 

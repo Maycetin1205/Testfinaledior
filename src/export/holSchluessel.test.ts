@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
-import '../blocks/register'
-import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../core/blocks/BlockData'
-import type { Datenquelle } from '../core/data/dataSources'
+import '../bausteine/anmeldung'
+import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../kern/maske/baum'
+import type { Datenquelle } from '../kern/daten/datenquellen'
 import { holSchluesselJeGeber } from './benutzteQuellen'
 
 // Woher eine holende Quelle ihren Beleg nimmt, steht am BAUSTEIN. Der Export

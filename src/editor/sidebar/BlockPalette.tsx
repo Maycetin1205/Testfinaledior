@@ -1,15 +1,15 @@
 // Die Palette: alle Bausteine, die man auf die Flaeche ziehen kann.
-import { Component, Plus, Search, type Zeichen } from '@/ui/zeichen'
+import { Component, Plus, Search, type Zeichen } from '@/editor/zeichen/zeichen'
 import { createElement, useState } from 'react'
-import { Feld } from '@/ui/werkbank/Feld'
-import { Gruppe } from '@/ui/werkbank/Gruppe'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { WURZEL_ID, WURZEL_TYP } from '../../core/blocks/BlockData'
-import { darfEnthalten, alleBausteinArten } from '../../core/blocks/blockRegistry'
-import type { Kategorie, BausteinArt } from '../../core/blocks/BlockDefinition'
-import { editorAngabenVon } from '../../core/blocks/editorAngaben'
+import { Feld } from '@/editor/werkbank/Feld'
+import { Gruppe } from '@/editor/werkbank/Gruppe'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { WURZEL_ID, WURZEL_TYP } from '../../kern/maske/baum'
+import { darfEnthalten, alleBausteinArten } from '../../kern/maske/registry'
+import type { Kategorie, BausteinArt } from '../../kern/maske/bausteinArt'
+import { editorAngabenVon } from '../../kern/maske/editorAngaben'
 import { setNewBlockDrag } from '../canvas/dnd'
-import { useEditor } from '../../state/useEditor'
+import { useEditor } from '../zustand/useEditor'
 
 const ERSATZ_SYMBOL = Component
 

@@ -1,5 +1,5 @@
 // Der Stil eines Bausteins in der exportierten Maske.
-import type { Baustein } from '../core/blocks/BlockData'
+import type { Baustein } from '../kern/maske/baum'
 import {
   flussHoeheStil,
   flussBreiteStil,
@@ -7,10 +7,10 @@ import {
   flussBreiteLesen,
   type Richtung,
   type FlussBreite,
-} from '../core/blocks/flowLayout'
-import { istRandBaustein, randStil } from '../core/blocks/maskenRand'
-import { rasterPlatzLesen, rasterPlatzStil } from '../core/blocks/rasterLayout'
-import { stilAlsCss } from '../core/blocks/styleCss'
+} from '../kern/maske/fluss'
+import { istRandBaustein, randStil } from '../kern/maske/maskenRand'
+import { rasterPlatzLesen, rasterPlatzStil } from '../kern/maske/raster'
+import { stilAlsCss } from '../kern/maske/stilCss'
 import { escapeHtmlAttr } from './serializer'
 
 export function styleAttr(

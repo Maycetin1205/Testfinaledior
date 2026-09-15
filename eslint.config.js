@@ -9,7 +9,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 // Wurzel nimmt.
 const rootDir = import.meta.dirname
 
-const coreOuterLayers = '(?:app|blocks|design|editor|export|softengine|state|test|ui)'
+const coreOuterLayers = '(?:bausteine|design|editor|export|softengine)'
 
 function restrictCoreImports(files, parentSegments) {
   return {
@@ -73,7 +73,7 @@ export default defineConfig([
   // Regel 4: nur src/softengine kennt die Globals. Ein Baustein bekommt Daten
   // ueber benannte Funktionen (laufzeitQuellen, befehle, relations).
   {
-    files: ['src/blocks/**/*.{ts,tsx}'],
+    files: ['src/bausteine/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [{
@@ -84,8 +84,8 @@ export default defineConfig([
       }],
     },
   },
-  restrictCoreImports(['src/core/*.{ts,tsx}'], 1),
-  restrictCoreImports(['src/core/*/*.{ts,tsx}'], 2),
-  restrictCoreImports(['src/core/*/*/*.{ts,tsx}'], 3),
-  restrictCoreImports(['src/core/*/*/*/*.{ts,tsx}'], 4),
+  restrictCoreImports(['src/kern/*.{ts,tsx}'], 1),
+  restrictCoreImports(['src/kern/*/*.{ts,tsx}'], 2),
+  restrictCoreImports(['src/kern/*/*/*.{ts,tsx}'], 3),
+  restrictCoreImports(['src/kern/*/*/*/*.{ts,tsx}'], 4),
 ])

@@ -1,9 +1,9 @@
 // Ein Zahlenwert im Inspector, mit Einheit und Grenzen.
 import { useState } from 'react'
-import type { Eigenschaft } from '../../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../../kern/maske/eigenschaft'
 import { useEingabeSitzung } from './eingabeSitzung'
-import { Zahl } from '@/ui/werkbank/Zahl'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import { Zahl } from '@/editor/werkbank/Zahl'
+import { Zeile } from '@/editor/werkbank/Zeile'
 
 interface NumberControlProps {
   property: Eigenschaft

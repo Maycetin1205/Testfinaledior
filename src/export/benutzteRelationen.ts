@@ -1,8 +1,8 @@
 // Welche Relations-Vorlagen die Maske braucht.
-import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
-import { relationIdsVon } from '../core/blocks/treeQuery'
-import { holWertVon, type Datenquelle } from '../core/data/dataSources'
-import type { RelationsVorlage } from '../core/data/relations'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../kern/maske/baum'
+import { relationIdsVon } from '../kern/maske/baumFragen'
+import { holWertVon, type Datenquelle } from '../kern/daten/datenquellen'
+import type { RelationsVorlage } from '../kern/daten/relationen'
 
 export function collectRelations(
   tree: Maskenbaum,

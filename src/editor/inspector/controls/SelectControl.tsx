@@ -1,7 +1,7 @@
 // Eine Wahl aus einer Liste als natives Auswahlfeld.
-import type { Wahloption } from '../../../core/blocks/PropertyDescription'
-import { Wahl } from '@/ui/werkbank/Wahl'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import type { Wahloption } from '../../../kern/maske/eigenschaft'
+import { Wahl } from '@/editor/werkbank/Wahl'
+import { Zeile } from '@/editor/werkbank/Zeile'
 
 type SelectOption = Wahloption & { detail?: string }
 

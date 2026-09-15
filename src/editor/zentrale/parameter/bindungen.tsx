@@ -1,17 +1,17 @@
 // Die Bedienelemente je Parameter-Herkunft: woraus und was darin.
 import type { ReactNode } from 'react'
-import { Feld } from '@/ui/werkbank/Feld'
-import type { ListeEintrag, ListeGruppe } from '@/ui/werkbank/Liste'
+import { Feld } from '@/editor/werkbank/Feld'
+import type { ListeEintrag, ListeGruppe } from '@/editor/werkbank/Liste'
 import { PickerControl } from '../../inspector/controls/PickerControl'
 import {
   AKTIONS_PLATZHALTER,
   type Parameter,
-} from '../../../core/data/aktionen'
+} from '../../../kern/daten/aktionen'
 import {
   quellenKennung,
   type Datenquelle,
   type Datenfeld,
-} from '../../../core/data/dataSources'
+} from '../../../kern/daten/datenquellen'
 import { PLATZHALTER_KLARTEXT, blockValueKey } from '../helfer'
 import type { BindungsProps } from './wahlen'
 

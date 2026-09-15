@@ -1,7 +1,7 @@
 // Die Breite, die ein Feld seiner Spalte beim Anlegen mitgibt. Nur der Editor
 // rechnet das: in der Maske steht laengst eine gewoehnliche Spaltenbreite.
-import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
-import type { QuelleInReichweite } from '../../core/data/sourceLinks'
+import { zerlegeBindung } from '../../kern/maske/bausteinArt'
+import type { QuelleInReichweite } from '../../kern/daten/weitereQuellen'
 
 // Ein Zeichen der Maskenschrift (Segoe UI, 13px) ist rund 7 px breit, links und
 // rechts sitzen je 10 px Polsterung (--se-zell-x). Grosszuegig gerundet: eine

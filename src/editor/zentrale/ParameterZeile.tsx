@@ -1,9 +1,9 @@
 // Eine Parameter-Zeile im Schritt-Formular: Herkunft und Wert.
-import { Link2, X } from '@/ui/zeichen'
-import { Knopf } from '@/ui/werkbank/Knopf'
-import { Marke } from '@/ui/werkbank/Marke'
+import { Link2, X } from '@/editor/zeichen/zeichen'
+import { Knopf } from '@/editor/werkbank/Knopf'
+import { Marke } from '@/editor/werkbank/Marke'
 import { PickerControl } from '../inspector/controls/PickerControl'
-import type { Parameter, ParameterQuelle } from '../../core/data/aktionen'
+import type { Parameter, ParameterQuelle } from '../../kern/daten/aktionen'
 import type { FeldUebernahmeZiel } from './feldUebernahme'
 import { PARAM_QUELLEN, herkunftsEintraege, neueBindung } from './parameter/bindungsRegistry'
 import type { ParameterWahlen } from './parameter/wahlen'

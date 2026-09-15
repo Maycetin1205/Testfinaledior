@@ -44,8 +44,8 @@ fehlt, wird nicht geraten, sondern getestet.
   Code `253_30`. Schlüssel-Scan: gleich / Präfix `code_` / Endung `_code` —
   für Lesen UND Schreiben.
 - Eine ERP-Abfrage liefert Schlüssel mit festem Vorsatz: `LFA_pos_len`.
-- Gilt in: `core/data/ladeRelation.ts` (`POS_LEN`), `softengine/data.ts`
-  (`getField`/`setField`), `core/data/relations.ts` (`splitFieldCode`).
+- Gilt in: `kern/daten/ladeRelation.ts` (`POS_LEN`), `softengine/data.ts`
+  (`getField`/`setField`), `kern/daten/relationen.ts` (`feldCodeZerlegen`).
 
 ## 4. SEvariablen — Bestellung
 
@@ -62,7 +62,7 @@ fehlt, wird nicht geraten, sondern getestet.
   lässt, fällt die ganze Bestellung auf `*` zurück.
 - Was in einer expliziten Liste fehlt, liefert SoftEngine **nie** — die
   gebundene Stelle bleibt still leer.
-- Gilt in: `core/data/dataSources.ts` (`felderFor`), `export/sevariablen.ts`.
+- Gilt in: `kern/daten/datenquellen.ts` (`bestellteFelder`), `export/sevariablen.ts`.
 
 ## 4a. REFRESH — den Klartext zu einem Code-Feld bestellen
 
@@ -167,7 +167,7 @@ Belegt 2026-08-11 durch einen A/B-Echttest mit derselben Maske:
   ersten gescheiterten Loop die ganze Liste ab.
 
 Der Export schreibt Kopfsatz-Arten deshalb **zuletzt**
-(`loopReihenfolge` in `core/data/dataSources.ts`, Merkmal `kopfsatzMoeglich`).
+(`loopReihenfolge` in `kern/daten/datenquellen.ts`, Merkmal `kopfsatzMoeglich`).
 Wer die Ausgabe-Reihenfolge anfasst, bricht das.
 
 Der Kontrakt gilt nur INNERHALB der SEFILELOOP — eine `erpapicall`-Quelle fällt
@@ -188,7 +188,7 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   Tabellen-ID (`Daten.Var.BEL`). Wo der eigene Eintrag leer bleibt, gilt
   `WINDOW_VARIABLE` — die Handmaske liest `B.BEL_3_8 || W.BEL_3_8`. Aus dem
   Fenster zaehlt nur, was den Vorsatz dieser Tabelle traegt (`BEL_`).
-- Gilt in: `core/data/dataSources.ts` (`varAusKopfsaetzen`, `kopfsatzFor`).
+- Gilt in: `kern/daten/datenquellen.ts` (`varAusKopfsaetzen`, `kopfsatzVon`).
 
 ## 7. Schreiben
 
@@ -209,7 +209,7 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   Funktion bleibt der Modul-Lebenszyklus als Rueckfall. Ob SoftEngine daraufhin
   wirklich neu liefert, ist an KEINER echten Maske belegt (die Handmaske
   schreibt gar nicht zurueck). Das entscheidet ein Echttest.
-- Gilt in: `core/data/relations.ts`, `blocks/shared/seAktionen.ts`.
+- Gilt in: `kern/daten/relationen.ts`, `bausteine/shared/seAktionen.ts`.
 
 ## 8. Positionen zur Laufzeit lesen (Hol-Relation)
 
@@ -230,7 +230,7 @@ Belegt 2026-08-10/11, Echttests:
   trotzdem EINEM Wert.
 - Eine holende Quelle bestellt bei SoftEngine NICHTS — ihr SEFILELOOP-Eintrag
   entfällt.
-- Gilt in: `core/data/ladeRelation.ts`, `softengine/relationLader.ts`.
+- Gilt in: `kern/daten/ladeRelation.ts`, `softengine/relationLader.ts`.
 
 ## 9. START_TOOL
 
@@ -239,7 +239,7 @@ Belegt 2026-08-10/11, Echttests:
   Weg verwirft die Parameter (aus SoftEngines eigener Maskenbibliothek gelesen,
   nicht per Echttest).
 - Werkzeug-Nummern sind je Installation individuell → Daten, nie Code.
-- Gilt in: `blocks/shared/seAktionen.ts`.
+- Gilt in: `bausteine/shared/seAktionen.ts`.
 
 ## 10. ERPAPICALL
 
@@ -254,7 +254,7 @@ Belegt 2026-08-10/11, Echttests:
   ErpApiCall-Referenz der Installation vorliegt.
 - Nicht belegt und darum nicht angeboten: Kopfsatz, offener Satz (VAR),
   Hol-Relation, Schreibweg.
-- Gilt in: `core/data/quellenArten.ts` (`erpabfrage`), `softengine/data.ts`
+- Gilt in: `kern/daten/quellenArten.ts` (`erpabfrage`), `softengine/data.ts`
   (`rowsFor`).
 
 ## 11. Anlegen (SE-Wissen, wird NICHT gebaut)
@@ -280,14 +280,14 @@ steht hier nur als Wissen:
   `IDBID0002_0_30,1002,0,30,Tierart,L,a001,000000`
 - Die Datei enthält auch ALTE Seitenstände.
 - Steuerzeichen werden abgestreift (belegt: ein `0x80` vor `' von'`).
-- Gilt in: `core/data/dtkImport.ts`.
+- Gilt in: `kern/daten/dtkImport.ts`.
 
 ## 13. Plattform-Unterschiede
 
 - Die Maske läuft in **WinUI/BüroWARE** (`__WEBWARE__: "0"`,
   `__WINUI_MAJORVERSION__: "7"`) und in **WebUI/WEBWARE**.
 - Altes WinUI hat **keinen `ResizeObserver`** — Rückfall ist Pflicht
-  (`blocks/tabelle/seitengroesse.ts`).
+  (`bausteine/tabelle/seitengroesse.ts`).
 - HTML5-Drag ändert in SoftEngine nur den Mauszeiger.
 - Die Bruecke `basis.html.interface.js` laedt `JWHtmlStart` selbst; der Export
   schreibt keinen eigenen Skript-Tag mehr dafür. Der Pfad `EditorPfad/JS/JS/…`
@@ -311,7 +311,7 @@ steht hier nur als Wissen:
 - Echttest 2026-08-12: ohne das Sicht-Attribut lagen zwei
   Flächen **übereinander** — im Editor unsichtbar, in SoftEngine kaputt.
   Wer es entfernt, bricht die Ansichten.
-- Gilt in: `blocks/base/BasicBlock.ts`, `blocks/navi/seRuntime.ts`.
+- Gilt in: `bausteine/grund/Grundbaustein.ts`, `bausteine/navi/seRuntime.ts`.
 
 ## 15. Optik-Belege aus den echten Masken
 

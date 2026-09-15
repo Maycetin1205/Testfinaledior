@@ -1,11 +1,11 @@
 // Je Parameter-Quelle ein Eintrag: was sie heisst, woraus sie waehlt, wie sie
 // startet, was sie in Worten hinausschickt.
-import type { ListeEintrag } from '@/ui/werkbank/Liste'
+import type { ListeEintrag } from '@/editor/werkbank/Liste'
 import {
   PARAMETER_QUELLEN,
   type Parameter,
   type ParameterQuelle,
-} from '../../../core/data/aktionen'
+} from '../../../kern/daten/aktionen'
 import { PLATZHALTER_KLARTEXT, blockValueKey } from '../helfer'
 import {
   BausteinBindung,

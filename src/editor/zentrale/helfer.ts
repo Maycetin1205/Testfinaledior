@@ -1,13 +1,13 @@
 // Gemeinsame Helfer der Kommandozentrale: Klartexte, Optionen, Zaehlungen.
-import { Boxes, Database, FileText, Users } from '@/ui/zeichen'
-import type { Baustein } from '../../core/blocks/BlockData'
-import { bausteinName } from '../../core/blocks/bausteinName'
-import type { Wahloption } from '../../core/blocks/PropertyDescription'
-import { bausteinArt } from '../../core/blocks/blockRegistry'
-import { faehigkeit } from '../../core/blocks/faehigkeiten'
-import { auswahlQuelleIdVon } from '../../core/blocks/treeQuery'
-import type { Datenquelle, Datenfeld, QuellenArtKennung } from '../../core/data/dataSources'
-import type { RelationsVorlage } from '../../core/data/relations'
+import { Boxes, Database, FileText, Users } from '@/editor/zeichen/zeichen'
+import type { Baustein } from '../../kern/maske/baum'
+import { bausteinName } from '../../kern/maske/bausteinName'
+import type { Wahloption } from '../../kern/maske/eigenschaft'
+import { bausteinArt } from '../../kern/maske/registry'
+import { faehigkeit } from '../../kern/maske/faehigkeiten'
+import { auswahlQuelleIdVon } from '../../kern/maske/baumFragen'
+import type { Datenquelle, Datenfeld, QuellenArtKennung } from '../../kern/daten/datenquellen'
+import type { RelationsVorlage } from '../../kern/daten/relationen'
 
 const KIND_ICONS: Partial<Record<QuellenArtKennung, typeof Database>> = {
   idb: Database,

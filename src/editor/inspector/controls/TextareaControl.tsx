@@ -1,8 +1,8 @@
 // Ein mehrzeiliger Text im Inspector.
-import type { Eigenschaft } from '../../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../../kern/maske/eigenschaft'
 import { useEingabeSitzung } from './eingabeSitzung'
-import { FeldMehrzeilig } from '@/ui/werkbank/Feld'
-import { Zeile } from '@/ui/werkbank/Zeile'
+import { FeldMehrzeilig } from '@/editor/werkbank/Feld'
+import { Zeile } from '@/editor/werkbank/Zeile'
 
 interface TextareaControlProps {
   property: Eigenschaft

@@ -4,8 +4,8 @@ import type {
   Parameter,
   ParameterQuelle,
   ErgebnisSchritt,
-} from '../../../core/data/aktionen'
-import type { Datenquelle } from '../../../core/data/dataSources'
+} from '../../../kern/daten/aktionen'
+import type { Datenquelle } from '../../../kern/daten/datenquellen'
 import type {
   AuswahlGeberOption,
   BlockValueOption,
