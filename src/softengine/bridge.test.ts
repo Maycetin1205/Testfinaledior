@@ -9,6 +9,19 @@ g.HTMLInputElement = class extends (g.HTMLElement as new () => object) {}
 g.HTMLTextAreaElement = class extends (g.HTMLElement as new () => object) {}
 g.HTMLSelectElement = class extends (g.HTMLElement as new () => object) {}
 g.document = { activeElement: null, title: 'Pruefmaske' }
+
+// Die Bruecke holt dem WebView die Tastatur mit einem echten Fokuswechsel ueber
+// ein Hilfsfeld; dieses Miniatur-DOM schreibt mit, was fokussiert wurde.
+const dok = g.document as Record<string, unknown>
+const fokussiert: string[] = []
+dok.createElement = (): unknown => {
+  const el = new (g.HTMLInputElement as new () => object)() as Record<string, unknown>
+  el.style = {}
+  el.focus = () => { fokussiert.push('hilfsfeld'); dok.activeElement = el }
+  el.remove = () => { dok.activeElement = null }
+  return el
+}
+dok.body = { appendChild: () => {} }
 g.window = { addEventListener: () => {} }
 
 // Der 300-ms-Poll aus starteSe darf hier nie feuern — er verteilte sonst
@@ -92,16 +105,20 @@ test('nach dem Schreiben wird die Eingabedatei neu bestellt', () => {
   expect(bestellt).toEqual(['ReloadInputJSON', 'ResetDataBasis'])
 })
 
-// Echttest 15.09.: beantwortet die Maske SoftEngines Fokus-Ruf mit "erledigt",
-// laeuft basis_HTML_DoSetAutoFocus nie und der WebView bekommt keine Tastatur —
-// ein Klick landet in keinem Feld (kontrakte.md 13).
-test('nur ein Fokus auf der Maske haelt SoftEngines Auto-Fokus auf', () => {
+// Echttest 15.09., Layoutrahmen 00001: antwortet die Maske "erledigt", bleibt
+// SoftEngines Auto-Fokus aus und der WebView hat keine Tastatur — der Klick
+// landet in keinem Feld. Laeuft der Auto-Fokus, nimmt er dem Feld die
+// Schreibmarke. Die Maske macht den Griff darum selbst (kontrakte.md 13).
+test('der Fokus-Ruf holt die Tastatur und gibt dem Feld die Schreibmarke zurueck', () => {
   const fokusRuf = (): boolean => (g.basisHTML_DoSetFocusToHTML as () => boolean)()
-  const dok = g.document as { activeElement: unknown }
+  const feld = new (g.HTMLInputElement as new () => object)() as Record<string, unknown>
+  feld.focus = () => { fokussiert.push('feld'); dok.activeElement = feld }
 
-  dok.activeElement = new (g.HTMLInputElement as new () => object)()
-  expect(fokusRuf()).toBe(true)
+  dok.activeElement = feld
+  fokussiert.length = 0
+  expect(fokusRuf(), 'SoftEngines Auto-Fokus darf die Schreibmarke nicht abraeumen').toBe(true)
+  expect(fokussiert, 'erst das Hilfsfeld, dann das Feld zurueck').toEqual(['hilfsfeld', 'hilfsfeld', 'feld'])
+  expect(dok.activeElement, 'die Schreibmarke steht wieder im Feld').toBe(feld)
 
   dok.activeElement = null
-  expect(fokusRuf()).toBe(false)
 })

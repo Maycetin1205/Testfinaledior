@@ -214,11 +214,28 @@ function registerSe(tries = 0): void {
   }
 }
 
-// Steht die Schreibmarke schon auf der Maske, bleibt sie dort. Sonst antwortet
-// die Maske nicht, damit SoftEngines Auto-Fokus laeuft: nur der gibt dem
-// WebView die Tastatur (kontrakte.md 13).
+// SoftEngines Auto-Fokus gibt dem WebView als einziges die Tastatur, raeumt
+// dabei aber die Schreibmarke ab: er entfernt sein Hilfsfeld wieder. Die Maske
+// macht den Griff darum selbst und antwortet "erledigt" (kontrakte.md 13).
 function fokusBrueckeBauen(): void {
-  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => fokusBeiUns()
+  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
+    tastaturHolen()
+    return true
+  }
+}
+
+// Nur ein echter Fokuswechsel auf ein Eingabefeld holt dem WebView die
+// Tastatur. Nehmen und Zurueckgeben stehen im selben Schritt, damit zwischen
+// beidem kein Klick und kein Tastendruck faellt.
+function tastaturHolen(): void {
+  const vorher = tiefstesAktives()
+  const hilfsfeld = document.createElement('input')
+  hilfsfeld.style.cssText = 'position:fixed;top:0;left:0;opacity:0'
+  document.body.appendChild(hilfsfeld)
+  hilfsfeld.focus()
+  hilfsfeld.focus() // zweimal wie SoftEngine; welcher Griff zaehlt, weiss nur der Echttest
+  hilfsfeld.remove()
+  if (vorher instanceof HTMLElement) vorher.focus()
 }
 
 let booted = false
