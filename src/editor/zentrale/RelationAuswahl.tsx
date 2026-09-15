@@ -5,10 +5,10 @@ import { Eintrag } from '@/ui/werkbank/Eintrag'
 import { Feld } from '@/ui/werkbank/Feld'
 import { Marke } from '@/ui/werkbank/Marke'
 import {
-  formatRelationSyntax,
-  relationGroup,
-  type RelationGroup,
-  type RelationTemplate,
+  relationsSyntaxAlsText,
+  relationsGruppe,
+  type RelationsGruppe,
+  type RelationsVorlage,
 } from '../../core/data/relations'
 import { SegmentControl } from '../inspector/controls/SegmentControl'
 import { istUngetaufteVorlage, relationAnzeige } from './relationAnzeige'
@@ -23,7 +23,7 @@ export function RelationAuswahl({
   onSelect,
 }: {
   label: string
-  eintraege: readonly RelationTemplate[]
+  eintraege: readonly RelationsVorlage[]
   relationId: string
   suche: string
   onSuche: (value: string) => void
@@ -31,24 +31,24 @@ export function RelationAuswahl({
 }) {
   // Start auf der Gruppe der gewaehlten Relation, sonst auf der nicht-leeren;
   // danach gewinnt der Klick.
-  const [tab, setTab] = useState<RelationGroup>(() => {
+  const [tab, setTab] = useState<RelationsGruppe>(() => {
     const gewaehlt = eintraege.find((entry) => entry.id === relationId)
-    if (gewaehlt) return relationGroup(gewaehlt)
-    return eintraege.some((entry) => relationGroup(entry) === 'lesen') || eintraege.length === 0
+    if (gewaehlt) return relationsGruppe(gewaehlt)
+    return eintraege.some((entry) => relationsGruppe(entry) === 'lesen') || eintraege.length === 0
       ? 'lesen'
       : 'schreiben'
   })
 
-  const lesen = eintraege.filter((entry) => relationGroup(entry) === 'lesen')
-  const schreiben = eintraege.filter((entry) => relationGroup(entry) === 'schreiben')
-  const zaehler: Record<RelationGroup, number> = { lesen: lesen.length, schreiben: schreiben.length }
-  const aktiv: RelationGroup = tab
+  const lesen = eintraege.filter((entry) => relationsGruppe(entry) === 'lesen')
+  const schreiben = eintraege.filter((entry) => relationsGruppe(entry) === 'schreiben')
+  const zaehler: Record<RelationsGruppe, number> = { lesen: lesen.length, schreiben: schreiben.length }
+  const aktiv: RelationsGruppe = tab
   const sichtbar = aktiv === 'lesen' ? lesen : schreiben
 
   const sucht = suche.trim().length > 0
   const tabOptionen = RELATION_GRUPPEN.map((gruppe) => ({
     ...gruppe,
-    label: sucht ? `${gruppe.label} · ${zaehler[gruppe.value as RelationGroup]}` : gruppe.label,
+    label: sucht ? `${gruppe.label} · ${zaehler[gruppe.value as RelationsGruppe]}` : gruppe.label,
   }))
   return (
     <div className="flex flex-col gap-2">
@@ -67,7 +67,7 @@ export function RelationAuswahl({
         name="Lesen oder Schreiben"
         value={aktiv}
         options={tabOptionen}
-        onChange={(value) => setTab(value as RelationGroup)}
+        onChange={(value) => setTab(value as RelationsGruppe)}
       />
 
       <div className="max-h-36 overflow-y-auto border-y border-linie p-1">
@@ -81,7 +81,7 @@ export function RelationAuswahl({
               aktiv={entry.id === relationId}
               onClick={() => onSelect(entry.id)}
               rechts={ungetauft ? undefined : (
-                <Marke hinweis={formatRelationSyntax(entry)}>
+                <Marke hinweis={relationsSyntaxAlsText(entry)}>
                   {VERB_KURZ[entry.verb]} {entry.nr}
                 </Marke>
               )}

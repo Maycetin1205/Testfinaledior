@@ -1,8 +1,8 @@
 // Die Aktionsketten eines Bausteins im Inspector.
 import { useState } from 'react'
 import { Knopf } from '@/ui/werkbank/Knopf'
-import type { BlockNode } from '../../core/blocks/BlockData'
-import type { BlockEventSpec } from '../../core/blocks/faehigkeiten'
+import type { Baustein } from '../../core/blocks/BlockData'
+import type { Ereignis } from '../../core/blocks/faehigkeiten'
 import { useEditor } from '../../state/useEditor'
 import { KettenFenster } from '../zentrale/KettenFenster'
 
@@ -10,12 +10,12 @@ export function AktionenSektion({
   block,
   events,
 }: {
-  block: BlockNode
-  events: readonly BlockEventSpec[]
+  block: Baustein
+  events: readonly Ereignis[]
 }) {
   const ed = useEditor()
 
-  const [offenesEreignis, setOffenesEreignis] = useState<BlockEventSpec | null>(null)
+  const [offenesEreignis, setOffenesEreignis] = useState<Ereignis | null>(null)
 
   const kette = (eventKey: string) => ed.tree[block.id]?.events?.[eventKey] ?? []
 

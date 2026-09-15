@@ -17,7 +17,7 @@ import {
   belegDateinamen,
   rahmenNummerVon,
 } from '../../core/blocks/belegRahmen'
-import { ROOT_ID } from '../../core/blocks/BlockData'
+import { WURZEL_ID } from '../../core/blocks/BlockData'
 import { MASKEN_NAME_PROP, MASKEN_NAME_STANDARD, maskenNameVon } from '../../core/blocks/maskenName'
 import { exportMask } from '../../export/exportMask'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
@@ -54,8 +54,8 @@ export function Toolbar({ onDatencenter }: { onDatencenter: () => void }) {
   // ist EIN Undo-Schritt.
   const nameSitzung = useEingabeSitzung(() => ed.beginTransaction(), () => ed.endTransaction())
   const rahmenSitzung = useEingabeSitzung(() => ed.beginTransaction(), () => ed.endTransaction())
-  const maskenName = String(ed.tree[ROOT_ID]?.props[MASKEN_NAME_PROP] ?? '')
-  const rahmenRoh = String(ed.tree[ROOT_ID]?.props[BELEG_RAHMEN_PROP] ?? '')
+  const maskenName = String(ed.tree[WURZEL_ID]?.props[MASKEN_NAME_PROP] ?? '')
+  const rahmenRoh = String(ed.tree[WURZEL_ID]?.props[BELEG_RAHMEN_PROP] ?? '')
   const rahmen = rahmenNummerVon(ed.tree)
 
   // Dieselbe Maske, nur unter anderem Dateinamen: ein Layoutrahmen der
@@ -98,7 +98,7 @@ export function Toolbar({ onDatencenter }: { onDatencenter: () => void }) {
         className="w-40"
         onChange={(e) => {
           nameSitzung.beginnen()
-          ed.updateProperty(ROOT_ID, MASKEN_NAME_PROP, e.currentTarget.value)
+          ed.updateProperty(WURZEL_ID, MASKEN_NAME_PROP, e.currentTarget.value)
         }}
         onBlur={nameSitzung.beenden}
       />
@@ -113,7 +113,7 @@ export function Toolbar({ onDatencenter }: { onDatencenter: () => void }) {
         className="w-16"
         onChange={(e) => {
           rahmenSitzung.beginnen()
-          ed.updateProperty(ROOT_ID, BELEG_RAHMEN_PROP, e.currentTarget.value)
+          ed.updateProperty(WURZEL_ID, BELEG_RAHMEN_PROP, e.currentTarget.value)
         }}
         onBlur={rahmenSitzung.beenden}
       />

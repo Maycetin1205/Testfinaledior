@@ -1,6 +1,6 @@
 // Die Tafel am SoftEngine-Datenstrom: Karten einsortieren und das Ziehen verdrahten.
-import { bindingAttr, faehigkeit } from '../../core/blocks/faehigkeiten'
-import { getAllBlockDefinitions } from '../../core/blocks/blockRegistry'
+import { bindungsAttr, faehigkeit } from '../../core/blocks/faehigkeiten'
+import { alleBausteinArten } from '../../core/blocks/blockRegistry'
 import { getField, satzIndexVon } from '../../softengine/data'
 import { auswahlWiederfinden, geberIdVon, merkmalVon, waehleAuswahl } from '../shared/auswahl'
 import { macheDatenAnschluss } from '../shared/datenAnschluss'
@@ -64,7 +64,7 @@ function setzeLeerHinweise(board: HTMLElement, columns: readonly HTMLElement[]):
 }
 
 function spotsForTag(tagName: string) {
-  const def = getAllBlockDefinitions().find((d) => d.tagName === tagName.toLowerCase())
+  const def = alleBausteinArten().find((d) => d.tagName === tagName.toLowerCase())
   return faehigkeit(def, 'bindbar')?.stellen ?? []
 }
 
@@ -221,7 +221,7 @@ function hydrate(board: HTMLElement, lieferung: boolean): void {
     card.tabIndex = 0
     card.setAttribute('role', 'button')
     for (const spot of spots) {
-      const feld = card.getAttribute(bindingAttr(spot.prop)) ?? ''
+      const feld = card.getAttribute(bindungsAttr(spot.prop)) ?? ''
       if (feld !== '') (card as unknown as Record<string, unknown>)[spot.prop] = vorspann.lies(row, feld)
     }
     const titel = String((card as unknown as { heading: string }).heading || 'Karte')

@@ -10,7 +10,7 @@ import { MenueZeile } from '@/ui/werkbank/MenueZeile'
 import { Schalter } from '@/ui/werkbank/Schalter'
 import { Trenner } from '@/ui/werkbank/Trenner'
 import { bindungMitQuelle } from '../../core/blocks/BlockDefinition'
-import type { DataSourceField } from '../../core/data/dataSources'
+import type { Datenfeld } from '../../core/data/dataSources'
 import type { Eingabesitzung } from '../inspector/controls/eingabeSitzung'
 
 export interface PickerGruppe {
@@ -21,7 +21,7 @@ export interface PickerGruppe {
   kennung?: string
 
   hinweis?: string
-  fields: readonly DataSourceField[]
+  fields: readonly Datenfeld[]
 }
 
 export interface PickerTitel {

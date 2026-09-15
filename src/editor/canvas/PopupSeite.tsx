@@ -1,8 +1,8 @@
 // Ein Popup auf der Leinwand: eigene Flaeche, verschiebbarer Anker.
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { DIALOG_RAND, DIALOG_SCHLIESSEN_EVENT } from '../../blocks/shared/DialogRahmen'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
-import { rasterItemStyle } from '../../core/blocks/rasterLayout'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
+import { rasterPlatzStil } from '../../core/blocks/rasterLayout'
 import { useEditor } from '../../state/useEditor'
 import { BlockHost } from './BlockHost'
 import { NodeList } from './CanvasNode'
@@ -73,7 +73,7 @@ export function PopupSeite({ popupId }: { popupId: string }) {
     })
   }
 
-  const def = getBlockDefinition(node.type)
+  const def = bausteinArt(node.type)
   const standard = def?.defaultProps ?? {}
 
   const rumpf = (): HTMLElement | null =>
@@ -118,7 +118,7 @@ export function PopupSeite({ popupId }: { popupId: string }) {
             aria-hidden
             data-ff-editor-helper
             style={{
-              ...rasterItemStyle(geist),
+              ...rasterPlatzStil(geist),
               pointerEvents: 'none',
               background: 'hsl(var(--wb-auswahl) / 0.16)',
               border: '2px dashed hsl(var(--wb-auswahl))',

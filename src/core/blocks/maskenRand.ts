@@ -1,14 +1,14 @@
 // Der Rand der Maske, in dem die Navi sitzt.
-import { getBlockDefinition } from './blockRegistry'
-import type { BlockNode, BlockTree } from './BlockData'
+import { bausteinArt } from './blockRegistry'
+import type { Baustein, Maskenbaum } from './BlockData'
 
 export const RAND = { breite: 56, breiteOffen: 224 } as const
 
-export function istRandBaustein(node: BlockNode): boolean {
-  return getBlockDefinition(node.type)?.maskenRand === true
+export function istRandBaustein(node: Baustein): boolean {
+  return bausteinArt(node.type)?.maskenRand === true
 }
 
-export function randItemStyle(): Record<string, string | number> {
+export function randStil(): Record<string, string | number> {
   return {
     position: 'absolute',
     left: 0,
@@ -19,7 +19,7 @@ export function randItemStyle(): Record<string, string | number> {
   }
 }
 
-export function randPlatzLinks(tree: BlockTree): number {
+export function randPlatzLinks(tree: Maskenbaum): number {
   for (const node of Object.values(tree)) {
     if (node && istRandBaustein(node)) return RAND.breite
   }

@@ -2,9 +2,9 @@
 import { useMemo, type ReactNode } from 'react'
 import { Copy, MousePointer2 } from '@/ui/zeichen'
 import { eigenschaftenFuer } from '../../core/blocks/eigenschaftsOrt'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import { faehigkeit } from '../../core/blocks/faehigkeiten'
-import { type PropertyDescription } from '../../core/blocks/PropertyDescription'
+import { type Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { darfAuswahlFolgen, traegtEigeneQuelle } from '../../core/blocks/treeQuery'
 import { useDataSources } from '../../state/useDataSources'
 import { useEditor } from '../../state/useEditor'
@@ -20,10 +20,10 @@ import { QuellenListe } from './QuellenListe'
 
 interface InspectorZeile {
   row?: string
-  props: PropertyDescription[]
+  props: Eigenschaft[]
 }
 
-function inspectorZeilen(props: PropertyDescription[]): InspectorZeile[] {
+function inspectorZeilen(props: Eigenschaft[]): InspectorZeile[] {
   const zeilen: InspectorZeile[] = []
   for (const p of props) {
     const letzte = zeilen[zeilen.length - 1]
@@ -75,7 +75,7 @@ export function Inspector() {
     )
   }
 
-  const def = getBlockDefinition(block.type)
+  const def = bausteinArt(block.type)
 
   if (!def) {
     return (
@@ -91,7 +91,7 @@ export function Inspector() {
 
   const sourceInReach = ed.dataSourceFor(block.id)
 
-  const propControl = (property: PropertyDescription, kompakt = false) => (
+  const propControl = (property: Eigenschaft, kompakt = false) => (
     <PropControl
       key={property.attributeName}
       block={block}

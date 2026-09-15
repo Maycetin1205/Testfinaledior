@@ -4,7 +4,7 @@ import { Fragment, useState } from 'react'
 import { Feld } from '@/ui/werkbank/Feld'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { Reiter } from '@/ui/werkbank/Reiter'
-import { getAllBlockDefinitions } from '../../core/blocks/blockRegistry'
+import { alleBausteinArten } from '../../core/blocks/blockRegistry'
 import { loescheBaustein } from '../../state/loescheBaustein'
 import { useEditor } from '../../state/useEditor'
 
@@ -14,7 +14,7 @@ export function SeitenLeiste() {
   const aktiv = ed.activePageId
 
   const [umbenennen, setUmbenennen] = useState<{ id: string; text: string } | null>(null)
-  const seitenArten = getAllBlockDefinitions().filter((def) => def.pageBlock)
+  const seitenArten = alleBausteinArten().filter((def) => def.pageBlock)
 
   const uebernehmen = () => {
     if (!umbenennen) return

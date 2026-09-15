@@ -2,9 +2,9 @@
 import { css, html, type TemplateResult } from 'lit'
 import { property, state } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { FlowDirection, FlowWidth } from '../../core/blocks/flowLayout'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import type { Richtung, FlussBreite } from '../../core/blocks/flowLayout'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { CardBlock } from '../card/CardBlock'
 import { jaNeinProperty } from '../shared/jaNeinProperty'
 import { leerStil, leerZustand } from '../shared/leerZustand'
@@ -22,7 +22,7 @@ export class KanbanSpalteBlock extends BasicBlock {
   static readonly blockType = 'kanban-spalte'
   static readonly tagName = 'ff-kanban-spalte'
   static readonly displayName = 'Kanban-Spalte'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
   static readonly acceptsChildren = true
 
   static readonly allowedChildTypes: string[] = [
@@ -30,12 +30,12 @@ export class KanbanSpalteBlock extends BasicBlock {
   ]
 
   static readonly addChildButton = { label: 'Zimmer', childType: KanbanZimmerBlock.blockType }
-  static readonly childDirection: FlowDirection = 'column'
+  static readonly childDirection: Richtung = 'column'
   static readonly showInPalette = false
   static readonly containerHint = false
 
   static readonly allowedParentTypes = ['kanban']
-  static readonly lockedWidth: FlowWidth = 'fill'
+  static readonly lockedWidth: FlussBreite = 'fill'
   static readonly resizableWidth = false
 
   static readonly defaultProps = {
@@ -46,7 +46,7 @@ export class KanbanSpalteBlock extends BasicBlock {
     zimmerField: '',
   }
 
-  static override readonly customProperties: PropertyDescription[] = [
+  static override readonly customProperties: Eigenschaft[] = [
     statusVariantProperty(
       'variant',
       'Bedeutung der Spalte — bestimmt ihre Farbwelt (Kopf, Fläche, Rahmen).',

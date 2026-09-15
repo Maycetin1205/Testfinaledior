@@ -1,5 +1,5 @@
 // Wie eine Baustein-Eigenschaft im Inspector aussieht und was sie speichert.
-export type PropertyKind =
+export type EigenschaftsArt =
   | 'text'
   | 'textarea'
   | 'select'
@@ -19,7 +19,7 @@ export type PropertyKind =
   | 'seite'
 
 
-export interface PropertySelectOption {
+export interface Wahloption {
   value: string
   label: string
 // Traegt die Option eine Farbe, zeichnet der Inspector Kacheln statt einer
@@ -27,7 +27,7 @@ export interface PropertySelectOption {
   farbe?: string
 }
 
-export interface PropertyVisibilityCondition {
+export interface Bedingung {
   attributeName: string
 
   equals?: unknown
@@ -36,8 +36,8 @@ export interface PropertyVisibilityCondition {
   keinesVon?: readonly unknown[]
 }
 
-export function propertySichtbar(
-  bedingung: PropertyVisibilityCondition | undefined,
+export function eigenschaftSichtbar(
+  bedingung: Bedingung | undefined,
   props: Record<string, unknown>,
 ): boolean {
   if (!bedingung) return true
@@ -51,13 +51,13 @@ export function propertySichtbar(
   return Object.is(wert, bedingung.equals)
 }
 
-export interface PropertyDescription {
+export interface Eigenschaft {
   attributeName: string
   name: string
   description: string
   maxLength?: number
-  kind: PropertyKind
-  options?: PropertySelectOption[]
+  kind: EigenschaftsArt
+  options?: Wahloption[]
 
   unit?: string
   min?: number
@@ -66,7 +66,7 @@ export interface PropertyDescription {
   bearbeitung?: 'inline' | 'inspector'
 
   inspectorRow?: string
-  visibleWhen?: PropertyVisibilityCondition
+  visibleWhen?: Bedingung
   requiresDataSource?: boolean
   exclusiveAmongSiblings?: boolean
 

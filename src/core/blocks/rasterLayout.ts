@@ -1,16 +1,16 @@
 // Das Raster der Maskenflaeche: Spalten, Zeilen und der Platz eines Bausteins darin.
-import { styleToCss } from './styleCss'
+import { stilAlsCss } from './styleCss'
 
 export const RASTER = { spalten: 48, spaltePx: 20, zeilePx: 12, gapPx: 4 } as const
 
-export interface RasterPos {
+export interface RasterPlatz {
   x: number
   y: number
   w: number
   h: number
 }
 
-export interface RasterSpec {
+export interface RasterMass {
   startW: number
   startH: number
   minW: number
@@ -18,7 +18,7 @@ export interface RasterSpec {
   breiteZiehbar: boolean
 }
 
-const RASTER_FALLBACK: RasterSpec = {
+const RASTER_FALLBACK: RasterMass = {
   startW: 12,
   startH: 3,
   minW: 2,
@@ -26,7 +26,7 @@ const RASTER_FALLBACK: RasterSpec = {
   breiteZiehbar: true,
 }
 
-export const RASTER_DEFAULTS: Record<string, unknown> = {
+export const RASTER_VORGABEN: Record<string, unknown> = {
   rasterX: 0,
   rasterY: 0,
   rasterW: RASTER.spalten,
@@ -40,7 +40,7 @@ function parseRasterCell(value: unknown, fallback: number): number {
   return fallback
 }
 
-export function parseRasterPos(props: Record<string, unknown>): RasterPos {
+export function rasterPlatzLesen(props: Record<string, unknown>): RasterPlatz {
   return {
     x: parseRasterCell(props.rasterX, 0),
     y: parseRasterCell(props.rasterY, 0),
@@ -49,13 +49,13 @@ export function parseRasterPos(props: Record<string, unknown>): RasterPos {
   }
 }
 
-export function rasterSpecOf(
-  def: { raster?: Partial<RasterSpec> } | undefined,
-): RasterSpec {
+export function rasterMassVon(
+  def: { raster?: Partial<RasterMass> } | undefined,
+): RasterMass {
   return { ...RASTER_FALLBACK, ...(def?.raster ?? {}) }
 }
 
-export function rasterFlaecheStyle(): Record<string, string | number> {
+export function rasterFlaecheStil(): Record<string, string | number> {
   return {
     display: 'grid',
 
@@ -69,10 +69,10 @@ export function rasterFlaecheStyle(): Record<string, string | number> {
 }
 
 export function rasterFlaecheCss(): string {
-  return styleToCss(rasterFlaecheStyle())
+  return stilAlsCss(rasterFlaecheStil())
 }
 
-export function rasterItemStyle(pos: RasterPos): Record<string, string | number> {
+export function rasterPlatzStil(pos: RasterPlatz): Record<string, string | number> {
   return {
     gridColumn: `${pos.x + 1} / span ${pos.w}`,
     gridRow: `${pos.y + 1} / span ${pos.h}`,
@@ -81,6 +81,6 @@ export function rasterItemStyle(pos: RasterPos): Record<string, string | number>
   }
 }
 
-export function naechsteFreieZeile(positionen: readonly RasterPos[]): number {
+export function naechsteFreieZeile(positionen: readonly RasterPlatz[]): number {
   return positionen.reduce((max, p) => Math.max(max, p.y + p.h), 0)
 }

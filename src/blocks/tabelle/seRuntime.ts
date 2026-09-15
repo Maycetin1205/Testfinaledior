@@ -1,6 +1,6 @@
 // Die Tabelle am SoftEngine-Datenstrom: anmelden, Zeilen ableiten, Satznummer lesen.
 import { faehigkeit, hatFaehigkeit, vertragVon } from '../../core/blocks/faehigkeiten'
-import { definitionFuerTag } from '../../core/blocks/blockRegistry'
+import { bausteinArtFuerTag } from '../../core/blocks/blockRegistry'
 import { satzIndexVon } from '../../softengine/data'
 import { laufzeitQuelle } from '../../softengine/laufzeitQuellen'
 import { auswahlWiederfinden, geberIdVon, merkmalVon, zeilenNachAuswahl } from '../shared/auswahl'
@@ -21,7 +21,7 @@ export interface RuntimeTableElement extends HTMLElement {
 // Danach ist der Ruf unbedingt: eine gemeldete Faehigkeit ohne Vertrag faellt
 // auf, statt still nichts zu tun.
 function pruefeAnkunft(el: HTMLElement, vorspann: DatenVorspann | null): void {
-  if (!hatFaehigkeit(definitionFuerTag(el.tagName), 'haeltGesendete')) return
+  if (!hatFaehigkeit(bausteinArtFuerTag(el.tagName), 'haeltGesendete')) return
   vertragVon(el, 'haeltGesendete').pruefeAnkunft(vorspann === null ? null : {
     // Vor der Auswahl gefiltert: eine Position, die der Auswahlfilter
     // wegnimmt, steht trotzdem im Beleg.
@@ -38,7 +38,7 @@ function spaltenVon(el: HTMLElement): Spalte[] {
 // Welche Tabelle rechnet, sagt die Registry; die Berechnungen stehen als
 // Eigenschaft am Element.
 function berechnungenVon(el: HTMLElement): Berechnung[] {
-  const prop = faehigkeit(definitionFuerTag(el.tagName), 'rechnen')?.prop
+  const prop = faehigkeit(bausteinArtFuerTag(el.tagName), 'rechnen')?.prop
   return prop === undefined ? [] : berechnungenAus((el as unknown as Record<string, unknown>)[prop])
 }
 

@@ -1,10 +1,10 @@
 // Quellen, die ihre Zeilen erst auf eine Auswahl hin holen, samt Bremse gegen Kreis-Feuer.
-import type { BlockDefinition } from '../../core/blocks/BlockDefinition'
+import type { BausteinArt } from '../../core/blocks/BlockDefinition'
 import { faehigkeit, hatFaehigkeit } from '../../core/blocks/faehigkeiten'
-import { getAllBlockDefinitions } from '../../core/blocks/blockRegistry'
-import { propertySichtbar } from '../../core/blocks/PropertyDescription'
+import { alleBausteinArten } from '../../core/blocks/blockRegistry'
+import { eigenschaftSichtbar } from '../../core/blocks/PropertyDescription'
 import { QUELLE_PROP } from '../../core/blocks/quelleProp'
-import { ACTION_VALUE_ID_ATTR } from '../../core/data/aktionen'
+import { BAUSTEIN_ID_ATTR } from '../../core/data/aktionen'
 import { hasSeData, onSeDaten } from '../../softengine/bridge'
 import { laufzeitQuellen } from '../../softengine/laufzeitQuellen'
 import { meldeFehler } from '../../softengine/meldung'
@@ -28,9 +28,9 @@ const stillGeladen = new Map<string, Set<string>>()
 const ohneGeberGemeldet = new Set<string>()
 let verdrahtet = false
 
-export function defsMitSatzWahl(): Map<string, BlockDefinition> {
-  const map = new Map<string, BlockDefinition>()
-  for (const def of getAllBlockDefinitions()) {
+export function defsMitSatzWahl(): Map<string, BausteinArt> {
+  const map = new Map<string, BausteinArt>()
+  for (const def of alleBausteinArten()) {
     if (hatFaehigkeit(def, 'satzwahl')) map.set(def.tagName.toLowerCase(), def)
   }
   return map
@@ -39,14 +39,14 @@ export function defsMitSatzWahl(): Map<string, BlockDefinition> {
 // Die wenn-Bedingung der satzWahl waehlt die Eigenschaft; erfuellt das Element
 // sie nicht, gilt `source`. Pauschal je Tag wuerde ein Text-Formularfeld mit
 // uebriger Nachschlage-Quelle zum falschen Geber.
-function quellenAttrFuer(el: Element, def: BlockDefinition): string {
+function quellenAttrFuer(el: Element, def: BausteinArt): string {
   const wahl = faehigkeit(def, 'satzwahl')
   if (!wahl) return ''
   let aktiv = true
   if (wahl.wenn) {
     const name = wahl.wenn.attributeName
     const wert = el.getAttribute(name.toLowerCase()) ?? def.defaultProps[name]
-    aktiv = propertySichtbar(wahl.wenn, { [name]: wert })
+    aktiv = eigenschaftSichtbar(wahl.wenn, { [name]: wert })
   }
   return (aktiv ? wahl.quelleProp ?? QUELLE_PROP : QUELLE_PROP).toLowerCase()
 }
@@ -58,13 +58,13 @@ function quellenAttrFuer(el: Element, def: BlockDefinition): string {
 // koennte die Quelle nie etwas holen.
 export function gewaehlteZeileDerQuelle(
   quelleId: string,
-  defsJeTag: Map<string, BlockDefinition>,
+  defsJeTag: Map<string, BausteinArt>,
   wurzel: ParentNode | undefined = typeof document === 'undefined' ? undefined : document,
 ): { zeile: unknown; geber: boolean } {
   if (quelleId === '' || wurzel === undefined) return { zeile: undefined, geber: false }
   let juengste: { zeile: unknown; nummer: number } | null = null
   let geber = false
-  for (const el of Array.from(wurzel.querySelectorAll(`[${ACTION_VALUE_ID_ATTR}]`))) {
+  for (const el of Array.from(wurzel.querySelectorAll(`[${BAUSTEIN_ID_ATTR}]`))) {
     const def = defsJeTag.get(el.tagName.toLowerCase())
     if (!def) continue
     const attr = quellenAttrFuer(el, def)

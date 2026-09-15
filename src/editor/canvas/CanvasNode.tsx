@@ -1,17 +1,17 @@
 // Ein Baustein auf der Leinwand samt seinen Kindern.
 import { Fragment, type DragEvent } from 'react'
-import type { BlockNode } from '../../core/blocks/BlockData'
-import { canContain, getBlockDefinition } from '../../core/blocks/blockRegistry'
+import type { Baustein } from '../../core/blocks/BlockData'
+import { darfEnthalten, bausteinArt } from '../../core/blocks/blockRegistry'
 import {
-  flowItemHeightStyle,
-  flowItemStyle,
-  parseFlowHeight,
-  parseFlowWidth,
-  resolveChildDirection,
-  type FlowDirection,
+  flussHoeheStil,
+  flussBreiteStil,
+  flussHoeheLesen,
+  flussBreiteLesen,
+  richtungDerKinder,
+  type Richtung,
 } from '../../core/blocks/flowLayout'
-import { istRandBaustein, randItemStyle } from '../../core/blocks/maskenRand'
-import { parseRasterPos, rasterItemStyle } from '../../core/blocks/rasterLayout'
+import { istRandBaustein, randStil } from '../../core/blocks/maskenRand'
+import { rasterPlatzLesen, rasterPlatzStil } from '../../core/blocks/rasterLayout'
 import { useEditor } from '../../state/useEditor'
 import { BlockHost } from './BlockHost'
 import { isNewBlockDrag, newBlockDragType } from './dnd'
@@ -21,7 +21,7 @@ import { ziehePosition } from './rasterMove'
 
 const CONTAINER_EDGE = 12
 
-function InsertionLine({ direction }: { direction: FlowDirection }) {
+function InsertionLine({ direction }: { direction: Richtung }) {
   return (
     <div
       data-ff-editor-helper
@@ -35,7 +35,7 @@ function InsertionLine({ direction }: { direction: FlowDirection }) {
 
 export function NodeList(
   { parentId, direction, raster = false, nurRand = false }:
-  { parentId: string; direction: FlowDirection; raster?: boolean; nurRand?: boolean },
+  { parentId: string; direction: Richtung; raster?: boolean; nurRand?: boolean },
 ) {
   const ed = useEditor()
   const dnd = useDnd()
@@ -61,10 +61,10 @@ export function NodeList(
 }
 
 interface CanvasNodeProps {
-  node: BlockNode
+  node: Baustein
   index: number
   parentId: string
-  listDirection: FlowDirection
+  listDirection: Richtung
 
   raster?: boolean
 }
@@ -72,9 +72,9 @@ interface CanvasNodeProps {
 function CanvasNode({ node, index, parentId, listDirection, raster = false }: CanvasNodeProps) {
   const ed = useEditor()
   const dnd = useDnd()
-  const def = getBlockDefinition(node.type)
+  const def = bausteinArt(node.type)
   const isContainer = def?.acceptsChildren ?? false
-  const childDirection = resolveChildDirection(def, node.props)
+  const childDirection = richtungDerKinder(def, node.props)
 
   const invalidTarget = (targetParentId: string) =>
     dnd.dragId !== null && ed.isInSubtree(dnd.dragId, targetParentId)
@@ -98,7 +98,7 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
       : newBlockDragType(e.dataTransfer)
 
     const allowedIn = (containerType: string) =>
-      draggedType !== null && canContain(containerType, draggedType)
+      draggedType !== null && darfEnthalten(containerType, draggedType)
     const parentType = ed.getNode(parentId)?.type ?? ''
 
     if (isContainer && !invalidTarget(node.id) && allowedIn(node.type)) {
@@ -142,7 +142,7 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
         onPointerDown={rand ? undefined : (e) => ziehePosition(ed, dnd, e, node, parentId)}
         style={{
           opacity: dnd.dragId === node.id ? 0.4 : 1,
-          ...(rand ? randItemStyle() : rasterItemStyle(parseRasterPos(node.props))),
+          ...(rand ? randStil() : rasterPlatzStil(rasterPlatzLesen(node.props))),
         }}
       >
         {inhalt}
@@ -164,8 +164,8 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
       onDragEnd={dnd.reset}
       style={{
         opacity: dnd.dragId === node.id ? 0.4 : 1,
-        ...flowItemStyle(parseFlowWidth(node.props.width), listDirection, def?.lockedWidth),
-        ...flowItemHeightStyle(parseFlowHeight(node.props.height), listDirection),
+        ...flussBreiteStil(flussBreiteLesen(node.props.width), listDirection, def?.lockedWidth),
+        ...flussHoeheStil(flussHoeheLesen(node.props.height), listDirection),
       }}
     >
       {inhalt}

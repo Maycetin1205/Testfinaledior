@@ -1,14 +1,14 @@
 // Das Ziehen an Breite und Hoehe eines Bausteins.
 import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
-import type { BlockNode } from '../../core/blocks/BlockData'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
-import { RASTER, parseRasterPos, rasterSpecOf } from '../../core/blocks/rasterLayout'
+import type { Baustein } from '../../core/blocks/BlockData'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
+import { RASTER, rasterPlatzLesen, rasterMassVon } from '../../core/blocks/rasterLayout'
 import type { Editor } from '../../state/Editor'
 import { zieheGroesse } from './zieheGroesse'
 
 export function useBlockResize(
   editor: Editor,
-  blockRef: RefObject<BlockNode>,
+  blockRef: RefObject<Baustein>,
   elementRef: RefObject<HTMLElement | null>,
   rootRef: RefObject<HTMLElement | null>,
 ) {
@@ -32,8 +32,8 @@ export function useBlockResize(
     const el = rootRef.current
     if (!el) return
     const node = blockRef.current
-    const pos = parseRasterPos(node.props)
-    const spec = rasterSpecOf(getBlockDefinition(node.type))
+    const pos = rasterPlatzLesen(node.props)
+    const spec = rasterMassVon(bausteinArt(node.type))
     const rect = el.getBoundingClientRect()
     if (achse === 'x') {
       zieheGroesse(editor, e, {

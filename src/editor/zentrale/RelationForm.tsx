@@ -4,15 +4,15 @@ import { Feld } from '@/ui/werkbank/Feld'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { Zeile } from '@/ui/werkbank/Zeile'
 import {
-  formatRelationSyntax,
-  parseRelationSyntax,
-  type RelationTemplate,
+  relationsSyntaxAlsText,
+  relationsSyntaxLesen,
+  type RelationsVorlage,
 } from '../../core/data/relations'
 import { useRelations } from '../../state/useRelations'
 import { FormularKarte } from './FormularKarte'
 
 interface RelationFormProps {
-  relation?: RelationTemplate
+  relation?: RelationsVorlage
   onClose: () => void
 }
 
@@ -20,11 +20,11 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
   const store = useRelations()
   const [name, setName] = useState(relation?.name ?? '')
   const [syntaxInput, setSyntaxInput] = useState(
-    relation ? formatRelationSyntax(relation) : '',
+    relation ? relationsSyntaxAlsText(relation) : '',
   )
   const [zeigeFehler, setZeigeFehler] = useState(false)
 
-  const syntax = syntaxInput.trim() === '' ? null : parseRelationSyntax(syntaxInput)
+  const syntax = syntaxInput.trim() === '' ? null : relationsSyntaxLesen(syntaxInput)
   const nameFehler = name.trim() === '' ? 'Anzeigename fehlt.' : ''
   const syntaxFehler = syntaxInput.trim() === ''
     ? 'Syntax fehlt.'
@@ -37,7 +37,7 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
       setZeigeFehler(true)
       return
     }
-    const daten: Omit<RelationTemplate, 'id'> = {
+    const daten: Omit<RelationsVorlage, 'id'> = {
       name: name.trim(),
       verb: syntax.verb,
       nr: syntax.nr,

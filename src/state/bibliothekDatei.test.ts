@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import '../blocks/register'
-import type { DataSource } from '../core/data/dataSources'
-import type { RelationTemplate } from '../core/data/relations'
+import type { Datenquelle } from '../core/data/dataSources'
+import type { RelationsVorlage } from '../core/data/relations'
 import { BIBLIOTHEK_DATEI_ART, ladeBibliothekAusDatei } from './bibliothekDatei'
-import { createEmptyTree } from './treeOps'
+import { leererBaum } from './treeOps'
 import { Editor } from './Editor'
 import { ladeMaskeAusDatei } from './maskenDatei'
 import { meldungen } from './meldungen'
@@ -21,13 +21,13 @@ class SpeicherStub {
   clear(): void { this.daten.clear() }
 }
 
-const QUELLE_A: DataSource = {
+const QUELLE_A: Datenquelle = {
   id: 'q-a', name: 'Artikel', kind: 'idb', idbId: 'IDB0001', fields: [{ code: '3_8', label: 'Nummer' }],
 }
-const QUELLE_B: DataSource = {
+const QUELLE_B: Datenquelle = {
   id: 'q-b', name: 'Chargen', kind: 'idb', idbId: 'IDB0002', fields: [],
 }
-const REL_NEU: RelationTemplate = {
+const REL_NEU: RelationsVorlage = {
   id: 'r-neu', name: 'Position holen', verb: 'GET_RELATION', nr: '640', params: ['{PINDEX}'],
 }
 
@@ -48,7 +48,7 @@ let ed: Editor
 beforeEach(() => {
   vi.stubGlobal('localStorage', new SpeicherStub())
   meldungen.leere()
-  ed = new Editor({ tree: createEmptyTree(), datenquellen: [QUELLE_A], relationen: [{
+  ed = new Editor({ tree: leererBaum(), datenquellen: [QUELLE_A], relationen: [{
     id: 'standard-put', name: 'Standard-Schreiben (PUT)', verb: 'PUT_RELATION', nr: '174', params: ['{VALUE}'],
   }] })
 })

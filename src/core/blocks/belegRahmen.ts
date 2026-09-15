@@ -1,6 +1,6 @@
 // Die Nummer eines Belegerfassungs-Layoutrahmens: eine Eigenschaft der
 // Maskenwurzel, wie der Maskenname.
-import { ROOT_ID, type BlockTree } from './BlockData'
+import { WURZEL_ID, type Maskenbaum } from './BlockData'
 
 // Ein Layoutrahmen heisst in SoftEngine nicht „index": er liegt unter
 // Belegerfassung/LAYOUTRAHMEN/<Nummer>/ und traegt seine Nummer im Dateinamen.
@@ -18,8 +18,8 @@ export function rahmenNummer(roh: unknown): string {
   return text.padStart(RAHMEN_STELLEN, '0')
 }
 
-export function rahmenNummerVon(tree: BlockTree): string {
-  return rahmenNummer(tree[ROOT_ID]?.props[BELEG_RAHMEN_PROP])
+export function rahmenNummerVon(tree: Maskenbaum): string {
+  return rahmenNummer(tree[WURZEL_ID]?.props[BELEG_RAHMEN_PROP])
 }
 
 // Die zwei Dateinamen, die SoftEngine im Rahmenordner erwartet.

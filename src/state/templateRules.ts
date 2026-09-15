@@ -1,32 +1,32 @@
 // Welche Bausteine welche Kinder aufnehmen duerfen.
-import type { BlockNode, BlockTree } from '../core/blocks/BlockData'
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
-import { firstDescendantOfType } from '../core/blocks/treeQuery'
-import { collectSubtree } from './treeOps'
+import type { Baustein, Maskenbaum } from '../core/blocks/BlockData'
+import { bausteinArt } from '../core/blocks/blockRegistry'
+import { ersterNachfahreVomTyp } from '../core/blocks/treeQuery'
+import { teilbaumIds } from './treeOps'
 
-function owningTemplateBoardId(tree: BlockTree, id: string): string | undefined {
+function owningTemplateBoardId(tree: Maskenbaum, id: string): string | undefined {
   const node = tree[id]
   if (!node) return undefined
-  let cur: BlockNode | undefined = node.parentId ? tree[node.parentId] : undefined
+  let cur: Baustein | undefined = node.parentId ? tree[node.parentId] : undefined
   while (cur) {
-    const tc = getBlockDefinition(cur.type)?.templateChild
+    const tc = bausteinArt(cur.type)?.templateChild
     if (tc && tc.type === node.type) {
-      return firstDescendantOfType(tree, cur.id, tc.type) === id ? cur.id : undefined
+      return ersterNachfahreVomTyp(tree, cur.id, tc.type) === id ? cur.id : undefined
     }
     cur = cur.parentId ? tree[cur.parentId] : undefined
   }
   return undefined
 }
 
-export function templateMarkFor(tree: BlockTree, id: string): string | undefined {
+export function templateMarkFor(tree: Maskenbaum, id: string): string | undefined {
   const boardId = owningTemplateBoardId(tree, id)
   return boardId
-    ? getBlockDefinition(tree[boardId].type)?.templateChild?.label
+    ? bausteinArt(tree[boardId].type)?.templateChild?.label
     : undefined
 }
 
-export function isRemoveProtected(tree: BlockTree, id: string): boolean {
-  const remove = new Set(collectSubtree(tree, id))
+export function isRemoveProtected(tree: Maskenbaum, id: string): boolean {
+  const remove = new Set(teilbaumIds(tree, id))
   for (const nid of remove) {
     const boardId = owningTemplateBoardId(tree, nid)
     if (boardId && !remove.has(boardId)) return true

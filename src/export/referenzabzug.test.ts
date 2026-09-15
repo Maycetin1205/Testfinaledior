@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { expect, test } from 'vitest'
 import '../blocks/register'
-import { ROOT_ID, ROOT_TYPE, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
-import { canContain, getAllBlockDefinitions } from '../core/blocks/blockRegistry'
+import { WURZEL_ID, WURZEL_TYP, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
+import { darfEnthalten, alleBausteinArten } from '../core/blocks/blockRegistry'
 import { WEITERE_QUELLEN_PROP } from '../core/data/sourceLinks'
 import { exportMask } from './exportMask'
 import { referenzBaum, REFERENZ_QUELLEN, REFERENZ_RELATIONEN } from './referenz/referenzMaske'
@@ -36,10 +36,10 @@ test('Struktur und ERP-Konfiguration entsprechen der Referenz', () => {
 
 // Jeder Baustein einmal in einen Baum: an die Wurzel, wenn erlaubt, sonst
 // unter den ersten Typ, der ihn aufnimmt (Kanban-Spalte, Navi-Eintrag, ...).
-function alleBausteineBaum(marker: (type: string) => Record<string, unknown>): BlockTree {
-  const defs = [...getAllBlockDefinitions()].sort((a, b) => a.type.localeCompare(b.type))
-  const tree: BlockTree = {
-    [ROOT_ID]: { id: ROOT_ID, type: ROOT_TYPE, props: {}, parentId: null, childIds: [] },
+function alleBausteineBaum(marker: (type: string) => Record<string, unknown>): Maskenbaum {
+  const defs = [...alleBausteinArten()].sort((a, b) => a.type.localeCompare(b.type))
+  const tree: Maskenbaum = {
+    [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: [] },
   }
   const instanz = new Map<string, string>()
 
@@ -47,11 +47,11 @@ function alleBausteineBaum(marker: (type: string) => Record<string, unknown>): B
     const vorhanden = instanz.get(type)
     if (vorhanden !== undefined) return vorhanden
     const id = `g-${type}`
-    const node: BlockNode = { id, type, props: marker(type), parentId: ROOT_ID, childIds: [] }
-    if (canContain(ROOT_TYPE, type)) {
-      tree[ROOT_ID].childIds.push(id)
+    const node: Baustein = { id, type, props: marker(type), parentId: WURZEL_ID, childIds: [] }
+    if (darfEnthalten(WURZEL_TYP, type)) {
+      tree[WURZEL_ID].childIds.push(id)
     } else {
-      const elternDef = defs.find((p) => p.type !== type && canContain(p.type, type))
+      const elternDef = defs.find((p) => p.type !== type && darfEnthalten(p.type, type))
       if (!elternDef) throw new Error(`Baustein ${type} ist nirgends platzierbar`)
       const elternId = platziere(elternDef.type)
       node.parentId = elternId
@@ -68,7 +68,7 @@ function alleBausteineBaum(marker: (type: string) => Record<string, unknown>): B
 
 test('jeder Registry-Baustein exportiert seinen Tag', () => {
   const html = exportMask(alleBausteineBaum(() => ({})), 'Alle', [], []).html
-  for (const def of getAllBlockDefinitions()) {
+  for (const def of alleBausteinArten()) {
     expect(html, `Baustein ${def.type} fehlt im Export`).toContain('<' + def.tagName)
   }
 })
@@ -79,7 +79,7 @@ test('jeder Registry-Baustein exportiert seinen Tag', () => {
 test('eine geänderte Eigenschaft erreicht den Export als Attribut', () => {
   const LAYOUT = new Set(['width', 'height', 'rasterX', 'rasterY', 'rasterW', 'rasterH'])
   const pruefbar = new Map<string, string>()
-  for (const def of getAllBlockDefinitions()) {
+  for (const def of alleBausteinArten()) {
     const seitenProps = new Set(def.customProperties
       .filter((p) => p.kind === 'seite')
       .flatMap((p) => [p.attributeName, p.klarnameProp ?? '']))

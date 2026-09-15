@@ -1,9 +1,9 @@
 // Waehlt zu einer Baustein-Eigenschaft das passende Bedienelement.
-import type { BlockNode } from '../../core/blocks/BlockData'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import type { Baustein } from '../../core/blocks/BlockData'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import { faehigkeit } from '../../core/blocks/faehigkeiten'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
-import { quellenKennung, type DataSource } from '../../core/data/dataSources'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
+import { quellenKennung, type Datenquelle } from '../../core/data/dataSources'
 import { useDataSources } from '../../state/useDataSources'
 import { useRelations } from '../../state/useRelations'
 import { useEditor } from '../../state/useEditor'
@@ -26,10 +26,10 @@ export interface BearbeitungsRueckrufe {
 }
 
 export interface PropControlProps {
-  block: BlockNode
-  property: PropertyDescription
+  block: Baustein
+  property: Eigenschaft
 
-  sourceInReach: DataSource | undefined
+  sourceInReach: Datenquelle | undefined
   sitzung: BearbeitungsRueckrufe
 
   kompakt?: boolean
@@ -55,7 +55,7 @@ export function PropControl({
   const relations = useRelations()
 
   const quellen = useDataSources()
-  const def = getBlockDefinition(block.type)
+  const def = bausteinArt(block.type)
 
   const value = block.props[property.attributeName]
   const kind = property.kind

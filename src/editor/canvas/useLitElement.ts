@@ -1,10 +1,10 @@
 // Bindet ein Lit-Baustein-Element an den Editor-Baum: Attribute hin, Aenderungen zurueck.
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
-import { bindingProp, type BindableSpot } from '../../core/blocks/faehigkeiten'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { bindungsProp, type BindbareStelle } from '../../core/blocks/faehigkeiten'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import type { QuelleInReichweite } from '../../core/data/sourceLinks'
 import type { Editor } from '../../state/Editor'
 import type { GestenKlammer } from '../../state/history'
@@ -27,10 +27,10 @@ interface PropChangeDetail {
 interface LitElementArgs {
   editor: Editor
 
-  blockRef: RefObject<BlockNode>
-  block: BlockNode
+  blockRef: RefObject<Baustein>
+  block: Baustein
   selected: boolean | undefined
-  bindableSpots: readonly BindableSpot[]
+  bindableSpots: readonly BindbareStelle[]
 
   quellen: readonly QuelleInReichweite[]
 
@@ -54,9 +54,9 @@ export function useLitElement({
   const [element, setElement] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
-    const def = getBlockDefinition(block.type)
+    const def = bausteinArt(block.type)
     if (!def) {
-      console.warn(`BlockHost: keine BlockDefinition für Typ "${block.type}"`)
+      console.warn(`BlockHost: keine Bausteinart für Typ "${block.type}"`)
       return
     }
     const container = containerRef.current
@@ -107,7 +107,7 @@ export function useLitElement({
     }
 
     for (const spot of bindableSpots) {
-      const wert = block.props[bindingProp(spot.prop)]
+      const wert = block.props[bindungsProp(spot.prop)]
       if (typeof wert !== 'string' || wert === '') continue
 
       const { quelleId, code } = zerlegeBindung(wert)
@@ -119,7 +119,7 @@ export function useLitElement({
         elAny[spot.vorschauProp ?? spot.prop] = field.label
           + (quelleId === '' ? '' : FREMD_ZEICHEN)
       } else {
-        elAny[bindingProp(spot.prop)] = ''
+        elAny[bindungsProp(spot.prop)] = ''
       }
     }
 

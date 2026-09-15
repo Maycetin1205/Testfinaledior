@@ -1,38 +1,38 @@
 // Schreibt die Maskendatei: aus dem Baustein-Baum wird HTML fuer SoftEngine.
-import { ROOT_ID, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
 import { listeFuerExport, listeLesen } from '../core/blocks/BlockDefinition'
-import { bindingProp, faehigkeit, gilt } from '../core/blocks/faehigkeiten'
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
+import { bindungsProp, faehigkeit, gilt } from '../core/blocks/faehigkeiten'
+import { bausteinArt } from '../core/blocks/blockRegistry'
 import {
   bindbareStellenVon,
   darfAuswahlFolgen,
-  firstDescendantOfType,
+  ersterNachfahreVomTyp,
   istAuswahlGeber,
   QUELLE_PROP,
   traegtAenderungen,
   traegtEigeneQuelle,
   traegtLoeschungen,
 } from '../core/blocks/treeQuery'
-import { ACTION_VALUE_ID_ATTR, serializeBlockEvents } from '../core/data/aktionen'
+import { BAUSTEIN_ID_ATTR, kettenFuerExport } from '../core/data/aktionen'
 import { AUSWAHL_FOLGE_PROP } from '../core/data/auswahlFolge'
 import {
   felderHinterSchnitt,
   istOffenerSatz,
-  holWertFor,
-  ladeRelationFor,
+  holWertVon,
+  ladeRelationVon,
   mitEindeutigenNamen,
   satzNummerVon,
-  tableIdFor,
-  type DataSource,
+  tabellenIdVon,
+  type Datenquelle,
 } from '../core/data/dataSources'
-import type { RelationTemplate } from '../core/data/relations'
+import type { RelationsVorlage } from '../core/data/relations'
 import { WEITERE_QUELLEN_PROP } from '../core/data/sourceLinks'
 import { seitenDerMaske } from '../state/pageOps'
 import { istRasterFlaeche } from '../state/rasterOps'
 import {
-  resolveChildDirection,
-  ROOT_FLOW,
-  type FlowDirection,
+  richtungDerKinder,
+  WURZEL_FLUSS,
+  type Richtung,
 } from '../core/blocks/flowLayout'
 import { randPlatzLinks } from '../core/blocks/maskenRand'
 import { rasterFlaecheCss } from '../core/blocks/rasterLayout'
@@ -77,10 +77,10 @@ interface TemplateCtx {
 // Spalten-Kennung -> Platz fuer die Ketten-Parameter, generisch ueber die
 // Listen-Bindung des Ziel-Bausteins. Unbekannt gibt '-1', die Laufzeit liefert
 // dann den leeren Wert.
-function spaltenIndexFuer(tree: BlockTree): (blockId: string, kennung: string) => string {
+function spaltenIndexFuer(tree: Maskenbaum): (blockId: string, kennung: string) => string {
   return (blockId, kennung) => {
     const ziel = tree[blockId]
-    const bindung = ziel ? faehigkeit(getBlockDefinition(ziel.type), 'liste')?.bindung : undefined
+    const bindung = ziel ? faehigkeit(bausteinArt(ziel.type), 'liste')?.bindung : undefined
     const key = bindung?.kennungKey
     if (!ziel || !bindung || key === undefined) return '-1'
     return String(listeLesen(ziel.props[bindung.prop], bindung)
@@ -89,21 +89,21 @@ function spaltenIndexFuer(tree: BlockTree): (blockId: string, kennung: string) =
 }
 
 function nodeToHtml(
-  tree: BlockTree,
-  node: BlockNode,
-  parentDirection: FlowDirection,
+  tree: Maskenbaum,
+  node: Baustein,
+  parentDirection: Richtung,
   depth: number,
 
   popupName: (id: string) => string,
 
   spaltenIndex: (blockId: string, kennung: string) => string,
 
-  sources: readonly DataSource[],
+  sources: readonly Datenquelle[],
   templateCtx?: TemplateCtx,
 
   rasterEbene = false,
 ): string {
-  const def = getBlockDefinition(node.type)
+  const def = bausteinArt(node.type)
   if (!def) return ''
   const liste = faehigkeit(def, 'liste')?.bindung
 
@@ -119,7 +119,7 @@ function nodeToHtml(
   const stilleBindungen = new Set<string>(
     (faehigkeit(def, 'bindbar')?.stellen ?? [])
       .filter((spot) => !bindbar.has(spot.prop))
-      .map((spot) => bindingProp(spot.prop)),
+      .map((spot) => bindungsProp(spot.prop)),
   )
 
   const vorschauStellen = vorschauStellenVon(node)
@@ -159,7 +159,7 @@ function nodeToHtml(
     })
     .join('')
 
-  const aktionen = serializeBlockEvents(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((e) => e.key), popupName, spaltenIndex)
+  const aktionen = kettenFuerExport(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((e) => e.key), popupName, spaltenIndex)
   const aktionenAttr = aktionen ? ` data-ff-aktionen="${escapeHtmlAttr(aktionen)}"` : ''
   // Die EINE Kennung eines Bausteins in der Maske. Sie traegt, wer fuer eine
   // Kette adressierbar sein muss und wer eine Zeile gibt; alle Leser der
@@ -169,27 +169,27 @@ function nodeToHtml(
     || traegtAenderungen(node)
     || traegtLoeschungen(node)
     || istAuswahlGeber(node)
-  const kennungAttr = adressierbar ? ` ${ACTION_VALUE_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
+  const kennungAttr = adressierbar ? ` ${BAUSTEIN_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
 
   const fuelltAttr = rasterEbene && def.pageBlock !== true ? ' fuellt' : ''
 
   const seitenAttr = def.flaechenSeite === true
     ? ` data-ff-seite-id="${escapeHtmlAttr(node.id)}"`
-    : node.parentId === ROOT_ID && !def.pageBlock && !def.maskenRand ? ' data-ff-hauptinhalt' : ''
+    : node.parentId === WURZEL_ID && !def.pageBlock && !def.maskenRand ? ' data-ff-hauptinhalt' : ''
   const verborgenAttr = def.flaechenSeite === true ? ' hidden' : ''
   const open = `${pad}<${def.tagName}${attrs}${aktionenAttr}${kennungAttr}${seitenAttr}${fuelltAttr}${verborgenAttr}${styleAttr(node, parentDirection, def.lockedWidth, rasterEbene, def.pageBlock === true)}>`
   if (!def.acceptsChildren || node.childIds.length === 0) {
     return `${open}</${def.tagName}>`
   }
 
-  const childDirection = resolveChildDirection(def, node.props)
+  const childDirection = richtungDerKinder(def, node.props)
 
   const childCtx: TemplateCtx | undefined = def.templateChild
-    ? { type: def.templateChild.type, id: firstDescendantOfType(tree, node.id, def.templateChild.type) }
+    ? { type: def.templateChild.type, id: ersterNachfahreVomTyp(tree, node.id, def.templateChild.type) }
     : templateCtx
   const children = node.childIds
     .map((id) => tree[id])
-    .filter((c): c is BlockNode => Boolean(c))
+    .filter((c): c is Baustein => Boolean(c))
     // Ist dieser Knoten eine FLAECHE, liegen seine Kinder in Zellen. Gefragt
     // wird die eine Stelle, die auch der Editor fragt: raet der Export selbst,
     // sitzen die Bausteine in SoftEngine woanders als im Editor.
@@ -202,14 +202,14 @@ function nodeToHtml(
 }
 
 export function exportMask(
-  tree: BlockTree,
+  tree: Maskenbaum,
   title = 'Maske',
 
-  sources: readonly DataSource[] = [],
+  sources: readonly Datenquelle[] = [],
 
-  relations: readonly RelationTemplate[] = [],
+  relations: readonly RelationsVorlage[] = [],
 ): MaskExport {
-  const root = tree[ROOT_ID]
+  const root = tree[WURZEL_ID]
 
   const seitenNameById = new Map(seitenDerMaske(tree).map((s) => [s.id, s.name]))
   const popupName = (id: string): string => seitenNameById.get(id) ?? ''
@@ -217,7 +217,7 @@ export function exportMask(
 
   const blocks = (root?.childIds ?? [])
     .map((id) => tree[id])
-    .filter((n): n is BlockNode => Boolean(n))
+    .filter((n): n is Baustein => Boolean(n))
     .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, spaltenIndex, sources, undefined, true))
     .join('\n')
 
@@ -238,12 +238,12 @@ export function exportMask(
 
   const sourcesJs = guardJsonScript(escapeNonAsciiJs(
     'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => {
-      const lade = ladeRelationFor(s)
-      const hol = holWertFor(s)
+      const lade = ladeRelationVon(s)
+      const hol = holWertVon(s)
       return {
         id: s.id,
         name: s.name,
-        tableId: tableIdFor(s),
+        tableId: tabellenIdVon(s),
         indexField: satzNummerVon(s),
         ...(istOffenerSatz(s) ? { offenerSatz: true } : {}),
         ...(lade
@@ -266,8 +266,8 @@ export function exportMask(
 
   const randLinks = randPlatzLinks(tree)
   const wurzelPadding = randLinks === 0
-    ? `${ROOT_FLOW.padding}px`
-    : `${ROOT_FLOW.padding}px ${ROOT_FLOW.padding}px ${ROOT_FLOW.padding}px ${ROOT_FLOW.padding + randLinks}px`
+    ? `${WURZEL_FLUSS.padding}px`
+    : `${WURZEL_FLUSS.padding}px ${WURZEL_FLUSS.padding}px ${WURZEL_FLUSS.padding}px ${WURZEL_FLUSS.padding + randLinks}px`
 
   const html = [
     '<!--SOFTENGINE-VAR!JWHtmlStart-->',
@@ -279,7 +279,7 @@ export function exportMask(
     '<style>',
     tokensCss,
     '',
-    '/* Grundgeruest + Wurzel-Raster (identisch zum Editor-Canvas, rasterFlaecheStyle) */',
+    '/* Grundgeruest + Wurzel-Raster (identisch zum Editor-Canvas, rasterFlaecheStil) */',
     'html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }',
     // Farbe und Schrift haengen an der Wurzel, nicht am body, und jeder Baustein
     // erbt sie ausdruecklich: SoftEngines Rahmen faerbt html/body selbst und gibt
@@ -314,14 +314,14 @@ export function exportMask(
 
 // Welche Bausteintypen in der Maske stehen — danach richtet sich, welche
 // Laufzeitteile sie braucht.
-function benutzteTypen(tree: BlockTree): Set<string> {
+function benutzteTypen(tree: Maskenbaum): Set<string> {
   const typen = new Set<string>()
   const gehe = (id: string): void => {
     const node = tree[id]
     if (!node) return
-    if (id !== ROOT_ID) typen.add(node.type)
+    if (id !== WURZEL_ID) typen.add(node.type)
     for (const kindId of node.childIds) gehe(kindId)
   }
-  gehe(ROOT_ID)
+  gehe(WURZEL_ID)
   return typen
 }

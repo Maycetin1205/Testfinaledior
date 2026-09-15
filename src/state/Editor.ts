@@ -1,10 +1,10 @@
 // Der Editor-Zustand: Baustein-Baum, Auswahl, Historie, Bibliotheken.
-import { ROOT_ID, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
-import { createBlockSubtree } from '../core/blocks/blockFactory'
-import { canContain, getBlockDefinition } from '../core/blocks/blockRegistry'
-import { rasterSpecOf } from '../core/blocks/rasterLayout'
-import { type BlockEventsMap } from '../core/data/aktionen'
-import { type DataSource } from '../core/data/dataSources'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
+import { neuerTeilbaum } from '../core/blocks/blockFactory'
+import { darfEnthalten, bausteinArt } from '../core/blocks/blockRegistry'
+import { rasterMassVon } from '../core/blocks/rasterLayout'
+import { type Ketten } from '../core/data/aktionen'
+import { type Datenquelle } from '../core/data/dataSources'
 import { type QuelleInReichweite } from '../core/data/sourceLinks'
 import { DataSourceStore } from './DataSourceStore'
 import { ersteQuelleInReichweite, quellenInReichweite } from './quellenOps'
@@ -17,7 +17,7 @@ import { gestricheneKennungen, ohneSpaltenZeiger } from './spaltenAufraeumen'
 import { SpeicherPlaner } from './speicherPlaner'
 import { Subject } from './Subject'
 import { dupliziereTeilbaum } from './duplizieren'
-import { collectSubtree, createEmptyTree } from './treeOps'
+import { teilbaumIds, leererBaum } from './treeOps'
 import {
   isRemoveProtected as istMusterGeschuetzt,
   templateMarkFor as templateMarkInTree,
@@ -46,10 +46,10 @@ export class Editor extends Subject<Editor> {
   readonly datenquellen: DataSourceStore
   readonly relationen: RelationStore
 
-  private _tree: BlockTree = createEmptyTree()
+  private _tree: Maskenbaum = leererBaum()
   private _selectedId: string | null = null
 
-  private _activePageId: string = ROOT_ID
+  private _activePageId: string = WURZEL_ID
   private _version = 0
   private _historie = new Historie()
 
@@ -72,8 +72,8 @@ export class Editor extends Subject<Editor> {
     const persisted = inhalt ? null : loadFromStorage()
     this.datenquellen = new DataSourceStore(inhalt?.datenquellen ?? persisted?.datenquellen)
     this.relationen = new RelationStore(inhalt?.relationen ?? persisted?.relationen)
-    this._tree = inhalt?.tree ?? persisted?.tree ?? createEmptyTree()
-    this._activePageId = persisted?.activePageId ?? ROOT_ID
+    this._tree = inhalt?.tree ?? persisted?.tree ?? leererBaum()
+    this._activePageId = persisted?.activePageId ?? WURZEL_ID
     this._selectedId = this.auswahlAufAktiverSeite(persisted?.selectedId ?? null)
     this._hydrated = true
 
@@ -89,7 +89,7 @@ export class Editor extends Subject<Editor> {
     }
   }
 
-  get tree(): Readonly<BlockTree> { return this._tree }
+  get tree(): Readonly<Maskenbaum> { return this._tree }
 
   get rootId(): string {
     return aktiveSeitenWurzel(this._tree, this._activePageId)
@@ -113,12 +113,12 @@ export class Editor extends Subject<Editor> {
     this.notify(this)
   }
 
-  addSeite(typ: string): BlockNode | null {
-    const def = getBlockDefinition(typ)
+  addSeite(typ: string): Baustein | null {
+    const def = bausteinArt(typ)
     if (def?.pageBlock !== true) return null
     const name = freierSeitenName(this.pages.map((p) => p.name), def.displayName)
     return this.transaktion(() => {
-      const node = this.addBlock(typ, ROOT_ID)
+      const node = this.addBlock(typ, WURZEL_ID)
       if (node) {
         this._activePageId = node.id
         this.updateProperty(node.id, 'name', name)
@@ -127,19 +127,19 @@ export class Editor extends Subject<Editor> {
     })
   }
 
-  getNode(id: string): BlockNode | undefined { return this._tree[id] }
+  getNode(id: string): Baustein | undefined { return this._tree[id] }
 
-  childNodesOf(parentId: string): BlockNode[] {
+  childNodesOf(parentId: string): Baustein[] {
     return kinderImFluss(this._tree, parentId)
   }
 
   get blockCount(): number { return Object.keys(this._tree).length - 1 }
 
   get selectedId(): string | null { return this._selectedId }
-  get selectedNode(): BlockNode | null {
+  get selectedNode(): Baustein | null {
     if (this._selectedId === null) return null
     const node = this._tree[this._selectedId]
-    return node && node.id !== ROOT_ID ? node : null
+    return node && node.id !== WURZEL_ID ? node : null
   }
 
   get version(): number { return this._version }
@@ -210,21 +210,21 @@ export class Editor extends Subject<Editor> {
   private stelleHer(stand: EditorSnapshot): void {
     this.setzeBibliotheken(stand)
     this._tree = stand.tree
-    this._activePageId = stand.activePageId ?? ROOT_ID
+    this._activePageId = stand.activePageId ?? WURZEL_ID
     this._selectedId = this.auswahlAufAktiverSeite(stand.selectedId)
     this.notify(this)
   }
 
-  addBlock(type: string, parentId?: string, index?: number): BlockNode | null {
+  addBlock(type: string, parentId?: string, index?: number): Baustein | null {
     const parent = this._tree[parentId ?? this.rootId]
-    if (!parent || !canContain(parent.type, type)) return null
+    if (!parent || !darfEnthalten(parent.type, type)) return null
     this.pushHistory()
-    const { nodes, rootId } = createBlockSubtree(type)
+    const { nodes, rootId } = neuerTeilbaum(type)
     const node = nodes[rootId]
     node.parentId = parent.id
 
     if (istRasterFlaeche(parent)) {
-      const spec = rasterSpecOf(getBlockDefinition(type))
+      const spec = rasterMassVon(bausteinArt(type))
       const y = freieZeileAuf(this._tree, parent.id)
       node.props = { ...node.props, rasterX: 0, rasterY: y, rasterW: spec.startW, rasterH: spec.startH }
     }
@@ -254,12 +254,12 @@ export class Editor extends Subject<Editor> {
 
   removeBlock(id: string): void {
     const node = this._tree[id]
-    if (!node || id === ROOT_ID) return
+    if (!node || id === WURZEL_ID) return
 
     if (this.isRemoveProtected(id)) return
     this.pushHistory()
-    const remove = new Set(collectSubtree(this._tree, id))
-    const next: BlockTree = {}
+    const remove = new Set(teilbaumIds(this._tree, id))
+    const next: Maskenbaum = {}
     for (const [key, value] of Object.entries(this._tree)) {
       if (!remove.has(key)) next[key] = value
     }
@@ -283,7 +283,7 @@ export class Editor extends Subject<Editor> {
     if (ziel !== null) this.selectBlock(ziel)
   }
 
-  dataSourceFor(id: string): DataSource | undefined {
+  dataSourceFor(id: string): Datenquelle | undefined {
     return ersteQuelleInReichweite(this._tree, id, this.datenquellen.list)
   }
 
@@ -304,14 +304,14 @@ export class Editor extends Subject<Editor> {
   updateProperty(id: string, attr: string, value: unknown): boolean {
     const node = this._tree[id]
     if (!node) return false
-    const def = getBlockDefinition(node.type)
+    const def = bausteinArt(node.type)
 
     const wert = schreibWert(def, this.pages, id, attr, value)
     if (wert === null) return false
 
     if (Object.is(node.props[attr], wert)) return true
     this.pushHistory()
-    const next: BlockTree = {
+    const next: Maskenbaum = {
       ...this._tree,
       [id]: { ...node, props: { ...node.props, [attr]: wert } },
     }
@@ -348,22 +348,22 @@ export class Editor extends Subject<Editor> {
     return true
   }
 
-  updateBlockEvents(id: string, events: BlockEventsMap): void {
+  updateBlockEvents(id: string, events: Ketten): void {
     const node = this._tree[id]
-    if (!node || id === ROOT_ID) return
+    if (!node || id === WURZEL_ID) return
     this.pushHistory()
-    const clean: BlockEventsMap = {}
+    const clean: Ketten = {}
     for (const [key, steps] of Object.entries(events)) {
       if (steps.length > 0) clean[key] = steps
     }
-    const next: BlockNode = { ...node }
+    const next: Baustein = { ...node }
     if (Object.keys(clean).length > 0) next.events = clean
     else delete next.events
     this._tree = { ...this._tree, [id]: next }
     this.notify(this)
   }
 
-  duplicateBlock(id: string): BlockNode | null {
+  duplicateBlock(id: string): Baustein | null {
     if (this.isRemoveProtected(id)) return null
     const res = dupliziereTeilbaum(this._tree, id)
     if (!res) return null
@@ -400,7 +400,7 @@ export class Editor extends Subject<Editor> {
     this.notify(this)
   }
 
-  addBlockAtCell(type: string, parentId: string, x: number, y: number): BlockNode | null {
+  addBlockAtCell(type: string, parentId: string, x: number, y: number): Baustein | null {
     const res = neuerBlockAnZelle(this._tree, type, parentId, x, y)
     if (!res) return null
     this.pushHistory()
@@ -414,8 +414,8 @@ export class Editor extends Subject<Editor> {
     if (this.blockCount === 0) return
     this.pushHistory()
     // Die Bausteine gehen, der Name der Maske bleibt — er ist kein Baustein.
-    const leer = createEmptyTree()
-    leer[ROOT_ID] = { ...leer[ROOT_ID], props: { ...this._tree[ROOT_ID].props } }
+    const leer = leererBaum()
+    leer[WURZEL_ID] = { ...leer[WURZEL_ID], props: { ...this._tree[WURZEL_ID].props } }
     this._tree = leer
     this._selectedId = null
     this.notify(this)
@@ -428,7 +428,7 @@ export class Editor extends Subject<Editor> {
     this.setzeBibliotheken(inhalt)
     this._tree = inhalt.tree
     this._selectedId = null
-    this._activePageId = ROOT_ID
+    this._activePageId = WURZEL_ID
     this.notify(this)
   }
 

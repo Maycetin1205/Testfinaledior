@@ -1,7 +1,7 @@
 // Die Zug-Regel: Druecken und Bewegen zieht immer den Baustein.
 import type { PointerEvent as ReactPointerEvent } from 'react'
-import type { BlockNode } from '../../core/blocks/BlockData'
-import { RASTER, parseRasterPos } from '../../core/blocks/rasterLayout'
+import type { Baustein } from '../../core/blocks/BlockData'
+import { RASTER, rasterPlatzLesen } from '../../core/blocks/rasterLayout'
 import type { Editor } from '../../state/Editor'
 import type { DndState } from './dndState'
 import { zelleAusZeiger } from './rasterDnd'
@@ -30,7 +30,7 @@ export function ziehePosition(
   editor: Editor,
   dnd: DndState,
   e: ReactPointerEvent<HTMLElement>,
-  node: BlockNode,
+  node: Baustein,
   parentId: string,
 ): void {
   if (e.button !== 0) return
@@ -44,7 +44,7 @@ export function ziehePosition(
   const rect = wrapper.getBoundingClientRect()
 
   const greif = { x: startX - rect.left, y: startY - rect.top }
-  const pos = parseRasterPos(node.props)
+  const pos = rasterPlatzLesen(node.props)
   const id = node.id
   let aktiv = false
   let letztes: { x: number; y: number } | null = null

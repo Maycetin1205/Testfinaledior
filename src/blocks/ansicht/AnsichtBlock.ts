@@ -1,18 +1,18 @@
 // Baustein Ansicht: eine Seite der Maske, zwischen denen die Navi umschaltet.
 import { css, html, type TemplateResult } from 'lit'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import { ROOT_TYPE } from '../../core/blocks/BlockData'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import { WURZEL_TYP } from '../../core/blocks/BlockData'
 
 export class AnsichtBlock extends BasicBlock {
   static readonly blockType = 'ansicht'
   static readonly tagName = 'ff-ansicht'
   static readonly displayName = 'Ansicht'
-  static readonly category: BlockCategory = 'layout'
+  static readonly category: Kategorie = 'layout'
   static readonly acceptsChildren = true
 
   static readonly showInPalette = false
-  static readonly allowedParentTypes = [ROOT_TYPE]
+  static readonly allowedParentTypes = [WURZEL_TYP]
   static readonly pageBlock = true
   static readonly flaechenSeite = true
 

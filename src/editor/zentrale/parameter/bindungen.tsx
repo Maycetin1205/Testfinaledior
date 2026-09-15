@@ -5,12 +5,12 @@ import type { ListeEintrag, ListeGruppe } from '@/ui/werkbank/Liste'
 import { PickerControl } from '../../inspector/controls/PickerControl'
 import {
   AKTIONS_PLATZHALTER,
-  type ActionParamBinding,
+  type Parameter,
 } from '../../../core/data/aktionen'
 import {
   quellenKennung,
-  type DataSource,
-  type DataSourceField,
+  type Datenquelle,
+  type Datenfeld,
 } from '../../../core/data/dataSources'
 import { PLATZHALTER_KLARTEXT, blockValueKey } from '../helfer'
 import type { BindungsProps } from './wahlen'
@@ -26,7 +26,7 @@ function Paar({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-2 gap-1.5">{children}</div>
 }
 
-function feldGruppe(felder: readonly DataSourceField[], quelle?: DataSource): ListeGruppe {
+function feldGruppe(felder: readonly Datenfeld[], quelle?: Datenquelle): ListeGruppe {
   return {
     key: 'felder',
     name: quelle?.name,
@@ -198,7 +198,7 @@ export function SchrittErgebnisBindung({ binding, wahlen, onChange }: BindungsPr
   const feld = binding.ergebnisFeld ?? ''
 
   const setzeFeld = (wert: string) => {
-    const naechste: ActionParamBinding = { ...binding }
+    const naechste: Parameter = { ...binding }
     if (wert === '') delete naechste.ergebnisFeld
     else naechste.ergebnisFeld = wert
     onChange(naechste)
@@ -218,7 +218,7 @@ export function SchrittErgebnisBindung({ binding, wahlen, onChange }: BindungsPr
         wert={binding.value}
         platzhalter={wahlen.schritte.length === 0 ? '(kein GET-Schritt davor)' : '— wählen —'}
         onWaehle={(id) => {
-          const naechste: ActionParamBinding = { ...binding, value: id }
+          const naechste: Parameter = { ...binding, value: id }
           delete naechste.ergebnisFeld
           onChange(naechste)
         }}

@@ -1,14 +1,14 @@
 // Schreibt die SEvariablen: was die Maske bei SoftEngine bestellt.
 import {
   artFuer,
-  felderFor,
+  bestellteFelder,
   holtSelbst,
   istOffenerSatz,
-  kopfsatzFor,
+  kopfsatzVon,
   loopReihenfolge,
-  tableIdFor,
+  tabellenIdVon,
   varAusKopfsaetzen,
-  type DataSource,
+  type Datenquelle,
 } from '../core/data/dataSources'
 import { escapeNonAsciiJs } from './serializer'
 
@@ -33,7 +33,7 @@ function varZusammen(
 }
 
 export function baueSevariablen(
-  used: readonly DataSource[],
+  used: readonly Datenquelle[],
 
   benutzteFelder: ReadonlyMap<string, ReadonlySet<string>>,
 
@@ -55,33 +55,33 @@ export function baueSevariablen(
   )
 
   const erpapicall = perApi.map((s) => ({
-    ID: tableIdFor(s),
+    ID: tabellenIdVon(s),
     ALIAS: s.name,
-    FELDER: felderFor(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+    FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
   }))
   // DataSets legen ihre Zeilen unter Daten.Tabellen.<ALIAS> ab, dieselbe Form
   // wie MEMTAB.
   const dataset = perDataSet.map((s) => ({
-    ID: tableIdFor(s),
+    ID: tabellenIdVon(s),
     ALIAS: s.name,
-    FELDER: felderFor(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+    FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
   }))
   const sefileloop = geordnet.map((s) => {
-    const kopfsatz = kopfsatzFor(s)
+    const kopfsatz = kopfsatzVon(s)
     return {
       INDEX_NR: 0,
       ALIAS: s.name,
-      ID: tableIdFor(s),
+      ID: tabellenIdVon(s),
       ...(kopfsatz !== '' ? { KOPFSATZ_INDEX: kopfsatz } : {}),
-      FELDER: felderFor(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+      FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
     }
   })
 
   const varAbschnitt = varZusammen(
     varAusKopfsaetzen(geordnet),
     offeneSaetze.map((s) => ({
-      ID: tableIdFor(s),
-      FELDER: felderFor(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+      ID: tabellenIdVon(s),
+      FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
     })),
   )
   return escapeNonAsciiJs(

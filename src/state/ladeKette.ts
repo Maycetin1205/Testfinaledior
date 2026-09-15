@@ -1,20 +1,20 @@
-import { ROOT_ID, ROOT_TYPE, type BlockTree } from '../core/blocks/BlockData'
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
+import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../core/blocks/BlockData'
+import { bausteinArt } from '../core/blocks/blockRegistry'
 import { faehigkeit } from '../core/blocks/faehigkeiten'
 import { BELEG_RAHMEN_PROP } from '../core/blocks/belegRahmen'
 import { MASKEN_NAME_PROP } from '../core/blocks/maskenName'
-import { sanitizeBlockEvents } from '../core/data/aktionen'
+import { kettenBereinigen } from '../core/data/aktionen'
 import { BEREICH_AUFBAU, type LadeProblem } from '../core/data/ladeProblem'
 import { CURRENT_SCHEMA_VERSION, hebeAufAktuell, schemaLesbar } from './maskenSchema'
 import { topologieProbleme } from './topologie'
-import { normalizeProps } from './treeOps'
+import { werteBereinigen } from './treeOps'
 
 function objekt(wert: unknown): wert is Record<string, unknown> {
   return wert !== null && typeof wert === 'object' && !Array.isArray(wert)
 }
 
 export type LadeAusgang =
-  | { art: 'ok'; baum: { tree: BlockTree; selectedId: string | null } }
+  | { art: 'ok'; baum: { tree: Maskenbaum; selectedId: string | null } }
   | { art: 'abgelehnt'; ursache: 'version' | 'unlesbar' | 'verlust'; probleme: LadeProblem[] }
 
 export function pruefeBaumStand(roh: {
@@ -28,14 +28,14 @@ export function pruefeBaumStand(roh: {
       grund: `Maskenformat ${roh.schemaVersion} wird nicht unterstützt. Dieser Editor verwendet Format ${CURRENT_SCHEMA_VERSION}.`,
     }] }
   }
-  if (!objekt(roh.tree) || !objekt(roh.tree[ROOT_ID])) {
+  if (!objekt(roh.tree) || !objekt(roh.tree[WURZEL_ID])) {
     return { art: 'abgelehnt', ursache: 'unlesbar', probleme: [] }
   }
   const angehoben = hebeAufAktuell(roh.schemaVersion, roh.tree)
   if (angehoben.probleme.length > 0) {
     return { art: 'abgelehnt', ursache: 'verlust', probleme: angehoben.probleme }
   }
-  const tree: BlockTree = Object.create(null) as BlockTree
+  const tree: Maskenbaum = Object.create(null) as Maskenbaum
   const probleme: LadeProblem[] = []
   const fund = (stelle: string, grund: string): void => { probleme.push({ bereich: BEREICH_AUFBAU, stelle, grund }) }
   for (const [id, node] of Object.entries(angehoben.tree)) {
@@ -46,21 +46,21 @@ export function pruefeBaumStand(roh: {
       fund(id, `der Baustein „${id}“ ist unlesbar`)
       continue
     }
-    const def = getBlockDefinition(node.type)
-    if (id !== ROOT_ID && !def) {
+    const def = bausteinArt(node.type)
+    if (id !== WURZEL_ID && !def) {
       fund(id, `der Bausteintyp „${node.type}“ wird nicht unterstützt`)
       continue
     }
-    if (id === ROOT_ID && (node.type !== ROOT_TYPE || node.parentId !== null)) {
+    if (id === WURZEL_ID && (node.type !== WURZEL_TYP || node.parentId !== null)) {
       fund(id, 'die Wurzel des Masken-Aufbaus ist ungültig')
     }
-    const props = id === ROOT_ID
+    const props = id === WURZEL_ID
       ? Object.fromEntries(Object.entries(node.props).filter(([key, wert]) =>
         [MASKEN_NAME_PROP, BELEG_RAHMEN_PROP].includes(key) && typeof wert === 'string'))
-      : normalizeProps(node.type, node.props)
-    const events = sanitizeBlockEvents(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((event) => event.key))
+      : werteBereinigen(node.type, node.props)
+    const events = kettenBereinigen(node.events, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((event) => event.key))
     if (!keinVerlust(node.props, props)) {
-      fund(id, id === ROOT_ID ? 'an der Maske selbst stimmen Angaben nicht' : `am Baustein „${id}“ stimmen Angaben nicht`)
+      fund(id, id === WURZEL_ID ? 'an der Maske selbst stimmen Angaben nicht' : `am Baustein „${id}“ stimmen Angaben nicht`)
     }
     if (!keinVerlust(node.events, events)) fund(id, `eine Aktion am Baustein „${id}“ ist unlesbar`)
     tree[id] = { id, type: node.type, parentId: node.parentId, props,
@@ -69,7 +69,7 @@ export function pruefeBaumStand(roh: {
   if (probleme.length === 0) probleme.push(...topologieProbleme(tree))
   if (probleme.length > 0) return { art: 'abgelehnt', ursache: 'verlust', probleme }
   return { art: 'ok', baum: { tree, selectedId:
-    typeof roh.selectedId === 'string' && roh.selectedId !== ROOT_ID && tree[roh.selectedId] ? roh.selectedId : null,
+    typeof roh.selectedId === 'string' && roh.selectedId !== WURZEL_ID && tree[roh.selectedId] ? roh.selectedId : null,
   } }
 }
 

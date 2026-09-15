@@ -1,39 +1,39 @@
 // Die Fluss-Angaben eines Bausteins: Richtung, Breite, Hoehe.
-import type { BlockDefinition } from './BlockDefinition'
+import type { BausteinArt } from './BlockDefinition'
 
-export type FlowDirection = 'column' | 'row'
-export type FlowWidth = 'auto' | 'fill' | number
+export type Richtung = 'column' | 'row'
+export type FlussBreite = 'auto' | 'fill' | number
 
-export type FlowHeight = 'auto' | 'fill' | number
+export type FlussHoehe = 'auto' | 'fill' | number
 
-export function resolveChildDirection(
-  def: Pick<BlockDefinition, 'childDirection'> | undefined,
+export function richtungDerKinder(
+  def: Pick<BausteinArt, 'childDirection'> | undefined,
   props: Record<string, unknown>,
-): FlowDirection {
+): Richtung {
   if (props.direction === 'row') return 'row'
   if (props.direction === 'column') return 'column'
   return def?.childDirection ?? 'column'
 }
 
-export const ROOT_FLOW = { gap: 12, padding: 16 } as const
+export const WURZEL_FLUSS = { gap: 12, padding: 16 } as const
 
-export const FLOW_DEFAULTS: Record<string, unknown> = { width: 'auto' }
+export const FLUSS_VORGABEN: Record<string, unknown> = { width: 'auto' }
 
-export function parseFlowWidth(value: unknown): FlowWidth {
+export function flussBreiteLesen(value: unknown): FlussBreite {
   if (value === 'fill') return 'fill'
   if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value
   return 'auto'
 }
 
-export function parseFlowHeight(value: unknown): FlowHeight {
+export function flussHoeheLesen(value: unknown): FlussHoehe {
   if (value === 'fill') return 'fill'
   if (typeof value === 'number' && Number.isFinite(value) && value > 0) return value
   return 'auto'
 }
 
-export function flowItemHeightStyle(
-  height: FlowHeight,
-  parentDirection: FlowDirection,
+export function flussHoeheStil(
+  height: FlussHoehe,
+  parentDirection: Richtung,
 ): Record<string, string | number> {
   if (height === 'fill') {
     return parentDirection === 'column'
@@ -46,10 +46,10 @@ export function flowItemHeightStyle(
   return {}
 }
 
-export function flowItemStyle(
-  width: FlowWidth,
-  parentDirection: FlowDirection,
-  lockedWidth?: FlowWidth,
+export function flussBreiteStil(
+  width: FlussBreite,
+  parentDirection: Richtung,
+  lockedWidth?: FlussBreite,
 ): Record<string, string | number> {
   const effective = lockedWidth ?? width
   if (effective === 'fill') {

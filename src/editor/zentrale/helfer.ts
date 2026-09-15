@@ -1,32 +1,32 @@
 // Gemeinsame Helfer der Kommandozentrale: Klartexte, Optionen, Zaehlungen.
 import { Boxes, Database, FileText, Users } from '@/ui/zeichen'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import { bausteinName } from '../../core/blocks/bausteinName'
-import type { PropertySelectOption } from '../../core/blocks/PropertyDescription'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import type { Wahloption } from '../../core/blocks/PropertyDescription'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { auswahlQuelleIdVon } from '../../core/blocks/treeQuery'
-import type { DataSource, DataSourceField, DataSourceKind } from '../../core/data/dataSources'
-import type { RelationTemplate } from '../../core/data/relations'
+import type { Datenquelle, Datenfeld, QuellenArtKennung } from '../../core/data/dataSources'
+import type { RelationsVorlage } from '../../core/data/relations'
 
-const KIND_ICONS: Partial<Record<DataSourceKind, typeof Database>> = {
+const KIND_ICONS: Partial<Record<QuellenArtKennung, typeof Database>> = {
   idb: Database,
   adressstamm: Users,
   artikelstamm: Boxes,
   beleg: FileText,
 }
 
-export function ikonFuer(kind: DataSourceKind): typeof Database {
+export function ikonFuer(kind: QuellenArtKennung): typeof Database {
   return KIND_ICONS[kind] ?? Database
 }
 
-export const VERB_KURZ: Record<RelationTemplate['verb'], string> = {
+export const VERB_KURZ: Record<RelationsVorlage['verb'], string> = {
   GET_RELATION: 'GET',
   PUT_RELATION: 'PUT',
   PUTADD_RELATION: 'PUTADD',
 }
 
-export const RELATION_GRUPPEN: PropertySelectOption[] = [
+export const RELATION_GRUPPEN: Wahloption[] = [
   { value: 'lesen', label: 'Lesen' },
   { value: 'schreiben', label: 'Schreiben' },
 ]
@@ -102,7 +102,7 @@ export function blockValueKey(blockId: string, prop: string): string {
 export interface AuswahlGeberOption {
   blockId: string
   label: string
-  felder: readonly DataSourceField[]
+  felder: readonly Datenfeld[]
 }
 
 // Ein Baustein, der erfasst. Die Spalten kommen generisch
@@ -117,11 +117,11 @@ export interface ErfassungsOption {
 }
 
 export function erfassungsOptionen(
-  traeger: readonly BlockNode[],
-  sources: readonly DataSource[],
+  traeger: readonly Baustein[],
+  sources: readonly Datenquelle[],
 ): ErfassungsOption[] {
   return traeger.map((node) => {
-    const bindung = faehigkeit(getBlockDefinition(node.type), 'liste')?.bindung
+    const bindung = faehigkeit(bausteinArt(node.type), 'liste')?.bindung
     const kennungKey = bindung?.kennungKey
     const roh = bindung ? node.props[bindung.prop] : undefined
     const spalten = bindung && kennungKey !== undefined && Array.isArray(roh)
@@ -141,8 +141,8 @@ export function erfassungsOptionen(
 }
 
 export function auswahlGeberOptionen(
-  geber: readonly BlockNode[],
-  sources: readonly DataSource[],
+  geber: readonly Baustein[],
+  sources: readonly Datenquelle[],
 ): AuswahlGeberOption[] {
   return geber.map((node) => {
     const quelle = sources.find((s) => s.id === auswahlQuelleIdVon(node))

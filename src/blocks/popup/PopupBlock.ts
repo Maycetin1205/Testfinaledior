@@ -2,8 +2,8 @@
 import { css, html, unsafeCSS, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import { ROOT_TYPE } from '../../core/blocks/BlockData'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import { WURZEL_TYP } from '../../core/blocks/BlockData'
 import { rasterFlaecheCss } from '../../core/blocks/rasterLayout'
 
 const FOKUSSIERBAR = 'input,select,textarea,button,a[href],[tabindex]:not([tabindex="-1"])'
@@ -25,11 +25,11 @@ export class PopupBlock extends BasicBlock {
   static readonly blockType = 'popup'
   static readonly tagName = 'ff-popup'
   static readonly displayName = 'Popup'
-  static readonly category: BlockCategory = 'layout'
+  static readonly category: Kategorie = 'layout'
   static readonly acceptsChildren = true
 
   static readonly showInPalette = false
-  static readonly allowedParentTypes = [ROOT_TYPE]
+  static readonly allowedParentTypes = [WURZEL_TYP]
   static readonly pageBlock = true
 
   static readonly resizableWidth = false

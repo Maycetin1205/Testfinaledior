@@ -3,8 +3,8 @@
 // Klasse v-<wert> und darin --fw-stark und --fw-sanft.
 import { css, unsafeCSS } from 'lit'
 import type {
-  PropertyDescription,
-  PropertySelectOption,
+  Eigenschaft,
+  Wahloption,
 } from '../../core/blocks/PropertyDescription'
 
 export type StatusVariant = 'info' | 'success' | 'warning' | 'danger'
@@ -28,7 +28,7 @@ export function coerceStatusVariant(value: string): StatusVariant {
   return FARBWELTEN.some((f) => f.wert === value) ? (value as StatusVariant) : 'info'
 }
 
-export function farbweltOptionen(): PropertySelectOption[] {
+export function farbweltOptionen(): Wahloption[] {
   return FARBWELTEN.map((f) => ({ value: f.wert, label: f.name, farbe: `var(${f.stark})` }))
 }
 
@@ -36,7 +36,7 @@ export function statusVariantProperty(
   attributeName: string,
   description: string,
   name = 'Bedeutung',
-): PropertyDescription {
+): Eigenschaft {
   return {
     attributeName,
     name,

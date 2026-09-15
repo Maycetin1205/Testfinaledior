@@ -1,12 +1,12 @@
 // Ein Zahlenwert im Inspector, mit Einheit und Grenzen.
 import { useState } from 'react'
-import type { PropertyDescription } from '../../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../../core/blocks/PropertyDescription'
 import { useEingabeSitzung } from './eingabeSitzung'
 import { Zahl } from '@/ui/werkbank/Zahl'
 import { Zeile } from '@/ui/werkbank/Zeile'
 
 interface NumberControlProps {
-  property: PropertyDescription
+  property: Eigenschaft
   value: unknown
   label?: string
   onChange: (value: number) => void
@@ -15,7 +15,7 @@ interface NumberControlProps {
   onEndeBearbeitung?: () => void
 }
 
-function eingrenzen(n: number, property: PropertyDescription): number {
+function eingrenzen(n: number, property: Eigenschaft): number {
   const min = property.min ?? Number.NEGATIVE_INFINITY
   const max = property.max ?? Number.POSITIVE_INFINITY
   return Math.min(max, Math.max(min, n))

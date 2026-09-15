@@ -1,6 +1,6 @@
 // Der Stand eines laufenden Zugs von der Palette auf die Leinwand.
 import { createContext, useContext, type DragEvent } from 'react'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import type { useEditor } from '../../state/useEditor'
 import { isNewBlockDrag, NEW_BLOCK_MIME } from './dnd'
 
@@ -48,7 +48,7 @@ function commitDrop(
       ed.moveNodeToCell(dnd.dragId, target.parentId, target.x, target.y)
     } else if (isNewBlockDrag(e.dataTransfer)) {
       const type = e.dataTransfer.getData(NEW_BLOCK_MIME)
-      if (getBlockDefinition(type)) ed.addBlockAtCell(type, target.parentId, target.x, target.y)
+      if (bausteinArt(type)) ed.addBlockAtCell(type, target.parentId, target.x, target.y)
     }
   } else if (target) {
     if (dnd.dragId !== null) {
@@ -56,7 +56,7 @@ function commitDrop(
       ed.selectBlock(dnd.dragId)
     } else if (isNewBlockDrag(e.dataTransfer)) {
       const type = e.dataTransfer.getData(NEW_BLOCK_MIME)
-      if (getBlockDefinition(type)) ed.addBlock(type, target.parentId, target.index)
+      if (bausteinArt(type)) ed.addBlock(type, target.parentId, target.index)
     }
   }
   dnd.reset()

@@ -1,7 +1,7 @@
 // „Folgt der Auswahl von …" im Inspector.
 import { Gruppe } from '@/ui/werkbank/Gruppe'
 import type { ListeEintrag } from '@/ui/werkbank/Liste'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import { auswahlQuelleIdVon, istAuswahlGeber } from '../../core/blocks/treeQuery'
 import {
   AUSWAHL_FOLGE_PROP,
@@ -9,7 +9,7 @@ import {
   folgeBrauchbar,
   type AuswahlFolge,
 } from '../../core/data/auswahlFolge'
-import { ladeRelationFor, quellenKennung } from '../../core/data/dataSources'
+import { ladeRelationVon, quellenKennung } from '../../core/data/dataSources'
 import { useDataSources } from '../../state/useDataSources'
 import { useEditor } from '../../state/useEditor'
 import { bausteinName } from '../../core/blocks/bausteinName'
@@ -18,7 +18,7 @@ import { PickerControl } from './controls/PickerControl'
 import { SchluesselPaarZeilen } from './SchluesselPaarZeilen'
 
 interface AuswahlFolgeSektionProps {
-  block: BlockNode
+  block: Baustein
 }
 
 export function AuswahlFolgeSektion({ block }: AuswahlFolgeSektionProps) {
@@ -34,7 +34,7 @@ export function AuswahlFolgeSektion({ block }: AuswahlFolgeSektionProps) {
 
   if (kandidaten.length === 0 && !folge) return null
 
-  const quelleVon = (n: BlockNode | undefined) =>
+  const quelleVon = (n: Baustein | undefined) =>
     bibliothek.find((s) => s.id === auswahlQuelleIdVon(n))
   const eigeneQuelle = quelleVon(block)
   const geberNode = folge ? ed.tree[folge.geberId] : undefined
@@ -43,9 +43,9 @@ export function AuswahlFolgeSektion({ block }: AuswahlFolgeSektionProps) {
   // Eine holende Quelle fragt fuer die gewaehlte Zeile; die Schluessel dafuer
   // nennt ihre Relation selbst. Verbindende Felder sind dort kein Muss, sondern
   // ein zusaetzlicher Filter ueber das Geholte.
-  const holtZeilen = eigeneQuelle !== undefined && ladeRelationFor(eigeneQuelle) !== null
+  const holtZeilen = eigeneQuelle !== undefined && ladeRelationVon(eigeneQuelle) !== null
 
-  const eintrag = (n: BlockNode): ListeEintrag => {
+  const eintrag = (n: Baustein): ListeEintrag => {
     const q = quelleVon(n)
     return q
       ? { wert: n.id, name: `${bausteinName(n, bibliothek)} (${q.name})`, kennung: quellenKennung(q) }

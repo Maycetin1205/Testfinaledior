@@ -4,8 +4,8 @@ import { Plus } from '@/ui/zeichen'
 import { Dialog } from '@/ui/werkbank/Dialog'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { ListeDetail } from '@/ui/werkbank/ListeDetail'
-import type { BlockNode } from '../../core/blocks/BlockData'
-import type { ActionStep } from '../../core/data/aktionen'
+import type { Baustein } from '../../core/blocks/BlockData'
+import type { Schritt } from '../../core/data/aktionen'
 import { bausteinName } from '../../core/blocks/bausteinName'
 import { useDataSources } from '../../state/useDataSources'
 import { useEditor } from '../../state/useEditor'
@@ -13,7 +13,7 @@ import { SchrittListe } from './SchrittListe'
 import { StepForm } from './StepForm'
 
 interface KettenFensterProps {
-  block: BlockNode
+  block: Baustein
   eventKey: string
   eventName: string
   onClose: () => void
@@ -30,13 +30,13 @@ export function KettenFenster({ block, eventKey, eventName, onClose }: KettenFen
   const kette = ed.tree[block.id]?.events?.[eventKey] ?? []
   const offen = offeneId === null ? undefined : kette.find((s) => s.id === offeneId)
 
-  const setzeKette = (steps: ActionStep[]): void => {
+  const setzeKette = (steps: Schritt[]): void => {
     const node = ed.tree[block.id]
     if (!node) return
     ed.updateBlockEvents(block.id, { ...(node.events ?? {}), [eventKey]: steps })
   }
 
-  const speichere = (step: ActionStep): void => {
+  const speichere = (step: Schritt): void => {
     setzeKette(offen ? kette.map((s) => (s.id === step.id ? step : s)) : [...kette, step])
     setNeu(false)
     setOffeneId(step.id)

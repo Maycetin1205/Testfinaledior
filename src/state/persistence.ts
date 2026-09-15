@@ -1,6 +1,6 @@
-import { ROOT_ID, type BlockTree } from '../core/blocks/BlockData'
-import { pruefeDatenquellen, type DataSource } from '../core/data/dataSources'
-import { pruefeRelationsVorlagen, type RelationTemplate } from '../core/data/relations'
+import { WURZEL_ID, type Maskenbaum } from '../core/blocks/BlockData'
+import { pruefeDatenquellen, type Datenquelle } from '../core/data/dataSources'
+import { pruefeRelationsVorlagen, type RelationsVorlage } from '../core/data/relations'
 import { BEREICH_QUELLEN, BEREICH_RELATIONEN } from '../core/data/ladeProblem'
 import { bibliothekPruefen } from './bibliothekDatei'
 import { pruefeBaumStand } from './ladeKette'
@@ -12,12 +12,12 @@ export const STORAGE_KEY = 'aufbau_editor_mvp_v1'
 export const SAVE_DEBOUNCE_MS = 500
 
 interface MaskenBibliotheken {
-  datenquellen: readonly DataSource[]
-  relationen: readonly RelationTemplate[]
+  datenquellen: readonly Datenquelle[]
+  relationen: readonly RelationsVorlage[]
   activePageId: string
 }
 export interface LoadedState extends MaskenBibliotheken {
-  tree: BlockTree
+  tree: Maskenbaum
   selectedId: string | null
 }
 
@@ -47,14 +47,14 @@ export function loadFromStorage(): LoadedState | null {
       return null
     }
     return { ...baum.baum, datenquellen: quellen.liste, relationen: relationen.liste,
-      activePageId: typeof stand.activePageId === 'string' ? stand.activePageId : ROOT_ID }
+      activePageId: typeof stand.activePageId === 'string' ? stand.activePageId : WURZEL_ID }
   } catch {
     sichereUnlesbaren(STORAGE_KEY, raw, 'Maske')
     return null
   }
 }
 
-export function persistState(tree: BlockTree, selectedId: string | null, bibliotheken: MaskenBibliotheken): void {
+export function persistState(tree: Maskenbaum, selectedId: string | null, bibliotheken: MaskenBibliotheken): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId, ...bibliotheken }))
     merkeSpeicherErfolg(STORAGE_KEY)

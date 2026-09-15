@@ -2,9 +2,9 @@
 import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
 import type { Faehigkeit } from '../../core/blocks/faehigkeiten'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { connectClickAktionen } from '../shared/seAktionen'
 import {
   VORMERK_EVENT,
@@ -17,7 +17,7 @@ export class ButtonBlock extends BasicBlock {
   static readonly blockType = 'button'
   static readonly tagName = 'ff-button'
   static readonly displayName = 'Schaltfläche'
-  static readonly category: BlockCategory = 'eingabe'
+  static readonly category: Kategorie = 'eingabe'
   static readonly defaultProps = { label: 'Schaltfläche' }
 
   static readonly resizableWidth = false
@@ -28,7 +28,7 @@ export class ButtonBlock extends BasicBlock {
 
   static readonly raster = { startW: 8, startH: 2, minW: 4, minH: 2 }
 
-  static override readonly customProperties: PropertyDescription[] = []
+  static override readonly customProperties: Eigenschaft[] = []
 
   static override styles = [
     BasicBlock.styles,

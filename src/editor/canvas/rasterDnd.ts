@@ -1,7 +1,7 @@
 // Wohin ein gezogener Baustein im Raster faellt.
 import type { DragEvent } from 'react'
-import { canContain, getBlockDefinition } from '../../core/blocks/blockRegistry'
-import { RASTER, rasterSpecOf } from '../../core/blocks/rasterLayout'
+import { darfEnthalten, bausteinArt } from '../../core/blocks/blockRegistry'
+import { RASTER, rasterMassVon } from '../../core/blocks/rasterLayout'
 import type { useEditor } from '../../state/useEditor'
 import { newBlockDragType } from './dnd'
 import type { DndState, DropTarget } from './dndState'
@@ -62,14 +62,14 @@ function gezogeneGroesse(
   if (!parent) return null
   if (dnd.dragId !== null) {
     const node = ed.getNode(dnd.dragId)
-    if (!node || !canContain(parent.type, node.type)) return null
-    const spec = rasterSpecOf(getBlockDefinition(node.type))
+    if (!node || !darfEnthalten(parent.type, node.type)) return null
+    const spec = rasterMassVon(bausteinArt(node.type))
     return { w: spec.startW, h: spec.startH }
   }
   const type = newBlockDragType(dt)
-  const def = type ? getBlockDefinition(type) : undefined
-  if (!type || !def || !canContain(parent.type, type)) return null
-  const spec = rasterSpecOf(def)
+  const def = type ? bausteinArt(type) : undefined
+  if (!type || !def || !darfEnthalten(parent.type, type)) return null
+  const spec = rasterMassVon(def)
   return { w: spec.startW, h: spec.startH }
 }
 

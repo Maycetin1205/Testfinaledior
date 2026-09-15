@@ -2,9 +2,9 @@
 import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
-import { ROOT_ID, ROOT_TYPE } from '../../core/blocks/BlockData'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
+import { WURZEL_ID, WURZEL_TYP } from '../../core/blocks/BlockData'
 import { RAND } from '../../core/blocks/maskenRand'
 import { NaviEintragBlock } from './NaviEintragBlock'
 import { naviAktualisiert, trenneNavi, verbindeNavi, zeigeBreite } from './seRuntime'
@@ -15,20 +15,20 @@ export class NaviBlock extends BasicBlock {
   static readonly blockType = 'navi'
   static readonly tagName = 'ff-navi'
   static readonly displayName = 'Navigation'
-  static readonly category: BlockCategory = 'layout'
+  static readonly category: Kategorie = 'layout'
   static readonly acceptsChildren = true
   static readonly allowedChildTypes = [EINTRAG]
   static readonly addChildButton = { label: 'Eintrag', childType: EINTRAG }
   static readonly containerHint = false
   static readonly defaultProps = {}
   static readonly defaultChildren = [
-    { type: EINTRAG, props: { seite: ROOT_ID, seitename: 'Hauptseite' } },
+    { type: EINTRAG, props: { seite: WURZEL_ID, seitename: 'Hauptseite' } },
   ]
-  static override readonly customProperties: PropertyDescription[] = []
+  static override readonly customProperties: Eigenschaft[] = []
 
   static readonly maskenRand = true
 
-  static readonly allowedParentTypes = [ROOT_TYPE]
+  static readonly allowedParentTypes = [WURZEL_TYP]
 
   static override styles = [
     BasicBlock.styles,

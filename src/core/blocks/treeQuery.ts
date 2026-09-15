@@ -1,33 +1,33 @@
 // Fragen an den Baustein-Baum: wer gibt eine Auswahl, wer erfasst, wer aendert, wer rechnet.
-import { ROOT_ID, type BlockNode, type BlockTree } from './BlockData'
-import { type ActionValueSpot, type BindableSpot, faehigkeit, gilt, hatFaehigkeit } from './faehigkeiten'
-import { getBlockDefinition } from './blockRegistry'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from './BlockData'
+import { type Wertstelle, type BindbareStelle, faehigkeit, gilt, hatFaehigkeit } from './faehigkeiten'
+import { bausteinArt } from './blockRegistry'
 import { schalterAn, schalterFuer } from './listenBindung'
-import { propertySichtbar } from './PropertyDescription'
+import { eigenschaftSichtbar } from './PropertyDescription'
 import { QUELLE_PROP } from './quelleProp'
 
 export { QUELLE_PROP }
 
-export interface ActionValueTarget {
-  node: BlockNode
-  spot: ActionValueSpot
+export interface WertstellenZiel {
+  node: Baustein
+  spot: Wertstelle
 }
 
-export function actionValueTargets(tree: BlockTree): ActionValueTarget[] {
-  const result: ActionValueTarget[] = []
-  const visit = (node: BlockNode | undefined): void => {
+export function wertstellenImBaum(tree: Maskenbaum): WertstellenZiel[] {
+  const result: WertstellenZiel[] = []
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
-    const spots = faehigkeit(getBlockDefinition(node.type), 'aktionswert')?.stellen ?? []
+    const spots = faehigkeit(bausteinArt(node.type), 'aktionswert')?.stellen ?? []
     for (const spot of spots) result.push({ node, spot })
     for (const childId of node.childIds) visit(tree[childId])
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
   return result
 }
 
-export function quellenIdsInKettenVon(node: BlockNode): string[] {
+export function quellenIdsInKettenVon(node: Baustein): string[] {
   const ids: string[] = []
-  for (const event of faehigkeit(getBlockDefinition(node.type), 'ereignisse')?.liste ?? []) {
+  for (const event of faehigkeit(bausteinArt(node.type), 'ereignisse')?.liste ?? []) {
     for (const step of node.events?.[event.key] ?? []) {
       if (step.type !== 'RELATION') continue
       for (const binding of [...step.params, ...step.extraParams]) {
@@ -40,8 +40,8 @@ export function quellenIdsInKettenVon(node: BlockNode): string[] {
   return ids
 }
 
-export function relationIdsVon(node: BlockNode): string[] {
-  const def = getBlockDefinition(node.type)
+export function relationIdsVon(node: Baustein): string[] {
+  const def = bausteinArt(node.type)
   const ids: string[] = []
   for (const prop of def?.customProperties ?? []) {
     if (prop.kind !== 'relation') continue
@@ -56,21 +56,21 @@ export function relationIdsVon(node: BlockNode): string[] {
   return ids
 }
 
-export function traegtEigeneQuelle(node: BlockNode | undefined): boolean {
+export function traegtEigeneQuelle(node: Baustein | undefined): boolean {
   if (!node) return false
-  return gilt(faehigkeit(getBlockDefinition(node.type), 'quelle'), node.props)
+  return gilt(faehigkeit(bausteinArt(node.type), 'quelle'), node.props)
 }
 
-export function bindbareStellenVon(node: BlockNode | undefined): readonly BindableSpot[] {
+export function bindbareStellenVon(node: Baustein | undefined): readonly BindbareStelle[] {
   if (!node) return []
-  const stellen = faehigkeit(getBlockDefinition(node.type), 'bindbar')?.stellen ?? []
-  return stellen.filter((s) => propertySichtbar(s.wenn, node.props))
+  const stellen = faehigkeit(bausteinArt(node.type), 'bindbar')?.stellen ?? []
+  return stellen.filter((s) => eigenschaftSichtbar(s.wenn, node.props))
 }
 
-export function auswahlQuelleIdVon(node: BlockNode | undefined): string {
+export function auswahlQuelleIdVon(node: Baustein | undefined): string {
   if (!node) return ''
-  const wahl = faehigkeit(getBlockDefinition(node.type), 'satzwahl')
-  const prop = wahl && propertySichtbar(wahl.wenn, node.props)
+  const wahl = faehigkeit(bausteinArt(node.type), 'satzwahl')
+  const prop = wahl && eigenschaftSichtbar(wahl.wenn, node.props)
     ? wahl.quelleProp ?? QUELLE_PROP
     : QUELLE_PROP
   const wert = node.props[prop]
@@ -80,61 +80,61 @@ export function auswahlQuelleIdVon(node: BlockNode | undefined): string {
 // Geber ist, wer satzWahl deklariert UND eine Quelle aufloest. Die wenn-Bedingung
 // waehlt nur, WELCHE Eigenschaft die Quelle nennt, sie ist kein Schalter fuer die
 // Faehigkeit.
-export function istAuswahlGeber(node: BlockNode | undefined): boolean {
+export function istAuswahlGeber(node: Baustein | undefined): boolean {
   if (!node) return false
-  if (!hatFaehigkeit(getBlockDefinition(node.type), 'satzwahl')) return false
+  if (!hatFaehigkeit(bausteinArt(node.type), 'satzwahl')) return false
   return auswahlQuelleIdVon(node) !== ''
 }
 
-export function darfAuswahlFolgen(node: BlockNode | undefined): boolean {
+export function darfAuswahlFolgen(node: Baustein | undefined): boolean {
   if (!node) return false
-  if (!hatFaehigkeit(getBlockDefinition(node.type), 'auswahlFolgen')) return false
+  if (!hatFaehigkeit(bausteinArt(node.type), 'auswahlFolgen')) return false
   return auswahlQuelleIdVon(node) !== ''
 }
 
-export function auswahlGeberImBaum(tree: BlockTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
+export function auswahlGeberImBaum(tree: Maskenbaum): Baustein[] {
+  const result: Baustein[] = []
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
     if (istAuswahlGeber(node)) result.push(node)
     for (const childId of node.childIds) visit(tree[childId])
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
   return result
 }
 
 // Nur die Zellen dieser Bausteine kann eine Kette als „Wert aus Erfassungszelle"
 // lesen.
-export function erfassungsTraegerImBaum(tree: BlockTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
+export function erfassungsTraegerImBaum(tree: Maskenbaum): Baustein[] {
+  const result: Baustein[] = []
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
-    if (gilt(faehigkeit(getBlockDefinition(node.type), 'erfassen'), node.props)) result.push(node)
+    if (gilt(faehigkeit(bausteinArt(node.type), 'erfassen'), node.props)) result.push(node)
     for (const childId of node.childIds) visit(tree[childId])
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
   return result
 }
 
-export function loeschTraegerImBaum(tree: BlockTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
+export function loeschTraegerImBaum(tree: Maskenbaum): Baustein[] {
+  const result: Baustein[] = []
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
     if (traegtLoeschungen(node)) result.push(node)
     for (const childId of node.childIds) visit(tree[childId])
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
   return result
 }
 
-export function traegtLoeschungen(node: BlockNode): boolean {
-  return gilt(faehigkeit(getBlockDefinition(node.type), 'loeschen'), node.props)
+export function traegtLoeschungen(node: Baustein): boolean {
+  return gilt(faehigkeit(bausteinArt(node.type), 'loeschen'), node.props)
 }
 
 // Gelesen wird ueber die Registry und die Liste des Bausteins; kein Bausteintyp
 // kommt hier vor.
-export function traegtAenderungen(node: BlockNode): boolean {
-  const def = getBlockDefinition(node.type)
+export function traegtAenderungen(node: Baustein): boolean {
+  const def = bausteinArt(node.type)
   const schluessel = faehigkeit(def, 'aendern')?.schluessel
   const bindung = faehigkeit(def, 'liste')?.bindung
   if (schluessel === undefined || !bindung) return false
@@ -153,19 +153,19 @@ export function traegtAenderungen(node: BlockNode): boolean {
   })
 }
 
-export function aenderungsTraegerImBaum(tree: BlockTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
+export function aenderungsTraegerImBaum(tree: Maskenbaum): Baustein[] {
+  const result: Baustein[] = []
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
     if (traegtAenderungen(node)) result.push(node)
     for (const childId of node.childIds) visit(tree[childId])
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
   return result
 }
 
-export function firstDescendantOfType(
-  tree: BlockTree,
+export function ersterNachfahreVomTyp(
+  tree: Maskenbaum,
   rootId: string,
   type: string,
 ): string | undefined {
@@ -173,7 +173,7 @@ export function firstDescendantOfType(
     const child = tree[cid]
     if (!child) continue
     if (child.type === type) return cid
-    const found = firstDescendantOfType(tree, cid, type)
+    const found = ersterNachfahreVomTyp(tree, cid, type)
     if (found) return found
   }
   return undefined
@@ -181,6 +181,6 @@ export function firstDescendantOfType(
 
 // Traegt dieser Baustein Berechnungen? Steht in der Registry, nicht als
 // Abfrage auf einen Bausteintyp.
-export function kannRechnen(node: BlockNode): boolean {
-  return hatFaehigkeit(getBlockDefinition(node.type), 'rechnen')
+export function kannRechnen(node: Baustein): boolean {
+  return hatFaehigkeit(bausteinArt(node.type), 'rechnen')
 }

@@ -206,6 +206,6 @@ function parseDtk(text: string): DtkTabelle[] {
   return raus
 }
 
-export function parseDtkBytes(bytes: Uint8Array): DtkTabelle[] {
+export function dtkLesen(bytes: Uint8Array): DtkTabelle[] {
   return parseDtk(dtkTextAusBytes(bytes))
 }

@@ -1,12 +1,12 @@
 import { css, html, type TemplateResult } from 'lit'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
 
 export class KanbanMusterBlock extends BasicBlock {
   static readonly blockType = 'kanban-muster'
   static readonly tagName = 'ff-kanban-muster'
   static readonly displayName = 'Kartenmuster'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
   static readonly acceptsChildren = true
   static readonly allowedChildTypes = ['card']
   static readonly allowedParentTypes = ['kanban']

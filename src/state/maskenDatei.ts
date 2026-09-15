@@ -1,12 +1,12 @@
 // Eine Maske als Datei speichern und wieder laden.
-import { ROOT_ID, type BlockTree } from '../core/blocks/BlockData'
-import { pruefeDatenquellen, type DataSource } from '../core/data/dataSources'
+import { WURZEL_ID, type Maskenbaum } from '../core/blocks/BlockData'
+import { pruefeDatenquellen, type Datenquelle } from '../core/data/dataSources'
 import {
   BEREICH_QUELLEN,
   BEREICH_RELATIONEN,
   type LadeProblem,
 } from '../core/data/ladeProblem'
-import { pruefeRelationsVorlagen, type RelationTemplate } from '../core/data/relations'
+import { pruefeRelationsVorlagen, type RelationsVorlage } from '../core/data/relations'
 import { downloadFile } from '../lib/dateiDownload'
 import {
   BIBLIOTHEK_DATEI_ART,
@@ -23,9 +23,9 @@ const MASKEN_DATEI_ART = 'aufbau-editor-maske'
 const MASKEN_DATEI_VERSION = 2
 
 export interface MaskenInhalt {
-  tree: BlockTree
-  datenquellen: DataSource[]
-  relationen: RelationTemplate[]
+  tree: Maskenbaum
+  datenquellen: Datenquelle[]
+  relationen: RelationsVorlage[]
 }
 
 export type AuspackErgebnis =
@@ -141,7 +141,7 @@ function auspacken(text: string): AuspackErgebnis {
   if (!o.tree || typeof o.tree !== 'object' || Array.isArray(o.tree)) {
     return abgelehnt('Die Datei enthält keinen lesbaren Masken-Aufbau.')
   }
-  const wurzel = (o.tree as Record<string, unknown>)[ROOT_ID]
+  const wurzel = (o.tree as Record<string, unknown>)[WURZEL_ID]
   if (!wurzel || typeof wurzel !== 'object' || Array.isArray(wurzel)
     || !Array.isArray((wurzel as Record<string, unknown>).childIds)) {
     return abgelehnt('Die Datei enthält keinen lesbaren Masken-Aufbau.')

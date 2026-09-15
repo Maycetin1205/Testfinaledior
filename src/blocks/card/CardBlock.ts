@@ -2,10 +2,10 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import { bindbar, type BindingProp, type Faehigkeit } from '../../core/blocks/faehigkeiten'
-import type { FlowWidth } from '../../core/blocks/flowLayout'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import { bindbar, type BindungsProp, type Faehigkeit } from '../../core/blocks/faehigkeiten'
+import type { FlussBreite } from '../../core/blocks/flowLayout'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import {
   chipStyles,
   coerceStatusVariant,
@@ -20,12 +20,12 @@ export class CardBlock extends BasicBlock {
   static readonly blockType = 'card'
   static readonly tagName = 'ff-card'
   static readonly displayName = 'Karte'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
 
   static readonly allowedParentTypes = ['kanban-muster']
   static readonly showInPalette = false
 
-  static readonly lockedWidth: FlowWidth = 'fill'
+  static readonly lockedWidth: FlussBreite = 'fill'
   static readonly resizableWidth = false
 
   static readonly defaultProps = {
@@ -59,7 +59,7 @@ export class CardBlock extends BasicBlock {
     ]),
   ]
 
-  static override readonly customProperties: PropertyDescription[] = [
+  static override readonly customProperties: Eigenschaft[] = [
     statusVariantProperty(
       'chipVariant',
       'Bedeutung des Chips auf der Karte — bestimmt die Chip-Farbe.',
@@ -89,7 +89,7 @@ export class CardBlock extends BasicBlock {
       class=${klass}
       data-ff-editable
       data-ff-spot=${prop}
-      ?data-ff-bound=${this[`${prop}Field` satisfies BindingProp<TextSpotProp>] !== ''}
+      ?data-ff-bound=${this[`${prop}Field` satisfies BindungsProp<TextSpotProp>] !== ''}
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, prop)}
     >${this[prop]}</span>`
   }

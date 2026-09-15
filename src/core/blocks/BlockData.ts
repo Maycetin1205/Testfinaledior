@@ -1,17 +1,17 @@
 // Die Form des Baustein-Baums: ein Knoten je Baustein, die Wurzel heisst root.
-import type { BlockEventsMap } from '../data/aktionen'
+import type { Ketten } from '../data/aktionen'
 
-export interface BlockNode {
+export interface Baustein {
   id: string
   type: string
   props: Record<string, unknown>
 
-  events?: BlockEventsMap
+  events?: Ketten
   parentId: string | null
   childIds: string[]
 }
 
-export type BlockTree = Record<string, BlockNode>
+export type Maskenbaum = Record<string, Baustein>
 
-export const ROOT_ID = 'root'
-export const ROOT_TYPE = 'root'
+export const WURZEL_ID = 'root'
+export const WURZEL_TYP = 'root'

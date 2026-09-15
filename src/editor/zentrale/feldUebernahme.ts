@@ -1,11 +1,11 @@
 // Felder einer Quelle als Vorschlag fuer die Parameter einer Relation.
-import type { ActionParamBinding } from '../../core/data/aktionen'
-import { defaultRelationParams } from '../../core/data/aktionen'
-import { tableIdFor, type DataSource } from '../../core/data/dataSources'
+import type { Parameter } from '../../core/data/aktionen'
+import { relationsParameterVorgabe } from '../../core/data/aktionen'
+import { tabellenIdVon, type Datenquelle } from '../../core/data/dataSources'
 import {
-  relIdFromIdbId,
-  splitFieldCode,
-  type RelationTemplate,
+  relIdAusIdbId,
+  feldCodeZerlegen,
+  type RelationsVorlage,
 } from '../../core/data/relations'
 
 export interface UebernahmeFeld {
@@ -29,7 +29,7 @@ export interface UebernahmeTreffer {
 }
 
 export interface FeldUebernahmeResult {
-  params: ActionParamBinding[]
+  params: Parameter[]
   gesetzt: UebernahmeTreffer[]
 }
 
@@ -48,18 +48,18 @@ export function feldUebernahmeArt(raw: string): FeldUebernahmeParameterArt | nul
 // Eine ERP-Abfrage darf ihren Feldern einen Vorsatz voranstellen; darunter steckt
 // trotzdem Position_Laenge.
 function feldPosLen(
-  source: DataSource,
+  source: Datenquelle,
   code: string,
 ): { pos: string; len: string } | null {
   const vorsatz = source.feldVorsatz ?? ''
   const ohne = vorsatz !== '' && code.startsWith(vorsatz) ? code.slice(vorsatz.length) : code
-  return splitFieldCode(ohne)
+  return feldCodeZerlegen(ohne)
 }
 
 // Position und Laenge sind Position und Laenge: ein Filter auf die ART sperrte
 // jede Tabelle aus, die nicht als IDB-Tabelle angelegt ist.
 export function uebernahmeFelder(
-  dataSources: readonly DataSource[],
+  dataSources: readonly Datenquelle[],
 ): UebernahmeFeld[] {
   const felder: UebernahmeFeld[] = []
   for (const source of dataSources) {
@@ -80,21 +80,21 @@ export function uebernahmeFelder(
 
 // Fuer den RELID-Parameter zaehlt nur, dass die Quelle eine Tabellen-Kennung hat.
 export function uebernahmeTabellen(
-  dataSources: readonly DataSource[],
+  dataSources: readonly Datenquelle[],
 ): UebernahmeQuelle[] {
   return dataSources
-    .filter((source) => tableIdFor(source) !== '')
+    .filter((source) => tabellenIdVon(source) !== '')
     .map((source) => ({ sourceId: source.id, sourceName: source.name }))
 }
 
 export function feldUebernehmen(
-  params: readonly ActionParamBinding[],
-  relation: RelationTemplate,
-  source: DataSource,
+  params: readonly Parameter[],
+  relation: RelationsVorlage,
+  source: Datenquelle,
   code: string,
   ziel: FeldUebernahmeZiel,
 ): FeldUebernahmeResult {
-  const defaults = defaultRelationParams(relation)
+  const defaults = relationsParameterVorgabe(relation)
   const next = relation.params.map((_, index) => ({
     ...(params[index] ?? defaults[index]),
   }))
@@ -103,7 +103,7 @@ export function feldUebernehmen(
   relation.params.forEach((param, index) => {
     const art = feldUebernahmeArt(param)
     if (ziel === 'idb' && art === 'relid') {
-      const relId = relIdFromIdbId(tableIdFor(source))
+      const relId = relIdAusIdbId(tabellenIdVon(source))
       next[index] = { source: 'fixed', value: relId }
       gesetzt.push({ art, wert: relId })
       return

@@ -2,7 +2,7 @@
 import { html, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { property, state } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
 import { aktionswert, bindbar, type Faehigkeit } from '../../core/blocks/faehigkeiten'
 import { geberIdVon, klareAuswahl, setzeAuswahl } from '../shared/auswahl'
 import { vorschlagStil } from '../shared/vorschlagListe'
@@ -44,7 +44,7 @@ export class FormFeldBlock extends BasicBlock {
   static readonly blockType = 'formfeld'
   static readonly tagName = 'ff-formfeld'
   static readonly displayName = 'Formularfeld'
-  static readonly category: BlockCategory = 'eingabe'
+  static readonly category: Kategorie = 'eingabe'
 
   static readonly faehigkeiten: readonly Faehigkeit[] = [
     { art: 'quelle', wenn: { attributeName: 'fieldType', notEquals: 'nachschlagen' } },

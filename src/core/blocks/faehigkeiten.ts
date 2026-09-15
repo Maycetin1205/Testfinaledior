@@ -2,21 +2,21 @@
 // kann. Editor, Export und Laufzeit fragen diese Liste; kein Bausteintyp kommt
 // bei ihnen vor.
 import type { ListenBindung } from './listenBindung'
-import { propertySichtbar, type PropertyVisibilityCondition } from './PropertyDescription'
+import { eigenschaftSichtbar, type Bedingung } from './PropertyDescription'
 
-export interface BindableSpot {
+export interface BindbareStelle {
   prop: string
   label: string
-  wenn?: PropertyVisibilityCondition
+  wenn?: Bedingung
   vorschauProp?: string
 }
 
-export interface ActionValueSpot {
+export interface Wertstelle {
   prop: string
   label: string
 }
 
-export interface BlockEventSpec {
+export interface Ereignis {
   key: string
   name: string
 }
@@ -42,34 +42,34 @@ export interface SuchFenster {
   automatik: string
   // CSS-Auswahl der Stelle im Baustein, deren Klick das Fenster aufmacht.
   stelle?: string
-  wenn?: PropertyVisibilityCondition
+  wenn?: Bedingung
 }
 
 export type Faehigkeit =
   // Liest eine Datenquelle (Eigenschaft `source`).
-  | { art: 'quelle'; wenn?: PropertyVisibilityCondition }
+  | { art: 'quelle'; wenn?: Bedingung }
   // Gibt eine gewaehlte oder angezeigte Zeile her. `wenn` schaltet die
   // Faehigkeit nicht, es waehlt nur die Quell-Eigenschaft.
-  | { art: 'satzwahl'; quelleProp?: string; wenn?: PropertyVisibilityCondition }
+  | { art: 'satzwahl'; quelleProp?: string; wenn?: Bedingung }
   // Filtert seine Zeilen nach der Auswahl eines anderen Bausteins.
   | { art: 'auswahlFolgen' }
   // Stellen, die an ein Feld gebunden werden koennen.
-  | { art: 'bindbar'; stellen: readonly BindableSpot[] }
+  | { art: 'bindbar'; stellen: readonly BindbareStelle[] }
   // Werte, die eine Kette als „Wert aus Baustein" lesen kann.
-  | { art: 'aktionswert'; stellen: readonly ActionValueSpot[] }
+  | { art: 'aktionswert'; stellen: readonly Wertstelle[] }
   // Fuehrt eine Liste von Eintraegen (Spalten, Fensterspalten).
   | { art: 'liste'; bindung: ListenBindung }
   | { art: 'suchfenster'; fenster: SuchFenster }
   // Nimmt neue Zeilen entgegen, bevor sie im ERP existieren.
-  | { art: 'erfassen'; wenn?: PropertyVisibilityCondition }
-  | { art: 'loeschen'; wenn?: PropertyVisibilityCondition }
+  | { art: 'erfassen'; wenn?: Bedingung }
+  | { art: 'loeschen'; wenn?: Bedingung }
   // Gibt geaenderte Zeilen her; `schluessel` ist der Eintrags-Schalter der Liste.
   | { art: 'aendern'; schluessel: string }
   // Haelt gesendete Zeilen, bis eine Lieferung sie zeigt.
   | { art: 'haeltGesendete' }
   // Traegt Berechnungen in der genannten Eigenschaft.
   | { art: 'rechnen'; prop: string }
-  | { art: 'ereignisse'; liste: readonly BlockEventSpec[] }
+  | { art: 'ereignisse'; liste: readonly Ereignis[] }
 
 export type FaehigkeitsArt = Faehigkeit['art']
 
@@ -92,49 +92,49 @@ export function hatFaehigkeit(traeger: Faehig | undefined, art: FaehigkeitsArt):
 
 // Eine Faehigkeit mit `wenn` gilt nur, solange die Eigenschaften es sagen.
 export function gilt(
-  f: { wenn?: PropertyVisibilityCondition } | undefined,
+  f: { wenn?: Bedingung } | undefined,
   props: Record<string, unknown>,
 ): boolean {
-  return f !== undefined && propertySichtbar(f.wenn, props)
+  return f !== undefined && eigenschaftSichtbar(f.wenn, props)
 }
 
 // ---- Bindbare Stellen: die Eigenschaft `xField` traegt die Bindung von `x` ----
 
-export type BindingProp<P extends string = string> = `${P}Field`
+export type BindungsProp<P extends string = string> = `${P}Field`
 
-export type BindingAttr = `${string}field`
+export type BindungsAttr = `${string}field`
 
-export function bindingProp<P extends string>(prop: P): BindingProp<P> {
+export function bindungsProp<P extends string>(prop: P): BindungsProp<P> {
   return `${prop}Field`
 }
 
-export function bindingAttr(prop: string): BindingAttr {
+export function bindungsAttr(prop: string): BindungsAttr {
   return `${prop.toLowerCase()}field`
 }
 
-export type BindableSpotProp<Props> = keyof Props extends infer K
-  ? K extends BindingProp<infer P> ? P : never
+export type BindbareStelleProp<Props> = keyof Props extends infer K
+  ? K extends BindungsProp<infer P> ? P : never
   : never
 
-export type BindableSpotsFor<Props> = ReadonlyArray<
-  Omit<BindableSpot, 'prop' | 'vorschauProp'> & {
-    prop: BindableSpotProp<Props>
+export type BindbareStellenFuer<Props> = ReadonlyArray<
+  Omit<BindbareStelle, 'prop' | 'vorschauProp'> & {
+    prop: BindbareStelleProp<Props>
     vorschauProp?: keyof Props & string
   }
 >
 
-export type ActionValueSpotsFor<Props> = ReadonlyArray<{
+export type WertstellenFuer<Props> = ReadonlyArray<{
   prop: keyof Props & string
   label: string
 }>
 
 // Die zwei Faehigkeiten, deren Stellen zu den Eigenschaften des Bausteins
 // passen muessen: der Typpruefer sieht es an der Klasse.
-export function bindbar<Props>(stellen: BindableSpotsFor<Props>): FaehigkeitVon<'bindbar'> {
+export function bindbar<Props>(stellen: BindbareStellenFuer<Props>): FaehigkeitVon<'bindbar'> {
   return { art: 'bindbar', stellen }
 }
 
-export function aktionswert<Props>(stellen: ActionValueSpotsFor<Props>): FaehigkeitVon<'aktionswert'> {
+export function aktionswert<Props>(stellen: WertstellenFuer<Props>): FaehigkeitVon<'aktionswert'> {
   return { art: 'aktionswert', stellen }
 }
 

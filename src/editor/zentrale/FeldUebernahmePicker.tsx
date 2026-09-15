@@ -2,7 +2,7 @@
 import { useMemo, type RefObject } from 'react'
 import { Liste, type ListeGruppe } from '@/ui/werkbank/Liste'
 import { Popover } from '@/ui/werkbank/Popover'
-import type { DataSource } from '../../core/data/dataSources'
+import type { Datenquelle } from '../../core/data/dataSources'
 import { quellenWorte } from './beschriftungen'
 import {
   uebernahmeFelder,
@@ -11,7 +11,7 @@ import {
 } from './feldUebernahme'
 
 interface FeldUebernahmePickerProps {
-  quellen: readonly DataSource[]
+  quellen: readonly Datenquelle[]
   ziel: FeldUebernahmeZiel
 
   // Feldcode der bereits uebernommenen POS/LEN, nur zum Anhaken.
@@ -29,7 +29,7 @@ const TRENNER = '::'
 // Eine leere Liste darf nie ratenlassen, woran es liegt: sie zaehlt auf, was sie
 // angesehen hat.
 function leerHinweisFuer(
-  quellen: readonly DataSource[],
+  quellen: readonly Datenquelle[],
   ziel: FeldUebernahmeZiel,
 ): string {
   if (quellen.length === 0) return 'Es ist keine Datenquelle angelegt.'

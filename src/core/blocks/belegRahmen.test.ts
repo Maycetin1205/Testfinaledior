@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ROOT_ID, type BlockTree } from './BlockData'
+import { WURZEL_ID, type Maskenbaum } from './BlockData'
 import { BELEG_RAHMEN_PROP, belegDateinamen, rahmenNummer, rahmenNummerVon } from './belegRahmen'
 
 describe('rahmenNummer', () => {
@@ -32,12 +32,12 @@ describe('belegDateinamen', () => {
 describe('rahmenNummerVon', () => {
   it('liest die Nummer aus der Maskenwurzel', () => {
     const baum = {
-      [ROOT_ID]: { id: ROOT_ID, type: 'root', props: { [BELEG_RAHMEN_PROP]: '7' }, children: [] },
-    } as unknown as BlockTree
+      [WURZEL_ID]: { id: WURZEL_ID, type: 'root', props: { [BELEG_RAHMEN_PROP]: '7' }, children: [] },
+    } as unknown as Maskenbaum
     expect(rahmenNummerVon(baum)).toBe('00007')
   })
 
   it('schweigt, wo keine steht', () => {
-    expect(rahmenNummerVon({} as BlockTree)).toBe('')
+    expect(rahmenNummerVon({} as Maskenbaum)).toBe('')
   })
 })

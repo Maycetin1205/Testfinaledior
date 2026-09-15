@@ -9,10 +9,10 @@ import { Marke } from '@/ui/werkbank/Marke'
 import {
   artFuer,
   quellenKennung,
-  type DataSource,
+  type Datenquelle,
 } from '../../core/data/dataSources'
 import { quellenWorte } from './beschriftungen'
-import { parseDtkBytes, type DtkTabelle } from '../../core/data/dtkImport'
+import { dtkLesen, type DtkTabelle } from '../../core/data/dtkImport'
 import { bausteineMitQuelle } from '../../state/quellenOps'
 import { useDataSources } from '../../state/useDataSources'
 import { useEditor } from '../../state/useEditor'
@@ -49,7 +49,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
     let tabellen: DtkTabelle[]
     let pannenGrund: string | undefined
     try {
-      tabellen = parseDtkBytes(new Uint8Array(await datei.arrayBuffer()))
+      tabellen = dtkLesen(new Uint8Array(await datei.arrayBuffer()))
     } catch (fehler) {
       tabellen = []
       pannenGrund = fehler instanceof Error ? fehler.message : String(fehler)
@@ -63,14 +63,14 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
   const verwendungFor = (id: string): string[] =>
     bausteineMitQuelle(ed.tree, id).map((n) => bausteinName(n, store.list))
 
-  const unvollstaendig = (s: DataSource): boolean =>
+  const unvollstaendig = (s: Datenquelle): boolean =>
     artFuer(s.kind).felderEinzeln && s.fields.length === 0
 
-  const kennung = (s: DataSource): string => quellenKennung(s)
+  const kennung = (s: Datenquelle): string => quellenKennung(s)
 
   // Die Kopie ist eigenstaendig; Bausteine zeigen weiter auf das Original.
   // store.add klont tief und setzt die eigene Kennung zuletzt.
-  function dupliziere(s: DataSource) {
+  function dupliziere(s: Datenquelle) {
     const kopie = store.add({
       ...s,
       name: kopieName(s.name, store.list.map((q) => q.name)),
@@ -81,7 +81,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
 
   // Ohne Rueckfrage: Strg+Z holt die Quelle zurueck. Bausteine, die sie benutzen,
   // bleiben stehen; ihre Daten-Bindungen ruhen.
-  function loeschen(s: DataSource) {
+  function loeschen(s: Datenquelle) {
     store.remove(s.id)
     setModus('lesen')
   }

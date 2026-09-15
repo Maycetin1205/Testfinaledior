@@ -1,8 +1,8 @@
-import { BUILTIN_RELATION_TEMPLATES, type RelationTemplate } from '../core/data/relations'
+import { EINGEBAUTE_RELATIONEN, type RelationsVorlage } from '../core/data/relations'
 import { VorlagenStore } from './VorlagenStore'
 
-export class RelationStore extends VorlagenStore<RelationTemplate> {
-  constructor(bestand: readonly RelationTemplate[] = BUILTIN_RELATION_TEMPLATES) {
+export class RelationStore extends VorlagenStore<RelationsVorlage> {
+  constructor(bestand: readonly RelationsVorlage[] = EINGEBAUTE_RELATIONEN) {
     super(bestand)
   }
 }

@@ -9,16 +9,16 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import {
   quellenAufloesen,
   WEITERE_QUELLEN_PROP,
   type QuelleInReichweite,
 } from '../../core/data/sourceLinks'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { istRandBaustein } from '../../core/blocks/maskenRand'
-import { rasterSpecOf } from '../../core/blocks/rasterLayout'
+import { rasterMassVon } from '../../core/blocks/rasterLayout'
 import { bindbareStellenVon, traegtEigeneQuelle } from '../../core/blocks/treeQuery'
 import { useEditorInstance } from '../../state/EditorContext'
 import { loescheBaustein } from '../../state/loescheBaustein'
@@ -32,7 +32,7 @@ import { useBlockResize } from './useBlockResize'
 import { useLitElement } from './useLitElement'
 
 interface BlockHostProps {
-  block: BlockNode
+  block: Baustein
   selected?: boolean
 
   onSelect?: () => void
@@ -47,7 +47,7 @@ const KEINE_QUELLEN: readonly QuelleInReichweite[] = []
 export function BlockHost({ block, selected, onSelect, raster = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
   const rootRef = useRef<HTMLDivElement | null>(null)
-  const def = getBlockDefinition(block.type)
+  const def = bausteinArt(block.type)
   const isContainer = def?.acceptsChildren ?? false
   const liste = faehigkeit(def, 'liste')?.bindung
   const suchFenster = faehigkeit(def, 'suchfenster')?.fenster
@@ -66,7 +66,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
     [braucht, traeger, bibliothek],
   )
 
-  const blockRef = useRef<BlockNode>(block)
+  const blockRef = useRef<Baustein>(block)
   useLayoutEffect(() => {
     blockRef.current = block
   })
@@ -117,7 +117,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
   const resizable = def?.resizableWidth ?? true
   const heightResizable = def?.resizableHeight === true
 
-  const rasterSpec = rasterSpecOf(def)
+  const rasterSpec = rasterMassVon(def)
 
   const rand = istRandBaustein(block)
   const rasterZiehbar = raster && !rand
@@ -201,7 +201,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startRasterResize(e, 'x')}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'rasterW', rasterSpecOf(getBlockDefinition(node.type)).startW)
+            editor.updateProperty(node.id, 'rasterW', rasterMassVon(bausteinArt(node.type)).startW)
           }}
         />
       )}
@@ -212,7 +212,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startRasterResize(e, 'y')}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'rasterH', rasterSpecOf(getBlockDefinition(node.type)).startH)
+            editor.updateProperty(node.id, 'rasterH', rasterMassVon(bausteinArt(node.type)).startH)
           }}
         />
       )}
@@ -223,7 +223,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startResize(e, 'width', 40)}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'width', getBlockDefinition(node.type)?.defaultProps.width ?? 'auto')
+            editor.updateProperty(node.id, 'width', bausteinArt(node.type)?.defaultProps.width ?? 'auto')
           }}
         />
       )}
@@ -234,7 +234,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           onStart={(e) => startResize(e, 'height', 120)}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'height', getBlockDefinition(node.type)?.defaultProps.height ?? 'auto')
+            editor.updateProperty(node.id, 'height', bausteinArt(node.type)?.defaultProps.height ?? 'auto')
           }}
         />
       )}

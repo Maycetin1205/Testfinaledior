@@ -1,16 +1,16 @@
 // Der Kurztext eines Ketten-Schritts fuer die Liste.
-import type { BlockTree } from '../../core/blocks/BlockData'
+import type { Maskenbaum } from '../../core/blocks/BlockData'
 import { bausteinName } from '../../core/blocks/bausteinName'
-import type { ActionParamBinding, ActionStep } from '../../core/data/aktionen'
+import type { Parameter, Schritt } from '../../core/data/aktionen'
 import {
   quellenKennung,
-  tableIdFor,
-  type DataSource,
+  tabellenIdVon,
+  type Datenquelle,
 } from '../../core/data/dataSources'
 import {
-  relIdFromIdbId,
-  splitFieldCode,
-  type RelationTemplate,
+  relIdAusIdbId,
+  feldCodeZerlegen,
+  type RelationsVorlage,
 } from '../../core/data/relations'
 import { feldUebernahmeArt } from './feldUebernahme'
 
@@ -24,24 +24,24 @@ export interface SchrittZusammenfassung {
   tabelle: string
 }
 
-function festerWert(binding: ActionParamBinding | undefined): string {
+function festerWert(binding: Parameter | undefined): string {
   return binding?.source === 'fixed' ? binding.value.trim() : ''
 }
 
 function quelleAusRelId(
-  relation: RelationTemplate,
-  params: readonly ActionParamBinding[],
-  quellen: readonly DataSource[],
-): DataSource | undefined {
+  relation: RelationsVorlage,
+  params: readonly Parameter[],
+  quellen: readonly Datenquelle[],
+): Datenquelle | undefined {
   const index = relation.params.findIndex((p) => feldUebernahmeArt(p) === 'relid')
   const wert = index < 0 ? '' : festerWert(params[index])
   if (wert === '') return undefined
-  return quellen.find((q) => relIdFromIdbId(tableIdFor(q)) === wert)
+  return quellen.find((q) => relIdAusIdbId(tabellenIdVon(q)) === wert)
 }
 
 function feldcodeAusParams(
-  relation: RelationTemplate,
-  params: readonly ActionParamBinding[],
+  relation: RelationsVorlage,
+  params: readonly Parameter[],
 ): string {
   let pos = ''
   let len = ''
@@ -55,8 +55,8 @@ function feldcodeAusParams(
 
 function klarnameFuerCode(
   code: string,
-  quelle: DataSource | undefined,
-  quellen: readonly DataSource[],
+  quelle: Datenquelle | undefined,
+  quellen: readonly Datenquelle[],
 ): string {
   if (code === '') return ''
   const eigen = quelle?.fields.find((f) => f.code === code)
@@ -69,9 +69,9 @@ function klarnameFuerCode(
 }
 
 function herkunftText(
-  binding: ActionParamBinding | undefined,
-  tree: BlockTree,
-  quellen: readonly DataSource[],
+  binding: Parameter | undefined,
+  tree: Maskenbaum,
+  quellen: readonly Datenquelle[],
   schrittNr: (id: string) => number,
 ): string {
   if (!binding) return ''
@@ -127,19 +127,19 @@ function herkunftText(
 }
 
 function wertBinding(
-  relation: RelationTemplate,
-  params: readonly ActionParamBinding[],
-): ActionParamBinding | undefined {
+  relation: RelationsVorlage,
+  params: readonly Parameter[],
+): Parameter | undefined {
   const index = relation.params.findIndex((p) => p.trim().toUpperCase() === '{VALUE}')
   return index < 0 ? undefined : params[index]
 }
 
 export function schrittZusammenfassung(
-  step: ActionStep,
+  step: Schritt,
   was: string,
-  relation: RelationTemplate | undefined,
-  tree: BlockTree,
-  quellen: readonly DataSource[],
+  relation: RelationsVorlage | undefined,
+  tree: Maskenbaum,
+  quellen: readonly Datenquelle[],
 
   schrittNr: (id: string) => number,
 ): SchrittZusammenfassung {
@@ -152,13 +152,13 @@ export function schrittZusammenfassung(
     was,
     ziel: klarnameFuerCode(code, quelle, quellen)
 
-      || (code !== '' && splitFieldCode(code) ? code : ''),
+      || (code !== '' && feldCodeZerlegen(code) ? code : ''),
     herkunft: herkunftText(wertBinding(relation, step.params), tree, quellen, schrittNr),
     tabelle: quelle ? `${quelle.name} · ${quellenKennung(quelle)}` : '',
   }
 }
 
-export function ankerSchrittId(step: ActionStep): string {
+export function ankerSchrittId(step: Schritt): string {
   if (step.type !== 'RELATION') return ''
   for (const b of [...step.params, ...step.extraParams]) {
     if (b.source === 'step_result' && b.value !== '') return b.value

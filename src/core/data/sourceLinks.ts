@@ -1,5 +1,5 @@
 // Die weiteren Quellen eines Bausteins, wie sie im Baum stehen.
-import type { DataSource } from './dataSources'
+import type { Datenquelle } from './dataSources'
 
 export interface SchluesselPaar {
   fromField: string
@@ -60,7 +60,7 @@ export function weitereQuellenAus(roh: unknown): BausteinQuelle[] {
 }
 
 export interface QuelleInReichweite {
-  source: DataSource
+  source: Datenquelle
 
   paare?: SchluesselPaar[]
 
@@ -71,7 +71,7 @@ export interface QuelleInReichweite {
 export function quellenAufloesen(
   sourceId: unknown,
   weitereRoh: unknown,
-  bibliothek: readonly DataSource[],
+  bibliothek: readonly Datenquelle[],
 ): QuelleInReichweite[] {
   const erste = typeof sourceId === 'string' && sourceId !== ''
     ? bibliothek.find((s) => s.id === sourceId)
@@ -94,7 +94,7 @@ export function quellenAufloesen(
 
 export function paarKlartext(
   paare: readonly SchluesselPaar[],
-  erste: DataSource | undefined,
+  erste: Datenquelle | undefined,
 ): string {
   return paare
     .map((p) => erste?.fields.find((f) => f.code === p.fromField)?.label ?? '')

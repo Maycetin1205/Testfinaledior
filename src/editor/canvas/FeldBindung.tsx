@@ -1,7 +1,7 @@
 // Der Feld-Waehler des Editors: eine Stelle oder einen Listeneintrag an ein Feld binden.
 import { useCallback, useEffect, useState, type ReactNode, type RefObject } from 'react'
 import type { MouseEvent as ReactMouseEvent } from 'react'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import {
   feldWahlenLesen,
   schalterAn,
@@ -10,7 +10,7 @@ import {
   listeLesen,
   type ListenBindung,
 } from '../../core/blocks/BlockDefinition'
-import { bindingProp, type BindableSpot, type SuchFenster } from '../../core/blocks/faehigkeiten'
+import { bindungsProp, type BindbareStelle, type SuchFenster } from '../../core/blocks/faehigkeiten'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
 import { kannRechnen } from '../../core/blocks/treeQuery'
 import { quellenKennung } from '../../core/data/dataSources'
@@ -29,10 +29,10 @@ import { bindingCode, useBindingPicker } from './useBindingPicker'
 
 interface FeldBindungArgs {
   editor: Editor
-  blockRef: RefObject<BlockNode>
-  block: BlockNode
+  blockRef: RefObject<Baustein>
+  block: Baustein
   selected: boolean | undefined
-  bindableSpots: readonly BindableSpot[]
+  bindableSpots: readonly BindbareStelle[]
   listenBindung: ListenBindung | undefined
 
   suchFenster: SuchFenster | undefined
@@ -226,7 +226,7 @@ export function useFeldBindung({
           left={picker.left}
           quellenWahl={quellenWahl}
           onPick={(wert) => {
-            editor.updateProperty(blockRef.current.id, bindingProp(picker.spot.prop), wert)
+            editor.updateProperty(blockRef.current.id, bindungsProp(picker.spot.prop), wert)
             closePicker()
           }}
           onClose={closePicker}

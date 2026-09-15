@@ -2,8 +2,8 @@
 import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { SEITEN_WECHSEL_EVENT, type SeitenWechselDetail } from '../../core/blocks/seitenWechsel'
 import {
   coerceStatusVariant,
@@ -15,7 +15,7 @@ export class NaviEintragBlock extends BasicBlock {
   static readonly blockType = 'navi-eintrag'
   static readonly tagName = 'ff-navi-eintrag'
   static readonly displayName = 'Navi-Eintrag'
-  static readonly category: BlockCategory = 'layout'
+  static readonly category: Kategorie = 'layout'
   static readonly acceptsChildren = false
   static readonly showInPalette = false
   static readonly allowedParentTypes = ['navi']
@@ -26,7 +26,7 @@ export class NaviEintragBlock extends BasicBlock {
     ton: 'info',
   }
 
-  static override readonly customProperties: PropertyDescription[] = [
+  static override readonly customProperties: Eigenschaft[] = [
     {
       attributeName: 'seite',
       name: 'Seite',

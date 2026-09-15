@@ -1,22 +1,22 @@
 // Der Stil eines Bausteins in der exportierten Maske.
-import type { BlockNode } from '../core/blocks/BlockData'
+import type { Baustein } from '../core/blocks/BlockData'
 import {
-  flowItemHeightStyle,
-  flowItemStyle,
-  parseFlowHeight,
-  parseFlowWidth,
-  type FlowDirection,
-  type FlowWidth,
+  flussHoeheStil,
+  flussBreiteStil,
+  flussHoeheLesen,
+  flussBreiteLesen,
+  type Richtung,
+  type FlussBreite,
 } from '../core/blocks/flowLayout'
-import { istRandBaustein, randItemStyle } from '../core/blocks/maskenRand'
-import { parseRasterPos, rasterItemStyle } from '../core/blocks/rasterLayout'
-import { styleToCss } from '../core/blocks/styleCss'
+import { istRandBaustein, randStil } from '../core/blocks/maskenRand'
+import { rasterPlatzLesen, rasterPlatzStil } from '../core/blocks/rasterLayout'
+import { stilAlsCss } from '../core/blocks/styleCss'
 import { escapeHtmlAttr } from './serializer'
 
 export function styleAttr(
-  node: BlockNode,
-  parentDirection: FlowDirection,
-  lockedWidth: FlowWidth | undefined,
+  node: Baustein,
+  parentDirection: Richtung,
+  lockedWidth: FlussBreite | undefined,
   rasterEbene: boolean,
   istPage: boolean,
 ): string {
@@ -24,16 +24,16 @@ export function styleAttr(
   if (istPage) {
     style = {}
   } else if (istRandBaustein(node)) {
-    style = randItemStyle()
+    style = randStil()
   } else if (rasterEbene) {
-    style = rasterItemStyle(parseRasterPos(node.props))
+    style = rasterPlatzStil(rasterPlatzLesen(node.props))
   } else {
     style = {
-      ...flowItemStyle(parseFlowWidth(node.props.width), parentDirection, lockedWidth),
+      ...flussBreiteStil(flussBreiteLesen(node.props.width), parentDirection, lockedWidth),
 
-      ...flowItemHeightStyle(parseFlowHeight(node.props.height), parentDirection),
+      ...flussHoeheStil(flussHoeheLesen(node.props.height), parentDirection),
     }
   }
-  const css = styleToCss(style)
+  const css = stilAlsCss(style)
   return css ? ` style="${escapeHtmlAttr(css)}"` : ''
 }

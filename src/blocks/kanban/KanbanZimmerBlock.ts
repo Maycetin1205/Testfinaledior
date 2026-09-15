@@ -2,9 +2,9 @@
 import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { FlowWidth } from '../../core/blocks/flowLayout'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import type { FlussBreite } from '../../core/blocks/flowLayout'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { leerStil, leerZustand } from '../shared/leerZustand'
 import { ZIEL_KLASSE, zielStil } from './zielStil'
 import { kartenAbstandStil } from './kartenAbstand'
@@ -17,21 +17,21 @@ export class KanbanZimmerBlock extends BasicBlock {
   static readonly blockType = 'kanban-zimmer'
   static readonly tagName = 'ff-kanban-zimmer'
   static readonly displayName = 'Kanban-Zimmer'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
   static readonly acceptsChildren = false
   static readonly showInPalette = false
   static readonly containerHint = false
 
   static readonly allowedParentTypes = ['kanban-spalte']
 
-  static readonly lockedWidth: FlowWidth = 'fill'
+  static readonly lockedWidth: FlussBreite = 'fill'
   static readonly resizableWidth = false
   static readonly defaultProps = {
     heading: 'Neues Zimmer',
     wert: '',
   }
 
-  static override readonly customProperties: PropertyDescription[] = [
+  static override readonly customProperties: Eigenschaft[] = [
     {
       attributeName: 'wert',
       bearbeitung: 'inspector',

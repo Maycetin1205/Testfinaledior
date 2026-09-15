@@ -1,19 +1,19 @@
 // Die Datenquellen einer Maske: Form, Alias, Satznummer und was bei SoftEngine bestellt wird.
 import { QUELLEN_TRENNER, zerlegeBindung } from '../blocks/BlockDefinition'
-import { holWertFor, pruefeHolWert, type HolWert } from './holWert'
+import { holWertVon, pruefeHolWert, type HolWert } from './holWert'
 import type { EintragProblem } from './ladeProblem'
-import { ladeRelationFor, POS_LEN, pruefeLadeRelation, type LadeRelation } from './ladeRelation'
+import { ladeRelationVon, POS_LEN, pruefeLadeRelation, type LadeRelation } from './ladeRelation'
 import {
   artFuer,
-  DATA_SOURCE_KINDS,
+  QUELLEN_ART_KENNUNGEN,
   QUELLEN_ARTEN,
   tabellenKennungNoetig,
-  type DataSourceKind,
+  type QuellenArtKennung,
 } from './quellenArten'
 
-export { artFuer, DATA_SOURCE_KINDS, QUELLEN_ARTEN, tabellenKennungNoetig, type DataSourceKind }
+export { artFuer, QUELLEN_ART_KENNUNGEN, QUELLEN_ARTEN, tabellenKennungNoetig, type QuellenArtKennung }
 export {
-  holWertFor,
+  holWertVon,
   HOL_WERT_QUELLEN,
   holWertQuelleErlaubt,
   quellenAusHolWert,
@@ -22,25 +22,25 @@ export {
 export {
   felderHinterSchnitt,
   LADE_RELATION_STANDARD,
-  ladeRelationFor,
-  relationNrFromInput,
+  ladeRelationVon,
+  relationNrAusEingabe,
   type LadeRelation,
 } from './ladeRelation'
 export {
-  feldVorsatzFromInput,
-  fieldCode,
+  feldVorsatzAusEingabe,
+  feldCode,
   kennungAnzeige,
-  kennungFromInput,
-  kopfsatzFromInput,
+  kennungAusEingabe,
+  kopfsatzAusEingabe,
   quellenKennung,
-  spaltenNameFromInput,
+  spaltenNameAusEingabe,
 } from './quellenEingabe'
 
 // Weiter oben hoert der Wert auf, eine Breite zu sein, und faengt an, eine
 // Tabelle zu sprengen.
 export const ZEICHEN_MAX = 200
 
-export interface DataSourceField {
+export interface Datenfeld {
   code: string
 
   label: string
@@ -51,12 +51,12 @@ export interface DataSourceField {
   zeichen?: number
 }
 
-export interface DataSource {
+export interface Datenquelle {
   id: string
 
   name: string
 
-  kind: DataSourceKind
+  kind: QuellenArtKennung
 
   idbId?: string
 
@@ -72,19 +72,19 @@ export interface DataSource {
 
   feldVorsatz?: string
 
-  fields: readonly DataSourceField[]
+  fields: readonly Datenfeld[]
 }
 
 // Diese Quelle wartet auf keine Lieferung, sie fragt selbst; darum steht sie
 // nicht in der SEvariablen-Bestellung.
-export function holtSelbst(source: DataSource): boolean {
-  return ladeRelationFor(source) !== null || holWertFor(source) !== null
+export function holtSelbst(source: Datenquelle): boolean {
+  return ladeRelationVon(source) !== null || holWertVon(source) !== null
 }
 
 export function feldKlarname(
   bindung: string,
   eigeneQuelleId: string,
-  sources: readonly DataSource[],
+  sources: readonly Datenquelle[],
 ): string {
   const { quelleId, code } = zerlegeBindung(bindung)
   const gesucht = quelleId === '' ? eigeneQuelleId : quelleId
@@ -93,13 +93,13 @@ export function feldKlarname(
   return quelle?.fields.find((f) => f.code === code)?.label ?? ''
 }
 
-export function istOffenerSatz(source: DataSource): boolean {
+export function istOffenerSatz(source: Datenquelle): boolean {
   return artFuer(source.kind).varMoeglich && source.lieferung === 'offenerSatz'
 }
 
 // Arten ohne Satznummer geben '': sonst bestellte der Export einen Feldcode, den
 // ihre Quelle nicht kennt, und die Tabelle boete Aendern und Loeschen an.
-export function satzNummerVon(source: DataSource): string {
+export function satzNummerVon(source: Datenquelle): string {
   if (!artFuer(source.kind).satzNummerMoeglich) return ''
   return (source.indexField ?? '').trim()
 }
@@ -107,27 +107,27 @@ export function satzNummerVon(source: DataSource): string {
 // SoftEngine legt die Zeilen unter dem ALIAS ab, und die Laufzeit sucht sie ueber
 // genau diesen Namen; der erste Treffer gewinnt. Zwei gleich benannte Quellen
 // zeigten stumm dieselben Daten, darum macht der Export sie eindeutig.
-export function alias(name: string): string {
+export function aliasVon(name: string): string {
   return name.trim().toLowerCase()
 }
 
-export function mitEindeutigenNamen(sources: readonly DataSource[]): DataSource[] {
+export function mitEindeutigenNamen(sources: readonly Datenquelle[]): Datenquelle[] {
   const vergeben = new Set<string>()
   return sources.map((s) => {
     let name = s.name
-    for (let nr = 2; vergeben.has(alias(name)); nr++) name = `${s.name.trim()} ${nr}`
-    vergeben.add(alias(name))
+    for (let nr = 2; vergeben.has(aliasVon(name)); nr++) name = `${s.name.trim()} ${nr}`
+    vergeben.add(aliasVon(name))
     return name === s.name ? s : { ...s, name }
   })
 }
 
-export function tableIdFor(source: DataSource): string {
+export function tabellenIdVon(source: Datenquelle): string {
   const feste = artFuer(source.kind).tabellenId
   return feste === '' ? (source.idbId ?? '') : feste
 }
 
-export function felderFor(
-  source: DataSource,
+export function bestellteFelder(
+  source: Datenquelle,
   benutzt?: ReadonlySet<string>,
   holSchluessel: readonly string[] = [],
 ): string {
@@ -173,9 +173,9 @@ export function felderFor(
   return codes.every((code) => POS_LEN.test(code)) ? codes.join(',') : '*'
 }
 
-export function loopReihenfolge(sources: readonly DataSource[]): DataSource[] {
-  const alleinstehend: DataSource[] = []
-  const unterKopfsatz: DataSource[] = []
+export function loopReihenfolge(sources: readonly Datenquelle[]): Datenquelle[] {
+  const alleinstehend: Datenquelle[] = []
+  const unterKopfsatz: Datenquelle[] = []
   for (const source of sources) {
     if (artFuer(source.kind).kopfsatzMoeglich) unterKopfsatz.push(source)
     else alleinstehend.push(source)
@@ -183,17 +183,17 @@ export function loopReihenfolge(sources: readonly DataSource[]): DataSource[] {
   return [...alleinstehend, ...unterKopfsatz]
 }
 
-export function kopfsatzFor(source: DataSource): string {
+export function kopfsatzVon(source: Datenquelle): string {
   if (!artFuer(source.kind).kopfsatzMoeglich) return ''
   return (source.kopfsatzIndex ?? '').trim()
 }
 
 export function varAusKopfsaetzen(
-  sources: readonly DataSource[],
+  sources: readonly Datenquelle[],
 ): { ID: string; FELDER: string }[] {
   const proId = new Map<string, string[]>()
   for (const s of sources) {
-    const kopfsatz = kopfsatzFor(s)
+    const kopfsatz = kopfsatzVon(s)
     if (kopfsatz === '') continue
 
     const teile = /^([A-Za-z][A-Za-z0-9]*)_(\d+_\d+)$/.exec(kopfsatz)
@@ -207,10 +207,10 @@ export function varAusKopfsaetzen(
 
 export function pruefeDatenquellen(
   raw: unknown,
-): { liste: DataSource[]; probleme: EintragProblem[] } {
+): { liste: Datenquelle[]; probleme: EintragProblem[] } {
   const probleme: EintragProblem[] = []
   if (!Array.isArray(raw)) return { liste: [], probleme }
-  const acc: DataSource[] = []
+  const acc: Datenquelle[] = []
   const seen = new Set<string>()
   let nr = 0
   for (const entry of raw) {
@@ -244,18 +244,18 @@ export function pruefeDatenquellen(
       weg('der Klarname fehlt')
       continue
     }
-    if (typeof e.kind !== 'string' || !DATA_SOURCE_KINDS.includes(e.kind as DataSourceKind)) {
+    if (typeof e.kind !== 'string' || !QUELLEN_ART_KENNUNGEN.includes(e.kind as QuellenArtKennung)) {
       weg('die Art der Datenquelle fehlt oder ist unbekannt')
       continue
     }
     // Fehlt sie, bestellte der Export einen SEFILELOOP-Eintrag mit leerer ID, und
     // SoftEngine bricht dann die ganze Loop-Liste ab.
-    if (tabellenKennungNoetig(artFuer(e.kind as DataSourceKind))
+    if (tabellenKennungNoetig(artFuer(e.kind as QuellenArtKennung))
       && (typeof e.idbId !== 'string' || e.idbId.trim() === '')) {
       weg('die Tabellen-Kennung fehlt (z. B. IDB0001)')
       continue
     }
-    const fields: DataSourceField[] = []
+    const fields: Datenfeld[] = []
     let feldNr = 0
     for (const f of Array.isArray(e.fields) ? e.fields : []) {
       feldNr++
@@ -304,7 +304,7 @@ export function pruefeDatenquellen(
     acc.push({
       id: e.id,
       name: e.name,
-      kind: e.kind as DataSourceKind,
+      kind: e.kind as QuellenArtKennung,
       ...(typeof e.idbId === 'string' && e.idbId !== '' ? { idbId: e.idbId } : {}),
       ...(typeof e.indexField === 'string' && e.indexField !== '' ? { indexField: e.indexField } : {}),
       ...(typeof e.kopfsatzIndex === 'string' && e.kopfsatzIndex !== ''

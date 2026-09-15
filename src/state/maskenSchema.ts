@@ -1,5 +1,5 @@
 // Die Version des Masken-Aufbaus und der Weg von der letzten zur aktuellen.
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
+import { bausteinArt } from '../core/blocks/blockRegistry'
 import { faehigkeit } from '../core/blocks/faehigkeiten'
 import {
   alsRundung,
@@ -86,7 +86,7 @@ function hebeVon8(tree: Record<string, unknown>): { tree: Record<string, unknown
     const props = node.props
     const alteSpalten: unknown[] | undefined = Array.isArray(props.spalten) ? props.spalten : undefined
     if (alteSpalten === undefined || !alteSpalten.some((s) => objekt(s) && objekt(s.formel))) continue
-    const prop = typeof node.type === 'string' ? faehigkeit(getBlockDefinition(node.type), 'rechnen')?.prop : undefined
+    const prop = typeof node.type === 'string' ? faehigkeit(bausteinArt(node.type), 'rechnen')?.prop : undefined
     if (prop === undefined) {
       probleme.push({ bereich: BEREICH_AUFBAU, stelle: id, grund: `der Baustein „${id}" traegt eine Formel, kann aber nicht rechnen` })
       continue

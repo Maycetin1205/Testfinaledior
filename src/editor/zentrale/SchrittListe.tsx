@@ -3,10 +3,10 @@ import { ArrowDown, ArrowUp, Copy, X } from '@/ui/zeichen'
 import { Feld } from '@/ui/werkbank/Feld'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { Marke } from '@/ui/werkbank/Marke'
-import { actionValueTargets, auswahlGeberImBaum } from '../../core/blocks/treeQuery'
-import { ergebnisSchritteVor, type ActionStep } from '../../core/data/aktionen'
-import { formatRelationSyntax } from '../../core/data/relations'
-import { stepProblem } from '../../core/data/schrittPruefung'
+import { wertstellenImBaum, auswahlGeberImBaum } from '../../core/blocks/treeQuery'
+import { ergebnisSchritteVor, type Schritt } from '../../core/data/aktionen'
+import { relationsSyntaxAlsText } from '../../core/data/relations'
+import { schrittProblem } from '../../core/data/schrittPruefung'
 import { schrittName } from './beschriftungen'
 import { istFensterSeite } from '../../state/pageOps'
 import { useDataSources } from '../../state/useDataSources'
@@ -17,13 +17,13 @@ import { istUngetaufteVorlage } from './relationAnzeige'
 import { ankerSchrittId, schrittZusammenfassung } from './schrittZusammenfassung'
 
 interface SchrittListeProps {
-  steps: readonly ActionStep[]
+  steps: readonly Schritt[]
 
   aktivId?: string
 
-  onWaehle?: (step: ActionStep) => void
+  onWaehle?: (step: Schritt) => void
 
-  onAendern?: (steps: ActionStep[]) => void
+  onAendern?: (steps: Schritt[]) => void
 }
 
 // Nur die Liste. Das Formular des gewaehlten Schritts steht rechts daneben:
@@ -36,7 +36,7 @@ export function SchrittListe({
   const dataSources = useDataSources()
 
   const popupSeiten = ed.pages.filter(istFensterSeite)
-  const actionValueRefs = actionValueTargets(ed.tree).map(({ node, spot }) => ({
+  const actionValueRefs = wertstellenImBaum(ed.tree).map(({ node, spot }) => ({
     blockId: node.id,
     prop: spot.prop,
   }))
@@ -66,7 +66,7 @@ export function SchrittListe({
   const dupliziere = (at: number): void => {
     if (!onAendern) return
     const quelle = steps[at]
-    const kopie: ActionStep = quelle.type === 'START_TOOL'
+    const kopie: Schritt = quelle.type === 'START_TOOL'
       ? { ...quelle, toolParams: [...quelle.toolParams], id: crypto.randomUUID() }
       : quelle.type === 'RELATION'
         ? {
@@ -84,7 +84,7 @@ export function SchrittListe({
   return (
     <ol>
       {steps.map((s, i) => {
-        const problem = stepProblem(
+        const problem = schrittProblem(
           s, relations.list, dataSources.list, popupSeiten.map((seite) => seite.id),
           ergebnisSchritteVor(steps, s.id, relations.list).map((g) => g.id),
           actionValueRefs,
@@ -156,7 +156,7 @@ export function SchrittListe({
                   Relationen-Liste des Datencenters (VERB + Nummer, voller
                   Aufruf im Tooltip). */}
               {relation && (
-                <Marke hinweis={formatRelationSyntax(relation)}>
+                <Marke hinweis={relationsSyntaxAlsText(relation)}>
                   {VERB_KURZ[relation.verb]} {relation.nr}
                 </Marke>
               )}

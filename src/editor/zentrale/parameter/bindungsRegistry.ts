@@ -2,9 +2,9 @@
 // startet, was sie in Worten hinausschickt.
 import type { ListeEintrag } from '@/ui/werkbank/Liste'
 import {
-  ACTION_PARAM_SOURCES,
-  type ActionParamBinding,
-  type ActionParamSource,
+  PARAMETER_QUELLEN,
+  type Parameter,
+  type ParameterQuelle,
 } from '../../../core/data/aktionen'
 import { PLATZHALTER_KLARTEXT, blockValueKey } from '../helfer'
 import {
@@ -50,7 +50,7 @@ function bausteinLabel(
 // dauerhafte Kennung, nicht der Platz.
 function spaltenTitel(
   liste: readonly { blockId: string; spalten: readonly { kennung: string; titel: string }[] }[],
-  binding: ActionParamBinding,
+  binding: Parameter,
 ): string {
   const spalte = liste.find((e) => e.blockId === binding.blockId)
     ?.spalten.find((s) => s.kennung === binding.value)
@@ -59,7 +59,7 @@ function spaltenTitel(
 
 // Geschluesselt ueber ALLE Quellen, `aus` eingeschlossen: das Record erzwingt
 // einen Eintrag je Quelle, sonst saehe eine neue Quelle wie ein Freitext aus.
-export const PARAM_QUELLEN: Record<ActionParamSource, QuellenEintrag> = {
+export const PARAM_QUELLEN: Record<ParameterQuelle, QuellenEintrag> = {
   fixed: {
     name: 'Fest',
     Control: TextBindung,
@@ -167,19 +167,19 @@ export const PARAM_QUELLEN: Record<ActionParamSource, QuellenEintrag> = {
 }
 
 export function neueBindung(
-  source: ActionParamSource,
+  source: ParameterQuelle,
   wahlen: ParameterWahlen,
-): ActionParamBinding {
+): Parameter {
   return { source, ...(PARAM_QUELLEN[source].start?.(wahlen) ?? { value: '' }) }
 }
 
 // `aus` steht nicht in der Wahl: weggelassen wird ueber das Kreuz an der Zeile.
 // Ist der Parameter schon weggelassen, muss die Quelle trotzdem erscheinen.
 export function herkunftsEintraege(
-  binding: ActionParamBinding,
+  binding: Parameter,
   wahlen: ParameterWahlen,
 ): ListeEintrag[] {
-  const eintraege: ListeEintrag[] = ACTION_PARAM_SOURCES
+  const eintraege: ListeEintrag[] = PARAMETER_QUELLEN
     .filter((source) => wahlen.erlaubt === undefined || wahlen.erlaubt.includes(source))
     .map((source) => ({
       wert: source,
@@ -193,7 +193,7 @@ export function herkunftsEintraege(
 }
 
 export function bindungsText(
-  binding: ActionParamBinding,
+  binding: Parameter,
   wahlen: ParameterWahlen,
 ): string {
   return PARAM_QUELLEN[binding.source].text(binding, wahlen)

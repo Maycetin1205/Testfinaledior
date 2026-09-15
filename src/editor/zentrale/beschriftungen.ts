@@ -1,8 +1,8 @@
 // Die Wortwahl des Editors: wie eine Quellenart und ein Kettenschritt heissen.
 // Der Kern traegt nur die Schalter (core/data/quellenArten.ts, aktionen.ts),
 // damit die Laufzeit der Maske diese Texte nicht mitschleppt.
-import type { StepTypeKey } from '../../core/data/aktionen'
-import type { DataSourceField, DataSourceKind } from '../../core/data/dataSources'
+import type { SchrittArt } from '../../core/data/aktionen'
+import type { Datenfeld, QuellenArtKennung } from '../../core/data/dataSources'
 
 export interface QuellenWorte {
   name: string
@@ -17,10 +17,10 @@ export interface QuellenWorte {
   spaltenBeispiel: string
 
   // Vorbelegung der Feldliste beim Umstellen der Art.
-  standardFelder: readonly DataSourceField[]
+  standardFelder: readonly Datenfeld[]
 }
 
-const QUELLEN_WORTE: Record<DataSourceKind, QuellenWorte> = {
+const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   idb: {
     name: 'IDB-Tabelle',
     kennungLabel: 'Kennung',
@@ -124,12 +124,12 @@ const QUELLEN_WORTE: Record<DataSourceKind, QuellenWorte> = {
   },
 }
 
-export function quellenWorte(kind: DataSourceKind): QuellenWorte {
+export function quellenWorte(kind: QuellenArtKennung): QuellenWorte {
   return QUELLEN_WORTE[kind]
 }
 
 // START_TOOL und BW-Befehl bleiben, wie SoftEngine sie nennt.
-const SCHRITT_NAMEN: Record<StepTypeKey, string> = {
+const SCHRITT_NAMEN: Record<SchrittArt, string> = {
   START_TOOL: 'START_TOOL',
   BW_LINK: 'BW-Befehl',
   RELATION: 'Relation',
@@ -138,5 +138,5 @@ const SCHRITT_NAMEN: Record<StepTypeKey, string> = {
 }
 
 export function schrittName(typeKey: string): string {
-  return SCHRITT_NAMEN[typeKey as StepTypeKey] ?? typeKey
+  return SCHRITT_NAMEN[typeKey as SchrittArt] ?? typeKey
 }

@@ -1,16 +1,16 @@
 // Was ein Bausteintyp dem Editor, dem Export und der Laufzeit ueber sich sagt.
-import type { BlockCategory } from './BlockComponent'
+import type { Kategorie } from './BlockComponent'
 import type { Faehigkeit } from './faehigkeiten'
-import type { FlowDirection, FlowWidth } from './flowLayout'
-import type { RasterSpec } from './rasterLayout'
-import type { PropertyDescription } from './PropertyDescription'
+import type { Richtung, FlussBreite } from './flowLayout'
+import type { RasterMass } from './rasterLayout'
+import type { Eigenschaft } from './PropertyDescription'
 
-export type { BlockCategory }
+export type { Kategorie }
 
-export interface DefaultChildSpec {
+export interface KindVorgabe {
   type: string
   props?: Record<string, unknown>
-  children?: readonly DefaultChildSpec[]
+  children?: readonly KindVorgabe[]
 }
 
 export {
@@ -32,13 +32,13 @@ export {
   type FeldZiel,
 } from './bindung'
 
-export interface BlockDefinition {
+export interface BausteinArt {
   type: string
   tagName: string
   displayName: string
-  category: BlockCategory
+  category: Kategorie
   defaultProps: Record<string, unknown>
-  customProperties: PropertyDescription[]
+  customProperties: Eigenschaft[]
 
   // Was der Baustein ueber Anzeige und Layout hinaus kann (faehigkeiten.ts).
   faehigkeiten: readonly Faehigkeit[]
@@ -48,9 +48,9 @@ export interface BlockDefinition {
   resizableHeight: boolean
   allowedChildTypes?: readonly string[]
   allowedParentTypes?: readonly string[]
-  lockedWidth?: FlowWidth
-  defaultChildren?: readonly DefaultChildSpec[]
-  childDirection?: FlowDirection
+  lockedWidth?: FlussBreite
+  defaultChildren?: readonly KindVorgabe[]
+  childDirection?: Richtung
   showInPalette?: boolean
   templateChild?: { type: string; label: string }
   editorSlot?: string
@@ -59,5 +59,5 @@ export interface BlockDefinition {
   pageBlock?: boolean
   flaechenSeite?: boolean
   maskenRand?: boolean
-  raster?: Partial<RasterSpec>
+  raster?: Partial<RasterMass>
 }

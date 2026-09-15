@@ -1,9 +1,9 @@
 // Wie ein Baustein in Wahllisten heisst, wenn er keinen eigenen Namen traegt.
-import type { BlockNode } from './BlockData'
-import { bindingProp } from './faehigkeiten'
-import { getBlockDefinition } from './blockRegistry'
+import type { Baustein } from './BlockData'
+import { bindungsProp } from './faehigkeiten'
+import { bausteinArt } from './blockRegistry'
 import { bindbareStellenVon, QUELLE_PROP } from './treeQuery'
-import { feldKlarname, type DataSource } from '../data/dataSources'
+import { feldKlarname, type Datenquelle } from '../data/dataSources'
 
 const TEXT_PROPS = ['label', 'heading', 'title', 'text', 'placeholder'] as const
 
@@ -29,19 +29,19 @@ function eigenerText(
 // Die Props, deren Text der Bediener gerade nicht sieht: an einer gebundenen
 // Stelle steht im Feld der Klarname des Feldes. Ein Name aus dem verdeckten Text
 // widerspraeche dem Bild.
-function verdeckteProps(node: BlockNode): Set<string> {
+function verdeckteProps(node: Baustein): Set<string> {
   const raus = new Set<string>()
   for (const stelle of bindbareStellenVon(node)) {
-    const bindung = String(node.props[bindingProp(stelle.prop)] ?? '')
+    const bindung = String(node.props[bindungsProp(stelle.prop)] ?? '')
     if (bindung !== '') raus.add(stelle.vorschauProp ?? stelle.prop)
   }
   return raus
 }
 
-function gebundenerAlias(node: BlockNode, quellen: readonly DataSource[]): string {
+function gebundenerAlias(node: Baustein, quellen: readonly Datenquelle[]): string {
   const eigeneQuelle = String(node.props[QUELLE_PROP] ?? '')
   for (const stelle of bindbareStellenVon(node)) {
-    const bindung = String(node.props[bindingProp(stelle.prop)] ?? '')
+    const bindung = String(node.props[bindungsProp(stelle.prop)] ?? '')
     if (bindung === '') continue
     const alias = feldKlarname(bindung, eigeneQuelle, quellen)
     if (alias !== '') return alias
@@ -49,8 +49,8 @@ function gebundenerAlias(node: BlockNode, quellen: readonly DataSource[]): strin
   return ''
 }
 
-export function bausteinName(node: BlockNode, quellen: readonly DataSource[]): string {
-  const def = getBlockDefinition(node.type)
+export function bausteinName(node: Baustein, quellen: readonly Datenquelle[]): string {
+  const def = bausteinArt(node.type)
   const text = eigenerText(node.props, def?.defaultProps, verdeckteProps(node))
   if (text !== '') return text
   const alias = gebundenerAlias(node, quellen)

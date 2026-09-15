@@ -1,11 +1,11 @@
-import { ACTION_VALUE_ID_ATTR } from '../../core/data/aktionen'
+import { BAUSTEIN_ID_ATTR } from '../../core/data/aktionen'
 import { getField } from '../../softengine/data'
 import { passendeVorschlaege, VORSCHLAEGE_MAX, type Vorschlag } from '../shared/vorschlagListe'
 import { coerceSpalten, type Spalte } from './spalten'
 import { gemerkteSortierung, sortiereIndizes } from './sortierung'
 
 export function nachschlagKennung(el: HTMLElement, stelle = 'feld'): string {
-  return `${el.getAttribute(ACTION_VALUE_ID_ATTR) ?? ''}/nachschlagen/${stelle}`
+  return `${el.getAttribute(BAUSTEIN_ID_ATTR) ?? ''}/nachschlagen/${stelle}`
 }
 
 // Automatische Spalten folgen ihrem Feld, auch wenn die Muttertabelle umsortiert wird.

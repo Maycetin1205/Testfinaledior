@@ -2,7 +2,7 @@
 import { Plus, X } from '@/ui/zeichen'
 import { Gruppe } from '@/ui/werkbank/Gruppe'
 import { Knopf } from '@/ui/werkbank/Knopf'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import { quellenKennung } from '../../core/data/dataSources'
 import {
   WEITERE_QUELLEN_PROP,
@@ -17,7 +17,7 @@ import { PickerControl } from './controls/PickerControl'
 import { SchluesselPaarZeilen } from './SchluesselPaarZeilen'
 
 interface QuellenListeProps {
-  block: BlockNode
+  block: Baustein
 }
 
 export function QuellenListe({ block }: QuellenListeProps) {

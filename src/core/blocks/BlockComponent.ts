@@ -1,17 +1,17 @@
-import type { BlockDefinition } from './BlockDefinition'
-import type { PropertyDescription } from './PropertyDescription'
+import type { BausteinArt } from './BlockDefinition'
+import type { Eigenschaft } from './PropertyDescription'
 
-export type BlockCategory = 'eingabe' | 'anzeige' | 'layout'
+export type Kategorie = 'eingabe' | 'anzeige' | 'layout'
 
-export interface BlockComponent {
-  get customProperties(): PropertyDescription[]
+export interface BausteinElement {
+  get customProperties(): Eigenschaft[]
 }
 
 type KlassenAngaben =
-  Omit<BlockDefinition, 'type' | 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>
-  & Partial<Pick<BlockDefinition, 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>>
+  Omit<BausteinArt, 'type' | 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>
+  & Partial<Pick<BausteinArt, 'faehigkeiten' | 'acceptsChildren' | 'resizableWidth' | 'resizableHeight'>>
 
-export interface BlockComponentStatic extends Readonly<KlassenAngaben> {
+export interface BausteinKlasse extends Readonly<KlassenAngaben> {
   readonly blockType: string
-  new(): BlockComponent
+  new(): BausteinElement
 }

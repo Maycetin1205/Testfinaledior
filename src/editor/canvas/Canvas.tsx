@@ -1,9 +1,9 @@
 // Die Leinwand: die Maskenflaeche im Editor mit ihren Seiten.
 import { useCallback, useMemo, useState, type DragEvent } from 'react'
-import { ROOT_ID } from '../../core/blocks/BlockData'
-import { ROOT_FLOW } from '../../core/blocks/flowLayout'
+import { WURZEL_ID } from '../../core/blocks/BlockData'
+import { WURZEL_FLUSS } from '../../core/blocks/flowLayout'
 import { randPlatzLinks } from '../../core/blocks/maskenRand'
-import { rasterFlaecheStyle, rasterItemStyle } from '../../core/blocks/rasterLayout'
+import { rasterFlaecheStil, rasterPlatzStil } from '../../core/blocks/rasterLayout'
 import { useEditor } from '../../state/useEditor'
 import { NodeList } from './CanvasNode'
 import { LeerHinweis } from './LeerHinweis'
@@ -64,9 +64,9 @@ export function Canvas() {
 
             className="h-full min-h-0 overflow-auto"
             style={{
-              ...rasterFlaecheStyle(),
-              padding: ROOT_FLOW.padding,
-              paddingLeft: ROOT_FLOW.padding + randLinks,
+              ...rasterFlaecheStil(),
+              padding: WURZEL_FLUSS.padding,
+              paddingLeft: WURZEL_FLUSS.padding + randLinks,
               boxSizing: 'border-box',
               background: 'var(--se-bg)',
             }}
@@ -83,8 +83,8 @@ export function Canvas() {
           >
             {flaeche && <NodeList parentId={ed.rootId} direction="column" raster />}
 
-            {flaeche && ed.rootId !== ROOT_ID && (
-              <NodeList parentId={ROOT_ID} direction="column" raster nurRand />
+            {flaeche && ed.rootId !== WURZEL_ID && (
+              <NodeList parentId={WURZEL_ID} direction="column" raster nurRand />
             )}
 
             {flaeche && dropTarget?.kind === 'raster' && dropTarget.parentId === ed.rootId && (
@@ -92,7 +92,7 @@ export function Canvas() {
                 aria-hidden
                 data-ff-editor-helper
                 style={{
-                  ...rasterItemStyle({
+                  ...rasterPlatzStil({
                     x: dropTarget.x,
                     y: dropTarget.y,
                     w: dropTarget.w,

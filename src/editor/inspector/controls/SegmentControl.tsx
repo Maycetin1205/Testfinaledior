@@ -1,5 +1,5 @@
 // Eine Wahl aus wenigen Moeglichkeiten als Zungenreihe.
-import type { PropertySelectOption } from '../../../core/blocks/PropertyDescription'
+import type { Wahloption } from '../../../core/blocks/PropertyDescription'
 import { Segment } from '@/ui/werkbank/Segment'
 import { Zeile } from '@/ui/werkbank/Zeile'
 import { segmentIcon } from '../segmentIcons'
@@ -9,7 +9,7 @@ interface SegmentControlProps {
   label?: string
   description?: string
   value: string
-  options: PropertySelectOption[]
+  options: Wahloption[]
   onChange: (value: string) => void
 }
 

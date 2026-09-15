@@ -3,9 +3,9 @@ import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
 import { bindbar, type Faehigkeit } from '../../core/blocks/faehigkeiten'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { FARBWELTEN, farbweltOptionen } from '../shared/statusVariant'
 import { connectText, disconnectText } from './seRuntime'
 
@@ -55,7 +55,7 @@ export class TextBlock extends BasicBlock {
   static readonly blockType = 'text'
   static readonly tagName = 'ff-text'
   static readonly displayName = 'Text'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
   static readonly faehigkeiten: readonly Faehigkeit[] = [
     { art: 'quelle' },
     { art: 'auswahlFolgen' },
@@ -76,7 +76,7 @@ export class TextBlock extends BasicBlock {
 
   static readonly raster = { startW: 12, startH: 2, minW: 2, minH: 1 }
 
-  static override readonly customProperties: PropertyDescription[] = [
+  static override readonly customProperties: Eigenschaft[] = [
     {
       attributeName: 'groesse',
       name: 'Größe',

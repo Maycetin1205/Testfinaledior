@@ -1,7 +1,7 @@
 // Baustein Erfassung: eine Tabelle, die neue Zeilen annimmt, gebuchte aendert und loescht.
 import { nothing, type CSSResultGroup, type PropertyValues } from 'lit'
 import { property } from 'lit/decorators.js'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
 import type { Faehigkeit, GeschriebeneZeile, Lieferung, VormerkArt } from '../../core/blocks/faehigkeiten'
 import { SE_FOKUS_EVENT } from '../../softengine/bridge'
 import { meldeFehler } from '../../softengine/meldung'
@@ -50,7 +50,7 @@ export class ErfassungBlock extends TabelleBlock {
   static override readonly blockType = 'erfassung'
   static override readonly tagName = 'ff-erfassung'
   static override readonly displayName = 'Erfassung'
-  static override readonly category: BlockCategory = 'eingabe'
+  static override readonly category: Kategorie = 'eingabe'
 
   static override readonly faehigkeiten: readonly Faehigkeit[] = [
     ...TabelleBlock.faehigkeiten.filter((f) => f.art !== 'liste'),

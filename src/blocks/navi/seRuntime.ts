@@ -1,4 +1,4 @@
-import { ROOT_ID } from '../../core/blocks/BlockData'
+import { WURZEL_ID } from '../../core/blocks/BlockData'
 import { SEITEN_WECHSEL_EVENT, type SeitenWechselDetail } from '../../core/blocks/seitenWechsel'
 import { NaviEintragBlock } from './NaviEintragBlock'
 
@@ -18,14 +18,14 @@ function seitenVon(wurzel: Element): Element[] {
 }
 
 function zielVon(wurzel: Element, seite: string): string | null {
-  if (seite === ROOT_ID) return ROOT_ID
+  if (seite === WURZEL_ID) return WURZEL_ID
   return seitenVon(wurzel).some((el) => el.getAttribute('data-ff-seite-id') === seite) ? seite : null
 }
 
 function aktualisiereEintraege(navi: Element): void {
   const wurzel = wurzelVon(navi)
   if (!wurzel || navi.hasAttribute('data-ff-editor')) return
-  const aktiv = aktiveSeiten.get(wurzel) ?? ROOT_ID
+  const aktiv = aktiveSeiten.get(wurzel) ?? WURZEL_ID
   for (const eintrag of eintraegeVon(navi)) {
     const ziel = zielVon(wurzel, eintrag.seite)
     eintrag.toggleAttribute('aktiv', ziel === aktiv)
@@ -43,7 +43,7 @@ function schalteUm(wurzel: Element, seite: string): void {
     if (el.hasAttribute('data-ff-seite-id')) {
       el.toggleAttribute('hidden', el.getAttribute('data-ff-seite-id') !== seite)
     } else if (el.hasAttribute('data-ff-hauptinhalt')) {
-      el.toggleAttribute('hidden', seite !== ROOT_ID)
+      el.toggleAttribute('hidden', seite !== WURZEL_ID)
     }
   }
   for (const navi of wurzel.querySelectorAll('ff-navi')) aktualisiereEintraege(navi)
@@ -83,7 +83,7 @@ export function naviAktualisiert(navi: Element): void {
   if (!wurzel || navi.hasAttribute('data-ff-editor')) return
   if (!aktiveSeiten.has(wurzel)) {
     const start = eintraegeVon(navi).map((e) => zielVon(wurzel, e.seite)).find((ziel) => ziel !== null)
-    schalteUm(wurzel, start ?? ROOT_ID)
+    schalteUm(wurzel, start ?? WURZEL_ID)
   } else {
     aktualisiereEintraege(navi)
   }

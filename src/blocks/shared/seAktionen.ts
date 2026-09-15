@@ -1,10 +1,10 @@
 // Eine Aktionskette laufen lassen: Abschnitte bilden, Schritte senden, je Zeile berichten.
 import {
-  ACTION_VALUE_ID_ATTR,
+  BAUSTEIN_ID_ATTR,
   abschnitteVon,
-  parseBlockEvents,
+  kettenLesen,
   SATZ_PLATZHALTER,
-  type RuntimeStep,
+  type LaufzeitSchritt,
 } from '../../core/data/aktionen'
 import {
   type GeschriebeneZeile,
@@ -14,11 +14,11 @@ import {
   vertragVon,
 } from '../../core/blocks/faehigkeiten'
 import { auswahlFuer } from './auswahl'
-import { definitionFuerTag, getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { bausteinArtFuerTag, bausteinArt } from '../../core/blocks/blockRegistry'
 import {
-  formatNowDate,
-  resolveParams,
-  type RelationContext,
+  heuteAlsText,
+  platzhalterEinsetzen,
+  type Platzhalterwerte,
 } from '../../core/data/relations'
 import { sendeBwLink, sendeStartTool } from '../../softengine/befehle'
 import { bootSe, frischeDatenAnfordern } from '../../softengine/bridge'
@@ -29,7 +29,7 @@ export function applyPopupStep(root: ParentNode, name: string, oeffnen: boolean)
   if (name.trim() === '') return
   // Nach dem Fenster-Baustein wird die Registry gefragt: eine Maske ohne
   // Fenster laedt seinen Code gar nicht erst.
-  const fensterArt = getBlockDefinition('popup')
+  const fensterArt = bausteinArt('popup')
   const alle = fensterArt === undefined ? [] : Array.from(root.querySelectorAll(fensterArt.tagName))
   const treffer = alle.filter(
     (el) => (el.getAttribute('name') ?? fensterArt?.defaultProps.name) === name,
@@ -71,8 +71,8 @@ function berichtAn(traeger: ZeilenTraeger, art: VormerkArt): LaufBerichtElement 
 }
 
 export function sucheTraeger(root: ParentNode, blockId: string): ZeilenTraeger | undefined {
-  return Array.from(root.querySelectorAll<HTMLElement>(`[${ACTION_VALUE_ID_ATTR}]`))
-    .find((el) => el.getAttribute(ACTION_VALUE_ID_ATTR) === blockId)
+  return Array.from(root.querySelectorAll<HTMLElement>(`[${BAUSTEIN_ID_ATTR}]`))
+    .find((el) => el.getAttribute(BAUSTEIN_ID_ATTR) === blockId)
 }
 
 // satz ist die Satznummer ({PINDEX}) und leer, solange die Zeile im ERP nicht
@@ -106,7 +106,7 @@ export interface Mitschrift {
 }
 
 function zeilenDerListe(traeger: ZeilenTraeger, art: VormerkArt): LaufZeile[] | undefined {
-  if (!hatFaehigkeit(definitionFuerTag(traeger.tagName), FAEHIGKEIT_JE_LISTE[art])) return undefined
+  if (!hatFaehigkeit(bausteinArtFuerTag(traeger.tagName), FAEHIGKEIT_JE_LISTE[art])) return undefined
   if (art === 'erfasst') {
     const v = vertragVon(traeger, 'erfassen')
     return v.erfassteZeilen.map((werte, platz) => ({
@@ -124,10 +124,10 @@ function zeilenDerListe(traeger: ZeilenTraeger, art: VormerkArt): LaufZeile[] | 
 // Beim Loeschen zusaetzlich als {DROP_PINDEX}: eine Loesch-Relation nennt ihre
 // Satznummer anders als eine Schreib-Relation.
 function zeilenKontext(
-  context: RelationContext,
+  context: Platzhalterwerte,
   art: VormerkArt,
   zeile: LaufZeile,
-): RelationContext {
+): Platzhalterwerte {
   if (zeile.satz === '') return context
   if (art === 'geloescht') {
     return { ...context, PINDEX: zeile.satz, DROP_PINDEX: zeile.satz }
@@ -145,8 +145,8 @@ function satzDesLaufs(mitschrift: Mitschrift, zeile: LaufZeile): string {
 
 export async function laufeSchritte(
   el: HTMLElement,
-  steps: readonly RuntimeStep[],
-  context: RelationContext,
+  steps: readonly LaufzeitSchritt[],
+  context: Platzhalterwerte,
   zeilenZelle: ((blockId: string, spaltenIndex: number) => string) | undefined,
 
   // Welche Schritte in DIESEM Lauf drankommen; undefined = alle.
@@ -158,7 +158,7 @@ export async function laufeSchritte(
   const values: Record<string, string | undefined> = {
     ...start?.values,
     ...context,
-    NOW_DATE: formatNowDate(new Date()),
+    NOW_DATE: heuteAlsText(new Date()),
   }
   let previousResult = start?.previousResult ?? ''
 
@@ -173,7 +173,7 @@ export async function laufeSchritte(
   for (const [platz, step] of steps.entries()) {
     if (nur && !nur.has(platz)) continue
     if (step.type === 'START_TOOL') {
-      if (!sendeStartTool(step.toolNr, resolveParams({ params: step.toolParams }, values))) {
+      if (!sendeStartTool(step.toolNr, platzhalterEinsetzen({ params: step.toolParams }, values))) {
         const text = step.toolNr.trim() === ''
           ? `Schritt ${platz + 1} der Kette: START_TOOL ohne Werkzeug-Nummer.`
           : `Schritt ${platz + 1} der Kette: START_TOOL ${step.toolNr} ging nicht hinaus `
@@ -184,7 +184,7 @@ export async function laufeSchritte(
       continue
     }
     if (step.type === 'BW_LINK') {
-      const befehl = resolveParams({ params: [step.befehl] }, values)[0] ?? ''
+      const befehl = platzhalterEinsetzen({ params: [step.befehl] }, values)[0] ?? ''
       if (!sendeBwLink(befehl)) {
         const text = befehl.trim() === ''
           ? `Schritt ${platz + 1} der Kette: BW_LINK ohne Befehl.`
@@ -259,11 +259,11 @@ export interface AktionsErgebnis {
 export async function runEvent(
   el: HTMLElement,
   eventKey: string,
-  context: RelationContext,
+  context: Platzhalterwerte,
 ): Promise<AktionsErgebnis> {
   const leer = { ausgefuehrt: false, geschrieben: false, abgebrochen: false, beschaeftigt: false }
   if (el.hasAttribute('data-ff-editor')) return leer
-  const steps = parseBlockEvents(el.getAttribute('data-ff-aktionen'))[eventKey]
+  const steps = kettenLesen(el.getAttribute('data-ff-aktionen'))[eventKey]
   if (!steps || steps.length === 0) return leer
 
   let locks = laufend.get(el)
@@ -359,7 +359,7 @@ export function connectClickAktionen(el: HTMLElement, eventKey: string): void {
   if (!el.hasAttribute('data-ff-aktionen')) return
   if (verdrahtet.has(el)) return
   verdrahtet.add(el)
-  const chains = parseBlockEvents(el.getAttribute('data-ff-aktionen'))
+  const chains = kettenLesen(el.getAttribute('data-ff-aktionen'))
   if (Object.values(chains).some((steps) => steps.some((step) => step.type === 'RELATION'))) {
     bootSe()
   }

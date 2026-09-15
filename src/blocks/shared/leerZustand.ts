@@ -1,10 +1,10 @@
 // Was ein Baustein zeigt, wenn seine Quelle keine Zeile liefert.
 import { css, html, nothing, type TemplateResult } from 'lit'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 
 export const LEER_TEXT_STANDARD = 'Keine Datensätze.'
 
-export function leerTextProperty(): PropertyDescription {
+export function leerTextProperty(): Eigenschaft {
   return {
     attributeName: 'leerText',
     name: 'Text ohne Datensätze',

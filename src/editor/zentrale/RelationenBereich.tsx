@@ -9,11 +9,11 @@ import { Eintrag } from '@/ui/werkbank/Eintrag'
 import { Marke } from '@/ui/werkbank/Marke'
 import { relationIdsVon } from '../../core/blocks/treeQuery'
 import {
-  formatRelationSyntax,
-  relationGroup,
-  relationMatchesSearch,
-  type RelationGroup,
-  type RelationTemplate,
+  relationsSyntaxAlsText,
+  relationsGruppe,
+  relationPasstZurSuche,
+  type RelationsGruppe,
+  type RelationsVorlage,
 } from '../../core/data/relations'
 import { useDataSources } from '../../state/useDataSources'
 import { useEditor } from '../../state/useEditor'
@@ -31,25 +31,25 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
 
   // Start auf dem Reiter, der etwas zu zeigen hat; danach gewinnt der Klick. Eine
   // dauerhafte Umleitung machte den Klick auf den leeren Reiter wirkungslos.
-  const [filter, setFilter] = useState<RelationGroup>(() =>
-    store.list.some((r) => relationGroup(r) === 'lesen') || store.list.length === 0
+  const [filter, setFilter] = useState<RelationsGruppe>(() =>
+    store.list.some((r) => relationsGruppe(r) === 'lesen') || store.list.length === 0
       ? 'lesen'
       : 'schreiben')
   const [auswahlId, setAuswahlId] = useState<string | null>(store.list[0]?.id ?? null)
   const [modus, setModus] = useState<'lesen' | 'bearbeiten' | 'neu'>('lesen')
 
-  const trefferAlle = store.list.filter((relation) => relationMatchesSearch(relation, suche))
-  const zaehler: Record<RelationGroup, number> = {
-    lesen: trefferAlle.filter((r) => relationGroup(r) === 'lesen').length,
-    schreiben: trefferAlle.filter((r) => relationGroup(r) === 'schreiben').length,
+  const trefferAlle = store.list.filter((relation) => relationPasstZurSuche(relation, suche))
+  const zaehler: Record<RelationsGruppe, number> = {
+    lesen: trefferAlle.filter((r) => relationsGruppe(r) === 'lesen').length,
+    schreiben: trefferAlle.filter((r) => relationsGruppe(r) === 'schreiben').length,
   }
-  const aktiverFilter: RelationGroup = filter
-  const sichtbareRelationen = trefferAlle.filter((r) => relationGroup(r) === aktiverFilter)
+  const aktiverFilter: RelationsGruppe = filter
+  const sichtbareRelationen = trefferAlle.filter((r) => relationsGruppe(r) === aktiverFilter)
 
   const sucht = suche.trim().length > 0
   const filterOptionen = RELATION_GRUPPEN.map((gruppe) => ({
     ...gruppe,
-    label: sucht ? `${gruppe.label} · ${zaehler[gruppe.value as RelationGroup]}` : gruppe.label,
+    label: sucht ? `${gruppe.label} · ${zaehler[gruppe.value as RelationsGruppe]}` : gruppe.label,
   }))
   const auswahl = sichtbareRelationen.find((r) => r.id === auswahlId) ?? sichtbareRelationen[0]
 
@@ -60,7 +60,7 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
 
   // Ohne Rueckfrage: Strg+Z holt die Relation zurueck. Bausteine, die sie rufen,
   // bleiben stehen; ihr Schreibweg ruht.
-  function loeschen(r: RelationTemplate) {
+  function loeschen(r: RelationsVorlage) {
     store.remove(r.id)
     setModus('lesen')
   }
@@ -91,7 +91,7 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
             name="Lesen oder Schreiben"
             value={aktiverFilter}
             options={filterOptionen}
-            onChange={(value) => setFilter(value as RelationGroup)}
+            onChange={(value) => setFilter(value as RelationsGruppe)}
           />
           </>
         )}
@@ -107,7 +107,7 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
                 aktiv={aktiv}
                 onClick={() => { setAuswahlId(r.id); setModus('lesen') }}
                 rechts={(
-                  <Marke hinweis={formatRelationSyntax(r)}>
+                  <Marke hinweis={relationsSyntaxAlsText(r)}>
                     {VERB_KURZ[r.verb]} {r.nr}
                   </Marke>
                 )}
@@ -166,7 +166,7 @@ export function RelationenBereich({ bereiche }: { bereiche?: ReactNode }) {
 
             <Gruppe titel="Gespeicherte SoftEngine-Syntax">
               <code className="block overflow-x-auto rounded bg-control px-2.5 py-1.5 font-mono text-dicht">
-                {formatRelationSyntax(auswahl)}
+                {relationsSyntaxAlsText(auswahl)}
               </code>
             </Gruppe>
 

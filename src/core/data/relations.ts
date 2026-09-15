@@ -1,9 +1,9 @@
 // Die Relations-Vorlagen und wie ihre Parameter zur Laufzeit gefuellt werden.
 import type { EintragProblem } from './ladeProblem'
 
-export type RelationVerb = 'GET_RELATION' | 'PUT_RELATION' | 'PUTADD_RELATION'
+export type RelationsVerb = 'GET_RELATION' | 'PUT_RELATION' | 'PUTADD_RELATION'
 
-export const RELATION_VERBS: readonly RelationVerb[] = [
+export const RELATIONS_VERBEN: readonly RelationsVerb[] = [
   'GET_RELATION', 'PUT_RELATION', 'PUTADD_RELATION',
 ]
 
@@ -12,13 +12,13 @@ const RELATION_PLACEHOLDERS = [
   'RELID', 'VALUE', 'ZIMMER', 'NOW_DATE',
 ] as const
 
-export type RelationContext = Readonly<Record<string, string | undefined>>
+export type Platzhalterwerte = Readonly<Record<string, string | undefined>>
 
-export interface RelationTemplate {
+export interface RelationsVorlage {
   id: string
 
   name: string
-  verb: RelationVerb
+  verb: RelationsVerb
 
   nr: string
 
@@ -27,12 +27,12 @@ export interface RelationTemplate {
   allowExtraParams?: boolean
 }
 
-export type ParsedRelationSyntax = Pick<
-  RelationTemplate,
+export type RelationsSyntax = Pick<
+  RelationsVorlage,
   'verb' | 'nr' | 'params' | 'allowExtraParams'
 >
 
-export const BUILTIN_RELATION_TEMPLATES: readonly RelationTemplate[] = [
+export const EINGEBAUTE_RELATIONEN: readonly RelationsVorlage[] = [
   {
     id: 'standard-put',
     name: 'Standard-Schreiben (PUT)',
@@ -42,22 +42,22 @@ export const BUILTIN_RELATION_TEMPLATES: readonly RelationTemplate[] = [
   },
 ]
 
-export function relIdFromIdbId(idbId: string): string {
+export function relIdAusIdbId(idbId: string): string {
   return idbId.replace(/^IDB/, '')
 }
 
-export function formatNowDate(d: Date): string {
+export function heuteAlsText(d: Date): string {
   const dd = String(d.getDate()).padStart(2, '0')
   const mm = String(d.getMonth() + 1).padStart(2, '0')
   return `${dd}.${mm}.${d.getFullYear()}`
 }
 
-export function splitFieldCode(code: string): { pos: string; len: string } | null {
+export function feldCodeZerlegen(code: string): { pos: string; len: string } | null {
   const m = /^(\d+)_(\d+)$/.exec(code)
   return m ? { pos: m[1], len: m[2] } : null
 }
 
-export function parseRelationSyntax(input: string): ParsedRelationSyntax | null {
+export function relationsSyntaxLesen(input: string): RelationsSyntax | null {
   const raw = input.trim()
   const head = /^(GET_RELATION|PUTADD_RELATION|PUT_RELATION)\[/i.exec(raw)
   if (!head || !raw.endsWith(']') || /[\r\n]/.test(raw)) return null
@@ -79,40 +79,40 @@ export function parseRelationSyntax(input: string): ParsedRelationSyntax | null 
   })
 
   return {
-    verb: head[1].toUpperCase() as RelationVerb,
+    verb: head[1].toUpperCase() as RelationsVerb,
     nr,
     params,
     allowExtraParams,
   }
 }
 
-export function formatRelationSyntax(
-  relation: Pick<RelationTemplate, 'verb' | 'nr' | 'params' | 'allowExtraParams'>,
+export function relationsSyntaxAlsText(
+  relation: Pick<RelationsVorlage, 'verb' | 'nr' | 'params' | 'allowExtraParams'>,
 ): string {
   const parts = [relation.nr, ...relation.params]
   if (relation.allowExtraParams) parts.push('...')
   return `${relation.verb}[${parts.join('!')}]`
 }
 
-export type RelationGroup = 'lesen' | 'schreiben'
+export type RelationsGruppe = 'lesen' | 'schreiben'
 
-export function relationGroup(relation: Pick<RelationTemplate, 'verb'>): RelationGroup {
+export function relationsGruppe(relation: Pick<RelationsVorlage, 'verb'>): RelationsGruppe {
   return relation.verb === 'GET_RELATION' ? 'lesen' : 'schreiben'
 }
 
-export function relationMatchesSearch(
-  relation: Pick<RelationTemplate, 'name' | 'verb' | 'nr' | 'params' | 'allowExtraParams'>,
+export function relationPasstZurSuche(
+  relation: Pick<RelationsVorlage, 'name' | 'verb' | 'nr' | 'params' | 'allowExtraParams'>,
   query: string,
 ): boolean {
   const needle = query.trim().toLocaleLowerCase('de')
   if (needle === '') return true
-  return [relation.name, relation.nr, formatRelationSyntax(relation)]
+  return [relation.name, relation.nr, relationsSyntaxAlsText(relation)]
     .some((value) => value.toLocaleLowerCase('de').includes(needle))
 }
 
-export function resolveParams(
-  template: Pick<RelationTemplate, 'params'>,
-  context: RelationContext,
+export function platzhalterEinsetzen(
+  template: Pick<RelationsVorlage, 'params'>,
+  context: Platzhalterwerte,
 ): string[] {
   return template.params.map((p) =>
     p.replace(/\{([A-Za-z0-9_]+)\}/g, (_, key: string) =>
@@ -121,7 +121,7 @@ export function resolveParams(
   )
 }
 
-export function unknownPlaceholders(
+export function unbekanntePlatzhalter(
   param: string,
   known: readonly string[] = RELATION_PLACEHOLDERS,
 ): string[] {
@@ -134,10 +134,10 @@ export function unknownPlaceholders(
 
 export function pruefeRelationsVorlagen(
   raw: unknown,
-): { liste: RelationTemplate[]; probleme: EintragProblem[] } {
+): { liste: RelationsVorlage[]; probleme: EintragProblem[] } {
   const probleme: EintragProblem[] = []
   if (!Array.isArray(raw)) return { liste: [], probleme }
-  const acc: RelationTemplate[] = []
+  const acc: RelationsVorlage[] = []
   const seen = new Set<string>()
   let nr = 0
   for (const entry of raw) {
@@ -165,7 +165,7 @@ export function pruefeRelationsVorlagen(
       weg('der Klarname fehlt')
       continue
     }
-    if (typeof e.verb !== 'string' || !RELATION_VERBS.includes(e.verb as RelationVerb)) {
+    if (typeof e.verb !== 'string' || !RELATIONS_VERBEN.includes(e.verb as RelationsVerb)) {
       weg('die Art des Aufrufs (GET/PUT/PUTADD) fehlt oder ist unbekannt')
       continue
     }
@@ -181,7 +181,7 @@ export function pruefeRelationsVorlagen(
     acc.push({
       id: e.id,
       name: e.name,
-      verb: e.verb as RelationVerb,
+      verb: e.verb as RelationsVerb,
       nr: e.nr,
       params: [...(e.params as string[])],
       allowExtraParams: e.allowExtraParams === true,

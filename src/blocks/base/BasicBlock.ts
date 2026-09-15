@@ -1,18 +1,18 @@
 // Die gemeinsame Grundlage jedes Bausteins: Anmeldung, Editor-Frage, Eigenschaften melden.
 import { css, LitElement, type CSSResultGroup } from 'lit'
 import { property } from 'lit/decorators.js'
-import type { BlockComponent, BlockComponentStatic } from '../../core/blocks/BlockComponent'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
-import { registerBlockType } from '../../core/blocks/blockRegistry'
+import type { BausteinElement, BausteinKlasse } from '../../core/blocks/BlockComponent'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
+import { meldeBausteinArt } from '../../core/blocks/blockRegistry'
 import { hatFaehigkeit } from '../../core/blocks/faehigkeiten'
-import { FLOW_DEFAULTS } from '../../core/blocks/flowLayout'
-import { RASTER_DEFAULTS } from '../../core/blocks/rasterLayout'
+import { FLUSS_VORGABEN } from '../../core/blocks/flowLayout'
+import { RASTER_VORGABEN } from '../../core/blocks/rasterLayout'
 import { AUSWAHL_FOLGE_DEFAULTS } from '../../core/data/auswahlFolge'
 import { QUELLEN_DEFAULTS } from '../../core/data/sourceLinks'
 import { starteUmbenennen } from '../shared/umbenennen'
 
 // Maskenhaelfte der Anmeldung: aus der Klasse wird ein Element.
-function definiere(BlockClass: BlockComponentStatic): void {
+function definiere(BlockClass: BausteinKlasse): void {
   if (!customElements.get(BlockClass.tagName)) {
     customElements.define(
       BlockClass.tagName,
@@ -22,17 +22,17 @@ function definiere(BlockClass: BlockComponentStatic): void {
 }
 
 // Editorhaelfte der Anmeldung: der Bausteintyp steht in der Registry.
-function beschreibe(BlockClass: BlockComponentStatic): void {
+function beschreibe(BlockClass: BausteinKlasse): void {
   const faehig = { faehigkeiten: BlockClass.faehigkeiten ?? [] }
-  registerBlockType({
+  meldeBausteinArt({
     type: BlockClass.blockType,
     tagName: BlockClass.tagName,
     displayName: BlockClass.displayName,
     category: BlockClass.category,
 
     defaultProps: {
-      ...FLOW_DEFAULTS,
-      ...RASTER_DEFAULTS,
+      ...FLUSS_VORGABEN,
+      ...RASTER_VORGABEN,
       ...(hatFaehigkeit(faehig, 'quelle') ? QUELLEN_DEFAULTS : null),
 
       ...(hatFaehigkeit(faehig, 'auswahlFolgen') ? AUSWAHL_FOLGE_DEFAULTS : null),
@@ -60,7 +60,7 @@ function beschreibe(BlockClass: BlockComponentStatic): void {
   })
 }
 
-export abstract class BasicBlock extends LitElement implements BlockComponent {
+export abstract class BasicBlock extends LitElement implements BausteinElement {
   static override styles: CSSResultGroup = css`
     :host { display: block; }
     :host([hidden]) { display: none; }
@@ -76,12 +76,12 @@ export abstract class BasicBlock extends LitElement implements BlockComponent {
     :host([data-ff-editor][data-editable]) [data-ff-bound] { cursor: pointer; }
   `
 
-  static readonly customProperties: PropertyDescription[] = []
+  static readonly customProperties: Eigenschaft[] = []
 
   @property({ type: Boolean, reflect: true, attribute: 'data-editable' })
   editable = false
 
-  get customProperties(): PropertyDescription[] {
+  get customProperties(): Eigenschaft[] {
     return (this.constructor as typeof BasicBlock).customProperties
   }
 
@@ -113,7 +113,7 @@ export abstract class BasicBlock extends LitElement implements BlockComponent {
     })
   }
 
-  static defineAndRegister(BlockClass: BlockComponentStatic): void {
+  static defineAndRegister(BlockClass: BausteinKlasse): void {
     definiere(BlockClass)
     beschreibe(BlockClass)
   }

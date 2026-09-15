@@ -1,11 +1,11 @@
 // Ein einzeiliger Text im Inspector.
-import type { PropertyDescription } from '../../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../../core/blocks/PropertyDescription'
 import { useEingabeSitzung } from './eingabeSitzung'
 import { Feld } from '@/ui/werkbank/Feld'
 import { Zeile } from '@/ui/werkbank/Zeile'
 
 interface TextControlProps {
-  property: PropertyDescription
+  property: Eigenschaft
   value: string
   onChange: (value: string) => void
 

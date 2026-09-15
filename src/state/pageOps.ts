@@ -1,6 +1,6 @@
 // Seiten und Ansichten der Maske: anlegen, umbenennen, wechseln, loeschen.
-import { ROOT_ID, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
+import { bausteinArt } from '../core/blocks/blockRegistry'
 
 export interface SeitenEintrag {
   id: string
@@ -10,12 +10,12 @@ export interface SeitenEintrag {
   istFlaeche: boolean
 }
 
-export function istSeitenBaustein(node: BlockNode): boolean {
-  return getBlockDefinition(node.type)?.pageBlock === true
+export function istSeitenBaustein(node: Baustein): boolean {
+  return bausteinArt(node.type)?.pageBlock === true
 }
 
-export function istFlaechenSeite(node: BlockNode): boolean {
-  return getBlockDefinition(node.type)?.flaechenSeite === true
+export function istFlaechenSeite(node: Baustein): boolean {
+  return bausteinArt(node.type)?.flaechenSeite === true
 }
 
 export function istFensterSeite(eintrag: SeitenEintrag): boolean {
@@ -29,33 +29,33 @@ export function freierSeitenName(vergeben: readonly string[], basis: string): st
   return name
 }
 
-export function aktiveSeitenWurzel(tree: BlockTree, activePageId: string): string {
-  return activePageId === ROOT_ID || (tree[activePageId] && istSeitenBaustein(tree[activePageId]))
-    ? activePageId : ROOT_ID
+export function aktiveSeitenWurzel(tree: Maskenbaum, activePageId: string): string {
+  return activePageId === WURZEL_ID || (tree[activePageId] && istSeitenBaustein(tree[activePageId]))
+    ? activePageId : WURZEL_ID
 }
 
-export function seiteVon(tree: BlockTree, id: string): string {
-  let cur: BlockNode | undefined = tree[id]
+export function seiteVon(tree: Maskenbaum, id: string): string {
+  let cur: Baustein | undefined = tree[id]
   while (cur) {
     if (istSeitenBaustein(cur)) return cur.id
     cur = cur.parentId ? tree[cur.parentId] : undefined
   }
-  return ROOT_ID
+  return WURZEL_ID
 }
 
-export function seitenDerMaske(tree: BlockTree): SeitenEintrag[] {
-  const seiten = (tree[ROOT_ID]?.childIds ?? [])
+export function seitenDerMaske(tree: Maskenbaum): SeitenEintrag[] {
+  const seiten = (tree[WURZEL_ID]?.childIds ?? [])
     .map((id) => tree[id])
-    .filter((n): n is BlockNode => Boolean(n) && istSeitenBaustein(n))
+    .filter((n): n is Baustein => Boolean(n) && istSeitenBaustein(n))
     .map((n) => ({
       id: n.id,
       name: typeof n.props.name === 'string' && n.props.name !== ''
         ? n.props.name
-        : getBlockDefinition(n.type)?.displayName ?? 'Seite',
+        : bausteinArt(n.type)?.displayName ?? 'Seite',
       istHauptseite: false,
       istFlaeche: istFlaechenSeite(n),
     }))
-  return [{ id: ROOT_ID, name: 'Hauptseite', istHauptseite: true, istFlaeche: true }, ...seiten]
+  return [{ id: WURZEL_ID, name: 'Hauptseite', istHauptseite: true, istFlaeche: true }, ...seiten]
 }
 
 function eindeutigerSeitenName(
@@ -85,10 +85,10 @@ export function schreibWert(
   return name === '' ? null : name
 }
 
-export function klarnamenNachziehen(tree: BlockTree, seitenId: string, name: string): BlockTree {
+export function klarnamenNachziehen(tree: Maskenbaum, seitenId: string, name: string): Maskenbaum {
   let next = tree
   for (const knotenId of Object.keys(tree)) {
-    for (const p of getBlockDefinition(next[knotenId].type)?.customProperties ?? []) {
+    for (const p of bausteinArt(next[knotenId].type)?.customProperties ?? []) {
       if (p.kind !== 'seite' || !p.klarnameProp) continue
       const aktuell = next[knotenId]
       if (aktuell.props[p.attributeName] !== seitenId) continue
@@ -99,10 +99,10 @@ export function klarnamenNachziehen(tree: BlockTree, seitenId: string, name: str
   return next
 }
 
-export function kinderImFluss(tree: BlockTree, parentId: string): BlockNode[] {
+export function kinderImFluss(tree: Maskenbaum, parentId: string): Baustein[] {
   const parent = tree[parentId]
   if (!parent) return []
   return parent.childIds
     .map((id) => tree[id])
-    .filter((n): n is BlockNode => Boolean(n) && !istSeitenBaustein(n))
+    .filter((n): n is Baustein => Boolean(n) && !istSeitenBaustein(n))
 }

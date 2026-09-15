@@ -1,7 +1,7 @@
 // Einen Baustein samt Kindern kopieren, mit neuen Kennungen.
-import { ROOT_ID, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
-import { type ActionParamBinding, type ActionStep, type BlockEventsMap } from '../core/data/aktionen'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
+import { bausteinArt } from '../core/blocks/blockRegistry'
+import { type Parameter, type Schritt, type Ketten } from '../core/data/aktionen'
 import { AUSWAHL_FOLGE_PROP } from '../core/data/auswahlFolge'
 import { deepClone } from '../lib/deepClone'
 import { istSeitenBaustein } from './pageOps'
@@ -9,7 +9,7 @@ import { freiePositionFuerKopie } from './rasterOps'
 
 export type NeueIdFuer = (alteId: string) => string | undefined
 
-function schreibeBlockReferenzenUm(node: BlockNode, neueIdFuer: NeueIdFuer): BlockNode {
+function schreibeBlockReferenzenUm(node: Baustein, neueIdFuer: NeueIdFuer): Baustein {
   const folgen = umgeschriebeneFolgen(node.props[AUSWAHL_FOLGE_PROP], neueIdFuer)
   const events = node.events === undefined
     ? undefined
@@ -48,11 +48,11 @@ function umgeschriebeneFolgen(roh: unknown, neueIdFuer: NeueIdFuer): unknown {
 }
 
 function umgeschriebeneSeiten(
-  node: BlockNode,
+  node: Baustein,
   neueIdFuer: NeueIdFuer,
 ): Record<string, unknown> | null {
   let treffer: Record<string, unknown> | null = null
-  for (const p of getBlockDefinition(node.type)?.customProperties ?? []) {
+  for (const p of bausteinArt(node.type)?.customProperties ?? []) {
     if (p.kind !== 'seite') continue
     const ziel = ersatzId(node.props[p.attributeName], neueIdFuer)
     if (ziel === undefined) continue
@@ -62,14 +62,14 @@ function umgeschriebeneSeiten(
 }
 
 function umgeschriebeneBindung(
-  bindung: ActionParamBinding,
+  bindung: Parameter,
   neueIdFuer: NeueIdFuer,
-): ActionParamBinding {
+): Parameter {
   const ziel = ersatzId(bindung.blockId, neueIdFuer)
   return ziel === undefined ? bindung : { ...bindung, blockId: ziel }
 }
 
-function umgeschriebenerSchritt(schritt: ActionStep, neueIdFuer: NeueIdFuer): ActionStep {
+function umgeschriebenerSchritt(schritt: Schritt, neueIdFuer: NeueIdFuer): Schritt {
   if (schritt.type === 'POPUP_OPEN' || schritt.type === 'POPUP_CLOSE') {
     const ziel = ersatzId(schritt.popupId, neueIdFuer)
     return ziel === undefined ? schritt : { ...schritt, popupId: ziel }
@@ -83,11 +83,11 @@ function umgeschriebenerSchritt(schritt: ActionStep, neueIdFuer: NeueIdFuer): Ac
 }
 
 function umgeschriebeneEreignisse(
-  events: BlockEventsMap,
+  events: Ketten,
   neueIdFuer: NeueIdFuer,
-): BlockEventsMap {
+): Ketten {
   let geaendert = false
-  const naechste: BlockEventsMap = {}
+  const naechste: Ketten = {}
   for (const [key, kette] of Object.entries(events)) {
     const neueKette = kette.map((s) => umgeschriebenerSchritt(s, neueIdFuer))
     if (neueKette.some((s, i) => s !== kette[i])) geaendert = true
@@ -97,10 +97,10 @@ function umgeschriebeneEreignisse(
 }
 
 function kloneTeilbaum(
-  tree: BlockTree,
+  tree: Maskenbaum,
   id: string,
-): { nodes: BlockTree; kopieId: string } {
-  const nodes: BlockTree = {}
+): { nodes: Maskenbaum; kopieId: string } {
+  const nodes: Maskenbaum = {}
   const neueIds = new Map<string, string>()
   const kopiere = (quellId: string, parentId: string | null): string => {
     const quelle = tree[quellId]
@@ -126,11 +126,11 @@ function kloneTeilbaum(
 }
 
 export function dupliziereTeilbaum(
-  tree: BlockTree,
+  tree: Maskenbaum,
   id: string,
-): { tree: BlockTree; kopieId: string } | null {
+): { tree: Maskenbaum; kopieId: string } | null {
   const original = tree[id]
-  if (!original || id === ROOT_ID || original.parentId === null) return null
+  if (!original || id === WURZEL_ID || original.parentId === null) return null
   if (istSeitenBaustein(original)) return null
   const parent = tree[original.parentId]
   if (!parent) return null

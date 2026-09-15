@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import '../blocks/register'
-import { ROOT_ID, ROOT_TYPE } from '../core/blocks/BlockData'
+import { WURZEL_ID, WURZEL_TYP } from '../core/blocks/BlockData'
 import { meldungen } from './meldungen'
 import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
 import { pruefeBaumStand } from './ladeKette'
@@ -50,7 +50,7 @@ function meldungsText(): string {
 
 function wurzelBaum(kinder: string[]): Record<string, unknown> {
   return {
-    [ROOT_ID]: { id: ROOT_ID, type: ROOT_TYPE, props: {}, parentId: null, childIds: kinder },
+    [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: kinder },
   }
 }
 
@@ -99,14 +99,14 @@ test('ein Stand aus einem neueren Editor wird gesichert, gemeldet und nicht gela
 test('ein entfernter Kanban-Bausteintyp wird ohne Teilimport abgelehnt', () => {
   const tree = {
     ...wurzelBaum(['kb']),
-    kb: { id: 'kb', type: 'kanban', props: {}, parentId: ROOT_ID, childIds: ['vor'] },
+    kb: { id: 'kb', type: 'kanban', props: {}, parentId: WURZEL_ID, childIds: ['vor'] },
     vor: { id: 'vor', type: 'kanban-vorlage', props: {}, parentId: 'kb', childIds: ['c1', 'c2'] },
     c1: { id: 'c1', type: 'card', props: {}, parentId: 'vor', childIds: [] },
     c2: { id: 'c2', type: 'card', props: {}, parentId: 'vor', childIds: [] },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
-    datenquellen: [], relationen: [], activePageId: ROOT_ID,
+    datenquellen: [], relationen: [], activePageId: WURZEL_ID,
   }))
 
   const original = speicher.getItem(STORAGE_KEY)
@@ -118,22 +118,22 @@ test('ein entfernter Kanban-Bausteintyp wird ohne Teilimport abgelehnt', () => {
 test('Maskenname und Rahmennummer ueberstehen den Weg durch den Speicher', () => {
   const tree = {
     ...wurzelBaum(['t1']),
-    [ROOT_ID]: {
-      id: ROOT_ID,
-      type: ROOT_TYPE,
+    [WURZEL_ID]: {
+      id: WURZEL_ID,
+      type: WURZEL_TYP,
       props: { maskenName: 'Belegerfassung', belegRahmen: '00001' },
       parentId: null,
       childIds: ['t1'],
     },
-    t1: { id: 't1', type: 'text', props: {}, parentId: ROOT_ID, childIds: [] },
+    t1: { id: 't1', type: 'text', props: {}, parentId: WURZEL_ID, childIds: [] },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
-    datenquellen: [], relationen: [], activePageId: ROOT_ID,
+    datenquellen: [], relationen: [], activePageId: WURZEL_ID,
   }))
 
   const geladen = loadFromStorage()
-  expect(geladen?.tree[ROOT_ID]?.props).toEqual({
+  expect(geladen?.tree[WURZEL_ID]?.props).toEqual({
     maskenName: 'Belegerfassung',
     belegRahmen: '00001',
   })
@@ -147,8 +147,8 @@ test('eine unbekannte Angabe an der Maske laesst die Datei stehen und sagt es', 
   const mitProp = (props: Record<string, unknown>) => ({
     schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: {
-      [ROOT_ID]: { id: ROOT_ID, type: ROOT_TYPE, props, parentId: null, childIds: ['t1'] },
-      t1: { id: 't1', type: 'text', props: {}, parentId: ROOT_ID, childIds: [] },
+      [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props, parentId: null, childIds: ['t1'] },
+      t1: { id: 't1', type: 'text', props: {}, parentId: WURZEL_ID, childIds: [] },
     },
   })
 
@@ -164,12 +164,12 @@ test('eine unbekannte Angabe an der Maske laesst die Datei stehen und sagt es', 
 test('ein entfernter Container wird nicht mehr still aufgeloest', () => {
   const tree = {
     ...wurzelBaum(['z1']),
-    z1: { id: 'z1', type: 'zeile', props: {}, parentId: ROOT_ID, childIds: ['t1'] },
+    z1: { id: 'z1', type: 'zeile', props: {}, parentId: WURZEL_ID, childIds: ['t1'] },
     t1: { id: 't1', type: 'text', props: {}, parentId: 'z1', childIds: [] },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
-    datenquellen: [], relationen: [], activePageId: ROOT_ID,
+    datenquellen: [], relationen: [], activePageId: WURZEL_ID,
   }))
 
   const original = speicher.getItem(STORAGE_KEY)
@@ -182,11 +182,11 @@ test('alte Rasterformate werden gesichert und ohne Konvertierung abgelehnt', () 
   const tree = {
     ...wurzelBaum(['t1', 'b1']),
     t1: {
-      id: 't1', type: 'tabelle', parentId: ROOT_ID, childIds: [],
+      id: 't1', type: 'tabelle', parentId: WURZEL_ID, childIds: [],
       props: { rasterX: 0, rasterY: 3, rasterW: 24, rasterH: 14 },
     },
     b1: {
-      id: 'b1', type: 'button', parentId: ROOT_ID, childIds: [],
+      id: 'b1', type: 'button', parentId: WURZEL_ID, childIds: [],
       props: { rasterX: 20, rasterY: 0, rasterW: 4, rasterH: 2 },
     },
   }
@@ -202,11 +202,11 @@ test('ein Stand im feinen Raster wird nicht noch einmal verdoppelt', () => {
   const props = { rasterX: 40, rasterY: 0, rasterW: 8, rasterH: 2 }
   const tree = {
     ...wurzelBaum(['b1']),
-    b1: { id: 'b1', type: 'button', parentId: ROOT_ID, childIds: [], props },
+    b1: { id: 'b1', type: 'button', parentId: WURZEL_ID, childIds: [], props },
   }
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId: null,
-    datenquellen: [], relationen: [], activePageId: ROOT_ID,
+    datenquellen: [], relationen: [], activePageId: WURZEL_ID,
   }))
 
   expect(loadFromStorage()?.tree.b1?.props).toMatchObject(props)
@@ -215,7 +215,7 @@ test('ein Stand im feinen Raster wird nicht noch einmal verdoppelt', () => {
 test('ein unlesbarer Bibliothekseintrag verhindert einen gekuerzten Maskenstand', () => {
   const roh = JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION, tree: wurzelBaum([]), selectedId: null,
-    datenquellen: [{ name: 'ohne Kennung' }], relationen: [], activePageId: ROOT_ID,
+    datenquellen: [{ name: 'ohne Kennung' }], relationen: [], activePageId: WURZEL_ID,
   })
   speicher.setItem(STORAGE_KEY, roh)
 
@@ -228,7 +228,7 @@ test('eine Formel aus Schema 8 wird zur Berechnung mit der Spalte als Leitgroess
   const tree = {
     ...wurzelBaum(['t1']),
     t1: {
-      id: 't1', type: 'erfassung', parentId: ROOT_ID, childIds: [],
+      id: 't1', type: 'erfassung', parentId: WURZEL_ID, childIds: [],
       props: {
         rasterX: 0, rasterY: 0, rasterW: 16, rasterH: 10,
         spalten: [
@@ -255,7 +255,7 @@ test('eine Formel mit Plus aus Schema 8 wird als benannter Verlust abgelehnt', (
   const tree = {
     ...wurzelBaum(['t1']),
     t1: {
-      id: 't1', type: 'erfassung', parentId: ROOT_ID, childIds: [],
+      id: 't1', type: 'erfassung', parentId: WURZEL_ID, childIds: [],
       props: {
         spalten: [
           { kennung: 's1', titel: 'A', feld: '' },

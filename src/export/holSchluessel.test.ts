@@ -1,21 +1,21 @@
 import { expect, test } from 'vitest'
 import '../blocks/register'
-import { ROOT_ID, ROOT_TYPE, type BlockTree } from '../core/blocks/BlockData'
-import type { DataSource } from '../core/data/dataSources'
+import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../core/blocks/BlockData'
+import type { Datenquelle } from '../core/data/dataSources'
 import { holSchluesselJeGeber } from './benutzteQuellen'
 
 // Woher eine holende Quelle ihren Beleg nimmt, steht am BAUSTEIN. Der Export
 // muss die Schluesselfelder trotzdem bei der Geber-Quelle bestellen, sonst ginge
 // der Parameter der Relation leer hinaus.
 
-const belege: DataSource = {
+const belege: Datenquelle = {
   id: 'q-bel',
   name: 'Belege',
   kind: 'beleg',
   fields: [{ code: '3_8', label: 'Belegnummer' }],
 }
 
-const positionen: DataSource = {
+const positionen: Datenquelle = {
   id: 'q-pos',
   name: 'Positionen',
   kind: 'belegposition',
@@ -30,22 +30,22 @@ const positionen: DataSource = {
   fields: [{ code: '18_25', label: 'Artikelnummer' }],
 }
 
-function baum(folge: unknown): BlockTree {
+function baum(folge: unknown): Maskenbaum {
   return {
-    [ROOT_ID]: {
-      id: ROOT_ID, type: ROOT_TYPE, props: {}, parentId: '', childIds: ['bel', 'pos'],
+    [WURZEL_ID]: {
+      id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: '', childIds: ['bel', 'pos'],
     },
     bel: {
-      id: 'bel', type: 'tabelle', props: { source: 'q-bel' }, parentId: ROOT_ID, childIds: [],
+      id: 'bel', type: 'tabelle', props: { source: 'q-bel' }, parentId: WURZEL_ID, childIds: [],
     },
     pos: {
       id: 'pos',
       type: 'tabelle',
       props: { source: 'q-pos', folgtAuswahl: folge },
-      parentId: ROOT_ID,
+      parentId: WURZEL_ID,
       childIds: [],
     },
-  } as unknown as BlockTree
+  } as unknown as Maskenbaum
 }
 
 test('die Schluesselfelder werden bei der Quelle des Geber-Bausteins bestellt', () => {

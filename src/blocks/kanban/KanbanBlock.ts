@@ -2,11 +2,11 @@
 import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { DefaultChildSpec } from '../../core/blocks/BlockDefinition'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import type { KindVorgabe } from '../../core/blocks/BlockDefinition'
 import type { Faehigkeit } from '../../core/blocks/faehigkeiten'
-import type { FlowDirection, FlowWidth } from '../../core/blocks/flowLayout'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Richtung, FlussBreite } from '../../core/blocks/flowLayout'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { CardBlock } from '../card/CardBlock'
 import { LEER_TEXT_STANDARD, leerTextProperty } from '../shared/leerZustand'
 import { KanbanMusterBlock } from './KanbanMusterBlock'
@@ -19,12 +19,12 @@ export class KanbanBlock extends BasicBlock {
   static readonly blockType = 'kanban'
   static readonly tagName = 'ff-kanban'
   static readonly displayName = 'Kanban'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
   static readonly acceptsChildren = true
   static readonly allowedChildTypes = [KanbanMusterBlock.blockType, SPALTE]
-  static readonly childDirection: FlowDirection = 'row'
+  static readonly childDirection: Richtung = 'row'
 
-  static readonly lockedWidth: FlowWidth = 'fill'
+  static readonly lockedWidth: FlussBreite = 'fill'
   static readonly resizableWidth = false
   static readonly containerHint = false
   static readonly addChildButton = { label: 'Spalte', childType: SPALTE }
@@ -52,7 +52,7 @@ export class KanbanBlock extends BasicBlock {
   }
 
   static readonly raster = { startW: 48, startH: 20, minW: 12, minH: 8 }
-  static override readonly customProperties: PropertyDescription[] = [
+  static override readonly customProperties: Eigenschaft[] = [
     {
       attributeName: 'statusField',
       name: 'Einsortieren nach',
@@ -68,7 +68,7 @@ export class KanbanBlock extends BasicBlock {
     leerTextProperty(),
   ]
 
-  static readonly defaultChildren: DefaultChildSpec[] = [
+  static readonly defaultChildren: KindVorgabe[] = [
     { type: KanbanMusterBlock.blockType, children: [{ type: CardBlock.blockType }] },
     {
       type: SPALTE,

@@ -3,7 +3,7 @@ import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateR
 import { property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
 import type { Berechnung } from '../../core/data/berechnung'
 import type { Faehigkeit } from '../../core/blocks/faehigkeiten'
 import { geberIdVon, setzeAuswahl } from '../shared/auswahl'
@@ -34,7 +34,7 @@ import { tabelleAnsicht, zeigtEchteDaten } from './tabelleAnsicht'
 import { SPALTEN_BINDUNG, TABELLE_EIGENSCHAFTEN } from './tabelleEigenschaften'
 import { tabelleFuss, tabelleKoerper } from './tabelleKoerper'
 import { tabelleStil } from './tabelleStil'
-import { parseBlockEvents } from '../../core/data/aktionen'
+import { kettenLesen } from '../../core/data/aktionen'
 import { meldeKettenFehler, runEvent } from '../shared/seAktionen'
 import { fokussierterRohIndex } from './zeilenAktivierung'
 
@@ -43,7 +43,7 @@ export class TabelleBlock extends BasicBlock {
   static readonly blockType: string = 'tabelle'
   static readonly tagName: string = 'ff-tabelle'
   static readonly displayName: string = 'Tabelle'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
 
   static readonly faehigkeiten: readonly Faehigkeit[] = [
     { art: 'quelle' },
@@ -233,7 +233,7 @@ export class TabelleBlock extends BasicBlock {
   private readonly aktionsTaste = (e: KeyboardEvent): void => {
     if (this.imEditor || e.defaultPrevented || e.key !== 'F4'
       || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
-    if (!parseBlockEvents(this.getAttribute('data-ff-aktionen')).onF4?.length) return
+    if (!kettenLesen(this.getAttribute('data-ff-aktionen')).onF4?.length) return
     e.preventDefault()
     e.stopPropagation()
     if (e.repeat) return

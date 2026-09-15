@@ -1,5 +1,5 @@
 // Die Eigenschaften der Erfassung und ihrer Spalten: die der Tabelle, plus alles, was schreibt.
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import type { EintragsSchalter, ListenBindung } from '../../core/blocks/BlockDefinition'
 import { schalterAn, schalterFuer } from '../../core/blocks/listenBindung'
 import { jaNeinProperty } from '../shared/jaNeinProperty'
@@ -14,7 +14,7 @@ const LOESCHBAR = jaNeinProperty(
 )
 
 // Hinter der Suchzeile, wo der Schalter in der Tabelle stand.
-export const ERFASSUNG_EIGENSCHAFTEN: PropertyDescription[] = TABELLE_EIGENSCHAFTEN
+export const ERFASSUNG_EIGENSCHAFTEN: Eigenschaft[] = TABELLE_EIGENSCHAFTEN
   .flatMap((p) => (p.attributeName === 'suche' ? [p, LOESCHBAR] : [p]))
 
 const AENDERBAR: EintragsSchalter = {

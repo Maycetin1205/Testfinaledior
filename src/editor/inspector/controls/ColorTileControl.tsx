@@ -1,5 +1,5 @@
 // Die Farbwahl im Inspector als Reihe von Farbfeldern.
-import type { PropertySelectOption } from '../../../core/blocks/PropertyDescription'
+import type { Wahloption } from '../../../core/blocks/PropertyDescription'
 import { Farbfeld } from '@/ui/werkbank/Farbfeld'
 import { Zeile } from '@/ui/werkbank/Zeile'
 
@@ -7,7 +7,7 @@ interface ColorTileControlProps {
   label: string
   description?: string
   value: string
-  options: PropertySelectOption[]
+  options: Wahloption[]
   onChange: (value: string) => void
 }
 

@@ -1,16 +1,16 @@
 // Die Historie fuer Strg+Z: Staende der ganzen Maske.
-import type { BlockTree } from '../core/blocks/BlockData'
-import type { DataSource } from '../core/data/dataSources'
-import type { RelationTemplate } from '../core/data/relations'
+import type { Maskenbaum } from '../core/blocks/BlockData'
+import type { Datenquelle } from '../core/data/dataSources'
+import type { RelationsVorlage } from '../core/data/relations'
 
 // Ein Stand der ganzen Maske: Bausteine, Auswahl und die beiden Bibliotheken.
 // Strg+Z nimmt darum auch eine geloeschte Datenquelle zurueck.
 export interface EditorSnapshot {
-  tree: BlockTree
+  tree: Maskenbaum
   selectedId: string | null
   activePageId?: string
-  datenquellen: readonly DataSource[]
-  relationen: readonly RelationTemplate[]
+  datenquellen: readonly Datenquelle[]
+  relationen: readonly RelationsVorlage[]
 }
 
 const HISTORY_LIMIT = 50

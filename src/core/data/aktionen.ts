@@ -1,8 +1,8 @@
 // Die Aktionskette eines Bausteins: Schritte, Parameter und wie sie gelesen werden.
 import type { VormerkArt } from '../blocks/faehigkeiten'
-import type { RelationTemplate } from './relations'
+import type { RelationsVorlage } from './relations'
 
-export type StepTypeKey =
+export type SchrittArt =
   | 'START_TOOL'
   | 'BW_LINK'
   | 'RELATION'
@@ -11,7 +11,7 @@ export type StepTypeKey =
 
 // Die Reihenfolge im Waehler. Wie sie heissen, steht im Editor
 // (editor/zentrale/beschriftungen.ts).
-export const STEP_TYPE_KEYS: readonly StepTypeKey[] = [
+export const SCHRITT_ARTEN: readonly SchrittArt[] = [
 
   'START_TOOL',
   'BW_LINK',
@@ -21,9 +21,9 @@ export const STEP_TYPE_KEYS: readonly StepTypeKey[] = [
   'POPUP_CLOSE',
 ]
 
-export const ACTION_VALUE_ID_ATTR = 'data-ff-block-id'
+export const BAUSTEIN_ID_ATTR = 'data-ff-block-id'
 
-export const ACTION_PARAM_SOURCES = [
+export const PARAMETER_QUELLEN = [
   'fixed',
   'context',
   'data_field',
@@ -47,7 +47,7 @@ export const ACTION_PARAM_SOURCES = [
   'se_variable',
 ] as const
 
-const GESPEICHERTE_PARAM_QUELLEN = [...ACTION_PARAM_SOURCES, 'aus'] as const
+const GESPEICHERTE_PARAM_QUELLEN = [...PARAMETER_QUELLEN, 'aus'] as const
 
 // Je Zell-Quelle die Vormerk-Liste, deren Zeilen sie liest. Daraus schneidet
 // der Lauf seine Abschnitte, ohne einen Bausteintyp zu kennen.
@@ -57,10 +57,10 @@ export const ZELLEN_PARAM_QUELLEN: Record<string, VormerkArt> = {
   loeschzelle: 'geloescht',
 }
 
-export type ActionParamSource = (typeof GESPEICHERTE_PARAM_QUELLEN)[number]
+export type ParameterQuelle = (typeof GESPEICHERTE_PARAM_QUELLEN)[number]
 
-export interface ActionParamBinding {
-  source: ActionParamSource
+export interface Parameter {
+  source: ParameterQuelle
 
   value: string
 
@@ -82,17 +82,17 @@ export interface ErgebnisSchritt {
 // Die Schritte VOR diesem. Der Ausschnitt ist ein Anfang der Kette, darum
 // bleibt der Platz darin die Schrittnummer.
 export function schritteVor(
-  chain: readonly ActionStep[],
+  chain: readonly Schritt[],
   stepId: string | undefined, // undefined = neuer Schritt ans Kettenende
-): readonly ActionStep[] {
+): readonly Schritt[] {
   const eigene = stepId === undefined ? -1 : chain.findIndex((s) => s.id === stepId)
   return eigene < 0 ? chain : chain.slice(0, eigene)
 }
 
 export function ergebnisSchritteVor(
-  chain: readonly ActionStep[],
+  chain: readonly Schritt[],
   stepId: string | undefined,
-  relations: readonly RelationTemplate[] | undefined,
+  relations: readonly RelationsVorlage[] | undefined,
 ): ErgebnisSchritt[] {
   const vorher = schritteVor(chain, stepId)
   const out: ErgebnisSchritt[] = []
@@ -114,14 +114,14 @@ export function ergebnisSchritteVor(
 
 interface ActionStepBase {
   id: string
-  type: StepTypeKey
+  type: SchrittArt
 
   resultKey: string
 
   notiz?: string
 }
 
-export interface StartToolStep extends ActionStepBase {
+export interface StartToolSchritt extends ActionStepBase {
   type: 'START_TOOL'
   toolNr: string
   toolParams: string[]
@@ -129,36 +129,36 @@ export interface StartToolStep extends ActionStepBase {
 
 // Ein freier BueroWARE-Befehl. START_TOOL hat eine eigene Art, weil sein Link
 // fest aufgebaut ist; hier gibt der Bediener die ganze Zeile vor.
-export interface BwLinkStep extends ActionStepBase {
+export interface BwLinkSchritt extends ActionStepBase {
   type: 'BW_LINK'
 
   befehl: string
 }
 
-export interface RelationStep extends ActionStepBase {
+export interface RelationsSchritt extends ActionStepBase {
   type: 'RELATION'
 
   relationId: string
 
-  params: ActionParamBinding[]
+  params: Parameter[]
 
-  extraParams: ActionParamBinding[]
+  extraParams: Parameter[]
 }
 
-export interface PopupOpenStep extends ActionStepBase {
+export interface PopupOeffnenSchritt extends ActionStepBase {
   type: 'POPUP_OPEN'
   popupId: string
 }
 
-export interface PopupCloseStep extends ActionStepBase {
+export interface PopupSchliessenSchritt extends ActionStepBase {
   type: 'POPUP_CLOSE'
   popupId: string
 }
 
-export type PopupStep = PopupOpenStep | PopupCloseStep
+export type PopupSchritt = PopupOeffnenSchritt | PopupSchliessenSchritt
 
-export type ActionStep = StartToolStep | BwLinkStep | RelationStep | PopupStep
-export type BlockEventsMap = Record<string, ActionStep[]>
+export type Schritt = StartToolSchritt | BwLinkSchritt | RelationsSchritt | PopupSchritt
+export type Ketten = Record<string, Schritt[]>
 
 // Die Satznummer heisst in einer Schreib-Relation {PINDEX} und in einer
 // Loesch-Relation {DROP_PINDEX}; leer taugt sie in keiner von beiden.
@@ -166,9 +166,9 @@ export const SATZ_PLATZHALTER = ['PINDEX', 'DROP_PINDEX'] as const
 
 export const AKTIONS_PLATZHALTER = [...SATZ_PLATZHALTER, 'VALUE', 'ZIMMER', 'NOW_DATE'] as const
 
-export function defaultRelationParams(
-  relation: Pick<RelationTemplate, 'params'>,
-): ActionParamBinding[] {
+export function relationsParameterVorgabe(
+  relation: Pick<RelationsVorlage, 'params'>,
+): Parameter[] {
   return relation.params.map((raw) => {
     const placeholder = /^\{([A-Za-z0-9_]+)\}$/.exec(raw)?.[1]
     return placeholder && (AKTIONS_PLATZHALTER as readonly string[]).includes(placeholder)
@@ -183,21 +183,21 @@ interface RuntimePopupFields {
   popup?: string
 }
 
-export type RuntimePopupStep =
+export type LaufzeitPopupSchritt =
   | (RuntimePopupFields & { type: 'POPUP_OPEN' })
   | (RuntimePopupFields & { type: 'POPUP_CLOSE' })
 
-export type RuntimeStep =
-  | Omit<StartToolStep, 'id'>
-  | Omit<BwLinkStep, 'id'>
-  | Omit<RelationStep, 'id'>
-  | RuntimePopupStep
+export type LaufzeitSchritt =
+  | Omit<StartToolSchritt, 'id'>
+  | Omit<BwLinkSchritt, 'id'>
+  | Omit<RelationsSchritt, 'id'>
+  | LaufzeitPopupSchritt
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
-export function pruefeParameterBindung(raw: unknown): ActionParamBinding | null {
+export function pruefeParameterBindung(raw: unknown): Parameter | null {
   if (!isRecord(raw)) return null
   if (
     typeof raw.source !== 'string'
@@ -208,7 +208,7 @@ export function pruefeParameterBindung(raw: unknown): ActionParamBinding | null 
   if (raw.blockId !== undefined && typeof raw.blockId !== 'string') return null
   if (raw.ergebnisFeld !== undefined && typeof raw.ergebnisFeld !== 'string') return null
   return {
-    source: raw.source as ActionParamSource,
+    source: raw.source as ParameterQuelle,
     value: raw.value,
     ...(typeof raw.dataSourceId === 'string' ? { dataSourceId: raw.dataSourceId } : {}),
     ...(typeof raw.blockId === 'string' ? { blockId: raw.blockId } : {}),
@@ -219,7 +219,7 @@ export function pruefeParameterBindung(raw: unknown): ActionParamBinding | null 
   }
 }
 
-function stepFields(raw: unknown): RuntimeStep | null {
+function stepFields(raw: unknown): LaufzeitSchritt | null {
   if (!isRecord(raw) || typeof raw.type !== 'string' || typeof raw.resultKey !== 'string') {
     return null
   }
@@ -253,14 +253,14 @@ function stepFields(raw: unknown): RuntimeStep | null {
     if (!Array.isArray(raw.extraParams)) return null
   // Mit LEEREN params ginge die Relation mit lauter leeren Parametern ins ERP.
     if (!Array.isArray(raw.params)) return null
-    const params: ActionParamBinding[] = []
+    const params: Parameter[] = []
     for (const value of raw.params) {
       const binding = pruefeParameterBindung(value)
       if (!binding) return null
       params.push(binding)
     }
 
-    const extraParams: ActionParamBinding[] = []
+    const extraParams: Parameter[] = []
     for (const value of raw.extraParams) {
       const binding = pruefeParameterBindung(value)
       if (!binding) return null
@@ -277,16 +277,16 @@ function stepFields(raw: unknown): RuntimeStep | null {
   return null
 }
 
-export function sanitizeBlockEvents(
+export function kettenBereinigen(
   raw: unknown,
   allowedEvents: readonly string[],
-): BlockEventsMap | undefined {
+): Ketten | undefined {
   if (!isRecord(raw)) return undefined
-  const out: BlockEventsMap = {}
+  const out: Ketten = {}
   for (const key of allowedEvents) {
     const chain = raw[key]
     if (!Array.isArray(chain) || chain.length === 0) continue
-    const steps: ActionStep[] = []
+    const steps: Schritt[] = []
     const seenIds = new Set<string>()
     let broken = false
     for (const entry of chain) {
@@ -299,7 +299,7 @@ export function sanitizeBlockEvents(
       seenIds.add(id)
 
       const notiz = isRecord(entry) && typeof entry.notiz === 'string' ? entry.notiz.trim() : ''
-      steps.push({ id, ...fields, ...(notiz !== '' ? { notiz } : {}) } as ActionStep)
+      steps.push({ id, ...fields, ...(notiz !== '' ? { notiz } : {}) } as Schritt)
     }
     if (!broken && steps.length > 0) out[key] = steps
   }
@@ -307,14 +307,14 @@ export function sanitizeBlockEvents(
 }
 
 function withoutEditorId(
-  step: ActionStep,
+  step: Schritt,
   popupName: (id: string) => string,
 
   stepPosition: (id: string) => string,
 
   spaltenIndex: (blockId: string, kennung: string) => string,
-): RuntimeStep {
-  const binding = (b: ActionParamBinding): ActionParamBinding => {
+): LaufzeitSchritt {
+  const binding = (b: Parameter): Parameter => {
     if (b.source === 'step_result') return { ...b, value: stepPosition(b.value) }
     // Spalten-Kennung -> Platz: die Laufzeit greift die Zeilenwerte ueber den
     // Index, sie kennt keine Kennungen.
@@ -350,8 +350,8 @@ function withoutEditorId(
   }
 }
 
-export function serializeBlockEvents(
-  events: BlockEventsMap | undefined,
+export function kettenFuerExport(
+  events: Ketten | undefined,
   eventOrder: readonly string[],
 
   popupName: (id: string) => string = () => '',
@@ -360,7 +360,7 @@ export function serializeBlockEvents(
   spaltenIndex: (blockId: string, kennung: string) => string = (_, kennung) => kennung,
 ): string | null {
   if (!events) return null
-  const out: Record<string, RuntimeStep[]> = {}
+  const out: Record<string, LaufzeitSchritt[]> = {}
   for (const key of eventOrder) {
     const steps = events[key]
     if (!steps?.length) continue
@@ -372,7 +372,7 @@ export function serializeBlockEvents(
   return Object.keys(out).length > 0 ? JSON.stringify(out) : null
 }
 
-export function parseBlockEvents(raw: string | null): Record<string, RuntimeStep[]> {
+export function kettenLesen(raw: string | null): Record<string, LaufzeitSchritt[]> {
   if (!raw) return {}
   let parsed: unknown
   try {
@@ -381,10 +381,10 @@ export function parseBlockEvents(raw: string | null): Record<string, RuntimeStep
     return {}
   }
   if (!isRecord(parsed)) return {}
-  const out: Record<string, RuntimeStep[]> = {}
+  const out: Record<string, LaufzeitSchritt[]> = {}
   for (const [key, chain] of Object.entries(parsed)) {
     if (!Array.isArray(chain) || chain.length === 0) continue
-    const steps: RuntimeStep[] = []
+    const steps: LaufzeitSchritt[] = []
     let broken = false
     for (const entry of chain) {
       const fields = stepFields(entry)
@@ -402,7 +402,7 @@ export function parseBlockEvents(raw: string | null): Record<string, RuntimeStep
 // Beide Formen eines Schritts: der Baum-Schritt mit Spalten-Kennungen und der
 // Export-Schritt mit Plaetzen. Fuer die Abschnitte zaehlt nur, WORAUS ein
 // Parameter liest.
-type SchrittForm = ActionStep | RuntimeStep
+type SchrittForm = Schritt | LaufzeitSchritt
 
 interface ZeilenBezug {
   art: VormerkArt

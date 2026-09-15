@@ -2,20 +2,20 @@
 import { useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Link2, Minus, Plus, SlidersHorizontal, Trash2 } from '@/ui/zeichen'
 import { Knopf } from '@/ui/werkbank/Knopf'
-import type { BlockNode } from '../../core/blocks/BlockData'
-import { listeLesen, type BlockDefinition } from '../../core/blocks/BlockDefinition'
+import type { Baustein } from '../../core/blocks/BlockData'
+import { listeLesen, type BausteinArt } from '../../core/blocks/BlockDefinition'
 import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import { useEditorInstance } from '../../state/EditorContext'
 import { wendeProps } from '../../state/propsPatch'
-import { firstDescendantOfType, kannRechnen } from '../../core/blocks/treeQuery'
+import { ersterNachfahreVomTyp, kannRechnen } from '../../core/blocks/treeQuery'
 import { eigenschaftenFuer } from '../../core/blocks/eigenschaftsOrt'
 import { Popover } from '@/ui/werkbank/Popover'
 import { PropControl } from '../inspector/PropControl'
 import { oeffneBerechnungenFenster } from './berechnungenStand'
 
 interface AuswahlLeisteProps {
-  block: BlockNode
-  def: BlockDefinition | undefined
+  block: Baustein
+  def: BausteinArt | undefined
 
   wirt: RefObject<HTMLElement | null>
 
@@ -77,7 +77,7 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
     onEndeBearbeitung: () => editor.endTransaction(),
   }), [editor])
   const eigenschaften = def ? eigenschaftenFuer(block, def, 'inline') : []
-  const muster = def?.templateChild ? firstDescendantOfType(editor.tree, block.id, def.templateChild.type) : undefined
+  const muster = def?.templateChild ? ersterNachfahreVomTyp(editor.tree, block.id, def.templateChild.type) : undefined
   // Die Lage wird gemessen und direkt ans Element geschrieben: kein Zustand,
   // kein zweiter Render.
   const leisteRef = useRef<HTMLDivElement | null>(null)

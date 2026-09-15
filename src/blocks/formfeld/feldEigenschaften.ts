@@ -1,10 +1,10 @@
 // Die Eigenschaften des Formularfelds, wie der Inspector sie zeigt.
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { jaNeinProperty } from '../shared/jaNeinProperty'
 
 const NUR_NACHSCHLAGEN = { attributeName: 'fieldType', equals: 'nachschlagen' } as const
 
-export const FELD_EIGENSCHAFTEN: PropertyDescription[] = [
+export const FELD_EIGENSCHAFTEN: Eigenschaft[] = [
   {
     attributeName: 'fieldType',
     name: 'Feldtyp',

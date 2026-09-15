@@ -1,17 +1,17 @@
 // Was der Bediener in die Felder einer Datenquelle tippt, sauber gelesen.
 import { QUELLEN_TRENNER } from '../blocks/BlockDefinition'
-import { artFuer, type DataSourceKind } from './quellenArten'
+import { artFuer, type QuellenArtKennung } from './quellenArten'
 
-export function fieldCode(pos: string, len: string, vorsatz = ''): string {
+export function feldCode(pos: string, len: string, vorsatz = ''): string {
   const p = pos.trim()
   const l = len.trim()
   if (!/^\d+$/.test(p) || !/^\d+$/.test(l) || Number(l) < 1) return ''
-  return `${feldVorsatzFromInput(vorsatz)}${p}_${l}`
+  return `${feldVorsatzAusEingabe(vorsatz)}${p}_${l}`
 }
 
 const VORSATZ_FORM = /^[A-Za-z0-9_]+$/
 
-export function feldVorsatzFromInput(raw: string): string {
+export function feldVorsatzAusEingabe(raw: string): string {
   const t = raw.trim()
   return t !== '' && VORSATZ_FORM.test(t) ? t : ''
 }
@@ -20,7 +20,7 @@ const KENNUNG_IDB_KURZ = /^(?:IDB)?ID(\d{1,4})$/i
 const KENNUNG_FREI = /^[A-Za-z][A-Za-z0-9.]*$/
 
 // idbKurzform=false laesst 'ID0001' stehen: bei einem DataSet IST das die Kennung.
-export function kennungFromInput(raw: string, idbKurzform = true): string {
+export function kennungAusEingabe(raw: string, idbKurzform = true): string {
   const t = raw.trim()
   const kurz = idbKurzform ? KENNUNG_IDB_KURZ.exec(t) : null
   if (kurz) return `IDBID${kurz[1].padStart(4, '0')}`
@@ -29,7 +29,7 @@ export function kennungFromInput(raw: string, idbKurzform = true): string {
 
 const KOPFSATZ_FORM = /^[A-Za-z][A-Za-z0-9]*_\d+_\d+$/
 
-export function kopfsatzFromInput(raw: string): string {
+export function kopfsatzAusEingabe(raw: string): string {
   const t = raw.trim()
   return KOPFSATZ_FORM.test(t) ? t : ''
 }
@@ -39,7 +39,7 @@ export function kennungAnzeige(kennung: string | undefined): string {
   return m ? m[1] : (kennung ?? '')
 }
 
-export function quellenKennung(source: { kind: DataSourceKind; idbId?: string }): string {
+export function quellenKennung(source: { kind: QuellenArtKennung; idbId?: string }): string {
   const feste = artFuer(source.kind).tabellenId
   return feste !== '' ? feste : kennungAnzeige(source.idbId)
 }
@@ -47,7 +47,7 @@ export function quellenKennung(source: { kind: DataSourceKind; idbId?: string })
 // Ein DataSet spricht seine Spalten mit der Bezeichnung an. Kein Komma, denn
 // FELDER ist eine Komma-Liste, und nicht der Quellen-Trenner, weil „quelle::feld"
 // damit mehrdeutig wuerde.
-export function spaltenNameFromInput(raw: string): string {
+export function spaltenNameAusEingabe(raw: string): string {
   const t = raw.trim()
   if (t === '' || t.includes(',') || t.includes(QUELLEN_TRENNER)) return ''
   return t

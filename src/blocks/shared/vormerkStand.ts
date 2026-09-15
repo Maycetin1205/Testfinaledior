@@ -1,5 +1,5 @@
 // Wie viel noch zu schreiben ist: gezaehlt an einer Stelle, gezeigt am Baustein und am Knopf.
-import { abschnitteVon, parseBlockEvents } from '../../core/data/aktionen'
+import { abschnitteVon, kettenLesen } from '../../core/data/aktionen'
 import type {
   AenderungsTraegerElement,
   ErfassungsTraegerElement,
@@ -36,7 +36,7 @@ function anzahlVon(traeger: VormerkTraeger, art: VormerkArt): number {
 // Welche Listen eine Kette liest, steht in ihren eigenen Parametern. undefined
 // heisst: sie liest keine Vormerkungen, der Knopf bleibt ohne Zaehler.
 export function vormerkStandVon(el: HTMLElement, eventKey: string): VormerkZahlen | undefined {
-  const steps = parseBlockEvents(el.getAttribute('data-ff-aktionen'))[eventKey]
+  const steps = kettenLesen(el.getAttribute('data-ff-aktionen'))[eventKey]
   if (!steps || steps.length === 0) return undefined
   const zahlen: VormerkZahlen = { erfasst: 0, geaendert: 0, geloescht: 0 }
   const gezaehlt = new Set<string>()

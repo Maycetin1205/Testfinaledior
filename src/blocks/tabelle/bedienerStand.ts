@@ -1,5 +1,5 @@
 // Was der Bediener an EINER Tabelle eingestellt hat, im Browserspeicher.
-import { ACTION_VALUE_ID_ATTR } from '../../core/data/aktionen'
+import { BAUSTEIN_ID_ATTR } from '../../core/data/aktionen'
 
 export interface BedienerStand<T> {
   lies: (el: HTMLElement, kennung?: string) => T | null
@@ -11,7 +11,7 @@ export interface BedienerStand<T> {
 // darum der Platz im Dokument als Rueckfall.
 function schluesselVon(vorsatz: string, el: HTMLElement, kennung?: string): string {
   const titel = typeof document === 'undefined' ? '' : document.title
-  const id = kennung ?? el.getAttribute(ACTION_VALUE_ID_ATTR)
+  const id = kennung ?? el.getAttribute(BAUSTEIN_ID_ATTR)
   if (id !== null && id !== '') return `${vorsatz}${titel}|${id}`
   const gleiche = Array.from(el.ownerDocument?.querySelectorAll(el.tagName) ?? [])
   return `${vorsatz}${titel}|#${Math.max(0, gleiche.indexOf(el))}`

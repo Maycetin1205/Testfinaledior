@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import type { DataSource } from '../core/data/dataSources'
+import type { Datenquelle } from '../core/data/dataSources'
 import { baueSevariablen } from './sevariablen'
 
 interface Bestellung {
@@ -9,21 +9,21 @@ interface Bestellung {
 }
 
 function bestellung(
-  used: readonly DataSource[],
+  used: readonly Datenquelle[],
   benutzt: ReadonlyMap<string, ReadonlySet<string>> = new Map(),
 ): Bestellung {
   return JSON.parse(baueSevariablen(used, benutzt, new Map())) as Bestellung
 }
 
-function felder(codes: readonly string[]): DataSource['fields'] {
+function felder(codes: readonly string[]): Datenquelle['fields'] {
   return codes.map((code) => ({ code, label: code }))
 }
 
-const artikel: DataSource = {
+const artikel: Datenquelle = {
   id: 'q-art', name: 'ART', kind: 'artikelstamm', fields: felder(['18_25', '45_60']),
 }
 
-const positionen: DataSource = {
+const positionen: Datenquelle = {
   id: 'q-pos',
   name: 'POS',
   kind: 'belegposition',
@@ -31,7 +31,7 @@ const positionen: DataSource = {
   fields: felder(['18_25', '164_8']),
 }
 
-const belegkopf: DataSource = {
+const belegkopf: Datenquelle = {
   id: 'q-bel',
   name: 'BEL',
   kind: 'beleg',
@@ -71,7 +71,7 @@ test('Kopfsatz und offener Satz derselben Tabelle werden EIN VAR-Eintrag', () =>
 })
 
 test('dasselbe Feld zweimal bestellt wird einmal geschrieben', () => {
-  const belegMitSatzschluessel: DataSource = {
+  const belegMitSatzschluessel: Datenquelle = {
     ...belegkopf,
     fields: felder(['0_11', '2_1']),
   }
@@ -85,7 +85,7 @@ test('ohne VAR-Bedarf fehlt der VAR-Abschnitt ganz', () => {
 
 // SoftEngine schlaegt zu jedem gelieferten Wert nach; eine Quelle mit 34
 // Feldern, von denen die Maske drei zeigt, kostet das Elffache an Zeit.
-const langePos: DataSource = {
+const langePos: Datenquelle = {
   id: 'q-pos-lang',
   name: 'POS',
   kind: 'belegposition',
@@ -98,7 +98,7 @@ test('bestellt werden nur die Felder, die die Maske liest', () => {
 })
 
 test('das gilt auch fuer die ERP-Abfrage', () => {
-  const abfrage: DataSource = {
+  const abfrage: Datenquelle = {
     id: 'q-api',
     name: 'Artikelstamm',
     kind: 'erpabfrage',
@@ -129,7 +129,7 @@ test('ein gebundener Code ausserhalb der Feldliste kommt trotzdem mit', () => {
 // Aendern wie Loeschen schreibt ins Nichts. Still, denn ein PUT ist ein
 // Einweg-Ruf: seine Ablehnung sieht die Maske nicht.
 test('die Satznummer kommt mit, auch wenn keine Spalte an ihr haengt', () => {
-  const mitSatznummer: DataSource = { ...langePos, indexField: '645_10' }
+  const mitSatznummer: Datenquelle = { ...langePos, indexField: '645_10' }
   const raus = bestellung([mitSatznummer], new Map([['q-pos-lang', new Set(['18_25'])]]))
   expect(raus.SEFILELOOP[0]?.FELDER).toBe('645_10,18_25')
 })
@@ -143,7 +143,7 @@ test('der offene Satz behaelt seine benutzten Felder im VAR-Abschnitt', () => {
 // Feldcode aus dem Formular gehoert nicht in ihre Bestellung: ihre Felder
 // heissen mit Vorsatz, ein nacktes 0_10 kennt sie gar nicht.
 test('eine Lesequelle bestellt keine Satznummer', () => {
-  const lesequelle: DataSource = {
+  const lesequelle: Datenquelle = {
     id: 'q-lese',
     name: 'Artikelstamm',
     kind: 'erpabfrage',
@@ -161,7 +161,7 @@ test('eine Lesequelle bestellt keine Satznummer', () => {
 // Stuende sie im SEFILELOOP, bestellte die Maske eine Tabelle, die es nicht
 // gibt (ID:""), und SoftEngine braeche laut Kontrakt die ganze Loop-Liste ab.
 test('„Wert per Relation" wird nicht bestellt', () => {
-  const adressnummer: DataSource = {
+  const adressnummer: Datenquelle = {
     id: 'q-adrnr',
     name: 'Adressnummer',
     kind: 'relationswert',

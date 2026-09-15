@@ -1,9 +1,9 @@
 // Welche Quellen und Felder die Maske wirklich liest — danach wird bestellt.
-import { ROOT_ID, type BlockNode, type BlockTree } from '../core/blocks/BlockData'
+import { WURZEL_ID, type Baustein, type Maskenbaum } from '../core/blocks/BlockData'
 import { feldWahlenLesen, listeLesen, zerlegeBindung } from '../core/blocks/BlockDefinition'
-import { bindingProp, faehigkeit } from '../core/blocks/faehigkeiten'
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
-import { propertySichtbar } from '../core/blocks/PropertyDescription'
+import { bindungsProp, faehigkeit } from '../core/blocks/faehigkeiten'
+import { bausteinArt } from '../core/blocks/blockRegistry'
+import { eigenschaftSichtbar } from '../core/blocks/PropertyDescription'
 import {
   auswahlQuelleIdVon,
   bindbareStellenVon,
@@ -13,7 +13,7 @@ import {
 } from '../core/blocks/treeQuery'
 import { AUSWAHL_FOLGE_PROP, auswahlFolgenAus, folgeBrauchbar } from '../core/data/auswahlFolge'
 import { datenfelderAus } from '../core/data/berechnung'
-import { ladeRelationFor, quellenAusHolWert, type DataSource } from '../core/data/dataSources'
+import { ladeRelationVon, quellenAusHolWert, type Datenquelle } from '../core/data/dataSources'
 import {
   quelleBrauchbar,
   vollstaendigePaare,
@@ -24,11 +24,11 @@ import {
 import { quellenInReichweite } from '../state/quellenOps'
 
 export function collectDataSources(
-  tree: BlockTree,
-  sources: readonly DataSource[],
-): DataSource[] {
+  tree: Maskenbaum,
+  sources: readonly Datenquelle[],
+): Datenquelle[] {
   const seen = new Set<string>()
-  const acc: DataSource[] = []
+  const acc: Datenquelle[] = []
   const add = (id: unknown): void => {
     const src = typeof id === 'string' ? sources.find((s) => s.id === id) : undefined
     if (src && !seen.has(src.id)) {
@@ -36,7 +36,7 @@ export function collectDataSources(
       acc.push(src)
     }
   }
-  const visit = (node: BlockNode | undefined): void => {
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
 
     if (traegtEigeneQuelle(node)) {
@@ -47,9 +47,9 @@ export function collectDataSources(
       }
     }
 
-    const def = getBlockDefinition(node.type)
+    const def = bausteinArt(node.type)
     for (const prop of def?.customProperties ?? []) {
-      if (prop.kind === 'quelle' && propertySichtbar(prop.visibleWhen, node.props)) {
+      if (prop.kind === 'quelle' && eigenschaftSichtbar(prop.visibleWhen, node.props)) {
         add(node.props[prop.attributeName])
       }
     }
@@ -64,7 +64,7 @@ export function collectDataSources(
     for (const id of quellenIdsInKettenVon(node)) add(id)
     node.childIds.forEach((id) => visit(tree[id]))
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
 
   // Eine holende Quelle kann ihre Parameter aus einer ANDEREN Quelle ziehen; die
   // muss mit in die Maske, sonst ginge der Parameter still leer hinaus.
@@ -75,8 +75,8 @@ export function collectDataSources(
 }
 
 export function benutzteFelderJeQuelle(
-  tree: BlockTree,
-  sources: readonly DataSource[],
+  tree: Maskenbaum,
+  sources: readonly Datenquelle[],
 ): Map<string, ReadonlySet<string>> {
   const felder = new Map<string, Set<string>>()
 
@@ -87,9 +87,9 @@ export function benutzteFelderJeQuelle(
     else felder.set(quelleId, new Set([code.trim()]))
   }
 
-  const visit = (node: BlockNode | undefined): void => {
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
-    const def = getBlockDefinition(node.type)
+    const def = bausteinArt(node.type)
 
     let reichweite: QuelleInReichweite[] | undefined
     const inReichweite = (): QuelleInReichweite[] => (
@@ -106,7 +106,7 @@ export function benutzteFelderJeQuelle(
     }
 
     for (const spot of bindbareStellenVon(node)) {
-      merkeBindung(node.props[bindingProp(spot.prop)])
+      merkeBindung(node.props[bindungsProp(spot.prop)])
     }
 
     const b = faehigkeit(def, 'liste')?.bindung
@@ -142,7 +142,7 @@ export function benutzteFelderJeQuelle(
 
     for (const prop of def?.customProperties ?? []) {
       if (prop.kind !== 'field') continue
-      if (!propertySichtbar(prop.visibleWhen, node.props)) continue
+      if (!eigenschaftSichtbar(prop.visibleWhen, node.props)) continue
       // Ohne `quelleProp` steht im Wert dieselbe Form wie in einer Bindung; er
       // muss aufgeloest werden, sonst bestellt der Export den ganzen Token.
       if (prop.quelleProp === undefined) merkeBindung(node.props[prop.attributeName])
@@ -189,7 +189,7 @@ export function benutzteFelderJeQuelle(
     }
     node.childIds.forEach((id) => visit(tree[id]))
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
 
   // Woraus eine holende Quelle ihre Parameter zieht, steht an der QUELLE und
   // nicht im Baum; ohne diese Runde ginge der Parameter leer hinaus. Nur die
@@ -205,8 +205,8 @@ export function benutzteFelderJeQuelle(
 // Baustein. Die Schluesselfelder muessen trotzdem bei der GEBER-Quelle bestellt
 // werden, sonst ginge der Parameter der Relation leer hinaus.
 export function holSchluesselJeGeber(
-  tree: BlockTree,
-  sources: readonly DataSource[],
+  tree: Maskenbaum,
+  sources: readonly Datenquelle[],
 ): Map<string, string[]> {
   const proGeber = new Map<string, string[]>()
   const merke = (geberId: string, codes: readonly string[]): void => {
@@ -215,10 +215,10 @@ export function holSchluesselJeGeber(
     for (const code of codes) if (code !== '' && !liste.includes(code)) liste.push(code)
     proGeber.set(geberId, liste)
   }
-  const visit = (node: BlockNode | undefined): void => {
+  const visit = (node: Baustein | undefined): void => {
     if (!node) return
     const quelle = sources.find((s) => s.id === auswahlQuelleIdVon(node))
-    const lade = quelle ? ladeRelationFor(quelle) : null
+    const lade = quelle ? ladeRelationVon(quelle) : null
     if (lade) {
       // Ohne Feldpaare ist die Folge fuer den Filter unbrauchbar, fuer die
       // Holung reicht sie: die Schluessel nennt die Relation selbst.
@@ -231,6 +231,6 @@ export function holSchluesselJeGeber(
     }
     node.childIds.forEach((id) => visit(tree[id]))
   }
-  visit(tree[ROOT_ID])
+  visit(tree[WURZEL_ID])
   return proGeber
 }

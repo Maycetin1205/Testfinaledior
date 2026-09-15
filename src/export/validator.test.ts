@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest'
-import { ROOT_ID, ROOT_TYPE, type BlockTree } from '../core/blocks/BlockData'
+import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../core/blocks/BlockData'
 import { exportMask } from './exportMask'
 import { END_MARKER, START_MARKER, failedChecks, validateMaskHtml } from './validator'
 
-function maske(): BlockTree {
+function maske(): Maskenbaum {
   return {
-    [ROOT_ID]: { id: ROOT_ID, type: ROOT_TYPE, props: {}, parentId: null, childIds: [] },
+    [WURZEL_ID]: { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: [] },
   }
 }
 

@@ -1,12 +1,12 @@
 // Nach dem Streichen einer Spalte: Ketten-Parameter, die auf sie zeigten, abschalten.
-import type { BlockNode, BlockTree } from '../core/blocks/BlockData'
-import type { BlockDefinition } from '../core/blocks/BlockDefinition'
+import type { Baustein, Maskenbaum } from '../core/blocks/BlockData'
+import type { BausteinArt } from '../core/blocks/BlockDefinition'
 import { faehigkeit } from '../core/blocks/faehigkeiten'
 import { listeLesen } from '../core/blocks/listenBindung'
 import {
   ZELLEN_PARAM_QUELLEN,
-  type ActionParamBinding,
-  type ActionStep,
+  type Parameter,
+  type Schritt,
 } from '../core/data/aktionen'
 
 // Sichtbar wird ein verwaister Zeiger nirgends: der Export macht daraus die
@@ -14,7 +14,7 @@ import {
 // Generisch ueber die Listen-Bindung, kein Bausteintyp-Sondercode.
 
 export function gestricheneKennungen(
-  def: BlockDefinition | undefined,
+  def: BausteinArt | undefined,
   attr: string,
   alt: unknown,
   neu: unknown,
@@ -30,13 +30,13 @@ export function gestricheneKennungen(
 }
 
 function schrittOhneZeiger(
-  schritt: ActionStep,
+  schritt: Schritt,
   blockId: string,
   weg: ReadonlySet<string>,
-): { schritt: ActionStep; getroffen: number } | null {
+): { schritt: Schritt; getroffen: number } | null {
   if (schritt.type !== 'RELATION') return null
   let getroffen = 0
-  const abraeumen = (liste: ActionParamBinding[]): ActionParamBinding[] =>
+  const abraeumen = (liste: Parameter[]): Parameter[] =>
     liste.map((b) => {
       const zeigt = ZELLEN_PARAM_QUELLEN[b.source] !== undefined
         && (b.blockId ?? '') === blockId
@@ -53,7 +53,7 @@ function schrittOhneZeiger(
 }
 
 export interface Abgeraeumt {
-  tree: BlockTree
+  tree: Maskenbaum
 
   // Der Editor sagt es dem Bediener, weil die Bausteine woanders stehen koennen.
   parameter: number
@@ -63,7 +63,7 @@ export interface Abgeraeumt {
 // Ketten stehen auf beliebigen Bausteinen, nicht nur auf dem mit der Liste,
 // darum laeuft das ueber den ganzen Baum.
 export function ohneSpaltenZeiger(
-  tree: BlockTree,
+  tree: Maskenbaum,
   blockId: string,
   gestrichen: readonly string[],
 ): Abgeraeumt {
@@ -71,10 +71,10 @@ export function ohneSpaltenZeiger(
   const weg = new Set(gestrichen)
   let parameter = 0
   let bausteine = 0
-  const next: BlockTree = { ...tree }
-  for (const node of Object.values(tree) as BlockNode[]) {
+  const next: Maskenbaum = { ...tree }
+  for (const node of Object.values(tree) as Baustein[]) {
     if (!node.events) continue
-    const events: Record<string, ActionStep[]> = {}
+    const events: Record<string, Schritt[]> = {}
     let nodeGetroffen = 0
     for (const [key, schritte] of Object.entries(node.events)) {
       events[key] = schritte.map((s) => {

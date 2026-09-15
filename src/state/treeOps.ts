@@ -1,23 +1,23 @@
 // Die kleinen Griffe am Baum: Knoten holen, setzen, Kinder ordnen.
 import {
-  ROOT_ID,
-  ROOT_TYPE,
-  type BlockNode,
-  type BlockTree,
+  WURZEL_ID,
+  WURZEL_TYP,
+  type Baustein,
+  type Maskenbaum,
 } from '../core/blocks/BlockData'
-import { getBlockDefinition } from '../core/blocks/blockRegistry'
+import { bausteinArt } from '../core/blocks/blockRegistry'
 import { deepClone } from '../lib/deepClone'
 
-function createRootNode(): BlockNode {
-  return { id: ROOT_ID, type: ROOT_TYPE, props: {}, parentId: null, childIds: [] }
+function createRootNode(): Baustein {
+  return { id: WURZEL_ID, type: WURZEL_TYP, props: {}, parentId: null, childIds: [] }
 }
 
-export function createEmptyTree(): BlockTree {
-  return { [ROOT_ID]: createRootNode() }
+export function leererBaum(): Maskenbaum {
+  return { [WURZEL_ID]: createRootNode() }
 }
 
-export function normalizeProps(type: string, rawProps: Record<string, unknown>): Record<string, unknown> {
-  const def = getBlockDefinition(type)
+export function werteBereinigen(type: string, rawProps: Record<string, unknown>): Record<string, unknown> {
+  const def = bausteinArt(type)
   if (!def) return {}
   const next = deepClone(def.defaultProps)
 
@@ -29,7 +29,7 @@ export function normalizeProps(type: string, rawProps: Record<string, unknown>):
   return next
 }
 
-export function collectSubtree(tree: BlockTree, id: string): string[] {
+export function teilbaumIds(tree: Maskenbaum, id: string): string[] {
   const acc: string[] = []
   const rec = (nid: string): void => {
     const n = tree[nid]

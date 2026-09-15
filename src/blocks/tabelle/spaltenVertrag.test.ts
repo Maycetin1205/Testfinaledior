@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { serializeBlockEvents, type BlockEventsMap } from '../../core/data/aktionen'
+import { kettenFuerExport, type Ketten } from '../../core/data/aktionen'
 import { spalteMitKennung, spaltenSicht, type Spalte } from './spalten'
 
 test('versteckte Tabellenspalten behalten ihren Platz fuer Laufzeit-Parameter', () => {
@@ -13,7 +13,7 @@ test('versteckte Tabellenspalten behalten ihren Platz fuer Laufzeit-Parameter', 
   expect(sicht.spalten.map((spalte) => spalte.kennung)).toEqual(['a', 'c'])
   expect(sicht.plaetze).toEqual([0, 2])
 
-  const events: BlockEventsMap = {
+  const events: Ketten = {
     onSave: [{
       id: 'schritt-1',
       type: 'RELATION',
@@ -23,7 +23,7 @@ test('versteckte Tabellenspalten behalten ihren Platz fuer Laufzeit-Parameter', 
       extraParams: [],
     }],
   }
-  const serialisiert = serializeBlockEvents(
+  const serialisiert = kettenFuerExport(
     events,
     ['onSave'],
     () => '',

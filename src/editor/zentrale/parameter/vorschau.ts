@@ -1,17 +1,17 @@
 // Der Aufruf eines Relationsschritts in Worten: dieselbe Syntax, die hinausgeht,
 // nur mit Klartext statt Feldcodes an den Stellen, die erst zur Laufzeit fallen.
-import { formatRelationSyntax, type RelationTemplate } from '../../../core/data/relations'
-import type { ActionParamBinding } from '../../../core/data/aktionen'
+import { relationsSyntaxAlsText, type RelationsVorlage } from '../../../core/data/relations'
+import type { Parameter } from '../../../core/data/aktionen'
 import { bindungsText } from './bindungsRegistry'
 import type { ParameterWahlen } from './wahlen'
 
 export function relationsVorschau(
-  relation: Pick<RelationTemplate, 'verb' | 'nr'>,
-  params: readonly ActionParamBinding[],
-  extraParams: readonly ActionParamBinding[],
+  relation: Pick<RelationsVorlage, 'verb' | 'nr'>,
+  params: readonly Parameter[],
+  extraParams: readonly Parameter[],
   wahlen: ParameterWahlen,
 ): string {
-  return formatRelationSyntax({
+  return relationsSyntaxAlsText({
     verb: relation.verb,
     nr: relation.nr,
     params: [...params, ...extraParams].map((binding) => bindungsText(binding, wahlen)),

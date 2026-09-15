@@ -1,5 +1,5 @@
 // Die Eigenschaften der Tabelle und ihrer Spalten, wie der Inspector sie zeigt.
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { jaNeinProperty } from '../shared/jaNeinProperty'
 import { leerTextProperty } from '../shared/leerZustand'
 import type { ListenBindung } from '../../core/blocks/BlockDefinition'
@@ -12,7 +12,7 @@ import {
   STANDARD_TITEL,
 } from './spalten'
 
-export const TABELLE_EIGENSCHAFTEN: PropertyDescription[] = [
+export const TABELLE_EIGENSCHAFTEN: Eigenschaft[] = [
   jaNeinProperty(
     'suche',
     'Suchzeile',

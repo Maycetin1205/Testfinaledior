@@ -3,7 +3,7 @@ import { Link2, X } from '@/ui/zeichen'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { Marke } from '@/ui/werkbank/Marke'
 import { PickerControl } from '../inspector/controls/PickerControl'
-import type { ActionParamBinding, ActionParamSource } from '../../core/data/aktionen'
+import type { Parameter, ParameterQuelle } from '../../core/data/aktionen'
 import type { FeldUebernahmeZiel } from './feldUebernahme'
 import { PARAM_QUELLEN, herkunftsEintraege, neueBindung } from './parameter/bindungsRegistry'
 import type { ParameterWahlen } from './parameter/wahlen'
@@ -29,14 +29,14 @@ export function ParameterZeile({
   // Vorlage; dort bleiben beide Plaetze leer, damit die Bedienelemente an
   // derselben Kante beginnen.
   kennung?: string
-  binding: ActionParamBinding
+  binding: Parameter
   wahlen: ParameterWahlen
 
   platzhalter?: string
 
   entfernen?: { label: string; onClick: () => void }
   ausloeser?: FeldUebernahmeZiel
-  onChange: (binding: ActionParamBinding) => void
+  onChange: (binding: Parameter) => void
   onAusloeser?: (anchor: HTMLElement) => void
 }) {
   const { Control } = PARAM_QUELLEN[binding.source]
@@ -64,7 +64,7 @@ export function ParameterZeile({
           bezeichnung={`Herkunft für ${label}`}
           gruppen={[{ key: 'herkunft', eintraege: herkunftsEintraege(binding, wahlen) }]}
           wert={binding.source}
-          onWaehle={(source) => onChange(neueBindung(source as ActionParamSource, wahlen))}
+          onWaehle={(source) => onChange(neueBindung(source as ParameterQuelle, wahlen))}
         />
       </div>
       <div

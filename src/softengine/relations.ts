@@ -1,10 +1,10 @@
 // Relations-Rufe an SoftEngine: einer zur Zeit, mit Warteschlange und Verfallsmarke.
 import {
-  RELATION_VERBS,
-  type RelationTemplate,
-  type RelationVerb,
+  RELATIONS_VERBEN,
+  type RelationsVorlage,
+  type RelationsVerb,
 } from '../core/data/relations'
-import { ACTION_VALUE_ID_ATTR, type ActionParamBinding } from '../core/data/aktionen'
+import { BAUSTEIN_ID_ATTR, type Parameter } from '../core/data/aktionen'
 import { bootSe, onSeAntwort, seGlobal } from './bridge'
 import {
   findRuntimeDataSource,
@@ -28,7 +28,7 @@ function fehlertext(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'params'>
+export type RuntimeRelation = Pick<RelationsVorlage, 'id' | 'verb' | 'nr' | 'params'>
 
 export function laufzeitRelation(id: string): RuntimeRelation | undefined {
   return findRuntimeRelation(seGlobal().FF_RELATIONS, id)
@@ -38,10 +38,10 @@ export function findRuntimeRelation(list: unknown, id: string): RuntimeRelation 
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {
     if (!isRecord(entry) || entry.id !== id) continue
-    if (typeof entry.verb !== 'string' || !RELATION_VERBS.includes(entry.verb as RelationVerb)) continue
+    if (typeof entry.verb !== 'string' || !RELATIONS_VERBEN.includes(entry.verb as RelationsVerb)) continue
     if (typeof entry.nr !== 'string' || entry.nr === '') continue
     if (!Array.isArray(entry.params) || entry.params.some((p) => typeof p !== 'string')) continue
-    return { id, verb: entry.verb as RelationVerb, nr: entry.nr, params: entry.params as string[] }
+    return { id, verb: entry.verb as RelationsVerb, nr: entry.nr, params: entry.params as string[] }
   }
   return undefined
 }
@@ -350,19 +350,19 @@ export interface RuntimeActionValues {
   zeilenZelle?: (blockId: string, spaltenIndex: number) => string
 }
 
-function resolveBlockValue(binding: ActionParamBinding, runtime: unknown): string {
+function resolveBlockValue(binding: Parameter, runtime: unknown): string {
   if (!isRecord(runtime)) return ''
   const doc = runtime.document as ParentNode | undefined
   if (!doc || typeof doc.querySelectorAll !== 'function') return ''
-  const element = Array.from(doc.querySelectorAll<HTMLElement>(`[${ACTION_VALUE_ID_ATTR}]`))
-    .find((candidate) => candidate.getAttribute(ACTION_VALUE_ID_ATTR) === binding.blockId)
+  const element = Array.from(doc.querySelectorAll<HTMLElement>(`[${BAUSTEIN_ID_ATTR}]`))
+    .find((candidate) => candidate.getAttribute(BAUSTEIN_ID_ATTR) === binding.blockId)
   if (!element) return ''
   const raw = (element as unknown as Record<string, unknown>)[binding.value]
   return raw == null ? '' : String(raw)
 }
 
 export function resolveActionParam(
-  binding: ActionParamBinding,
+  binding: Parameter,
   values: RuntimeActionValues,
   runtime: unknown = seGlobal(),
 ): string {

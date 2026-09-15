@@ -1,15 +1,15 @@
 // Prueft einen Ketten-Schritt und sagt in Klartext, was ihm fehlt.
-import type { DataSource } from './dataSources'
-import type { RelationTemplate } from './relations'
-import { unknownPlaceholders } from './relations'
+import type { Datenquelle } from './dataSources'
+import type { RelationsVorlage } from './relations'
+import { unbekanntePlatzhalter } from './relations'
 import {
   abschnitteVon,
   AKTIONS_PLATZHALTER,
-  type ActionParamBinding,
-  type ActionStep,
+  type Parameter,
+  type Schritt,
 } from './aktionen'
 
-function bindingProblem(binding: ActionParamBinding | undefined): boolean {
+function bindingProblem(binding: Parameter | undefined): boolean {
   if (!binding) return true
 
   if (binding.source === 'fixed' || binding.source === 'previous_result') return false
@@ -28,10 +28,10 @@ function bindingProblem(binding: ActionParamBinding | undefined): boolean {
   return binding.value.trim() === ''
 }
 
-export function stepProblem(
-  step: ActionStep,
-  relations?: readonly RelationTemplate[],
-  dataSources?: readonly DataSource[],
+export function schrittProblem(
+  step: Schritt,
+  relations?: readonly RelationsVorlage[],
+  dataSources?: readonly Datenquelle[],
 
   popupIds?: readonly string[],
 
@@ -43,9 +43,9 @@ export function stepProblem(
 
   // Die Schritte VOR diesem; ohne sie bleibt die Frage nach der Loeschzeile
   // ungestellt, denn sie haengt am ganzen Abschnitt.
-  vorher?: readonly ActionStep[],
+  vorher?: readonly Schritt[],
 ): string | null {
-  const ergebnisKaputt = (binding: ActionParamBinding | undefined): boolean =>
+  const ergebnisKaputt = (binding: Parameter | undefined): boolean =>
     binding?.source === 'step_result'
     && ergebnisIds !== undefined
     && !ergebnisIds.includes(binding.value)
@@ -69,7 +69,7 @@ export function stepProblem(
     if (step.toolParams.some((param) => param.trim() === '')) {
       return 'Schritt "START_TOOL" hat einen leeren Parameter.'
     }
-    const unknown = step.toolParams.flatMap((param) => unknownPlaceholders(param, AKTIONS_PLATZHALTER))
+    const unknown = step.toolParams.flatMap((param) => unbekanntePlatzhalter(param, AKTIONS_PLATZHALTER))
     if (unknown.length > 0) {
       return 'Schritt "START_TOOL" hat einen unbekannten Platzhalter.'
     }

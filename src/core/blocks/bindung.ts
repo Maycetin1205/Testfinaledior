@@ -1,6 +1,6 @@
 // Die Form einer Feldbindung: „Feldcode" heisst die eigene Quelle,
 // „quelleId::Feldcode" eine andere. Eigene Datei, weil ein Import aus
-// BlockDefinition ein Ringschluss waere.
+// der Bausteinart ein Ringschluss waere.
 
 export const QUELLEN_TRENNER = '::'
 

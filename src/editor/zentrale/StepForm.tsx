@@ -6,24 +6,24 @@ import { Gruppe } from '@/ui/werkbank/Gruppe'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { Zeile } from '@/ui/werkbank/Zeile'
 import {
-  STEP_TYPE_KEYS,
-  defaultRelationParams,
+  SCHRITT_ARTEN,
+  relationsParameterVorgabe,
   ergebnisSchritteVor,
   schritteVor,
-  type ActionStep,
-  type StepTypeKey,
+  type Schritt,
+  type SchrittArt,
 } from '../../core/data/aktionen'
-import { stepProblem } from '../../core/data/schrittPruefung'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { schrittProblem } from '../../core/data/schrittPruefung'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import { faehigkeit } from '../../core/blocks/faehigkeiten'
 import {
-  actionValueTargets,
+  wertstellenImBaum,
   auswahlGeberImBaum,
   aenderungsTraegerImBaum,
   erfassungsTraegerImBaum,
   loeschTraegerImBaum,
 } from '../../core/blocks/treeQuery'
-import { relationMatchesSearch } from '../../core/data/relations'
+import { relationPasstZurSuche } from '../../core/data/relations'
 import { schrittName } from './beschriftungen'
 import { FeldUebernahmePicker } from './FeldUebernahmePicker'
 import {
@@ -58,10 +58,10 @@ import { PickerControl } from '../inspector/controls/PickerControl'
 import { SelectControl } from '../inspector/controls/SelectControl'
 
 interface StepFormProps {
-  step?: ActionStep
+  step?: Schritt
 
-  kette: readonly ActionStep[]
-  onSave: (step: ActionStep) => void
+  kette: readonly Schritt[]
+  onSave: (step: Schritt) => void
   onClose: () => void
 }
 
@@ -81,8 +81,8 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
   // Die Wahlmoeglichkeiten haengen am Baustein-Baum, nicht am Getippten: ohne
   // Memo laeuft jeder Tastendruck durch den ganzen Baum.
   const auswahlen = useMemo(() => {
-    const blockValues: BlockValueOption[] = actionValueTargets(baum).map(({ node, spot }) => {
-      const def = getBlockDefinition(node.type)
+    const blockValues: BlockValueOption[] = wertstellenImBaum(baum).map(({ node, spot }) => {
+      const def = bausteinArt(node.type)
       const name = bausteinName(node, quellen)
       const mehrereStellen = (faehigkeit(def, 'aktionswert')?.stellen.length ?? 0) > 1
       return {
@@ -132,11 +132,11 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
     [vorlagen, entwurf.relationId],
   )
   const vorgaben = useMemo(
-    () => (relation ? defaultRelationParams(relation) : []),
+    () => (relation ? relationsParameterVorgabe(relation) : []),
     [relation],
   )
   const sichtbareRelationen = useMemo(
-    () => vorlagen.filter((entry) => relationMatchesSearch(entry, entwurf.suche)),
+    () => vorlagen.filter((entry) => relationPasstZurSuche(entry, entwurf.suche)),
     [vorlagen, entwurf.suche],
   )
 
@@ -145,7 +145,7 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
     [entwurf, relation, step],
   )
   const problem = useMemo(
-    () => stepProblem(
+    () => schrittProblem(
       kandidat,
       vorlagen,
       quellen,
@@ -225,8 +225,8 @@ export function StepForm({ step, kette, onSave, onClose }: StepFormProps) {
       <SelectControl
         label="Aktion"
         value={entwurf.typ}
-        options={STEP_TYPE_KEYS.map((key) => ({ value: key, label: schrittName(key) }))}
-        onChange={(value) => dispatch({ art: 'typ', typ: value as StepTypeKey })}
+        options={SCHRITT_ARTEN.map((key) => ({ value: key, label: schrittName(key) }))}
+        onChange={(value) => dispatch({ art: 'typ', typ: value as SchrittArt })}
       />
 
       {(entwurf.typ === 'POPUP_OPEN' || entwurf.typ === 'POPUP_CLOSE') && (

@@ -1,13 +1,13 @@
 // Die feste Referenzmaske des Referenzabzugs: jeder Bausteintyp einmal.
-import { ROOT_ID, ROOT_TYPE, type BlockNode, type BlockTree } from '../../core/blocks/BlockData'
-import type { DataSource } from '../../core/data/dataSources'
-import type { RelationTemplate } from '../../core/data/relations'
-import type { ActionStep } from '../../core/data/aktionen'
+import { WURZEL_ID, WURZEL_TYP, type Baustein, type Maskenbaum } from '../../core/blocks/BlockData'
+import type { Datenquelle } from '../../core/data/dataSources'
+import type { RelationsVorlage } from '../../core/data/relations'
+import type { Schritt } from '../../core/data/aktionen'
 import { WEITERE_QUELLEN_PROP } from '../../core/data/sourceLinks'
 
 // Feste Kennungen: der Export dieser Maske muss byte-gleich bleiben.
 
-export const REFERENZ_QUELLEN: readonly DataSource[] = [
+export const REFERENZ_QUELLEN: readonly Datenquelle[] = [
   {
     id: 'q-pos',
     name: 'Belegpositionen',
@@ -30,7 +30,7 @@ export const REFERENZ_QUELLEN: readonly DataSource[] = [
   },
 ]
 
-export const REFERENZ_RELATIONEN: readonly RelationTemplate[] = [
+export const REFERENZ_RELATIONEN: readonly RelationsVorlage[] = [
   {
     id: 'r-get',
     name: 'Positionsfeld lesen',
@@ -48,7 +48,7 @@ export const REFERENZ_RELATIONEN: readonly RelationTemplate[] = [
   },
 ]
 
-const KETTE: ActionStep[] = [
+const KETTE: Schritt[] = [
   {
     id: 's0',
     type: 'RELATION',
@@ -86,16 +86,16 @@ function knoten(
   parentId: string | null,
   props: Record<string, unknown>,
   childIds: string[] = [],
-): BlockNode {
+): Baustein {
   return { id, type, props, parentId, childIds }
 }
 
-export function referenzBaum(): BlockTree {
-  const tree: BlockTree = {
-    [ROOT_ID]: knoten(ROOT_ID, ROOT_TYPE, null, {}, [
+export function referenzBaum(): Maskenbaum {
+  const tree: Maskenbaum = {
+    [WURZEL_ID]: knoten(WURZEL_ID, WURZEL_TYP, null, {}, [
       't1', 't2', 'f1', 'b1', 'k1', 'n1', 'tx1', 'd1', 'tr1', 'p1',
     ]),
-    t1: knoten('t1', 'erfassung', ROOT_ID, {
+    t1: knoten('t1', 'erfassung', WURZEL_ID, {
       rasterX: 0, rasterY: 3, rasterW: 16, rasterH: 22,
       source: 'q-pos',
       [WEITERE_QUELLEN_PROP]: [{ quelleId: 'q-art', partnerId: '', keyPairs: [] }],
@@ -117,7 +117,7 @@ export function referenzBaum(): BlockTree {
         nenner: [],
       }],
     }),
-    t2: knoten('t2', 'tabelle', ROOT_ID, {
+    t2: knoten('t2', 'tabelle', WURZEL_ID, {
       rasterX: 20, rasterY: 25, rasterW: 28, rasterH: 12,
       source: 'q-pos',
       spalten: [
@@ -125,20 +125,20 @@ export function referenzBaum(): BlockTree {
         { kennung: 'sp-bez', titel: 'Bezeichnung', feld: '45_60' },
       ],
     }),
-    f1: knoten('f1', 'formfeld', ROOT_ID, {
+    f1: knoten('f1', 'formfeld', WURZEL_ID, {
       rasterX: 10, rasterY: 0, rasterW: 16, rasterH: 3,
       fieldType: 'text',
       placeholder: 'Bezeichnung',
       source: 'q-pos',
       valueField: '45_60',
     }),
-    b1: knoten('b1', 'button', ROOT_ID, {
+    b1: knoten('b1', 'button', WURZEL_ID, {
       rasterX: 26, rasterY: 0, rasterW: 8, rasterH: 3, label: 'Schreiben',
     }),
     c1: knoten('c1', 'card', 'km1', {
       rasterX: 0, rasterY: 25, rasterW: 12, rasterH: 12, heading: 'Karte', headingField: '45_60',
     }),
-    k1: knoten('k1', 'kanban', ROOT_ID, {
+    k1: knoten('k1', 'kanban', WURZEL_ID, {
       rasterX: 18, rasterY: 3, rasterW: 30, rasterH: 22, source: 'q-pos', statusField: '18_25',
     }, ['km1', 'ks1']),
     km1: knoten('km1', 'kanban-muster', 'k1', {}, ['c1']),
@@ -146,15 +146,15 @@ export function referenzBaum(): BlockTree {
       heading: 'Offen', wert: 'ART-B', variant: 'info',
     }, ['kz1']),
     kz1: knoten('kz1', 'kanban-zimmer', 'ks1', { heading: 'Zimmer 1', wert: 'Z1' }),
-    n1: knoten('n1', 'navi', ROOT_ID, {}, ['ne1']),
+    n1: knoten('n1', 'navi', WURZEL_ID, {}, ['ne1']),
     ne1: knoten('ne1', 'navi-eintrag', 'n1', {}),
-    tx1: knoten('tx1', 'text', ROOT_ID, { rasterX: 34, rasterY: 0, rasterW: 14, rasterH: 3 }),
-    d1: knoten('d1', 'datum', ROOT_ID, { rasterX: 0, rasterY: 0, rasterW: 10, rasterH: 3 }),
-    tr1: knoten('tr1', 'trenner', ROOT_ID, {
+    tx1: knoten('tx1', 'text', WURZEL_ID, { rasterX: 34, rasterY: 0, rasterW: 14, rasterH: 3 }),
+    d1: knoten('d1', 'datum', WURZEL_ID, { rasterX: 0, rasterY: 0, rasterW: 10, rasterH: 3 }),
+    tr1: knoten('tr1', 'trenner', WURZEL_ID, {
       rasterX: 18, rasterY: 25, rasterW: 2, rasterH: 12,
       richtung: 'senkrecht', stil: 'dashed', staerke: 2, farbe: 'akzent',
     }),
-    p1: knoten('p1', 'popup', ROOT_ID, { name: 'Hinweis' }, ['tx2']),
+    p1: knoten('p1', 'popup', WURZEL_ID, { name: 'Hinweis' }, ['tx2']),
     tx2: knoten('tx2', 'text', 'p1', {}),
   }
   tree.b1 = { ...tree.b1, events: { onClick: KETTE } }

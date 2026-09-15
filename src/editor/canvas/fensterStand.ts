@@ -12,10 +12,10 @@ import {
 } from '../../blocks/tabelle/nachschlagen'
 import { DIALOG_RAHMEN_TAG, type DialogRahmen } from '../../blocks/shared/DialogRahmen'
 import type { Spalte } from '../../blocks/tabelle/spalten'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
 import { type SuchFenster } from '../../core/blocks/faehigkeiten'
-import { getBlockDefinition } from '../../core/blocks/blockRegistry'
+import { bausteinArt } from '../../core/blocks/blockRegistry'
 import type { Editor } from '../../state/Editor'
 
 export interface FensterStand {
@@ -51,7 +51,7 @@ function alsZahl(v: unknown): number | undefined {
   return Number.isFinite(zahl) ? Math.round(zahl) : undefined
 }
 
-function rohEintraege(block: BlockNode, prop: string): Record<string, unknown>[] {
+function rohEintraege(block: Baustein, prop: string): Record<string, unknown>[] {
   const roh = block.props[prop]
   if (!Array.isArray(roh)) return []
   // Rohe Kopien: geschrieben wird die ganze Liste zurueck, und alles, was hier
@@ -62,12 +62,12 @@ function rohEintraege(block: BlockNode, prop: string): Record<string, unknown>[]
 // Das eine Fenster des Bausteins: seine eigenen Eigenschaften tragen es.
 function standAmBaustein(
   ed: Editor,
-  block: BlockNode,
+  block: Baustein,
   fenster: SuchFenster,
 ): FensterStand | null {
   const quelleId = String(block.props[fenster.quelleProp ?? ''] ?? '')
   if (quelleId === '') return null
-  const standard = getBlockDefinition(block.type)?.defaultProps ?? {}
+  const standard = bausteinArt(block.type)?.defaultProps ?? {}
   const gestellt = coerceNachschlagSpalten(block.props[fenster.spaltenKey])
   const speicherFeld = String(block.props[fenster.speicherFeldProp ?? ''] ?? '')
   const speicherTitel = String(block.props[fenster.speicherTitelProp ?? ''] ?? '')
@@ -102,7 +102,7 @@ function standAmBaustein(
 // Ein Fenster je Eintrag mit Hilfsquelle: die Spalten der Erfassung.
 function standJeEintrag(
   ed: Editor,
-  block: BlockNode,
+  block: Baustein,
   fenster: SuchFenster,
   platz: number,
 ): FensterStand | null {

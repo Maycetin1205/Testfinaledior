@@ -1,9 +1,9 @@
 // Eine Wahl aus einer Liste als natives Auswahlfeld.
-import type { PropertySelectOption } from '../../../core/blocks/PropertyDescription'
+import type { Wahloption } from '../../../core/blocks/PropertyDescription'
 import { Wahl } from '@/ui/werkbank/Wahl'
 import { Zeile } from '@/ui/werkbank/Zeile'
 
-type SelectOption = PropertySelectOption & { detail?: string }
+type SelectOption = Wahloption & { detail?: string }
 
 interface SelectControlProps {
   label: string

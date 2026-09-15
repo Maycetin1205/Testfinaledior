@@ -1,20 +1,20 @@
 // Oeffnet den Feld-Waehler fuer eine gebundene Stelle.
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, RefObject } from 'react'
-import type { BlockNode } from '../../core/blocks/BlockData'
-import { bindingProp, type BindableSpot } from '../../core/blocks/faehigkeiten'
+import type { Baustein } from '../../core/blocks/BlockData'
+import { bindungsProp, type BindbareStelle } from '../../core/blocks/faehigkeiten'
 import type { Editor } from '../../state/Editor'
 
-export function bindingCode(props: Record<string, unknown>, spot: BindableSpot): string {
-  const code = props[bindingProp(spot.prop)]
+export function bindingCode(props: Record<string, unknown>, spot: BindbareStelle): string {
+  const code = props[bindungsProp(spot.prop)]
   return typeof code === 'string' ? code : ''
 }
 
 interface BindingPickerArgs {
   editor: Editor
-  blockRef: RefObject<BlockNode>
+  blockRef: RefObject<Baustein>
   selected: boolean | undefined
-  bindableSpots: readonly BindableSpot[]
+  bindableSpots: readonly BindbareStelle[]
 
   hatAngebot: boolean
 
@@ -29,7 +29,7 @@ export function useBindingPicker({
   hatAngebot,
   onSelect,
 }: BindingPickerArgs) {
-  const [picker, setPicker] = useState<{ spot: BindableSpot; top: number; left: number } | null>(null)
+  const [picker, setPicker] = useState<{ spot: BindbareStelle; top: number; left: number } | null>(null)
   const pickerTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearPickerTimer = () => {
@@ -43,7 +43,7 @@ export function useBindingPicker({
 
   if (!selected && picker !== null) setPicker(null)
 
-  function spotAt(e: ReactMouseEvent<HTMLDivElement>): { spot: BindableSpot; el: HTMLElement } | null {
+  function spotAt(e: ReactMouseEvent<HTMLDivElement>): { spot: BindbareStelle; el: HTMLElement } | null {
     if (bindableSpots.length === 0) return null
     for (const t of e.nativeEvent.composedPath()) {
       if (t === e.currentTarget) return null

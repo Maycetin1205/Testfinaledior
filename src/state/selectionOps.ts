@@ -1,9 +1,9 @@
 // Direkte Auswahl und ihre Zugehoerigkeit zur aktiven Seite.
-import { ROOT_ID, type BlockTree } from '../core/blocks/BlockData'
+import { WURZEL_ID, type Maskenbaum } from '../core/blocks/BlockData'
 import { seiteVon } from './pageOps'
 
 export function auswahlAufSeite(
-  tree: BlockTree,
+  tree: Maskenbaum,
   id: string | null,
   seitenWurzel: string,
 ): string | null {
@@ -12,8 +12,8 @@ export function auswahlAufSeite(
 }
 
 export function auswahlZiel(
-  tree: BlockTree,
+  tree: Maskenbaum,
   getroffenId: string,
 ): string | null {
-  return tree[getroffenId] && getroffenId !== ROOT_ID ? getroffenId : null
+  return tree[getroffenId] && getroffenId !== WURZEL_ID ? getroffenId : null
 }

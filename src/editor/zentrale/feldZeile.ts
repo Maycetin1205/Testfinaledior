@@ -2,13 +2,13 @@
 // Quelle umrechnen. Eigene Datei, weil eine Komponenten-Datei nur Komponenten
 // ausliefern darf.
 import {
-  fieldCode,
-  spaltenNameFromInput,
+  feldCode,
+  spaltenNameAusEingabe,
   ZEICHEN_MAX,
-  type DataSourceField,
+  type Datenfeld,
 } from '../../core/data/dataSources'
 
-import { splitFieldCode } from '../../core/data/relations'
+import { feldCodeZerlegen } from '../../core/data/relations'
 
 export interface FeldZeile {
   label: string
@@ -25,7 +25,7 @@ export const LEERE_ZEILE: FeldZeile = {
 }
 
 export function zeileFromField(
-  f: DataSourceField, vorsatz = '', spaltenNamen = false,
+  f: Datenfeld, vorsatz = '', spaltenNamen = false,
 ): FeldZeile {
   // Bei spaltenNamen ist der Code der Spaltenname, auch wenn er wie
   // Position_Laenge aussieht.
@@ -34,7 +34,7 @@ export function zeileFromField(
   const ohneVorsatz = vorsatz !== '' && f.code.startsWith(vorsatz)
     ? f.code.slice(vorsatz.length)
     : f.code
-  const pl = splitFieldCode(ohneVorsatz)
+  const pl = feldCodeZerlegen(ohneVorsatz)
   return {
     label: f.label,
     pos: pl?.pos ?? '',
@@ -47,9 +47,9 @@ export function zeileFromField(
 // spaltenNamen=true: der Code IST der eingetippte Spaltenname. Sonst entsteht er
 // aus Position und Laenge.
 export function zeilenCode(z: FeldZeile, vorsatz = '', spaltenNamen = false): string {
-  if (spaltenNamen) return spaltenNameFromInput(z.rawCode)
+  if (spaltenNamen) return spaltenNameAusEingabe(z.rawCode)
   if (z.pos.trim() === '' && z.len.trim() === '' && z.rawCode !== '') return z.rawCode
-  return fieldCode(z.pos, z.len, vorsatz)
+  return feldCode(z.pos, z.len, vorsatz)
 }
 
 export function zeileGefuellt(z: FeldZeile): boolean {

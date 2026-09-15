@@ -1,5 +1,5 @@
 // Die Bibliothek als eigene Datei: Datenquellen und Relationen ohne Baustein-Baum.
-import { pruefeDatenquellen, type DataSource } from '../core/data/dataSources'
+import { pruefeDatenquellen, type Datenquelle } from '../core/data/dataSources'
 import {
   BEREICH_QUELLEN,
   BEREICH_RELATIONEN,
@@ -7,7 +7,7 @@ import {
   type EintragProblem,
   type LadeProblem,
 } from '../core/data/ladeProblem'
-import { pruefeRelationsVorlagen, type RelationTemplate } from '../core/data/relations'
+import { pruefeRelationsVorlagen, type RelationsVorlage } from '../core/data/relations'
 import { downloadFile } from '../lib/dateiDownload'
 import type { Editor } from './Editor'
 import { ersteAbweichung, keinVerlust } from './ladeKette'
@@ -18,8 +18,8 @@ export const BIBLIOTHEK_DATEI_ART = 'aufbau-editor-bibliothek'
 const BIBLIOTHEK_DATEI_VERSION = 1
 
 export interface BibliothekInhalt {
-  datenquellen: DataSource[]
-  relationen: RelationTemplate[]
+  datenquellen: Datenquelle[]
+  relationen: RelationsVorlage[]
 }
 
 export type BibliothekErgebnis =

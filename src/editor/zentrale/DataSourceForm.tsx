@@ -5,26 +5,26 @@ import { Gruppe } from '@/ui/werkbank/Gruppe'
 import { Knopf } from '@/ui/werkbank/Knopf'
 import { Zeile } from '@/ui/werkbank/Zeile'
 import {
-  defaultRelationParams,
-  type ActionParamBinding,
+  relationsParameterVorgabe,
+  type Parameter,
 } from '../../core/data/aktionen'
 import {
-  alias,
+  aliasVon,
   artFuer,
-  feldVorsatzFromInput,
+  feldVorsatzAusEingabe,
   HOL_WERT_QUELLEN,
   holWertQuelleErlaubt,
   kennungAnzeige,
-  kennungFromInput,
-  kopfsatzFromInput,
+  kennungAusEingabe,
+  kopfsatzAusEingabe,
   LADE_RELATION_STANDARD,
   QUELLEN_ARTEN,
-  relationNrFromInput,
+  relationNrAusEingabe,
   tabellenKennungNoetig,
-  type DataSource,
-  type DataSourceKind,
+  type Datenquelle,
+  type QuellenArtKennung,
 } from '../../core/data/dataSources'
-import { relationMatchesSearch } from '../../core/data/relations'
+import { relationPasstZurSuche } from '../../core/data/relations'
 import { useDataSources } from '../../state/useDataSources'
 import { useRelations } from '../../state/useRelations'
 import { ParameterZeile } from './ParameterZeile'
@@ -46,14 +46,14 @@ import { FormularKarte } from './FormularKarte'
 const FELDCODE = /^\d+_\d+$/
 
 interface DataSourceFormProps {
-  source?: DataSource
+  source?: Datenquelle
   onClose: () => void
 }
 
 export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const store = useDataSources()
   const [name, setName] = useState(source?.name ?? '')
-  const [kind, setKind] = useState<DataSourceKind>(source?.kind ?? 'idb')
+  const [kind, setKind] = useState<QuellenArtKennung>(source?.kind ?? 'idb')
   const [kennungEingabe, setKennungEingabe] = useState(kennungAnzeige(source?.idbId))
   const [kopfsatzEingabe, setKopfsatzEingabe] = useState(source?.kopfsatzIndex ?? '')
 
@@ -89,7 +89,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const relationen = useRelations()
   const holVorlagen = relationen.list
   const [holRelationId, setHolRelationId] = useState(source?.holWert?.relationId ?? '')
-  const [holParams, setHolParams] = useState<ActionParamBinding[]>(
+  const [holParams, setHolParams] = useState<Parameter[]>(
     source?.holWert ? [...source.holWert.params] : [],
   )
   const [holSuche, setHolSuche] = useState('')
@@ -102,7 +102,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
   const holenMoeglich = art.relationLadenMoeglich
 
-  const vorsatz = feldVorsatzFromInput(vorsatzEingabe)
+  const vorsatz = feldVorsatzAusEingabe(vorsatzEingabe)
 
   // Der Vorsatz steckt in JEDEM Feldcode dieser Quelle. Wer die Art wechselt,
   // soll ihn sehen und selbst entfernen, sonst fielen die Codes beim Speichern
@@ -120,7 +120,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const holtWert = art.holWertMoeglich
   const holRelation = holVorlagen.find((r) => r.id === holRelationId)
   const sichtbareRelationen = useMemo(
-    () => holVorlagen.filter((eintrag) => relationMatchesSearch(eintrag, holSuche)),
+    () => holVorlagen.filter((eintrag) => relationPasstZurSuche(eintrag, holSuche)),
     [holVorlagen, holSuche],
   )
 
@@ -141,7 +141,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     setHolRelationId(id)
     const vorlage = holVorlagen.find((r) => r.id === id)
     setHolParams(vorlage
-      ? defaultRelationParams(vorlage).map((binding) =>
+      ? relationsParameterVorgabe(vorlage).map((binding) =>
           holWertQuelleErlaubt(binding.source)
             ? binding
             : { source: 'fixed' as const, value: '' })
@@ -154,7 +154,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     holFehler = 'Nur eine lesende Relation (GET) liefert einen Wert zurück.'
   }
 
-  function waehleArt(neu: DataSourceKind): void {
+  function waehleArt(neu: QuellenArtKennung): void {
     setKind(neu)
     const neueArt = artFuer(neu)
     const standardFelder = quellenWorte(neu).standardFelder
@@ -169,18 +169,18 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   // SoftEngine legt die Zeilen unter dem Namen ab, und die Laufzeit sucht sie
   // ueber genau diesen Namen; zwei gleich benannte zeigten stumm dieselben Daten.
   const nameDoppelt = store.list.some(
-    (s) => s.id !== source?.id && alias(s.name) === alias(name),
+    (s) => s.id !== source?.id && aliasVon(s.name) === aliasVon(name),
   )
   let nameFehler = ''
   if (name.trim() === '') nameFehler = 'Anzeigename fehlt.'
   else if (nameDoppelt) nameFehler = 'Diesen Namen trägt schon eine andere Quelle.'
   const kennungFehler =
-    kennungEingeben && kennungFromInput(kennungEingabe, art.idbKurzform) === ''
+    kennungEingeben && kennungAusEingabe(kennungEingabe, art.idbKurzform) === ''
       ? `${worte.kennungLabel} fehlt (z. B. ${worte.kennungBeispiel}).`
       : ''
 
   const kopfsatzFehler =
-    kopfsatzEingeben && kopfsatzEingabe.trim() !== '' && kopfsatzFromInput(kopfsatzEingabe) === ''
+    kopfsatzEingeben && kopfsatzEingabe.trim() !== '' && kopfsatzAusEingabe(kopfsatzEingabe) === ''
       ? 'Ungültig — Beispiel: BEL_0_11.'
       : ''
   const zeilenFehler = zeilen.map((z) => {
@@ -218,7 +218,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     })
   }
 
-  const relationNrFehler = holtZeilen && relationNrFromInput(relationNr) === ''
+  const relationNrFehler = holtZeilen && relationNrAusEingabe(relationNr) === ''
     ? 'Relationsnummer fehlt — nur Ziffern.'
     : ''
   const alleFehler = [
@@ -232,13 +232,13 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
       setZeigeFehler(true)
       return
     }
-    const daten: Omit<DataSource, 'id'> = {
+    const daten: Omit<Datenquelle, 'id'> = {
       name: name.trim(),
       kind,
-      ...(kennungEingeben ? { idbId: kennungFromInput(kennungEingabe, art.idbKurzform) } : {}),
+      ...(kennungEingeben ? { idbId: kennungAusEingabe(kennungEingabe, art.idbKurzform) } : {}),
 
-      ...(kopfsatzEingeben && kopfsatzFromInput(kopfsatzEingabe) !== ''
-        ? { kopfsatzIndex: kopfsatzFromInput(kopfsatzEingabe) }
+      ...(kopfsatzEingeben && kopfsatzAusEingabe(kopfsatzEingabe) !== ''
+        ? { kopfsatzIndex: kopfsatzAusEingabe(kopfsatzEingabe) }
         : {}),
 
       ...(vorsatz !== '' ? { feldVorsatz: vorsatz } : {}),
@@ -252,7 +252,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
       ...(holtZeilen
         ? {
             ladeRelation: {
-              nr: relationNrFromInput(relationNr),
+              nr: relationNrAusEingabe(relationNr),
               ...feldZuordnung,
             },
           }
@@ -293,7 +293,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           label="Art"
           value={kind}
           options={QUELLEN_ARTEN.map((a) => ({ value: a.id, label: quellenWorte(a.id).name }))}
-          onChange={(v) => waehleArt(v as DataSourceKind)}
+          onChange={(v) => waehleArt(v as QuellenArtKennung)}
         />
 
         {kennungEingeben && (

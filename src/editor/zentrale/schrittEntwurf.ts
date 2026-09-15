@@ -1,11 +1,11 @@
 // Der Entwurf eines Ketten-Schritts, solange sein Formular offen steht.
 import {
-  defaultRelationParams,
-  type ActionParamBinding,
-  type ActionStep,
-  type StepTypeKey,
+  relationsParameterVorgabe,
+  type Parameter,
+  type Schritt,
+  type SchrittArt,
 } from '../../core/data/aktionen'
-import type { RelationTemplate } from '../../core/data/relations'
+import type { RelationsVorlage } from '../../core/data/relations'
 import type { FeldUebernahmeZiel, UebernahmeTreffer } from './feldUebernahme'
 
 export interface SchrittEntwurf {
@@ -13,13 +13,13 @@ export interface SchrittEntwurf {
   // Anzeige einen anderen Schritt, als Speichern schreibt.
   id: string
 
-  typ: StepTypeKey
+  typ: SchrittArt
   toolNr: string
   befehl: string
   popupId: string
   relationId: string
-  relationParams: ActionParamBinding[]
-  extraParams: ActionParamBinding[]
+  relationParams: Parameter[]
+  extraParams: Parameter[]
 
   suche: string
 
@@ -31,15 +31,15 @@ export interface SchrittEntwurf {
 }
 
 export function vorlageVon(
-  relationen: readonly RelationTemplate[],
+  relationen: readonly RelationsVorlage[],
   id: string | undefined,
-): RelationTemplate | undefined {
+): RelationsVorlage | undefined {
   return id === undefined || id === '' ? undefined : relationen.find((r) => r.id === id)
 }
 
 export function entwurfAus(
-  step: ActionStep | undefined,
-  relationen: readonly RelationTemplate[],
+  step: Schritt | undefined,
+  relationen: readonly RelationsVorlage[],
 ): SchrittEntwurf {
   const relationStep = step?.type === 'RELATION' ? step : undefined
   const relation = vorlageVon(relationen, relationStep?.relationId)
@@ -60,34 +60,34 @@ export function entwurfAus(
 }
 
 function anfangsParams(
-  step: { params: ActionParamBinding[] } | undefined,
-  relation: RelationTemplate | undefined,
-): ActionParamBinding[] {
+  step: { params: Parameter[] } | undefined,
+  relation: RelationsVorlage | undefined,
+): Parameter[] {
   if (!step) return []
     // Die Vorlage hat Parameter bekommen oder verloren: dann zaehlt die Vorlage,
     // nicht der alte Stand.
   if (relation && step.params.length !== relation.params.length) {
-    return defaultRelationParams(relation)
+    return relationsParameterVorgabe(relation)
   }
   return step.params.map((b) => ({ ...b }))
 }
 
 export function bindungFuer(
   entwurf: SchrittEntwurf,
-  vorgaben: readonly ActionParamBinding[],
+  vorgaben: readonly Parameter[],
   index: number,
-): ActionParamBinding {
+): Parameter {
   return entwurf.relationParams[index] ?? vorgaben[index] ?? { source: 'fixed', value: '' }
 }
 
 // Auf Vorlagenlaenge bringen, ohne das Getippte zu verlieren: eine Relation kann
 // sich aendern, waehrend das Formular offen steht.
 function aufLaenge(
-  aktuell: readonly ActionParamBinding[],
-  relation: RelationTemplate | undefined,
-): ActionParamBinding[] {
+  aktuell: readonly Parameter[],
+  relation: RelationsVorlage | undefined,
+): Parameter[] {
   if (!relation) return [...aktuell]
-  const next = defaultRelationParams(relation)
+  const next = relationsParameterVorgabe(relation)
   aktuell.forEach((binding, at) => { if (at < next.length) next[at] = binding })
   return next
 }
@@ -104,24 +104,24 @@ export function uebernahmeMeldung(
 }
 
 export type SchrittAktion =
-  | { art: 'typ'; typ: StepTypeKey }
+  | { art: 'typ'; typ: SchrittArt }
   | { art: 'toolNr'; wert: string }
   | { art: 'befehl'; wert: string }
   | { art: 'popup'; id: string }
   | { art: 'tabelleAnsicht'; wert: string }
-  | { art: 'relation'; id: string; gewaehlt: RelationTemplate | undefined }
-  | { art: 'bindung'; index: number; bindung: ActionParamBinding }
+  | { art: 'relation'; id: string; gewaehlt: RelationsVorlage | undefined }
+  | { art: 'bindung'; index: number; bindung: Parameter }
   | { art: 'zurueckholen' }
   | { art: 'extraHinzu' }
-  | { art: 'extraAendern'; index: number; bindung: ActionParamBinding }
+  | { art: 'extraAendern'; index: number; bindung: Parameter }
   | { art: 'extraWeg'; index: number }
   | { art: 'picker'; ziel: FeldUebernahmeZiel | null }
-  | { art: 'uebernahme'; params: ActionParamBinding[]; meldung: string }
+  | { art: 'uebernahme'; params: Parameter[]; meldung: string }
   | { art: 'zeigeFehler' }
 
 // Die Vorlagen stecken im Reducer statt in jeder Aktion: nur sie wissen, wie
 // viele Parameter es gibt.
-export function schrittReducer(relationen: readonly RelationTemplate[]) {
+export function schrittReducer(relationen: readonly RelationsVorlage[]) {
   return (entwurf: SchrittEntwurf, aktion: SchrittAktion): SchrittEntwurf => {
     const relation = vorlageVon(relationen, entwurf.relationId)
     switch (aktion.art) {
@@ -146,7 +146,7 @@ export function schrittReducer(relationen: readonly RelationTemplate[]) {
         if (!gewaehlt) return rumpf
         return {
           ...rumpf,
-          relationParams: defaultRelationParams(gewaehlt),
+          relationParams: relationsParameterVorgabe(gewaehlt),
           extraParams: gewaehlt.allowExtraParams ? rumpf.extraParams : [],
         }
       }
@@ -156,7 +156,7 @@ export function schrittReducer(relationen: readonly RelationTemplate[]) {
         return { ...entwurf, relationParams: params, uebernahmeBestaetigung: '' }
       }
       case 'zurueckholen': {
-        const vorgaben = relation ? defaultRelationParams(relation) : []
+        const vorgaben = relation ? relationsParameterVorgabe(relation) : []
         return {
           ...entwurf,
           relationParams: entwurf.relationParams.map((binding, index) =>
@@ -194,9 +194,9 @@ export function schrittReducer(relationen: readonly RelationTemplate[]) {
 
 export function kandidatAus(
   entwurf: SchrittEntwurf,
-  relation: RelationTemplate | undefined,
-  vorher: ActionStep | undefined,
-): ActionStep {
+  relation: RelationsVorlage | undefined,
+  vorher: Schritt | undefined,
+): Schritt {
   const { id, typ } = entwurf
     // Das Formular zeigt toolParams und resultKey nicht an; geladene Werte darf
     // Speichern trotzdem nicht wegwerfen.
@@ -226,7 +226,7 @@ export function kandidatAus(
       toolParams: alt ? [...alt.toolParams] : [],
     }
   }
-  const vorgaben = relation ? defaultRelationParams(relation) : []
+  const vorgaben = relation ? relationsParameterVorgabe(relation) : []
   return {
     id,
     type: 'RELATION',

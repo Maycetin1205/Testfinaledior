@@ -1,7 +1,7 @@
 // Die Arten einer Datenquelle und was jede kann. Nur Schalter: die Wortwahl fuer
 // den Editor steht in editor/zentrale/beschriftungen.ts, damit die Laufzeit der
 // Maske sie nicht mittraegt.
-export type DataSourceKind =
+export type QuellenArtKennung =
   | 'idb'
   | 'adressstamm'
   | 'artikelstamm'
@@ -13,7 +13,7 @@ export type DataSourceKind =
   | 'relationswert'
 
 export interface QuellenArt {
-  id: DataSourceKind
+  id: QuellenArtKennung
 
   tabellenId: string
 
@@ -53,7 +53,7 @@ export function tabellenKennungNoetig(art: QuellenArt): boolean {
   return art.tabellenId === '' && !art.holWertMoeglich
 }
 
-const ARTEN: Record<DataSourceKind, QuellenArt> = {
+const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
   idb: {
     id: 'idb',
     tabellenId: '',
@@ -200,11 +200,11 @@ const ARTEN: Record<DataSourceKind, QuellenArt> = {
   },
 }
 
-export function artFuer(kind: DataSourceKind): QuellenArt {
+export function artFuer(kind: QuellenArtKennung): QuellenArt {
   return ARTEN[kind]
 }
 
 export const QUELLEN_ARTEN: readonly QuellenArt[] = Object.values(ARTEN)
 
-export const DATA_SOURCE_KINDS: readonly DataSourceKind[] =
+export const QUELLEN_ART_KENNUNGEN: readonly QuellenArtKennung[] =
   QUELLEN_ARTEN.map((a) => a.id)

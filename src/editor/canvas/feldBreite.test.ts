@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { DataSource } from '../../core/data/dataSources'
+import type { Datenquelle } from '../../core/data/dataSources'
 import type { QuelleInReichweite } from '../../core/data/sourceLinks'
 import { breiteAusZeichen, zeichenVon } from './feldBreite'
 
-function quelle(id: string, fields: DataSource['fields']): QuelleInReichweite {
+function quelle(id: string, fields: Datenquelle['fields']): QuelleInReichweite {
   return { source: { id, name: id, kind: 'artikelstamm', fields } }
 }
 

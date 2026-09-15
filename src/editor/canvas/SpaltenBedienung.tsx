@@ -1,7 +1,7 @@
 // Die Editor-Bedienung der Listeneintraege, als Schicht ueber den Stellen des Bausteins.
 import { useEffect, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
 import { cn } from '@/lib/utils'
-import type { BlockNode } from '../../core/blocks/BlockData'
+import type { Baustein } from '../../core/blocks/BlockData'
 import type { ListenBindung } from '../../core/blocks/BlockDefinition'
 import { useEditorInstance } from '../../state/EditorContext'
 import { wendeProps } from '../../state/propsPatch'
@@ -18,7 +18,7 @@ interface Stelle {
 }
 
 interface SpaltenBedienungProps {
-  block: BlockNode
+  block: Baustein
   bindung: ListenBindung
   selektor: string
 

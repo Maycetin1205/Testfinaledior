@@ -4,9 +4,9 @@ import { createElement, useState } from 'react'
 import { Feld } from '@/ui/werkbank/Feld'
 import { Gruppe } from '@/ui/werkbank/Gruppe'
 import { Knopf } from '@/ui/werkbank/Knopf'
-import { ROOT_ID, ROOT_TYPE } from '../../core/blocks/BlockData'
-import { canContain, getAllBlockDefinitions } from '../../core/blocks/blockRegistry'
-import type { BlockCategory, BlockDefinition } from '../../core/blocks/BlockDefinition'
+import { WURZEL_ID, WURZEL_TYP } from '../../core/blocks/BlockData'
+import { darfEnthalten, alleBausteinArten } from '../../core/blocks/blockRegistry'
+import type { Kategorie, BausteinArt } from '../../core/blocks/BlockDefinition'
 import { editorAngabenVon } from '../../core/blocks/editorAngaben'
 import { setNewBlockDrag } from '../canvas/dnd'
 import { useEditor } from '../../state/useEditor'
@@ -17,19 +17,19 @@ function symbolVon(type: string): Zeichen {
   return (editorAngabenVon(type).symbol ?? ERSATZ_SYMBOL) as Zeichen
 }
 
-const CATEGORY_LABEL: Record<BlockCategory, string> = {
+const CATEGORY_LABEL: Record<Kategorie, string> = {
   layout: 'Layout',
   eingabe: 'Eingabe',
   anzeige: 'Anzeige',
 }
 
-const CATEGORY_ORDER: BlockCategory[] = ['layout', 'eingabe', 'anzeige']
+const CATEGORY_ORDER: Kategorie[] = ['layout', 'eingabe', 'anzeige']
 
 export function BlockPalette() {
   const ed = useEditor()
   const [query, setQuery] = useState('')
 
-  const definitions = getAllBlockDefinitions().filter((d) => d.showInPalette !== false)
+  const definitions = alleBausteinArten().filter((d) => d.showInPalette !== false)
 
   const q = query.trim().toLowerCase()
   const filtered = definitions.filter((d) => {
@@ -39,7 +39,7 @@ export function BlockPalette() {
       || d.tagName.toLowerCase().includes(q)
   })
 
-  const grouped: Record<BlockCategory, BlockDefinition[]> = {
+  const grouped: Record<Kategorie, BausteinArt[]> = {
     layout: [],
     eingabe: [],
     anzeige: [],
@@ -49,13 +49,13 @@ export function BlockPalette() {
   const insertParentFor = (type: string): string | undefined => {
     let cur = ed.selectedId ? ed.getNode(ed.selectedId) : null
     while (cur) {
-      if (canContain(cur.type, type)) return cur.id
+      if (darfEnthalten(cur.type, type)) return cur.id
       cur = cur.parentId ? ed.getNode(cur.parentId) : null
     }
 
     const aktiveSeite = ed.getNode(ed.rootId)
-    if (aktiveSeite && !canContain(aktiveSeite.type, type) && canContain(ROOT_TYPE, type)) {
-      return ROOT_ID
+    if (aktiveSeite && !darfEnthalten(aktiveSeite.type, type) && darfEnthalten(WURZEL_TYP, type)) {
+      return WURZEL_ID
     }
     return undefined
   }
@@ -93,7 +93,7 @@ export function BlockPalette() {
 }
 
 interface PaletteKarteProps {
-  def: BlockDefinition
+  def: BausteinArt
   onAdd: () => void
 }
 

@@ -2,8 +2,8 @@ import { css, html, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BasicBlock } from '../base/BasicBlock'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 
 const STANDARD = { width: 'fill', richtung: 'waagerecht', stil: 'solid', staerke: 1, farbe: 'linie' }
 const FARBEN: Record<string, string> = {
@@ -14,12 +14,12 @@ export class TrennerBlock extends BasicBlock {
   static readonly blockType = 'trenner'
   static readonly tagName = 'ff-trenner'
   static readonly displayName = 'Trennlinie'
-  static readonly category: BlockCategory = 'layout'
+  static readonly category: Kategorie = 'layout'
   static readonly defaultProps = STANDARD
   static readonly resizableWidth = true
   static readonly resizableHeight = true
   static readonly raster = { startW: 48, startH: 1, minW: 1, minH: 1 }
-  static override readonly customProperties: PropertyDescription[] = [
+  static override readonly customProperties: Eigenschaft[] = [
     { attributeName: 'richtung', name: 'Richtung', description: 'Die Linie waagerecht oder senkrecht ausrichten.',
       kind: 'segment', options: [{ value: 'waagerecht', label: 'Waagerecht' }, { value: 'senkrecht', label: 'Senkrecht' }] },
     { attributeName: 'stil', name: 'Linienstil', description: 'Durchgezogen, gestrichelt oder gepunktet.',

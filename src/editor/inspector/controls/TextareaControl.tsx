@@ -1,11 +1,11 @@
 // Ein mehrzeiliger Text im Inspector.
-import type { PropertyDescription } from '../../../core/blocks/PropertyDescription'
+import type { Eigenschaft } from '../../../core/blocks/PropertyDescription'
 import { useEingabeSitzung } from './eingabeSitzung'
 import { FeldMehrzeilig } from '@/ui/werkbank/Feld'
 import { Zeile } from '@/ui/werkbank/Zeile'
 
 interface TextareaControlProps {
-  property: PropertyDescription
+  property: Eigenschaft
   value: string
   onChange: (value: string) => void
 

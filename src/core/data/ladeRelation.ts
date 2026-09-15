@@ -2,7 +2,7 @@
 // Zeile kommt, auf die sie sich bezieht, steht nicht hier, sondern als
 // „Auswahl folgen" am Baustein, der die Quelle zeigt - wie bei jedem anderen
 // Baustein auch.
-import { artFuer, type DataSourceKind } from './quellenArten'
+import { artFuer, type QuellenArtKennung } from './quellenArten'
 
 export interface LadeRelation {
   nr: string
@@ -44,13 +44,13 @@ export function felderHinterSchnitt(benutzt: ReadonlySet<string> | undefined): s
   })
 }
 
-export function relationNrFromInput(raw: string): string {
+export function relationNrAusEingabe(raw: string): string {
   const t = raw.trim()
   return NUR_ZIFFERN.test(t) ? t : ''
 }
 
-export function ladeRelationFor(
-  source: { kind: DataSourceKind; ladeRelation?: LadeRelation },
+export function ladeRelationVon(
+  source: { kind: QuellenArtKennung; ladeRelation?: LadeRelation },
 ): LadeRelation | null {
   if (!artFuer(source.kind).relationLadenMoeglich) return null
   return source.ladeRelation ?? null

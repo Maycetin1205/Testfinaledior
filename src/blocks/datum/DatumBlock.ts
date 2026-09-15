@@ -1,8 +1,8 @@
 // Baustein Datum: waehlt den Tag, den die Maske zeigt.
 import { css, html, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
-import type { BlockCategory } from '../../core/blocks/BlockComponent'
-import type { PropertyDescription } from '../../core/blocks/PropertyDescription'
+import type { Kategorie } from '../../core/blocks/BlockComponent'
+import type { Eigenschaft } from '../../core/blocks/PropertyDescription'
 import { BasicBlock } from '../base/BasicBlock'
 import { heuteSchluessel, tagPlus } from '../shared/datumSchluessel'
 import { aufTagHoeren, gewaehlterTag, setzeGewaehltenTag } from '../shared/gewaehlterTag'
@@ -11,9 +11,9 @@ export class DatumBlock extends BasicBlock {
   static readonly blockType = 'datum'
   static readonly tagName = 'ff-datum'
   static readonly displayName = 'Datum'
-  static readonly category: BlockCategory = 'anzeige'
+  static readonly category: Kategorie = 'anzeige'
   static readonly defaultProps = {}
-  static override readonly customProperties: PropertyDescription[] = []
+  static override readonly customProperties: Eigenschaft[] = []
 
   static readonly raster = { startW: 18, startH: 2, minW: 10, minH: 2 }
 

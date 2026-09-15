@@ -1,5 +1,5 @@
 // Das Formularfeld am SoftEngine-Datenstrom: Wert setzen und die Zeile weitergeben.
-import { bindingAttr } from '../../core/blocks/faehigkeiten'
+import { bindungsAttr } from '../../core/blocks/faehigkeiten'
 import { satzIndexVon, setField } from '../../softengine/data'
 import { geberIdVon, klareAuswahl, setzeAuswahl } from '../shared/auswahl'
 import { macheDatenAnschluss } from '../shared/datenAnschluss'
@@ -43,7 +43,7 @@ function hydrateField(field: RuntimeFieldElement): void {
     return
   }
 
-  const stelle = leseGebundeneStelle(field, bindingAttr('value'))
+  const stelle = leseGebundeneStelle(field, bindungsAttr('value'))
   if (stelle.art !== 'wert') {
     fieldData.delete(field)
   // Ein gebundenes Feld ist Geber seiner ANGEZEIGTEN Zeile; zeigt es keine, gibt

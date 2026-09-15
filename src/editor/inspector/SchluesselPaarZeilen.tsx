@@ -1,7 +1,7 @@
 // Die Feldpaare, mit denen zwei Quellen verbunden werden.
 import { Plus, X } from '@/ui/zeichen'
 import { Knopf } from '@/ui/werkbank/Knopf'
-import type { DataSourceField } from '../../core/data/dataSources'
+import type { Datenfeld } from '../../core/data/dataSources'
 import { MAX_SCHLUESSELPAARE, type SchluesselPaar } from '../../core/data/sourceLinks'
 import { PickerControl } from './controls/PickerControl'
 
@@ -9,8 +9,8 @@ interface SchluesselPaarZeilenProps {
   frage: string
   paare: readonly SchluesselPaar[]
 
-  linkeFelder: readonly DataSourceField[]
-  rechteFelder: readonly DataSourceField[]
+  linkeFelder: readonly Datenfeld[]
+  rechteFelder: readonly Datenfeld[]
   linkeBezeichnung: (at: number) => string
   rechteBezeichnung: (at: number) => string
   entfernenBezeichnung: (at: number) => string
@@ -34,7 +34,7 @@ export function SchluesselPaarZeilen({
   // nicht mehr kennt, rot statt leer.
   const feldWaehler = (
     bezeichnung: string,
-    felder: readonly DataSourceField[],
+    felder: readonly Datenfeld[],
     wert: string,
     onWaehle: (code: string) => void,
   ) => (
