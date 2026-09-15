@@ -14,58 +14,98 @@ function inEingabefeld(e: KeyboardEvent): boolean {
   return false
 }
 
-// Ein offenes Fenster (Datencenter, Feld-Picker, Menue) nimmt Escape selbst.
+// Ein offenes Fenster (Datencenter, Feld-Picker, Menue) nimmt die Taste selbst.
+// Ein Popup auf der Flaeche ist keines: sein Rahmen liegt im Schatten des
+// Bausteins, und dorthin sieht `document.querySelector` nicht.
 function fensterOffen(): boolean {
   return document.querySelector('[role="dialog"]') !== null
+}
+
+export type Tastenwirkung =
+  | 'nichts'
+  | 'speichern'
+  | 'loeschen'
+  | 'abwaehlen'
+  | 'zurueck'
+  | 'vor'
+  | 'duplizieren'
+
+export interface Tastenlage {
+  taste: string
+
+  mod: boolean
+
+  shift: boolean
+
+  imEingabefeld: boolean
+
+  fensterOffen: boolean
+
+  etwasGewaehlt: boolean
+}
+
+// Das Urteil kommt ohne DOM aus, damit ein Test es prueft: was auf die Flaeche
+// wirkt, wirkt nicht durch ein offenes Fenster hindurch auf den Baustein
+// dahinter, den dabei niemand sieht.
+export function tastenwirkung(lage: Tastenlage): Tastenwirkung {
+  const buchstabe = lage.taste.toLowerCase()
+
+  // Strg+S auch aus einem Eingabefeld und ueber jedem Fenster: sonst oeffnet
+  // der Browser seinen eigenen Speicherdialog.
+  if (lage.mod && buchstabe === 's') return 'speichern'
+
+  if (lage.imEingabefeld || lage.fensterOffen) return 'nichts'
+
+  if (!lage.mod) {
+    if (lage.taste === 'Delete' || lage.taste === 'Backspace') {
+      return lage.etwasGewaehlt ? 'loeschen' : 'nichts'
+    }
+    if (lage.taste === 'Escape') return lage.etwasGewaehlt ? 'abwaehlen' : 'nichts'
+    return 'nichts'
+  }
+
+  if (buchstabe === 'z') return lage.shift ? 'vor' : 'zurueck'
+  if (buchstabe === 'y') return 'vor'
+  if (buchstabe === 'd') return lage.etwasGewaehlt ? 'duplizieren' : 'nichts'
+  return 'nichts'
 }
 
 export function useKeyboardShortcuts() {
   const editor = useEditorInstance()
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      const mod = e.ctrlKey || e.metaKey
+      const gewaehlt = editor.selectedId
+      const wirkung = tastenwirkung({
+        taste: e.key,
+        mod: e.ctrlKey || e.metaKey,
+        shift: e.shiftKey,
+        imEingabefeld: inEingabefeld(e),
+        fensterOffen: fensterOffen(),
+        etwasGewaehlt: gewaehlt !== null,
+      })
+      if (wirkung === 'nichts') return
 
-  // Strg+S speichert die Maske als Datei, auch aus einem Eingabefeld heraus:
-  // sonst oeffnet der Browser seinen eigenen Speicherdialog.
-      if (mod && e.key.toLowerCase() === 's') {
-        e.preventDefault()
-        speichereMaskeAlsDatei(editor)
-        return
-      }
+      // Escape laeuft weiter; die uebrigen haette sonst der Browser belegt.
+      if (wirkung !== 'abwaehlen') e.preventDefault()
 
-      if (inEingabefeld(e)) return
-
-      if (!mod && (e.key === 'Delete' || e.key === 'Backspace')) {
-        if (editor.selectedId) {
-          e.preventDefault()
-          loescheBaustein(editor, editor.selectedId)
-        }
-        return
-      }
-
-      if (!mod && e.key === 'Escape') {
-        if (editor.selectedId === null || fensterOffen()) return
-        editor.selectBlock(null)
-        return
-      }
-
-      if (!mod) return
-
-      switch (e.key.toLowerCase()) {
-        case 'z':
-          e.preventDefault()
-          if (e.shiftKey) editor.redo()
-          else editor.undo()
+      switch (wirkung) {
+        case 'speichern':
+          speichereMaskeAlsDatei(editor)
           break
-        case 'y':
-          e.preventDefault()
+        case 'loeschen':
+          if (gewaehlt) loescheBaustein(editor, gewaehlt)
+          break
+        case 'abwaehlen':
+          editor.selectBlock(null)
+          break
+        case 'zurueck':
+          editor.undo()
+          break
+        case 'vor':
           editor.redo()
           break
-        case 'd':
-          if (editor.selectedId) {
-            e.preventDefault()
-            editor.duplicateBlock(editor.selectedId)
-          }
+        case 'duplizieren':
+          if (gewaehlt) editor.duplicateBlock(gewaehlt)
           break
       }
     }
