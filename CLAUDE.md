@@ -47,16 +47,27 @@ die SoftEngine-Kontrakte, die Regeln unten. Alles andere darf fallen.
 
 Stand 15.09.2026: Schritt 1 und 2 sind fertig (Commits 09dd63d bis b784f20).
 Der Kern spricht Deutsch, Faehigkeiten stehen in einer Liste, SoftEngine
-sitzt hinter der Tuer, die Ordner heissen kern, bausteine, editor. Wer neu
+sitzt hinter der Tuer, die Ordner heissen kern, bausteine, editor. Die
+Tabelle ist umgebaut (5465141): drei Dateien, 27 Faehigkeiten in
+`bausteine/faehigkeiten/`, jede ein eigener Laufzeitteil; der SoftEngine-Test
+des Nutzers steht aus. Noch nicht im Muster: die Erfassung erbt weiter von
+der Tabelle, das Formularfeld importiert die Tabelle fuer das
+Nachschlagefenster, Nachschlagen hat keine Inspector-Bedienung. Wer neu
 einsteigt: erst `npm run check` und `npm test` (muessen gruen sein), dann
 `git log -12`, dann diese Datei ganz. Keine Datei anfassen, die nicht zum
 laufenden Schritt gehoert.
 
 1. Regeln. Erledigt.
 2. Kern. Erledigt.
-3. **Bausteine, die Tabelle zuerst als Muster.** Danach die uebrigen
-   Bausteine genau so.
-4. Editor: Flaeche, Palette, Inspector, Datencenter, Design. Wuensche des
+3. **Bausteine, die Tabelle zuerst als Muster.** Tabelle erledigt. Danach
+   die uebrigen Bausteine genau so, Reihenfolge: Erfassung, Formularfeld,
+   Text, Datum, Button, Popup, Kanban mit Card, Trenner, Ansicht,
+   Anmeldung. Kein Baustein bleibt alt: die Palette ist das Produkt.
+4. Editor: Flaeche, Palette, Inspector, Datencenter, Design. Das Datencenter
+   wird gegen kontrakte.md neu gedacht, nicht aus dem heutigen Code
+   abgeschrieben: Quellenarten nach Abschnitt 4, 4a, 4c (Bestellung,
+   REFRESH, GET_RELATION), Schreiben nach 7, Positionen lesen nach 8,
+   DataSet nach 17; dazu Punkt 4 der Liste "Offen" unten. Wuensche des
    Nutzers dazu: Datencenter und Berechnungen nicht als Vollbild, sondern
    neben der Flaeche, damit die Maske sichtbar bleibt. Eine Standardgroesse
    fuer alle Suchfenster gehoert zur Maske (Datencenter), das einzelne Feld
@@ -66,7 +77,8 @@ laufenden Schritt gehoert.
    war die juengste leer, die 20 Datenquellen lagen in einer aelteren.
 5. Ausmisten: Tests und Dateien, die niemand mehr braucht.
 
-Vor der Tabelle, je ein Commit mit einem Test, im Browser belegt am 15.09.:
+Kleine Aufgaben vor den uebrigen Bausteinen, je ein Commit mit einem Test,
+Punkte 1 bis 5 im Browser belegt am 15.09.:
 
 1. In SoftEngine landet ein Klick nicht im Feld, der Fokus springt heraus;
    erst nach Oeffnen und Schliessen der Entwicklerkonsole bleibt er. Verdacht:
@@ -91,6 +103,12 @@ Vor der Tabelle, je ein Commit mit einem Test, im Browser belegt am 15.09.:
    nicht. Kein Extra-Fix: Die Faehigkeit Nachschlagen bringt in Schritt 3 ihre
    Inspector-Bedienung mit (Regel 2), dann ist sie bei Erfassung, Tabelle und
    Formularfeld am selben Ort (Regel 13).
+6. Kern und Bruecke werden Laufzeitteile wie die Faehigkeiten
+   (`tools/laufzeitBauen.mjs`): heute packt das Bauskript alles aus `kern/`
+   und `softengine/` in die Basis, 41 kB, auch fuer ein Textfeld. Danach
+   reist ein Teil nur, wenn ein Baustein der Maske ihn importiert. Beweis
+   ist `exportGepaeck.test.ts`; die Grenze der kleinen Maske sinkt dort auf
+   40 kB.
 
 Was die Tabelle als Muster heisst:
 
@@ -105,20 +123,13 @@ Was die Tabelle als Muster heisst:
   erneuern und im Commit sagen, welche.
 - Die Erfassung erbt danach nicht mehr von der Tabelle. Sie wird ein eigener
   Baustein, der dieselben Faehigkeiten einsteckt und Erfassen dazu.
-- Optik, vom Nutzer am 15.09. bemaengelt: Der Kopf hat fest 36 px bei 11,5 px
-  Schrift, viel Luft um wenig Text; er folgt kuenftig der Zeilenhoehe. Der
-  Fuss (30 px, immer da) erscheint nur, wenn er etwas zu sagen hat (mehr als
-  eine Seite, Suche aktiv), sonst eine duenne Zeile. Bei eingeschalteter
-  Kopfzeile stehen die Spaltentitel nicht noch einmal in den Zellen der
-  Erfassung; der Platzhalter in der Zelle gilt nur ohne Kopfzeile. Eine
-  Berechnung ohne gewaehlte Spalten wird nicht exportiert.
-- Jede Faehigkeit wird ein eigener Laufzeitteil wie heute jeder Baustein
-  (`tools/laufzeitBauen.mjs`, `teile.json`). Heute traegt jede Maske die
-  Basis von 86 kB mit allen Faehigkeiten, auch eine Maske aus einem
-  Textfeld. Danach reist nur, was die Maske einsteckt. Gemessen am 15.09.:
-  Basis 63 kB, davon 22 kB Lit und 41 kB Kern und Bruecke, die das Bauskript
-  komplett in die Basis packt; auch Kern und Bruecke werden Teile, die nur
-  reisen, wenn ein Baustein der Maske sie importiert. Beweis:
+- Optik: Kopf folgt der Zeilenhoehe, Fuss nur mit Inhalt (erledigt in
+  5465141). Fuer die Erfassung offen: bei eingeschalteter Kopfzeile stehen
+  die Spaltentitel nicht noch einmal in den Zellen; der Platzhalter in der
+  Zelle gilt nur ohne Kopfzeile. Eine Berechnung ohne gewaehlte Spalten wird
+  nicht exportiert.
+- Jede Faehigkeit ist ein eigener Laufzeitteil (erledigt in 5465141); eine
+  Maske traegt nur, was ihre Bausteine einstecken. Beweis:
   `src/export/exportGepaeck.test.ts` exportiert drei Masken und nennt je
   Laufzeitteil die Groesse im Testbericht. Rot mit Ansage (`test.fails`): das
   Textfeld zieht ueber die Faehigkeit Quelle sieben Faehigkeiten nach; wer
@@ -147,6 +158,11 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
    Befehl mit START_TOOL als START_TOOL-Nachricht (kontrakte.md 13). Erst
    nach dem Test des Nutzers "Erledigt" und in kontrakte.md 13 der Vermerk
    "nicht per Echttest" weg.
+7. Nicht anfassen, bis ein Echttest es zeigt: die drei Zeitschleifen in
+   `bridge.ts` und `relations.ts` (Datenankunft, Nachlauf bei Fokus,
+   Antwort auf GET). Neben jeder laeuft ein Rueckruf; die Schleife ist das
+   Netz darunter. Ob SoftEngine den Rueckruf immer liefert, weiss niemand
+   ohne Test (Regel 7). Erst dann faellt die Schleife.
 
 So laeuft jeder Baustein in Schritt 3, ohne Ausnahme:
 
