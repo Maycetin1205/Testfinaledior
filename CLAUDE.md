@@ -28,6 +28,13 @@ zeigt, IST der Export: dieselben Lit-Elemente rendern im Editor (Attribut
 ## Befehle
 
 - `npm run dev`: Port 5300, fest, weil der Browserspeicher am Ursprung haengt.
+  Der Dev-Server beobachtet `src/export/generated/`; `build:runtime`, `npm
+  test` und `npm run dev` schreiben dort 37 Dateien und laden damit jeden
+  offenen Editor im Browser mehrfach neu, mitten im Bau mit leeren Dateien.
+  Darum: Kein Chat baut oder testet, waehrend der Nutzer im Editor arbeitet,
+  und kein Chat beendet oder startet den Dev-Server des Nutzers. Wer das
+  Pruefbuendel laufen lassen will, sagt es vorher; der Nutzer drueckt danach
+  F5. Am 15.09. sah das im Browser aus wie ein Absturz beim Ziehen.
 - Pruefbuendel vor jedem Commit: `npm run check`, `npm run build:runtime`,
   `npm test`. `build:runtime` baut die Laufzeit in `src/export/generated/`;
   ohne den Lauf exportiert der Editor alten Code.
