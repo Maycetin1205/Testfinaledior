@@ -20,6 +20,10 @@ zeigt, IST der Export: dieselben Lit-Elemente rendern im Editor (Attribut
 - Wer beim Umbau auf etwas stoesst, das das Muster (Regel 2, 11) nicht
   abdeckt, erfindet nichts, sondern meldet dem Nutzer: "passt nicht ins
   Muster", mit Datei und Satz, was fehlt. Dann entscheidet der Nutzer.
+- Ein Chat, eine Aufgabe. Am Ende jeder Aufgabe steht im Bericht, woertlich
+  und in einem Block zum Kopieren, der Prompt fuer den naechsten Chat: was er
+  lesen soll (immer diese Datei), was genau er tut, was er nicht anfasst. Der
+  Nutzer schreibt keine Prompts selbst.
 
 ## Befehle
 
