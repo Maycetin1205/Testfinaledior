@@ -71,7 +71,7 @@ test('ein fehlerfrei verteilter Stand wird nicht noch einmal verteilt', () => {
 })
 
 // An diesem Schalter haengt, ob eine hinausgeschickte Erfassungszeile geprueft
-// und freigegeben wird (tabelle/seRuntime: pruefeAnkunft).
+// und freigegeben wird (faehigkeiten/zeilenAnschluss: pruefeAnkunft).
 test('ein Anstoss ist keine Lieferung', () => {
   meldeAnstoss()
   expect(gerufen).toEqual(['A', 'B:anstoss'])

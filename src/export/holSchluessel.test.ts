@@ -36,12 +36,12 @@ function baum(folge: unknown): Maskenbaum {
       id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: '', kinderIds: ['bel', 'pos'],
     },
     bel: {
-      id: 'bel', typ: 'tabelle', werte: { source: 'q-bel' }, elternId: WURZEL_ID, kinderIds: [],
+      id: 'bel', typ: 'tabelle', werte: { quelle: 'q-bel' }, elternId: WURZEL_ID, kinderIds: [],
     },
     pos: {
       id: 'pos',
       typ: 'tabelle',
-      werte: { source: 'q-pos', folgtAuswahl: folge },
+      werte: { quelle: 'q-pos', folgtAuswahl: folge },
       elternId: WURZEL_ID,
       kinderIds: [],
     },

@@ -1,10 +1,10 @@
 // Das Formularfeld am SoftEngine-Datenstrom: Wert setzen und die Zeile weitergeben.
 import { bindungsAttr } from '../../kern/maske/faehigkeiten'
 import { satzIndexVon, feldSchreiben } from '../../softengine/data'
-import { geberIdVon, klareAuswahl, setzeAuswahl } from '../shared/auswahl'
-import { macheDatenAnschluss } from '../shared/datenAnschluss'
+import { geberIdVon, klareAuswahl, setzeAuswahl } from '../faehigkeiten/auswahl'
+import { macheDatenAnschluss } from '../faehigkeiten/quelle'
 import { leseGebundeneStelle } from '../shared/gebundeneStelle'
-import { meldeKettenFehler, runEvent } from '../shared/seAktionen'
+import { meldeKettenFehler, runEvent } from '../faehigkeiten/ereignisse'
 
 export interface RuntimeFieldElement extends HTMLElement {
   value: string

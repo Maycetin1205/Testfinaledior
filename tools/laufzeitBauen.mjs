@@ -15,6 +15,10 @@ const BAUSTEIN_ORDNER = QUELLE + '/bausteine'
 const LAUFZEIT_WURZELN = ['bausteine', 'kern', 'softengine'].map((name) => `${QUELLE}/${name}`)
 // bausteine/grund und bausteine/shared sind kein Baustein, sondern Grundlage.
 const KEIN_BAUSTEIN = new Set(['grund', 'shared'])
+// Jede Faehigkeit ist ein eigener Teil wie ein Baustein: in die Maske reist
+// nur, was ein Baustein darin einsteckt, nicht die ganze Sammlung.
+const FAEHIGKEITEN_ORDNER = 'faehigkeiten'
+const FAEHIGKEIT_VORSATZ = 'faehigkeit-'
 const BASIS = 'basis'
 // Je Lauf ein eigener Entwurfsordner: Dev-Server, Test und Handaufruf bauen
 // sonst in denselben Ordner und loeschen einander die Einstiege weg.
@@ -37,8 +41,13 @@ function alleQuelldateien(ordner) {
 // Zu welchem Teil gehoert eine Datei? Alles ausserhalb der Baustein-Ordner ist Basis.
 function teilVon(datei) {
   if (!datei.startsWith(BAUSTEIN_ORDNER + '/')) return BASIS
-  const ordner = datei.slice(BAUSTEIN_ORDNER.length + 1).split('/')[0]
+  const [ordner, name] = datei.slice(BAUSTEIN_ORDNER.length + 1).split('/')
+  if (ordner === FAEHIGKEITEN_ORDNER) return FAEHIGKEIT_VORSATZ + name.replace(/\.ts$/, '')
   return ordner.endsWith('.ts') || KEIN_BAUSTEIN.has(ordner) ? BASIS : ordner
+}
+
+function istFaehigkeit(teil) {
+  return teil.startsWith(FAEHIGKEIT_VORSATZ)
 }
 
 // Der Name, unter dem ein Modul im Fenster steht: FF.core$blocks$BlockData.
@@ -137,8 +146,9 @@ function bauplan() {
     if (teil === BASIS) continue
     const bausteine = dateien.flatMap((datei) =>
       [...readFileSync(datei, 'utf8').matchAll(BAUSTEIN_TYP)].map((treffer) => treffer[1]))
-    if (bausteine.length === 0) {
-      throw new Error(`Der Ordner blocks/${teil} meldet keinen Bausteintyp an.`)
+    // Eine Faehigkeit meldet keinen Baustein an; sie reist mit dem, der sie braucht.
+    if (bausteine.length === 0 && !istFaehigkeit(teil)) {
+      throw new Error(`Der Ordner bausteine/${teil} meldet keinen Bausteintyp an.`)
     }
     teile.push({
       name: teil,
@@ -168,9 +178,13 @@ function nachAbhaengigkeit(teile) {
 // Der Einstieg eines Teils: meldet seine Bausteine an und stellt den anderen
 // Teilen die Module hin, die sie von ihm holen.
 function schreibeEinstieg(name, dateien, stelltHin) {
+  // Eingestiegen wird in jede Datei, die einen Bausteintyp anmeldet, egal wie
+  // sie heisst: Tabelle.ts wie TabelleBlock.ts.
   const kopf = name === BASIS
     ? [`import '${QUELLE}/export/fehlerWache'`]
-    : dateien.filter((datei) => /Block\.ts$/.test(datei)).map((datei) => `import '${datei}'`)
+    : dateien
+      .filter((datei) => BAUSTEIN_TYP.test(readFileSync(datei, 'utf8')))
+      .map((datei) => `import '${datei}'`)
   const rumpf = stelltHin.size === 0 ? [] : ['window.FF = window.FF || {};']
   let nr = 0
   for (const [modul, namen] of [...stelltHin].sort(([a], [b]) => (a < b ? -1 : 1))) {

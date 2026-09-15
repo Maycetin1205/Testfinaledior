@@ -4,8 +4,8 @@ import { state } from 'lit/decorators.js'
 import type { Kategorie } from '../../kern/maske/bausteinElement'
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 import { Grundbaustein } from '../grund/Grundbaustein'
-import { heuteSchluessel, tagPlus } from '../shared/datumSchluessel'
-import { aufTagHoeren, gewaehlterTag, setzeGewaehltenTag } from '../shared/gewaehlterTag'
+import { heuteSchluessel, tagPlus } from '../faehigkeiten/datumSchluessel'
+import { aufTagHoeren, gewaehlterTag, setzeGewaehltenTag } from '../faehigkeiten/gewaehlterTag'
 
 export class DatumBlock extends Grundbaustein {
   static readonly typ = 'datum'

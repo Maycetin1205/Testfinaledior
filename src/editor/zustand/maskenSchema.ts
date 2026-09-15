@@ -1,8 +1,9 @@
-// Die Version des Masken-Aufbaus und die Hebung des letzten alten Stands.
-export const CURRENT_SCHEMA_VERSION = 10
+// Die Version des Masken-Aufbaus und die Hebung der letzten alten Staende.
+export const CURRENT_SCHEMA_VERSION = 11
 
-// Format 9 trug die englischen Schluessel (type, props, kind, params ...).
-const HEBBAR = 9
+// Format 9 trug die englischen Schluessel (type, props, kind, params ...),
+// Format 10 an den Bausteinen noch source, tagField und die on...-Ereignisse.
+const HEBBAR = [9, 10]
 
 export function schemaLesbar(version: unknown): version is number {
   return version === CURRENT_SCHEMA_VERSION
@@ -45,11 +46,38 @@ export function hebeSchluessel<T>(roh: T): T {
   return kopie
 }
 
-// Ein gespeicherter oder gelesener Maskenstand: Format 9 wird auf 10 gehoben,
-// alles andere kommt unveraendert zurueck und faellt bei schemaLesbar auf.
+// Die Bausteine des Baums, erkannt an typ und werte: die umbenannten
+// Eigenschaften und Ereignisse eines Bausteins, den Editor und Maske heute
+// deutsch nennen.
+function hebeBausteinNamen(x: unknown): void {
+  if (!objekt(x)) return
+  for (const node of Object.values(x)) {
+    if (!objekt(node) || typeof node.typ !== 'string' || !objekt(node.werte)) continue
+    um(node.werte, { source: 'quelle', tagField: 'tagFeld' })
+    if (objekt(node.ketten)) {
+      um(node.ketten, { onRowClick: 'zeileGewaehlt', onRowDblClick: 'zeileDoppelt', onF4: 'tasteF4' })
+    }
+  }
+}
+
+// Ein Ketten-Parameter, der neben `wert` noch das alte `value` traegt (ein
+// frueherer Editor schrieb beide): das Doppel ist kein Inhalt und faellt weg,
+// sonst lehnte der Lader die ganze Maske als Verlust ab.
+function hebeAltlasten(x: unknown): void {
+  if (Array.isArray(x)) { x.forEach(hebeAltlasten); return }
+  if (!objekt(x)) return
+  if ('quelle' in x && 'wert' in x && 'value' in x && x.value === x.wert) delete x.value
+  for (const wert of Object.values(x)) hebeAltlasten(wert)
+}
+
+// Ein gespeicherter oder gelesener Maskenstand: Format 9 und 10 werden auf den
+// heutigen Stand gehoben, alles andere kommt unveraendert zurueck und faellt
+// bei schemaLesbar auf.
 export function hebeStand(roh: unknown): unknown {
-  if (!objekt(roh) || roh.schemaVersion !== HEBBAR) return roh
-  const gehoben = hebeSchluessel(roh)
+  if (!objekt(roh) || typeof roh.schemaVersion !== 'number' || !HEBBAR.includes(roh.schemaVersion)) return roh
+  const gehoben = roh.schemaVersion === 9 ? hebeSchluessel(roh) : (JSON.parse(JSON.stringify(roh)) as Record<string, unknown>)
+  hebeBausteinNamen(gehoben.tree)
+  hebeAltlasten(gehoben.tree)
   gehoben.schemaVersion = CURRENT_SCHEMA_VERSION
   return gehoben
 }

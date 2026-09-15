@@ -1,7 +1,7 @@
 // Haelt Tipp-Lauf und erfasste Zeilen einer Tabelle zusammen.
 import type { GeschriebeneZeile, Lieferung } from '../../kern/maske/faehigkeiten'
 import type { Berechnung } from '../../kern/daten/berechnung'
-import { verknuepfungenVon } from '../shared/fremdeQuellen'
+import { verknuepfungenVon } from '../faehigkeiten/fremdeQuellen'
 import { ankunftPruefen, fehlenMeldung, type FehlendeZeile } from './ankunft'
 import { ErfassungsLauf } from './erfassungsLauf'
 import type { ErfassungsUmfeld } from './erfassungsZeile'

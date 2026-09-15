@@ -10,7 +10,7 @@ import {
 } from './seitengroesse'
 import { sortiereIndizes, SUMME_NACHKOMMA, summeText } from './sortierung'
 import { spaltenRaster, type Spalte } from './spalten'
-import { zeilePasst } from '../shared/textSuche'
+import { zeilePasst } from './textSuche'
 
 export interface AnsichtFrage {
   spalten: readonly Spalte[]

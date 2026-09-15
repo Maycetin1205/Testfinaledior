@@ -2,9 +2,9 @@
 import type { Lieferung, VormerkArt } from '../../kern/maske/faehigkeiten'
 import { geheInZelle, zellenFelder } from '../shared/zellenEingabe'
 import { ergaenzeZeile, ergebnisPlaetze, type Berechnung } from '../../kern/daten/berechnung'
-import { zeilenIndexVon } from '../tabelle/seRuntime'
-import { alsZahl } from '../tabelle/sortierung'
-import { spalteMitKennung, type Spalte } from '../tabelle/spalten'
+import { zeilenIndexVon } from '../faehigkeiten/zeilenAnschluss'
+import { alsZahl } from '../faehigkeiten/sortierung'
+import { spalteMitKennung, type Spalte } from '../faehigkeiten/spalten'
 import {
   aenderungAngekommen,
   loeschungAngekommen,

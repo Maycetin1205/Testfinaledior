@@ -1,6 +1,7 @@
 // Der Text am SoftEngine-Datenstrom: den gebundenen Wert einsetzen.
+import { quelleIdVon } from '../faehigkeiten/quelle'
 import { bindungsAttr } from '../../kern/maske/faehigkeiten'
-import { macheDatenAnschluss } from '../shared/datenAnschluss'
+import { macheDatenAnschluss } from '../faehigkeiten/quelle'
 import { leseGebundeneStelle } from '../shared/gebundeneStelle'
 
 export interface RuntimeTextElement extends HTMLElement {
@@ -9,10 +10,10 @@ export interface RuntimeTextElement extends HTMLElement {
 
 const TEXT_ATTR = bindungsAttr('text')
 
-function gebunden(el: RuntimeTextElement): { sourceId: string; code: string } | undefined {
-  const sourceId = el.getAttribute('source') ?? ''
+function gebunden(el: RuntimeTextElement): { quelleId: string; code: string } | undefined {
+  const quelleId = quelleIdVon(el)
   const code = el.getAttribute(TEXT_ATTR) ?? ''
-  return sourceId === '' || code === '' ? undefined : { sourceId, code }
+  return quelleId === '' || code === '' ? undefined : { quelleId, code }
 }
 
 function hydriereText(el: RuntimeTextElement): void {

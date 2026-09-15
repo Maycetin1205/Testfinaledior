@@ -6,15 +6,15 @@ import type { Faehigkeit, GeschriebeneZeile, Lieferung, VormerkArt } from '../..
 import { SE_FOKUS_EVENT } from '../../softengine/bridge'
 import { meldeFehler } from '../../softengine/meldung'
 import { Grundbaustein } from '../grund/Grundbaustein'
-import { vorschlagStil } from '../shared/vorschlagListe'
+import { vorschlagStil } from '../faehigkeiten/vorschlagListe'
 import { meldeVormerkungen } from '../shared/vormerkStand'
 import { geheInZelle, zellenEingabeStil, zellenFelder } from '../shared/zellenEingabe'
-import { OHNE_SCHMUCK, type Unterzeilen, type Zeilenschmuck } from '../shared/zeilenNaehte'
-import { schliesseNachschlagenFuer } from '../tabelle/nachschlagen'
-import { hatSatzNummer } from '../tabelle/seRuntime'
-import { standardSpalten } from '../tabelle/spalten'
+import { OHNE_SCHMUCK, type Unterzeilen, type Zeilenschmuck } from '../faehigkeiten/tabelleKoerper'
+import { schliesseNachschlagenFuer } from '../faehigkeiten/nachschlagen'
+import { hatSatzNummer } from '../faehigkeiten/zeilenAnschluss'
+import { standardSpalten } from '../faehigkeiten/spalten'
 import { BERECHNUNGEN_PROP, berechnungenAus, type Berechnung } from '../../kern/daten/berechnung'
-import { TabelleBlock } from '../tabelle/TabelleBlock'
+import { Tabelle } from '../tabelle/Tabelle'
 import { ErfassungsAnschluss } from './erfassungsAnschluss'
 import { erfassungsZeileFuer, type ErfassungsWirt } from './erfassungsBedienung'
 import {
@@ -46,14 +46,14 @@ const NICHT_GEAENDERT = 'Im Beleg unverändert geblieben.'
 
 const NICHT_GELOESCHT = 'Steht noch im Beleg.'
 
-export class ErfassungBlock extends TabelleBlock {
+export class ErfassungBlock extends Tabelle {
   static override readonly typ = 'erfassung'
   static override readonly tag = 'ff-erfassung'
   static override readonly anzeigeName = 'Erfassung'
   static override readonly kategorie: Kategorie = 'eingabe'
 
   static override readonly faehigkeiten: readonly Faehigkeit[] = [
-    ...TabelleBlock.faehigkeiten.filter((f) => f.art !== 'liste'),
+    ...Tabelle.faehigkeiten.filter((f) => f.art !== 'liste'),
     { art: 'liste', bindung: ERFASSUNG_SPALTEN_BINDUNG },
     { art: 'erfassen' },
     { art: 'aendern', schluessel: 'aenderbar' },
@@ -77,7 +77,7 @@ export class ErfassungBlock extends TabelleBlock {
   ]
 
   static override readonly vorgaben = {
-    ...TabelleBlock.vorgaben,
+    ...Tabelle.vorgaben,
     spalten: standardSpalten(),
     loeschbar: 'nein',
     [BERECHNUNGEN_PROP]: [],
@@ -86,7 +86,7 @@ export class ErfassungBlock extends TabelleBlock {
   static override readonly eigenschaften = ERFASSUNG_EIGENSCHAFTEN
 
   static override styles: CSSResultGroup = [
-    TabelleBlock.styles,
+    Tabelle.styles,
     vorschlagStil,
     zellenEingabeStil,
     erfassungStil,
@@ -215,7 +215,7 @@ export class ErfassungBlock extends TabelleBlock {
     return this._erfassung.umfeld(
       this,
       this.spaltenListe(),
-      this.source,
+      this.quelle,
       this.berechnungsListe(),
     )
   }

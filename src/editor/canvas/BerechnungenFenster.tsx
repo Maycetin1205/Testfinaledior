@@ -4,7 +4,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { Dialog } from '@/editor/werkbank/Dialog'
 import { Knopf } from '@/editor/werkbank/Knopf'
-import { coerceSpalten } from '../../bausteine/tabelle/spalten'
+import { coerceSpalten } from '../../bausteine/faehigkeiten/spalten'
 import { bausteinArt } from '../../kern/maske/registry'
 import { faehigkeit } from '../../kern/maske/faehigkeiten'
 import { berechnungenAus, neueBerechnung, type Berechnung } from '../../kern/daten/berechnung'

@@ -21,7 +21,7 @@ import { FormFeldBlock } from '../bausteine/formfeld/FormFeldBlock'
 import { KanbanBlock } from '../bausteine/kanban/KanbanBlock'
 import { KanbanSpalteBlock } from '../bausteine/kanban/KanbanSpalteBlock'
 import { PopupBlock } from '../bausteine/popup/PopupBlock'
-import { TabelleBlock } from '../bausteine/tabelle/TabelleBlock'
+import { Tabelle } from '../bausteine/tabelle/Tabelle'
 import { TextBlock } from '../bausteine/text/TextBlock'
 import { TrennerBlock } from '../bausteine/trenner/TrennerBlock'
 
@@ -34,7 +34,7 @@ const SYMBOLE = [
   [KanbanBlock.typ, ZeichenKanban],
   [KanbanSpalteBlock.typ, ZeichenKanbanSpalte],
   [PopupBlock.typ, ZeichenPopup],
-  [TabelleBlock.typ, ZeichenTabelle],
+  [Tabelle.typ, ZeichenTabelle],
   [TextBlock.typ, ZeichenText],
   [TrennerBlock.typ, ZeichenTrenner],
 ] as const

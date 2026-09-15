@@ -8,7 +8,7 @@ import type { Faehigkeit } from '../../kern/maske/faehigkeiten'
 import type { Richtung, FlussBreite } from '../../kern/maske/fluss'
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 import { CardBlock } from '../card/CardBlock'
-import { LEER_TEXT_STANDARD, leerTextProperty } from '../shared/leerZustand'
+import { LEER_TEXT_STANDARD, leerTextEigenschaft } from '../faehigkeiten/leerZustand'
 import { KanbanMusterBlock } from './KanbanMusterBlock'
 import { KanbanSpalteBlock } from './KanbanSpalteBlock'
 import { connectBoard, disconnectBoard, type KanbanZiel } from './seRuntime'
@@ -47,7 +47,7 @@ export class KanbanBlock extends Grundbaustein {
 
   static readonly vorgaben = {
     width: 'fill', height: 'fill' as const,
-    source: '', statusField: '', tagField: '',
+    quelle: '', statusField: '', tagFeld: '',
     leerText: LEER_TEXT_STANDARD,
   }
 
@@ -59,13 +59,13 @@ export class KanbanBlock extends Grundbaustein {
       beschreibung: 'Feld, das die Spalte bestimmt. Leer: alle in die Auffang-Spalte.',      art: 'field',
     },
     {
-      schluessel: 'tagField',
+      schluessel: 'tagFeld',
       name: 'Tag filtern nach',
       beschreibung: 'Datumsfeld. Gesetzt: nur Einträge des gewählten Tages.',
       art: 'field',
     },
 
-    leerTextProperty(),
+    leerTextEigenschaft(),
   ]
 
   static readonly kinderVorgabe: KindVorgabe[] = [

@@ -1,6 +1,7 @@
 // Ein Suchfenster aus der Sicht des Editors: woher es seine Angaben nimmt und
 // wohin der gezogene Rand und der Spaltenkopf sie zurueckschreiben. Eingestellt
 // wird IM Fenster; diese Datei ist nur der Weg dorthin.
+import { QUELLE_PROP } from '../../kern/maske/quelleProp'
 import { coerceErfassungsSpalten } from '../../bausteine/erfassung/erfassungsSpalte'
 import { fensterSpaltenIn } from '../../bausteine/erfassung/erfassungsZeile'
 import {
@@ -9,9 +10,9 @@ import {
   coerceNachschlagSpalten,
   fensterBreiteFuer,
   oeffneNachschlagen,
-} from '../../bausteine/tabelle/nachschlagen'
-import { DIALOG_RAHMEN_TAG, type DialogRahmen } from '../../bausteine/shared/DialogRahmen'
-import type { Spalte } from '../../bausteine/tabelle/spalten'
+} from '../../bausteine/faehigkeiten/nachschlagen'
+import { DIALOG_RAHMEN_TAG, type DialogRahmen } from '../../bausteine/faehigkeiten/DialogRahmen'
+import type { Spalte } from '../../bausteine/faehigkeiten/spalten'
 import type { Baustein } from '../../kern/maske/baum'
 import { zerlegeBindung } from '../../kern/maske/bausteinArt'
 import { type SuchFenster } from '../../kern/maske/faehigkeiten'
@@ -120,7 +121,7 @@ function standJeEintrag(
   // Baustein braucht.
   const ausSpalten = fensterSpaltenIn({
     spalten: coerceErfassungsSpalten(block.werte[prop]),
-    quelleId: String(block.werte.source ?? ''),
+    quelleId: String(block.werte[QUELLE_PROP] ?? ''),
     berechnungen: [],
     paareZu: () => [],
     partnerVon: () => '',

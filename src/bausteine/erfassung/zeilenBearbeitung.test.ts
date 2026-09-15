@@ -1,12 +1,12 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 import type { Lieferung } from '../../kern/maske/faehigkeiten'
-import type { Spalte } from '../tabelle/spalten'
+import type { Spalte } from '../faehigkeiten/spalten'
 import { ZeilenBearbeitung } from './zeilenBearbeitung'
 import { LaufStand } from './zeilenStatus'
 
 // Die Satznummer kommt sonst ueber die Datenquelle aus der SoftEngine-Bruecke;
 // hier steht sie in der Rohzeile.
-vi.mock('../tabelle/seRuntime', () => ({
+vi.mock('../faehigkeiten/zeilenAnschluss', () => ({
   zeilenIndexVon: (_el: unknown, zeile: unknown) => (zeile as { satz: string }).satz,
 }))
 

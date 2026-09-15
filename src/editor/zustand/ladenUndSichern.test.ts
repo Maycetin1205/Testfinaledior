@@ -224,7 +224,49 @@ test('ein unlesbarer Bibliothekseintrag verhindert einen gekuerzten Maskenstand'
   expect(kopien(STORAGE_KEY).map((k) => speicher.getItem(k))).toEqual([roh])
 })
 
-test('ein Stand im Format 9 wird beim Laden auf 10 gehoben', () => {
+test('ein Stand im Format 10 wird beim Laden auf die deutschen Bausteinnamen gehoben', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: 10,
+    tree: {
+      [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: ['t1'] },
+      t1: {
+        id: 't1', typ: 'tabelle', werte: { source: 'q1', tagField: '5_8' }, elternId: WURZEL_ID, kinderIds: [],
+        ketten: { onRowClick: [{ id: 's1', art: 'BW_LINK', ergebnisName: '', befehl: '0,REFRESH' }] },
+      },
+    },
+    datenquellen: [], relationen: [],
+  }))
+  const stand = loadFromStorage()
+  expect(stand?.tree.t1.werte).toMatchObject({ quelle: 'q1', tagFeld: '5_8' })
+  expect(stand?.tree.t1.ketten?.zeileGewaehlt).toHaveLength(1)
+  expect(meldungsText()).toBe('')
+})
+
+// Der Stand des Nutzers vom 15.09.: ein frueherer Editor schrieb in jeden
+// Ketten-Parameter `wert` UND `value`. Das Doppel darf die Maske nicht kosten.
+test('ein Ketten-Parameter mit altem value neben wert laedt ohne Verlust', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: 10,
+    tree: {
+      ...wurzelBaum(['b1']),
+      b1: {
+        id: 'b1', typ: 'button', werte: {}, elternId: WURZEL_ID, kinderIds: [],
+        ketten: { onClick: [{
+          id: 's1', art: 'RELATION', ergebnisName: '', relationId: 'r1', zusatzParameter: [],
+          parameter: [{ quelle: 'fixed', wert: 'R', value: 'R' }, { quelle: 'data_field', wert: '3_8', quelleId: 'q1', value: '3_8' }],
+        }] },
+      },
+    },
+    datenquellen: [], relationen: [],
+  }))
+  const stand = loadFromStorage()
+  expect(stand?.tree.b1.ketten?.onClick[0]).toMatchObject({
+    parameter: [{ quelle: 'fixed', wert: 'R' }, { quelle: 'data_field', wert: '3_8', quelleId: 'q1' }],
+  })
+  expect(meldungsText()).toBe('')
+})
+
+test('ein Stand im Format 9 wird beim Laden auf den heutigen Stand gehoben', () => {
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: 9,
     tree: {

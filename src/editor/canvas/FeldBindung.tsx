@@ -1,4 +1,5 @@
 // Der Feld-Waehler des Editors: eine Stelle oder einen Listeneintrag an ein Feld binden.
+import { QUELLE_PROP } from '../../kern/maske/quelleProp'
 import { useCallback, useEffect, useState, type ReactNode, type RefObject } from 'react'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { Baustein } from '../../kern/maske/baum'
@@ -185,7 +186,7 @@ export function useFeldBindung({
     onWaehle: (quelleId: string) => {
       const traeger = quellenTraeger(editor.tree, blockRef.current.id)
       if (quelleId === '' || !traeger) return
-      editor.updateProperty(traeger.id, 'source', quelleId)
+      editor.updateProperty(traeger.id, QUELLE_PROP, quelleId)
     },
   }
 

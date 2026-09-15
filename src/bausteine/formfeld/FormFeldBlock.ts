@@ -4,11 +4,11 @@ import { property, state } from 'lit/decorators.js'
 import { Grundbaustein } from '../grund/Grundbaustein'
 import type { Kategorie } from '../../kern/maske/bausteinElement'
 import { aktionswert, bindbar, type Faehigkeit } from '../../kern/maske/faehigkeiten'
-import { geberIdVon, klareAuswahl, setzeAuswahl } from '../shared/auswahl'
-import { vorschlagStil } from '../shared/vorschlagListe'
-import { vorschlaegeImFensterStand } from '../tabelle/nachschlagStand'
-import { automatikSpalten } from '../tabelle/nachschlagen'
-import { tasteVon, VorschlagStand } from '../shared/vorschlagStand'
+import { geberIdVon, klareAuswahl, setzeAuswahl } from '../faehigkeiten/auswahl'
+import { vorschlagStil } from '../faehigkeiten/vorschlagListe'
+import { vorschlaegeImFensterStand } from '../faehigkeiten/nachschlagen'
+import { automatikSpalten } from '../faehigkeiten/nachschlagen'
+import { tasteVon, VorschlagStand } from '../faehigkeiten/vorschlagStand'
 import { eingabeStelleTpl } from '../shared/zellenEingabe'
 import { FELD_EIGENSCHAFTEN } from './feldEigenschaften'
 import {
@@ -24,7 +24,10 @@ import {
   PH_KLASSE,
   type FeldTyp,
 } from './feldTypen'
-import { lupeZeichen } from '../tabelle/lupeZeichen'
+import { lupeZeichen } from '../faehigkeiten/nachschlagen'
+// Das Nachschlagefenster ist eine Tabelle. Ohne diesen Import laedt eine Maske,
+// die nur ein Formularfeld traegt, den Baustein nicht, und das Fenster bleibt leer.
+import '../tabelle/Tabelle'
 import {
   coerceNachschlagSpalten,
   einzigenTrefferFinden,
@@ -37,8 +40,8 @@ import {
   oeffneNachschlagen,
   satzPasstZurAuswahl,
   schliesseNachschlagenFuer,
-} from '../tabelle/nachschlagen'
-import type { Spalte } from '../tabelle/spalten'
+} from '../faehigkeiten/nachschlagen'
+import type { Spalte } from '../faehigkeiten/spalten'
 
 export class FormFeldBlock extends Grundbaustein {
   static readonly typ = 'formfeld'
@@ -91,7 +94,7 @@ export class FormFeldBlock extends Grundbaustein {
     fieldType: 'text',
     placeholder: 'Feldname',
     options: '',
-    source: '',
+    quelle: '',
     value: '',
     valueField: '',
 
@@ -117,7 +120,7 @@ export class FormFeldBlock extends Grundbaustein {
   @property() fieldType = 'text'
   @property() placeholder = 'Feldname'
   @property() options = ''
-  @property() source = ''
+  @property() quelle = ''
   @property() value = ''
   @property() valueField = ''
   @property() nachschlagQuelle = ''

@@ -3,11 +3,16 @@ import {
   auswahlFuer,
   geberIdVon,
   waehleAuswahl,
-} from '../shared/auswahl'
-import { meldeKettenFehler, runEvent } from '../shared/seAktionen'
-import { zeilenIndexVon, zeilenMerkmalVon } from './seRuntime'
+} from './auswahl'
+import { meldeKettenFehler, runEvent } from './ereignisse'
+import { zeilenIndexVon, zeilenMerkmalVon } from './zeilenAnschluss'
 
 export const ZEILE_AKTIVIERT_EVENT = 'ff-zeile-aktiviert'
+
+// Die Ereignisse einer Zeile, wie Kette und Export sie kennen.
+export const ZEILE_GEWAEHLT = 'zeileGewaehlt'
+export const ZEILE_DOPPELT = 'zeileDoppelt'
+export const TASTE_F4 = 'tasteF4'
 
 export interface ZeileAktiviertDetail {
   rohzeile: unknown
@@ -152,7 +157,7 @@ export function aktiviereZeile(
     return
   }
   sendeZeileAktiviert(el, { rohzeile, rohIndex, ansichtIndex })
-  runEvent(el, 'onRowClick', { PINDEX: zeilenIndexVon(el, rohzeile) })
+  runEvent(el, ZEILE_GEWAEHLT, { PINDEX: zeilenIndexVon(el, rohzeile) })
     .catch(meldeKettenFehler)
 }
 
@@ -164,6 +169,6 @@ export function zeileDoppelt(
   if (rohIndex === null || el.hasAttribute('data-ff-editor')) return
   const rohzeile = rohzeilen[rohIndex]
   if (rohzeile === undefined) return
-  runEvent(el, 'onRowDblClick', { PINDEX: zeilenIndexVon(el, rohzeile) })
+  runEvent(el, ZEILE_DOPPELT, { PINDEX: zeilenIndexVon(el, rohzeile) })
     .catch(meldeKettenFehler)
 }

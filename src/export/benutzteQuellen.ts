@@ -8,6 +8,7 @@ import {
   auswahlQuelleIdVon,
   bindbareStellenVon,
   darfAuswahlFolgen,
+  QUELLE_PROP,
   quellenIdsInKettenVon,
   traegtEigeneQuelle,
 } from '../kern/maske/baumFragen'
@@ -40,7 +41,7 @@ export function collectDataSources(
     if (!node) return
 
     if (traegtEigeneQuelle(node)) {
-      add(node.werte.source)
+      add(node.werte[QUELLE_PROP])
 
       for (const q of weitereQuellenAus(node.werte[WEITERE_QUELLEN_PROP])) {
         if (quelleBrauchbar(q)) add(q.quelleId)
@@ -150,7 +151,7 @@ export function benutzteFelderJeQuelle(
     }
 
     if (traegtEigeneQuelle(node)) {
-      const erste = typeof node.werte.source === 'string' ? node.werte.source : ''
+      const erste = typeof node.werte[QUELLE_PROP] === 'string' ? node.werte[QUELLE_PROP] : ''
       for (const q of weitereQuellenAus(node.werte[WEITERE_QUELLEN_PROP])) {
         if (!quelleBrauchbar(q)) continue
   // Die linke Seite eines Paares gehoert der PARTNER-Quelle, nicht zwangslaeufig

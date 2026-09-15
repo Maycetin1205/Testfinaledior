@@ -25,9 +25,10 @@ function inhaltVon(datei: string): string {
   return gefunden.trim()
 }
 
-// Die Basis und jeder Teil, dessen Baustein in der Maske steht, samt den Teilen,
-// die er selbst benutzt, in Ladereihenfolge hintereinander.
-export function laufzeitSkriptFuer(typen: ReadonlySet<string>): string {
+// Jeder Teil, dessen Baustein in der Maske steht, samt den Teilen, die er
+// selbst benutzt (Faehigkeiten, andere Bausteine), in Ladereihenfolge und mit
+// seiner Groesse: so sieht der Bauer, was eine Maske wirklich traegt.
+export function laufzeitTeileFuer(typen: ReadonlySet<string>): { name: string; bytes: number }[] {
   const nachName = new Map(verzeichnis.teile.map((teil) => [teil.name, teil]))
   const gebraucht = new Set<string>()
   const dazu = (name: string): void => {
@@ -38,9 +39,19 @@ export function laufzeitSkriptFuer(typen: ReadonlySet<string>): string {
   for (const teil of verzeichnis.teile) {
     if (teil.bausteine.some((typ) => typen.has(typ))) dazu(teil.name)
   }
-
   return [
-    inhaltVon(verzeichnis.basisDatei),
-    ...verzeichnis.teile.filter((teil) => gebraucht.has(teil.name)).map((teil) => inhaltVon(teil.datei)),
-  ].join('\n')
+    { name: 'basis', bytes: inhaltVon(verzeichnis.basisDatei).length },
+    ...verzeichnis.teile
+      .filter((teil) => gebraucht.has(teil.name))
+      .map((teil) => ({ name: teil.name, bytes: inhaltVon(teil.datei).length })),
+  ]
+}
+
+// Die Basis und die gebrauchten Teile hintereinander, als ein Skript.
+export function laufzeitSkriptFuer(typen: ReadonlySet<string>): string {
+  return laufzeitTeileFuer(typen)
+    .map((teil) => (teil.name === 'basis'
+      ? inhaltVon(verzeichnis.basisDatei)
+      : inhaltVon(verzeichnis.teile.find((t) => t.name === teil.name)!.datei)))
+    .join('\n')
 }

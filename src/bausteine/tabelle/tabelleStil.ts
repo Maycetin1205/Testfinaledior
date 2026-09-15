@@ -8,8 +8,6 @@ export const tabelleStil = css`
         --se-zell-x: 10px;
         --se-eingabe-x: 4px;
 
-        --kopf-hoehe: 36px;
-
         position: relative;
         box-sizing: border-box;
         display: flex;
@@ -49,9 +47,10 @@ export const tabelleStil = css`
         border-color: var(--se-accent);
       }
 
+      /* Der Kopf ist eine Zeile hoch und waechst nur, wenn ein Titel umbricht. */
       .kopf {
         display: grid;
-        height: var(--kopf-hoehe);
+        min-height: var(--zeilen-hoehe);
         box-sizing: border-box;
       }
       .zeile {
@@ -282,6 +281,11 @@ export const tabelleStil = css`
         color: var(--se-muted);
         white-space: nowrap;
         overflow: hidden;
+      }
+      .fusszeile--still {
+        min-height: 0;
+        height: 6px;
+        padding: 0;
       }
       .seiten-info { flex: none; }
       .fuss-rechts {

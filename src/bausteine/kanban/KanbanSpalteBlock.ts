@@ -6,8 +6,8 @@ import type { Kategorie } from '../../kern/maske/bausteinElement'
 import type { Richtung, FlussBreite } from '../../kern/maske/fluss'
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 import { CardBlock } from '../card/CardBlock'
-import { jaNeinProperty } from '../shared/jaNeinProperty'
-import { leerStil, leerZustand } from '../shared/leerZustand'
+import { jaNeinEigenschaft } from '../../kern/maske/eigenschaft'
+import { leerStil, leerZustand } from '../faehigkeiten/leerZustand'
 import {
   coerceStatusVariant,
   farbweltStil,
@@ -51,7 +51,7 @@ export class KanbanSpalteBlock extends Grundbaustein {
       'variant',
       'Bedeutung der Spalte — bestimmt ihre Farbwelt (Kopf, Fläche, Rahmen).',
     ),
-    jaNeinProperty(
+    jaNeinEigenschaft(
       'auffang',
       'Auffangspalte',
       'Eintr\u00E4ge ohne passenden Wert landen hier.',

@@ -6,14 +6,14 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/editor/werkbank/cn'
 import { EBENE_UEBER_MASKENFENSTER } from '@/editor/werkbank/AuswahlFenster'
 import { Plus } from '@/editor/zeichen/zeichen'
-import type { DialogRahmen } from '../../bausteine/shared/DialogRahmen'
-import type { TabelleBlock } from '../../bausteine/tabelle/TabelleBlock'
+import type { DialogRahmen } from '../../bausteine/faehigkeiten/DialogRahmen'
+import type { Tabelle } from '../../bausteine/tabelle/Tabelle'
 import {
   neueSpalte,
   SPALTEN_MAX,
   STANDARD_TITEL,
   type Spalte,
-} from '../../bausteine/tabelle/spalten'
+} from '../../bausteine/faehigkeiten/spalten'
 import { quellenKennung } from '../../kern/daten/datenquellen'
 import { useDataSources } from '../zustand/useDataSources'
 import { useEditor } from '../zustand/useEditor'
@@ -57,8 +57,8 @@ interface Messung {
 
 const NICHTS: Messung = { koepfe: [], zeile: null }
 
-function tabelleIn(rahmen: DialogRahmen): TabelleBlock | null {
-  return rahmen.querySelector<TabelleBlock>('ff-tabelle')
+function tabelleIn(rahmen: DialogRahmen): Tabelle | null {
+  return rahmen.querySelector<Tabelle>('ff-tabelle')
 }
 
 function messe(rahmen: DialogRahmen): Messung {

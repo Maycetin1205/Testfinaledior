@@ -1,6 +1,6 @@
 // Die Eigenschaften des Formularfelds, wie der Inspector sie zeigt.
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
-import { jaNeinProperty } from '../shared/jaNeinProperty'
+import { jaNeinEigenschaft } from '../../kern/maske/eigenschaft'
 
 const NUR_NACHSCHLAGEN = { schluessel: 'fieldType', gleich: 'nachschlagen' } as const
 
@@ -46,7 +46,7 @@ export const FELD_EIGENSCHAFTEN: Eigenschaft[] = [
     wenn: NUR_NACHSCHLAGEN,
   },
 
-  jaNeinProperty(
+  jaNeinEigenschaft(
     'einzigerTreffer',
     'Einzigen Treffer übernehmen',
     'Bleibt genau ein Satz übrig, übernimmt das Feld ihn von selbst.',

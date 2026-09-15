@@ -5,10 +5,13 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { Grundbaustein } from '../grund/Grundbaustein'
 import type { Kategorie } from '../../kern/maske/bausteinElement'
 import type { Berechnung } from '../../kern/daten/berechnung'
+import { jaNeinEigenschaft, type Eigenschaft } from '../../kern/maske/eigenschaft'
 import type { Faehigkeit } from '../../kern/maske/faehigkeiten'
-import { geberIdVon, setzeAuswahl } from '../shared/auswahl'
-import { LEER_TEXT_STANDARD, leerStil } from '../shared/leerZustand'
-import { OHNE_SCHMUCK, type Unterzeilen, type Zeilenschmuck } from '../shared/zeilenNaehte'
+import { kettenLesen } from '../../kern/daten/aktionen'
+import { geberIdVon, setzeAuswahl } from '../faehigkeiten/auswahl'
+import { meldeKettenFehler, runEvent } from '../faehigkeiten/ereignisse'
+import { LEER_TEXT_STANDARD, leerStil, leerTextEigenschaft } from '../faehigkeiten/leerZustand'
+import { tagFeldEigenschaft } from '../faehigkeiten/quelle'
 import {
   connectTable,
   disconnectTable,
@@ -17,29 +20,40 @@ import {
   zeilenMerkmalVon,
   type BereitgestellteZeile,
   type Datenbesitz,
-} from './seRuntime'
+} from '../faehigkeiten/zeilenAnschluss'
 import {
   coerceSpalten,
+  SPALTEN_BINDUNG,
   spaltenSicht,
   standardSpalten,
   tryCoerceSpalten,
   type Spalte,
-} from './spalten'
-import { AnsichtsStand } from './ansichtsStand'
-import { aktiviereZeile, ZeilenWahl, zeileDoppelt } from './zeilenAktivierung'
-import { BreitenStand } from './spaltenBreite'
-import { SpaltenWahlStand } from './spaltenWahl'
-import { ZEILEN_HOEHE } from './seitengroesse'
-import { tabelleAnsicht, zeigtEchteDaten } from './tabelleAnsicht'
-import { SPALTEN_BINDUNG, TABELLE_EIGENSCHAFTEN } from './tabelleEigenschaften'
-import { tabelleFuss, tabelleKoerper } from './tabelleKoerper'
+} from '../faehigkeiten/spalten'
+import { AnsichtsStand } from '../faehigkeiten/ansichtsStand'
+import {
+  aktiviereZeile,
+  fokussierterRohIndex,
+  TASTE_F4,
+  ZEILE_DOPPELT,
+  ZEILE_GEWAEHLT,
+  ZeilenWahl,
+  zeileDoppelt,
+} from '../faehigkeiten/zeilenAktivierung'
+import { BreitenStand } from '../faehigkeiten/spaltenBreite'
+import { SpaltenWahlStand } from '../faehigkeiten/spaltenWahl'
+import { ZEILEN_HOEHE } from '../faehigkeiten/seitengroesse'
+import { tabelleAnsicht, zeigtEchteDaten } from '../faehigkeiten/tabelleAnsicht'
+import {
+  OHNE_SCHMUCK,
+  tabelleFuss,
+  tabelleKoerper,
+  type Unterzeilen,
+  type Zeilenschmuck,
+} from '../faehigkeiten/tabelleKoerper'
 import { tabelleStil } from './tabelleStil'
-import { kettenLesen } from '../../kern/daten/aktionen'
-import { meldeKettenFehler, runEvent } from '../shared/seAktionen'
-import { fokussierterRohIndex } from './zeilenAktivierung'
 
-export class TabelleBlock extends Grundbaustein {
-  // Als string, nicht als Literal: die Erfassung erbt und traegt eigene Namen.
+export class Tabelle extends Grundbaustein {
+  // Als string, nicht als Literal: die Erfassung erbt noch und traegt eigene Namen.
   static readonly typ: string = 'tabelle'
   static readonly tag: string = 'ff-tabelle'
   static readonly anzeigeName: string = 'Tabelle'
@@ -53,24 +67,50 @@ export class TabelleBlock extends Grundbaustein {
     {
       art: 'ereignisse',
       liste: [
-        { schluessel: 'onRowClick', name: 'Zeile gewählt' },
-        { schluessel: 'onRowDblClick', name: 'Zeile doppelt geklickt' },
-        { schluessel: 'onF4', name: 'F4 – Aktion an der Zeile' },
+        { schluessel: ZEILE_GEWAEHLT, name: 'Zeile gewählt' },
+        { schluessel: ZEILE_DOPPELT, name: 'Zeile doppelt geklickt' },
+        { schluessel: TASTE_F4, name: 'F4 – Aktion an der Zeile' },
       ],
     },
   ]
+
   static readonly vorgaben = {
-    width: 'fill',
-    source: '',
+    quelle: '',
     spalten: standardSpalten(),
     suche: 'ja',
     blaettern: 'ja',
     kopfzeile: 'ja',
     spaltenwahl: 'nein',
-    tagField: '',
+    tagFeld: '',
     leerText: LEER_TEXT_STANDARD,
   }
-  static override readonly eigenschaften = TABELLE_EIGENSCHAFTEN
+
+  static override readonly eigenschaften: Eigenschaft[] = [
+    jaNeinEigenschaft(
+      'suche',
+      'Suchzeile',
+      'Zeigt über der Tabelle ein Feld, mit dem der Bediener den Inhalt durchsucht.',
+      { brauchtQuelle: true },
+    ),
+    jaNeinEigenschaft(
+      'blaettern',
+      'Blättern',
+      'Ja: Seiten mit Blätter-Knöpfen. Nein: alles untereinander, der Rumpf rollt.',
+    ),
+    jaNeinEigenschaft(
+      'kopfzeile',
+      'Kopfzeile',
+      'Aus: keine Titelzeile, kein Sortieren per Titelklick.',
+    ),
+    jaNeinEigenschaft(
+      'spaltenwahl',
+      'Spaltenwahl',
+      'In der Maske: Rechtsklick auf eine Spaltenüberschrift nimmt Spalten weg '
+        + 'und holt sie zurück. Braucht die Kopfzeile.',
+    ),
+    tagFeldEigenschaft(),
+    leerTextEigenschaft(),
+  ]
 
   static readonly raster = { startBreite: 48, startHoehe: 14, minBreite: 12, minHoehe: 4 }
 
@@ -85,7 +125,7 @@ export class TabelleBlock extends Grundbaustein {
   })
   spalten: Spalte[] = standardSpalten()
 
-  @property() source = ''
+  @property() quelle = ''
 
   @property() suche = 'ja'
 
@@ -184,35 +224,33 @@ export class TabelleBlock extends Grundbaustein {
     // bei einer Tabelle ohne Quelle, statt einer leeren weissen Flaeche.
     return this._besitz === 'provided' && !this.imEditor
       ? true
-      : zeigtEchteDaten(this.imEditor, this.source)
+      : zeigtEchteDaten(this.imEditor, this.quelle)
   }
 
+  // Die vier Naehte der Erfassung, die noch erbt: Spaltenform, Rechnung, Zellwert,
+  // Zeilenschmuck. Sie fallen, sobald die Erfassung ein eigener Baustein ist.
   protected spaltenListe(): Spalte[] {
     return coerceSpalten(this.spalten)
   }
 
-  // Die Liste rechnet nicht; eine erbende Tabelle bringt ihre Berechnungen mit.
   protected berechnungsListe(): readonly Berechnung[] {
     return []
   }
 
-  private get zeilenHoehe(): number {
-    return ZEILEN_HOEHE
-  }
-
-  // Der Wert einer Zelle, wie Suche, Sortierung und Summe ihn sehen.
   protected zellWert(rohIndex: number, platz: number): string {
     return this.datenzeilen[rohIndex]?.[platz] ?? ''
   }
 
-  // Die zwei Naehte einer erbenden Tabelle, die schreibt. Die Liste selbst
-  // haengt an ihre Zeilen nichts und stellt nichts darunter.
   protected zeilenSchmuck(): (rohIndex: number | null) => Zeilenschmuck {
     return () => OHNE_SCHMUCK
   }
 
   protected unterZeilen(): Unterzeilen | null {
     return null
+  }
+
+  private get zeilenHoehe(): number {
+    return ZEILEN_HOEHE
   }
 
   // Ein Undo-Schritt je Aenderung der Spaltenliste.
@@ -233,7 +271,7 @@ export class TabelleBlock extends Grundbaustein {
   private readonly aktionsTaste = (e: KeyboardEvent): void => {
     if (this.imEditor || e.defaultPrevented || e.key !== 'F4'
       || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
-    if (!kettenLesen(this.getAttribute('data-ff-aktionen')).onF4?.length) return
+    if (!kettenLesen(this.getAttribute('data-ff-aktionen'))[TASTE_F4]?.length) return
     e.preventDefault()
     e.stopPropagation()
     if (e.repeat) return
@@ -244,7 +282,7 @@ export class TabelleBlock extends Grundbaustein {
     if (zeile === undefined) return
     setzeAuswahl(geberIdVon(this), zeile, true, zeilenMerkmalVon(this, zeile))
     const satz = zeilenIndexVon(this, zeile)
-    runEvent(this, 'onF4', { PINDEX: satz, DROP_PINDEX: satz }).catch(meldeKettenFehler)
+    runEvent(this, TASTE_F4, { PINDEX: satz, DROP_PINDEX: satz }).catch(meldeKettenFehler)
   }
 
   // F5 ist in der Maske das Nachschlagen. Faellt die Taste bis zum Browser
@@ -299,9 +337,7 @@ export class TabelleBlock extends Grundbaustein {
 
   override render(): TemplateResult {
     const spalten = this.spaltenListe()
-
     const sicht = spaltenSicht(spalten, this.imEditor, this._wahl.weg())
-
     const unten = this.unterZeilen()
 
     const ansicht = tabelleAnsicht({
@@ -391,4 +427,4 @@ export class TabelleBlock extends Grundbaustein {
   }
 }
 
-Grundbaustein.defineAndRegister(TabelleBlock)
+Grundbaustein.defineAndRegister(Tabelle)

@@ -3,9 +3,8 @@ import { faehigkeit, hatFaehigkeit, vertragVon } from '../../kern/maske/faehigke
 import { bausteinArtFuerTag } from '../../kern/maske/registry'
 import { satzIndexVon } from '../../softengine/data'
 import { laufzeitQuelle } from '../../softengine/laufzeitQuellen'
-import { auswahlWiederfinden, geberIdVon, merkmalVon, zeilenNachAuswahl } from '../shared/auswahl'
-import { macheDatenAnschluss } from '../shared/datenAnschluss'
-import { holeDatenVorspann, type DatenVorspann } from '../shared/datenVorspann'
+import { auswahlWiederfinden, geberIdVon, merkmalVon, zeilenNachAuswahl } from './auswahl'
+import { holeDatenVorspann, macheDatenAnschluss, quelleIdVon, type DatenVorspann } from './quelle'
 import { berechnungenAus, ergaenzeZeile, type Berechnung } from '../../kern/daten/berechnung'
 import { alsZahl } from './sortierung'
 import { spalteMitKennung, tryCoerceSpalten, type Spalte } from './spalten'
@@ -61,18 +60,18 @@ export function zeileGerechnet(
 }
 
 export function zeilenIndexVon(el: HTMLElement, rohzeile: unknown): string {
-  const source = laufzeitQuelle(el.getAttribute('source') ?? '')
+  const source = laufzeitQuelle(quelleIdVon(el))
   return source ? satzIndexVon(source, rohzeile) : ''
 }
 
 export function zeilenMerkmalVon(el: HTMLElement, rohzeile: unknown): string {
   if (rohzeile == null) return ''
   const satz = zeilenIndexVon(el, rohzeile)
-  return satz === '' ? merkmalVon(rohzeile) : JSON.stringify([el.getAttribute('source'), satz])
+  return satz === '' ? merkmalVon(rohzeile) : JSON.stringify([quelleIdVon(el), satz])
 }
 
 export function hatSatzNummer(el: HTMLElement): boolean {
-  const source = laufzeitQuelle(el.getAttribute('source') ?? '')
+  const source = laufzeitQuelle(quelleIdVon(el))
   return source !== undefined && source.satzFeld !== ''
 }
 

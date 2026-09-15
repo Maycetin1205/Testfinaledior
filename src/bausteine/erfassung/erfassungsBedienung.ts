@@ -4,8 +4,8 @@ import {
   fensterBreiteFuer,
   FENSTER_HOEHE,
   oeffneNachschlagen,
-} from '../tabelle/nachschlagen'
-import { tasteVon } from '../shared/vorschlagStand'
+} from '../faehigkeiten/nachschlagen'
+import { tasteVon } from '../faehigkeiten/vorschlagStand'
 import type { ErfassungsLauf } from './erfassungsLauf'
 import {
   erfassungsZeileTpl,
@@ -13,7 +13,7 @@ import {
   zielIn,
   type ErfassungsUmfeld,
 } from './erfassungsZeile'
-import type { Spaltensicht } from '../tabelle/spalten'
+import type { Spaltensicht } from '../faehigkeiten/spalten'
 
 export interface ErfassungsWirt {
   baustein: HTMLElement

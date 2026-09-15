@@ -1,6 +1,6 @@
 // Prueft die Bauweise der Bausteine, nicht ihr Verhalten: das koennen Tests
 // nicht. Ein Baustein gilt als umgebaut, sobald seine Verhaltensdatei wie der
-// Baustein heisst (Tabelle.ts statt TabelleBlock.ts); dann gelten alle Regeln,
+// Baustein heisst (Tabelle.ts statt einer Block-Datei); dann gelten alle Regeln,
 // und jeder Verstoss bricht ab. Alte Bausteine werden nur genannt.
 // Aufruf: node tools/bausteinPruefen.mjs
 import { readdirSync, readFileSync, statSync } from 'node:fs'

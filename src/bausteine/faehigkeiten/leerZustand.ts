@@ -4,7 +4,7 @@ import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 
 export const LEER_TEXT_STANDARD = 'Keine Datensätze.'
 
-export function leerTextProperty(): Eigenschaft {
+export function leerTextEigenschaft(): Eigenschaft {
   return {
     schluessel: 'leerText',
     name: 'Text ohne Datensätze',

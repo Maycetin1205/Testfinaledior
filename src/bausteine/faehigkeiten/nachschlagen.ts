@@ -1,23 +1,69 @@
-// Das Nachschlage-Fenster: dieselbe Flaeche fuer die Editor-Lupe und die Laufzeit-Wahl.
+// Faehigkeit Nachschlagen: das Fenster, in dem der Bediener einen Satz waehlt,
+// dieselbe Flaeche fuer die Editor-Lupe und die Laufzeit-Wahl.
 import { html, render, type TemplateResult } from 'lit'
+import { BAUSTEIN_ID_ATTR } from '../../kern/daten/aktionen'
 import type { ListenBindung } from '../../kern/maske/listenBindung'
 import { feldLesen } from '../../softengine/data'
 import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { meldeFehler } from '../../softengine/meldung'
-import { zeilenNachAuswahl } from '../shared/auswahl'
+import { zeilenNachAuswahl } from './auswahl'
 import {
   DIALOG_GROESSE_EVENT,
   DIALOG_RAHMEN_TAG,
   type DialogGroesseDetail,
   type DialogRahmen,
-} from '../shared/DialogRahmen'
+} from './DialogRahmen'
+import { gemerkteSortierung, sortiereIndizes } from './sortierung'
 import { coerceSpalten, STANDARD_TITEL, type Spalte } from './spalten'
-import { nachschlagKennung, nachschlagSpalten } from './nachschlagStand'
-import type { TabelleBlock } from './TabelleBlock'
+import { passendeVorschlaege, VORSCHLAEGE_MAX, type Vorschlag } from './vorschlagListe'
 import {
   ZEILE_AKTIVIERT_EVENT,
   type ZeileAktiviertDetail,
 } from './zeilenAktivierung'
+
+// Das Fenster IST eine Tabelle; mehr als diese drei Griffe braucht es von ihr
+// nicht. Wer das Fenster oeffnet, sorgt dafuer, dass der Baustein Tabelle in
+// der Maske geladen ist.
+const FENSTER_TABELLE_TAG = 'ff-tabelle'
+
+interface FensterTabelle extends HTMLElement {
+  setzeSuchtext: (text: string) => void
+  fokussiereSuche: () => boolean
+  updateComplete: Promise<boolean>
+}
+
+export function lupeZeichen(): TemplateResult {
+  return html`<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+      <line x1="10.4" y1="10.4" x2="14" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
+    </svg>`
+}
+
+export function nachschlagKennung(el: HTMLElement, stelle = 'feld'): string {
+  return `${el.getAttribute(BAUSTEIN_ID_ATTR) ?? ''}/nachschlagen/${stelle}`
+}
+
+// Automatische Spalten folgen ihrem Feld, auch wenn die Muttertabelle umsortiert wird.
+export function nachschlagSpalten(spalten: readonly Spalte[]): Spalte[] {
+  return coerceSpalten(spalten.map((s) => ({ ...s, kennung: s.kennung || `feld:${s.feld}` })))
+}
+
+export function vorschlaegeImFensterStand<T extends Vorschlag & { satz: unknown }>(
+  eintraege: readonly T[], getippt: string, spalten: readonly Spalte[],
+  el?: HTMLElement, stelle?: string,
+): T[] {
+  const treffer = getippt.trim() === '' ? [...eintraege]
+    : passendeVorschlaege(eintraege, getippt, Infinity, true)
+  const stand = el === undefined ? null : gemerkteSortierung.lies(el, nachschlagKennung(el, stelle))
+  const spalte = stand === null ? undefined
+    : nachschlagSpalten(spalten).find((s) => s.kennung === stand.kennung)
+  // Erst alle passenden Treffer sortieren, dann kuerzen. Die Tabelle benutzt denselben Vergleich.
+  if (spalte !== undefined && stand !== null) {
+    const werte = treffer.map((e) => [feldLesen(e.satz, spalte.feld)])
+    return sortiereIndizes(werte, 0, stand.auf).slice(0, VORSCHLAEGE_MAX).map((i) => treffer[i])
+  }
+  return treffer.slice(0, VORSCHLAEGE_MAX)
+}
 
 export const FENSTER_BREITE = 520
 export const FENSTER_HOEHE = 380
@@ -328,7 +374,7 @@ export function oeffneNachschlagen(args: NachschlagenArgs): void {
   >${laufzeitTabelleTpl(args, gefunden)}</ff-dialog-rahmen>`, halter)
 
   const dialog = halter.querySelector<DialogRahmen>(DIALOG_RAHMEN_TAG)
-  const tabelle = halter.querySelector<TabelleBlock>('ff-tabelle')
+  const tabelle = halter.querySelector<FensterTabelle>(FENSTER_TABELLE_TAG)
   if (dialog && args.imEditor === true) verdrahteZiehen(dialog, args)
   tabelle?.addEventListener(ZEILE_AKTIVIERT_EVENT, (event) => {
     const detail = (event as CustomEvent<ZeileAktiviertDetail>).detail

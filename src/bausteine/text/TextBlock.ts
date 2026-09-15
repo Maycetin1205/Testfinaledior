@@ -70,7 +70,7 @@ export class TextBlock extends Grundbaustein {
     farbe: FARBE_STANDARD,
     text: 'Text',
 
-    source: '',
+    quelle: '',
     textField: '',
   }
 
@@ -141,7 +141,7 @@ export class TextBlock extends Grundbaustein {
   @property() ausrichtung = 'links'
   @property() farbe = FARBE_STANDARD
   @property() text = 'Text'
-  @property() source = ''
+  @property() quelle = ''
   @property() textField = ''
 
   override render(): TemplateResult {

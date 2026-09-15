@@ -1,3 +1,4 @@
+import { QUELLE_PROP } from '../kern/maske/quelleProp'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { expect, test } from 'vitest'
@@ -89,7 +90,7 @@ test('eine geänderte Eigenschaft erreicht den Export als Attribut', () => {
     const key = Object.keys(def.vorgaben).find((k) =>
       typeof def.vorgaben[k] === 'string'
       && !LAYOUT.has(k)
-      && k !== 'source'
+      && k !== QUELLE_PROP
       && k !== WEITERE_QUELLEN_PROP
       && !k.toLowerCase().endsWith('field')
       && !seitenProps.has(k)

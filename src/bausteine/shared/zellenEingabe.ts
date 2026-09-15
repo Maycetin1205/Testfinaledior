@@ -1,6 +1,6 @@
 // Die EINE Eingabestelle mit Vorschlagsliste: Erfassungszelle und Formularfeld.
 import { css, html, nothing, type TemplateResult } from 'lit'
-import { vorschlagListeTpl, type Vorschlag } from './vorschlagListe'
+import { vorschlagListeTpl, type Vorschlag } from '../faehigkeiten/vorschlagListe'
 
 // Ruhig = der Wert steht so in den Daten. Geaendert = vorgemerkt, noch nicht
 // geschrieben. Automatisch = aus einem gewaehlten Satz gefuellt.

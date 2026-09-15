@@ -76,3 +76,24 @@ export interface Eigenschaft {
 
   nurImEditor?: boolean
 }
+
+// Die eine Stelle fuer eine Ja/Nein-Eigenschaft. Die REIHENFOLGE der Optionen
+// ist ein Kontrakt: erste = aus, zweite = ein; der Inspector liest sie hier heraus.
+export function jaNeinEigenschaft(
+  schluessel: string,
+  name: string,
+  beschreibung: string,
+  weiteres?: Partial<Eigenschaft>,
+): Eigenschaft {
+  return {
+    schluessel,
+    name,
+    beschreibung,
+    art: 'jaNein',
+    optionen: [
+      { wert: 'nein', name: 'Nein' },
+      { wert: 'ja', name: 'Ja' },
+    ],
+    ...weiteres,
+  }
+}

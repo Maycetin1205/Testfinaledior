@@ -18,7 +18,7 @@ import {
 import { bausteinArt } from '../../kern/maske/registry'
 import { faehigkeit } from '../../kern/maske/faehigkeiten'
 import { rasterMassVon } from '../../kern/maske/raster'
-import { bindbareStellenVon, traegtEigeneQuelle } from '../../kern/maske/baumFragen'
+import { bindbareStellenVon, QUELLE_PROP, traegtEigeneQuelle } from '../../kern/maske/baumFragen'
 import { useEditorInstance } from '../zustand/EditorContext'
 import { loescheBaustein } from '../zustand/loescheBaustein'
 import { quellenTraeger } from '../../kern/maske/quellenReichweite'
@@ -60,7 +60,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
   const bibliothek = quellenBibliothek.list
   const quellen = useMemo(
     () => (braucht && traeger
-      ? quellenAufloesen(traeger.werte.source, traeger.werte[WEITERE_QUELLEN_PROP], bibliothek)
+      ? quellenAufloesen(traeger.werte[QUELLE_PROP], traeger.werte[WEITERE_QUELLEN_PROP], bibliothek)
       : KEINE_QUELLEN),
     [braucht, traeger, bibliothek],
   )

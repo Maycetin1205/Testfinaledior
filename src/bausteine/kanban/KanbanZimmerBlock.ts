@@ -5,7 +5,7 @@ import { Grundbaustein } from '../grund/Grundbaustein'
 import type { Kategorie } from '../../kern/maske/bausteinElement'
 import type { FlussBreite } from '../../kern/maske/fluss'
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
-import { leerStil, leerZustand } from '../shared/leerZustand'
+import { leerStil, leerZustand } from '../faehigkeiten/leerZustand'
 import { ZIEL_KLASSE, zielStil } from './zielStil'
 import { kartenAbstandStil } from './kartenAbstand'
 

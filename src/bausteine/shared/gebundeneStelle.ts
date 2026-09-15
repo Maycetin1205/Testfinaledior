@@ -1,9 +1,10 @@
 // Warum eine gebundene Stelle leer bleibt, in Worten fuer den Bediener.
+import { quelleIdVon } from '../faehigkeiten/quelle'
 import { zerlegeBindung } from '../../kern/maske/bausteinArt'
 import { feldLesen, type LaufzeitQuelle } from '../../softengine/data'
 import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
-import { ersteZeileNachAuswahl } from './auswahl'
-import { macheFeldLeser } from './fremdeQuellen'
+import { ersteZeileNachAuswahl } from '../faehigkeiten/auswahl'
+import { macheFeldLeser } from '../faehigkeiten/fremdeQuellen'
 
 export type GebundeneStelle =
 
@@ -25,11 +26,11 @@ export type GebundeneStelle =
   }
 
 export function leseGebundeneStelle(el: HTMLElement, bindungsAttr: string): GebundeneStelle {
-  const sourceId = el.getAttribute('source') ?? ''
+  const eigeneQuelle = quelleIdVon(el)
   const code = el.getAttribute(bindungsAttr) ?? ''
-  if (sourceId === '' || code === '') return { art: 'ungebunden' }
+  if (eigeneQuelle === '' || code === '') return { art: 'ungebunden' }
 
-  const quelle = laufzeitQuelle(sourceId)
+  const quelle = laufzeitQuelle(eigeneQuelle)
   if (!quelle) return { art: 'ohneQuelle' }
 
   const zeile = ersteZeileNachAuswahl(el, zeilenDerQuelle(quelle))

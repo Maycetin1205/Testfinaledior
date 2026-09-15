@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
-import { nachschlagKennung, nachschlagSpalten, vorschlaegeImFensterStand } from './nachschlagStand'
+import { nachschlagKennung, nachschlagSpalten, vorschlaegeImFensterStand } from './nachschlagen'
 import { gemerkteSortierung } from './sortierung'
-import { VorschlagStand } from '../shared/vorschlagStand'
+import { VorschlagStand } from './vorschlagStand'
 
 const host = (id: string) => ({ getAttribute: () => id }) as unknown as HTMLElement
 const spalten = nachschlagSpalten([{ kennung: '', titel: 'Nummer', feld: 'nr' }])

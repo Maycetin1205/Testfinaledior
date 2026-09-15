@@ -2,7 +2,7 @@
 import type { Baustein, Maskenbaum } from './baum'
 import { bausteinArt } from './registry'
 import { eigenschaftSichtbar } from './eigenschaft'
-import { quellenIdsInKettenVon, traegtEigeneQuelle } from './baumFragen'
+import { QUELLE_PROP, quellenIdsInKettenVon, traegtEigeneQuelle } from './baumFragen'
 import type { Datenquelle } from '../daten/datenquellen'
 import {
   quellenAufloesen,
@@ -27,7 +27,7 @@ export function quellenInReichweite(
 ): QuelleInReichweite[] {
   const traeger = quellenTraeger(tree, id)
   if (!traeger) return []
-  return quellenAufloesen(traeger.werte.source, traeger.werte[WEITERE_QUELLEN_PROP], bibliothek)
+  return quellenAufloesen(traeger.werte[QUELLE_PROP], traeger.werte[WEITERE_QUELLEN_PROP], bibliothek)
 }
 
 export function bausteineMitQuelle(tree: Maskenbaum, quelleId: string): Baustein[] {
@@ -37,7 +37,7 @@ export function bausteineMitQuelle(tree: Maskenbaum, quelleId: string): Baustein
 
 function nutztQuelle(n: Baustein, quelleId: string): boolean {
   if (traegtEigeneQuelle(n)) {
-    if (n.werte.source === quelleId) return true
+    if (n.werte[QUELLE_PROP] === quelleId) return true
     if (weitereQuellenAus(n.werte[WEITERE_QUELLEN_PROP]).some((q) => q.quelleId === quelleId)) {
       return true
     }
@@ -58,6 +58,6 @@ export function ersteQuelleInReichweite(
   bibliothek: readonly Datenquelle[],
 ): Datenquelle | undefined {
   const traeger = quellenTraeger(tree, id)
-  if (!traeger || typeof traeger.werte.source !== 'string') return undefined
-  return bibliothek.find((s) => s.id === traeger.werte.source)
+  if (!traeger || typeof traeger.werte[QUELLE_PROP] !== 'string') return undefined
+  return bibliothek.find((s) => s.id === traeger.werte[QUELLE_PROP])
 }

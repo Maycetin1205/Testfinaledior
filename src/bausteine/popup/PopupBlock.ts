@@ -19,7 +19,7 @@ function ersteFokusStelle(wurzel: ParentNode): HTMLElement | null {
   return null
 }
 
-import '../shared/DialogRahmen'
+import '../faehigkeiten/DialogRahmen'
 
 export class PopupBlock extends Grundbaustein {
   static readonly typ = 'popup'

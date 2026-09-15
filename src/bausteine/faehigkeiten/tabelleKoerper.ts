@@ -1,15 +1,58 @@
 // Zeichnet Kopf, Zeilen und Fuss der Tabelle; Stand und Bedienung kommen von aussen.
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import { leerZustand } from '../shared/leerZustand'
-import type { Zeilenschmuck } from '../shared/zeilenNaehte'
+import { leerZustand } from './leerZustand'
 import { spaltenWahlTpl, type SpaltenWahlHandeln, type SpaltenWahlLage } from './spaltenWahl'
-import { markiereTreffer } from './textMarke'
+import { markiereTreffer } from './textSuche'
 import { alsZahl } from './sortierung'
-import { ZELLE_PLATZHALTER, type Spalte } from './spalten'
+import { ZELLE_PLATZHALTER, type Spalte, type Spaltensicht } from './spalten'
 import { breitenGriffe, type BreitenWirt } from './spaltenBreite'
 import { bewegeZeilenFokus, fokussiereErsteZeile, fokussiereSuchzeile } from './zeilenAktivierung'
 import { datensatzText } from './tabelleAnsicht'
+
+// Die zwei Naehte, an denen eine schreibende Tabelle in die gezeichnete Liste
+// greift. Was an einer gelieferten Zeile zusaetzlich haengt; die Liste haengt nichts an.
+export interface Zeilenschmuck {
+  // Leer heisst: nichts zu melden, die Zeile bekommt kein data-status.
+  status: string
+
+  titel: string
+
+  klasse: string
+
+  // Steht als Wort in der ersten Zelle, nicht nur im Tooltip.
+  fehltext: string
+
+  // Eine eigene Zelle statt des Textes; null heisst: die Liste zeichnet sie.
+  zelle: (platz: number, spalte: Spalte, wert: string) => TemplateResult | null
+
+  rechts: TemplateResult | typeof nothing
+
+  // true heisst: die Taste ist verbraucht.
+  taste: (e: KeyboardEvent) => boolean
+}
+
+export const OHNE_SCHMUCK: Zeilenschmuck = {
+  status: '',
+  titel: '',
+  klasse: '',
+  fehltext: '',
+  zelle: () => null,
+  rechts: nothing,
+  taste: () => false,
+}
+
+// Was unter den Datenzeilen steht, an der naechsten FREIEN Zeile. anzahl sagt
+// der Seitenrechnung, wie viele Zeilen davon belegt sind.
+export interface Unterzeilen {
+  anzahl: number
+
+  zeichne: (lage: {
+    sicht: Spaltensicht
+    cols: Readonly<Record<string, string>>
+    linealTakte: number | null
+  }) => TemplateResult
+}
 
 export interface KoerperLage {
   spalten: readonly Spalte[]
@@ -236,9 +279,11 @@ export function tabelleFuss(
   lage: FussLage,
   tun: FussHandeln,
 ): TemplateResult | typeof nothing {
-  // Der Fuss steht auch ohne Quelle: im Editor zeigt er die Form der Maske,
-  // die Zahlen sind Striche. Nur der Leerzustand nimmt ihm den Platz.
   if (lage.leer) return nothing
+  // Der Fuss redet nur, wenn er etwas zu sagen hat: mehr als eine Seite, eine
+  // laufende Suche oder ein Filter, eine Summe. Sonst bleibt eine duenne Linie.
+  const sagtEtwas = lage.seiten > 1 || lage.suchtAktiv || lage.auswahlAktiv || lage.summen.length > 0
+  if (!sagtEtwas) return html`<div class="fusszeile fusszeile--still"></div>`
   return html`<div class="fusszeile">
     <div class="seiten-info">${datensatzText({
       hatQuelle: lage.hatQuelle,

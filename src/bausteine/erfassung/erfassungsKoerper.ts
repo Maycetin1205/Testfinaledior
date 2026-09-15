@@ -2,8 +2,8 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { eingabeStelleTpl, zellenKlasse } from '../shared/zellenEingabe'
-import { alsZahl } from '../tabelle/sortierung'
-import type { Spalte } from '../tabelle/spalten'
+import { alsZahl } from '../faehigkeiten/sortierung'
+import type { Spalte } from '../faehigkeiten/spalten'
 import type { ZeilenBearbeitung } from './zeilenBearbeitung'
 import type { ZeilenZeichen } from './zeilenStatus'
 

@@ -1,4 +1,5 @@
 // Die weiteren Quellen eines Bausteins im Inspector: anlegen, verbinden, wegnehmen.
+import { QUELLE_PROP } from '../../kern/maske/quelleProp'
 import { Plus, X } from '@/editor/zeichen/zeichen'
 import { Gruppe } from '@/editor/werkbank/Gruppe'
 import { Knopf } from '@/editor/werkbank/Knopf'
@@ -25,7 +26,7 @@ export function QuellenListe({ block }: QuellenListeProps) {
   const ed = useEditor()
   const bibliothek = useDataSources().list
 
-  const erste = typeof block.werte.source === 'string' ? block.werte.source : ''
+  const erste = typeof block.werte[QUELLE_PROP] === 'string' ? block.werte[QUELLE_PROP] : ''
   const weitere = weitereQuellenAus(block.werte[WEITERE_QUELLEN_PROP])
 
   const fehlt = (id: string) => id !== '' && !bibliothek.some((s) => s.id === id)
@@ -138,7 +139,7 @@ export function QuellenListe({ block }: QuellenListeProps) {
 
   return (
     <Gruppe titel="Datenquellen" offen={offen} onSchalte={schalte}>
-      {quellenAuswahl(erste, 'Datenquelle 1', (v) => ed.updateProperty(block.id, 'source', v))}
+      {quellenAuswahl(erste, 'Datenquelle 1', (v) => ed.updateProperty(block.id, QUELLE_PROP, v))}
       {fehlt(erste) && (
         <p className="text-dicht text-fehler">Diese Datenquelle fehlt in der Bibliothek.</p>
       )}

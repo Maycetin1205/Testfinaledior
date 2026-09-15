@@ -97,7 +97,7 @@ export function referenzBaum(): Maskenbaum {
     ]),
     t1: knoten('t1', 'erfassung', WURZEL_ID, {
       rasterX: 0, rasterY: 3, rasterW: 16, rasterH: 22,
-      source: 'q-pos',
+      quelle: 'q-pos',
       [WEITERE_QUELLEN_PROP]: [{ quelleId: 'q-art', partnerId: '', keyPairs: [] }],
       spalten: [
         { kennung: 'sp-art', titel: 'ArtNr', feld: '18_25', art: 'text' },
@@ -119,7 +119,7 @@ export function referenzBaum(): Maskenbaum {
     }),
     t2: knoten('t2', 'tabelle', WURZEL_ID, {
       rasterX: 20, rasterY: 25, rasterW: 28, rasterH: 12,
-      source: 'q-pos',
+      quelle: 'q-pos',
       spalten: [
         { kennung: 'sp-art', titel: 'ArtNr', feld: '18_25' },
         { kennung: 'sp-bez', titel: 'Bezeichnung', feld: '45_60' },
@@ -129,7 +129,7 @@ export function referenzBaum(): Maskenbaum {
       rasterX: 10, rasterY: 0, rasterW: 16, rasterH: 3,
       fieldType: 'text',
       placeholder: 'Bezeichnung',
-      source: 'q-pos',
+      quelle: 'q-pos',
       valueField: '45_60',
     }),
     b1: knoten('b1', 'button', WURZEL_ID, {
@@ -139,7 +139,7 @@ export function referenzBaum(): Maskenbaum {
       rasterX: 0, rasterY: 25, rasterW: 12, rasterH: 12, heading: 'Karte', headingField: '45_60',
     }),
     k1: knoten('k1', 'kanban', WURZEL_ID, {
-      rasterX: 18, rasterY: 3, rasterW: 30, rasterH: 22, source: 'q-pos', statusField: '18_25',
+      rasterX: 18, rasterY: 3, rasterW: 30, rasterH: 22, quelle: 'q-pos', statusField: '18_25',
     }, ['km1', 'ks1']),
     km1: knoten('km1', 'kanban-muster', 'k1', {}, ['c1']),
     ks1: knoten('ks1', 'kanban-spalte', 'k1', {

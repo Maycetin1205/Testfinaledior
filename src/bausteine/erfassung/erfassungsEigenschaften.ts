@@ -2,11 +2,12 @@
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 import type { EintragsSchalter, ListenBindung } from '../../kern/maske/bausteinArt'
 import { schalterAn, schalterFuer } from '../../kern/maske/listenBindung'
-import { jaNeinProperty } from '../shared/jaNeinProperty'
-import type { Spalte } from '../tabelle/spalten'
-import { SPALTEN_BINDUNG, TABELLE_EIGENSCHAFTEN } from '../tabelle/tabelleEigenschaften'
+import { jaNeinEigenschaft } from '../../kern/maske/eigenschaft'
+import type { Spalte } from '../faehigkeiten/spalten'
+import { SPALTEN_BINDUNG } from '../faehigkeiten/spalten'
+import { Tabelle } from '../tabelle/Tabelle'
 
-const LOESCHBAR = jaNeinProperty(
+const LOESCHBAR = jaNeinEigenschaft(
   'loeschbar',
   'Zeilen löschbar',
   'Kreuz an jeder Zeile: merkt sie zum Löschen vor.',
@@ -14,7 +15,7 @@ const LOESCHBAR = jaNeinProperty(
 )
 
 // Hinter der Suchzeile, wo der Schalter in der Tabelle stand.
-export const ERFASSUNG_EIGENSCHAFTEN: Eigenschaft[] = TABELLE_EIGENSCHAFTEN
+export const ERFASSUNG_EIGENSCHAFTEN: Eigenschaft[] = Tabelle.eigenschaften
   .flatMap((p) => (p.schluessel === 'suche' ? [p, LOESCHBAR] : [p]))
 
 const AENDERBAR: EintragsSchalter = {

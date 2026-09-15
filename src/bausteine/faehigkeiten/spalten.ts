@@ -1,5 +1,5 @@
 // Die Spaltenliste einer Tabelle: Form, Kennungen, Reihenfolge, Sicht beim Zeichnen.
-import { kennungenVergeben } from '../../kern/maske/listenBindung'
+import { kennungenVergeben, type ListenBindung } from '../../kern/maske/listenBindung'
 
 export interface Spalte {
   // Ketten und Berechnungen zeigen auf die Kennung, nie auf Platz oder Feld:
@@ -189,4 +189,44 @@ export function mitVerschobenerSpalte(
   const [spalte] = l.splice(von, 1)
   l.splice(ziel, 0, spalte)
   return l
+}
+
+// Die Spaltenliste, wie Editor und Export sie fuehren: Titel, Feld, Kennung,
+// die zwei Schalter je Spalte und die Griffe, an denen der Editor sie anfasst.
+export const SPALTEN_BINDUNG: ListenBindung = {
+  prop: 'spalten',
+  titelSchluessel: 'titel',
+  feldSchluessel: 'feld',
+  kennungSchluessel: 'kennung',
+  standardTitel: STANDARD_TITEL,
+
+  eintragNeu: (props) => {
+    const alt = coerceSpalten(props.spalten)
+    return alt.length >= SPALTEN_MAX ? {} : { spalten: fuegeSpalteAn(alt) }
+  },
+  eintragWeg: (props, index) => {
+    const alt = coerceSpalten(props.spalten)
+    const neu = ohneSpalte(alt, index)
+    return neu === alt ? {} : { spalten: [...neu] }
+  },
+  eintragVerschieben: (props, von, nach) => {
+    const alt = coerceSpalten(props.spalten)
+    const neu = mitVerschobenerSpalte(alt, von, nach)
+    return neu === alt ? {} : { spalten: [...neu] }
+  },
+
+  eintragStellen: '[data-ff-eintrag]',
+
+  eintragsSchalter: [
+    {
+      schluessel: 'summe',
+      name: 'Summe in der Fußzeile',
+      kurz: 'Summe',
+    },
+    {
+      schluessel: 'versteckt',
+      name: 'In der Maske ausblenden',
+      kurz: 'ausgeblendet',
+    },
+  ],
 }

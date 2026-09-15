@@ -5,7 +5,7 @@ import { Grundbaustein } from '../grund/Grundbaustein'
 import type { Kategorie } from '../../kern/maske/bausteinElement'
 import type { Faehigkeit } from '../../kern/maske/faehigkeiten'
 import type { Eigenschaft } from '../../kern/maske/eigenschaft'
-import { connectClickAktionen } from '../shared/seAktionen'
+import { connectClickAktionen } from '../faehigkeiten/ereignisse'
 import {
   VORMERK_EVENT,
   vormerkStandVon,

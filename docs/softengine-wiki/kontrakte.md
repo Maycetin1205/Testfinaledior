@@ -226,7 +226,7 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
   lädt er die ganze Maske neu; der Schreibstatus der Zeilen ginge dabei
   verloren. Nicht per Echttest.
-- Gilt in: `kern/daten/relationen.ts`, `bausteine/shared/seAktionen.ts`.
+- Gilt in: `kern/daten/relationen.ts`, `bausteine/faehigkeiten/ereignisse.ts`.
 
 ## 8. Positionen zur Laufzeit lesen (Hol-Relation)
 
@@ -256,7 +256,7 @@ Belegt 2026-08-10/11, Echttests:
   Weg verwirft die Parameter (aus SoftEngines eigener Maskenbibliothek gelesen,
   nicht per Echttest).
 - Werkzeug-Nummern sind je Installation individuell → Daten, nie Code.
-- Gilt in: `bausteine/shared/seAktionen.ts`.
+- Gilt in: `bausteine/faehigkeiten/ereignisse.ts`.
 
 ## 10. ERPAPICALL
 

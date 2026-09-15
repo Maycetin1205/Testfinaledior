@@ -2,7 +2,7 @@
 // beweisen kann es allein die naechste Lieferung.
 import type { Lieferung } from '../../kern/maske/faehigkeiten'
 import { zahlStreng } from '../../kern/daten/berechnung'
-import type { Spalte } from '../tabelle/spalten'
+import type { Spalte } from '../faehigkeiten/spalten'
 
 export interface GesendeteZeile {
   // Leer, solange die Kette der Zeile keine Satznummer gegeben hat.

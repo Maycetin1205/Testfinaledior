@@ -1,5 +1,5 @@
 // Eine Spalte, die schreibt: was die Erfassung je Spalte kennt und die Liste nicht.
-import { coerceSpalten, standardSpalten, type Spalte } from '../tabelle/spalten'
+import { coerceSpalten, standardSpalten, type Spalte } from '../faehigkeiten/spalten'
 
 export interface ErfassungsSpalte extends Spalte {
   aenderbar?: boolean
