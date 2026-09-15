@@ -311,6 +311,18 @@ steht hier nur als Wissen:
   dort liegt sie unter `JS/JS/` (belegt 2026-07-28 und 2026-09-15, WinUI); die
   Kopie unter `selib/2.0.0/` ist byte-gleich. Fehlt die Brücke, meldet die
   Maske „SoftEngine-Anschluss nicht gefunden".
+- **Den Tastaturfokus gibt dem WebView nur SoftEngine selbst.** Bei der
+  Nachricht `WWFOC` ruft `basis.html.interface.js` `basisHTML_DoSetFocusToHTML()`;
+  antwortet die Maske `true` („erledigt"), überspringt die Brücke
+  `basis_HTML_DoSetAutoFocus()` — die Funktion, die ein unsichtbares
+  `<input id="AFELM">` anlegt und zweimal fokussiert. Ohne diesen Griff hat der
+  WebView keine Tastatur: ein Klick landet in keinem Feld, in keinem Baustein,
+  und erst Öffnen und Schließen der Entwicklerkonsole holt ihn nach. Die Maske
+  antwortet darum nur `true`, wenn die Schreibmarke schon auf ihr steht
+  (`softengine/bridge.ts` `fokusBeiUns`, durch alle Schatten-Wurzeln). Echttest
+  2026-09-15, Layoutrahmen 00001 in der Belegerfassung: mit der Antwort `false`
+  klickt es, mit `true` nicht. Eine Maske ohne Layoutrahmen (STDERFASSUNG 990)
+  war nie betroffen — dort fragt niemand nach dem Fokus.
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
   und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie

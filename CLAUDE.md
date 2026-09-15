@@ -80,14 +80,16 @@ laufenden Schritt gehoert.
 Kleine Aufgaben vor den uebrigen Bausteinen, je ein Commit mit einem Test,
 Punkte 1 bis 5 im Browser belegt am 15.09.:
 
-1. In SoftEngine landet ein Klick nicht im Feld, der Fokus springt heraus;
-   erst nach Oeffnen und Schliessen der Entwicklerkonsole bleibt er. Verdacht:
-   SoftEngines Fokus-Ruf, den die Erfassung blind beantwortet mit Fenster
-   fokussieren und Sprung in Zelle null, geprueft wird nur die eigene Zelle
-   (`ErfassungBlock.ts`, `bridge.ts`). Erst in SoftEngine mit dem Nutzer
-   belegen, wer den Fokus wann nimmt, dann aendern: den Fokus nimmt die
-   Maske nur, wenn nirgends auf ihr einer steht; die Pruefung durch alle
-   Schatten-Wurzeln hat die Bruecke schon.
+1. Gebaut, Echttest des Nutzers steht aus: In SoftEngine landete ein Klick in
+   keinem Feld, erst Oeffnen und Schliessen der Entwicklerkonsole half.
+   Belegt am 15.09. im Layoutrahmen 00001 der Belegerfassung, eine Maske ohne
+   Rahmen (STDERFASSUNG 990) war nie betroffen. Der Kopf war unschuldig: die
+   Erfassung beantwortete SoftEngines Fokus-Ruf ungeprueft mit "erledigt",
+   damit blieb `basis_HTML_DoSetAutoFocus()` aus, das dem WebView als
+   einziges die Tastatur gibt (kontrakte.md 13). Der Ruf gehoert nicht in
+   einen Baustein: die Bruecke antwortet jetzt selbst mit `fokusBeiUns()`,
+   `SE_FOKUS_EVENT` und `nimmSeFokus` sind weg. Dafuer springt der Fokus aus
+   dem ERP nicht mehr in die Erfassungszeile; Insert tut es weiter.
 2. Entfernen, Duplizieren und Rueckgaengig wirken bei offenem Datencenter
    auf den Baustein dahinter (`useKeyboardShortcuts.ts`). Sie halten sich wie
    Escape an `fensterOffen()`. Popup-Bausteine auf der Flaeche bleiben davon

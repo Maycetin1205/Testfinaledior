@@ -214,17 +214,11 @@ function registerSe(tries = 0): void {
   }
 }
 
-// Gibt die ERP der Maske den Fokus, fragt die Bruecke per Ereignis, wer ihn
-// nimmt: sie kennt keinen Baustein. Wer ihn nimmt, ruft preventDefault; nimmt ihn
-// keiner, faellt der Fokus an die ERP zurueck.
-export const SE_FOKUS_EVENT = 'ff-se-fokus'
-
+// Steht die Schreibmarke schon auf der Maske, bleibt sie dort. Sonst antwortet
+// die Maske nicht, damit SoftEngines Auto-Fokus laeuft: nur der gibt dem
+// WebView die Tastatur (kontrakte.md 13).
 function fokusBrueckeBauen(): void {
-  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
-    const frage = new CustomEvent(SE_FOKUS_EVENT, { cancelable: true })
-    document.dispatchEvent(frage)
-    return frage.defaultPrevented
-  }
+  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => fokusBeiUns()
 }
 
 let booted = false

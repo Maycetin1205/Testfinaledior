@@ -3,7 +3,6 @@ import { nothing, type CSSResultGroup, type PropertyValues } from 'lit'
 import { property } from 'lit/decorators.js'
 import type { Kategorie } from '../../kern/maske/bausteinElement'
 import type { Faehigkeit, GeschriebeneZeile, Lieferung, VormerkArt } from '../../kern/maske/faehigkeiten'
-import { SE_FOKUS_EVENT } from '../../softengine/bridge'
 import { meldeFehler } from '../../softengine/meldung'
 import { Grundbaustein } from '../grund/Grundbaustein'
 import { vorschlagStil } from '../faehigkeiten/vorschlagListe'
@@ -337,17 +336,6 @@ export class ErfassungBlock extends Tabelle {
     }
   }
 
-  // Fokus aus dem ERP geht in die Erfassungszeile; ohne Antwort sucht die
-  // Bruecke weiter. Steht die Schreibmarke schon in einer Zelle, bleibt sie
-  // dort: das ERP fragt auch mitten im Tippen.
-  private readonly nimmSeFokus = (ereignis: Event): void => {
-    if (ereignis.defaultPrevented || this.imEditor) return
-    ereignis.preventDefault()
-    if (this.shadowRoot?.activeElement instanceof HTMLInputElement) return
-    window.focus()
-    this.fokussiereErfassungsZelle(0)
-  }
-
   // Insert springt in die Erfassungszeile der Erfassung, in der der Fokus
   // steht, sonst in die erste der Maske.
   private readonly maskenTaste = (e: KeyboardEvent): void => {
@@ -364,13 +352,11 @@ export class ErfassungBlock extends Tabelle {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    document.addEventListener(SE_FOKUS_EVENT, this.nimmSeFokus)
     document.addEventListener('keydown', this.maskenTaste)
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    document.removeEventListener(SE_FOKUS_EVENT, this.nimmSeFokus)
     document.removeEventListener('keydown', this.maskenTaste)
     schliesseNachschlagenFuer(this)
   }

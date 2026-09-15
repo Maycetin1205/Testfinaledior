@@ -5,9 +5,9 @@ import { beforeEach, expect, test, vi } from 'vitest'
 // dann verteilt die Bruecke sofort, statt in den Nachlauf zu gehen.
 const g = globalThis as unknown as Record<string, unknown>
 g.HTMLElement = class {}
-g.HTMLInputElement = class {}
-g.HTMLTextAreaElement = class {}
-g.HTMLSelectElement = class {}
+g.HTMLInputElement = class extends (g.HTMLElement as new () => object) {}
+g.HTMLTextAreaElement = class extends (g.HTMLElement as new () => object) {}
+g.HTMLSelectElement = class extends (g.HTMLElement as new () => object) {}
 g.document = { activeElement: null, title: 'Pruefmaske' }
 g.window = { addEventListener: () => {} }
 
@@ -90,4 +90,18 @@ test('nach dem Schreiben wird die Eingabedatei neu bestellt', () => {
   delete g.ReloadInputJSON
   frischeDatenAnfordern()
   expect(bestellt).toEqual(['ReloadInputJSON', 'ResetDataBasis'])
+})
+
+// Echttest 15.09.: beantwortet die Maske SoftEngines Fokus-Ruf mit "erledigt",
+// laeuft basis_HTML_DoSetAutoFocus nie und der WebView bekommt keine Tastatur —
+// ein Klick landet in keinem Feld (kontrakte.md 13).
+test('nur ein Fokus auf der Maske haelt SoftEngines Auto-Fokus auf', () => {
+  const fokusRuf = (): boolean => (g.basisHTML_DoSetFocusToHTML as () => boolean)()
+  const dok = g.document as { activeElement: unknown }
+
+  dok.activeElement = new (g.HTMLInputElement as new () => object)()
+  expect(fokusRuf()).toBe(true)
+
+  dok.activeElement = null
+  expect(fokusRuf()).toBe(false)
 })
