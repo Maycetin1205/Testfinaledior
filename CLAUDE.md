@@ -81,11 +81,8 @@ Was die Tabelle als Muster heisst:
 Offen aus dem Echttest vom 15.09. (Belege in kontrakte.md ab Abschnitt 17),
 jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
 
-1. Export ohne `JWHtmlStart`/`JWHtmlEnde`. SoftEngine ersetzt den Marker
-   durch 56 Skripte und 41 Stylesheets (1,7 MB), die Maske braucht nur
-   `basis.html.interface.js`. Handtest in WinUI bestanden. Aendert den
-   Festpunkt Export: `exportMask.ts`, `validator.ts`, Referenzabzug,
-   kontrakte.md 1 und 13. Nur mit ausdruecklichem Ja des Nutzers.
+1. Erledigt: Export ohne `JWHtmlStart`/`JWHtmlEnde`, die Bruecke per
+   Skriptzeile (kontrakte.md 1 und 13).
 2. `bridge.ts` `frischeDatenAnfordern`: `ReloadInputJSON` gibt es in
    SoftEngine nur als Nachricht (`basisHTML_SND_MSG`), nicht als Funktion.
    Der Ruf laeuft heute ins Leere. Echttest noetig.
@@ -94,6 +91,11 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
    als neue Quellenarten; DATASET ist beim Hersteller unbelegt und faellt.
 5. Nicht bauen: alle Artikel vorladen. ERPAPICALL deckelt bei 1000 Zeilen,
    SEFILELOOP dauert 7 s. Nachschlagen sucht beim Tippen.
+6. Folge aus 1: `sendBWLink` kam mit `JWHtmlStart`. Ein BW_LINK-Schritt
+   (`softengine/befehle.ts` `sendeBwLink`) geht nicht mehr hinaus und meldet
+   das. SoftEngines `sendBWLinkIntern` (`HTMLEditor/JS/Allgemein.js`) schickt
+   ihn als `basisHTML_SND_MSG('HTMLEVENT', { art: 'BWLINK', params })`, ohne
+   `SEDATA.BW_PFAD` als `bw-link:`-Adresse. Echttest noetig.
 
 So laeuft jeder Baustein in Schritt 3, ohne Ausnahme:
 

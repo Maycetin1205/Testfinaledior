@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { WURZEL_ID, WURZEL_TYP, type Maskenbaum } from '../kern/maske/baum'
 import { exportMask } from './exportMask'
-import { END_MARKER, START_MARKER, failedChecks, validateMaskHtml } from './validator'
+import { BRUECKE_SKRIPT, failedChecks, validateMaskHtml } from './validator'
 
 function maske(): Maskenbaum {
   return {
@@ -18,10 +18,7 @@ function beanstandet(html: string): string[] {
 }
 
 test('eine echt exportierte Maske wird nicht beanstandet', () => {
-  const html = echterExport()
-  expect(beanstandet(html)).toEqual([])
-  expect(html.startsWith(START_MARKER)).toBe(true)
-  expect(html.trimEnd().endsWith(END_MARKER)).toBe(true)
+  expect(beanstandet(echterExport())).toEqual([])
 })
 
 describe('kaputte Maske', () => {
@@ -34,9 +31,14 @@ describe('kaputte Maske', () => {
     expect(beanstandet(html)).toContain('ASCII-only')
   })
 
-  test('fehlender Start-Marker', () => {
-    const html = echterExport().split('\n').slice(1).join('\n')
-    expect(beanstandet(html)).toContain('Start-Marker Zeile 1')
+  test('JWHtmlStart: SoftEngine luede 1,7 MB fremden Code davor', () => {
+    const html = '<!--SOFTENGINE-VAR!JWHtmlStart-->\n' + echterExport()
+    expect(beanstandet(html)).toContain('kein JWHtml-Marker')
+  })
+
+  test('ohne Bruecke bleibt die Maske ohne Daten', () => {
+    const html = echterExport().replace(BRUECKE_SKRIPT + '\n', '')
+    expect(beanstandet(html)).toContain('Bruecke eingebunden')
   })
 
   test('fremdes Skript: die Maske laedt nichts nach', () => {

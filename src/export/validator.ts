@@ -1,6 +1,8 @@
-// Prueft die Dateiform der Maske: SE-Marker, LF, reines ASCII.
-export const START_MARKER = '<!--SOFTENGINE-VAR!JWHtmlStart-->'
-export const END_MARKER = '<!--SOFTENGINE-VAR!JWHtmlEnde-->'
+// Prueft die Dateiform der Maske: nur die Bruecke von aussen, LF, reines ASCII.
+
+// Derselbe Pfad, ueber den SoftEngines eigener Maskenkopf die Bruecke laedt.
+export const BRUECKE_PFAD = '<!--SOFTENGINE-VAR!EditorPfad-->/JS/JS/basis.html.interface.js'
+export const BRUECKE_SKRIPT = `<script src="${BRUECKE_PFAD}"></script>`
 
 export interface CheckResult {
   name: string
@@ -19,10 +21,10 @@ export function validateMaskHtml(html: string): CheckResult[] {
   const crlf = (html.match(/\r/g) ?? []).length
   check('LF-only', crlf === 0, crlf ? `${crlf} CR-Zeichen gefunden` : '')
 
-  const lines = html.split('\n')
-  check('Start-Marker Zeile 1', lines[0] === START_MARKER, lines[0] ?? '(leer)')
-  const lastNonEmpty = [...lines].reverse().find((l) => l.trim() !== '') ?? ''
-  check('Ende-Marker letzte Zeile', lastNonEmpty === END_MARKER, lastNonEmpty)
+  // SoftEngine setzt JWHtmlStart in 56 Skripte und 41 Stylesheets um (1,7 MB);
+  // die Maske braucht davon nur die Bruecke (kontrakte.md 1).
+  const marker = /<!--SOFTENGINE-VAR!JWHtml\w*-->/.exec(html)
+  check('kein JWHtml-Marker', marker === null, marker?.[0] ?? '')
 
   const badChar = /[^\n\t\x20-\x7E]/.exec(html)
   check(
@@ -40,8 +42,11 @@ export function validateMaskHtml(html: string): CheckResult[] {
     'ohne die Laufzeit bleibt jeder Baustein stumm',
   )
 
-  // Die Bruecke bringt JWHtmlStart selbst mit; die Maske laedt nichts nach.
-  const fremde = [...html.matchAll(/<script[^>]*\ssrc="([^"]*)"/g)].map((treffer) => treffer[1])
+  const skripte = [...html.matchAll(/<script[^>]*\ssrc="([^"]*)"/g)].map((treffer) => treffer[1])
+  const bruecken = skripte.filter((src) => src === BRUECKE_PFAD).length
+  check('Bruecke eingebunden', bruecken === 1, `gefunden: ${bruecken}`)
+  // Die Laufzeit steht in der Maske; der Kunde bekommt einen festen Stand.
+  const fremde = skripte.filter((src) => src !== BRUECKE_PFAD)
   check('kein fremdes Skript', fremde.length === 0, fremde.join(', '))
 
   check('DOCTYPE vorhanden', html.includes('<!DOCTYPE html>'))

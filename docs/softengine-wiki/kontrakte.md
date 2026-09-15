@@ -15,8 +15,15 @@ fehlt, wird nicht geraten, sondern getestet.
   Datei gar nicht erst.
 - Bilder, Schriften und die Laufzeit werden in die Maske eingebettet, nie
   nachgeladen (siehe 13).
-- Zwei SE-Marker traegt jede Maske: `JWHtmlStart` in Zeile 1 und `JWHtmlEnde` in
-  der letzten (`export/validator.ts`).
+- Kein `JWHtml`-Marker. SoftEngine setzt `JWHtmlStart` in einen eigenen
+  Maskenkopf um: 56 Skripte und 41 Stylesheets, zusammen 1,7 MB (gezählt an
+  der ausgelieferten Maske `HtmlTemplates/STDERFASSUNG/BHVP00/951`). Die
+  Maske braucht davon nur die Brücke und bindet sie mit einer Zeile ein, über
+  denselben Pfad wie dieser Kopf:
+  `<script src="<!--SOFTENGINE-VAR!EditorPfad-->/JS/JS/basis.html.interface.js"></script>`
+  (`export/validator.ts`). Handtest 2026-09-15 bestanden, WinUI, Layoutrahmen
+  00001: SoftEngine setzt nur `EditorPfad` ein und hängt `SEID` und `SEPATH`
+  als Kommentare ans Ende.
 
 ## 2. Anmeldung und Datenempfang
 
@@ -289,12 +296,17 @@ steht hier nur als Wissen:
 - Altes WinUI hat **keinen `ResizeObserver`** — Rückfall ist Pflicht
   (`bausteine/tabelle/seitengroesse.ts`).
 - HTML5-Drag ändert in SoftEngine nur den Mauszeiger.
-- Die Bruecke `basis.html.interface.js` laedt `JWHtmlStart` selbst; der Export
-  schreibt keinen eigenen Skript-Tag mehr dafür. Der Pfad `EditorPfad/JS/JS/…`
-  arbeitete (belegt 2026-07-28, WinUI), ist aber der von selib 1.5.0 — in 2.0.0
-  liegt die Datei direkt unter `EditorPfad` (aus SoftEngines Auslieferung
-  gelesen, nicht per Echttest). Fehlt die Bruecke, meldet die Maske
-  „SoftEngine-Anschluss nicht gefunden".
+- Die Brücke `basis.html.interface.js` bindet der Export selbst ein (siehe 1).
+  `EditorPfad` wird zu `<Installation>/Ressourcen/Standard/HtmlTemplates/HTMLEditor`,
+  dort liegt sie unter `JS/JS/` (belegt 2026-07-28 und 2026-09-15, WinUI); die
+  Kopie unter `selib/2.0.0/` ist byte-gleich. Fehlt die Brücke, meldet die
+  Maske „SoftEngine-Anschluss nicht gefunden".
+- Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
+  (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
+  und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie
+  nur, wenn es sie gibt; ein BW_LINK-Schritt geht darum nicht mehr hinaus und
+  meldet das (aus der Auslieferung gelesen, nicht per Echttest). WebUI/WEBWARE
+  ohne `JWHtmlStart`: nicht getestet.
 - Ein Skript im Maskenordner (`<script src="fftest.js">`) wird ebenfalls
   geladen (belegt 2026-08-28, als zwoelf Laufzeitdateien belegt 2026-09-08).
   Die Laufzeit steht trotzdem in der Maske selbst: eine HTML plus eine JSON,

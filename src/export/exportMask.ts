@@ -54,6 +54,7 @@ import {
   guardScriptContent,
   stripCssComments,
 } from './serializer'
+import { BRUECKE_SKRIPT } from './validator'
 
 const LAYOUT_ATTR_AUSNAHME = new Set(['width', 'height', 'rasterX', 'rasterY', 'rasterW', 'rasterH'])
 
@@ -266,12 +267,13 @@ export function exportMask(
   const wurzelPadding = `${WURZEL_FLUSS.padding}px`
 
   const html = [
-    '<!--SOFTENGINE-VAR!JWHtmlStart-->',
     '<!DOCTYPE html>',
     '<html lang="de">',
     '<head>',
     '<meta charset="UTF-8" />',
     `<title>${escapeHtmlText(title)}</title>`,
+    // Nur die Bruecke, nicht SoftEngines ganzer Kopf (kontrakte.md 1).
+    BRUECKE_SKRIPT,
     '<style>',
     tokensCss,
     '',
@@ -300,7 +302,6 @@ export function exportMask(
     '</script>',
     '</body>',
     '</html>',
-    '<!--SOFTENGINE-VAR!JWHtmlEnde-->',
   ].join('\n')
 
   const sevariablen = baueSevariablen(used, benutzteFelder, holSchluessel)
