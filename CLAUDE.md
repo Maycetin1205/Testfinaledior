@@ -44,14 +44,8 @@ die SoftEngine-Kontrakte, die Regeln unten. Alles andere darf fallen.
 Stand 15.09.2026: Schritt 1 und 2 sind fertig (Commits 09dd63d bis b784f20).
 Der Kern spricht Deutsch, Faehigkeiten stehen in einer Liste, SoftEngine
 sitzt hinter der Tuer, die Ordner heissen kern, bausteine, editor. Wer neu
-einsteigt: erst  und Unknown command: "test"
-
-
-Did you mean this?
-  npm test # Test a package
-To see a list of supported npm commands, run:
-  npm help (muessen gruen sein), dann
-, dann diese Datei ganz. Keine Datei anfassen, die nicht zum
+einsteigt: erst `npm run check` und `npm test` (muessen gruen sein), dann
+`git log -12`, dann diese Datei ganz. Keine Datei anfassen, die nicht zum
 laufenden Schritt gehoert.
 
 1. Regeln. Erledigt.
@@ -63,14 +57,14 @@ laufenden Schritt gehoert.
 
 Was die Tabelle als Muster heisst:
 
--  hat am Ende hoechstens drei Dateien: Verhalten
-  (), Stil, Test. Was heute in zwanzig Dateien steht, wird Teil
-  der Tabelle oder eine Faehigkeit in  (Spalten,
+- `bausteine/tabelle/` hat am Ende hoechstens drei Dateien: Verhalten
+  (`Tabelle.ts`), Stil, Test. Was heute in zwanzig Dateien steht, wird Teil
+  der Tabelle oder eine Faehigkeit in `bausteine/faehigkeiten/` (Spalten,
   Nachschlagen, Datenanschluss, Auswahl), die auch Formularfeld und Erfassung
   einstecken. Eine Faehigkeit ist eine Datei mit Zustand und Verhalten, die
   der Baustein im Konstruktor anlegt; kein Mixin, keine Vererbung.
-- Die Eigenschaften der Tabelle heissen deutsch ( statt ,
-   statt ). Damit aendern sich Export-Attribute: Referenzabzug
+- Die Eigenschaften der Tabelle heissen deutsch (`quelle` statt `source`,
+  `breite` statt `width`). Damit aendern sich Export-Attribute: Referenzabzug
   erneuern und im Commit sagen, welche.
 - Die Erfassung erbt danach nicht mehr von der Tabelle. Sie wird ein eigener
   Baustein, der dieselben Faehigkeiten einsteckt und Erfassen dazu.
@@ -79,15 +73,15 @@ Was die Tabelle als Muster heisst:
 Offen aus dem Echttest vom 15.09. (Belege in kontrakte.md ab Abschnitt 17),
 jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
 
-1. Export ohne /. SoftEngine ersetzt den Marker
+1. Export ohne `JWHtmlStart`/`JWHtmlEnde`. SoftEngine ersetzt den Marker
    durch 56 Skripte und 41 Stylesheets (1,7 MB), die Maske braucht nur
-   . Handtest in WinUI bestanden. Aendert den
-   Festpunkt Export: , , Referenzabzug,
+   `basis.html.interface.js`. Handtest in WinUI bestanden. Aendert den
+   Festpunkt Export: `exportMask.ts`, `validator.ts`, Referenzabzug,
    kontrakte.md 1 und 13. Nur mit ausdruecklichem Ja des Nutzers.
-2.  :  gibt es in
-   SoftEngine nur als Nachricht (), nicht als Funktion.
+2. `bridge.ts` `frischeDatenAnfordern`: `ReloadInputJSON` gibt es in
+   SoftEngine nur als Nachricht (`basisHTML_SND_MSG`), nicht als Funktion.
    Der Ruf laeuft heute ins Leere. Echttest noetig.
-3.  gehoert nicht in die fertige Maske.
+3. `basisHTML_SetConsoleLog(true, true)` gehoert nicht in die fertige Maske.
 4. Startpaket: GET_RELATION-, REFRESH- und TABELLE-Bloecke in den SEvariablen
    als neue Quellenarten; DATASET ist beim Hersteller unbelegt und faellt.
 5. Nicht bauen: alle Artikel vorladen. ERPAPICALL deckelt bei 1000 Zeilen,
