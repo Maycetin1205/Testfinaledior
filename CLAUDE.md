@@ -118,11 +118,11 @@ Was die Tabelle als Muster heisst:
   Textfeld. Danach reist nur, was die Maske einsteckt. Gemessen am 15.09.:
   Basis 63 kB, davon 22 kB Lit und 41 kB Kern und Bruecke, die das Bauskript
   komplett in die Basis packt; auch Kern und Bruecke werden Teile, die nur
-  reisen, wenn ein Baustein der Maske sie importiert. Beweis: ein Test
-  exportiert eine Maske aus einem Textfeld und einer Tabelle ohne
-  Nachschlagen und nennt die Laufzeitteile im Skript; Nachschlagen, Kanban
-  und Erfassen duerfen nicht darin stehen. Die Groesse jedes Teils steht im
-  Testbericht, damit der Nutzer den Zuwachs sieht.
+  reisen, wenn ein Baustein der Maske sie importiert. Beweis:
+  `src/export/exportGepaeck.test.ts` exportiert drei Masken und nennt je
+  Laufzeitteil die Groesse im Testbericht. Rot mit Ansage (`test.fails`): das
+  Textfeld zieht ueber die Faehigkeit Quelle sieben Faehigkeiten nach; wer
+  das Textfeld umbaut, macht daraus einen gewoehnlichen `test`.
 - Am Ende: Pruefbuendel gruen, Export, der Nutzer testet in SoftEngine.
 
 Offen aus dem Echttest vom 15.09. (Belege in kontrakte.md ab Abschnitt 17),

@@ -180,10 +180,13 @@ function nachAbhaengigkeit(teile) {
 function schreibeEinstieg(name, dateien, stelltHin) {
   // Eingestiegen wird in jede Datei, die einen Bausteintyp anmeldet, egal wie
   // sie heisst: Tabelle.ts wie TabelleBlock.ts.
+  // Frisches Muster ohne g-Flag: das globale merkt sich die Fundstelle des
+  // vorigen Teils und uebersah so den Trenner, dessen Teil leer blieb.
+  const hatBausteinTyp = new RegExp(BAUSTEIN_TYP.source)
   const kopf = name === BASIS
     ? [`import '${QUELLE}/export/fehlerWache'`]
     : dateien
-      .filter((datei) => BAUSTEIN_TYP.test(readFileSync(datei, 'utf8')))
+      .filter((datei) => hatBausteinTyp.test(readFileSync(datei, 'utf8')))
       .map((datei) => `import '${datei}'`)
   const rumpf = stelltHin.size === 0 ? [] : ['window.FF = window.FF || {};']
   let nr = 0
