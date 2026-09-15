@@ -91,6 +91,49 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
 5. Nicht bauen: alle Artikel vorladen. ERPAPICALL deckelt bei 1000 Zeilen,
    SEFILELOOP dauert 7 s. Nachschlagen sucht beim Tippen.
 
+So laeuft jeder Baustein in Schritt 3, ohne Ausnahme:
+
+1. `npm run check` und `npm test` gruen, `git status` leer. Sonst anhalten.
+2. Nur diesen einen Baustein und die Faehigkeiten, die er braucht. Andere
+   Bausteine bleiben, wie sie sind, auch wenn sie haesslich sind.
+3. Nach dem Umbau: Pruefbuendel gruen, Referenzabzug erneuern, wenn er rot
+   ist, und im Commit jede geaenderte Attribut- oder Schluesseländerung
+   nennen.
+4. Dem Nutzer eine Klickanleitung geben: Baustein anlegen, Quelle binden,
+   exportieren, in SoftEngine oeffnen. Erst nach seinem "laeuft" der
+   naechste Baustein.
+5. Anhalten und fragen, wenn: eine Faehigkeit fehlt, die zwei Bausteine
+   verschieden brauchen; ein Kontrakt in kontrakte.md nicht zu dem passt, was
+   der Code tut; eine Aenderung den Export anders aendert als erwartet.
+
+## Fachliche Festlegungen
+
+Was der Nutzer entschieden hat und kein Code von sich aus wuesste.
+
+- **Tabelle und Erfassung.** Zwei Bedeutungen, getrennt gehalten:
+  Zellherkunft (getippt, aus Daten, berechnet) und Schreibstatus (vorgemerkt,
+  gesendet, bestaetigt, gescheitert). Ein abgeschickter Wert ist nicht
+  bestaetigt; erst die naechste Lieferung beweist ihn. Ein unklarer Ausgang
+  bleibt sichtbar unklar, kein automatischer zweiter Versuch. Farbe oder
+  Kursiv allein tragen keine Bedeutung. Spaltenkennung, Platz in der vollen
+  Liste und sichtbarer Platz sind drei Dinge; Ausblenden aendert keine
+  ERP-Zuordnung.
+- **Berechnung.** Eine Produktgleichung ueber Spalten derselben Zeile, Felder
+  des gewaehlten Datensatzes und feste Zahlen; drei Werte ergeben den vierten.
+  Kein Gleichungsloeser, keine Hilfsspalten, keine Packungslogik. Einheiten
+  kg, g, mg, l, ml, Anzahl, Tage; Masse nur in Masse, Volumen nur in Volumen.
+  Gerundet wird das Endergebnis. Fehlender Wert, unbekannte Einheit,
+  ungueltige Zahl, Teilen durch null: ein benannter Grund statt einer
+  scheinbar gueltigen Zahl. Gestrichene Spalte oder Quelle: die Berechnung
+  bleibt sichtbar unvollstaendig.
+- **Kanban.** Eine Kartenvorlage je Board, bearbeitet an der echten Karte
+  statt in einem dauernd sichtbaren Musterkasten. Laufzeitkarten nutzen
+  dieselbe Vorlage. Der sichtbare Name der Unterteilung (`kanban-zimmer`) ist
+  mit dem Nutzer zu entscheiden.
+- **Offen, nur der Nutzer kann es sagen:** Feldlaenge der Behandlungseinheit
+  und Zeitbasis der Behandlungsmenge; Nachkommastellen fuer Tiere und Tage;
+  was SoftEngine an Bestaetigung fuer schreibende Aktionen wirklich liefert.
+
 ## Aufbau (Ziel)
 
 - `src/kern/`: fachlicher Kern ohne Framework, der Lint erzwingt das.
