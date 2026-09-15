@@ -342,6 +342,32 @@ daran, damit die Bedienung beider Masken dieselbe ist.
 - Jeder Push traegt den GANZEN Datenstand, auch unveraendert; die Handmaske
   vergleicht darum eine Signatur und zeichnet nur bei echter Aenderung neu.
 
+## 17. DataSet-Definition (Echttest 2026-09-15, Revision 130288)
+
+Ein DataSet wird in SoftEngine im DataSet-Fenster als JSON erfasst (keine
+Datei). Erst nach Speichern und Aktualisieren liegt die Datendatei unter
+`Datenbank\Mandanten\<Mandant>\DATASETS\<ID>_00.dss`; ihr Zeitstempel ist die
+letzte Aktualisierung. Die Vorlage in der Hilfe ist an drei Stellen
+irrefuehrend:
+
+- `"ID"` (die eigene DataSet-ID) MUSS im Text stehen. Fehlt sie, meldet das
+  Laden `ERR_INVALID_PARAMETER_VALUE / KEY:-1`.
+- `"MAX_ZEILEN_NACH_SORT"` ist Pflicht und muss > 0 sein (0 gilt als fehlend:
+  `ERR_PARAM_MISSING / MAX_ZEILEN_NACH_SORT`). Das `MAX_ZEILEN` der Vorlage
+  allein reicht nicht; beide Zeilen zusammen laufen.
+- `"INDEX_NR": 0` ist der Primaerindex einer ERP-Tabelle. Die -1 der Vorlage
+  ist ungueltig.
+
+Gelaufen ist mit ART=ERPTabelle, ID=ART, Spalten `ART_<pos>_<len>` als QUELLE,
+FORMAT L, AKTUALISIERUNGSZEITPUNKT Manuell, AKTUALISIERUNGSART Komplett, ohne
+CACHING (laut Campus-Kurs derzeit weglassen). Spalten spricht die Maske mit
+ihrer BEZEICHNUNG an.
+
+Offen: Der `DATASET`-Block in den SEvariablen (`ID`, `ALIAS`, `FELDER`, laut
+SoftEngine-Auskunft ab Revision 127025, Zeilen unter `Daten.Tabellen.<ALIAS>`)
+ist noch NICHT im Echttest belegt. Gilt in: `kern/daten/quellenArten.ts`
+(`dataset`), `export/sevariablen.ts`.
+
 ---
 
 ## Was hier NICHT steht
