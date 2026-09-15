@@ -60,7 +60,10 @@ laufenden Schritt gehoert.
    Nutzers dazu: Datencenter und Berechnungen nicht als Vollbild, sondern
    neben der Flaeche, damit die Maske sichtbar bleibt. Eine Standardgroesse
    fuer alle Suchfenster gehoert zur Maske (Datencenter), das einzelne Feld
-   erbt sie und darf abweichen; dazu "Fuer alle uebernehmen".
+   erbt sie und darf abweichen; dazu "Fuer alle uebernehmen". Dazu:
+   "Notfallkopie wiederherstellen" laesst die Kopie waehlen (Datum, Zahl der
+   Bausteine und Datenquellen), statt blind die juengste zu nehmen. Am 15.09.
+   war die juengste leer, die 20 Datenquellen lagen in einer aelteren.
 5. Ausmisten: Tests und Dateien, die niemand mehr braucht.
 
 Was die Tabelle als Muster heisst:
