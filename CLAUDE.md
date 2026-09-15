@@ -68,21 +68,29 @@ laufenden Schritt gehoert.
 
 Vor der Tabelle, je ein Commit mit einem Test, im Browser belegt am 15.09.:
 
-1. Entfernen, Duplizieren und Rueckgaengig wirken bei offenem Datencenter
+1. In SoftEngine landet ein Klick nicht im Feld, der Fokus springt heraus;
+   erst nach Oeffnen und Schliessen der Entwicklerkonsole bleibt er. Verdacht:
+   SoftEngines Fokus-Ruf, den die Erfassung blind beantwortet mit Fenster
+   fokussieren und Sprung in Zelle null, geprueft wird nur die eigene Zelle
+   (`ErfassungBlock.ts`, `bridge.ts`). Erst in SoftEngine mit dem Nutzer
+   belegen, wer den Fokus wann nimmt, dann aendern: den Fokus nimmt die
+   Maske nur, wenn nirgends auf ihr einer steht; die Pruefung durch alle
+   Schatten-Wurzeln hat die Bruecke schon.
+2. Entfernen, Duplizieren und Rueckgaengig wirken bei offenem Datencenter
    auf den Baustein dahinter (`useKeyboardShortcuts.ts`). Sie halten sich wie
    Escape an `fensterOffen()`. Popup-Bausteine auf der Flaeche bleiben davon
    unberuehrt.
-2. Die Feldwahl ueberschreibt einen von Hand gesetzten Spaltentitel
+3. Die Feldwahl ueberschreibt einen von Hand gesetzten Spaltentitel
    (`FeldBindung.tsx`). Der Klarname kommt nur in einen leeren oder noch
    nie geaenderten Titel. Regel dazu: wer einen gespeicherten Schluessel
    umbenennt, laedt alte Masken weiter, und ein Test beweist es.
-3. "Duplizieren" am Popup tut nichts (`Inspector.tsx`, `duplizieren.ts`).
+4. "Duplizieren" am Popup tut nichts (`Inspector.tsx`, `duplizieren.ts`).
    Entweder es dupliziert das Popup samt Inhalt, oder der Knopf fehlt dort.
-4. Die Erfassung nimmt SoftEngines Fokus-Ruf blind: Fenster fokussieren,
-   Sprung in Zelle null, geprueft wird nur die eigene Zelle
-   (`ErfassungBlock.ts`, `bridge.ts`). Den Fokus nimmt sie nur, wenn nirgends
-   auf der Maske einer steht; die Pruefung durch alle Schatten-Wurzeln hat
-   die Bruecke schon.
+5. Beim Formularfeld ist das Suchfenster nur ueber die Lupe im Feld auf der
+   Flaeche einstellbar und nur bei Feldtyp Nachschlagen; der Nutzer fand es
+   nicht. Kein Extra-Fix: Die Faehigkeit Nachschlagen bringt in Schritt 3 ihre
+   Inspector-Bedienung mit (Regel 2), dann ist sie bei Erfassung, Tabelle und
+   Formularfeld am selben Ort (Regel 13).
 
 Was die Tabelle als Muster heisst:
 
@@ -107,7 +115,11 @@ Was die Tabelle als Muster heisst:
 - Jede Faehigkeit wird ein eigener Laufzeitteil wie heute jeder Baustein
   (`tools/laufzeitBauen.mjs`, `teile.json`). Heute traegt jede Maske die
   Basis von 86 kB mit allen Faehigkeiten, auch eine Maske aus einem
-  Textfeld. Danach reist nur, was die Maske einsteckt.
+  Textfeld. Danach reist nur, was die Maske einsteckt. Beweis: ein Test
+  exportiert eine Maske aus einem Textfeld und einer Tabelle ohne
+  Nachschlagen und nennt die Laufzeitteile im Skript; Nachschlagen, Kanban
+  und Erfassen duerfen nicht darin stehen. Die Groesse jedes Teils steht im
+  Testbericht, damit der Nutzer den Zuwachs sieht.
 - Am Ende: Pruefbuendel gruen, Export, der Nutzer testet in SoftEngine.
 
 Offen aus dem Echttest vom 15.09. (Belege in kontrakte.md ab Abschnitt 17),
@@ -123,7 +135,8 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
    von SoftEngine, was `ID` ist.
 3. Erledigt: kein `basisHTML_SetConsoleLog(true, true)` mehr in der Maske.
 4. Startpaket: GET_RELATION-, REFRESH- und TABELLE-Bloecke in den SEvariablen
-   als neue Quellenarten; DATASET ist beim Hersteller unbelegt und faellt.
+   als neue Quellenarten. DATASET bleibt: ob der Block traegt, ist nicht per
+   Echttest belegt (kontrakte.md 17); erst der Test des Nutzers entscheidet.
 5. Nicht bauen: alle Artikel vorladen. ERPAPICALL deckelt bei 1000 Zeilen,
    SEFILELOOP dauert 7 s. Nachschlagen sucht beim Tippen.
 6. Gebaut, Echttest steht aus: ein BW_LINK-Schritt geht wie SoftEngines
