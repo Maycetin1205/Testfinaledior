@@ -304,9 +304,17 @@ steht hier nur als Wissen:
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
   und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie
-  nur, wenn es sie gibt; ein BW_LINK-Schritt geht darum nicht mehr hinaus und
-  meldet das (aus der Auslieferung gelesen, nicht per Echttest). WebUI/WEBWARE
-  ohne `JWHtmlStart`: nicht getestet.
+  nur, wenn es sie gibt. WebUI/WEBWARE ohne `JWHtmlStart`: nicht getestet.
+- Einen BW-Befehl schickt die Maske darum selbst, so wie `sendBWLinkIntern`:
+  `basisHTML_SND_MSG('HTMLEVENT', { art: 'BWLINK', params: '<Befehl>' })`.
+  `0,START_TOOL,<nr>` geht als `START_TOOL`-Nachricht nur mit `NR`, Parameter
+  dahinter fallen weg wie bei SoftEngine. Das Programm (`SeErpWinUi.exe`) nennt
+  beim HTMLEVENT-Handler die Felder `art` und `params` und die Arten
+  `ESCAPEHTML`, `RELOADHTML`, `BWLINK`. SoftEngine wählt den Weg an
+  `SEDATA.BW_PFAD` und fällt ohne es auf die alte `bw-link:`-Adresse zurück; die
+  Maske fragt nach der Brücke und meldet ohne sie, dass nichts hinausging
+  (`softengine/befehle.ts`). Aus Auslieferung und Programm gelesen, nicht per
+  Echttest.
 - Ein Skript im Maskenordner (`<script src="fftest.js">`) wird ebenfalls
   geladen (belegt 2026-08-28, als zwoelf Laufzeitdateien belegt 2026-09-08).
   Die Laufzeit steht trotzdem in der Maske selbst: eine HTML plus eine JSON,

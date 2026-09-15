@@ -94,11 +94,11 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
    als neue Quellenarten; DATASET ist beim Hersteller unbelegt und faellt.
 5. Nicht bauen: alle Artikel vorladen. ERPAPICALL deckelt bei 1000 Zeilen,
    SEFILELOOP dauert 7 s. Nachschlagen sucht beim Tippen.
-6. Folge aus 1: `sendBWLink` kam mit `JWHtmlStart`. Ein BW_LINK-Schritt
-   (`softengine/befehle.ts` `sendeBwLink`) geht nicht mehr hinaus und meldet
-   das. SoftEngines `sendBWLinkIntern` (`HTMLEditor/JS/Allgemein.js`) schickt
-   ihn als `basisHTML_SND_MSG('HTMLEVENT', { art: 'BWLINK', params })`, ohne
-   `SEDATA.BW_PFAD` als `bw-link:`-Adresse. Echttest noetig.
+6. Gebaut, Echttest steht aus: ein BW_LINK-Schritt geht wie SoftEngines
+   `sendBWLinkIntern` als `HTMLEVENT { art: 'BWLINK', params }` hinaus, ein
+   Befehl mit START_TOOL als START_TOOL-Nachricht (kontrakte.md 13). Erst
+   nach dem Test des Nutzers "Erledigt" und in kontrakte.md 13 der Vermerk
+   "nicht per Echttest" weg.
 
 So laeuft jeder Baustein in Schritt 3, ohne Ausnahme:
 

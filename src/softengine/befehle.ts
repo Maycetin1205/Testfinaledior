@@ -14,16 +14,14 @@ function startToolLink(nr: string, params: readonly string[]): string {
 export function sendeBwLink(befehl: string): boolean {
   const zeile = befehl.trim()
   if (zeile === '') return false
+  // Genau so trennt SoftEngines sendBWLinkIntern (kontrakte.md 13).
+  if (zeile.includes('START_TOOL')) return sendeStartTool(zeile.split(',')[2] ?? '', [])
   const g = seFenster()
   try {
-    if (typeof g.sendBWLink === 'function') {
-      g.sendBWLink(zeile)
-      return true
-    }
-  } catch { /* faellt auf den internen Weg zurueck */ }
-  try {
-    if (typeof g.sendBWLinkIntern === 'function') {
-      g.sendBWLinkIntern(zeile)
+    // SoftEngine waehlt den Weg an SEDATA.BW_PFAD; die Bruecke uebernimmt nur
+    // Daten, darum zaehlt hier, ob sie selbst da ist.
+    if (typeof g.basisHTML_SND_MSG === 'function') {
+      g.basisHTML_SND_MSG('HTMLEVENT', { art: 'BWLINK', params: zeile })
       return true
     }
   } catch { /* nicht in SE */ }
