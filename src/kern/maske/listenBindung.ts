@@ -107,6 +107,29 @@ export function listenStandardTitel(b: ListenBindung, index: number): string {
   return b.standardTitel.replace('{n}', String(index + 1))
 }
 
+// Die Marke am getippten Titel. Nur sie unterscheidet einen Namen, den der
+// Bauer gewaehlt hat, von dem, den die Feldwahl hineinschrieb.
+export const TITEL_VON_HAND = 'titelVonHand'
+
+// Was ein getippter Titel im Eintrag hinterlaesst. Leer getippt loescht die
+// Marke: ein leerer Titel ist keine Wahl, den fuellt die naechste Feldwahl.
+export function getippterTitel(b: ListenBindung, titel: string): Record<string, unknown> {
+  return {
+    [b.titelSchluessel]: titel,
+    [TITEL_VON_HAND]: titel.trim() === '' ? undefined : true,
+  }
+}
+
+// Der Titel nach einer Feldwahl; `undefined` heisst: der getippte bleibt stehen.
+// Ohne Marke gewinnt der Klarname, sonst truege eine frisch gebundene Spalte
+// weiter „Spalte 1".
+export function titelNachFeldwahl(
+  eintrag: Record<string, unknown>,
+  ausFeld: string,
+): string | undefined {
+  return eintrag[TITEL_VON_HAND] === true ? undefined : ausFeld
+}
+
 export function listeLesen(roh: unknown, b: ListenBindung): Record<string, unknown>[] {
   if (!Array.isArray(roh)) return []
   return roh.map((x, i) => {
@@ -171,13 +194,14 @@ export function kennungenVergeben(vorhanden: readonly string[]): string[] {
 export function listeFuerExport(roh: unknown, b: ListenBindung): unknown {
   if (!Array.isArray(roh)) return roh
   const regeln = bedingteSchluessel(b)
-  if (regeln.length === 0) return roh
   return roh.map((x) => {
     if (!x || typeof x !== 'object') return x
     const eintrag = x as Record<string, unknown>
     const weg = regeln
       .filter((r) => r.key in eintrag && !r.erlaubt(eintrag))
       .map((r) => r.key)
+  // Die Marke bleibt im Editor: die Maske liest nur den Titel selbst.
+    if (TITEL_VON_HAND in eintrag) weg.push(TITEL_VON_HAND)
     if (weg.length === 0) return x
     const kopie = { ...eintrag }
     for (const k of weg) delete kopie[k]

@@ -294,6 +294,31 @@ test('ein Stand im Format 9 wird beim Laden auf den heutigen Stand gehoben', () 
   expect(meldungsText()).toBe('')
 })
 
+// Die Marke am getippten Spaltentitel ist neu. Eine Maske, die sie traegt, und
+// eine aeltere ohne sie muessen beide laden: ein neuer Schluessel darf keinen
+// gespeicherten Stand kosten.
+test('eine Maske mit und eine ohne die Marke am Spaltentitel laden beide', () => {
+  const maske = (spalte: Record<string, unknown>): string => JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: {
+      ...wurzelBaum(['t1']),
+      t1: { id: 't1', typ: 'tabelle', werte: { spalten: [spalte] }, elternId: WURZEL_ID, kinderIds: [] },
+    },
+    selectedId: null, datenquellen: [], relationen: [], activePageId: WURZEL_ID,
+  })
+
+  const mitMarke = { kennung: 's1', titel: 'Menge', feld: '3_8', titelVonHand: true }
+  speicher.setItem(STORAGE_KEY, maske(mitMarke))
+  expect(loadFromStorage()?.tree.t1.werte.spalten).toEqual([mitMarke])
+
+  const ohneMarke = { kennung: 's1', titel: 'Menge', feld: '3_8' }
+  speicher.setItem(STORAGE_KEY, maske(ohneMarke))
+  expect(loadFromStorage()?.tree.t1.werte.spalten).toEqual([ohneMarke])
+
+  expect(meldungsText()).toBe('')
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
+})
+
 test('die juengste Notfallkopie wird gefunden', () => {
   speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T08-00-00-000Z', 'alt')
   speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T09-00-00-000Z', 'neu')

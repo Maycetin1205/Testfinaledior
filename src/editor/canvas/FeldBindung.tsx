@@ -5,10 +5,12 @@ import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { Baustein } from '../../kern/maske/baum'
 import {
   feldWahlenLesen,
+  getippterTitel,
   schalterAn,
   schalterFuer,
   listenStandardTitel,
   listeLesen,
+  titelNachFeldwahl,
   type ListenBindung,
 } from '../../kern/maske/bausteinArt'
 import { bindungsProp, type BindbareStelle, type SuchFenster } from '../../kern/maske/faehigkeiten'
@@ -263,7 +265,7 @@ export function useFeldBindung({
               standard: standardTitel,
               onAendern: (neu) => {
                 tippSitzung.beginnen()
-                schreibeInEintrag(listenPicker, { [listenBindung.titelSchluessel]: neu })
+                schreibeInEintrag(listenPicker, getippterTitel(listenBindung, neu))
               },
               sitzung: tippSitzung,
             }}
@@ -324,9 +326,8 @@ export function useFeldBindung({
                 const ziel = next[listenPicker.index]
                 if (!ziel) return
 
-  // Die Feldwahl setzt den Titel IMMER auf den Klarnamen des Feldes. Umbenennen
-  // geht danach jederzeit, bis zur naechsten Feldwahl. Kehrseite: wer eine Spalte
-  // benannt hat und danach umbindet, muss den Namen neu tippen.
+  // Den Klarnamen des Feldes bekommt nur ein Titel, den niemand getippt hat:
+  // sonst verloere der Bauer beim Umbinden den Namen, den er der Spalte gab.
                 const klarname = (feldWert: string): string => (proQuelle
                   ? (quelleAusProp.felder.find((f) => f.code === feldWert)?.name ?? '')
                   : klarnameVon(feldWert, quellen)) || feldWert
@@ -339,7 +340,11 @@ export function useFeldBindung({
                   : zeichenVon(wert, quellen)
                 const breite = breiteAusZeichen(zeichen)
 
-                ziel[listenBindung.titelSchluessel] = wert === '' ? standardTitel : klarname(wert)
+                const titel = titelNachFeldwahl(
+                  ziel,
+                  wert === '' ? standardTitel : klarname(wert),
+                )
+                if (titel !== undefined) ziel[listenBindung.titelSchluessel] = titel
                 ziel[listenBindung.feldSchluessel] = wert
                 if (breite !== undefined) ziel.breite = breite
                 editor.updateProperty(block.id, listenBindung.prop, next)

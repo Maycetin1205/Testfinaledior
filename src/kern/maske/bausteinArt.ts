@@ -15,11 +15,13 @@ export interface KindVorgabe {
 
 export {
   feldWahlenLesen,
+  getippterTitel,
   listenStandardTitel,
   listeFuerExport,
   listeLesen,
   schalterAn,
   schalterFuer,
+  titelNachFeldwahl,
   type EintragsFeldWahl,
   type EintragsSchalter,
   type ListenBindung,
