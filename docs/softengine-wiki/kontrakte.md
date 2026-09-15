@@ -311,22 +311,24 @@ steht hier nur als Wissen:
   dort liegt sie unter `JS/JS/` (belegt 2026-07-28 und 2026-09-15, WinUI); die
   Kopie unter `selib/2.0.0/` ist byte-gleich. Fehlt die Brücke, meldet die
   Maske „SoftEngine-Anschluss nicht gefunden".
-- **Den Tastaturfokus gibt dem WebView nur ein echter Fokuswechsel.** Bei der
-  Nachricht `WWFOC` ruft `basis.html.interface.js` `basisHTML_DoSetFocusToHTML()`;
-  antwortet die Maske `true` („erledigt“), überspringt die Brücke
-  `basis_HTML_DoSetAutoFocus()` — die Funktion, die ein unsichtbares
-  `<input id="AFELM">` anlegt, zweimal fokussiert und **wieder entfernt**
-  (`aI.parentNode.removeChild(aI)`, Zeile 117-130). Ohne diesen Griff hat der
-  WebView keine Tastatur: ein Klick landet in keinem Feld, in keinem Baustein,
-  und erst Öffnen und Schließen der Entwicklerkonsole holt ihn nach. Mit ihm ist
-  die Tastatur da, aber die Schreibmarke weg — der Klick springt aus der Zelle.
-  Echttest 2026-09-15, Layoutrahmen 00001 in der Belegerfassung: mit der Antwort
-  `false` klickt es, mit `true` nicht; `true` nur bei gesetzter Schreibmarke
-  ergab beides im Wechsel („manchmal geht es, manchmal nicht“), weil `WWFOC`
-  mal vor, mal nach dem Klick eintrifft. Die Maske macht den Griff darum selbst
-  und antwortet immer `true` (`softengine/bridge.ts` `tastaturHolen`: eigenes
-  Hilfsfeld anlegen, fokussieren, entfernen, Schreibmarke im selben Schritt
-  zurück). Noch nicht per Echttest belegt. Eine Maske ohne Layoutrahmen
+- **Den Tastaturfokus hat im Layoutrahmen der Wirt, nicht das Dokument.** Bei
+  der Nachricht `WWFOC` ruft `basis.html.interface.js`
+  `basisHTML_DoSetFocusToHTML()`; antwortet die Maske `true` („erledigt"),
+  überspringt die Brücke `basis_HTML_DoSetAutoFocus()` — die Funktion, die ein
+  unsichtbares `<input id="AFELM">` anlegt, zweimal fokussiert und wieder
+  entfernt (Zeile 117-130). Echttests 2026-09-15, Layoutrahmen 00001 der
+  Belegerfassung, drei Anläufe: Antwort `false` (SoftEngines Auto-Fokus läuft),
+  Antwort `true` nur bei gesetzter Schreibmarke, und ein eigener Griff über ein
+  Hilfsfeld mit Rückgabe der Schreibmarke — **keiner gibt dem WebView die
+  Tastatur**. Im Fehlerfall blinkt die Schreibmarke im Feld und bleibt dort, die
+  Tasten kommen trotzdem nicht an: Chromium hält das Dokument für fokussiert,
+  Windows schickt die Tasten an den Wirt. Erst Öffnen und Schließen der
+  Entwicklerkonsole holt sie, und dann bleibt es für die Sitzung gut. Ein
+  Fokuswechsel im HTML ist also der falsche Hebel. Die Maske fragt darum den
+  Wirt: `window.focus()` und, im Rahmen, `window.top.focus()` — bei `WWFOC` und
+  bei jedem `pointerdown` (`softengine/bridge.ts` `tastaturHolen`; denselben
+  Griff nimmt SoftEngine in `HTMLEditor/JS/SETastaturHaendler.js`). Ob das
+  reicht, ist nicht per Echttest belegt. Eine Maske ohne Layoutrahmen
   (STDERFASSUNG 990) war nie betroffen — dort fragt niemand nach dem Fokus.
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)

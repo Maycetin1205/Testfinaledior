@@ -214,28 +214,36 @@ function registerSe(tries = 0): void {
   }
 }
 
-// SoftEngines Auto-Fokus gibt dem WebView als einziges die Tastatur, raeumt
-// dabei aber die Schreibmarke ab: er entfernt sein Hilfsfeld wieder. Die Maske
-// macht den Griff darum selbst und antwortet "erledigt" (kontrakte.md 13).
+// Echttest 15.09.: die Schreibmarke blinkt im Feld, die Tasten kommen trotzdem
+// nicht an. Der Tastaturfokus liegt also beim Wirt, nicht im Dokument — ein
+// Fokuswechsel im HTML holt ihn nicht (nachgewiesen). window.focus() ist das
+// Einzige, womit eine Seite den Wirt danach fragen kann (kontrakte.md 13).
 function fokusBrueckeBauen(): void {
   seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
     tastaturHolen()
     return true
   }
+  // Wer klickt, will tippen: da ist der Griff faellig, nicht nur bei SoftEngines Ruf.
+  document.addEventListener('pointerdown', () => { tastaturHolen() }, true)
 }
 
-// Nur ein echter Fokuswechsel auf ein Eingabefeld holt dem WebView die
-// Tastatur. Nehmen und Zurueckgeben stehen im selben Schritt, damit zwischen
-// beidem kein Klick und kein Tastendruck faellt.
 function tastaturHolen(): void {
-  const vorher = tiefstesAktives()
-  const hilfsfeld = document.createElement('input')
-  hilfsfeld.style.cssText = 'position:fixed;top:0;left:0;opacity:0'
-  document.body.appendChild(hilfsfeld)
-  hilfsfeld.focus()
-  hilfsfeld.focus() // zweimal wie SoftEngine; welcher Griff zaehlt, weiss nur der Echttest
-  hilfsfeld.remove()
-  if (vorher instanceof HTMLElement) vorher.focus()
+  window.focus()
+  // Steckt die Maske in einem Rahmen, sitzt der Wirt am obersten Fenster.
+  try { if (window.top !== null && window.top !== window) window.top.focus() } catch { /* fremder Ursprung */ }
+}
+
+// NUR FUER DIE FEHLERSUCHE 15.09., kommt nach dem Echttest wieder raus: zeigt in
+// der Konsole, ob SoftEngines Fokus-Ruf ankommt und ob Tasten die Maske erreichen.
+function fehlersucheFokus(): void {
+  const stand = (): string => `hasFocus=${document.hasFocus()} aktiv=${tiefstesAktives()?.nodeName ?? '-'}`
+  console.log(`[fokus] Maske bereit, imRahmen=${window.top !== window} ${stand()}`)
+  const alt = seFenster().basisHTML_DoSetFocusToHTML as (() => boolean) | undefined
+  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
+    console.log(`[fokus] WWFOC vom Wirt, ${stand()}`)
+    return alt ? alt() : true
+  }
+  window.addEventListener('keydown', (e) => { console.log(`[fokus] Taste "${e.key}" kommt an, ${stand()}`) }, true)
 }
 
 let booted = false
@@ -254,6 +262,7 @@ export function starteSe(): void {
   g.initData = g.Erstellen
   g.ReloadData = () => { klingeln(datenSindNeu()) }
   fokusBrueckeBauen()
+  fehlersucheFokus()
   registerSe()
 
   window.addEventListener('message', (evt) => {

@@ -8,21 +8,16 @@ g.HTMLElement = class {}
 g.HTMLInputElement = class extends (g.HTMLElement as new () => object) {}
 g.HTMLTextAreaElement = class extends (g.HTMLElement as new () => object) {}
 g.HTMLSelectElement = class extends (g.HTMLElement as new () => object) {}
-g.document = { activeElement: null, title: 'Pruefmaske' }
+g.document = { activeElement: null, title: 'Pruefmaske', hasFocus: () => true }
 
-// Die Bruecke holt dem WebView die Tastatur mit einem echten Fokuswechsel ueber
-// ein Hilfsfeld; dieses Miniatur-DOM schreibt mit, was fokussiert wurde.
+// Die Bruecke fragt den Wirt ueber window.focus() nach der Tastatur; hier wird
+// nur mitgeschrieben, ob sie das tut und ob sie die Schreibmarke in Ruhe laesst.
 const dok = g.document as Record<string, unknown>
-const fokussiert: string[] = []
-dok.createElement = (): unknown => {
-  const el = new (g.HTMLInputElement as new () => object)() as Record<string, unknown>
-  el.style = {}
-  el.focus = () => { fokussiert.push('hilfsfeld'); dok.activeElement = el }
-  el.remove = () => { dok.activeElement = null }
-  return el
-}
-dok.body = { appendChild: () => {} }
-g.window = { addEventListener: () => {} }
+let wirtGefragt = 0
+dok.addEventListener = (): void => {}
+const fensterStumpf: Record<string, unknown> = { addEventListener: () => {}, focus: () => { wirtGefragt += 1 } }
+fensterStumpf.top = fensterStumpf
+g.window = fensterStumpf
 
 // Der 300-ms-Poll aus starteSe darf hier nie feuern — er verteilte sonst
 // mitten in einem Test ein zweites Mal.
@@ -105,20 +100,19 @@ test('nach dem Schreiben wird die Eingabedatei neu bestellt', () => {
   expect(bestellt).toEqual(['ReloadInputJSON', 'ResetDataBasis'])
 })
 
-// Echttest 15.09., Layoutrahmen 00001: antwortet die Maske "erledigt", bleibt
-// SoftEngines Auto-Fokus aus und der WebView hat keine Tastatur — der Klick
-// landet in keinem Feld. Laeuft der Auto-Fokus, nimmt er dem Feld die
-// Schreibmarke. Die Maske macht den Griff darum selbst (kontrakte.md 13).
-test('der Fokus-Ruf holt die Tastatur und gibt dem Feld die Schreibmarke zurueck', () => {
+// Echttest 15.09., Layoutrahmen 00001: die Schreibmarke blinkt im Feld, die
+// Tasten kommen trotzdem nicht an. Ein Fokuswechsel im Dokument holt sie nicht;
+// die Maske fragt den Wirt und laesst das Feld in Ruhe (kontrakte.md 13).
+test('der Fokus-Ruf fragt den Wirt nach der Tastatur und laesst die Schreibmarke stehen', () => {
   const fokusRuf = (): boolean => (g.basisHTML_DoSetFocusToHTML as () => boolean)()
   const feld = new (g.HTMLInputElement as new () => object)() as Record<string, unknown>
-  feld.focus = () => { fokussiert.push('feld'); dok.activeElement = feld }
+  feld.focus = () => { throw new Error('das Feld darf den Fokus nicht neu bekommen') }
 
   dok.activeElement = feld
-  fokussiert.length = 0
-  expect(fokusRuf(), 'SoftEngines Auto-Fokus darf die Schreibmarke nicht abraeumen').toBe(true)
-  expect(fokussiert, 'erst das Hilfsfeld, dann das Feld zurueck').toEqual(['hilfsfeld', 'hilfsfeld', 'feld'])
-  expect(dok.activeElement, 'die Schreibmarke steht wieder im Feld').toBe(feld)
+  wirtGefragt = 0
+  expect(fokusRuf(), 'SoftEngines Auto-Fokus raeumt die Schreibmarke ab und bleibt darum aus').toBe(true)
+  expect(wirtGefragt, 'der Wirt wurde nach der Tastatur gefragt').toBe(1)
+  expect(dok.activeElement, 'die Schreibmarke steht unveraendert im Feld').toBe(feld)
 
   dok.activeElement = null
 })
