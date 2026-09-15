@@ -192,7 +192,6 @@ function seConsume(raw: unknown): void {
 function registerSe(tries = 0): void {
   const g = seFenster()
   if (typeof g.basisHTML_REGISTER === 'function') {
-    try { g.basisHTML_SetConsoleLog?.(true, true) } catch { /* optional */ }
     try {
       g.basisHTML_REGISTER((data: unknown) => { seConsume(data) }, document.title, '1.0')
       return

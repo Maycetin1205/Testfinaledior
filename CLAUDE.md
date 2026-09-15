@@ -86,7 +86,7 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
 2. `bridge.ts` `frischeDatenAnfordern`: `ReloadInputJSON` gibt es in
    SoftEngine nur als Nachricht (`basisHTML_SND_MSG`), nicht als Funktion.
    Der Ruf laeuft heute ins Leere. Echttest noetig.
-3. `basisHTML_SetConsoleLog(true, true)` gehoert nicht in die fertige Maske.
+3. Erledigt: kein `basisHTML_SetConsoleLog(true, true)` mehr in der Maske.
 4. Startpaket: GET_RELATION-, REFRESH- und TABELLE-Bloecke in den SEvariablen
    als neue Quellenarten; DATASET ist beim Hersteller unbelegt und faellt.
 5. Nicht bauen: alle Artikel vorladen. ERPAPICALL deckelt bei 1000 Zeilen,
