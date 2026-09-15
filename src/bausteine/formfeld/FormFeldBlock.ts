@@ -9,7 +9,7 @@ import { vorschlagStil } from '../faehigkeiten/vorschlagListe'
 import { vorschlaegeImFensterStand } from '../faehigkeiten/nachschlagen'
 import { automatikSpalten } from '../faehigkeiten/nachschlagen'
 import { tasteVon, VorschlagStand } from '../faehigkeiten/vorschlagStand'
-import { eingabeStelleTpl } from '../shared/zellenEingabe'
+import { eingabeStelleTpl } from '../faehigkeiten/zellenEingabe'
 import { FELD_EIGENSCHAFTEN } from './feldEigenschaften'
 import {
   connectField,

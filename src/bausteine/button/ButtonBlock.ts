@@ -11,7 +11,7 @@ import {
   vormerkStandVon,
   vormerkSumme,
   type VormerkZahlen,
-} from '../shared/vormerkStand'
+} from '../faehigkeiten/vormerkStand'
 
 export class ButtonBlock extends Grundbaustein {
   static readonly typ = 'button'

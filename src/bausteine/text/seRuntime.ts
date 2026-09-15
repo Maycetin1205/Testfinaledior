@@ -2,7 +2,7 @@
 import { quelleIdVon } from '../faehigkeiten/quelle'
 import { bindungsAttr } from '../../kern/maske/faehigkeiten'
 import { macheDatenAnschluss } from '../faehigkeiten/quelle'
-import { leseGebundeneStelle } from '../shared/gebundeneStelle'
+import { leseGebundeneStelle } from '../faehigkeiten/gebundeneStelle'
 
 export interface RuntimeTextElement extends HTMLElement {
   text: string

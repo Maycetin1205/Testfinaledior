@@ -123,7 +123,6 @@ function bauplan() {
   const braucht = new Map([...dateienJeTeil.keys()].map((teil) => [teil, new Set()]))
 
   for (const [teil, dateien] of dateienJeTeil) {
-    if (teil === BASIS) continue
     for (const datei of dateien) {
       for (const { spec, namen } of importeVon(readFileSync(datei, 'utf8'))) {
         const ziel = aufloesen(spec, path.dirname(datei))
@@ -133,6 +132,12 @@ function bauplan() {
         }
         const zielTeil = eigen ? teilVon(ziel) : BASIS
         if (zielTeil === teil) continue
+        // Die Basis laeuft als Erstes; ein Modul aus einem Teil gaebe es da noch
+        // nicht, und die Maske bliebe weiss (Echttest 15.09.). anmeldung.ts
+        // meldet dem Editor alle Bausteine und kommt nie in die Maske.
+        if (teil === BASIS && !datei.endsWith('/bausteine/anmeldung.ts')) {
+          throw new Error(`${datei} holt "${spec}" aus dem Teil ${zielTeil}; die Basis darf nur Basis und Pakete laden.`)
+        }
         const hin = stelltHin.get(zielTeil)
         if (!hin.has(ziel)) hin.set(ziel, new Set())
         for (const name of namen) hin.get(ziel).add(name)

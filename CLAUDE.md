@@ -38,6 +38,11 @@ zeigt, IST der Export: dieselben Lit-Elemente rendern im Editor (Attribut
 - Pruefbuendel vor jedem Commit: `npm run check`, `npm run build:runtime`,
   `npm test`. `build:runtime` baut die Laufzeit in `src/export/generated/`;
   ohne den Lauf exportiert der Editor alten Code.
+- Starttest: `src/export/laufzeitStartet.test.ts` oeffnet die exportierte
+  Referenzmaske in einem Browser und verlangt: kein Fehler, jeder Baustein
+  angemeldet und gezeichnet. Nur er sieht eine weisse Maske; gruene
+  Bau-Tests allein sehen sie nicht. Braucht einmal `node
+  node_modules/playwright-core/cli.js install chromium-headless-shell`.
 - Referenzabzug: `src/export/referenzabzug.test.ts` vergleicht den Export einer
   festen Maske byte-gleich mit `src/export/referenz/`. Rot heisst: der Export
   hat sich geaendert. Gewollt: `REFERENZ_ERNEUERN=1 npx vitest run

@@ -1,10 +1,10 @@
 // Warum eine gebundene Stelle leer bleibt, in Worten fuer den Bediener.
-import { quelleIdVon } from '../faehigkeiten/quelle'
+import { quelleIdVon } from './quelle'
 import { zerlegeBindung } from '../../kern/maske/bausteinArt'
 import { feldLesen, type LaufzeitQuelle } from '../../softengine/data'
 import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
-import { ersteZeileNachAuswahl } from '../faehigkeiten/auswahl'
-import { macheFeldLeser } from '../faehigkeiten/fremdeQuellen'
+import { ersteZeileNachAuswahl } from './auswahl'
+import { macheFeldLeser } from './fremdeQuellen'
 
 export type GebundeneStelle =
 

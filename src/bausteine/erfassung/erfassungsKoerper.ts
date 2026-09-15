@@ -1,7 +1,7 @@
 // Zeichnet, was die Erfassung an die Tabelle haengt: Tippzelle, Kreuz, erfasste Zeilen.
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import { eingabeStelleTpl, zellenKlasse } from '../shared/zellenEingabe'
+import { eingabeStelleTpl, zellenKlasse } from '../faehigkeiten/zellenEingabe'
 import { alsZahl } from '../faehigkeiten/sortierung'
 import type { Spalte } from '../faehigkeiten/spalten'
 import type { ZeilenBearbeitung } from './zeilenBearbeitung'

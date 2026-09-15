@@ -2,7 +2,7 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import type { Vorschlag } from '../faehigkeiten/vorschlagListe'
-import { eingabeStelleTpl, zellenKlasse } from '../shared/zellenEingabe'
+import { eingabeStelleTpl, zellenKlasse } from '../faehigkeiten/zellenEingabe'
 import { fensterSpaltenOder } from '../faehigkeiten/nachschlagen'
 import { alsZahl } from '../faehigkeiten/sortierung'
 import { ZELLE_PLATZHALTER, type Spalte } from '../faehigkeiten/spalten'

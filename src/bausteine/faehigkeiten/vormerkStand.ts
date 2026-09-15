@@ -6,7 +6,7 @@ import type {
   LoeschTraegerElement,
   VormerkArt,
 } from '../../kern/maske/faehigkeiten'
-import { sucheTraeger } from '../faehigkeiten/ereignisse'
+import { sucheTraeger } from './ereignisse'
 
 export const VORMERK_EVENT = 'ff-vormerkungen'
 

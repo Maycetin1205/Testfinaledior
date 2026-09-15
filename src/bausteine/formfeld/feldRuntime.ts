@@ -3,7 +3,7 @@ import { bindungsAttr } from '../../kern/maske/faehigkeiten'
 import { satzIndexVon, feldSchreiben } from '../../softengine/data'
 import { geberIdVon, klareAuswahl, setzeAuswahl } from '../faehigkeiten/auswahl'
 import { macheDatenAnschluss } from '../faehigkeiten/quelle'
-import { leseGebundeneStelle } from '../shared/gebundeneStelle'
+import { leseGebundeneStelle } from '../faehigkeiten/gebundeneStelle'
 import { meldeKettenFehler, runEvent } from '../faehigkeiten/ereignisse'
 
 export interface RuntimeFieldElement extends HTMLElement {

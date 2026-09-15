@@ -1,6 +1,6 @@
 // Vormerkungen an gebuchten Zeilen: Zellwerte aendern, Zeilen zum Loeschen merken.
 import type { Lieferung, VormerkArt } from '../../kern/maske/faehigkeiten'
-import { geheInZelle, zellenFelder } from '../shared/zellenEingabe'
+import { geheInZelle, zellenFelder } from '../faehigkeiten/zellenEingabe'
 import { ergaenzeZeile, ergebnisPlaetze, type Berechnung } from '../../kern/daten/berechnung'
 import { zeilenIndexVon } from '../faehigkeiten/zeilenAnschluss'
 import { alsZahl } from '../faehigkeiten/sortierung'
