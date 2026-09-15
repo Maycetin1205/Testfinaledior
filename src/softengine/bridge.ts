@@ -245,36 +245,6 @@ function autoFokusOhneVerlust(): void {
   if (vorher instanceof HTMLElement) vorher.focus()
 }
 
-// NUR FUER DIE FEHLERSUCHE 15.09., kommt nach dem Echttest wieder raus: sagt in
-// der Konsole, wer die Schreibmarke nimmt und ob Tasten die Maske erreichen.
-function fehlersucheFokus(): void {
-  const wo = (el: unknown): string => (el instanceof HTMLElement ? `${el.nodeName}#${el.id || '-'}` : String(el))
-  const stand = (): string => `hasFocus=${document.hasFocus()} aktiv=${wo(tiefstesAktives())}`
-  console.log(`[fokus] Maske bereit, imRahmen=${window.top !== window} ${stand()}`)
-
-  const alt = seFenster().basisHTML_DoSetFocusToHTML as (() => boolean) | undefined
-  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => {
-    console.log(`[fokus] WWFOC vom Wirt, ${stand()}`)
-    return alt ? alt() : true
-  }
-  const altAuto = seFenster().basis_HTML_DoSetAutoFocus as (() => void) | undefined
-  seFenster().basis_HTML_DoSetAutoFocus = (): void => {
-    console.log(`[fokus] Auto-Fokus gerufen, ${stand()}`)
-    altAuto?.()
-  }
-
-  window.addEventListener('keydown', (e) => { console.log(`[fokus] Taste "${e.key}" kommt an, ${stand()}`) }, true)
-  window.addEventListener('focusin', (e) => { console.log(`[fokus] + ${wo(e.target)}`) }, true)
-  window.addEventListener('focusout', (e) => { console.log(`[fokus] - ${wo(e.target)} -> ${wo(document.activeElement)}`) }, true)
-  if (document.body) {
-    new MutationObserver((listen) => {
-      for (const l of listen) {
-        for (const k of l.addedNodes) if (k instanceof HTMLElement && k.id === 'AFELM') console.log('[fokus] SoftEngines eigenes AFELM ist da — seine Fassung laeuft, nicht unsere')
-      }
-    }).observe(document.body, { childList: true })
-  }
-}
-
 let booted = false
 
 export function starteSe(): void {
@@ -291,7 +261,6 @@ export function starteSe(): void {
   g.initData = g.Erstellen
   g.ReloadData = () => { klingeln(datenSindNeu()) }
   fokusBrueckeBauen()
-  fehlersucheFokus()
   registerSe()
 
   window.addEventListener('message', (evt) => {
