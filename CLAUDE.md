@@ -99,12 +99,9 @@ Punkte 1 bis 5 im Browser belegt am 15.09.:
    Erfassung beantwortete SoftEngines Fokus-Ruf ungeprueft mit "erledigt",
    damit blieb `basis_HTML_DoSetAutoFocus()` aus, das dem WebView als
    einziges die Tastatur gibt (kontrakte.md 13). Der Ruf gehoert nicht in
-   einen Baustein: die Bruecke antwortet selbst. Dritter Anlauf 15.09.: weder
-   "erledigt" (keine Tastatur) noch "nicht erledigt" (Tastatur da, Schreibmarke
-   weg) reicht, darum holt die Bruecke die Tastatur mit einem eigenen Hilfsfeld
-   und gibt die Schreibmarke im selben Schritt zurueck (`tastaturHolen`).
-   `SE_FOKUS_EVENT` und `nimmSeFokus` sind weg; Insert springt weiter in die
-   Erfassungszeile.
+   einen Baustein: die Bruecke antwortet jetzt selbst mit `fokusBeiUns()`,
+   `SE_FOKUS_EVENT` und `nimmSeFokus` sind weg. Dafuer springt der Fokus aus
+   dem ERP nicht mehr in die Erfassungszeile; Insert tut es weiter.
 2. Entfernen, Duplizieren und Rueckgaengig wirken bei offenem Datencenter
    auf den Baustein dahinter (`useKeyboardShortcuts.ts`). Sie halten sich wie
    Escape an `fensterOffen()`. Popup-Bausteine auf der Flaeche bleiben davon

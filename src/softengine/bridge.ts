@@ -214,35 +214,11 @@ function registerSe(tries = 0): void {
   }
 }
 
-// Echttest 15.09.: der Klick setzt die Schreibmarke, sie verschwindet gleich
-// wieder. Genau das tut SoftEngines Auto-Fokus — er entfernt sein Hilfsfeld
-// wieder, danach haelt nichts mehr den Fokus (kontrakte.md 13).
+// Steht die Schreibmarke schon auf der Maske, bleibt sie dort. Sonst antwortet
+// die Maske nicht, damit SoftEngines Auto-Fokus laeuft: nur der gibt dem
+// WebView die Tastatur (kontrakte.md 13).
 function fokusBrueckeBauen(): void {
-  bruecke()
-  // Ein spaeter geladenes SoftEngine-Skript erklaert beide Funktionen neu und
-  // waere damit wieder die alte Fassung; darum vor jedem Klick noch einmal.
-  document.addEventListener('pointerdown', () => { bruecke(); tastaturHolen() }, true)
-}
-
-function bruecke(): void {
-  const wirt = seFenster()
-  wirt.basisHTML_DoSetFocusToHTML = (): boolean => { tastaturHolen(); return true }
-  wirt.basis_HTML_DoSetAutoFocus = (): void => { autoFokusOhneVerlust() }
-}
-
-// Die Tastatur hat der Wirt, nicht das Dokument; eine Seite kann ihn nur danach
-// fragen. Ein Fokuswechsel im HTML holt sie nicht (Echttest 15.09.).
-function tastaturHolen(): void {
-  window.focus()
-  try { if (window.top !== null && window.top !== window) window.top.focus() } catch { /* fremder Ursprung */ }
-}
-
-// Falls SoftEngines Auto-Fokus doch gerufen wird: derselbe Zweck, aber das Feld
-// behaelt die Schreibmarke.
-function autoFokusOhneVerlust(): void {
-  const vorher = tiefstesAktives()
-  tastaturHolen()
-  if (vorher instanceof HTMLElement) vorher.focus()
+  seFenster().basisHTML_DoSetFocusToHTML = (): boolean => fokusBeiUns()
 }
 
 let booted = false
