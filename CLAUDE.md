@@ -52,7 +52,11 @@ laufenden Schritt gehoert.
 2. Kern. Erledigt.
 3. **Bausteine, die Tabelle zuerst als Muster.** Danach die uebrigen
    Bausteine genau so.
-4. Editor: Flaeche, Palette, Inspector, Datencenter, Design.
+4. Editor: Flaeche, Palette, Inspector, Datencenter, Design. Wuensche des
+   Nutzers dazu: Datencenter und Berechnungen nicht als Vollbild, sondern
+   neben der Flaeche, damit die Maske sichtbar bleibt. Eine Standardgroesse
+   fuer alle Suchfenster gehoert zur Maske (Datencenter), das einzelne Feld
+   erbt sie und darf abweichen; dazu "Fuer alle uebernehmen".
 5. Ausmisten: Tests und Dateien, die niemand mehr braucht.
 
 Was die Tabelle als Muster heisst:
