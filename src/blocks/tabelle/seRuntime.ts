@@ -1,8 +1,8 @@
 // Die Tabelle am SoftEngine-Datenstrom: anmelden, Zeilen ableiten, Satznummer lesen.
 import type { GesendeteZeilenElement } from '../../core/blocks/BlockDefinition'
 import { definitionFuerTag } from '../../core/blocks/blockRegistry'
-import { seGlobal } from '../../softengine/bridge'
-import { findRuntimeDataSource, satzIndexVon } from '../../softengine/data'
+import { satzIndexVon } from '../../softengine/data'
+import { laufzeitQuelle } from '../../softengine/laufzeitQuellen'
 import { auswahlWiederfinden, geberIdVon, merkmalVon, zeilenNachAuswahl } from '../shared/auswahl'
 import { macheDatenAnschluss } from '../shared/datenAnschluss'
 import { holeDatenVorspann, type DatenVorspann } from '../shared/datenVorspann'
@@ -62,10 +62,7 @@ export function zeileGerechnet(
 }
 
 export function zeilenIndexVon(el: HTMLElement, rohzeile: unknown): string {
-  const source = findRuntimeDataSource(
-    seGlobal().FF_DATA_SOURCES,
-    el.getAttribute('source') ?? '',
-  )
+  const source = laufzeitQuelle(el.getAttribute('source') ?? '')
   return source ? satzIndexVon(source, rohzeile) : ''
 }
 
@@ -76,10 +73,7 @@ export function zeilenMerkmalVon(el: HTMLElement, rohzeile: unknown): string {
 }
 
 export function hatSatzNummer(el: HTMLElement): boolean {
-  const source = findRuntimeDataSource(
-    seGlobal().FF_DATA_SOURCES,
-    el.getAttribute('source') ?? '',
-  )
+  const source = laufzeitQuelle(el.getAttribute('source') ?? '')
   return source !== undefined && source.indexField !== ''
 }
 

@@ -21,64 +21,10 @@ import {
   resolveParams,
   type RelationContext,
 } from '../../core/data/relations'
-import { bootSe, frischeDatenAnfordern, seGlobal } from '../../softengine/bridge'
+import { sendeBwLink, sendeStartTool } from '../../softengine/befehle'
+import { bootSe, frischeDatenAnfordern } from '../../softengine/bridge'
 import { meldeFehler } from '../../softengine/meldung'
-import {
-  executeRelation,
-  findRuntimeRelation,
-  resolveActionParam,
-} from '../../softengine/relations'
-
-function buildStartToolLink(nr: string, params: readonly string[]): string {
-  let link = '0,START_TOOL,' + nr
-  if (params.length > 0) {
-    link += ',' + params.map((p) => encodeURIComponent(p)).join(',')
-  }
-  return link
-}
-
-// Beide Sende-Wege sagen, ob der Ruf HINAUSGING: schluckten sie den Fehler,
-// liefe die Kette weiter, als stuende das Werkzeug schon.
-function seBwLink(befehl: string): boolean {
-  const zeile = befehl.trim()
-  if (zeile === '') return false
-  const g = seGlobal()
-  try {
-    if (typeof g.sendBWLink === 'function') {
-      g.sendBWLink(zeile)
-      return true
-    }
-  } catch { /* faellt auf den internen Weg zurueck */ }
-  try {
-    if (typeof g.sendBWLinkIntern === 'function') {
-      g.sendBWLinkIntern(zeile)
-      return true
-    }
-  } catch { /* nicht in SE */ }
-  return false
-}
-
-// Die Nachricht traegt die Parameter, der BW-Link wirft sie weg: darum erst der
-// Nachrichten-Weg und nur ohne ihn der Link.
-function seStartTool(nr: string, params: readonly string[]): boolean {
-  if (nr.trim() === '') return false
-  const g = seGlobal()
-  try {
-    if (typeof g.basisHTML_SND_MSG === 'function') {
-      const obj: Record<string, unknown> = { NR: nr }
-      if (params.length > 0) obj.PARAMS = [...params]
-      g.basisHTML_SND_MSG('START_TOOL', obj)
-      return true
-    }
-  } catch { /* faellt auf den Link zurueck */ }
-  try {
-    if (typeof g.sendBWLinkIntern === 'function') {
-      g.sendBWLinkIntern(buildStartToolLink(nr, params))
-      return true
-    }
-  } catch { /* nicht in SE */ }
-  return false
-}
+import { executeRelation, laufzeitRelation, resolveActionParam } from '../../softengine/relations'
 
 export function applyPopupStep(root: ParentNode, name: string, oeffnen: boolean): void {
   if (name.trim() === '') return
@@ -226,7 +172,7 @@ export async function laufeSchritte(
   for (const [platz, step] of steps.entries()) {
     if (nur && !nur.has(platz)) continue
     if (step.type === 'START_TOOL') {
-      if (!seStartTool(step.toolNr, resolveParams({ params: step.toolParams }, values))) {
+      if (!sendeStartTool(step.toolNr, resolveParams({ params: step.toolParams }, values))) {
         const text = step.toolNr.trim() === ''
           ? `Schritt ${platz + 1} der Kette: START_TOOL ohne Werkzeug-Nummer.`
           : `Schritt ${platz + 1} der Kette: START_TOOL ${step.toolNr} ging nicht hinaus `
@@ -238,7 +184,7 @@ export async function laufeSchritte(
     }
     if (step.type === 'BW_LINK') {
       const befehl = resolveParams({ params: [step.befehl] }, values)[0] ?? ''
-      if (!seBwLink(befehl)) {
+      if (!sendeBwLink(befehl)) {
         const text = befehl.trim() === ''
           ? `Schritt ${platz + 1} der Kette: BW_LINK ohne Befehl.`
           : `Schritt ${platz + 1} der Kette: BW_LINK ging nicht hinaus — keine Verbindung zu SoftEngine.`
@@ -251,7 +197,7 @@ export async function laufeSchritte(
       applyPopupStep(el.ownerDocument ?? document, step.popup ?? '', step.type === 'POPUP_OPEN')
       continue
     }
-    const relation = findRuntimeRelation(seGlobal().FF_RELATIONS, step.relationId)
+    const relation = laufzeitRelation(step.relationId)
       // Ihn zu ueberspringen hiesse, die Schritte dahinter auf ein Ergebnis zu
       // setzen, das nie kam — still.
     if (!relation) {

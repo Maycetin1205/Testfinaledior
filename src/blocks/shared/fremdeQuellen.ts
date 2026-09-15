@@ -1,6 +1,6 @@
 // Die weiteren Quellen eines Bausteins: welcher Satz zu einer Zeile gehoert.
-import { seGlobal } from '../../softengine/bridge'
-import { findRuntimeDataSource, getField, rowsFor } from '../../softengine/data'
+import { getField } from '../../softengine/data'
+import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { WEITERE_QUELLEN_PROP, type SchluesselPaar } from '../../core/data/sourceLinks'
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
 import { paarListeAusAttribut } from './paarListe'
@@ -45,16 +45,13 @@ export function macheFeldLeser(el: HTMLElement): FeldLeser {
   const weitere = verknuepfungenVon(el)
   if (weitere.length === 0) return (row, wert) => getField(row, zerlegeBindung(wert).code)
 
-  const sedata = seGlobal().SEDATA
-  const quellenListe = seGlobal().FF_DATA_SOURCES
   const nachschlag = new Map<string, Nachschlag>()
 
   for (const q of weitere) {
     if (q.keyPairs.length === 0) continue
-    const source = findRuntimeDataSource(quellenListe, q.quelleId)
-
+    const source = laufzeitQuelle(q.quelleId)
     if (!source) continue
-    const zeilen = rowsFor(sedata, source.name, source.tableId, source.offenerSatz)
+    const zeilen = zeilenDerQuelle(source)
     const nachSchluessel = new Map<string, unknown>()
     for (const zeile of zeilen) {
       const key = schluesselAus(q.keyPairs.map((p) => getField(zeile, p.toField)))

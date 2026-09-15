@@ -70,6 +70,20 @@ export default defineConfig([
       '@typescript-eslint/no-floating-promises': 'error',
     },
   },
+  // Regel 4: nur src/softengine kennt die Globals. Ein Baustein bekommt Daten
+  // ueber benannte Funktionen (laufzeitQuellen, befehle, relations).
+  {
+    files: ['src/blocks/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['**/softengine/bridge'],
+          importNames: ['seGlobal'],
+          message: 'Bausteine fassen SoftEngine nur durch die Tuer an.',
+        }],
+      }],
+    },
+  },
   restrictCoreImports(['src/core/*.{ts,tsx}'], 1),
   restrictCoreImports(['src/core/*/*.{ts,tsx}'], 2),
   restrictCoreImports(['src/core/*/*/*.{ts,tsx}'], 3),

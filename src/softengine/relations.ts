@@ -30,6 +30,10 @@ function fehlertext(error: unknown): string {
 
 export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'params'>
 
+export function laufzeitRelation(id: string): RuntimeRelation | undefined {
+  return findRuntimeRelation(seGlobal().FF_RELATIONS, id)
+}
+
 export function findRuntimeRelation(list: unknown, id: string): RuntimeRelation | undefined {
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {

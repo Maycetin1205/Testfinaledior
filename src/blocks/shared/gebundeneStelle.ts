@@ -1,12 +1,7 @@
 // Warum eine gebundene Stelle leer bleibt, in Worten fuer den Bediener.
 import { zerlegeBindung } from '../../core/blocks/BlockDefinition'
-import { seGlobal } from '../../softengine/bridge'
-import {
-  findRuntimeDataSource,
-  getField,
-  rowsFor,
-  type RuntimeDataSource,
-} from '../../softengine/data'
+import { getField, type RuntimeDataSource } from '../../softengine/data'
+import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { ersteZeileNachAuswahl } from './auswahl'
 import { macheFeldLeser } from './fremdeQuellen'
 
@@ -34,13 +29,10 @@ export function leseGebundeneStelle(el: HTMLElement, bindungsAttr: string): Gebu
   const code = el.getAttribute(bindungsAttr) ?? ''
   if (sourceId === '' || code === '') return { art: 'ungebunden' }
 
-  const quelle = findRuntimeDataSource(seGlobal().FF_DATA_SOURCES, sourceId)
+  const quelle = laufzeitQuelle(sourceId)
   if (!quelle) return { art: 'ohneQuelle' }
 
-  const zeile = ersteZeileNachAuswahl(
-    el,
-    rowsFor(seGlobal().SEDATA, quelle.name, quelle.tableId, quelle.offenerSatz),
-  )
+  const zeile = ersteZeileNachAuswahl(el, zeilenDerQuelle(quelle))
   if (zeile === undefined) return { art: 'ohneZeile' }
 
   const { quelleId, code: reinerCode } = zerlegeBindung(code)

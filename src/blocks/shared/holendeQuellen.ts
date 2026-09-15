@@ -4,8 +4,8 @@ import { getAllBlockDefinitions } from '../../core/blocks/blockRegistry'
 import { propertySichtbar } from '../../core/blocks/PropertyDescription'
 import { QUELLE_PROP } from '../../core/blocks/quelleProp'
 import { ACTION_VALUE_ID_ATTR } from '../../core/data/aktionen'
-import { hasSeData, onSeDaten, seGlobal } from '../../softengine/bridge'
-import { findRuntimeDataSource, isRecord } from '../../softengine/data'
+import { hasSeData, onSeDaten } from '../../softengine/bridge'
+import { laufzeitQuellen } from '../../softengine/laufzeitQuellen'
 import { meldeFehler } from '../../softengine/meldung'
 import { ladeZeilenPerRelation } from '../../softengine/relationLader'
 import { holeWertQuelle } from '../../softengine/wertLader'
@@ -96,13 +96,9 @@ export function darfLaden(quelleId: string, abdruck: string, durchBedienung: boo
 }
 
 function pruefeHolendeQuellen(durchBedienung: boolean): void {
-  const liste: unknown = seGlobal().FF_DATA_SOURCES
-  if (!Array.isArray(liste)) return
   const defsJeTag = defsMitSatzWahl()
-  for (const eintrag of liste) {
-    if (!isRecord(eintrag) || typeof eintrag.id !== 'string') continue
-    const quelle = findRuntimeDataSource(liste, eintrag.id)
-    if (!quelle?.ladeRelation) continue
+  for (const quelle of laufzeitQuellen()) {
+    if (!quelle.ladeRelation) continue
     const { zeile, geber } = gewaehlteZeileDerQuelle(quelle.id, defsJeTag)
     // Ohne Geber wartet die Quelle auf einen Klick, den es nie gibt. Still
     // bliebe die Tabelle leer und niemand saehe warum.
@@ -125,12 +121,8 @@ function pruefeHolendeQuellen(durchBedienung: boolean): void {
 // Die Quellen, die EINEN Wert holen. Sie haengen an keiner Auswahl: ihr Anlass
 // ist eine neue Lieferung von SoftEngine.
 function holeWertQuellen(): void {
-  const liste: unknown = seGlobal().FF_DATA_SOURCES
-  if (!Array.isArray(liste)) return
-  for (const eintrag of liste) {
-    if (!isRecord(eintrag) || typeof eintrag.id !== 'string') continue
-    const quelle = findRuntimeDataSource(liste, eintrag.id)
-    if (!quelle?.holWert) continue
+  for (const quelle of laufzeitQuellen()) {
+    if (!quelle.holWert) continue
     holeWertQuelle(quelle, quelle.holWert)
   }
 }

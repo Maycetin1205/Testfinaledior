@@ -1,6 +1,6 @@
 // Der eine Einstieg jeder Datenanzeige: Quelle finden, Zeilen holen, Feldleser bauen.
-import { seGlobal } from '../../softengine/bridge'
-import { findRuntimeDataSource, rowsFor, type RuntimeDataSource } from '../../softengine/data'
+import type { RuntimeDataSource } from '../../softengine/data'
+import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { macheFeldLeser, type FeldLeser } from './fremdeQuellen'
 import { gewaehlterTag } from './gewaehlterTag'
 import { zeilenAmTag } from './tagFilter'
@@ -17,10 +17,10 @@ export interface DatenVorspann {
 export function holeDatenVorspann(el: HTMLElement): DatenVorspann | null {
   const sourceId = el.getAttribute('source') ?? ''
   if (sourceId === '') return null
-  const quelle = findRuntimeDataSource(seGlobal().FF_DATA_SOURCES, sourceId)
+  const quelle = laufzeitQuelle(sourceId)
   if (!quelle) return null
   const zeilen = zeilenAmTag(
-    rowsFor(seGlobal().SEDATA, quelle.name, quelle.tableId, quelle.offenerSatz),
+    zeilenDerQuelle(quelle),
     el.getAttribute('tagfield') ?? '',
     gewaehlterTag(),
   )

@@ -1,8 +1,8 @@
 // Das Nachschlage-Fenster: dieselbe Flaeche fuer die Editor-Lupe und die Laufzeit-Wahl.
 import { html, render, type TemplateResult } from 'lit'
 import type { ListenBindung } from '../../core/blocks/listenBindung'
-import { seGlobal } from '../../softengine/bridge'
-import { findRuntimeDataSource, getField, rowsFor } from '../../softengine/data'
+import { getField } from '../../softengine/data'
+import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { meldeFehler } from '../../softengine/meldung'
 import { zeilenNachAuswahl } from '../shared/auswahl'
 import {
@@ -159,9 +159,9 @@ export type EintraegeErgebnis =
 // NICHT die Auswahl-Folgen ihres Bausteins — die wuerden jeden Nachschlage-Satz
 // wegfiltern.
 export function quellenZeilen(quelleId: string): unknown[] | null {
-  const quelle = findRuntimeDataSource(seGlobal().FF_DATA_SOURCES, quelleId)
+  const quelle = laufzeitQuelle(quelleId)
   if (!quelle) return null
-  return rowsFor(seGlobal().SEDATA, quelle.name, quelle.tableId, quelle.offenerSatz)
+  return zeilenDerQuelle(quelle)
 }
 
 export function holeEintraege(e: NachschlagEinstellung): EintraegeErgebnis {
