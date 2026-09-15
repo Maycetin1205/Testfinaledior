@@ -58,6 +58,5 @@ export interface BausteinArt {
   kindKnopf?: { label: string; childType: string }
   seite?: boolean
   flaechenSeite?: boolean
-  maskenRand?: boolean
   raster?: Partial<RasterMass>
 }

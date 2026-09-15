@@ -43,17 +43,6 @@ export function ZeichenPopup(p: Props): ReactElement {
   ], p)
 }
 
-export function ZeichenNavi(p: Props): ReactElement {
-  return rahmen([
-    <rect key="g" x="2.4" y="3.6" width="19.2" height="16.8" rx="2" {...U} fill={PAPIER} />,
-    <rect key="l" x="2.4" y="3.6" width="8" height="16.8" rx="2" fill={ESPRESSO} stroke="none" />,
-    <rect key="a" x="3.6" y="6" width="5.6" height="3.2" fill={KORALLE} stroke="none" />,
-    <line key="e2" x1="4.4" y1="12.2" x2="8.4" y2="12.2" stroke={SAND} strokeWidth="1.6" />,
-    <line key="e3" x1="4.4" y1="15.6" x2="8.4" y2="15.6" stroke={SAND} strokeWidth="1.6" />,
-    <rect key="u" x="2.4" y="3.6" width="19.2" height="16.8" rx="2" {...U} />,
-  ], p)
-}
-
 export function ZeichenFormularfeld(p: Props): ReactElement {
   return rahmen([
     <rect key="g" x="2.4" y="7.4" width="19.2" height="9.2" rx="2" {...U} fill={PAPIER} />,

@@ -55,7 +55,6 @@ function beschreibe(BlockClass: BausteinKlasse): void {
     faehigkeiten: faehig.faehigkeiten,
     seite: BlockClass.seite,
     flaechenSeite: BlockClass.flaechenSeite,
-    maskenRand: BlockClass.maskenRand,
     raster: BlockClass.raster,
   })
 }

@@ -1,8 +1,6 @@
 // Die Leinwand: die Maskenflaeche im Editor mit ihren Seiten.
 import { useCallback, useMemo, useState, type DragEvent } from 'react'
-import { WURZEL_ID } from '../../kern/maske/baum'
 import { WURZEL_FLUSS } from '../../kern/maske/fluss'
-import { randPlatzLinks } from '../../kern/maske/maskenRand'
 import { rasterFlaecheStil, rasterPlatzStil } from '../../kern/maske/raster'
 import { useEditor } from '../zustand/useEditor'
 import { NodeList } from './CanvasNode'
@@ -41,8 +39,6 @@ export function Canvas() {
   const aktiveSeite = ed.pages.find((p) => p.id === ed.activePageId)
   const flaeche = aktiveSeite?.istFlaeche ?? true
 
-  const randLinks = randPlatzLinks(ed.tree)
-
   return (
     <DndContext.Provider value={dnd}>
       <div className="flex h-full w-full flex-col">
@@ -66,7 +62,6 @@ export function Canvas() {
             style={{
               ...rasterFlaecheStil(),
               padding: WURZEL_FLUSS.padding,
-              paddingLeft: WURZEL_FLUSS.padding + randLinks,
               boxSizing: 'border-box',
               background: 'var(--se-bg)',
             }}
@@ -82,10 +77,6 @@ export function Canvas() {
             }}
           >
             {flaeche && <NodeList parentId={ed.rootId} direction="column" raster />}
-
-            {flaeche && ed.rootId !== WURZEL_ID && (
-              <NodeList parentId={WURZEL_ID} direction="column" raster nurRand />
-            )}
 
             {flaeche && dropTarget?.kind === 'raster' && dropTarget.parentId === ed.rootId && (
               <div

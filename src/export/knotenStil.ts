@@ -8,7 +8,6 @@ import {
   type Richtung,
   type FlussBreite,
 } from '../kern/maske/fluss'
-import { istRandBaustein, randStil } from '../kern/maske/maskenRand'
 import { rasterPlatzLesen, rasterPlatzStil } from '../kern/maske/raster'
 import { stilAlsCss } from '../kern/maske/stilCss'
 import { escapeHtmlAttr } from './serializer'
@@ -23,8 +22,6 @@ export function styleAttr(
   let style: Record<string, string | number>
   if (istPage) {
     style = {}
-  } else if (istRandBaustein(node)) {
-    style = randStil()
   } else if (rasterEbene) {
     style = rasterPlatzStil(rasterPlatzLesen(node.werte))
   } else {

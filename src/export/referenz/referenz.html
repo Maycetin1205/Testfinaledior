@@ -81,7 +81,7 @@
 
 /* Grundgeruest + Wurzel-Raster (identisch zum Editor-Canvas, rasterFlaecheStil) */
 html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
-.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto; background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink); display:grid;grid-template-columns:repeat(48, 1fr);grid-auto-rows:12px;gap:4px;align-content:start; padding: 16px 16px 16px 72px; }
+.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto; background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink); display:grid;grid-template-columns:repeat(48, 1fr);grid-auto-rows:12px;gap:4px;align-content:start; padding: 16px; }
 .ff-root * { font-family: inherit; font-size: inherit; }
 </style>
 </head>
@@ -101,9 +101,6 @@ html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
         <ff-kanban-zimmer heading="Zimmer 1" wert="Z1" style="align-self:stretch"></ff-kanban-zimmer>
       </ff-kanban-spalte>
     </ff-kanban>
-    <ff-navi fuellt style="position:absolute;left:0;top:0;bottom:0;z-index:5">
-      <ff-navi-eintrag></ff-navi-eintrag>
-    </ff-navi>
     <ff-text data-ff-hauptinhalt fuellt style="grid-column:35 / span 14;grid-row:1 / span 3;min-width:0;min-height:0"></ff-text>
     <ff-datum data-ff-hauptinhalt fuellt style="grid-column:1 / span 10;grid-row:1 / span 3;min-width:0;min-height:0"></ff-datum>
     <ff-trenner richtung="senkrecht" stil="dashed" staerke="2" farbe="akzent" data-ff-hauptinhalt fuellt style="grid-column:19 / span 2;grid-row:26 / span 12;min-width:0;min-height:0"></ff-trenner>

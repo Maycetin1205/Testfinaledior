@@ -311,7 +311,7 @@ steht hier nur als Wissen:
 - Echttest 2026-08-12: ohne das Sicht-Attribut lagen zwei
   Flächen **übereinander** — im Editor unsichtbar, in SoftEngine kaputt.
   Wer es entfernt, bricht die Ansichten.
-- Gilt in: `bausteine/grund/Grundbaustein.ts`, `bausteine/navi/seRuntime.ts`.
+- Gilt in: `bausteine/grund/Grundbaustein.ts`.
 
 ## 15. Optik-Belege aus den echten Masken
 

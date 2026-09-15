@@ -1,4 +1,4 @@
-// Baustein Ansicht: eine Seite der Maske, zwischen denen die Navi umschaltet.
+// Baustein Ansicht: eine Seite der Maske.
 import { css, html, type TemplateResult } from 'lit'
 import { Grundbaustein } from '../grund/Grundbaustein'
 import type { Kategorie } from '../../kern/maske/bausteinElement'

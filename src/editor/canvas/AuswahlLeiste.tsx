@@ -19,8 +19,6 @@ interface AuswahlLeisteProps {
 
   wirt: RefObject<HTMLElement | null>
 
-  // Randbausteine (Navi) fuellen die Hoehe: dort liegt die Leiste innen.
-  amRand: boolean
   onEntfernen?: () => void
 }
 
@@ -42,14 +40,14 @@ function clipEltern(el: HTMLElement): HTMLElement | null {
 // Ueber dem Baustein, sonst darunter, bei schmalem Baustein rechts daneben,
 // zuletzt innen unten rechts. Gemessen gegen den naechsten rollenden Vorfahren,
 // denn der schneidet jeden Ueberhang ab.
-function lageFuer(el: HTMLElement | null, amRand: boolean): Lage {
+function lageFuer(el: HTMLElement | null): Lage {
   if (el === null) return 'innen'
   const r = el.getBoundingClientRect()
   const clip = clipEltern(el)
   const grenze = clip
     ? clip.getBoundingClientRect()
     : { top: 0, bottom: window.innerHeight, right: window.innerWidth }
-  if (!amRand && r.width >= BREITE) {
+  if (r.width >= BREITE) {
     if (r.top - LEISTE >= grenze.top) return 'oben'
     if (r.bottom + LEISTE <= grenze.bottom) return 'unten'
   }
@@ -68,7 +66,7 @@ const halt = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
 // Zeichnete die Tabelle eigene Knoepfe in die Maske, staenden sie bei schmalen
 // Spalten ueber den Titeln.
-export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: AuswahlLeisteProps) {
+export function AuswahlLeiste({ block, def, wirt, onEntfernen }: AuswahlLeisteProps) {
   const editor = useEditorInstance()
   const [gestalten, setGestalten] = useState(false)
   const anker = useRef<HTMLButtonElement>(null)
@@ -83,8 +81,8 @@ export function AuswahlLeiste({ block, def, wirt, amRand, onEntfernen }: Auswahl
   const leisteRef = useRef<HTMLDivElement | null>(null)
   useLayoutEffect(() => {
     const el = leisteRef.current
-    if (el) Object.assign(el.style, STIL[lageFuer(wirt.current, amRand)])
-  }, [wirt, amRand, block])
+    if (el) Object.assign(el.style, STIL[lageFuer(wirt.current)])
+  }, [wirt, block])
   const kind = def?.kindKnopf
   const liste = faehigkeit(def, 'liste')?.bindung
   const neu = liste?.eintragNeu

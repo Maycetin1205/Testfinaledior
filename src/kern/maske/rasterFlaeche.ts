@@ -2,7 +2,6 @@
 import { WURZEL_ID, type Baustein, type Maskenbaum } from './baum'
 import { neuerTeilbaum } from './neuerBaustein'
 import { darfEnthalten, bausteinArt } from './registry'
-import { istRandBaustein } from './maskenRand'
 import {
   naechsteFreieZeile,
   rasterPlatzLesen,
@@ -19,7 +18,6 @@ export function istRasterFlaeche(node: Baustein): boolean {
 export function freieZeileAuf(tree: Maskenbaum, parentId: string): number {
   return naechsteFreieZeile(
     kinderImFluss(tree, parentId)
-      .filter((n) => !istRandBaustein(n))
       .map((n) => rasterPlatzLesen(n.werte)),
   )
 }

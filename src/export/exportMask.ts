@@ -34,7 +34,6 @@ import {
   WURZEL_FLUSS,
   type Richtung,
 } from '../kern/maske/fluss'
-import { randPlatzLinks } from '../kern/maske/maskenRand'
 import { rasterFlaecheCss } from '../kern/maske/raster'
 import tokensCssRaw from '../design/maske.css?raw'
 import {
@@ -175,7 +174,7 @@ function nodeToHtml(
 
   const seitenAttr = def.flaechenSeite === true
     ? ` data-ff-seite-id="${escapeHtmlAttr(node.id)}"`
-    : node.elternId === WURZEL_ID && !def.seite && !def.maskenRand ? ' data-ff-hauptinhalt' : ''
+    : node.elternId === WURZEL_ID && !def.seite ? ' data-ff-hauptinhalt' : ''
   const verborgenAttr = def.flaechenSeite === true ? ' hidden' : ''
   const open = `${pad}<${def.tag}${attrs}${aktionenAttr}${kennungAttr}${seitenAttr}${fuelltAttr}${verborgenAttr}${styleAttr(node, parentDirection, def.festeBreite, rasterEbene, def.seite === true)}>`
   if (!def.nimmtKinder || node.kinderIds.length === 0) {
@@ -264,10 +263,7 @@ export function exportMask(
     }))) + ';',
   ))
 
-  const randLinks = randPlatzLinks(tree)
-  const wurzelPadding = randLinks === 0
-    ? `${WURZEL_FLUSS.padding}px`
-    : `${WURZEL_FLUSS.padding}px ${WURZEL_FLUSS.padding}px ${WURZEL_FLUSS.padding}px ${WURZEL_FLUSS.padding + randLinks}px`
+  const wurzelPadding = `${WURZEL_FLUSS.padding}px`
 
   const html = [
     '<!--SOFTENGINE-VAR!JWHtmlStart-->',

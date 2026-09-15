@@ -8,7 +8,6 @@ import {
   ZeichenKanban,
   ZeichenKanbanSpalte,
   ZeichenKarte,
-  ZeichenNavi,
   ZeichenPopup,
   ZeichenSchaltflaeche,
   ZeichenTabelle,
@@ -21,8 +20,6 @@ import { DatumBlock } from '../bausteine/datum/DatumBlock'
 import { FormFeldBlock } from '../bausteine/formfeld/FormFeldBlock'
 import { KanbanBlock } from '../bausteine/kanban/KanbanBlock'
 import { KanbanSpalteBlock } from '../bausteine/kanban/KanbanSpalteBlock'
-import { NaviBlock } from '../bausteine/navi/NaviBlock'
-import { NaviEintragBlock } from '../bausteine/navi/NaviEintragBlock'
 import { PopupBlock } from '../bausteine/popup/PopupBlock'
 import { TabelleBlock } from '../bausteine/tabelle/TabelleBlock'
 import { TextBlock } from '../bausteine/text/TextBlock'
@@ -36,8 +33,6 @@ const SYMBOLE = [
   [FormFeldBlock.typ, ZeichenFormularfeld],
   [KanbanBlock.typ, ZeichenKanban],
   [KanbanSpalteBlock.typ, ZeichenKanbanSpalte],
-  [NaviBlock.typ, ZeichenNavi],
-  [NaviEintragBlock.typ, ZeichenNavi],
   [PopupBlock.typ, ZeichenPopup],
   [TabelleBlock.typ, ZeichenTabelle],
   [TextBlock.typ, ZeichenText],

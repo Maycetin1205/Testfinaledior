@@ -93,7 +93,7 @@ function knoten(
 export function referenzBaum(): Maskenbaum {
   const tree: Maskenbaum = {
     [WURZEL_ID]: knoten(WURZEL_ID, WURZEL_TYP, null, {}, [
-      't1', 't2', 'f1', 'b1', 'k1', 'n1', 'tx1', 'd1', 'tr1', 'p1',
+      't1', 't2', 'f1', 'b1', 'k1', 'tx1', 'd1', 'tr1', 'p1',
     ]),
     t1: knoten('t1', 'erfassung', WURZEL_ID, {
       rasterX: 0, rasterY: 3, rasterW: 16, rasterH: 22,
@@ -146,8 +146,6 @@ export function referenzBaum(): Maskenbaum {
       heading: 'Offen', wert: 'ART-B', variant: 'info',
     }, ['kz1']),
     kz1: knoten('kz1', 'kanban-zimmer', 'ks1', { heading: 'Zimmer 1', wert: 'Z1' }),
-    n1: knoten('n1', 'navi', WURZEL_ID, {}, ['ne1']),
-    ne1: knoten('ne1', 'navi-eintrag', 'n1', {}),
     tx1: knoten('tx1', 'text', WURZEL_ID, { rasterX: 34, rasterY: 0, rasterW: 14, rasterH: 3 }),
     d1: knoten('d1', 'datum', WURZEL_ID, { rasterX: 0, rasterY: 0, rasterW: 10, rasterH: 3 }),
     tr1: knoten('tr1', 'trenner', WURZEL_ID, {

@@ -10,7 +10,6 @@ import {
   richtungDerKinder,
   type Richtung,
 } from '../../kern/maske/fluss'
-import { istRandBaustein, randStil } from '../../kern/maske/maskenRand'
 import { rasterPlatzLesen, rasterPlatzStil } from '../../kern/maske/raster'
 import { useEditor } from '../zustand/useEditor'
 import { BlockHost } from './BlockHost'
@@ -34,14 +33,13 @@ function InsertionLine({ direction }: { direction: Richtung }) {
 }
 
 export function NodeList(
-  { parentId, direction, raster = false, nurRand = false }:
-  { parentId: string; direction: Richtung; raster?: boolean; nurRand?: boolean },
+  { parentId, direction, raster = false }:
+  { parentId: string; direction: Richtung; raster?: boolean },
 ) {
   const ed = useEditor()
   const dnd = useDnd()
 
-  const alle = ed.childNodesOf(parentId)
-  const nodes = nurRand ? alle.filter(istRandBaustein) : alle
+  const nodes = ed.childNodesOf(parentId)
   const lineAt = (i: number) =>
     !raster
     && dnd.dropTarget?.kind === 'flow'
@@ -136,13 +134,12 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
   )
 
   if (raster) {
-    const rand = istRandBaustein(node)
     return (
       <div
-        onPointerDown={rand ? undefined : (e) => ziehePosition(ed, dnd, e, node, parentId)}
+        onPointerDown={(e) => ziehePosition(ed, dnd, e, node, parentId)}
         style={{
           opacity: dnd.dragId === node.id ? 0.4 : 1,
-          ...(rand ? randStil() : rasterPlatzStil(rasterPlatzLesen(node.werte))),
+          ...rasterPlatzStil(rasterPlatzLesen(node.werte)),
         }}
       >
         {inhalt}

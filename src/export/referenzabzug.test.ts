@@ -35,7 +35,7 @@ test('Struktur und ERP-Konfiguration entsprechen der Referenz', () => {
 })
 
 // Jeder Baustein einmal in einen Baum: an die Wurzel, wenn erlaubt, sonst
-// unter den ersten Typ, der ihn aufnimmt (Kanban-Spalte, Navi-Eintrag, ...).
+// unter den ersten Typ, der ihn aufnimmt (Kanban-Spalte, ...).
 function alleBausteineBaum(marker: (type: string) => Record<string, unknown>): Maskenbaum {
   const defs = [...alleBausteinArten()].sort((a, b) => a.typ.localeCompare(b.typ))
   const tree: Maskenbaum = {

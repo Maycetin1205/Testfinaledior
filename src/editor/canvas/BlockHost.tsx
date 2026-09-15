@@ -17,7 +17,6 @@ import {
 } from '../../kern/daten/weitereQuellen'
 import { bausteinArt } from '../../kern/maske/registry'
 import { faehigkeit } from '../../kern/maske/faehigkeiten'
-import { istRandBaustein } from '../../kern/maske/maskenRand'
 import { rasterMassVon } from '../../kern/maske/raster'
 import { bindbareStellenVon, traegtEigeneQuelle } from '../../kern/maske/baumFragen'
 import { useEditorInstance } from '../zustand/EditorContext'
@@ -119,12 +118,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
 
   const rasterSpec = rasterMassVon(def)
 
-  const rand = istRandBaustein(block)
-  const rasterZiehbar = raster && !rand
-
-  const eltern = block.elternId ? editor.getNode(block.elternId) : undefined
-  const amRand = rand || (eltern ? istRandBaustein(eltern) : false)
-
+  const rasterZiehbar = raster
 
   return (
     <div
@@ -148,7 +142,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
         height: '100%',
         cursor: selected ? 'default' : 'pointer',
         outline: selected ? '2px solid hsl(var(--wb-auswahl))' : '2px solid transparent',
-        outlineOffset: amRand ? -2 : 1,
+        outlineOffset: 1,
         borderRadius: 6,
         userSelect: 'none',
       }}
@@ -189,7 +183,6 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           block={block}
           def={def}
           wirt={rootRef}
-          amRand={amRand}
           onEntfernen={editor.isRemoveProtected(block.id) ? undefined : () => loescheBaustein(editor, blockRef.current.id)}
         />
       )}
