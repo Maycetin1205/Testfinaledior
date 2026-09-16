@@ -67,7 +67,7 @@ export function problemText(grund: string, probleme: readonly LadeProblem[]): st
   ].join('\n')
 }
 
-function packeBibliothek(inhalt: BibliothekInhalt): string {
+export function packeBibliothek(inhalt: BibliothekInhalt): string {
   return JSON.stringify(
     {
       art: BIBLIOTHEK_DATEI_ART,

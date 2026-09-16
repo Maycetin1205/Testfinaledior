@@ -5,7 +5,7 @@ import { meldungen } from './meldungen'
 import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
 import { pruefeBaumStand } from './ladeKette'
 import { backupKeyFor, letzteKopie } from './notfallkopie'
-import { loadFromStorage, STORAGE_KEY } from './persistence'
+import { BIBLIOTHEK_KEY, loadFromStorage, persistState, STORAGE_KEY } from './persistence'
 
 // Hier haengt, dass kein gespeicherter Stand stumm verschwindet: was der Editor
 // nicht lesen kann, muss er sichern — und was er meldet, muss stimmen.
@@ -408,4 +408,85 @@ test('eine gespeicherte Erfassung laedt mit allen ihren Angaben', () => {
   expect(loadFromStorage()?.tree.e1.werte).toMatchObject(werte)
   expect(meldungsText()).toBe('')
   expect(kopien(STORAGE_KEY)).toHaveLength(0)
+})
+
+// Das Datencenter ist die Arbeit vieler Tage und haengt an keinem Maskenformat.
+// Eine Maske, die der Editor nicht laden kann, darf die Datenquellen nicht
+// mitnehmen: am 16.09. stand der Bediener sonst ohne seine 20 Quellen da.
+const QUELLE = {
+  id: 'q1', name: 'Positionen', art: 'belegposition', satzFeld: '645_10',
+  felder: [{ code: '18_25', name: 'ArtNr' }],
+}
+
+test('eine Maske aus einem fremden Format nimmt das Datencenter nicht mit', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: 7,
+    tree: wurzelBaum([]),
+    datenquellen: [QUELLE],
+    relationen: [],
+  }))
+
+  const geladen = loadFromStorage()
+  expect(geladen?.datenquellen.map((q) => q.id), 'die Datenquellen sind verloren').toEqual(['q1'])
+  expect(Object.keys(geladen?.tree ?? {}), 'die Maske kam trotzdem mit').toEqual([WURZEL_ID])
+  expect(meldungsText()).toContain('nicht unterstützten Format')
+  expect(meldungsText()).toContain('Datencenter ist gerettet')
+  expect(kopien(STORAGE_KEY), 'ohne Notfallkopie waere der alte Stand weg').toHaveLength(1)
+})
+
+test('eine unlesbare Maske nimmt das Datencenter nicht mit', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: { [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: { wasAuchImmer: 'ja' }, elternId: null, kinderIds: [] } },
+    datenquellen: [QUELLE],
+    relationen: [],
+  }))
+
+  const geladen = loadFromStorage()
+  expect(geladen?.datenquellen.map((q) => q.id)).toEqual(['q1'])
+  expect(meldungsText()).toContain('Datencenter ist gerettet')
+})
+
+test('ein Stand ohne Datencenter meldet keine Rettung', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: 7, tree: wurzelBaum([]), datenquellen: [], relationen: [] }))
+  expect(loadFromStorage()).toBeNull()
+  expect(meldungsText()).not.toContain('Datencenter ist gerettet')
+})
+
+// Das Datencenter liegt zusaetzlich fuer sich im Speicher. Geht der Maskenstand
+// verloren — geloescht, ueberschrieben, unlesbar —, sind Datenquellen und
+// Relationen trotzdem beim naechsten Start da.
+test('das Datencenter ueberlebt einen verlorenen Maskenstand', () => {
+  persistState(wurzelBaum([]) as never, null, {
+    datenquellen: [QUELLE] as never,
+    relationen: [],
+    activePageId: WURZEL_ID,
+  })
+  expect(speicher.getItem(BIBLIOTHEK_KEY), 'die eigene Sicherung fehlt').not.toBeNull()
+
+  speicher.removeItem(STORAGE_KEY)
+  meldungen.leere()
+
+  const geladen = loadFromStorage()
+  expect(geladen?.datenquellen.map((q) => q.id)).toEqual(['q1'])
+  expect(meldungsText()).toContain('eigenen Sicherung')
+})
+
+test('ein gespeichertes Datencenter uebergeht das der Maske nicht', () => {
+  persistState(wurzelBaum([]) as never, null, {
+    datenquellen: [QUELLE] as never,
+    relationen: [],
+    activePageId: WURZEL_ID,
+  })
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: wurzelBaum([]),
+    datenquellen: [{ ...QUELLE, id: 'q2', name: 'Neuer Stand' }],
+    relationen: [],
+  }))
+  meldungen.leere()
+
+  const geladen = loadFromStorage()
+  expect(geladen?.datenquellen.map((q) => q.id), 'die Sicherung hat die Maske ueberstimmt').toEqual(['q2'])
+  expect(meldungsText()).not.toContain('eigenen Sicherung')
 })
