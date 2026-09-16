@@ -28,6 +28,7 @@ import {
   kinderImFluss,
   klarnamenNachziehen,
   schreibWert,
+  seiteVon,
   seitenDerMaske,
   type SeitenEintrag,
 } from '../../kern/maske/seiten'
@@ -369,6 +370,9 @@ export class Editor extends Subject<Editor> {
     if (!res) return null
     this.pushHistory()
     this._tree = res.tree
+    // Die Kopie einer Seite ist selbst eine Seite: ohne den Wechsel bliebe sie
+    // hinter der alten liegen und die Auswahl darauf fiele weg.
+    this._activePageId = seiteVon(this._tree, res.kopieId)
     this._selectedId = res.kopieId
     this.notify(this)
     return res.tree[res.kopieId]

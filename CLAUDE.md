@@ -110,8 +110,10 @@ Punkte 1 bis 5 im Browser belegt am 15.09.:
    (`FeldBindung.tsx`). Der Klarname kommt nur in einen leeren oder noch
    nie geaenderten Titel. Regel dazu: wer einen gespeicherten Schluessel
    umbenennt, laedt alte Masken weiter, und ein Test beweist es.
-4. "Duplizieren" am Popup tut nichts (`Inspector.tsx`, `duplizieren.ts`).
-   Entweder es dupliziert das Popup samt Inhalt, oder der Knopf fehlt dort.
+4. Erledigt: "Duplizieren" am Popup kopiert das Fenster samt Inhalt
+   (`duplizieren.ts`, `Editor.ts`). Eine Seite liegt in keinem Raster: die
+   Kopie bekommt statt einer Position den naechsten freien Namen, und der
+   Editor wechselt auf sie. Beweis: `duplizieren.test.ts`.
 5. Beim Formularfeld ist das Suchfenster nur ueber die Lupe im Feld auf der
    Flaeche einstellbar und nur bei Feldtyp Nachschlagen; der Nutzer fand es
    nicht. Kein Extra-Fix: Die Faehigkeit Nachschlagen bringt in Schritt 3 ihre

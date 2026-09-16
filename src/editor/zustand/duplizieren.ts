@@ -4,7 +4,7 @@ import { bausteinArt } from '../../kern/maske/registry'
 import { type Parameter, type Schritt, type Ketten } from '../../kern/daten/aktionen'
 import { AUSWAHL_FOLGE_PROP } from '../../kern/daten/auswahlFolge'
 import { deepClone } from '../../kern/deepClone'
-import { istSeitenBaustein } from '../../kern/maske/seiten'
+import { freierSeitenName, istSeitenBaustein, seitenDerMaske } from '../../kern/maske/seiten'
 import { freiePositionFuerKopie } from '../../kern/maske/rasterFlaeche'
 
 export type NeueIdFuer = (alteId: string) => string | undefined
@@ -125,17 +125,29 @@ function kloneTeilbaum(
   return { nodes, kopieId }
 }
 
+// Eine Seite liegt in keinem Raster, also braucht ihre Kopie keine Position,
+// sondern einen eigenen Namen: zwei gleich benannte Seiten waeren in der
+// Seitenleiste nicht auseinanderzuhalten.
+function mitFreiemSeitenNamen(tree: Maskenbaum, id: string, kopie: Baustein): Baustein {
+  const seiten = seitenDerMaske(tree)
+  const basis = seiten.find((s) => s.id === id)?.name
+  if (basis === undefined) return kopie
+  const name = freierSeitenName(seiten.map((s) => s.name), basis)
+  return { ...kopie, werte: { ...kopie.werte, name } }
+}
+
 export function dupliziereTeilbaum(
   tree: Maskenbaum,
   id: string,
 ): { tree: Maskenbaum; kopieId: string } | null {
   const original = tree[id]
   if (!original || id === WURZEL_ID || original.elternId === null) return null
-  if (istSeitenBaustein(original)) return null
   const parent = tree[original.elternId]
   if (!parent) return null
   const { nodes, kopieId } = kloneTeilbaum(tree, id)
-  nodes[kopieId] = freiePositionFuerKopie(tree, parent.id, nodes[kopieId])
+  nodes[kopieId] = istSeitenBaustein(original)
+    ? mitFreiemSeitenNamen(tree, id, nodes[kopieId])
+    : freiePositionFuerKopie(tree, parent.id, nodes[kopieId])
   const childIds = [...parent.kinderIds]
   childIds.splice(parent.kinderIds.indexOf(id) + 1, 0, kopieId)
   return {
