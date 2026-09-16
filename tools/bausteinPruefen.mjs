@@ -33,6 +33,11 @@ function pruefeBaustein(name) {
     const zeilen = text.split('\n')
     const wo = (satz) => maengel.push(`${name}/${datei}: ${satz}`)
 
+    // An einem Seiten-Baustein ist `name` kein englisches Wort, sondern der
+    // Name der Seite: kern/maske/seiten.ts liest ihn dort, nicht der Baustein.
+    const seitenBaustein = /static (?:override )?readonly seite = true/.test(text)
+    const englisch = (wort) => ENGLISCH.test(wort) && !(wort === 'name' && seitenBaustein)
+
     if (!/^\/\/ \S/.test(zeilen[0])) wo('die erste Zeile sagt nicht, wofuer die Datei da ist')
 
     for (const m of text.matchAll(/from '([^']+)'/g)) {
@@ -50,12 +55,12 @@ function pruefeBaustein(name) {
     if (/\btyp === '|\.typ !== '/.test(text)) wo('fragt nach dem Bausteintyp; Faehigkeiten fragen')
 
     for (const m of text.matchAll(/@property\([^)]*\)\s+(?:override\s+)?(\w+)/g)) {
-      if (ENGLISCH.test(m[1])) wo(`Eigenschaft „${m[1]}" heisst englisch`)
+      if (englisch(m[1])) wo(`Eigenschaft „${m[1]}" heisst englisch`)
     }
     const vorgaben = /static (?:override )?readonly vorgaben = \{([\s\S]*?)\n  \}/.exec(text)
     if (vorgaben) {
       for (const m of vorgaben[1].matchAll(/^\s+(\w+):/gm)) {
-        if (ENGLISCH.test(m[1])) wo(`Vorgabe „${m[1]}" heisst englisch`)
+        if (englisch(m[1])) wo(`Vorgabe „${m[1]}" heisst englisch`)
       }
     }
 

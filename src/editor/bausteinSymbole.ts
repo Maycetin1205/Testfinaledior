@@ -20,7 +20,7 @@ import { Datum } from '../bausteine/datum/Datum'
 import { FormFeld } from '../bausteine/formfeld/FormFeld'
 import { KanbanBlock } from '../bausteine/kanban/KanbanBlock'
 import { KanbanSpalteBlock } from '../bausteine/kanban/KanbanSpalteBlock'
-import { PopupBlock } from '../bausteine/popup/PopupBlock'
+import { Popup } from '../bausteine/popup/Popup'
 import { Tabelle } from '../bausteine/tabelle/Tabelle'
 import { Text } from '../bausteine/text/Text'
 import { TrennerBlock } from '../bausteine/trenner/TrennerBlock'
@@ -33,7 +33,7 @@ const SYMBOLE = [
   [FormFeld.typ, ZeichenFormularfeld],
   [KanbanBlock.typ, ZeichenKanban],
   [KanbanSpalteBlock.typ, ZeichenKanbanSpalte],
-  [PopupBlock.typ, ZeichenPopup],
+  [Popup.typ, ZeichenPopup],
   [Tabelle.typ, ZeichenTabelle],
   [Text.typ, ZeichenText],
   [TrennerBlock.typ, ZeichenTrenner],
