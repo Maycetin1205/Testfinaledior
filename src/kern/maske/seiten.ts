@@ -1,4 +1,4 @@
-// Seiten und Ansichten der Maske: anlegen, umbenennen, wechseln, loeschen.
+// Seiten der Maske: anlegen, umbenennen, wechseln, loeschen.
 import { WURZEL_ID, type Baustein, type Maskenbaum } from './baum'
 import { bausteinArt } from './registry'
 
@@ -6,20 +6,14 @@ export interface SeitenEintrag {
   id: string
   name: string
   istHauptseite: boolean
-
-  istFlaeche: boolean
 }
 
 export function istSeitenBaustein(node: Baustein): boolean {
   return bausteinArt(node.typ)?.seite === true
 }
 
-export function istFlaechenSeite(node: Baustein): boolean {
-  return bausteinArt(node.typ)?.flaechenSeite === true
-}
-
 export function istFensterSeite(eintrag: SeitenEintrag): boolean {
-  return !eintrag.istHauptseite && !eintrag.istFlaeche
+  return !eintrag.istHauptseite
 }
 
 export function freierSeitenName(vergeben: readonly string[], basis: string): string {
@@ -53,9 +47,8 @@ export function seitenDerMaske(tree: Maskenbaum): SeitenEintrag[] {
         ? n.werte.name
         : bausteinArt(n.typ)?.name ?? 'Seite',
       istHauptseite: false,
-      istFlaeche: istFlaechenSeite(n),
     }))
-  return [{ id: WURZEL_ID, name: 'Hauptseite', istHauptseite: true, istFlaeche: true }, ...seiten]
+  return [{ id: WURZEL_ID, name: 'Hauptseite', istHauptseite: true }, ...seiten]
 }
 
 function eindeutigerSeitenName(

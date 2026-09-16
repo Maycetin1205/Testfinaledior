@@ -36,8 +36,7 @@ export function Canvas() {
     setDropTarget(rasterZiel(e, ed, dnd, ed.rootId, e.currentTarget as HTMLElement))
   }
 
-  const aktiveSeite = ed.pages.find((p) => p.id === ed.activePageId)
-  const flaeche = aktiveSeite?.istFlaeche ?? true
+  const hauptseite = ed.pages.find((p) => p.id === ed.activePageId)?.istHauptseite ?? true
 
   return (
     <DndContext.Provider value={dnd}>
@@ -76,9 +75,9 @@ export function Canvas() {
               }
             }}
           >
-            {flaeche && <NodeList parentId={ed.rootId} direction="column" raster />}
+            {hauptseite && <NodeList parentId={ed.rootId} direction="column" raster />}
 
-            {flaeche && dropTarget?.kind === 'raster' && dropTarget.parentId === ed.rootId && (
+            {hauptseite && dropTarget?.kind === 'raster' && dropTarget.parentId === ed.rootId && (
               <div
                 aria-hidden
                 data-ff-editor-helper
@@ -98,14 +97,12 @@ export function Canvas() {
             )}
           </div>
 
-          {flaeche && ed.childNodesOf(ed.rootId).length === 0 && (
+          {hauptseite && ed.childNodesOf(ed.rootId).length === 0 && (
             <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <LeerHinweis
-                titel={aktiveSeite?.istHauptseite ? 'Leere Maske' : `Leere Seite „${aktiveSeite?.name ?? ''}“`}
-              />
+              <LeerHinweis titel="Leere Maske" />
             </div>
           )}
-          {!flaeche && <PopupSeite popupId={ed.activePageId} />}
+          {!hauptseite && <PopupSeite popupId={ed.activePageId} />}
         </div>
       </div>
     </DndContext.Provider>

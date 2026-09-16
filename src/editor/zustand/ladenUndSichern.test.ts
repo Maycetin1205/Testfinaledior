@@ -331,9 +331,11 @@ test('ein entfallener Bausteintyp faellt weg, der Rest wird geladen und es wird 
   speicher.setItem(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: {
-      [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: ['n1', 't1'] },
+      [WURZEL_ID]: { id: WURZEL_ID, typ: WURZEL_TYP, werte: {}, elternId: null, kinderIds: ['n1', 'a1', 't1'] },
       n1: { id: 'n1', typ: 'navi', werte: {}, elternId: WURZEL_ID, kinderIds: ['ne1'] },
       ne1: { id: 'ne1', typ: 'navi-eintrag', werte: {}, elternId: 'n1', kinderIds: [] },
+      a1: { id: 'a1', typ: 'ansicht', werte: { name: 'Zweite Seite' }, elternId: WURZEL_ID, kinderIds: ['t2'] },
+      t2: { id: 't2', typ: 'text', werte: {}, elternId: 'a1', kinderIds: [] },
       t1: { id: 't1', typ: 'text', werte: {}, elternId: WURZEL_ID, kinderIds: [] },
     },
     datenquellen: [],
@@ -343,5 +345,6 @@ test('ein entfallener Bausteintyp faellt weg, der Rest wird geladen und es wird 
   expect(Object.keys(stand?.tree ?? {}).sort()).toEqual([WURZEL_ID, 't1'])
   expect(stand?.tree[WURZEL_ID].kinderIds).toEqual(['t1'])
   expect(meldungsText()).toContain('„navi"')
+  expect(meldungsText()).toContain('„ansicht"')
   expect(kopien(STORAGE_KEY)).toHaveLength(0)
 })

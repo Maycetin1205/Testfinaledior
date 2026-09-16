@@ -59,6 +59,5 @@ export interface BausteinArt {
   behaelterRahmen?: boolean
   kindKnopf?: { label: string; childType: string }
   seite?: boolean
-  flaechenSeite?: boolean
   raster?: Partial<RasterMass>
 }

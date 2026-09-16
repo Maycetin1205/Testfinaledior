@@ -84,7 +84,7 @@ export function hebeStand(roh: unknown): unknown {
 
 // Bausteintypen, die es nicht mehr gibt. Eine Maske mit ihnen wird nicht
 // abgelehnt: die Bausteine fallen samt Kindern weg, und der Lader sagt es.
-export const ENTFALLENE_TYPEN: readonly string[] = ['navi', 'navi-eintrag']
+export const ENTFALLENE_TYPEN: readonly string[] = ['navi', 'navi-eintrag', 'ansicht']
 
 export function ohneEntfallene(
   tree: Record<string, unknown>,

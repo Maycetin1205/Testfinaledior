@@ -173,11 +173,8 @@ function nodeToHtml(
 
   const fuelltAttr = rasterEbene && def.seite !== true ? ' fuellt' : ''
 
-  const seitenAttr = def.flaechenSeite === true
-    ? ` data-ff-seite-id="${escapeHtmlAttr(node.id)}"`
-    : node.elternId === WURZEL_ID && !def.seite ? ' data-ff-hauptinhalt' : ''
-  const verborgenAttr = def.flaechenSeite === true ? ' hidden' : ''
-  const open = `${pad}<${def.tag}${attrs}${aktionenAttr}${kennungAttr}${seitenAttr}${fuelltAttr}${verborgenAttr}${styleAttr(node, parentDirection, def.festeBreite, rasterEbene, def.seite === true)}>`
+  const seitenAttr = node.elternId === WURZEL_ID && !def.seite ? ' data-ff-hauptinhalt' : ''
+  const open = `${pad}<${def.tag}${attrs}${aktionenAttr}${kennungAttr}${seitenAttr}${fuelltAttr}${styleAttr(node, parentDirection, def.festeBreite, rasterEbene, def.seite === true)}>`
   if (!def.nimmtKinder || node.kinderIds.length === 0) {
     return `${open}</${def.tag}>`
   }

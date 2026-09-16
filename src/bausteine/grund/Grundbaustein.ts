@@ -54,7 +54,6 @@ function beschreibe(BlockClass: BausteinKlasse): void {
     kindKnopf: BlockClass.kindKnopf,
     faehigkeiten: faehig.faehigkeiten,
     seite: BlockClass.seite,
-    flaechenSeite: BlockClass.flaechenSeite,
     raster: BlockClass.raster,
   })
 }

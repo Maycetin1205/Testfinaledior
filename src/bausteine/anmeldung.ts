@@ -1,5 +1,4 @@
 // Meldet alle Bausteine an; ohne diese Datei kennt die Maske keinen.
-import './ansicht/AnsichtBlock'
 import './button/ButtonBlock'
 import './card/CardBlock'
 import './datum/DatumBlock'

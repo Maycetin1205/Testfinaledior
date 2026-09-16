@@ -161,7 +161,7 @@ export function PropControl({
         }
 
       case 'seite': {
-        const seiten = ed.pages.filter((s) => s.istFlaeche)
+        const seiten = ed.pages.filter((s) => s.istHauptseite)
         return {
           nenner: 'Seite',
           gruppen: [{
