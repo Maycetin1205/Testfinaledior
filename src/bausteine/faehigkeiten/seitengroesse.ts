@@ -10,12 +10,20 @@ export function platzhalterZeilen(gemessen: number | null): number {
   return gemessen ?? PLATZHALTER_OHNE_MESSUNG
 }
 
+// Wie viele Zeilen der Kopf hoch ist, gemessen am Takt und nicht an Pixeln:
+// der Kopf ist so hoch wie eine Zeile, zwei, wenn ein Titel umbricht. Ein
+// Pixelwert taugt hier nicht, denn die gedehnte Zeilenhoehe macht den Kopf,
+// den sie misst.
+function kopfZeilen(kopfHoehe: number, takt: number): number {
+  return Math.max(1, Math.floor(kopfHoehe / takt))
+}
+
 function passendeZeilen(
   rumpfHoehe: number,
-  kopfHoehe: number,
+  koepfe: number,
   zeilenHoehe: number,
 ): number {
-  return Math.max(1, Math.floor((rumpfHoehe - kopfHoehe) / zeilenHoehe))
+  return Math.max(1, Math.floor(rumpfHoehe / zeilenHoehe) - koepfe)
 }
 
 export interface Zeilenmass {
@@ -24,15 +32,20 @@ export interface Zeilenmass {
   zeilenHoehe: number
 }
 
-function zeilenmass(
+// Kopf und Zeilen teilen sich den ganzen Rumpf, der Kopf zaehlt als Zeile mit.
+// Die gemessene Kopfhoehe geht NICHT in die Rechnung ein: sie ist selbst das
+// Ergebnis der letzten Dehnung, und damit misst sich die Tabelle endlos hoch
+// (belegt am 16.09., der Kopf sprang je Zeichenlauf zwischen 29 und 30 Pixeln).
+export function zeilenmass(
   rumpfHoehe: number,
   kopfHoehe: number,
   takt: number,
 ): Zeilenmass {
-  const passen = passendeZeilen(rumpfHoehe, kopfHoehe, takt)
-  const platz = rumpfHoehe - kopfHoehe
-  if (platz < takt) return { passen, zeilenHoehe: takt }
-  return { passen, zeilenHoehe: Math.floor((platz / passen) * 100) / 100 }
+  const koepfe = kopfZeilen(kopfHoehe, takt)
+  const passen = passendeZeilen(rumpfHoehe, koepfe, takt)
+  const hoehe = rumpfHoehe / (passen + koepfe)
+  if (hoehe < takt) return { passen, zeilenHoehe: takt }
+  return { passen, zeilenHoehe: Math.floor(hoehe * 100) / 100 }
 }
 
 export function linealTakte(passen: number | null, gezeichnet: number): number | null {
