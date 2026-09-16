@@ -22,7 +22,7 @@ import { KanbanBlock } from '../bausteine/kanban/KanbanBlock'
 import { KanbanSpalteBlock } from '../bausteine/kanban/KanbanSpalteBlock'
 import { PopupBlock } from '../bausteine/popup/PopupBlock'
 import { Tabelle } from '../bausteine/tabelle/Tabelle'
-import { TextBlock } from '../bausteine/text/TextBlock'
+import { Text } from '../bausteine/text/Text'
 import { TrennerBlock } from '../bausteine/trenner/TrennerBlock'
 
 // Sie stehen hier und nicht am Baustein, damit die Maske keinen Editor-Code traegt.
@@ -35,7 +35,7 @@ const SYMBOLE = [
   [KanbanSpalteBlock.typ, ZeichenKanbanSpalte],
   [PopupBlock.typ, ZeichenPopup],
   [Tabelle.typ, ZeichenTabelle],
-  [TextBlock.typ, ZeichenText],
+  [Text.typ, ZeichenText],
   [TrennerBlock.typ, ZeichenTrenner],
 ] as const
 

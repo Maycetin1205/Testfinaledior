@@ -1,36 +1,11 @@
-// Die eine Farbliste der Maske: Wert, Klarname, Farbpaar. Wer eine Farbe
-// anbietet, nimmt sie hier her — der Inspector die Kachel, der Baustein die
-// Klasse v-<wert> und darin --fw-stark und --fw-sanft.
+// Die Farbliste der Maske als Stil und Inspector-Angabe; die Liste selbst steht
+// im Kern, damit Baustein und Faehigkeit sie ohne Umweg ueber shared holen.
 import { css, unsafeCSS } from 'lit'
-import type {
-  Eigenschaft,
-  Wahloption,
-} from '../../kern/maske/eigenschaft'
+import type { Eigenschaft } from '../../kern/maske/eigenschaft'
+import { FARBWELTEN, farbweltOptionen } from '../../kern/maske/farbwelten'
 
-export type StatusVariant = 'info' | 'success' | 'warning' | 'danger'
-
-interface Farbwelt {
-  wert: StatusVariant
-  name: string
-  // Die Namen der Token, nicht die Werte: die Farben stehen in design/maske.css.
-  stark: string
-  sanft: string
-}
-
-export const FARBWELTEN: readonly Farbwelt[] = [
-  { wert: 'info', name: 'Hinweis', stark: '--se-blue', sanft: '--se-blue-soft' },
-  { wert: 'success', name: 'Erfolg', stark: '--se-green', sanft: '--se-green-soft' },
-  { wert: 'warning', name: 'Warnung', stark: '--se-amber', sanft: '--se-amber-soft' },
-  { wert: 'danger', name: 'Fehler', stark: '--se-red', sanft: '--se-red-soft' },
-]
-
-export function coerceStatusVariant(value: string): StatusVariant {
-  return FARBWELTEN.some((f) => f.wert === value) ? (value as StatusVariant) : 'info'
-}
-
-export function farbweltOptionen(): Wahloption[] {
-  return FARBWELTEN.map((f) => ({ wert: f.wert, name: f.name, farbe: `var(${f.stark})` }))
-}
+export { coerceStatusVariant, farbweltOptionen, FARBWELTEN } from '../../kern/maske/farbwelten'
+export type { Farbwelt, StatusVariant } from '../../kern/maske/farbwelten'
 
 export function statusVariantProperty(
   schluessel: string,

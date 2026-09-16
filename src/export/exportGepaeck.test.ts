@@ -102,16 +102,25 @@ test('eine Maske ohne Daten traegt weder Kern- noch Brueckenteil', () => {
   expect(summe, 'die Maske ohne Daten ist schwerer als erlaubt').toBeLessThanOrEqual(GRENZE_KLEIN)
 })
 
-// Rot mit Ansage: der Text-Baustein zieht ueber die Faehigkeit Quelle sieben
-// Faehigkeiten nach, die er nicht braucht. Faellt beim Umbau des Textfelds in
-// Schritt 3; dann meldet vitest diesen Fall als "unerwartet gruen" und er wird
-// ein gewoehnlicher test.
+test('ein Textfeld traegt keinen anderen Baustein', () => {
+  const { html } = exportMask(textMaske(), 'Textmaske')
+  const teile = teileImExport(html)
+  bericht('Kleine Maske: ein Textfeld', teile)
+  expect(teile.has('text')).toBe(true)
+  for (const name of VERBOTEN_KLEIN) expect(teile.has(name), `${name} reist mit`).toBe(false)
+})
+
+// Rot mit Ansage, und der Umbau des Textfelds hat daran nichts geaendert: ein
+// Text kann an ein Feld gebunden werden, und leseGebundeneStelle
+// (bausteine/faehigkeiten/gebundeneStelle.ts) holt die Zeile ueber die
+// Eigenschaft `quelle`; macheDatenAnschluss verdrahtet dazu die holenden
+// Quellen der ganzen Maske. Gruen wird das erst, wenn ein Text keine Bindung
+// mehr traegt — das entscheidet der Nutzer, nicht ein Umbau.
 test.fails('ein Textfeld traegt nur den Teil Text', () => {
   const { html } = exportMask(textMaske(), 'Textmaske')
   const teile = teileImExport(html)
-  const summe = bericht('Kleine Maske: ein Textfeld', teile)
+  const summe = bericht('Kleine Maske: ein Textfeld, Ziel', teile)
   expect([...teile.keys()], 'Gepaeck, das kein Baustein der Maske braucht').toEqual(['text'])
-  for (const name of VERBOTEN_KLEIN) expect(teile.has(name), `${name} reist mit`).toBe(false)
   expect(summe, 'die kleine Maske ist schwerer als erlaubt').toBeLessThanOrEqual(GRENZE_KLEIN)
 })
 
