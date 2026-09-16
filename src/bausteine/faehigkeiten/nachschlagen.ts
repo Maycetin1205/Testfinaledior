@@ -22,8 +22,10 @@ import {
 } from './zeilenAktivierung'
 
 // Das Fenster IST eine Tabelle; mehr als diese drei Griffe braucht es von ihr
-// nicht. Wer das Fenster oeffnet, sorgt dafuer, dass der Baustein Tabelle in
-// der Maske geladen ist.
+// nicht. Diese Faehigkeit holt den Baustein selbst, sonst bliebe das Fenster in
+// einer Maske ohne Tabelle leer.
+import '../tabelle/Tabelle'
+
 const FENSTER_TABELLE_TAG = 'ff-tabelle'
 
 interface FensterTabelle extends HTMLElement {

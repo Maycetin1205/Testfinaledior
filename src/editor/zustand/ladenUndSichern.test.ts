@@ -321,6 +321,37 @@ test('eine Maske mit und eine ohne die Marke am Spaltentitel laden beide', () =>
   expect(kopien(STORAGE_KEY)).toHaveLength(0)
 })
 
+// Das Formularfeld heisst seine Angaben deutsch. Eine Maske von gestern traegt
+// noch fieldType, placeholder, options, value und valueField; ohne Hebung
+// verwuerfe der Lader sie samt allem, was daneben steht.
+test('ein Formularfeld aus Format 11 laedt mit den deutschen Namen', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: 11,
+    tree: {
+      ...wurzelBaum(['f1']),
+      f1: {
+        id: 'f1', typ: 'formfeld', elternId: WURZEL_ID, kinderIds: [],
+        werte: {
+          fieldType: 'nachschlagen', placeholder: 'Artikel', options: 'A, B',
+          value: 'X', valueField: '45_60', quelle: 'q1',
+          nachschlagQuelle: 'q2', speicherFeld: 'nr', fensterBreite: 700,
+        },
+      },
+    },
+    datenquellen: [], relationen: [],
+  }))
+
+  const werte = loadFromStorage()?.tree.f1.werte
+  expect(werte).toMatchObject({
+    feldTyp: 'nachschlagen', beschriftung: 'Artikel', optionen: 'A, B',
+    wert: 'X', wertField: '45_60', quelle: 'q1',
+    nachschlagQuelle: 'q2', speicherFeld: 'nr', fensterBreite: 700,
+  })
+  expect(Object.keys(werte ?? {})).not.toContain('fieldType')
+  expect(meldungsText()).toBe('')
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
+})
+
 test('die juengste Notfallkopie wird gefunden', () => {
   speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T08-00-00-000Z', 'alt')
   speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T09-00-00-000Z', 'neu')

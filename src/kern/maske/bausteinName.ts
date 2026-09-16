@@ -5,7 +5,7 @@ import { bausteinArt } from './registry'
 import { bindbareStellenVon, QUELLE_PROP } from './baumFragen'
 import { feldKlarname, type Datenquelle } from '../daten/datenquellen'
 
-const TEXT_PROPS = ['label', 'heading', 'title', 'text', 'placeholder'] as const
+const TEXT_PROPS = ['label', 'heading', 'title', 'text', 'placeholder', 'beschriftung'] as const
 
 const MAX_LAENGE = 28
 

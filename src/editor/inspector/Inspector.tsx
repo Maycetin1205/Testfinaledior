@@ -17,6 +17,7 @@ import { AktionenSektion } from './AktionenSektion'
 import { AuswahlFolgeSektion } from './AuswahlFolgeSektion'
 import { PropControl } from './PropControl'
 import { QuellenListe } from './QuellenListe'
+import { SuchfensterSektion } from './SuchfensterSektion'
 
 interface InspectorZeile {
   row?: string
@@ -123,6 +124,10 @@ export function Inspector() {
   const ereignisse = faehigkeit(def, 'ereignisse')?.liste ?? []
   const hatAktionen = ereignisse.length > 0
 
+  // Das Suchfenster bringt die Faehigkeit Nachschlagen mit; gefragt wird sie,
+  // nicht der Bausteintyp.
+  const suchFenster = faehigkeit(def, 'suchfenster')?.fenster
+
   return (
     <Panel
       titel={blockName}
@@ -180,6 +185,8 @@ export function Inspector() {
           </div>
         )}
 
+        {suchFenster && <SuchfensterSektion block={block} fenster={suchFenster} />}
+
         {darfAuswahlFolgen(block) && <AuswahlFolgeSektion block={block} />}
 
         {hatAktionen && (
@@ -189,7 +196,7 @@ export function Inspector() {
         )}
 
         {generalProps.length === 0 && !showDataSection && !hatAktionen
-          && !darfAuswahlFolgen(block) && (
+          && !darfAuswahlFolgen(block) && suchFenster === undefined && (
             // Sonst steht der Bediener vor einer leeren Flaeche und weiss nicht,
             // ob der Baustein nichts kann oder der Editor kaputt ist.
           <p className="text-ui text-matt">Gestaltung direkt am Baustein. Hier sind keine weiteren Daten- oder Verhaltenseinstellungen nötig.</p>

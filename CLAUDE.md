@@ -60,21 +60,20 @@ die SoftEngine-Kontrakte, die Regeln unten. Alles andere darf fallen.
 Stand 16.09.2026: Schritt 1 und 2 sind fertig (Commits 09dd63d bis b784f20).
 Der Kern spricht Deutsch, Faehigkeiten stehen in einer Liste, SoftEngine
 sitzt hinter der Tuer, die Ordner heissen kern, bausteine, editor. Tabelle
-(5465141) und Erfassung sind umgebaut: je hoechstens drei Dateien, die
-gemeinsame Zeilenliste steckt als Faehigkeit `listenStand.ts` in beiden,
-jede Faehigkeit ein eigener Laufzeitteil; der SoftEngine-Test des Nutzers
-steht fuer beide aus. Noch nicht im Muster: das Formularfeld importiert die
-Tabelle fuer das Nachschlagefenster, Nachschlagen hat keine
-Inspector-Bedienung. Wer neu
+(5465141), Erfassung und Formularfeld sind umgebaut: je hoechstens drei
+Dateien, die gemeinsame Zeilenliste steckt als Faehigkeit `listenStand.ts` in
+den ersten beiden, das Nachschlagen als `nachschlagFeld.ts` im dritten, jede
+Faehigkeit ein eigener Laufzeitteil; der SoftEngine-Test des Nutzers steht
+fuer alle drei aus. Wer neu
 einsteigt: erst `npm run check` und `npm test` (muessen gruen sein), dann
 `git log -12`, dann diese Datei ganz. Keine Datei anfassen, die nicht zum
 laufenden Schritt gehoert.
 
 1. Regeln. Erledigt.
 2. Kern. Erledigt.
-3. **Bausteine, die Tabelle zuerst als Muster.** Tabelle und Erfassung
-   erledigt. Danach die uebrigen Bausteine genau so, Reihenfolge:
-   Formularfeld, Text, Datum, Button, Popup, Kanban mit Card, Trenner,
+3. **Bausteine, die Tabelle zuerst als Muster.** Tabelle, Erfassung und
+   Formularfeld erledigt. Danach die uebrigen Bausteine genau so,
+   Reihenfolge: Text, Datum, Button, Popup, Kanban mit Card, Trenner,
    Anmeldung. Kein Baustein bleibt alt: die Palette ist das Produkt.
 4. Editor: Flaeche, Palette, Inspector, Datencenter, Design. Das Datencenter
    wird gegen kontrakte.md neu gedacht, nicht aus dem heutigen Code
@@ -115,11 +114,12 @@ Punkte 1 bis 5 im Browser belegt am 15.09.:
    (`duplizieren.ts`, `Editor.ts`). Eine Seite liegt in keinem Raster: die
    Kopie bekommt statt einer Position den naechsten freien Namen, und der
    Editor wechselt auf sie. Beweis: `duplizieren.test.ts`.
-5. Beim Formularfeld ist das Suchfenster nur ueber die Lupe im Feld auf der
-   Flaeche einstellbar und nur bei Feldtyp Nachschlagen; der Nutzer fand es
-   nicht. Kein Extra-Fix: Die Faehigkeit Nachschlagen bringt in Schritt 3 ihre
-   Inspector-Bedienung mit (Regel 2), dann ist sie bei Erfassung, Tabelle und
-   Formularfeld am selben Ort (Regel 13).
+5. Erledigt, Echttest des Nutzers steht aus: Das Suchfenster stand nur hinter
+   der Lupe auf der Flaeche. Die Faehigkeit Nachschlagen bringt jetzt ihre
+   Inspector-Bedienung mit (Regel 2): der Abschnitt „Suchfenster" zeigt seine
+   Spalten, stellt Breite und Hoehe und macht das Fenster auf — an jedem
+   Baustein mit der Faehigkeit, heute Formularfeld und Erfassung. Die Tabelle
+   hat kein Suchfenster; bekommt sie eines, steht es ohne Zutun am selben Ort.
 6. Gebaut, Echttest des Nutzers steht aus: Kern und Bruecke sind
    Laufzeitteile wie die Faehigkeiten (`tools/laufzeitBauen.mjs`). Die Basis
    traegt nur noch, was jede Maske braucht (Fehlerwache, Grundbaustein und
@@ -139,6 +139,9 @@ Was die Tabelle als Muster heisst:
 - Die Eigenschaften der Tabelle heissen deutsch (`quelle` statt `source`,
   `breite` statt `width`). Damit aendern sich Export-Attribute: Referenzabzug
   erneuern und im Commit sagen, welche.
+- Das Formularfeld importiert keinen Baustein mehr (erledigt): die Faehigkeit
+  Nachschlagen holt die Tabelle des Suchfensters selbst, denn sie zeichnet es.
+  Jede Maske mit Nachschlagen traegt damit den Teil `tabelle`.
 - Die Erfassung erbt nicht mehr von der Tabelle (erledigt): ein eigener
   Baustein, der dieselben Faehigkeiten einsteckt und Erfassen dazu. Was beide
   gleich brauchen, steckt in `faehigkeiten/listenStand.ts`; der Baustein

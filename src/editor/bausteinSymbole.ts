@@ -17,7 +17,7 @@ import {
 import { ButtonBlock } from '../bausteine/button/ButtonBlock'
 import { CardBlock } from '../bausteine/card/CardBlock'
 import { DatumBlock } from '../bausteine/datum/DatumBlock'
-import { FormFeldBlock } from '../bausteine/formfeld/FormFeldBlock'
+import { FormFeld } from '../bausteine/formfeld/FormFeld'
 import { KanbanBlock } from '../bausteine/kanban/KanbanBlock'
 import { KanbanSpalteBlock } from '../bausteine/kanban/KanbanSpalteBlock'
 import { PopupBlock } from '../bausteine/popup/PopupBlock'
@@ -30,7 +30,7 @@ const SYMBOLE = [
   [ButtonBlock.typ, ZeichenSchaltflaeche],
   [CardBlock.typ, ZeichenKarte],
   [DatumBlock.typ, ZeichenDatum],
-  [FormFeldBlock.typ, ZeichenFormularfeld],
+  [FormFeld.typ, ZeichenFormularfeld],
   [KanbanBlock.typ, ZeichenKanban],
   [KanbanSpalteBlock.typ, ZeichenKanbanSpalte],
   [PopupBlock.typ, ZeichenPopup],

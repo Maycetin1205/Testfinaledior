@@ -1,9 +1,10 @@
 // Die Version des Masken-Aufbaus und die Hebung der letzten alten Staende.
-export const CURRENT_SCHEMA_VERSION = 11
+export const CURRENT_SCHEMA_VERSION = 12
 
 // Format 9 trug die englischen Schluessel (type, props, kind, params ...),
-// Format 10 an den Bausteinen noch source, tagField und die on...-Ereignisse.
-const HEBBAR = [9, 10]
+// Format 10 an den Bausteinen noch source, tagField und die on...-Ereignisse,
+// Format 11 am Formularfeld noch fieldType, placeholder, options und value.
+const HEBBAR = [9, 10, 11]
 
 export function schemaLesbar(version: unknown): version is number {
   return version === CURRENT_SCHEMA_VERSION
@@ -54,6 +55,17 @@ function hebeBausteinNamen(x: unknown): void {
   for (const node of Object.values(x)) {
     if (!objekt(node) || typeof node.typ !== 'string' || !objekt(node.werte)) continue
     um(node.werte, { source: 'quelle', tagField: 'tagFeld' })
+    // Nur am Formularfeld: `value`, `options` und `placeholder` heissen an
+    // anderen Bausteinen etwas anderes.
+    if (node.typ === 'formfeld') {
+      um(node.werte, {
+        fieldType: 'feldTyp',
+        placeholder: 'beschriftung',
+        options: 'optionen',
+        value: 'wert',
+        valueField: 'wertField',
+      })
+    }
     if (objekt(node.ketten)) {
       um(node.ketten, { onRowClick: 'zeileGewaehlt', onRowDblClick: 'zeileDoppelt', onF4: 'tasteF4' })
     }

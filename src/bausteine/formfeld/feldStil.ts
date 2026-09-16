@@ -134,8 +134,8 @@ export const feldStil = css`
   .lupe:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
 
   :host([data-ff-editor]) .ctrl { pointer-events: none; }
-  /* Die Lupe bleibt im Editor bedienbar: ihr Klick macht die Inspector-Sektion
-     „Suchfenster" auf. */
+  /* Die Lupe bleibt im Editor bedienbar: ihr Klick macht das Suchfenster auf
+     und im Inspector den Abschnitt „Suchfenster". */
   :host([data-ff-editor]) .ph { pointer-events: auto; cursor: text; }
   :host([data-ff-editor]) .feld:not(.linie) .huelle[data-ff-bound] .ctrl {
     border-style: dotted;

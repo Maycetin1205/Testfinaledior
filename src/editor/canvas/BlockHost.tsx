@@ -27,6 +27,7 @@ import { AuswahlLeiste } from './AuswahlLeiste'
 import { SpaltenBedienung } from './SpaltenBedienung'
 import { useFeldBindung } from './FeldBindung'
 import { oeffneFensterImEditor } from './fensterStand'
+import { oeffneAbschnitt } from '../inspector/abschnittStand'
 import { useBlockResize } from './useBlockResize'
 import { useLitElement } from './useLitElement'
 
@@ -95,8 +96,8 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
   })
 
   // Die Lupe macht im Editor dasselbe Fenster auf wie beim Bediener. Der Wirt
-  // faengt ihren Klick ab und gibt dem Fenster den Weg zu seinen Eigenschaften;
-  // eingestellt wird darin, nicht daneben.
+  // faengt ihren Klick ab; dazu geht der Abschnitt „Suchfenster" im Inspector
+  // auf, denn dort steht dieselbe Einstellung ohne den Umweg ueber die Flaeche.
   const fensterStelle = suchFenster?.stelle
   const aufFensterStelle = (e: ReactMouseEvent<HTMLDivElement>): number | null => {
     if (fensterStelle === undefined) return null
@@ -128,6 +129,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
         if (platz !== null && suchFenster !== undefined && elementRef.current
           && oeffneFensterImEditor(editor, elementRef.current, block.id, suchFenster, platz)) {
           e.stopPropagation()
+          oeffneAbschnitt('suchfenster')
           onSelect?.()
           return
         }

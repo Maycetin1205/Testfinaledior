@@ -127,10 +127,10 @@ export function referenzBaum(): Maskenbaum {
     }),
     f1: knoten('f1', 'formfeld', WURZEL_ID, {
       rasterX: 10, rasterY: 0, rasterW: 16, rasterH: 3,
-      fieldType: 'text',
-      placeholder: 'Bezeichnung',
+      feldTyp: 'text',
+      beschriftung: 'Bezeichnung',
       quelle: 'q-pos',
-      valueField: '45_60',
+      wertField: '45_60',
     }),
     b1: knoten('b1', 'button', WURZEL_ID, {
       rasterX: 26, rasterY: 0, rasterW: 8, rasterH: 3, label: 'Schreiben',

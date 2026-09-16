@@ -179,6 +179,15 @@ export function fensterStandVon(
     : standJeEintrag(ed, block, fenster, platz)
 }
 
+// Das Lit-Element eines Bausteins auf der Leinwand. Der Inspector hat nur die
+// Kennung, das Fenster braucht den Baustein als Anker und Rueckweg.
+export function bausteinElementImEditor(blockId: string, tag: string): HTMLElement | null {
+  for (const wirt of document.querySelectorAll<HTMLElement>('[data-block-id]')) {
+    if (wirt.getAttribute('data-block-id') === blockId) return wirt.querySelector<HTMLElement>(tag)
+  }
+  return null
+}
+
 // Das eine Fenster, das im Editor offen ist: nachschlagen.ts macht das vorige
 // immer zu. Seine Spaltenkoepfe bedient die Shell, nicht der Wirt des
 // Bausteins — darum eine Anmeldestelle und kein Zustand im BlockHost.

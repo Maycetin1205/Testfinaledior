@@ -9,6 +9,7 @@ const SCHLUESSEL = 'aufbau_editor_inspector_abschnitte'
 export type AbschnittName =
   | 'datenquellen'
   | 'felder'
+  | 'suchfenster'
   | 'auswahlFolgen'
   | 'aktionen'
 
