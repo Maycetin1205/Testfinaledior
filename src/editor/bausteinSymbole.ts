@@ -14,7 +14,7 @@ import {
   ZeichenText,
   ZeichenTrenner,
 } from './zeichen/bausteinZeichen'
-import { ButtonBlock } from '../bausteine/button/ButtonBlock'
+import { Button } from '../bausteine/button/Button'
 import { CardBlock } from '../bausteine/card/CardBlock'
 import { Datum } from '../bausteine/datum/Datum'
 import { FormFeld } from '../bausteine/formfeld/FormFeld'
@@ -27,7 +27,7 @@ import { TrennerBlock } from '../bausteine/trenner/TrennerBlock'
 
 // Sie stehen hier und nicht am Baustein, damit die Maske keinen Editor-Code traegt.
 const SYMBOLE = [
-  [ButtonBlock.typ, ZeichenSchaltflaeche],
+  [Button.typ, ZeichenSchaltflaeche],
   [CardBlock.typ, ZeichenKarte],
   [Datum.typ, ZeichenDatum],
   [FormFeld.typ, ZeichenFormularfeld],

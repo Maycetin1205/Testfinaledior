@@ -21,7 +21,7 @@ import {
   type Platzhalterwerte,
 } from '../../kern/daten/relationen'
 import { sendeBwLink, sendeStartTool } from '../../softengine/befehle'
-import { starteSe, frischeDatenAnfordern } from '../../softengine/bridge'
+import { frischeDatenAnfordern } from '../../softengine/bridge'
 import { meldeFehler } from '../../softengine/meldung'
 import { relationAusfuehren, laufzeitRelation, parameterAufloesen } from '../../softengine/relations'
 
@@ -350,20 +350,4 @@ export async function runEvent(
   } finally {
     locks.delete(eventKey)
   }
-}
-
-const verdrahtet = new WeakSet<HTMLElement>()
-
-export function connectClickAktionen(el: HTMLElement, eventKey: string): void {
-  if (el.hasAttribute('data-ff-editor')) return
-  if (!el.hasAttribute('data-ff-aktionen')) return
-  if (verdrahtet.has(el)) return
-  verdrahtet.add(el)
-  const chains = kettenLesen(el.getAttribute('data-ff-aktionen'))
-  if (Object.values(chains).some((steps) => steps.some((step) => step.art === 'RELATION'))) {
-    starteSe()
-  }
-  el.addEventListener('click', () => {
-    runEvent(el, eventKey, {}).catch(meldeKettenFehler)
-  })
 }

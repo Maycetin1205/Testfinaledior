@@ -133,7 +133,7 @@ export function referenzBaum(): Maskenbaum {
       wertField: '45_60',
     }),
     b1: knoten('b1', 'button', WURZEL_ID, {
-      rasterX: 26, rasterY: 0, rasterW: 8, rasterH: 3, label: 'Schreiben',
+      rasterX: 26, rasterY: 0, rasterW: 8, rasterH: 3, beschriftung: 'Schreiben',
     }),
     c1: knoten('c1', 'card', 'km1', {
       rasterX: 0, rasterY: 25, rasterW: 12, rasterH: 12, heading: 'Karte', headingField: '45_60',

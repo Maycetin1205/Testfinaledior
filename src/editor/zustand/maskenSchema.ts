@@ -1,10 +1,11 @@
 // Die Version des Masken-Aufbaus und die Hebung der letzten alten Staende.
-export const CURRENT_SCHEMA_VERSION = 12
+export const CURRENT_SCHEMA_VERSION = 13
 
 // Format 9 trug die englischen Schluessel (type, props, kind, params ...),
 // Format 10 an den Bausteinen noch source, tagField und die on...-Ereignisse,
-// Format 11 am Formularfeld noch fieldType, placeholder, options und value.
-const HEBBAR = [9, 10, 11]
+// Format 11 am Formularfeld noch fieldType, placeholder, options und value,
+// Format 12 an der Schaltflaeche noch label.
+const HEBBAR = [9, 10, 11, 12]
 
 export function schemaLesbar(version: unknown): version is number {
   return version === CURRENT_SCHEMA_VERSION
@@ -66,6 +67,9 @@ function hebeBausteinNamen(x: unknown): void {
         valueField: 'wertField',
       })
     }
+    // Nur an der Schaltflaeche: sie ist der einzige Baustein, dessen
+    // Beschriftung `label` hiess.
+    if (node.typ === 'button') um(node.werte, { label: 'beschriftung' })
     if (objekt(node.ketten)) {
       um(node.ketten, { onRowClick: 'zeileGewaehlt', onRowDblClick: 'zeileDoppelt', onF4: 'tasteF4' })
     }
@@ -82,9 +86,9 @@ function hebeAltlasten(x: unknown): void {
   for (const wert of Object.values(x)) hebeAltlasten(wert)
 }
 
-// Ein gespeicherter oder gelesener Maskenstand: Format 9 und 10 werden auf den
-// heutigen Stand gehoben, alles andere kommt unveraendert zurueck und faellt
-// bei schemaLesbar auf.
+// Ein gespeicherter oder gelesener Maskenstand: die hebbaren Formate kommen auf
+// den heutigen Stand, alles andere kommt unveraendert zurueck und faellt bei
+// schemaLesbar auf.
 export function hebeStand(roh: unknown): unknown {
   if (!objekt(roh) || typeof roh.schemaVersion !== 'number' || !HEBBAR.includes(roh.schemaVersion)) return roh
   const gehoben = roh.schemaVersion === 9 ? hebeSchluessel(roh) : (JSON.parse(JSON.stringify(roh)) as Record<string, unknown>)
