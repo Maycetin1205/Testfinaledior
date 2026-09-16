@@ -86,11 +86,14 @@ function hebeAltlasten(x: unknown): void {
   for (const wert of Object.values(x)) hebeAltlasten(wert)
 }
 
-// Ein gespeicherter oder gelesener Maskenstand: die hebbaren Formate kommen auf
-// den heutigen Stand, alles andere kommt unveraendert zurueck und faellt bei
-// schemaLesbar auf.
+// Ein gespeicherter oder gelesener Maskenstand: die hebbaren Formate und der
+// heutige kommen auf den heutigen Stand, alles andere kommt unveraendert
+// zurueck und faellt bei schemaLesbar auf. Auch der heutige, weil ein Editor,
+// der waehrend eines Umbaus offen steht, alte Schluessel unter der neuen Nummer
+// sichert (16.09., Knopf mit label); die Hebung wiederholt sich folgenlos.
 export function hebeStand(roh: unknown): unknown {
-  if (!objekt(roh) || typeof roh.schemaVersion !== 'number' || !HEBBAR.includes(roh.schemaVersion)) return roh
+  if (!objekt(roh) || typeof roh.schemaVersion !== 'number') return roh
+  if (roh.schemaVersion !== CURRENT_SCHEMA_VERSION && !HEBBAR.includes(roh.schemaVersion)) return roh
   const gehoben = roh.schemaVersion === 9 ? hebeSchluessel(roh) : (JSON.parse(JSON.stringify(roh)) as Record<string, unknown>)
   hebeBausteinNamen(gehoben.tree)
   hebeAltlasten(gehoben.tree)

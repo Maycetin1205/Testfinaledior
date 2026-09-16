@@ -242,6 +242,28 @@ test('ein Stand im Format 10 wird beim Laden auf die deutschen Bausteinnamen geh
   expect(meldungsText()).toBe('')
 })
 
+// Der Stand des Nutzers vom 16.09.: waehrend ein Baustein umgebaut wurde, stand
+// sein Editor offen. Er sicherte weiter — den alten Schluessel unter der NEUEN
+// Formatnummer. Ohne Hebung auch des heutigen Formats faende der Lader einen
+// Schluessel, den es nicht mehr gibt, und verwuerfe die ganze Maske.
+test('ein Stand unter der heutigen Nummer mit altem Schluessel wird gehoben, nicht verworfen', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: {
+      ...wurzelBaum(['b1']),
+      b1: {
+        id: 'b1', typ: 'button', elternId: WURZEL_ID, kinderIds: [],
+        werte: { rasterX: 0, rasterY: 0, rasterW: 8, rasterH: 3, label: 'Speichern' },
+      },
+    },
+    datenquellen: [], relationen: [],
+  }))
+  const stand = loadFromStorage()
+  expect(stand?.tree.b1.werte).toMatchObject({ beschriftung: 'Speichern' })
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
+  expect(meldungsText()).toBe('')
+})
+
 // Der Stand des Nutzers vom 15.09.: der Editor schrieb in jeden Ketten-Parameter
 // `wert` UND `value`. Im heutigen Format hebt keine Umstellung das Doppel mehr
 // weg, und der Lader verwarf die ganze Maske — dem Nutzer ging sie zehnmal
