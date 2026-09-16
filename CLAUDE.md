@@ -29,7 +29,7 @@ zeigt, IST der Export: dieselben Lit-Elemente rendern im Editor (Attribut
 
 - `npm run dev`: Port 5300, fest, weil der Browserspeicher am Ursprung haengt.
   Der Dev-Server beobachtet `src/export/generated/`; `build:runtime`, `npm
-  test` und `npm run dev` schreiben dort 37 Dateien und laden damit jeden
+  test` und `npm run dev` schreiben dort 60 Dateien und laden damit jeden
   offenen Editor im Browser mehrfach neu, mitten im Bau mit leeren Dateien.
   Darum: Kein Chat baut oder testet, waehrend der Nutzer im Editor arbeitet,
   und kein Chat beendet oder startet den Dev-Server des Nutzers. Wer das
@@ -73,8 +73,8 @@ laufenden Schritt gehoert.
 2. Kern. Erledigt.
 3. **Bausteine, die Tabelle zuerst als Muster.** Tabelle erledigt. Danach
    die uebrigen Bausteine genau so, Reihenfolge: Erfassung, Formularfeld,
-   Text, Datum, Button, Popup, Kanban mit Card, Trenner, Ansicht,
-   Anmeldung. Kein Baustein bleibt alt: die Palette ist das Produkt.
+   Text, Datum, Button, Popup, Kanban mit Card, Trenner, Anmeldung. Kein
+   Baustein bleibt alt: die Palette ist das Produkt.
 4. Editor: Flaeche, Palette, Inspector, Datencenter, Design. Das Datencenter
    wird gegen kontrakte.md neu gedacht, nicht aus dem heutigen Code
    abgeschrieben: Quellenarten nach Abschnitt 4, 4a, 4c (Bestellung,
@@ -119,12 +119,13 @@ Punkte 1 bis 5 im Browser belegt am 15.09.:
    nicht. Kein Extra-Fix: Die Faehigkeit Nachschlagen bringt in Schritt 3 ihre
    Inspector-Bedienung mit (Regel 2), dann ist sie bei Erfassung, Tabelle und
    Formularfeld am selben Ort (Regel 13).
-6. Kern und Bruecke werden Laufzeitteile wie die Faehigkeiten
-   (`tools/laufzeitBauen.mjs`): heute packt das Bauskript alles aus `kern/`
-   und `softengine/` in die Basis, 41 kB, auch fuer ein Textfeld. Danach
-   reist ein Teil nur, wenn ein Baustein der Maske ihn importiert. Beweis
-   ist `exportGepaeck.test.ts`; die Grenze der kleinen Maske sinkt dort auf
-   40 kB.
+6. Gebaut, Echttest des Nutzers steht aus: Kern und Bruecke sind
+   Laufzeitteile wie die Faehigkeiten (`tools/laufzeitBauen.mjs`). Die Basis
+   traegt nur noch, was jede Maske braucht (Fehlerwache, Grundbaustein und
+   was die beiden holen), und faellt von 57 auf 26 kB; jede andere Datei aus
+   `kern/` und `softengine/` reist als eigener Teil mit dem Baustein, der sie
+   importiert. Beweis: `exportGepaeck.test.ts`, eine Maske aus einem Trenner
+   bleibt unter 40 kB. Was kein Baustein erreicht, wird nicht mehr gebaut.
 
 Was die Tabelle als Muster heisst:
 

@@ -1,4 +1,5 @@
-// Baut die Laufzeit der Maske in Teile: eine Basisdatei und je Baustein eine.
+// Baut die Laufzeit der Maske in Teile: eine Basisdatei und je Baustein,
+// Faehigkeit, Kern- und Brueckendatei eine.
 // Aufruf: node tools/laufzeitBauen.mjs [--ziel <ordner>]
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -11,6 +12,8 @@ process.env.NODE_ENV = 'production'
 const WURZEL = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const QUELLE = pfad(path.join(WURZEL, 'src'))
 const BAUSTEIN_ORDNER = QUELLE + '/bausteine'
+const KERN_ORDNER = QUELLE + '/kern'
+const BRUECKE_ORDNER = QUELLE + '/softengine'
 // Nur diese drei Schichten laufen in der Maske; der Editor bleibt draussen.
 const LAUFZEIT_WURZELN = ['bausteine', 'kern', 'softengine'].map((name) => `${QUELLE}/${name}`)
 // bausteine/grund und bausteine/shared sind kein Baustein, sondern Grundlage.
@@ -19,7 +22,12 @@ const KEIN_BAUSTEIN = new Set(['grund', 'shared'])
 // nur, was ein Baustein darin einsteckt, nicht die ganze Sammlung.
 const FAEHIGKEITEN_ORDNER = 'faehigkeiten'
 const FAEHIGKEIT_VORSATZ = 'faehigkeit-'
+// Kern und Bruecke reisen genauso: je Datei ein Teil. Ein Textfeld traegt sonst
+// die ganze SoftEngine-Tuer mit, die es nie aufmacht.
+const KERN_VORSATZ = 'kern-'
+const BRUECKE_VORSATZ = 'bruecke-'
 const BASIS = 'basis'
+const NUR_TYP = /^\s*type\s/
 // Je Lauf ein eigener Entwurfsordner: Dev-Server, Test und Handaufruf bauen
 // sonst in denselben Ordner und loeschen einander die Einstiege weg.
 const ENTWURF = pfad(path.join(WURZEL, `node_modules/.tmp/laufzeit-entwurf-${process.pid}`))
@@ -38,16 +46,52 @@ function alleQuelldateien(ordner) {
   return gefunden
 }
 
-// Zu welchem Teil gehoert eine Datei? Alles ausserhalb der Baustein-Ordner ist Basis.
+// Alles, was von diesen Dateien aus ueber eigene Quellen erreichbar ist.
+function huelleAb(einstiege) {
+  const gefunden = new Set()
+  const offen = [...einstiege]
+  while (offen.length > 0) {
+    const datei = offen.pop()
+    if (gefunden.has(datei)) continue
+    gefunden.add(datei)
+    for (const { spec } of importeVon(readFileSync(datei, 'utf8'))) {
+      if (spec.startsWith('.')) offen.push(aufloesen(spec, path.dirname(datei)))
+    }
+  }
+  return gefunden
+}
+
+// Die Basis ist kein Sammelbecken: sie traegt die Fehlerwache und die Grundlage
+// jedes Bausteins und aus Kern und Bruecke nur das, was die selbst holen.
+const BASIS_DATEIEN = huelleAb([
+  QUELLE + '/export/fehlerWache.ts',
+  ...[...KEIN_BAUSTEIN].flatMap((ordner) => alleQuelldateien(`${BAUSTEIN_ORDNER}/${ordner}`)),
+])
+
+// Was kein Baustein erreicht, laeuft nur im Editor: es wird nicht gebaut und
+// zieht so auch keine Module in die Basis, die keine Maske je anfasst.
+const IN_DER_MASKE = huelleAb([QUELLE + '/export/fehlerWache.ts', ...alleQuelldateien(BAUSTEIN_ORDNER)])
+
+// Zu welchem Teil gehoert eine Datei? Die Basis zuerst, dann je Datei ein Teil.
 function teilVon(datei) {
+  if (BASIS_DATEIEN.has(datei)) return BASIS
+  if (datei.startsWith(KERN_ORDNER + '/')) return KERN_VORSATZ + teilName(datei, KERN_ORDNER)
+  if (datei.startsWith(BRUECKE_ORDNER + '/')) return BRUECKE_VORSATZ + teilName(datei, BRUECKE_ORDNER)
   if (!datei.startsWith(BAUSTEIN_ORDNER + '/')) return BASIS
   const [ordner, name] = datei.slice(BAUSTEIN_ORDNER.length + 1).split('/')
   if (ordner === FAEHIGKEITEN_ORDNER) return FAEHIGKEIT_VORSATZ + name.replace(/\.ts$/, '')
   return ordner.endsWith('.ts') || KEIN_BAUSTEIN.has(ordner) ? BASIS : ordner
 }
 
-function istFaehigkeit(teil) {
-  return teil.startsWith(FAEHIGKEIT_VORSATZ)
+// kern/daten/aktionen.ts wird kern-daten-aktionen: ein Dateiname je Teil.
+function teilName(datei, ordner) {
+  return datei.slice(ordner.length + 1).replace(/\.ts$/, '').replace(/\//g, '-')
+}
+
+// Faehigkeiten, Kern und Bruecke melden keinen Bausteintyp an; sie reisen mit
+// dem Baustein, der sie einsteckt oder importiert.
+function ohneBaustein(teil) {
+  return [FAEHIGKEIT_VORSATZ, KERN_VORSATZ, BRUECKE_VORSATZ].some((vorsatz) => teil.startsWith(vorsatz))
 }
 
 // Der Name, unter dem ein Modul im Fenster steht: FF.core$blocks$BlockData.
@@ -57,8 +101,6 @@ function globalerName(id) {
     .replace(/[^A-Za-z0-9]/g, '$')
   return 'FF.' + schluessel
 }
-
-const NUR_TYP = /^\s*type\s/
 
 // Die Namen einer Import-Klammer, so wie das Ziel sie exportiert: 'a as b'
 // zaehlt als 'a', ein eingestreutes 'type X' faellt weg.
@@ -110,6 +152,7 @@ function bauplan() {
   const dateienJeTeil = new Map([[BASIS, []]])
   for (const wurzel of LAUFZEIT_WURZELN) {
     for (const datei of alleQuelldateien(wurzel)) {
+      if (!IN_DER_MASKE.has(datei)) continue
       const teil = teilVon(datei)
       if (!dateienJeTeil.has(teil)) dateienJeTeil.set(teil, [])
       dateienJeTeil.get(teil).push(datei)
@@ -151,8 +194,7 @@ function bauplan() {
     if (teil === BASIS) continue
     const bausteine = dateien.flatMap((datei) =>
       [...readFileSync(datei, 'utf8').matchAll(BAUSTEIN_TYP)].map((treffer) => treffer[1]))
-    // Eine Faehigkeit meldet keinen Baustein an; sie reist mit dem, der sie braucht.
-    if (bausteine.length === 0 && !istFaehigkeit(teil)) {
+    if (bausteine.length === 0 && !ohneBaustein(teil)) {
       throw new Error(`Der Ordner bausteine/${teil} meldet keinen Bausteintyp an.`)
     }
     teile.push({

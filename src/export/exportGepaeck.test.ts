@@ -12,10 +12,9 @@ interface Verzeichnis { basisDatei: string; teile: Teil[]; inhalte: Record<strin
 
 const verzeichnis = JSON.parse(laufzeitRoh) as Verzeichnis
 
-// Obergrenzen in Byte, Stand 15.09.2026. Wer sie hochsetzt, sagt im Commit,
-// welcher Teil warum dazukam. Nach dem Kern-Umbau (Kern und Bruecke als
-// Teile) sinkt die kleine Maske auf 40_000.
-const GRENZE_KLEIN = 75_000
+// Obergrenzen in Byte, Stand 16.09.2026. Wer sie hochsetzt, sagt im Commit,
+// welcher Teil warum dazukam.
+const GRENZE_KLEIN = 40_000
 const GRENZE_MITTEL = 135_000
 
 // Der Export maskiert Nicht-ASCII und `</script`; darum erkennt der Test einen
@@ -68,6 +67,13 @@ function textMaske(): Maskenbaum {
   }
 }
 
+function trennerMaske(): Maskenbaum {
+  return {
+    [WURZEL_ID]: knoten(WURZEL_ID, WURZEL_TYP, null, {}, ['tr1']),
+    tr1: knoten('tr1', 'trenner', WURZEL_ID, { rasterX: 0, rasterY: 0, rasterW: 14, rasterH: 1 }),
+  }
+}
+
 function textUndTabelleMaske(): Maskenbaum {
   return {
     ...textMaske(),
@@ -85,6 +91,16 @@ function textUndTabelleMaske(): Maskenbaum {
 
 const VERBOTEN_KLEIN = ['tabelle', 'erfassung', 'kanban', 'formfeld', 'card', 'popup', 'datum', 'button']
 const VERBOTEN_MITTEL = ['erfassung', 'kanban', 'formfeld', 'nachschlagen', 'DialogRahmen', 'vorschlag']
+
+// Kern und Bruecke reisen wie eine Faehigkeit: nur mit dem Baustein, der sie
+// importiert. Ein Trenner holt keine Daten, also faehrt keine SoftEngine mit.
+test('eine Maske ohne Daten traegt weder Kern- noch Brueckenteil', () => {
+  const { html } = exportMask(trennerMaske(), 'Trennermaske')
+  const teile = teileImExport(html)
+  const summe = bericht('Maske ohne Daten: ein Trenner', teile)
+  expect([...teile.keys()], 'Gepaeck, das ein Trenner nicht braucht').toEqual(['trenner'])
+  expect(summe, 'die Maske ohne Daten ist schwerer als erlaubt').toBeLessThanOrEqual(GRENZE_KLEIN)
+})
 
 // Rot mit Ansage: der Text-Baustein zieht ueber die Faehigkeit Quelle sieben
 // Faehigkeiten nach, die er nicht braucht. Faellt beim Umbau des Textfelds in
