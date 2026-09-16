@@ -1,7 +1,7 @@
 // Meldet alle Bausteine an; ohne diese Datei kennt die Maske keinen.
 import './button/ButtonBlock'
 import './card/CardBlock'
-import './datum/DatumBlock'
+import './datum/Datum'
 import './erfassung/Erfassung'
 import './formfeld/FormFeld'
 import './kanban/KanbanBlock'

@@ -6,9 +6,8 @@ import { feldLesen, type LaufzeitQuelle } from '../../softengine/data'
 import { starteSe, hatSeDaten, onSeDaten } from '../../softengine/bridge'
 import { laufzeitQuelle, zeilenDerQuelle } from '../../softengine/laufzeitQuellen'
 import { aufAuswahlHoeren } from './auswahl'
-import { tagSchluessel } from './datumSchluessel'
 import { macheFeldLeser, type FeldLeser } from './fremdeQuellen'
-import { aufTagHoeren, gewaehlterTag } from './gewaehlterTag'
+import { aufTagHoeren, gewaehlterTag, tagSchluessel } from './gewaehlterTag'
 import { verdrahteHolendeQuellen } from './holendeQuellen'
 
 // Die Eigenschaft heisst wie das Attribut; Lit schreibt Attribute klein.
