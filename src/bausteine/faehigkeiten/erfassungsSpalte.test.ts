@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { ERFASSUNG_SPALTEN_BINDUNG } from './erfassungsEigenschaften'
+import { ERFASSUNG_SPALTEN_BINDUNG } from './erfassungsSpalte'
 
 // Anfuegen, Streichen und Verschieben bauen die ganze Spaltenliste neu auf. Was
 // nur die Erfassung an ihrer Spalte fuehrt, verschwand dabei still: das

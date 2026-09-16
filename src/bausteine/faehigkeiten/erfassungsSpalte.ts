@@ -1,5 +1,8 @@
-// Eine Spalte, die schreibt: was die Erfassung je Spalte kennt und die Liste nicht.
-import { coerceSpalten, standardSpalten, type Spalte } from '../faehigkeiten/spalten'
+// Eine Spalte, die schreibt: was sie ueber die Listenspalte hinaus kennt, wie der
+// Editor sie fuehrt und wann sie in der Zeile aenderbar ist.
+import type { EintragsSchalter, ListenBindung } from '../../kern/maske/bausteinArt'
+import { schalterAn, schalterFuer } from '../../kern/maske/listenBindung'
+import { coerceSpalten, SPALTEN_BINDUNG, standardSpalten, type Spalte } from './spalten'
 
 export interface ErfassungsSpalte extends Spalte {
   aenderbar?: boolean
@@ -61,4 +64,36 @@ export function tryCoerceErfassungsSpalten(v: string): ErfassungsSpalte[] {
   } catch {
     return standardSpalten()
   }
+}
+
+const AENDERBAR: EintragsSchalter = {
+  schluessel: 'aenderbar',
+  name: 'In der Zeile änderbar',
+  kurz: 'änderbar',
+  standard: true,
+  nurEigeneQuelle: true,
+}
+
+export const ERFASSUNG_SPALTEN_BINDUNG: ListenBindung = {
+  ...SPALTEN_BINDUNG,
+
+  eintragsSchalter: (SPALTEN_BINDUNG.eintragsSchalter ?? [])
+    .flatMap((s) => (s.schluessel === 'summe' ? [s, AENDERBAR] : [s])),
+
+  eintragsFeldWahl: [
+    {
+      schluessel: 'fuellFeld',
+      // Die Beschriftung muss sagen, WANN das Feld gilt.
+      name: 'Nachschlagen',
+      hinweis: 'Beim Erfassen füllt der gewählte Satz der Hilfsquelle diese Zelle.',
+      nurFremdeQuellen: true,
+    },
+  ],
+}
+
+export function spalteAenderbar(spalte: Spalte): boolean {
+  const eintrag = spalte as unknown as Record<string, unknown>
+  return spalte.feld !== ''
+    && schalterFuer(ERFASSUNG_SPALTEN_BINDUNG, eintrag).includes(AENDERBAR)
+    && schalterAn(AENDERBAR, eintrag)
 }

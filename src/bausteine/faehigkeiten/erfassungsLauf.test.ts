@@ -8,7 +8,7 @@ type Satz = Record<string, string>
 
 let zeilen: Satz[] | null = null
 
-vi.mock('../faehigkeiten/nachschlagen', () => ({
+vi.mock('./nachschlagen', () => ({
   quellenZeilen: (id: string) => (id === 'q1' ? zeilen : null),
   nachschlagEintraege: () => [],
 }))

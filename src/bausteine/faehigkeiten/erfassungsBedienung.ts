@@ -4,8 +4,8 @@ import {
   fensterBreiteFuer,
   FENSTER_HOEHE,
   oeffneNachschlagen,
-} from '../faehigkeiten/nachschlagen'
-import { tasteVon } from '../faehigkeiten/vorschlagStand'
+} from './nachschlagen'
+import { tasteVon } from './vorschlagStand'
 import type { ErfassungsLauf } from './erfassungsLauf'
 import {
   erfassungsZeileTpl,
@@ -13,7 +13,7 @@ import {
   zielIn,
   type ErfassungsUmfeld,
 } from './erfassungsZeile'
-import type { Spaltensicht } from '../faehigkeiten/spalten'
+import type { Spaltensicht } from './spalten'
 
 export interface ErfassungsWirt {
   baustein: HTMLElement
@@ -27,6 +27,9 @@ export interface ErfassungsWirt {
   fokussiere: (index: number) => void
 
   erfasseZeile: () => boolean
+
+  // Ohne Kopfzeile ist die Zelle der einzige Ort, an dem der Titel stehen kann.
+  titelInZelle: () => boolean
 }
 
 function waehle(wirt: ErfassungsWirt, index: number, listenIndex: number): void {
@@ -125,6 +128,7 @@ export function erfassungsZeileFuer(
     plaetze: sicht.plaetze,
     quelleId: umfeld.quelleId,
     cols,
+    titelInZelle: wirt.titelInZelle(),
     imEditor: wirt.baustein.hasAttribute('data-ff-editor'),
     wert: (i) => wirt.lauf.wertVon(umfeld, i),
     automatisch: (i) => wirt.lauf.istAutomatisch(umfeld, i),

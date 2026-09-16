@@ -1,41 +1,41 @@
-// Baustein Erfassung: eine Tabelle, die neue Zeilen annimmt, gebuchte aendert und loescht.
-import { nothing, type CSSResultGroup, type PropertyValues } from 'lit'
+// Baustein Erfassung: eine Liste, die neue Zeilen annimmt, gebuchte aendert und loescht.
+import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
-import type { Kategorie } from '../../kern/maske/bausteinElement'
-import type { Faehigkeit, GeschriebeneZeile, Lieferung, VormerkArt } from '../../kern/maske/faehigkeiten'
-import { meldeFehler } from '../../softengine/meldung'
 import { Grundbaustein } from '../grund/Grundbaustein'
+import type { Kategorie } from '../../kern/maske/bausteinElement'
+import type { Eigenschaft } from '../../kern/maske/eigenschaft'
+import type { Faehigkeit, GeschriebeneZeile, Lieferung, VormerkArt } from '../../kern/maske/faehigkeiten'
+import { BERECHNUNGEN_PROP, berechnungenAus, type Berechnung } from '../../kern/daten/berechnung'
+import { meldeFehler } from '../../softengine/meldung'
+import { LEER_TEXT_STANDARD, leerStil } from '../faehigkeiten/leerZustand'
+import {
+  LISTEN_RASTER,
+  ListenStand,
+  listenEigenschaften,
+  listenFaehigkeiten,
+  listenVorgaben,
+} from '../faehigkeiten/listenStand'
+import { standardSpalten } from '../faehigkeiten/spalten'
+import { tabelleStil } from '../faehigkeiten/tabelleStil'
+import { schliesseNachschlagenFuer } from '../faehigkeiten/nachschlagen'
 import { vorschlagStil } from '../faehigkeiten/vorschlagListe'
 import { meldeVormerkungen } from '../faehigkeiten/vormerkStand'
 import { geheInZelle, zellenEingabeStil, zellenFelder } from '../faehigkeiten/zellenEingabe'
-import { OHNE_SCHMUCK, type Unterzeilen, type Zeilenschmuck } from '../faehigkeiten/tabelleKoerper'
-import { schliesseNachschlagenFuer } from '../faehigkeiten/nachschlagen'
 import { hatSatzNummer } from '../faehigkeiten/zeilenAnschluss'
-import { standardSpalten } from '../faehigkeiten/spalten'
-import { BERECHNUNGEN_PROP, berechnungenAus, type Berechnung } from '../../kern/daten/berechnung'
-import { Tabelle } from '../tabelle/Tabelle'
-import { ErfassungsAnschluss } from './erfassungsAnschluss'
-import { erfassungsZeileFuer, type ErfassungsWirt } from './erfassungsBedienung'
+import type { Unterzeilen, Zeilenschmuck } from '../faehigkeiten/tabelleKoerper'
+import { ErfassungsStand } from '../faehigkeiten/erfassungsStand'
+import { erfassungsZeileFuer, type ErfassungsWirt } from '../faehigkeiten/erfassungsBedienung'
+import { erfassteZeilenTpl, erfassungsSchmuck } from '../faehigkeiten/erfassungsKoerper'
 import {
-  ERFASSUNG_EIGENSCHAFTEN,
   ERFASSUNG_SPALTEN_BINDUNG,
-  spalteAenderbar,
-} from './erfassungsEigenschaften'
-import {
-  erfassteZeilenTpl,
-  kreuzAnzeigeTpl,
-  loeschKreuzTpl,
-  tippZelleTpl,
-} from './erfassungsKoerper'
-import {
   coerceErfassungsSpalten,
   tryCoerceErfassungsSpalten,
   type ErfassungsSpalte,
-} from './erfassungsSpalte'
+} from '../faehigkeiten/erfassungsSpalte'
+import type { ErfassungsUmfeld } from '../faehigkeiten/erfassungsZeile'
+import { ZeilenBearbeitung, loeschbarEigenschaft } from '../faehigkeiten/zeilenBearbeitung'
+import { LaufStand, type ZeilenZeichen } from '../faehigkeiten/zeilenStatus'
 import { erfassungStil } from './erfassungStil'
-import type { ErfassungsUmfeld } from './erfassungsZeile'
-import { ZeilenBearbeitung } from './zeilenBearbeitung'
-import { LaufStand, type ZeilenZeichen } from './zeilenStatus'
 
 const NICHT_ANGEKOMMEN = 'Nicht im Beleg angekommen.'
 
@@ -45,15 +45,14 @@ const NICHT_GEAENDERT = 'Im Beleg unverändert geblieben.'
 
 const NICHT_GELOESCHT = 'Steht noch im Beleg.'
 
-export class ErfassungBlock extends Tabelle {
-  static override readonly typ = 'erfassung'
-  static override readonly tag = 'ff-erfassung'
-  static override readonly anzeigeName = 'Erfassung'
-  static override readonly kategorie: Kategorie = 'eingabe'
+export class Erfassung extends Grundbaustein {
+  static readonly typ = 'erfassung'
+  static readonly tag = 'ff-erfassung'
+  static readonly anzeigeName = 'Erfassung'
+  static readonly kategorie: Kategorie = 'eingabe'
 
-  static override readonly faehigkeiten: readonly Faehigkeit[] = [
-    ...Tabelle.faehigkeiten.filter((f) => f.art !== 'liste'),
-    { art: 'liste', bindung: ERFASSUNG_SPALTEN_BINDUNG },
+  static readonly faehigkeiten: readonly Faehigkeit[] = [
+    ...listenFaehigkeiten(ERFASSUNG_SPALTEN_BINDUNG),
     { art: 'erfassen' },
     { art: 'aendern', schluessel: 'aenderbar' },
     { art: 'loeschen', wenn: { schluessel: 'loeschbar', gleich: 'ja' } },
@@ -75,17 +74,22 @@ export class ErfassungBlock extends Tabelle {
     },
   ]
 
-  static override readonly vorgaben = {
-    ...Tabelle.vorgaben,
-    spalten: standardSpalten(),
+  static readonly vorgaben = {
+    ...listenVorgaben(),
     loeschbar: 'nein',
     [BERECHNUNGEN_PROP]: [],
   }
 
-  static override readonly eigenschaften = ERFASSUNG_EIGENSCHAFTEN
+  // Hinter der Suchzeile, wo der Schalter in der Liste stand.
+  static override readonly eigenschaften: Eigenschaft[] = listenEigenschaften()
+    .flatMap((p) => (p.schluessel === 'suche' ? [p, loeschbarEigenschaft()] : [p]))
+
+  static readonly raster = LISTEN_RASTER
 
   static override styles: CSSResultGroup = [
-    Tabelle.styles,
+    Grundbaustein.styles,
+    leerStil,
+    tabelleStil,
     vorschlagStil,
     zellenEingabeStil,
     erfassungStil,
@@ -98,7 +102,19 @@ export class ErfassungBlock extends Tabelle {
       toAttribute: (v: ErfassungsSpalte[]): string => JSON.stringify(v),
     },
   })
-  override spalten: ErfassungsSpalte[] = standardSpalten()
+  spalten: ErfassungsSpalte[] = standardSpalten()
+
+  @property() quelle = ''
+
+  @property() suche = 'ja'
+
+  @property() blaettern = 'ja'
+
+  @property() kopfzeile = 'ja'
+
+  @property() spaltenwahl = 'nein'
+
+  @property() leerText = LEER_TEXT_STANDARD
 
   @property() loeschbar = 'nein'
 
@@ -117,7 +133,15 @@ export class ErfassungBlock extends Tabelle {
   })
   berechnungen: Berechnung[] = []
 
-  private readonly _erfassung = new ErfassungsAnschluss()
+  @property({ attribute: false }) datenzeilen: string[][] = []
+
+  @property({ attribute: false }) rohzeilen: unknown[] = []
+
+  @property({ attribute: false }) durchAuswahlGefiltert = false
+
+  @property({ attribute: false }) datenGeliefert = false
+
+  private readonly _erfassung = new ErfassungsStand()
 
   private readonly _lauf = new LaufStand(() => this.requestUpdate())
 
@@ -130,6 +154,30 @@ export class ErfassungBlock extends Tabelle {
     melde: () => this.requestUpdate(),
     lauf: this._lauf,
     fokussiereErfassungsZelle: (index) => this.fokussiereErfassungsZelle(index),
+  })
+
+  private readonly _liste = new ListenStand({
+    baustein: this,
+    melde: () => this.requestUpdate(),
+    spalten: () => this.spaltenListe(),
+    berechnungen: () => this.berechnungsListe(),
+    // Ein Undo-Schritt je Aenderung der Spaltenliste.
+    schreibeSpalten: (spalten) => {
+      this.dispatchEvent(new CustomEvent('ff-prop-change', {
+        detail: { attr: 'spalten', value: spalten },
+        bubbles: true,
+        composed: true,
+      }))
+    },
+    quelle: () => this.quelle,
+    suche: () => this.suche === 'ja',
+    blaettern: () => this.blaettern === 'ja',
+    kopfzeile: () => this.kopfzeile === 'ja',
+    spaltenwahl: () => this.spaltenwahl === 'ja',
+    leerText: () => this.leerText,
+    zellWert: (rohIndex, platz) => this._zeilen.zellWert(rohIndex, platz),
+    schmuck: () => this.zeilenSchmuck(),
+    unten: () => this.unterZeilen(),
   })
 
   // Der Laufzeit-Vertrag der Kette am Knopf: sie liest diese Listen ueber die
@@ -173,7 +221,6 @@ export class ErfassungBlock extends Tabelle {
   // Der Vertrag der Faehigkeit haeltGesendete: die Lieferung entscheidet, welche
   // hinausgeschickte Zeile im Beleg steht. Die fehlenden bleiben vorgemerkt und
   // tragen die Fehlermarke, bis der naechste Lauf sie noch einmal versucht.
-  // Erfasste, geaenderte und geloeschte Zeilen nach derselben Regel.
   pruefeAnkunft(lieferung: Lieferung | null): void {
     const bericht = this._erfassung.pruefeAnkunft(lieferung, this.spaltenListe())
     for (const kennung of bericht.fehlende) {
@@ -193,20 +240,11 @@ export class ErfassungBlock extends Tabelle {
     if (bericht.geaendert || gebuchte.bewegt) this.requestUpdate()
   }
 
-  protected override setzeAbgeleitetesZurueck(): void {
-    super.setzeAbgeleitetesZurueck()
-    this._erfassung.zuruecksetzen()
-  }
-
-  protected override zellWert(rohIndex: number, platz: number): string {
-    return this._zeilen.zellWert(rohIndex, platz)
-  }
-
-  protected override spaltenListe(): ErfassungsSpalte[] {
+  private spaltenListe(): ErfassungsSpalte[] {
     return coerceErfassungsSpalten(this.spalten)
   }
 
-  protected override berechnungsListe(): readonly Berechnung[] {
+  private berechnungsListe(): readonly Berechnung[] {
     return berechnungenAus(this.berechnungen)
   }
 
@@ -227,6 +265,9 @@ export class ErfassungBlock extends Tabelle {
       melde: () => this.requestUpdate(),
       fokussiere: (index) => this.fokussiereErfassungsZelle(index),
       erfasseZeile: () => this.erfasseZeile(),
+      // Bei eingeschalteter Kopfzeile stehen die Titel schon oben; ein zweites
+      // Mal in der Zelle waere dasselbe Wort doppelt.
+      titelInZelle: () => this.kopfzeile !== 'ja',
     }
   }
 
@@ -264,43 +305,19 @@ export class ErfassungBlock extends Tabelle {
   // Getippt wird nur in der Maske und nur an Zeilen mit Satznummer: ohne sie
   // haette eine Aenderung kein Schreibziel.
   private get aendernMoeglich(): boolean {
-    return !this.imEditor && this.hatQuelle && hatSatzNummer(this)
+    return !this.imEditor && this.quelle.trim() !== '' && hatSatzNummer(this)
   }
 
-  protected override zeilenSchmuck(): (rohIndex: number | null) => Zeilenschmuck {
-    const loeschbar = this.loeschbar === 'ja'
-    const tippbar = this.aendernMoeglich
-    const kreuz = loeschbar && tippbar
-    return (rohIndex) => {
-      if (rohIndex === null) {
-        return {
-          ...OHNE_SCHMUCK,
-          rechts: loeschbar && this.imEditor ? kreuzAnzeigeTpl() : nothing,
-        }
-      }
-      const zeichen = this._zeilen.statusVon(rohIndex)
-      const geloescht = this._zeilen.istGeloescht(rohIndex)
-      return {
-        status: zeichen.status === 'gebucht' ? '' : zeichen.status,
-        titel: zeichen.titel,
-        klasse: geloescht ? 'geloescht' : '',
-        fehltext: zeichen.status === 'fehler' ? zeichen.titel : '',
-        zelle: (platz, spalte) => (tippbar && spalteAenderbar(spalte)
-          ? tippZelleTpl(this._zeilen, rohIndex, platz, spalte)
-          : null),
-        rechts: kreuz
-          ? loeschKreuzTpl(geloescht, () => this._zeilen.schalteLoeschung(rohIndex))
-          : nothing,
-        taste: (e) => {
-          if (e.key !== 'Delete' || !kreuz) return false
-          this._zeilen.schalteLoeschung(rohIndex)
-          return true
-        },
-      }
-    }
+  private zeilenSchmuck(): (rohIndex: number | null) => Zeilenschmuck {
+    return erfassungsSchmuck({
+      imEditor: this.imEditor,
+      loeschbar: this.loeschbar === 'ja',
+      tippbar: this.aendernMoeglich,
+      zeilen: this._zeilen,
+    })
   }
 
-  protected override unterZeilen(): Unterzeilen {
+  private unterZeilen(): Unterzeilen {
     const erfasste = this._erfassung.zeilen
     return {
       anzahl: 1 + erfasste.length,
@@ -340,9 +357,7 @@ export class ErfassungBlock extends Tabelle {
   // steht, sonst in die erste der Maske.
   private readonly maskenTaste = (e: KeyboardEvent): void => {
     if (this.imEditor || e.key !== 'Insert') return
-    const alle = Array.from(
-      this.ownerDocument.querySelectorAll<ErfassungBlock>(ErfassungBlock.tag),
-    )
+    const alle = Array.from(this.ownerDocument.querySelectorAll<Erfassung>(Erfassung.tag))
     const pfad = e.composedPath()
     const zustaendig = alle.find((t) => pfad.includes(t)) ?? alle[0]
     if (zustaendig !== this) return
@@ -352,25 +367,36 @@ export class ErfassungBlock extends Tabelle {
 
   override connectedCallback(): void {
     super.connectedCallback()
+    this._liste.angemeldet()
     document.addEventListener('keydown', this.maskenTaste)
+  }
+
+  protected override firstUpdated(): void {
+    this._liste.beobachte()
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
+    this._liste.abgemeldet()
     document.removeEventListener('keydown', this.maskenTaste)
     schliesseNachschlagenFuer(this)
   }
 
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed)
+    if (changed.has('spalten')) this._liste.spaltenGewechselt()
     if (this.imEditor) return
     this._erfassung.lauf.aktualisiereVorschlaege(this.erfassungsUmfeld())
   }
 
   protected override updated(): void {
-    super.updated()
+    this._liste.nachRendern()
     meldeVormerkungen(this)
+  }
+
+  override render(): TemplateResult {
+    return this._liste.zeichne()
   }
 }
 
-Grundbaustein.defineAndRegister(ErfassungBlock)
+Grundbaustein.defineAndRegister(Erfassung)

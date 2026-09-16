@@ -1,10 +1,11 @@
 // Vormerkungen an gebuchten Zeilen: Zellwerte aendern, Zeilen zum Loeschen merken.
 import type { Lieferung, VormerkArt } from '../../kern/maske/faehigkeiten'
-import { geheInZelle, zellenFelder } from '../faehigkeiten/zellenEingabe'
+import { jaNeinEigenschaft, type Eigenschaft } from '../../kern/maske/eigenschaft'
+import { geheInZelle, zellenFelder } from './zellenEingabe'
 import { ergaenzeZeile, ergebnisPlaetze, type Berechnung } from '../../kern/daten/berechnung'
-import { zeilenIndexVon } from '../faehigkeiten/zeilenAnschluss'
-import { alsZahl } from '../faehigkeiten/sortierung'
-import { spalteMitKennung, type Spalte } from '../faehigkeiten/spalten'
+import { zeilenIndexVon } from './zeilenAnschluss'
+import { alsZahl } from './sortierung'
+import { spalteMitKennung, type Spalte } from './spalten'
 import {
   aenderungAngekommen,
   loeschungAngekommen,
@@ -18,6 +19,16 @@ import type { LaufStand, ZeilenZeichen } from './zeilenStatus'
 // Die gebuchten Zeilen, ohne die Erfassungszeile: die haengt unten und waere
 // beim Wandern durch eine Spalte die falsche Nachbarin.
 const GEBUCHTE_ZEILEN = '.koerper > .zeile:not(.erfassung)'
+
+// Der Schalter der Faehigkeit loeschen: sie bringt ihn selbst mit.
+export function loeschbarEigenschaft(): Eigenschaft {
+  return jaNeinEigenschaft(
+    'loeschbar',
+    'Zeilen löschbar',
+    'Kreuz an jeder Zeile: merkt sie zum Löschen vor.',
+    { brauchtQuelle: true },
+  )
+}
 
 export interface ZeilenWirt {
   baustein: HTMLElement

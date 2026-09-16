@@ -3,10 +3,10 @@ import {
   nachschlagEintraege,
   quellenZeilen,
   type Eintrag,
-} from '../faehigkeiten/nachschlagen'
+} from './nachschlagen'
 import { feldLesen } from '../../softengine/data'
-import { vorschlaegeImFensterStand } from '../faehigkeiten/nachschlagen'
-import { VorschlagStand, type TastenFolge } from '../faehigkeiten/vorschlagStand'
+import { vorschlaegeImFensterStand } from './nachschlagen'
+import { VorschlagStand, type TastenFolge } from './vorschlagStand'
 import {
   alleFaktoren,
   berechnungsMaengel,
@@ -17,8 +17,8 @@ import {
   type FaktorStand,
 } from '../../kern/daten/berechnung'
 import { zerlegeBindung } from '../../kern/maske/bindung'
-import { alsZahl } from '../faehigkeiten/sortierung'
-import { spalteMitKennung } from '../faehigkeiten/spalten'
+import { alsZahl } from './sortierung'
+import { spalteMitKennung } from './spalten'
 import {
   anzeigeSpalteIn,
   fensterSpaltenIn,

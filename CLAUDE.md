@@ -57,24 +57,25 @@ zeigt, IST der Export: dieselben Lit-Elemente rendern im Editor (Attribut
 Das Repo wird von innen nach aussen neu gebaut. Festpunkte: das Exportformat,
 die SoftEngine-Kontrakte, die Regeln unten. Alles andere darf fallen.
 
-Stand 15.09.2026: Schritt 1 und 2 sind fertig (Commits 09dd63d bis b784f20).
+Stand 16.09.2026: Schritt 1 und 2 sind fertig (Commits 09dd63d bis b784f20).
 Der Kern spricht Deutsch, Faehigkeiten stehen in einer Liste, SoftEngine
-sitzt hinter der Tuer, die Ordner heissen kern, bausteine, editor. Die
-Tabelle ist umgebaut (5465141): drei Dateien, 27 Faehigkeiten in
-`bausteine/faehigkeiten/`, jede ein eigener Laufzeitteil; der SoftEngine-Test
-des Nutzers steht aus. Noch nicht im Muster: die Erfassung erbt weiter von
-der Tabelle, das Formularfeld importiert die Tabelle fuer das
-Nachschlagefenster, Nachschlagen hat keine Inspector-Bedienung. Wer neu
+sitzt hinter der Tuer, die Ordner heissen kern, bausteine, editor. Tabelle
+(5465141) und Erfassung sind umgebaut: je hoechstens drei Dateien, die
+gemeinsame Zeilenliste steckt als Faehigkeit `listenStand.ts` in beiden,
+jede Faehigkeit ein eigener Laufzeitteil; der SoftEngine-Test des Nutzers
+steht fuer beide aus. Noch nicht im Muster: das Formularfeld importiert die
+Tabelle fuer das Nachschlagefenster, Nachschlagen hat keine
+Inspector-Bedienung. Wer neu
 einsteigt: erst `npm run check` und `npm test` (muessen gruen sein), dann
 `git log -12`, dann diese Datei ganz. Keine Datei anfassen, die nicht zum
 laufenden Schritt gehoert.
 
 1. Regeln. Erledigt.
 2. Kern. Erledigt.
-3. **Bausteine, die Tabelle zuerst als Muster.** Tabelle erledigt. Danach
-   die uebrigen Bausteine genau so, Reihenfolge: Erfassung, Formularfeld,
-   Text, Datum, Button, Popup, Kanban mit Card, Trenner, Anmeldung. Kein
-   Baustein bleibt alt: die Palette ist das Produkt.
+3. **Bausteine, die Tabelle zuerst als Muster.** Tabelle und Erfassung
+   erledigt. Danach die uebrigen Bausteine genau so, Reihenfolge:
+   Formularfeld, Text, Datum, Button, Popup, Kanban mit Card, Trenner,
+   Anmeldung. Kein Baustein bleibt alt: die Palette ist das Produkt.
 4. Editor: Flaeche, Palette, Inspector, Datencenter, Design. Das Datencenter
    wird gegen kontrakte.md neu gedacht, nicht aus dem heutigen Code
    abgeschrieben: Quellenarten nach Abschnitt 4, 4a, 4c (Bestellung,
@@ -138,13 +139,15 @@ Was die Tabelle als Muster heisst:
 - Die Eigenschaften der Tabelle heissen deutsch (`quelle` statt `source`,
   `breite` statt `width`). Damit aendern sich Export-Attribute: Referenzabzug
   erneuern und im Commit sagen, welche.
-- Die Erfassung erbt danach nicht mehr von der Tabelle. Sie wird ein eigener
-  Baustein, der dieselben Faehigkeiten einsteckt und Erfassen dazu.
+- Die Erfassung erbt nicht mehr von der Tabelle (erledigt): ein eigener
+  Baustein, der dieselben Faehigkeiten einsteckt und Erfassen dazu. Was beide
+  gleich brauchen, steckt in `faehigkeiten/listenStand.ts`; der Baustein
+  haelt nur noch seine Eigenschaften und seine eigenen Naehte.
 - Optik: Kopf folgt der Zeilenhoehe, Fuss nur mit Inhalt (erledigt in
-  5465141). Fuer die Erfassung offen: bei eingeschalteter Kopfzeile stehen
-  die Spaltentitel nicht noch einmal in den Zellen; der Platzhalter in der
-  Zelle gilt nur ohne Kopfzeile. Eine Berechnung ohne gewaehlte Spalten wird
-  nicht exportiert.
+  5465141). Bei eingeschalteter Kopfzeile stehen die Spaltentitel nicht noch
+  einmal in den Zellen der Erfassung; der Platzhalter dort gilt nur ohne
+  Kopfzeile. Eine Berechnung ohne gewaehlte Spalten wird nicht exportiert.
+  Beides erledigt.
 - Jede Faehigkeit ist ein eigener Laufzeitteil (erledigt in 5465141); eine
   Maske traegt nur, was ihre Bausteine einstecken. Beweis:
   `src/export/exportGepaeck.test.ts` exportiert drei Masken und nennt je

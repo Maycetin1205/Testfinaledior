@@ -86,10 +86,10 @@ function alsBreite(v: unknown): number | undefined {
 
 const BEKANNTE_ANGABEN = ['kennung', 'titel', 'feld', 'breite', 'summe', 'versteckt']
 
-// Was eine erbende Tabelle an IHRER Spalte fuehrt, reist unberuehrt mit: die
-// Erfassung haengt Fuellfeld, Schalter und Suchfenster daran. Ohne das verlor
-// jedes Anfuegen, Streichen und Verschieben sie still, weil diese Stelle die
-// Spalte aus einer festen Schluesselliste neu aufbaut.
+// Was ein Baustein an SEINER Spalte zusaetzlich fuehrt, reist unberuehrt mit:
+// die Erfassung haengt Fuellfeld, Schalter und Suchfenster daran. Ohne das
+// verlor jedes Anfuegen, Streichen und Verschieben sie still, weil diese Stelle
+// die Spalte aus einer festen Schluesselliste neu aufbaut.
 function weitereAngaben(o: Record<string, unknown>): Record<string, unknown> {
   const rest: Record<string, unknown> = {}
   for (const [key, wert] of Object.entries(o)) {

@@ -1,9 +1,12 @@
-// Zeichnet, was die Erfassung an die Tabelle haengt: Tippzelle, Kreuz, erfasste Zeilen.
+// Zeichnet, was das Erfassen an die Liste haengt: Zeilenschmuck, Tippzelle,
+// Kreuz, erfasste Zeilen.
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import { eingabeStelleTpl, zellenKlasse } from '../faehigkeiten/zellenEingabe'
-import { alsZahl } from '../faehigkeiten/sortierung'
-import type { Spalte } from '../faehigkeiten/spalten'
+import { eingabeStelleTpl, zellenKlasse } from './zellenEingabe'
+import { spalteAenderbar } from './erfassungsSpalte'
+import { alsZahl } from './sortierung'
+import type { Spalte } from './spalten'
+import { OHNE_SCHMUCK, type Zeilenschmuck } from './tabelleKoerper'
 import type { ZeilenBearbeitung } from './zeilenBearbeitung'
 import type { ZeilenZeichen } from './zeilenStatus'
 
@@ -117,4 +120,48 @@ export function erfassteZeilenTpl(lage: ErfassteLage, tun: ErfassteHandeln): Tem
   })}${lage.korrekturPlatz === null || lage.korrekturPlatz >= lage.erfasste.length
     ? lage.erfassung
     : nothing}`
+}
+
+export interface SchmuckLage {
+  imEditor: boolean
+
+  loeschbar: boolean
+
+  // Getippt wird nur in der Maske und nur an Zeilen mit Satznummer.
+  tippbar: boolean
+
+  zeilen: ZeilenBearbeitung
+}
+
+// Was eine gebuchte Zeile ueber die gelieferten Werte hinaus traegt: Statuspunkt,
+// Tippzelle und das Kreuz, das sie zum Loeschen vormerkt.
+export function erfassungsSchmuck(lage: SchmuckLage): (rohIndex: number | null) => Zeilenschmuck {
+  const kreuz = lage.loeschbar && lage.tippbar
+  return (rohIndex) => {
+    if (rohIndex === null) {
+      return {
+        ...OHNE_SCHMUCK,
+        rechts: lage.loeschbar && lage.imEditor ? kreuzAnzeigeTpl() : nothing,
+      }
+    }
+    const zeichen = lage.zeilen.statusVon(rohIndex)
+    const geloescht = lage.zeilen.istGeloescht(rohIndex)
+    return {
+      status: zeichen.status === 'gebucht' ? '' : zeichen.status,
+      titel: zeichen.titel,
+      klasse: geloescht ? 'geloescht' : '',
+      fehltext: zeichen.status === 'fehler' ? zeichen.titel : '',
+      zelle: (platz, spalte) => (lage.tippbar && spalteAenderbar(spalte)
+        ? tippZelleTpl(lage.zeilen, rohIndex, platz, spalte)
+        : null),
+      rechts: kreuz
+        ? loeschKreuzTpl(geloescht, () => lage.zeilen.schalteLoeschung(rohIndex))
+        : nothing,
+      taste: (e) => {
+        if (e.key !== 'Delete' || !kreuz) return false
+        lage.zeilen.schalteLoeschung(rohIndex)
+        return true
+      },
+    }
+  }
 }

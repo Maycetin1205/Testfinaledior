@@ -1,11 +1,11 @@
 // Das Umfeld einer Erfassungszeile: Zellenziele, Hilfsquellen, Fensterspalten.
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import type { Vorschlag } from '../faehigkeiten/vorschlagListe'
-import { eingabeStelleTpl, zellenKlasse } from '../faehigkeiten/zellenEingabe'
-import { fensterSpaltenOder } from '../faehigkeiten/nachschlagen'
-import { alsZahl } from '../faehigkeiten/sortierung'
-import { ZELLE_PLATZHALTER, type Spalte } from '../faehigkeiten/spalten'
+import type { Vorschlag } from './vorschlagListe'
+import { eingabeStelleTpl, zellenKlasse } from './zellenEingabe'
+import { fensterSpaltenOder } from './nachschlagen'
+import { alsZahl } from './sortierung'
+import { ZELLE_PLATZHALTER, type Spalte } from './spalten'
 import type { ErfassungsSpalte } from './erfassungsSpalte'
 import { zerlegeBindung } from '../../kern/maske/bausteinArt'
 import type { Berechnung } from '../../kern/daten/berechnung'
@@ -21,6 +21,9 @@ export interface ErfassungsLage {
   cols: Readonly<Record<string, string>>
 
   imEditor: boolean
+
+  // Mit Kopfzeile steht der Spaltentitel schon oben; dann bleibt die Zelle leer.
+  titelInZelle: boolean
 
   wert: (index: number) => string
 
@@ -56,7 +59,9 @@ export function erfassungsZeileTpl(
         return html`<div
           class=${spalte.versteckt === true ? 'versteckt' : nothing}
           role="cell"
-        ><span class="zell-beschriftung">${spalte.titel || ZELLE_PLATZHALTER}</span></div>`
+        ><span class="zell-beschriftung">${
+          lage.titelInZelle ? spalte.titel || ZELLE_PLATZHALTER : ''
+        }</span></div>`
       }
       const platz = lage.plaetze[i]
       // Eine freie Zelle hat nichts nachzuschlagen; ihre Liste bliebe leer.
@@ -70,7 +75,7 @@ export function erfassungsZeileTpl(
       >${eingabeStelleTpl({
         wert,
         titel: spalte.titel,
-        platzhalter: spalte.titel,
+        platzhalter: lage.titelInZelle ? spalte.titel : '',
         klasse: zellenKlasse(lage.automatisch(platz) ? 'automatisch' : 'ruhig'),
         halterKlasse: 'zell-halter',
         platz,

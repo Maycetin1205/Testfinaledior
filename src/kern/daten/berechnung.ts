@@ -538,6 +538,14 @@ export function berechnungenAus(roh: unknown): Berechnung[] {
   return raus
 }
 
+// Eine Berechnung, in der keine Groesse eine Spalte traegt, rechnet an keiner
+// Zeile etwas. Im Editor bleibt sie stehen, in die Maske reist sie nicht.
+export function berechnungenFuerExport(roh: unknown): unknown {
+  if (!Array.isArray(roh)) return roh
+  return roh.filter((eintrag) => berechnungenAus([eintrag])
+    .some((b) => alleFaktoren(b).some((f) => f.art === 'spalte' && f.spalte !== '')))
+}
+
 export function neuerFaktor(kennung: string): SpaltenFaktor {
   return {
     art: 'spalte',

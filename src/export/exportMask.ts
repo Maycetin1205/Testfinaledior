@@ -14,6 +14,7 @@ import {
   traegtLoeschungen,
 } from '../kern/maske/baumFragen'
 import { BAUSTEIN_ID_ATTR, kettenFuerExport } from '../kern/daten/aktionen'
+import { berechnungenFuerExport } from '../kern/daten/berechnung'
 import { AUSWAHL_FOLGE_PROP } from '../kern/daten/auswahlFolge'
 import {
   felderHinterSchnitt,
@@ -106,6 +107,7 @@ function nodeToHtml(
   const def = bausteinArt(node.typ)
   if (!def) return ''
   const liste = faehigkeit(def, 'liste')?.bindung
+  const rechnet = faehigkeit(def, 'rechnen')?.prop
 
   const pad = '  '.repeat(depth)
   if (templateCtx && node.typ === templateCtx.type) {
@@ -149,7 +151,9 @@ function nodeToHtml(
         ? popupName(String(node.werte[seitenIdProp] ?? ''))
         : liste !== undefined && key === liste.prop
           ? listeFuerExport(node.werte[key] ?? standard, liste)
-          : (node.werte[key] ?? standard)
+          : key === rechnet
+            ? berechnungenFuerExport(node.werte[key] ?? standard)
+            : (node.werte[key] ?? standard)
       const roh = vorschauStellen.has(key)
         ? vorschauRoh(node, vorschauStellen.get(key)!, sources, standard)
         : attributWert(wert)

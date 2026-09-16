@@ -2,8 +2,8 @@
 // wohin der gezogene Rand und der Spaltenkopf sie zurueckschreiben. Eingestellt
 // wird IM Fenster; diese Datei ist nur der Weg dorthin.
 import { QUELLE_PROP } from '../../kern/maske/quelleProp'
-import { coerceErfassungsSpalten } from '../../bausteine/erfassung/erfassungsSpalte'
-import { fensterSpaltenIn } from '../../bausteine/erfassung/erfassungsZeile'
+import { coerceErfassungsSpalten } from '../../bausteine/faehigkeiten/erfassungsSpalte'
+import { fensterSpaltenIn } from '../../bausteine/faehigkeiten/erfassungsZeile'
 import {
   FENSTER_HOEHE,
   automatikSpalten,

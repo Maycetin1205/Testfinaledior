@@ -348,3 +348,33 @@ test('ein entfallener Bausteintyp faellt weg, der Rest wird geladen und es wird 
   expect(meldungsText()).toContain('„ansicht"')
   expect(kopien(STORAGE_KEY)).toHaveLength(0)
 })
+
+// Die Erfassung ist ein eigener Baustein geworden und erbt nicht mehr von der
+// Tabelle. In der Datei heisst sie weiter „erfassung", und keine ihrer Angaben
+// wurde umbenannt: eine Maske von gestern muss Spalte fuer Spalte wiederkommen.
+test('eine gespeicherte Erfassung laedt mit allen ihren Angaben', () => {
+  const werte = {
+    quelle: 'q1',
+    spalten: [{
+      kennung: 's1', titel: 'Menge', feld: '164_8',
+      fuellFeld: 'q-art::menge', aenderbar: false, fensterBreite: 600,
+      fensterSpalten: [{ kennung: 'f1', titel: 'Nummer', feld: 'nr' }],
+    }],
+    loeschbar: 'ja',
+    berechnungen: [{ kennung: 'b1', name: 'Doppelt' }],
+  }
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: {
+      ...wurzelBaum(['e1']),
+      e1: { id: 'e1', typ: 'erfassung', werte, elternId: WURZEL_ID, kinderIds: [] },
+    },
+    selectedId: null, datenquellen: [], relationen: [], activePageId: WURZEL_ID,
+  }))
+
+  // toMatchObject: der Lader legt die Vorgaben des Bausteins dazu. Zaehlen
+  // soll, dass nichts Gespeichertes verlorengeht.
+  expect(loadFromStorage()?.tree.e1.werte).toMatchObject(werte)
+  expect(meldungsText()).toBe('')
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
+})

@@ -2,7 +2,7 @@
 import './button/ButtonBlock'
 import './card/CardBlock'
 import './datum/DatumBlock'
-import './erfassung/ErfassungBlock'
+import './erfassung/Erfassung'
 import './formfeld/FormFeldBlock'
 import './kanban/KanbanBlock'
 import './kanban/KanbanSpalteBlock'

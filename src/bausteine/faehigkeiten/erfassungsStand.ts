@@ -1,7 +1,7 @@
-// Haelt Tipp-Lauf und erfasste Zeilen einer Tabelle zusammen.
+// Der Stand des Erfassens: Tipp-Lauf und die erfassten Zeilen einer Liste.
 import type { GeschriebeneZeile, Lieferung } from '../../kern/maske/faehigkeiten'
 import type { Berechnung } from '../../kern/daten/berechnung'
-import { verknuepfungenVon } from '../faehigkeiten/fremdeQuellen'
+import { verknuepfungenVon } from './fremdeQuellen'
 import { ankunftPruefen, fehlenMeldung, type FehlendeZeile } from './ankunft'
 import { ErfassungsLauf } from './erfassungsLauf'
 import type { ErfassungsUmfeld } from './erfassungsZeile'
@@ -17,7 +17,7 @@ export interface AnkunftsBericht {
   geaendert: boolean
 }
 
-export class ErfassungsAnschluss {
+export class ErfassungsStand {
   readonly lauf = new ErfassungsLauf()
 
   // `geschrieben` traegt die Satznummer, mit der die Zeile hinausging; sie ist
