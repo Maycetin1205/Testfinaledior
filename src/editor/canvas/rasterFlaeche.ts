@@ -1,7 +1,10 @@
-// Die Rasterflaeche im DOM: welches Element sie ist und welche unter dem Zeiger liegt.
+// Die Rasterflaeche im DOM: welches Element sie ist, welche unter dem Zeiger
+// liegt und wie viele Zeilen sie fasst.
 import { WURZEL_ID, type Baustein, type Maskenbaum } from '../../kern/maske/baum'
+import { RASTER } from '../../kern/maske/raster'
 import { istRasterFlaeche } from '../../kern/maske/rasterFlaeche'
 import { bausteinArt } from '../../kern/maske/registry'
+import { istSeitenBaustein } from '../../kern/maske/seiten'
 
 // Die Flaeche der Hauptseite gehoert keinem Baustein; die Leinwand zeichnet sie
 // und kennzeichnet sie damit.
@@ -68,4 +71,37 @@ export function flaecheUnterZeiger(
   }
   suche(seitenId)
   return treffer
+}
+
+// Ein Baustein-Kasten ist so hoch, wie sein Platz im Raster ihn macht, und
+// schneidet ab, was darunter faellt. Die Wurzelflaeche und eine Seite wachsen
+// mit ihrem Inhalt; sie begrenzen nichts und antworten darum mit null.
+export function zeilenKapazitaet(
+  tree: Maskenbaum,
+  parentId: string,
+  flaeche: HTMLElement,
+): number | null {
+  const node = tree[parentId]
+  if (!node || parentId === WURZEL_ID || istSeitenBaustein(node)) return null
+  if (bausteinArt(node.typ)?.rasterFlaeche !== true) return null
+  const stil = getComputedStyle(flaeche)
+  const innen = flaeche.clientHeight
+    - (parseFloat(stil.paddingTop) || 0)
+    - (parseFloat(stil.paddingBottom) || 0)
+  const abstand = parseFloat(stil.rowGap) || RASTER.gapPx
+  return Math.max(1, Math.floor((innen + abstand) / (RASTER.zeilePx + abstand)))
+}
+
+// Unter der letzten Zeile, die noch in den Kasten passt, faengt der Schnitt an:
+// dort ist ein Baustein weder zu sehen noch anzuklicken. Darum haelt ihn diese
+// Zeile beim Ziehen auf.
+export function zeileImKasten(kapazitaet: number | null, y: number, h: number): number {
+  if (kapazitaet === null) return Math.max(0, y)
+  return Math.max(0, Math.min(y, kapazitaet - h))
+}
+
+// Am unteren Anfasser bleibt die Oberkante stehen; nur die Hoehe endet am Kasten.
+export function hoeheImKasten(kapazitaet: number | null, y: number, h: number): number {
+  if (kapazitaet === null) return h
+  return Math.max(1, Math.min(h, kapazitaet - y))
 }

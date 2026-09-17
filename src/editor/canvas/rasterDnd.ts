@@ -5,6 +5,7 @@ import { RASTER, rasterMassVon } from '../../kern/maske/raster'
 import type { useEditor } from '../zustand/useEditor'
 import { newBlockDragType } from './dnd'
 import type { DndState, DropTarget } from './dndState'
+import { zeilenKapazitaet, zeileImKasten } from './rasterFlaeche'
 
 export function zelleAusZeiger(
   gridEl: HTMLElement,
@@ -84,6 +85,7 @@ export function rasterZiel(
   if (!groesse) return null
   const zelle = zelleAusZeiger(gridEl, e.clientX, e.clientY)
   const x = Math.max(0, Math.min(zelle.x, RASTER.spalten - groesse.w))
-  const y = Math.max(0, zelle.y)
+  const kapazitaet = zeilenKapazitaet(ed.tree, parentId, gridEl)
+  const y = zeileImKasten(kapazitaet, zelle.y, groesse.h)
   return { kind: 'raster', parentId, x, y, w: groesse.w, h: groesse.h }
 }

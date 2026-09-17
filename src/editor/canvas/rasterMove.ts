@@ -6,7 +6,13 @@ import { darfEnthalten } from '../../kern/maske/registry'
 import type { Editor } from '../zustand/Editor'
 import type { DndState } from './dndState'
 import { zelleAusZeiger } from './rasterDnd'
-import { flaecheUnterZeiger, flaecheVon, type FlaechenTreffer } from './rasterFlaeche'
+import {
+  flaecheUnterZeiger,
+  flaecheVon,
+  zeilenKapazitaet,
+  zeileImKasten,
+  type FlaechenTreffer,
+} from './rasterFlaeche'
 
 const ZUG_SCHWELLE = 4
 
@@ -84,7 +90,8 @@ export function ziehePosition(
     const ziel = zielFlaeche(ev.clientX, ev.clientY)
     const zelle = zelleAusZeiger(ziel.flaeche, ev.clientX - greif.x, ev.clientY - greif.y)
     const x = Math.max(0, Math.min(zelle.x, RASTER.spalten - pos.w))
-    const y = Math.max(0, zelle.y)
+    const kapazitaet = zeilenKapazitaet(editor.tree, ziel.parentId, ziel.flaeche)
+    const y = zeileImKasten(kapazitaet, zelle.y, pos.h)
     letztes = { ziel, x, y }
     dnd.setDropTarget({ kind: 'raster', parentId: ziel.parentId, x, y, w: pos.w, h: pos.h })
   }

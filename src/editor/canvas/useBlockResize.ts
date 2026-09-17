@@ -4,6 +4,7 @@ import type { Baustein } from '../../kern/maske/baum'
 import { bausteinArt } from '../../kern/maske/registry'
 import { RASTER, rasterPlatzLesen, rasterMassVon } from '../../kern/maske/raster'
 import type { Editor } from '../zustand/Editor'
+import { flaecheVon, hoeheImKasten, zeilenKapazitaet } from './rasterFlaeche'
 import { zieheGroesse } from './zieheGroesse'
 
 export function useBlockResize(
@@ -47,6 +48,12 @@ export function useBlockResize(
         anwenden: (id, wert) => editor.resizeNodeToCells(id, 'x', wert),
       })
     } else {
+      // Der Kasten um den Baustein waechst beim Ziehen nicht mit: was unter
+      // seine letzte Zeile reicht, waere weg.
+      const flaeche = el.parentElement ? flaecheVon(el.parentElement) : null
+      const kapazitaet = flaeche && node.elternId
+        ? zeilenKapazitaet(editor.tree, node.elternId, flaeche)
+        : null
       zieheGroesse(editor, e, {
         achse: 'y',
         prop: 'rasterH',
@@ -55,7 +62,9 @@ export function useBlockResize(
         min: Math.max(1, spec.minHoehe),
         schritt: (rect.height + RASTER.gapPx) / pos.h,
 
-        anwenden: (id, wert) => editor.resizeNodeToCells(id, 'y', wert),
+        anwenden: (id, wert) => {
+          editor.resizeNodeToCells(id, 'y', hoeheImKasten(kapazitaet, pos.y, wert))
+        },
       })
     }
   }
