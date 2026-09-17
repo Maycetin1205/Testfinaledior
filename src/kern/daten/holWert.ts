@@ -4,7 +4,7 @@ import {
   type Parameter,
   type ParameterQuelle,
 } from './aktionen'
-import { artFuer, traegt, type QuellenArtKennung } from './quellenArten'
+import { artFuer, type QuellenArtKennung } from './quellenArten'
 
 // Eine Quelle holt ohne Baustein und ohne laufende Kette: was an einem Klick,
 // einer Zeile oder einem Schritt-Ergebnis haengt, ginge hier still leer hinaus.
@@ -41,7 +41,7 @@ export function pruefeHolWert(raw: unknown): HolWert | null {
 export function holWertVon(
   source: { art: QuellenArtKennung; holWert?: HolWert },
 ): HolWert | null {
-  if (!traegt(artFuer(source.art), 'HOL_WERT')) return null
+  if (!artFuer(source.art).holWertMoeglich) return null
   return source.holWert ?? null
 }
 

@@ -8,15 +8,10 @@ import {
   QUELLEN_ART_KENNUNGEN,
   QUELLEN_ARTEN,
   tabellenKennungNoetig,
-  traegt,
   type QuellenArtKennung,
-  type Schluessel,
 } from './quellenArten'
 
-export {
-  artFuer, QUELLEN_ART_KENNUNGEN, QUELLEN_ARTEN, tabellenKennungNoetig, traegt,
-  type QuellenArtKennung, type Schluessel,
-}
+export { artFuer, QUELLEN_ART_KENNUNGEN, QUELLEN_ARTEN, tabellenKennungNoetig, type QuellenArtKennung }
 export {
   holWertVon,
   HOL_WERT_QUELLEN,
@@ -99,13 +94,13 @@ export function feldKlarname(
 }
 
 export function istOffenerSatz(source: Datenquelle): boolean {
-  return traegt(artFuer(source.art), 'VAR') && source.lieferung === 'offenerSatz'
+  return artFuer(source.art).varMoeglich && source.lieferung === 'offenerSatz'
 }
 
 // Arten ohne Satznummer geben '': sonst bestellte der Export einen Feldcode, den
 // ihre Quelle nicht kennt, und die Tabelle boete Aendern und Loeschen an.
 export function satzNummerVon(source: Datenquelle): string {
-  if (!traegt(artFuer(source.art), 'INDEX_NR')) return ''
+  if (!artFuer(source.art).satzNummerMoeglich) return ''
   return (source.satzFeld ?? '').trim()
 }
 
@@ -182,14 +177,14 @@ export function loopReihenfolge(sources: readonly Datenquelle[]): Datenquelle[] 
   const alleinstehend: Datenquelle[] = []
   const unterKopfsatz: Datenquelle[] = []
   for (const source of sources) {
-    if (traegt(artFuer(source.art), 'KOPFSATZ_INDEX')) unterKopfsatz.push(source)
+    if (artFuer(source.art).kopfsatzMoeglich) unterKopfsatz.push(source)
     else alleinstehend.push(source)
   }
   return [...alleinstehend, ...unterKopfsatz]
 }
 
 export function kopfsatzVon(source: Datenquelle): string {
-  if (!traegt(artFuer(source.art), 'KOPFSATZ_INDEX')) return ''
+  if (!artFuer(source.art).kopfsatzMoeglich) return ''
   return (source.kopfsatzIndex ?? '').trim()
 }
 
