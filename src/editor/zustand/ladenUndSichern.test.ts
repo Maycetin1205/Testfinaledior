@@ -5,10 +5,10 @@ import { meldungen } from './meldungen'
 import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
 import { pruefeBaumStand } from './ladeKette'
 import { backupKeyFor } from './notfallkopie'
-import { inhaltText, kopienZurWahl, stelleKopieWiederHer } from './kopienWahl'
+import { inhaltText, kopienZurWahl } from './kopienWahl'
 import { BIBLIOTHEK_KEY, loadFromStorage, persistState, STORAGE_KEY } from './persistence'
 import { EINGEBAUTE_RELATIONEN } from '../../kern/daten/relationen'
-import { BIBLIOTHEK_DATEI_ART, packeBibliothekAus } from './bibliothekDatei'
+import { packeBibliothekAus } from './bibliothekDatei'
 import { Editor } from './Editor'
 
 // Hier haengt, dass kein gespeicherter Stand stumm verschwindet: was der Editor
@@ -283,9 +283,7 @@ test('eine Tafel im Format 13 laedt ohne Musterbaustein und mit deutschen Namen'
   expect(stand?.tree.k1.werte).toMatchObject({ spaltenFeld: '18_25' })
   expect(stand?.tree.s1.werte).toMatchObject({ titel: 'Offen', farbwelt: 'info', unterteilungsFeld: '30_10' })
   expect(stand?.tree.z1.werte).toMatchObject({ titel: 'Meier' })
-  // Die Hebung hat den alten Stand ersetzt; er liegt unveraendert als Kopie.
-  expect(kopien(STORAGE_KEY).map((k) => speicher.getItem(k)),
-    'der gehobene Stand liegt nicht als Kopie').toEqual([speicher.getItem(STORAGE_KEY)])
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
   expect(meldungsText()).toBe('')
 })
 
@@ -361,9 +359,7 @@ test('ein Stand im Format 9 wird beim Laden auf den heutigen Stand gehoben', () 
   })
   expect(stand?.datenquellen[0]).toMatchObject({ art: 'beleg', satzFeld: '0_11', felder: [{ code: '3_8', name: 'Nummer' }] })
   expect(stand?.relationen[0]).toMatchObject({ parameter: ['{PINDEX}'], zusatzParameterErlaubt: false })
-  // Die Hebung hat den alten Stand ersetzt; er liegt unveraendert als Kopie.
-  expect(kopien(STORAGE_KEY).map((k) => speicher.getItem(k)),
-    'der gehobene Stand liegt nicht als Kopie').toEqual([speicher.getItem(STORAGE_KEY)])
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
   expect(meldungsText()).toBe('')
 })
 
@@ -420,9 +416,7 @@ test('ein Formularfeld aus Format 11 laedt mit den deutschen Namen', () => {
   })
   expect(Object.keys(werte ?? {})).not.toContain('fieldType')
   expect(meldungsText()).toBe('')
-  // Die Hebung hat den alten Stand ersetzt; er liegt unveraendert als Kopie.
-  expect(kopien(STORAGE_KEY).map((k) => speicher.getItem(k)),
-    'der gehobene Stand liegt nicht als Kopie').toEqual([speicher.getItem(STORAGE_KEY)])
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
 })
 
 // Am 15.09. nahm „Notfallkopie wiederherstellen" blind die juengste — die war
@@ -658,92 +652,4 @@ test('eine von Hand geloeschte Quelle ist nach dem naechsten Start weg', () => {
   // Auch ohne Maskenstand darf sie nicht aus der Sicherung zurueckkommen.
   speicher.removeItem(STORAGE_KEY)
   expect(new Editor().datenquellen.list, 'die Sicherung hat sie zurueckgeholt').toEqual([])
-})
-
-// Der Weg zurueck. Eine Hebung ersetzt den gespeicherten Stand, und der naechste
-// Speicherlauf schreibt den neuen darueber. Ohne eine Kopie des alten gaebe es
-// kein Zurueck: `schemaLesbar` prueft auf Gleichheit, ein Editor von gestern
-// liest einen Stand von heute nicht.
-
-function standImFormat10(quellen: readonly unknown[]): string {
-  return JSON.stringify({
-    schemaVersion: 10,
-    tree: {
-      ...wurzelBaum(['t1']),
-      t1: {
-        id: 't1', typ: 'tabelle', werte: { source: 'q1', tagField: '5_8' },
-        elternId: WURZEL_ID, kinderIds: [],
-      },
-    },
-    datenquellen: quellen, relationen: [],
-  })
-}
-
-test('eine Hebung sichert den alten Stand, bevor der neue ihn ueberschreibt', () => {
-  const vorher = standImFormat10([QUELLE])
-  speicher.setItem(STORAGE_KEY, vorher)
-
-  const stand = loadFromStorage()
-  expect(stand?.tree.t1.werte, 'die Hebung lief nicht').toMatchObject({ quelle: 'q1' })
-  expect(
-    kopien(STORAGE_KEY).map((k) => speicher.getItem(k)),
-    'der Stand im Format 10 liegt nicht mehr im Speicher',
-  ).toEqual([vorher])
-})
-
-// Byte-Gleichheit ist hier der ganze Beweis: was ein Editor selbst geschrieben
-// hat, liest er auch wieder. Darum muss die Kopie Zeichen fuer Zeichen der alte
-// Stand sein, nicht nur inhaltlich aehnlich.
-test('nach einer Hebung holt Wiederherstellen den Stand von gestern zurueck', () => {
-  const vorher = standImFormat10([QUELLE])
-  speicher.setItem(STORAGE_KEY, vorher)
-
-  // Der neue Editor hebt beim Start und schreibt beim Speichern darueber.
-  const editor = new Editor()
-  editor.addBlock('text')
-  editor.speichereJetzt()
-  expect(speicher.getItem(STORAGE_KEY), 'der alte Stand steht noch im Speicher').not.toBe(vorher)
-
-  const wahl = kopienZurWahl()
-  expect(wahl, 'es steht keine Kopie zur Wahl').toHaveLength(1)
-  expect(wahl[0].datenquellen, 'die Wahl nennt die falsche Zahl').toBe(1)
-  expect(speicher.getItem(wahl[0].schluessel), 'die Kopie ist nicht mehr der alte Stand')
-    .toBe(vorher)
-
-  stelleKopieWiederHer(editor, wahl[0].schluessel)
-  expect(editor.datenquellen.list.map((q) => q.id), 'die Quelle kam nicht zurueck').toEqual(['q1'])
-})
-
-// Ein Start ohne Hebung darf nichts ablegen, sonst waechst der Browserspeicher
-// mit jedem Oeffnen des Editors.
-test('ein Stand im heutigen Format legt keine Kopie an', () => {
-  speicher.setItem(STORAGE_KEY, JSON.stringify({
-    schemaVersion: CURRENT_SCHEMA_VERSION, tree: wurzelBaum([]), selectedId: null,
-    datenquellen: [QUELLE], relationen: [], activePageId: WURZEL_ID,
-  }))
-
-  expect(loadFromStorage()?.datenquellen, 'der Stand lud nicht').toHaveLength(1)
-  expect(kopien(STORAGE_KEY), 'ein gewoehnlicher Start legte eine Kopie an').toEqual([])
-})
-
-// Das Datencenter liegt zweimal im Speicher und wird darum zweimal gehoben. Die
-// eigene Sicherung traegt keine Schemanummer, nur ihre Formatnummer.
-test('auch das Datencenter wird vor seiner Hebung gesichert', () => {
-  const vorher = JSON.stringify({
-    art: BIBLIOTHEK_DATEI_ART,
-    dateiVersion: 1,
-    datenquellen: [{
-      id: 'q1', name: 'Positionen', kind: 'belegposition', indexField: '645_10',
-      fields: [{ code: '18_25', label: 'ArtNr' }],
-    }],
-    relationen: [],
-  })
-  speicher.setItem(BIBLIOTHEK_KEY, vorher)
-
-  const stand = loadFromStorage()
-  expect(stand?.datenquellen.map((q) => q.id), 'die Hebung lief nicht').toEqual(['q1'])
-  expect(
-    kopien(BIBLIOTHEK_KEY).map((k) => speicher.getItem(k)),
-    'das Datencenter im Format 1 liegt nicht mehr im Speicher',
-  ).toEqual([vorher])
 })
