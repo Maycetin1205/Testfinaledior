@@ -9,14 +9,12 @@ import {
   packeBibliothekAus,
   type BibliothekInhalt,
 } from './bibliothekDatei'
-import type { Editor } from './Editor'
 import { pruefeBaumStand } from './ladeKette'
 import { CURRENT_SCHEMA_VERSION, hebeSchluessel, hebeStand, schemaLesbar } from './maskenSchema'
 import { meldungen } from './meldungen'
 import {
   kopieSatz,
   legeKopieAn,
-  letzteKopie,
   meldeSpeicherPanne,
   merkeSpeicherErfolg,
   sichereUnlesbaren,
@@ -147,24 +145,6 @@ export function meldeEntfallene(entfallen: readonly string[]): void {
   if (entfallen.length === 0) return
   const arten = [...new Set(entfallen)].map((t) => `„${t}"`).join(', ')
   meldungen.melde(`${entfallen.length} Baustein(e) vom Typ ${arten} gibt es nicht mehr und wurden weggelassen. Alles andere ist geladen.`)
-}
-
-// Die juengste Notfallkopie zurueck in den Editor, als ein Undo-Schritt. Die
-// Kopie selbst bleibt liegen, bis sie bewusst entfernt wird.
-export function stelleLetzteKopieWiederHer(editor: Editor): void {
-  const kopie = letzteKopie(STORAGE_KEY)
-  if (kopie === null) {
-    meldungen.melde('Es gibt keine Notfallkopie im Browser-Speicher.')
-    return
-  }
-  const stand = leseStand(kopie.raw, STORAGE_KEY)
-  if (stand === null) return
-  editor.ersetzeMaske({
-    tree: stand.tree,
-    datenquellen: [...stand.datenquellen],
-    relationen: [...stand.relationen],
-  })
-  meldungen.melde(`Notfallkopie „${kopie.key}" wiederhergestellt. Strg+Z nimmt es zurück.`)
 }
 
 export function persistState(

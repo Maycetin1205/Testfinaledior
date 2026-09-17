@@ -4,7 +4,8 @@ import { WURZEL_ID, WURZEL_TYP } from '../../kern/maske/baum'
 import { meldungen } from './meldungen'
 import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
 import { pruefeBaumStand } from './ladeKette'
-import { backupKeyFor, letzteKopie } from './notfallkopie'
+import { backupKeyFor } from './notfallkopie'
+import { inhaltText, kopienZurWahl } from './kopienWahl'
 import { BIBLIOTHEK_KEY, loadFromStorage, persistState, STORAGE_KEY } from './persistence'
 import { EINGEBAUTE_RELATIONEN } from '../../kern/daten/relationen'
 import { packeBibliothekAus } from './bibliothekDatei'
@@ -418,10 +419,54 @@ test('ein Formularfeld aus Format 11 laedt mit den deutschen Namen', () => {
   expect(kopien(STORAGE_KEY)).toHaveLength(0)
 })
 
-test('die juengste Notfallkopie wird gefunden', () => {
-  speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T08-00-00-000Z', 'alt')
-  speicher.setItem(backupKeyFor(STORAGE_KEY) + '_2026-09-15T09-00-00-000Z', 'neu')
-  expect(letzteKopie(STORAGE_KEY)?.raw).toBe('neu')
+// Am 15.09. nahm „Notfallkopie wiederherstellen" blind die juengste — die war
+// leer, und die 20 Datenquellen lagen in einer aelteren. Darum stehen alle zur
+// Wahl, und jede sagt vorher, was in ihr steckt.
+function kopie(schluessel: string, inhalt: string): void {
+  speicher.setItem(`${backupKeyFor(STORAGE_KEY)}_${schluessel}`, inhalt)
+}
+
+function stand(
+  bausteine: number, quellen: readonly unknown[], relationen: readonly unknown[],
+): string {
+  const ids = Array.from({ length: bausteine }, (_, i) => `t${i + 1}`)
+  return JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: {
+      ...wurzelBaum(ids),
+      ...Object.fromEntries(ids.map((id) => [
+        id, { id, typ: 'text', werte: {}, elternId: WURZEL_ID, kinderIds: [] },
+      ])),
+    },
+    selectedId: null, datenquellen: quellen, relationen, activePageId: WURZEL_ID,
+  })
+}
+
+test('bei mehreren Kopien steht die juengste oben und jede zeigt ihre Zahlen', () => {
+  kopie('2026-09-15T08-00-00-000Z', stand(2, [QUELLE], EINGEBAUTE_RELATIONEN))
+  kopie('2026-09-15T09-00-00-000Z', stand(0, [], []))
+
+  const liste = kopienZurWahl()
+  expect(liste.map((k) => k.zeit?.toISOString()), 'die juengste steht nicht oben')
+    .toEqual(['2026-09-15T09:00:00.000Z', '2026-09-15T08:00:00.000Z'])
+  expect(liste[0]).toMatchObject({ bausteine: 0, datenquellen: 0, relationen: 0, lesbar: true })
+  expect(liste[1]).toMatchObject({ bausteine: 2, datenquellen: 1, relationen: 1, lesbar: true })
+  expect(inhaltText(liste[0])).toBe('0 Bausteine, 0 Datenquellen, 0 Relationen')
+  expect(inhaltText(liste[1])).toBe('2 Bausteine, 1 Datenquelle, 1 Relation')
+})
+
+// Eine Kopie entsteht, WEIL ein Stand beschaedigt war: manche lassen sich nicht
+// lesen. Die darf die Liste nicht verhindern — sonst kommt der Bediener an die
+// heile Kopie daneben nicht heran.
+test('eine unlesbare Kopie erscheint in der Liste, ohne die anderen mitzunehmen', () => {
+  kopie('2026-09-15T08-00-00-000Z', '{kaputt')
+  kopie('2026-09-15T09-00-00-000Z', stand(1, [QUELLE], []))
+
+  const liste = kopienZurWahl()
+  expect(liste).toHaveLength(2)
+  expect(liste[0]).toMatchObject({ bausteine: 1, datenquellen: 1, lesbar: true })
+  expect(liste[1].lesbar, 'die kaputte Kopie gilt als lesbar').toBe(false)
+  expect(inhaltText(liste[1])).toContain('unlesbar')
 })
 
 test('ein entfallener Bausteintyp faellt weg, der Rest wird geladen und es wird gesagt', () => {

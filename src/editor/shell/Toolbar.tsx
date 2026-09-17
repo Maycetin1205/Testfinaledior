@@ -25,7 +25,6 @@ import { failedChecks, validateMaskHtml } from '../../export/validator'
 import { downloadFile } from '../zustand/dateiDownload'
 import { ladeMaskeAusDatei, speichereMaskeAlsDatei } from '../zustand/maskenDatei'
 import { meldungen } from '../zustand/meldungen'
-import { stelleLetzteKopieWiederHer } from '../zustand/persistence'
 import { useEditor } from '../zustand/useEditor'
 import { Feld } from '@/editor/werkbank/Feld'
 import { Knopf } from '@/editor/werkbank/Knopf'
@@ -33,6 +32,7 @@ import { MenueZeile } from '@/editor/werkbank/MenueZeile'
 import { Popover } from '@/editor/werkbank/Popover'
 import { Trenner } from '@/editor/werkbank/Trenner'
 import { useEingabeSitzung } from '../inspector/controls/eingabeSitzung'
+import { NotfallkopienFenster } from './NotfallkopienFenster'
 
 const MASKEN_NAMEN = {
   html: 'index.basis.source.html',
@@ -88,7 +88,6 @@ export function Toolbar({ onDatencenter }: { onDatencenter: () => void }) {
         clearDisabled={ed.blockCount === 0}
         onSpeichern={() => speichereMaskeAlsDatei(ed)}
         onDatei={(datei) => void ladeMaskeAusDatei(ed, datei)}
-        onNotfallkopie={() => stelleLetzteKopieWiederHer(ed)}
       />
 
       <Trenner senkrecht className="mx-1" />
@@ -183,15 +182,14 @@ function WeitereAktionen({
   clearDisabled,
   onSpeichern,
   onDatei,
-  onNotfallkopie,
 }: {
   onClearAll: () => void
   clearDisabled: boolean
   onSpeichern: () => void
   onDatei: (datei: File) => void
-  onNotfallkopie: () => void
 }) {
   const [offen, setOffen] = useState(false)
+  const [kopienOffen, setKopienOffen] = useState(false)
   const knopf = useRef<HTMLButtonElement>(null)
   const dateiRef = useRef<HTMLInputElement>(null)
 
@@ -243,10 +241,10 @@ function WeitereAktionen({
               zeichen={<FileUp size={14} />}
               onClick={() => {
                 setOffen(false)
-                onNotfallkopie()
+                setKopienOffen(true)
               }}
             >
-              Notfallkopie wiederherstellen
+              Notfallkopie wiederherstellen…
             </MenueZeile>
             <MenueZeile
               role="menuitem"
@@ -263,6 +261,8 @@ function WeitereAktionen({
           </div>
         </Popover>
       )}
+
+      {kopienOffen && <NotfallkopienFenster onClose={() => setKopienOffen(false)} />}
     </>
   )
 }

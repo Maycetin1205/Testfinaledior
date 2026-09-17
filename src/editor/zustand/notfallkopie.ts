@@ -32,20 +32,42 @@ export function legeKopieAn(storageKey: string, raw: string): string | null {
   }
 }
 
-// Die juengste Kopie: der Zeitstempel im Schluessel sortiert sich als Text.
-export function letzteKopie(storageKey: string): { key: string; raw: string } | null {
+export interface Notfallkopie {
+  schluessel: string
+  raw: string
+
+  // Aus dem Schluessel gelesen; null, wenn er keinen Zeitstempel traegt.
+  zeit: Date | null
+}
+
+// Der Weg zurueck aus `freierSchluessel`: dort wurden : und . zu -.
+function zeitAus(rest: string): Date | null {
+  const teile = /^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z/.exec(rest)
+  if (teile === null) return null
+  const zeit = new Date(`${teile[1]}T${teile[2]}:${teile[3]}:${teile[4]}.${teile[5]}Z`)
+  return Number.isNaN(zeit.getTime()) ? null : zeit
+}
+
+// Alle Kopien, juengste zuerst: der Zeitstempel im Schluessel sortiert sich als
+// Text. Auch eine Kopie ohne lesbaren Stempel kommt mit, sonst verschwiege die
+// Liste, was im Speicher liegt.
+export function alleKopien(storageKey: string): Notfallkopie[] {
   try {
     const praefix = backupKeyFor(storageKey)
-    let juengste: string | null = null
+    const gefunden: Notfallkopie[] = []
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      if (key !== null && key.startsWith(praefix) && (juengste === null || key > juengste)) juengste = key
+      if (key === null || !key.startsWith(praefix)) continue
+      const raw = localStorage.getItem(key)
+      if (raw === null) continue
+      gefunden.push({ schluessel: key, raw, zeit: zeitAus(key.slice(praefix.length + 1)) })
     }
-    if (juengste === null) return null
-    const raw = localStorage.getItem(juengste)
-    return raw === null ? null : { key: juengste, raw }
+    return gefunden.sort((a, b) => {
+      if (a.schluessel === b.schluessel) return 0
+      return a.schluessel < b.schluessel ? 1 : -1
+    })
   } catch {
-    return null
+    return []
   }
 }
 
