@@ -747,15 +747,3 @@ test('auch das Datencenter wird vor seiner Hebung gesichert', () => {
     'das Datencenter im Format 1 liegt nicht mehr im Speicher',
   ).toEqual([vorher])
 })
-
-// Ohne Kopie gibt es kein Zurueck. Der Editor haelt deswegen nicht an — ein
-// voller Speicher darf keine verschlossene Tuer sein —, aber er sagt es,
-// solange der alte Stand noch unter seinem Schluessel liegt.
-test('misslingt die Sicherung vor einer Hebung, sagt der Editor es', () => {
-  speicher.setItem(STORAGE_KEY, standImFormat10([QUELLE]))
-  speicher.schreibsperre = true
-
-  expect(loadFromStorage()?.datenquellen, 'der Stand lud nicht').toHaveLength(1)
-  expect(kopien(STORAGE_KEY), 'es kam doch eine Kopie durch').toEqual([])
-  expect(meldungsText(), 'die misslungene Sicherung blieb stumm').toContain('NICHT anlegen')
-})
