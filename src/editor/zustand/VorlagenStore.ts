@@ -6,6 +6,7 @@ export interface VorlagenEintrag { id: string }
 export class VorlagenStore<T extends VorlagenEintrag> extends Subject<VorlagenStore<T>> {
   private _eintraege: T[]
   private _version = 0
+  private _vonHandGeaendert = false
 
   constructor(bestand: readonly T[] = []) {
     super()
@@ -14,6 +15,10 @@ export class VorlagenStore<T extends VorlagenEintrag> extends Subject<VorlagenSt
 
   get list(): readonly T[] { return this._eintraege }
   get version(): number { return this._version }
+
+  // Nur wer von Hand geaendert hat, darf die Sicherung des Datencenters
+  // aermer machen; ein leerer Start darf sie nicht anfassen (persistence.ts).
+  get vonHandGeaendert(): boolean { return this._vonHandGeaendert }
 
   get(id: string): T | undefined {
     return this._eintraege.find((e) => e.id === id)
@@ -28,6 +33,7 @@ export class VorlagenStore<T extends VorlagenEintrag> extends Subject<VorlagenSt
   }
 
   private meldeVorAenderung(): void {
+    this._vonHandGeaendert = true
     for (const fn of [...this.vorAenderung]) fn()
   }
 
@@ -55,6 +61,9 @@ export class VorlagenStore<T extends VorlagenEintrag> extends Subject<VorlagenSt
   }
 
   ersetzeAlle(eintraege: readonly T[]): void {
+    // Leer auf leer ist keine Aenderung: eine Maskendatei oder Notfallkopie
+    // ohne Datencenter darf das gesicherte nicht als geleert gelten lassen.
+    if (eintraege.length === 0 && this._eintraege.length === 0) return
     this.meldeVorAenderung()
     this._eintraege = deepClone(eintraege) as T[]
     this.notify(this)

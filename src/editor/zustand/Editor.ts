@@ -59,10 +59,16 @@ export class Editor extends Subject<Editor> {
       datenquellen: this.datenquellen.list,
       relationen: this.relationen.list,
       activePageId: this.activePageId,
-    }),
+    }, this.datencenterVonHandGeaendert),
     SAVE_DEBOUNCE_MS,
   )
   private _hydrated = false
+
+  // Nur nach einer Aenderung von Hand darf das Sichern das gesicherte
+  // Datencenter aermer machen (persistence.ts).
+  private get datencenterVonHandGeaendert(): boolean {
+    return this.datenquellen.vonHandGeaendert || this.relationen.vonHandGeaendert
+  }
 
   // Waehrend Undo/Redo darf die Aenderung der Bibliotheken keinen neuen
   // Historien-Eintrag erzeugen.

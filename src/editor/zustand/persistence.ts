@@ -167,8 +167,13 @@ export function stelleLetzteKopieWiederHer(editor: Editor): void {
   meldungen.melde(`Notfallkopie „${kopie.key}" wiederhergestellt. Strg+Z nimmt es zurück.`)
 }
 
-export function persistState(tree: Maskenbaum, selectedId: string | null, bibliotheken: MaskenBibliotheken): void {
-  sichereDatencenter(bibliotheken)
+export function persistState(
+  tree: Maskenbaum,
+  selectedId: string | null,
+  bibliotheken: MaskenBibliotheken,
+  datencenterVonHandGeaendert = false,
+): void {
+  sichereDatencenter(bibliotheken, datencenterVonHandGeaendert)
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: CURRENT_SCHEMA_VERSION, tree, selectedId, ...bibliotheken }))
     merkeSpeicherErfolg(STORAGE_KEY)
@@ -178,7 +183,12 @@ export function persistState(tree: Maskenbaum, selectedId: string | null, biblio
 // Das Datencenter zusaetzlich fuer sich, im Format der Bibliotheksdatei: es
 // ueberlebt so jede Maske, und der Schluessel laesst sich unveraendert als
 // Datei sichern. Eine Panne meldet schon der Maskenstand daneben.
-function sichereDatencenter(bibliotheken: MaskenBibliotheken): void {
+//
+// Aermer werden darf die Sicherung nur durch den Nutzer: kam der Editor ohne
+// Datenquellen hoch, schrieb frueher die erste Aenderung an der Maske die
+// leere Liste darueber. Ohne Handschlag schreibt sie nur, was nichts nimmt.
+function sichereDatencenter(bibliotheken: MaskenBibliotheken, vonHandGeaendert: boolean): void {
+  if (!vonHandGeaendert && gesichertesDatencenter() !== null) return
   try {
     localStorage.setItem(BIBLIOTHEK_KEY, packeBibliothek({
       datenquellen: [...bibliotheken.datenquellen],

@@ -6,6 +6,9 @@ import { CURRENT_SCHEMA_VERSION } from './maskenSchema'
 import { pruefeBaumStand } from './ladeKette'
 import { backupKeyFor, letzteKopie } from './notfallkopie'
 import { BIBLIOTHEK_KEY, loadFromStorage, persistState, STORAGE_KEY } from './persistence'
+import { EINGEBAUTE_RELATIONEN } from '../../kern/daten/relationen'
+import { packeBibliothekAus } from './bibliothekDatei'
+import { Editor } from './Editor'
 
 // Hier haengt, dass kein gespeicherter Stand stumm verschwindet: was der Editor
 // nicht lesen kann, muss er sichern — und was er meldet, muss stimmen.
@@ -552,4 +555,56 @@ test('ein gespeichertes Datencenter uebergeht das der Maske nicht', () => {
   const geladen = loadFromStorage()
   expect(geladen?.datenquellen.map((q) => q.id), 'die Sicherung hat die Maske ueberstimmt').toEqual(['q2'])
   expect(meldungsText()).not.toContain('eigenen Sicherung')
+})
+
+// Am 17.09. waren 15 Datenquellen und 11 Relationen weg: der Editor kam ohne
+// sie hoch, und die erste Aenderung an der Maske schrieb die leere Liste ueber
+// die Sicherung. Eine leere Bibliothek darf eine gefuellte nicht ersetzen.
+test('ein leerer Start ueberschreibt eine gefuellte Sicherung nicht', () => {
+  persistState(wurzelBaum([]) as never, null, {
+    datenquellen: [QUELLE] as never,
+    relationen: [],
+    activePageId: WURZEL_ID,
+  })
+
+  // Ein Maskenstand mit Relationen, aber ohne Datenquellen: die Rettung beim
+  // Lesen greift nur bei ganz leerem Datencenter, der Editor steht leer da.
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    tree: wurzelBaum([]),
+    datenquellen: [],
+    relationen: EINGEBAUTE_RELATIONEN,
+    activePageId: WURZEL_ID,
+  }))
+
+  const editor = new Editor()
+  expect(editor.datenquellen.list, 'der Start war nicht leer').toEqual([])
+  editor.addBlock('text')
+  editor.speichereJetzt()
+
+  const sicherung = packeBibliothekAus(speicher.getItem(BIBLIOTHEK_KEY) ?? '')
+  expect(sicherung.ok, 'die Sicherung ist unlesbar').toBe(true)
+  expect(
+    sicherung.ok ? sicherung.inhalt.datenquellen.map((q) => q.id) : [],
+    'die Sicherung wurde leergeraeumt',
+  ).toEqual(['q1'])
+})
+
+// Die Gegenprobe zur Rettung: was von Hand weg ist, bleibt weg. Sonst holt die
+// Sicherung beim naechsten Start zurueck, was der Bediener geloescht hat.
+test('eine von Hand geloeschte Quelle ist nach dem naechsten Start weg', () => {
+  const editor = new Editor()
+  const quelle = editor.datenquellen.add(QUELLE as never)
+  editor.speichereJetzt()
+  expect(speicher.getItem(BIBLIOTHEK_KEY), 'die Sicherung kennt die neue Quelle nicht')
+    .toContain(quelle.id)
+
+  editor.datenquellen.remove(quelle.id)
+  editor.speichereJetzt()
+
+  expect(new Editor().datenquellen.list, 'die geloeschte Quelle kam zurueck').toEqual([])
+
+  // Auch ohne Maskenstand darf sie nicht aus der Sicherung zurueckkommen.
+  speicher.removeItem(STORAGE_KEY)
+  expect(new Editor().datenquellen.list, 'die Sicherung hat sie zurueckgeholt').toEqual([])
 })
