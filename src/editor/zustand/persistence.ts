@@ -4,6 +4,7 @@ import { pruefeDatenquellen, type Datenquelle } from '../../kern/daten/datenquel
 import { pruefeRelationsVorlagen, type RelationsVorlage } from '../../kern/daten/relationen'
 import { BEREICH_QUELLEN, BEREICH_RELATIONEN } from '../../kern/daten/ladeProblem'
 import {
+  BIBLIOTHEK_DATEI_VERSION,
   bibliothekPruefen,
   packeBibliothek,
   packeBibliothekAus,
@@ -42,7 +43,9 @@ export function loadFromStorage(): LoadedState | null {
   return mitGesichertemDatencenter(raw ? leseStand(raw, STORAGE_KEY) : null)
 }
 
-// Was im eigenen Schluessel liegt, als Bibliotheksdatei gelesen.
+// Was im eigenen Schluessel liegt, als Bibliotheksdatei gelesen. Das Datencenter
+// liegt zweimal im Speicher — hier und im Maskenstand —, also wird es auch
+// zweimal gehoben und zweimal gesichert.
 function gesichertesDatencenter(): BibliothekInhalt | null {
   let roh: string | null
   try { roh = typeof localStorage === 'undefined' ? null : localStorage.getItem(BIBLIOTHEK_KEY) }
@@ -50,6 +53,7 @@ function gesichertesDatencenter(): BibliothekInhalt | null {
   if (!roh) return null
   const ergebnis = packeBibliothekAus(roh)
   if (!ergebnis.ok) return null
+  if (ergebnis.dateiVersion !== BIBLIOTHEK_DATEI_VERSION) legeKopieAn(BIBLIOTHEK_KEY, roh)
   const { datenquellen, relationen } = ergebnis.inhalt
   return datenquellen.length === 0 && relationen.length === 0 ? null : ergebnis.inhalt
 }
@@ -102,6 +106,17 @@ function geretteteBibliothek(roh: unknown): LoadedState | null {
   }
 }
 
+// Eine Hebung ersetzt den gespeicherten Stand; der naechste Speicherlauf
+// schreibt den neuen darueber. Der alte Text bleibt als Notfallkopie liegen,
+// denn er ist der einzige Weg zurueck: `schemaLesbar` prueft auf Gleichheit,
+// ein Editor von gestern liest einen Stand von heute nicht.
+function sichereVorHebung(storageKey: string, raw: string, parsed: unknown): void {
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return
+  const version = (parsed as Record<string, unknown>).schemaVersion
+  if (typeof version !== 'number' || version === CURRENT_SCHEMA_VERSION) return
+  legeKopieAn(storageKey, raw)
+}
+
 // Ein gespeicherter Stand als Text, gepruefte Maske zurueck. Was nicht lesbar
 // ist, wird gemeldet und unter dem genannten Schluessel gesichert; das
 // Datencenter wird dabei gerettet.
@@ -114,6 +129,7 @@ export function leseStand(raw: string, storageKey: string): LoadedState | null {
     sichereUnlesbaren(storageKey, raw, 'Maske')
     return null
   }
+  sichereVorHebung(storageKey, raw, parsed)
   try {
     const stand = hebeStand(parsed) as Record<string, unknown>
     if (!schemaLesbar(stand.schemaVersion)) {

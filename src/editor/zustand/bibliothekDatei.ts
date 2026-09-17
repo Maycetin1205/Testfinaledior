@@ -17,7 +17,7 @@ import { meldungen } from './meldungen'
 export const BIBLIOTHEK_DATEI_ART = 'aufbau-editor-bibliothek'
 
 // Version 1 trug die englischen Schluessel; hebeSchluessel liest sie noch.
-const BIBLIOTHEK_DATEI_VERSION = 2
+export const BIBLIOTHEK_DATEI_VERSION = 2
 
 export interface BibliothekInhalt {
   datenquellen: Datenquelle[]
@@ -25,7 +25,9 @@ export interface BibliothekInhalt {
 }
 
 export type BibliothekErgebnis =
-  | { ok: true; inhalt: BibliothekInhalt }
+  // Die gelesene Formatnummer kommt mit: nur daran sieht der Aufrufer, ob der
+  // Inhalt gehoben wurde und der alte Text zu sichern ist.
+  | { ok: true; inhalt: BibliothekInhalt; dateiVersion: number }
   | { ok: false; grund: string; probleme: readonly LadeProblem[] }
 
 export function bibliothekPruefen<T>(
@@ -130,7 +132,11 @@ export function packeBibliothekAus(text: string): BibliothekErgebnis {
   const relationen = bibliothekPruefen(o.relationen, pruefeRelationsVorlagen, BEREICH_RELATIONEN)
   if (!relationen.ok) return { ok: false, grund: relationen.grund, probleme: relationen.probleme }
 
-  return { ok: true, inhalt: { datenquellen: quellen.liste, relationen: relationen.liste } }
+  return {
+    ok: true,
+    inhalt: { datenquellen: quellen.liste, relationen: relationen.liste },
+    dateiVersion,
+  }
 }
 
 // Der Vergleich muss die Reihenfolge der Angaben uebergehen: derselbe Eintrag
