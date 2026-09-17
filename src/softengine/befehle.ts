@@ -14,8 +14,11 @@ function startToolLink(nr: string, params: readonly string[]): string {
 export function sendeBwLink(befehl: string): boolean {
   const zeile = befehl.trim()
   if (zeile === '') return false
-  // Genau so trennt SoftEngines sendBWLinkIntern (kontrakte.md 13).
-  if (zeile.includes('START_TOOL')) return sendeStartTool(zeile.split(',')[2] ?? '', [])
+  // Genau so trennt SoftEngines sendBWLinkIntern (kontrakte.md 13). Ab dem Wort
+  // gezaehlt: dahinter die Nummer, dahinter die Parameter, die sonst wegfielen.
+  const teile = zeile.split(',')
+  const stelle = teile.indexOf('START_TOOL')
+  if (stelle >= 0) return sendeStartTool(teile[stelle + 1] ?? '', teile.slice(stelle + 2))
   const g = seFenster()
   try {
     // SoftEngine waehlt den Weg an SEDATA.BW_PFAD; die Bruecke uebernimmt nur
