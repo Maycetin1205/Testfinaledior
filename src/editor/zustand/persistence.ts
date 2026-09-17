@@ -53,7 +53,9 @@ function gesichertesDatencenter(): BibliothekInhalt | null {
   if (!roh) return null
   const ergebnis = packeBibliothekAus(roh)
   if (!ergebnis.ok) return null
-  if (ergebnis.dateiVersion !== BIBLIOTHEK_DATEI_VERSION) legeKopieAn(BIBLIOTHEK_KEY, roh)
+  if (ergebnis.dateiVersion !== BIBLIOTHEK_DATEI_VERSION) {
+    meldeMisslungeneSicherung(BIBLIOTHEK_KEY, legeKopieAn(BIBLIOTHEK_KEY, roh), 'Datencenter')
+  }
   const { datenquellen, relationen } = ergebnis.inhalt
   return datenquellen.length === 0 && relationen.length === 0 ? null : ergebnis.inhalt
 }
@@ -114,7 +116,21 @@ function sichereVorHebung(storageKey: string, raw: string, parsed: unknown): voi
   if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return
   const version = (parsed as Record<string, unknown>).schemaVersion
   if (typeof version !== 'number' || version === CURRENT_SCHEMA_VERSION) return
-  legeKopieAn(storageKey, raw)
+  meldeMisslungeneSicherung(storageKey, legeKopieAn(storageKey, raw), 'Maske')
+}
+
+// Ohne Kopie hebt der Editor trotzdem — anhalten hiesse, einen vollen
+// Browserspeicher zu einer verschlossenen Tuer zu machen. Aber er sagt es:
+// sonst faende der Bediener erst beim Zurueckdrehen heraus, dass es kein
+// Zurueck gibt.
+function meldeMisslungeneSicherung(
+  storageKey: string, schluessel: string | null, bezeichnung: string,
+): void {
+  if (schluessel !== null) return
+  meldungen.melde(
+    `„${bezeichnung}" wird auf das heutige Format gehoben. `
+    + kopieSatz(storageKey, null),
+  )
 }
 
 // Ein gespeicherter Stand als Text, gepruefte Maske zurueck. Was nicht lesbar
