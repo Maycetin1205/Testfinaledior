@@ -16,7 +16,6 @@ import { dtkLesen, type DtkTabelle } from '../../kern/daten/dtkImport'
 import { bausteineMitQuelle } from '../../kern/maske/quellenReichweite'
 import { useDataSources } from '../zustand/useDataSources'
 import { useEditor } from '../zustand/useEditor'
-import { Bestellung } from './Bestellung'
 import { DataSourceForm } from './DataSourceForm'
 import { DtkImportForm } from './DtkImportForm'
 import { bausteinName } from '../../kern/maske/bausteinName'
@@ -184,8 +183,6 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
                 {kennung(auswahl) !== '' ? ` · ${kennung(auswahl)}` : ''}
               </p>
             </div>
-
-            <Bestellung quelle={auswahl} />
 
             <Gruppe titel="Felder">
               <div className="overflow-hidden rounded border border-linie">
