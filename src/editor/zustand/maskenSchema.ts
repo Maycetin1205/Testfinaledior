@@ -139,6 +139,18 @@ function hebeLinienStil(x: unknown): void {
   }
 }
 
+// Der Bereich hatte einen Tag lang eine Titelzeile. Ein Editor, der waehrend
+// des Umbaus offen stand, sicherte ihre zwei Schluessel; ohne Hebung lehnte der
+// Lader die ganze Maske als Verlust ab.
+function hebeBereichsTitel(x: unknown): void {
+  if (!objekt(x)) return
+  for (const knoten of Object.values(x)) {
+    if (!objekt(knoten) || knoten.typ !== 'bereich' || !objekt(knoten.werte)) continue
+    delete knoten.werte.titel
+    delete knoten.werte.titelZeigen
+  }
+}
+
 // Ein Ketten-Parameter, der neben `wert` noch das alte `value` traegt (ein
 // frueherer Editor schrieb beide): das Doppel ist kein Inhalt und faellt weg,
 // sonst lehnte der Lader die ganze Maske als Verlust ab.
@@ -161,6 +173,7 @@ export function hebeStand(roh: unknown): unknown {
   hebeBausteinNamen(gehoben.tree)
   hebeLinienStil(gehoben.tree)
   hebeKartenVorlage(gehoben.tree)
+  hebeBereichsTitel(gehoben.tree)
   hebeAltlasten(gehoben.tree)
   gehoben.schemaVersion = CURRENT_SCHEMA_VERSION
   return gehoben

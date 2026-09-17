@@ -40,6 +40,9 @@ export function ziehePosition(
 
   const gridEl = flaecheVon(wrapper)
   if (!gridEl) return
+  // Der Zug gehoert dem Baustein, den der Zeiger traf. Ohne das zoege ein Kind
+  // in einer geschachtelten Flaeche seinen Behaelter gleich mit.
+  e.stopPropagation()
   const startX = e.clientX
   const startY = e.clientY
   const rect = wrapper.getBoundingClientRect()

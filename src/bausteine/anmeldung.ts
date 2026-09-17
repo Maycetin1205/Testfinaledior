@@ -1,4 +1,5 @@
 // Meldet alle Bausteine an; ohne diese Datei kennt die Maske keinen.
+import './bereich/Bereich'
 import './button/Button'
 import './datum/Datum'
 import './erfassung/Erfassung'

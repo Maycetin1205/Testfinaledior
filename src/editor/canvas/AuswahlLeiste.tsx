@@ -29,11 +29,21 @@ type Lage = 'oben' | 'unten' | 'rechts' | 'innen'
 const LEISTE = 30
 const BREITE = 150
 
+// Der Baustein in einem Bereich liegt in dessen Slot: sein naechster Vorfahr
+// steht im Schatten, und parentElement allein liefe an ihm vorbei.
+function naechsterVorfahr(el: HTMLElement): HTMLElement | null {
+  const slot = el.assignedSlot
+  if (slot) return slot.parentElement
+  if (el.parentElement) return el.parentElement
+  const wurzel = el.getRootNode()
+  return wurzel instanceof ShadowRoot && wurzel.host instanceof HTMLElement ? wurzel.host : null
+}
+
 function clipEltern(el: HTMLElement): HTMLElement | null {
-  let p = el.parentElement
+  let p = naechsterVorfahr(el)
   while (p) {
     if (getComputedStyle(p).overflow !== 'visible') return p
-    p = p.parentElement
+    p = naechsterVorfahr(p)
   }
   return null
 }

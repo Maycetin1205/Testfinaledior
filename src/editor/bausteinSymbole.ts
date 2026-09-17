@@ -3,6 +3,7 @@ import '../bausteine/anmeldung'
 
 import { ergaenzeEditorAngaben } from '../kern/maske/editorAngaben'
 import {
+  ZeichenBereich,
   ZeichenDatum,
   ZeichenFormularfeld,
   ZeichenKanban,
@@ -14,6 +15,7 @@ import {
   ZeichenText,
   ZeichenTrenner,
 } from './zeichen/bausteinZeichen'
+import { Bereich } from '../bausteine/bereich/Bereich'
 import { Button } from '../bausteine/button/Button'
 import { Karte } from '../bausteine/karte/Karte'
 import { Datum } from '../bausteine/datum/Datum'
@@ -27,6 +29,7 @@ import { Trenner } from '../bausteine/trenner/Trenner'
 
 // Sie stehen hier und nicht am Baustein, damit die Maske keinen Editor-Code traegt.
 const SYMBOLE = [
+  [Bereich.typ, ZeichenBereich],
   [Button.typ, ZeichenSchaltflaeche],
   [Karte.typ, ZeichenKarte],
   [Datum.typ, ZeichenDatum],

@@ -43,6 +43,17 @@ export function ZeichenPopup(p: Props): ReactElement {
   ], p)
 }
 
+export function ZeichenBereich(p: Props): ReactElement {
+  return rahmen([
+    <rect key="f" x="2.6" y="4.4" width="18.8" height="15.2" rx="2" fill={PAPIER} stroke="none" />,
+    <rect key="k" x="2.6" y="4.4" width="18.8" height="4.2" rx="2" fill={KORALLE_ZART} stroke="none" />,
+    <rect key="u" x="2.6" y="4.4" width="18.8" height="15.2" rx="2" {...U} />,
+    <path key="t" d="M2.6 8.6 h18.8" {...U} />,
+    <rect key="i1" x="5.2" y="11" width="5.8" height="5.4" rx="1" fill={SAND} stroke="none" />,
+    <rect key="i2" x="13" y="11" width="5.8" height="5.4" rx="1" fill={SAND} stroke="none" />,
+  ], p)
+}
+
 export function ZeichenFormularfeld(p: Props): ReactElement {
   return rahmen([
     <rect key="g" x="2.4" y="7.4" width="19.2" height="9.2" rx="2" {...U} fill={PAPIER} />,
