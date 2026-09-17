@@ -7,6 +7,13 @@ import type { Datenfeld, QuellenArtKennung } from '../../kern/daten/datenquellen
 export interface QuellenWorte {
   name: string
 
+  // Ein Satz, der sagt, wofuer die Art da ist. Steht in der Vorlagenwahl.
+  beschreibung: string
+
+  // Woerter, unter denen der Bediener sie sucht, wenn ihm der Name nicht
+  // einfaellt: „Kunde" findet den Adressstamm, „Zeile" die Belegpositionen.
+  suchworte: readonly string[]
+
   // Wie die Kennung dieser Art heisst; leer, wo die Art eine feste Tabelle hat.
   kennungLabel: string
   kennungBeispiel: string
@@ -23,6 +30,8 @@ export interface QuellenWorte {
 const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   idb: {
     name: 'IDB-Tabelle',
+    beschreibung: 'Eine IDB-Tabelle von SoftEngine, über ihre Kennung. Ihre Felder lassen sich nicht einzeln bestellen — es kommt der ganze Satz.',
+    suchworte: ['idb', 'tabelle', 'stammdaten', 'liste'],
     kennungLabel: 'Kennung',
     kennungBeispiel: 'ID0001',
     spaltenLabel: '',
@@ -31,6 +40,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   adressstamm: {
     name: 'Adressstamm',
+    beschreibung: 'Adressen: Kunden, Lieferanten, Ansprechpartner.',
+    suchworte: ['adresse', 'kunde', 'lieferant', 'ansprechpartner', 'ADR'],
     kennungLabel: '',
     kennungBeispiel: '',
     spaltenLabel: '',
@@ -39,6 +50,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   artikelstamm: {
     name: 'Artikelstamm',
+    beschreibung: 'Artikel mit allem, was am Artikel hängt.',
+    suchworte: ['artikel', 'ware', 'bestand', 'preis', 'ART'],
     kennungLabel: '',
     kennungBeispiel: '',
     spaltenLabel: '',
@@ -47,6 +60,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   beleg: {
     name: 'Beleg',
+    beschreibung: 'Der Kopf eines Belegs: Nummer, Datum, Adresse, Summen.',
+    suchworte: ['beleg', 'kopf', 'rechnung', 'auftrag', 'lieferschein', 'BEL'],
     kennungLabel: '',
     kennungBeispiel: '',
     spaltenLabel: '',
@@ -65,6 +80,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   belegposition: {
     name: 'Belegpositionen',
+    beschreibung: 'Die Zeilen eines Belegs. Sie hängen am Kopfsatz ihres Belegs.',
+    suchworte: ['position', 'zeile', 'beleg', 'artikel', 'POS'],
     kennungLabel: '',
     kennungBeispiel: '',
     spaltenLabel: '',
@@ -92,6 +109,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   datei: {
     name: 'Andere Datei',
+    beschreibung: 'Eine andere SoftEngine-Datei, über ihre Kennung.',
+    suchworte: ['datei', 'charge', 'lager', 'CHA'],
     kennungLabel: 'Kennung',
     kennungBeispiel: 'SERPOS',
     spaltenLabel: '',
@@ -100,6 +119,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   erpabfrage: {
     name: 'ERP-Abfrage',
+    beschreibung: 'Eine ERP-Abfrage. Bestellt ihre Felder namentlich, nicht den ganzen Satz.',
+    suchworte: ['erp', 'abfrage', 'api', 'get', 'erpapicall'],
     kennungLabel: 'Kennung',
     kennungBeispiel: 'LIEFERADRESSE.GET',
     spaltenLabel: '',
@@ -108,6 +129,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   dataset: {
     name: 'DataSet',
+    beschreibung: 'Ein DataSet über seine Kennung. Seine Spalten heißen mit Klarnamen.',
+    suchworte: ['dataset', 'spalten'],
     kennungLabel: 'DataSet-ID',
     kennungBeispiel: 'ID0001',
     spaltenLabel: 'Spalte im DataSet',
@@ -116,6 +139,8 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
   },
   relationswert: {
     name: 'Wert per Relation',
+    beschreibung: 'EIN Wert, per Relation geholt. Wird nicht mit der Maske bestellt.',
+    suchworte: ['relation', 'wert', 'einzelwert', 'get_relation'],
     kennungLabel: '',
     kennungBeispiel: '',
     spaltenLabel: 'Name in der Antwort',

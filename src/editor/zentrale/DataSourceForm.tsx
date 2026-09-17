@@ -46,17 +46,32 @@ import { FormularKarte } from './FormularKarte'
 
 const FELDCODE = /^\d+_\d+$/
 
+
+// Eine neue Quelle startet mit den Standardfeldern ihrer Vorlage; ohne Vorlage
+// mit einer leeren Zeile, damit ueberhaupt etwas zum Tippen dasteht.
+function startVorgabe(startArt: QuellenArtKennung | undefined): FeldZeile[] {
+  const standard = startArt === undefined ? [] : quellenWorte(startArt).standardFelder
+  return standard.length > 0 ? standard.map((f) => zeileFromField(f)) : [{ ...LEERE_ZEILE }]
+}
+
 interface DataSourceFormProps {
   source?: Datenquelle
+
+  // Womit eine NEUE Quelle anfaengt: die Art aus der Vorlagenwahl, samt ihren
+  // Standardfeldern und ihrem Kopfsatz.
+  startArt?: QuellenArtKennung
+
   onClose: () => void
 }
 
-export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
+export function DataSourceForm({ source, startArt, onClose }: DataSourceFormProps) {
   const store = useDataSources()
   const [name, setName] = useState(source?.name ?? '')
-  const [kind, setKind] = useState<QuellenArtKennung>(source?.art ?? 'idb')
+  const [kind, setKind] = useState<QuellenArtKennung>(source?.art ?? startArt ?? 'idb')
   const [kennungEingabe, setKennungEingabe] = useState(kennungAnzeige(source?.idbId))
-  const [kopfsatzEingabe, setKopfsatzEingabe] = useState(source?.kopfsatzIndex ?? '')
+  const [kopfsatzEingabe, setKopfsatzEingabe] = useState(
+    source?.kopfsatzIndex ?? (startArt === undefined ? '' : artFuer(startArt).kopfsatzStandard),
+  )
 
   const [vorsatzEingabe, setVorsatzEingabe] = useState(source?.feldVorsatz ?? '')
 
@@ -80,7 +95,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
       ? source.felder.map((f) => zeileFromField(
           f, source.feldVorsatz ?? '', artFuer(source.art).spaltenNamen,
         ))
-      : [{ ...LEERE_ZEILE }],
+      : startVorgabe(startArt),
   )
 
   const [satzNummer, setSatzNummer] = useState(source?.satzFeld ?? '')
