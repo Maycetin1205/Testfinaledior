@@ -1,13 +1,14 @@
 // Die Version des Masken-Aufbaus und die Hebung der letzten alten Staende.
-export const CURRENT_SCHEMA_VERSION = 14
+export const CURRENT_SCHEMA_VERSION = 15
 
 // Format 9 trug die englischen Schluessel (type, props, kind, params ...),
 // Format 10 an den Bausteinen noch source, tagField und die on...-Ereignisse,
 // Format 11 am Formularfeld noch fieldType, placeholder, options und value,
 // Format 12 an der Schaltflaeche noch label,
 // Format 13 an der Tafel noch card, kanban-muster, heading, variant und
-// statusField.
-const HEBBAR = [9, 10, 11, 12, 13]
+// statusField,
+// Format 14 an der Trennlinie noch solid, dashed und dotted als Linienstil.
+const HEBBAR = [9, 10, 11, 12, 13, 14]
 
 export function schemaLesbar(version: unknown): version is number {
   return version === CURRENT_SCHEMA_VERSION
@@ -121,6 +122,23 @@ function hebeKartenVorlage(x: unknown): void {
   }
 }
 
+// Die Trennlinie heisst ihren Strich deutsch. Eine Maske von gestern traegt das
+// CSS-Wort; ohne Hebung stuende die Wahl im Inspector auf keiner Zeile.
+const LINIEN_STILE: Record<string, string> = {
+  solid: 'durchgezogen',
+  dashed: 'gestrichelt',
+  dotted: 'gepunktet',
+}
+
+function hebeLinienStil(x: unknown): void {
+  if (!objekt(x)) return
+  for (const knoten of Object.values(x)) {
+    if (!objekt(knoten) || knoten.typ !== 'trenner' || !objekt(knoten.werte)) continue
+    const alt = knoten.werte.stil
+    if (typeof alt === 'string' && alt in LINIEN_STILE) knoten.werte.stil = LINIEN_STILE[alt]
+  }
+}
+
 // Ein Ketten-Parameter, der neben `wert` noch das alte `value` traegt (ein
 // frueherer Editor schrieb beide): das Doppel ist kein Inhalt und faellt weg,
 // sonst lehnte der Lader die ganze Maske als Verlust ab.
@@ -141,6 +159,7 @@ export function hebeStand(roh: unknown): unknown {
   if (roh.schemaVersion !== CURRENT_SCHEMA_VERSION && !HEBBAR.includes(roh.schemaVersion)) return roh
   const gehoben = roh.schemaVersion === 9 ? hebeSchluessel(roh) : (JSON.parse(JSON.stringify(roh)) as Record<string, unknown>)
   hebeBausteinNamen(gehoben.tree)
+  hebeLinienStil(gehoben.tree)
   hebeKartenVorlage(gehoben.tree)
   hebeAltlasten(gehoben.tree)
   gehoben.schemaVersion = CURRENT_SCHEMA_VERSION

@@ -23,7 +23,7 @@ import { KanbanSpalte } from '../bausteine/kanban/KanbanSpalte'
 import { Popup } from '../bausteine/popup/Popup'
 import { Tabelle } from '../bausteine/tabelle/Tabelle'
 import { Text } from '../bausteine/text/Text'
-import { TrennerBlock } from '../bausteine/trenner/TrennerBlock'
+import { Trenner } from '../bausteine/trenner/Trenner'
 
 // Sie stehen hier und nicht am Baustein, damit die Maske keinen Editor-Code traegt.
 const SYMBOLE = [
@@ -36,7 +36,7 @@ const SYMBOLE = [
   [Popup.typ, ZeichenPopup],
   [Tabelle.typ, ZeichenTabelle],
   [Text.typ, ZeichenText],
-  [TrennerBlock.typ, ZeichenTrenner],
+  [Trenner.typ, ZeichenTrenner],
 ] as const
 
 for (const [typ, symbol] of SYMBOLE) ergaenzeEditorAngaben(typ, { symbol })

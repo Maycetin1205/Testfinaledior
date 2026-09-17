@@ -149,7 +149,7 @@ export function referenzBaum(): Maskenbaum {
     d1: knoten('d1', 'datum', WURZEL_ID, { rasterX: 0, rasterY: 0, rasterW: 10, rasterH: 3 }),
     tr1: knoten('tr1', 'trenner', WURZEL_ID, {
       rasterX: 18, rasterY: 25, rasterW: 2, rasterH: 12,
-      richtung: 'senkrecht', stil: 'dashed', staerke: 2, farbe: 'akzent',
+      richtung: 'senkrecht', stil: 'gestrichelt', staerke: 2, farbe: 'akzent',
     }),
     p1: knoten('p1', 'popup', WURZEL_ID, { name: 'Hinweis' }, ['tx2']),
     tx2: knoten('tx2', 'text', 'p1', {}),
