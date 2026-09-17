@@ -10,7 +10,8 @@ import {
   richtungDerKinder,
   type Richtung,
 } from '../../kern/maske/fluss'
-import { rasterPlatzLesen, rasterPlatzStil } from '../../kern/maske/raster'
+import { rasterPlatzLesen, rasterPlatzStil, type RasterPlatz } from '../../kern/maske/raster'
+import { istRasterFlaeche } from '../../kern/maske/rasterFlaeche'
 import { useEditor } from '../zustand/useEditor'
 import { BlockHost } from './BlockHost'
 import { isNewBlockDrag, newBlockDragType } from './dnd'
@@ -19,6 +20,24 @@ import { cn } from '@/editor/werkbank/cn'
 import { ziehePosition } from './rasterMove'
 
 const CONTAINER_EDGE = 12
+
+// Wo der gezogene Baustein landet. Der Umriss wird in der Flaeche gezeichnet,
+// die ihn aufnimmt: nur dort zaehlen die Zellen, die er zeigt.
+function RasterGeist({ platz }: { platz: RasterPlatz }) {
+  return (
+    <div
+      aria-hidden
+      data-ff-editor-helper
+      style={{
+        ...rasterPlatzStil(platz),
+        pointerEvents: 'none',
+        background: 'hsl(var(--wb-auswahl) / 0.16)',
+        border: '2px dashed hsl(var(--wb-auswahl))',
+        borderRadius: 4,
+      }}
+    />
+  )
+}
 
 function InsertionLine({ direction }: { direction: Richtung }) {
   return (
@@ -57,6 +76,10 @@ export function NodeList(
   const vorlageHier = weiter !== undefined && nodes.length === 0 ? weiter : undefined
   const vorlageWeiter = weiter !== undefined && nodes.length > 0 ? weiter : undefined
 
+  const geist = raster && dnd.dropTarget?.kind === 'raster' && dnd.dropTarget.parentId === parentId
+    ? dnd.dropTarget
+    : null
+
   return (
     <>
       {nodes.map((node, i) => (
@@ -74,6 +97,7 @@ export function NodeList(
       ))}
       {lineAt(nodes.length) && <InsertionLine direction={direction} />}
       {vorlageHier && <VorlageKnoten vorlage={vorlageHier} rueckfallEltern={parentId} direction={direction} />}
+      {geist && <RasterGeist platz={geist} />}
     </>
   )
 }
@@ -171,7 +195,14 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false, vorl
       onSelect={() => ed.waehleGetroffenen(node.id)}
       raster={raster}
     >
-      {isContainer && <NodeList parentId={node.id} direction={childDirection} vorlage={vorlage} />}
+      {isContainer && (
+        <NodeList
+          parentId={node.id}
+          direction={childDirection}
+          raster={istRasterFlaeche(node)}
+          vorlage={vorlage}
+        />
+      )}
     </BlockHost>
   )
 

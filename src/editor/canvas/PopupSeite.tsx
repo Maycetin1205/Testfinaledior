@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { DIALOG_RAND, DIALOG_SCHLIESSEN_EVENT } from '../../bausteine/faehigkeiten/DialogRahmen'
 import { bausteinArt } from '../../kern/maske/registry'
-import { rasterPlatzStil } from '../../kern/maske/raster'
 import { useEditor } from '../zustand/useEditor'
 import { BlockHost } from './BlockHost'
 import { NodeList } from './CanvasNode'
@@ -10,7 +9,7 @@ import { LeerHinweis } from './LeerHinweis'
 import { isNewBlockDrag } from './dnd'
 import { commitDrop, useDnd } from './dndState'
 import { rasterZiel } from './rasterDnd'
-import { flaecheIn } from './rasterFlaeche'
+import { flaecheUnterZeiger } from './rasterFlaeche'
 import { zieheGroesse } from './zieheGroesse'
 
 const POPUP_MIN_BREITE = 240
@@ -19,11 +18,6 @@ const POPUP_MIN_HOEHE = 160
 function popupZahl(v: unknown, fallback: number): number {
   const n = Number(v)
   return Number.isFinite(n) && n > 0 ? n : fallback
-}
-
-function imRumpf(gridEl: HTMLElement, x: number, y: number): boolean {
-  const r = gridEl.getBoundingClientRect()
-  return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom
 }
 
 export function PopupSeite({ popupId }: { popupId: string }) {
@@ -76,25 +70,19 @@ export function PopupSeite({ popupId }: { popupId: string }) {
   const def = bausteinArt(node.typ)
   const standard = def?.vorgaben ?? {}
 
-  const rumpf = (): HTMLElement | null =>
-    flaecheIn(def ? wrapRef.current?.querySelector(def.tag) : null)
-  const geist = dnd.dropTarget?.kind === 'raster' && dnd.dropTarget.parentId === node.id
-    ? dnd.dropTarget
-    : null
-
   return (
     <div
       ref={wrapRef}
       className="absolute inset-0"
       onDragOver={(e) => {
         if (dnd.dragId === null && !isNewBlockDrag(e.dataTransfer)) return
-        const gridEl = rumpf()
-        if (!gridEl || !imRumpf(gridEl, e.clientX, e.clientY)) {
+        const ziel = flaecheUnterZeiger(ed.tree, node.id, e.clientX, e.clientY)
+        if (!ziel) {
           dnd.setDropTarget(null)
           return
         }
         e.preventDefault()
-        dnd.setDropTarget(rasterZiel(e, ed, dnd, node.id, gridEl))
+        dnd.setDropTarget(rasterZiel(e, ed, dnd, ziel.parentId, ziel.flaeche))
       }}
       onDragLeave={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
@@ -112,20 +100,6 @@ export function PopupSeite({ popupId }: { popupId: string }) {
         onSelect={() => ed.selectBlock(node.id)}
       >
         <NodeList parentId={node.id} direction="column" raster />
-
-        {geist && (
-          <div
-            aria-hidden
-            data-ff-editor-helper
-            style={{
-              ...rasterPlatzStil(geist),
-              pointerEvents: 'none',
-              background: 'hsl(var(--wb-auswahl) / 0.16)',
-              border: '2px dashed hsl(var(--wb-auswahl))',
-              borderRadius: 4,
-            }}
-          />
-        )}
       </BlockHost>
 
       {ed.childNodesOf(node.id).length === 0 && (

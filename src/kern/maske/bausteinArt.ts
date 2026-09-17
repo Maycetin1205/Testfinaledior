@@ -64,5 +64,8 @@ export interface BausteinArt {
   // eines gewaehlt ist — sonst wie `name`.
   kindKnopf?: { name: string; kindTyp: string; nameAusFeld?: string }
   seite?: boolean
+  // Der Baustein spannt selbst ein Raster auf: seine Kinder sitzen in Zellen
+  // statt im Fluss. Wurzel und Seiten tun das ohnehin (rasterFlaeche.ts).
+  rasterFlaeche?: boolean
   raster?: Partial<RasterMass>
 }

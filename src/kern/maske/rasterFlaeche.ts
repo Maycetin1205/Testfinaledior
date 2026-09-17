@@ -13,6 +13,7 @@ import { teilbaumIds } from './baumOps'
 
 export function istRasterFlaeche(node: Baustein): boolean {
   return node.id === WURZEL_ID || istSeitenBaustein(node)
+    || bausteinArt(node.typ)?.rasterFlaeche === true
 }
 
 export function freieZeileAuf(tree: Maskenbaum, parentId: string): number {

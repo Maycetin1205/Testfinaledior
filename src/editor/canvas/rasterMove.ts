@@ -2,10 +2,11 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { Baustein } from '../../kern/maske/baum'
 import { RASTER, rasterPlatzLesen } from '../../kern/maske/raster'
+import { darfEnthalten } from '../../kern/maske/registry'
 import type { Editor } from '../zustand/Editor'
 import type { DndState } from './dndState'
 import { zelleAusZeiger } from './rasterDnd'
-import { flaecheVon } from './rasterFlaeche'
+import { flaecheUnterZeiger, flaecheVon, type FlaechenTreffer } from './rasterFlaeche'
 
 const ZUG_SCHWELLE = 4
 
@@ -46,8 +47,21 @@ export function ziehePosition(
   const greif = { x: startX - rect.left, y: startY - rect.top }
   const pos = rasterPlatzLesen(node.werte)
   const id = node.id
+  const eigene: FlaechenTreffer = { parentId, flaeche: gridEl }
   let aktiv = false
-  let letztes: { x: number; y: number } | null = null
+  let letztes: { ziel: FlaechenTreffer; x: number; y: number } | null = null
+
+  // Zeigt der Nutzer auf keine Flaeche, die den Baustein aufnimmt, bleibt er in
+  // seiner eigenen: sonst spraenge er beim Ziehen ueber den Rand irgendwohin.
+  const zielFlaeche = (x: number, y: number): FlaechenTreffer => {
+    const treffer = flaecheUnterZeiger(editor.tree, editor.rootId, x, y)
+    if (!treffer || treffer.parentId === parentId) return eigene
+    const ziel = editor.getNode(treffer.parentId)
+    if (!ziel || !darfEnthalten(ziel.typ, node.typ) || editor.isInSubtree(id, treffer.parentId)) {
+      return eigene
+    }
+    return treffer
+  }
 
   const aufraeumen = (): void => {
     window.removeEventListener('pointermove', onMove)
@@ -64,17 +78,18 @@ export function ziehePosition(
       aktiv = true
       dnd.setDragId(id)
     }
-    const zelle = zelleAusZeiger(gridEl, ev.clientX - greif.x, ev.clientY - greif.y)
+    const ziel = zielFlaeche(ev.clientX, ev.clientY)
+    const zelle = zelleAusZeiger(ziel.flaeche, ev.clientX - greif.x, ev.clientY - greif.y)
     const x = Math.max(0, Math.min(zelle.x, RASTER.spalten - pos.w))
     const y = Math.max(0, zelle.y)
-    letztes = { x, y }
-    dnd.setDropTarget({ kind: 'raster', parentId, x, y, w: pos.w, h: pos.h })
+    letztes = { ziel, x, y }
+    dnd.setDropTarget({ kind: 'raster', parentId: ziel.parentId, x, y, w: pos.w, h: pos.h })
   }
 
   const onUp = (): void => {
     aufraeumen()
     if (aktiv && letztes) {
-      editor.moveNodeToCell(id, parentId, letztes.x, letztes.y)
+      editor.moveNodeToCell(id, letztes.ziel.parentId, letztes.x, letztes.y)
   // Der Klick unmittelbar nach dem Ziehen wird geschluckt. Folgt keiner, raeumt
   // der Timeout auf, sonst frisst der Listener den naechsten Klick irgendwo.
       window.addEventListener('click', schluckeKlick, { capture: true, once: true })

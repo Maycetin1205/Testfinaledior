@@ -1,13 +1,14 @@
 // Die Leinwand: die Maskenflaeche im Editor mit ihren Seiten.
 import { useCallback, useMemo, useState, type DragEvent } from 'react'
 import { WURZEL_FLUSS } from '../../kern/maske/fluss'
-import { rasterFlaecheStil, rasterPlatzStil } from '../../kern/maske/raster'
+import { rasterFlaecheStil } from '../../kern/maske/raster'
 import { useEditor } from '../zustand/useEditor'
 import { NodeList } from './CanvasNode'
 import { LeerHinweis } from './LeerHinweis'
 import { isNewBlockDrag } from './dnd'
 import { commitDrop, DndContext, gleichesZiel, type DndState, type DropTarget } from './dndState'
 import { rasterZiel } from './rasterDnd'
+import { flaecheUnterZeiger } from './rasterFlaeche'
 import { PopupSeite } from './PopupSeite'
 
 export function Canvas() {
@@ -30,13 +31,15 @@ export function Canvas() {
     },
   }), [dragId, dropTarget, setDropTarget])
 
-  const onGridDragOver = (e: DragEvent) => {
-    if (dragId === null && !isNewBlockDrag(e.dataTransfer)) return
-    e.preventDefault()
-    setDropTarget(rasterZiel(e, ed, dnd, ed.rootId, e.currentTarget as HTMLElement))
-  }
-
   const hauptseite = ed.pages.find((p) => p.id === ed.activePageId)?.istHauptseite ?? true
+
+  const onGridDragOver = (e: DragEvent) => {
+    if (!hauptseite || (dragId === null && !isNewBlockDrag(e.dataTransfer))) return
+    const ziel = flaecheUnterZeiger(ed.tree, ed.rootId, e.clientX, e.clientY)
+    if (!ziel) return setDropTarget(null)
+    e.preventDefault()
+    setDropTarget(rasterZiel(e, ed, dnd, ziel.parentId, ziel.flaeche))
+  }
 
   return (
     <DndContext.Provider value={dnd}>
@@ -56,6 +59,7 @@ export function Canvas() {
           }}
         >
           <div
+            data-ff-wurzelflaeche
 
             className="h-full min-h-0 overflow-auto"
             style={{
@@ -76,25 +80,6 @@ export function Canvas() {
             }}
           >
             {hauptseite && <NodeList parentId={ed.rootId} direction="column" raster />}
-
-            {hauptseite && dropTarget?.kind === 'raster' && dropTarget.parentId === ed.rootId && (
-              <div
-                aria-hidden
-                data-ff-editor-helper
-                style={{
-                  ...rasterPlatzStil({
-                    x: dropTarget.x,
-                    y: dropTarget.y,
-                    w: dropTarget.w,
-                    h: dropTarget.h,
-                  }),
-                  pointerEvents: 'none',
-                  background: 'hsl(var(--wb-auswahl) / 0.16)',
-                  border: '2px dashed hsl(var(--wb-auswahl))',
-                  borderRadius: 4,
-                }}
-              />
-            )}
           </div>
 
           {hauptseite && ed.childNodesOf(ed.rootId).length === 0 && (
