@@ -20,10 +20,8 @@ zeigt, IST der Export: dieselben Lit-Elemente rendern im Editor (Attribut
 - Wer beim Umbau auf etwas stoesst, das das Muster (Regel 2, 11) nicht
   abdeckt, erfindet nichts, sondern meldet dem Nutzer: "passt nicht ins
   Muster", mit Datei und Satz, was fehlt. Dann entscheidet der Nutzer.
-- Ein Chat, eine Aufgabe. Am Ende jeder Aufgabe steht im Bericht, woertlich
-  und in einem Block zum Kopieren, der Prompt fuer den naechsten Chat: was er
-  lesen soll (immer diese Datei), was genau er tut, was er nicht anfasst. Der
-  Nutzer schreibt keine Prompts selbst.
+- Ein Chat, eine Aufgabe. Kein Bericht endet mit einem Prompt fuer den
+  naechsten Chat. Wer einen will, fragt danach.
 
 ## Befehle
 
@@ -174,8 +172,7 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
 4. Startpaket: GET_RELATION-, REFRESH- und TABELLE-Bloecke in den SEvariablen
    als neue Quellenarten. DATASET bleibt: ob der Block traegt, ist nicht per
    Echttest belegt (kontrakte.md 17); erst der Test des Nutzers entscheidet.
-5. Nicht bauen: alle Artikel vorladen. ERPAPICALL deckelt bei 1000 Zeilen,
-   SEFILELOOP dauert 7 s. Nachschlagen sucht beim Tippen.
+5. Nicht bauen: alle Artikel vorladen. Nachschlagen sucht beim Tippen.
 6. Gebaut, Echttest steht aus: ein BW_LINK-Schritt geht wie SoftEngines
    `sendBWLinkIntern` als `HTMLEVENT { art: 'BWLINK', params }` hinaus, ein
    Befehl mit START_TOOL als START_TOOL-Nachricht (kontrakte.md 13). Erst
