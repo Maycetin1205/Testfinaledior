@@ -10,7 +10,6 @@ import {
   artFuer,
   quellenKennung,
   type Datenquelle,
-  type QuellenArtKennung,
 } from '../../kern/daten/datenquellen'
 import { quellenWorte } from './beschriftungen'
 import { dtkLesen, type DtkTabelle } from '../../kern/daten/dtkImport'
@@ -18,7 +17,6 @@ import { bausteineMitQuelle } from '../../kern/maske/quellenReichweite'
 import { useDataSources } from '../zustand/useDataSources'
 import { useEditor } from '../zustand/useEditor'
 import { Bestellung } from './Bestellung'
-import { VorlagenWahl } from './VorlagenWahl'
 import { DataSourceForm } from './DataSourceForm'
 import { DtkImportForm } from './DtkImportForm'
 import { bausteinName } from '../../kern/maske/bausteinName'
@@ -40,9 +38,6 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
   const [auswahlId, setAuswahlId] = useState<string | null>(store.list[0]?.id ?? null)
 
   const [modus, setModus] = useState<'lesen' | 'bearbeiten' | 'neu' | 'import'>('lesen')
-
-  // Solange keine Vorlage gewaehlt ist, steht im Neu-Bereich die Wahl.
-  const [neuArt, setNeuArt] = useState<QuellenArtKennung | null>(null)
 
   const [importStand, setImportStand] = useState<{
     dateiName: string
@@ -98,7 +93,7 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
         bereiche={bereiche}
         listeKopf={(
           <>
-          <Knopf className="w-full" onClick={() => { setNeuArt(null); setModus('neu') }}>
+          <Knopf className="w-full" onClick={() => setModus('neu')}>
             <Plus size={14} /> Neue Datenquelle
           </Knopf>
           <Knopf className="w-full" onClick={() => dateiRef.current?.click()}>
@@ -163,11 +158,8 @@ export function DatenquellenBereich({ bereiche }: { bereiche?: ReactNode }) {
         )}
         detail={(
           <>
-        {modus === 'neu' && neuArt === null && (
-          <VorlagenWahl onWaehle={setNeuArt} onClose={() => setModus('lesen')} />
-        )}
-        {modus === 'neu' && neuArt !== null && (
-          <DataSourceForm startArt={neuArt} onClose={() => setModus('lesen')} />
+        {modus === 'neu' && (
+          <DataSourceForm onClose={() => setModus('lesen')} />
         )}
         {modus === 'import' && importStand && (
           <DtkImportForm
