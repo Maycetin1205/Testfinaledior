@@ -12,24 +12,34 @@ export type QuellenArtKennung =
   | 'dataset'
   | 'relationswert'
 
+// Was eine Art ausser Kennung und Feldern tragen darf. Als Liste, nicht als je
+// ein Schalter: eine neue Angabe ist dann ein Wort in den Arten, die sie
+// tragen, statt einer weiteren Spalte in allen neun.
+//
+// KOPFSATZ_INDEX  haengt an einem Kopfsatz (Positionen unter ihrem Beleg)
+// INDEX_NR        traegt eine Satznummer ({PINDEX}); ohne sie kein Aendern
+// VAR             kann statt einer Liste den offenen Satz liefern
+// HOL_RELATION    holt die Zeilen selbst per Relation, statt bestellt zu werden
+// FELD_VORSATZ    ihre Feldcodes tragen einen Vorsatz (ART_, ADR_)
+// HOL_WERT        holt EINEN Wert per Relation und wird nie bestellt
+export type Schluessel =
+  | 'KOPFSATZ_INDEX'
+  | 'INDEX_NR'
+  | 'VAR'
+  | 'HOL_RELATION'
+  | 'FELD_VORSATZ'
+  | 'HOL_WERT'
+
 export interface QuellenArt {
   id: QuellenArtKennung
 
   tabellenId: string
 
+  schluessel: readonly Schluessel[]
+
   felderEinzeln: boolean
 
-  kopfsatzMoeglich: boolean
-
   kopfsatzStandard: string
-
-  relationLadenMoeglich: boolean
-
-  // Zeilen dieser Art tragen eine Satznummer ({PINDEX}). Reine Lesequellen haben
-  // keine; dort machte sie Aendern und Loeschen scheinbar moeglich.
-  satzNummerMoeglich: boolean
-
-  varMoeglich: boolean
 
   bestellBlock: 'sefileloop' | 'erpapicall' | 'dataset'
 
@@ -40,145 +50,107 @@ export interface QuellenArt {
   // 'ID0001' zur IDB-Langform ausschreiben. Bei DataSets ist 'ID0001' die echte
   // Kennung und bleibt stehen.
   idbKurzform: boolean
+}
 
-  feldVorsatzMoeglich: boolean
-
-  // Diese Art holt ihren Wert selbst per Relation und wird nie bestellt.
-  holWertMoeglich: boolean
+export function traegt(art: QuellenArt, schluessel: Schluessel): boolean {
+  return art.schluessel.includes(schluessel)
 }
 
 // Ohne feste Tabellen-ID traegt die Quelle sie als eigene Kennung; wer nichts
 // bestellt, braucht sie nicht.
 export function tabellenKennungNoetig(art: QuellenArt): boolean {
-  return art.tabellenId === '' && !art.holWertMoeglich
+  return art.tabellenId === '' && !traegt(art, 'HOL_WERT')
 }
 
 const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
+  // Ein IDB-Satz wird ganz gelesen: seine Felder lassen sich nicht einzeln
+  // bestellen, darum geht '*' hinaus.
   idb: {
     id: 'idb',
     tabellenId: '',
+    schluessel: ['INDEX_NR'],
     felderEinzeln: false,
-    kopfsatzMoeglich: false,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: true,
-    varMoeglich: false,
     bestellBlock: 'sefileloop',
     spaltenNamen: false,
     idbKurzform: true,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: false,
   },
+
   adressstamm: {
     id: 'adressstamm',
     tabellenId: 'ADR',
+    schluessel: ['INDEX_NR', 'VAR'],
     felderEinzeln: true,
-    kopfsatzMoeglich: false,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: true,
-    varMoeglich: true,
     bestellBlock: 'sefileloop',
     spaltenNamen: false,
     idbKurzform: true,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: false,
   },
+
   artikelstamm: {
     id: 'artikelstamm',
     tabellenId: 'ART',
+    schluessel: ['INDEX_NR'],
     felderEinzeln: true,
-    kopfsatzMoeglich: false,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: true,
-    varMoeglich: false,
     bestellBlock: 'sefileloop',
     spaltenNamen: false,
     idbKurzform: true,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: false,
   },
+
   beleg: {
     id: 'beleg',
     tabellenId: 'BEL',
+    schluessel: ['INDEX_NR', 'VAR'],
     felderEinzeln: true,
-    kopfsatzMoeglich: false,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: true,
-    varMoeglich: true,
-
     bestellBlock: 'sefileloop',
     spaltenNamen: false,
     idbKurzform: true,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: false,
   },
 
   belegposition: {
     id: 'belegposition',
     tabellenId: 'POS',
+    schluessel: ['KOPFSATZ_INDEX', 'HOL_RELATION', 'INDEX_NR', 'VAR'],
     felderEinzeln: true,
-    kopfsatzMoeglich: true,
     kopfsatzStandard: 'BEL_0_11',
-    relationLadenMoeglich: true,
-    satzNummerMoeglich: true,
-
-    varMoeglich: true,
-
     bestellBlock: 'sefileloop',
     spaltenNamen: false,
     idbKurzform: true,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: false,
   },
 
   datei: {
     id: 'datei',
     tabellenId: '',
+    schluessel: ['KOPFSATZ_INDEX', 'INDEX_NR'],
     felderEinzeln: true,
-    kopfsatzMoeglich: true,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: true,
-    varMoeglich: false,
     bestellBlock: 'sefileloop',
     spaltenNamen: false,
     idbKurzform: true,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: false,
   },
 
   erpabfrage: {
     id: 'erpabfrage',
     tabellenId: '',
+    schluessel: ['FELD_VORSATZ'],
     felderEinzeln: true,
-    kopfsatzMoeglich: false,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: false,
-    varMoeglich: false,
     bestellBlock: 'erpapicall',
     spaltenNamen: false,
     idbKurzform: true,
-    feldVorsatzMoeglich: true,
-    holWertMoeglich: false,
   },
+
   dataset: {
     id: 'dataset',
     tabellenId: '',
+    schluessel: [],
     felderEinzeln: true,
-    kopfsatzMoeglich: false,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: false,
-    varMoeglich: false,
     bestellBlock: 'dataset',
     spaltenNamen: true,
     idbKurzform: false,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: false,
   },
 
   // Kein Loop, kein VAR-Abschnitt, keine Satznummer: EIN Relations-Ruf, seine
@@ -186,17 +158,12 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
   relationswert: {
     id: 'relationswert',
     tabellenId: '',
+    schluessel: ['HOL_WERT'],
     felderEinzeln: true,
-    kopfsatzMoeglich: false,
     kopfsatzStandard: '',
-    relationLadenMoeglich: false,
-    satzNummerMoeglich: false,
-    varMoeglich: false,
     bestellBlock: 'sefileloop',
     spaltenNamen: true,
     idbKurzform: false,
-    feldVorsatzMoeglich: false,
-    holWertMoeglich: true,
   },
 }
 

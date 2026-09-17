@@ -2,7 +2,7 @@
 // Zeile kommt, auf die sie sich bezieht, steht nicht hier, sondern als
 // „Auswahl folgen" am Baustein, der die Quelle zeigt - wie bei jedem anderen
 // Baustein auch.
-import { artFuer, type QuellenArtKennung } from './quellenArten'
+import { artFuer, traegt, type QuellenArtKennung } from './quellenArten'
 
 export interface LadeRelation {
   nr: string
@@ -52,7 +52,7 @@ export function relationNrAusEingabe(raw: string): string {
 export function ladeRelationVon(
   source: { art: QuellenArtKennung; ladeRelation?: LadeRelation },
 ): LadeRelation | null {
-  if (!artFuer(source.art).relationLadenMoeglich) return null
+  if (!traegt(artFuer(source.art), 'HOL_RELATION')) return null
   return source.ladeRelation ?? null
 }
 

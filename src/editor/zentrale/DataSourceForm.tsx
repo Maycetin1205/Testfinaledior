@@ -21,6 +21,7 @@ import {
   QUELLEN_ARTEN,
   relationNrAusEingabe,
   tabellenKennungNoetig,
+  traegt,
   type Datenquelle,
   type QuellenArtKennung,
 } from '../../kern/daten/datenquellen'
@@ -98,26 +99,26 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const worte = quellenWorte(kind)
   const kennungEingeben = tabellenKennungNoetig(art)
 
-  const kopfsatzEingeben = art.kopfsatzMoeglich
+  const kopfsatzEingeben = traegt(art, 'KOPFSATZ_INDEX')
 
-  const holenMoeglich = art.relationLadenMoeglich
+  const holenMoeglich = traegt(art, 'HOL_RELATION')
 
   const vorsatz = feldVorsatzAusEingabe(vorsatzEingabe)
 
   // Der Vorsatz steckt in JEDEM Feldcode dieser Quelle. Wer die Art wechselt,
   // soll ihn sehen und selbst entfernen, sonst fielen die Codes beim Speichern
   // still auf die Form ohne Vorsatz zurueck.
-  const vorsatzEingeben = art.feldVorsatzMoeglich || vorsatz !== ''
+  const vorsatzEingeben = traegt(art, 'FELD_VORSATZ') || vorsatz !== ''
   const holtZeilen = holenMoeglich && zeilenWeg === 'holen'
 
   // Der offene Satz kommt aus dem VAR-Abschnitt: Schleife und offener Satz
   // schliessen sich aus.
-  const lieferungWaehlbar = art.varMoeglich && !holtZeilen
+  const lieferungWaehlbar = traegt(art, 'VAR') && !holtZeilen
   const offenerSatz = lieferungWaehlbar && lieferung === 'offenerSatz'
 
   const geberOptionen = store.list.filter((s) => s.id !== source?.id)
 
-  const holtWert = art.holWertMoeglich
+  const holtWert = traegt(art, 'HOL_WERT')
   const holRelation = holVorlagen.find((r) => r.id === holRelationId)
   const sichtbareRelationen = useMemo(
     () => holVorlagen.filter((eintrag) => relationPasstZurSuche(eintrag, holSuche)),
@@ -245,7 +246,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
       ...(offenerSatz ? { lieferung: 'offenerSatz' as const } : {}),
 
-      ...(art.satzNummerMoeglich && satzNummer !== ''
+      ...(traegt(art, 'INDEX_NR') && satzNummer !== ''
         ? { satzFeld: satzNummer }
         : {}),
 
@@ -435,7 +436,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           zeigeFehler={zeigeFehler}
         />
 
-        {art.satzNummerMoeglich && (
+        {traegt(art, 'INDEX_NR') && (
           <SelectControl
             label="Satznummer"
             description="Macht eine Zeile eindeutig. Ohne sie kann die Maske neue Zeilen anlegen, aber keine bestehende ändern oder löschen."
