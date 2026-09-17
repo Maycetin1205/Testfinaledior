@@ -65,8 +65,16 @@ export function quelleAusListe(list: unknown, id: string): LaufzeitQuelle | unde
   return undefined
 }
 
+// SoftEngine liefert ein Feld mal blank, mal als Kasten {WERT: ...}. Ohne das
+// Auspacken stuende woertlich "[object Object]" in der Zelle, und weil das nicht
+// leer ist, griffe der Rueckfall in feldLesen nie.
 function asTrimmedString(v: unknown): string {
-  return v == null ? '' : String(v).trim()
+  if (v == null) return ''
+  if (typeof v === 'object' && !Array.isArray(v)) {
+    const inhalt = (v as Record<string, unknown>).WERT
+    return inhalt == null || typeof inhalt === 'object' ? '' : String(inhalt).trim()
+  }
+  return String(v).trim()
 }
 
 export function feldLesen(row: unknown, code: string): string {
