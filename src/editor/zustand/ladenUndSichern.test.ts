@@ -242,6 +242,47 @@ test('ein Stand im Format 10 wird beim Laden auf die deutschen Bausteinnamen geh
   expect(meldungsText()).toBe('')
 })
 
+// Eine gespeicherte Tafel im Format 13: `card` heisst heute `karte`, ihre
+// Stellen heissen deutsch, und den Musterbaustein gibt es nicht mehr — seine
+// Karte haengt jetzt unmittelbar an der Tafel.
+test('eine Tafel im Format 13 laedt ohne Musterbaustein und mit deutschen Namen', () => {
+  speicher.setItem(STORAGE_KEY, JSON.stringify({
+    schemaVersion: 13,
+    tree: {
+      ...wurzelBaum(['k1']),
+      k1: {
+        id: 'k1', typ: 'kanban', elternId: WURZEL_ID, kinderIds: ['m1', 's1'],
+        werte: { rasterX: 0, rasterY: 0, rasterW: 24, rasterH: 12, quelle: 'q1', statusField: '18_25' },
+      },
+      m1: { id: 'm1', typ: 'kanban-muster', werte: {}, elternId: 'k1', kinderIds: ['c1'] },
+      c1: {
+        id: 'c1', typ: 'card', elternId: 'm1', kinderIds: [],
+        werte: { heading: 'Karte', headingField: '45_60', chipText: 'Eilig', chipVariant: 'warning' },
+      },
+      s1: {
+        id: 's1', typ: 'kanban-spalte', elternId: 'k1', kinderIds: ['z1'],
+        werte: { heading: 'Offen', variant: 'info', zimmerField: '30_10' },
+      },
+      z1: { id: 'z1', typ: 'kanban-zimmer', werte: { heading: 'Meier' }, elternId: 's1', kinderIds: [] },
+    },
+    datenquellen: [], relationen: [],
+  }))
+
+  const stand = loadFromStorage()
+  expect(stand?.tree.m1).toBeUndefined()
+  expect(stand?.tree.k1.kinderIds).toEqual(['c1', 's1'])
+  expect(stand?.tree.c1.typ).toBe('karte')
+  expect(stand?.tree.c1.elternId).toBe('k1')
+  expect(stand?.tree.c1.werte).toMatchObject({
+    titel: 'Karte', titelField: '45_60', chip: 'Eilig', chipFarbwelt: 'warning',
+  })
+  expect(stand?.tree.k1.werte).toMatchObject({ spaltenFeld: '18_25' })
+  expect(stand?.tree.s1.werte).toMatchObject({ titel: 'Offen', farbwelt: 'info', unterteilungsFeld: '30_10' })
+  expect(stand?.tree.z1.werte).toMatchObject({ titel: 'Meier' })
+  expect(kopien(STORAGE_KEY)).toHaveLength(0)
+  expect(meldungsText()).toBe('')
+})
+
 // Der Stand des Nutzers vom 16.09.: waehrend ein Baustein umgebaut wurde, stand
 // sein Editor offen. Er sicherte weiter — den alten Schluessel unter der NEUEN
 // Formatnummer. Ohne Hebung auch des heutigen Formats faende der Lader einen

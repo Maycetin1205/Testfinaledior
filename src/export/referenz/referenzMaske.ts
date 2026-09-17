@@ -135,17 +135,16 @@ export function referenzBaum(): Maskenbaum {
     b1: knoten('b1', 'button', WURZEL_ID, {
       rasterX: 26, rasterY: 0, rasterW: 8, rasterH: 3, beschriftung: 'Schreiben',
     }),
-    c1: knoten('c1', 'card', 'km1', {
-      rasterX: 0, rasterY: 25, rasterW: 12, rasterH: 12, heading: 'Karte', headingField: '45_60',
+    c1: knoten('c1', 'karte', 'k1', {
+      rasterX: 0, rasterY: 25, rasterW: 12, rasterH: 12, titel: 'Karte', titelField: '45_60',
     }),
     k1: knoten('k1', 'kanban', WURZEL_ID, {
-      rasterX: 18, rasterY: 3, rasterW: 30, rasterH: 22, quelle: 'q-pos', statusField: '18_25',
-    }, ['km1', 'ks1']),
-    km1: knoten('km1', 'kanban-muster', 'k1', {}, ['c1']),
+      rasterX: 18, rasterY: 3, rasterW: 30, rasterH: 22, quelle: 'q-pos', spaltenFeld: '18_25',
+    }, ['c1', 'ks1']),
     ks1: knoten('ks1', 'kanban-spalte', 'k1', {
-      heading: 'Offen', wert: 'ART-B', variant: 'info',
+      titel: 'Offen', wert: 'ART-B', farbwelt: 'info',
     }, ['kz1']),
-    kz1: knoten('kz1', 'kanban-zimmer', 'ks1', { heading: 'Zimmer 1', wert: 'Z1' }),
+    kz1: knoten('kz1', 'kanban-zimmer', 'ks1', { titel: 'Zimmer 1', wert: 'Z1' }),
     tx1: knoten('tx1', 'text', WURZEL_ID, { rasterX: 34, rasterY: 0, rasterW: 14, rasterH: 3 }),
     d1: knoten('d1', 'datum', WURZEL_ID, { rasterX: 0, rasterY: 0, rasterW: 10, rasterH: 3 }),
     tr1: knoten('tr1', 'trenner', WURZEL_ID, {

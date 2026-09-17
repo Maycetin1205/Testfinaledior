@@ -9,9 +9,9 @@ function owningTemplateBoardId(tree: Maskenbaum, id: string): string | undefined
   if (!node) return undefined
   let cur: Baustein | undefined = node.elternId ? tree[node.elternId] : undefined
   while (cur) {
-    const tc = bausteinArt(cur.typ)?.musterKind
-    if (tc && tc.type === node.typ) {
-      return ersterNachfahreVomTyp(tree, cur.id, tc.type) === id ? cur.id : undefined
+    const muster = bausteinArt(cur.typ)?.musterKind
+    if (muster && muster.typ === node.typ) {
+      return ersterNachfahreVomTyp(tree, cur.id, muster.typ) === id ? cur.id : undefined
     }
     cur = cur.elternId ? tree[cur.elternId] : undefined
   }
@@ -21,7 +21,7 @@ function owningTemplateBoardId(tree: Maskenbaum, id: string): string | undefined
 export function templateMarkFor(tree: Maskenbaum, id: string): string | undefined {
   const boardId = owningTemplateBoardId(tree, id)
   return boardId
-    ? bausteinArt(tree[boardId].typ)?.musterKind?.label
+    ? bausteinArt(tree[boardId].typ)?.musterKind?.name
     : undefined
 }
 

@@ -8,6 +8,7 @@ import { faehigkeit } from '../../kern/maske/faehigkeiten'
 import { useEditorInstance } from '../zustand/EditorContext'
 import { wendeProps } from '../zustand/propsPatch'
 import { ersterNachfahreVomTyp, kannRechnen } from '../../kern/maske/baumFragen'
+import { feldKlarname } from '../../kern/daten/datenquellen'
 import { eigenschaftenFuer } from '../../kern/maske/eigenschaftsOrt'
 import { Popover } from '@/editor/werkbank/Popover'
 import { PropControl } from '../inspector/PropControl'
@@ -75,7 +76,7 @@ export function AuswahlLeiste({ block, def, wirt, onEntfernen }: AuswahlLeistePr
     onEndeBearbeitung: () => editor.endTransaction(),
   }), [editor])
   const eigenschaften = def ? eigenschaftenFuer(block, def, 'inline') : []
-  const muster = def?.musterKind ? ersterNachfahreVomTyp(editor.tree, block.id, def.musterKind.type) : undefined
+  const muster = def?.musterKind ? ersterNachfahreVomTyp(editor.tree, block.id, def.musterKind.typ) : undefined
   // Die Lage wird gemessen und direkt ans Element geschrieben: kein Zustand,
   // kein zweiter Render.
   const leisteRef = useRef<HTMLDivElement | null>(null)
@@ -84,6 +85,16 @@ export function AuswahlLeiste({ block, def, wirt, onEntfernen }: AuswahlLeistePr
     if (el) Object.assign(el.style, STIL[lageFuer(wirt.current)])
   }, [wirt, block])
   const kind = def?.kindKnopf
+  // Der Knopf heisst wie das Feld, nach dem hier unterteilt wird: „+ Spalte"
+  // bleibt „+ Spalte", „+ Unterteilung" wird „+ Mitarbeiter".
+  const kindName = kind === undefined
+    ? ''
+    : (kind.nameAusFeld !== undefined
+      && feldKlarname(
+        String(block.werte[kind.nameAusFeld] ?? ''),
+        editor.dataSourceFor(block.id)?.id ?? '',
+        editor.quellenFor(block.id).map((q) => q.quelle),
+      )) || kind.name
   const liste = faehigkeit(def, 'liste')?.bindung
   const neu = liste?.eintragNeu
   const weg = liste?.eintragWeg
@@ -118,8 +129,10 @@ export function AuswahlLeiste({ block, def, wirt, onEntfernen }: AuswahlLeistePr
           <Link2 size={12} /> Berechnungen
         </Knopf>
       )}
-      {muster && (
-        <Knopf className="h-6 px-1.5 text-dicht" onClick={() => editor.selectBlock(muster)}>Kartenmuster</Knopf>
+      {muster && def?.musterKind && (
+        <Knopf className="h-6 px-1.5 text-dicht" onClick={() => editor.selectBlock(muster)}>
+          {def.musterKind.name}
+        </Knopf>
       )}
       {onEntfernen && (
         <Knopf nurZeichen className="h-6 w-6" title="Baustein löschen" aria-label="Baustein löschen"
@@ -140,10 +153,10 @@ export function AuswahlLeiste({ block, def, wirt, onEntfernen }: AuswahlLeistePr
       {kind && (
         <Knopf
           className="h-6 px-1.5 text-dicht"
-          title={`${kind.label} anlegen`}
-          onClick={() => editor.addBlock(kind.childType, block.id)}
+          title={`${kindName} anlegen`}
+          onClick={() => editor.addBlock(kind.kindTyp, block.id)}
         >
-          <Plus size={12} /> {kind.label}
+          <Plus size={12} /> {kindName}
         </Knopf>
       )}
       {neu && (

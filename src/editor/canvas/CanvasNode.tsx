@@ -33,28 +33,67 @@ function InsertionLine({ direction }: { direction: Richtung }) {
 }
 
 export function NodeList(
-  { parentId, direction, raster = false }:
-  { parentId: string; direction: Richtung; raster?: boolean },
+  { parentId, direction, raster = false, vorlage }:
+  { parentId: string; direction: Richtung; raster?: boolean; vorlage?: Baustein },
 ) {
   const ed = useEditor()
   const dnd = useDnd()
 
-  const nodes = ed.childNodesOf(parentId)
+  const alle = ed.childNodesOf(parentId)
+  // Die Vorlage einer Tafel haengt im Baum an der Tafel, damit eine geloeschte
+  // Spalte sie nicht mitnimmt. Gezeigt wird sie dort, wo zur Laufzeit die
+  // Karten liegen: so tief im ersten Kind, wie es Kinder aufnimmt.
+  const muster = bausteinArt(ed.getNode(parentId)?.typ ?? '')?.musterKind
+  const eigene = muster ? alle.find((n) => n.typ === muster.typ) : undefined
+  const nodes = eigene ? alle.filter((n) => n.id !== eigene.id) : alle
+  const weiter = vorlage ?? eigene
+
   const lineAt = (i: number) =>
     !raster
     && dnd.dropTarget?.kind === 'flow'
     && dnd.dropTarget.parentId === parentId
     && dnd.dropTarget.index === i
+
+  const vorlageHier = weiter !== undefined && nodes.length === 0 ? weiter : undefined
+  const vorlageWeiter = weiter !== undefined && nodes.length > 0 ? weiter : undefined
+
   return (
     <>
       {nodes.map((node, i) => (
         <Fragment key={node.id}>
           {lineAt(i) && <InsertionLine direction={direction} />}
-          <CanvasNode node={node} index={i} parentId={parentId} listDirection={direction} raster={raster} />
+          <CanvasNode
+            node={node}
+            index={i}
+            parentId={parentId}
+            listDirection={direction}
+            raster={raster}
+            vorlage={i === 0 ? vorlageWeiter : undefined}
+          />
         </Fragment>
       ))}
       {lineAt(nodes.length) && <InsertionLine direction={direction} />}
+      {vorlageHier && <VorlageKnoten vorlage={vorlageHier} rueckfallEltern={parentId} direction={direction} />}
     </>
+  )
+}
+
+// Die Vorlage wird als gewoehnlicher Knoten gezeichnet, aber mit IHRER Stelle
+// im Baum: Auswaehlen, Binden und Loeschschutz haengen daran.
+function VorlageKnoten(
+  { vorlage, rueckfallEltern, direction }:
+  { vorlage: Baustein; rueckfallEltern: string; direction: Richtung },
+) {
+  const ed = useEditor()
+  const elternId = vorlage.elternId ?? rueckfallEltern
+  const index = ed.childNodesOf(elternId).findIndex((n) => n.id === vorlage.id)
+  return (
+    <CanvasNode
+      node={vorlage}
+      index={Math.max(0, index)}
+      parentId={elternId}
+      listDirection={direction}
+    />
   )
 }
 
@@ -65,9 +104,12 @@ interface CanvasNodeProps {
   listDirection: Richtung
 
   raster?: boolean
+
+  // Die Vorlage der Tafel, die hier oder tiefer im ersten Kind zu zeichnen ist.
+  vorlage?: Baustein
 }
 
-function CanvasNode({ node, index, parentId, listDirection, raster = false }: CanvasNodeProps) {
+function CanvasNode({ node, index, parentId, listDirection, raster = false, vorlage }: CanvasNodeProps) {
   const ed = useEditor()
   const dnd = useDnd()
   const def = bausteinArt(node.typ)
@@ -129,7 +171,7 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
       onSelect={() => ed.waehleGetroffenen(node.id)}
       raster={raster}
     >
-      {isContainer && <NodeList parentId={node.id} direction={childDirection} />}
+      {isContainer && <NodeList parentId={node.id} direction={childDirection} vorlage={vorlage} />}
     </BlockHost>
   )
 
@@ -149,7 +191,6 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false }: Ca
 
   return (
     <div
-      slot={def?.editorPlatz}
       draggable
       onDragStart={onDragStart}
       onDragOver={onDragOver}

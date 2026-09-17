@@ -44,6 +44,9 @@ interface BlockHostProps {
 
 const KEINE_QUELLEN: readonly QuelleInReichweite[] = []
 
+// Der Rand, der dem Behaelter selbst gehoert, in Pixeln. Nur im Editor.
+const GREIFRAND = 10
+
 export function BlockHost({ block, selected, onSelect, raster = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
   const rootRef = useRef<HTMLDivElement | null>(null)
@@ -162,6 +165,11 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
                 minHeight: 40,
               }
             : null),
+
+          // Ein Behaelter auf dem Raster fuellt sich mit seinen Kindern, und die
+          // fangen jeden Klick: ohne diesen Rand gaebe es keine Stelle mehr, an
+          // der er selbst zu waehlen und zu ziehen ist.
+          ...(isContainer && raster ? { padding: GREIFRAND, boxSizing: 'border-box' as const } : null),
         }}
       >
         {element && isContainer && children != null

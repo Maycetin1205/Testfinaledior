@@ -21,13 +21,44 @@ function dateienIn(ordner) {
   return readdirSync(ordner).filter((n) => statSync(path.join(ordner, n)).isFile())
 }
 
+// Ein Ordner darf mehrere Bausteine halten, die nur miteinander vorkommen (die
+// Tafel, ihre Spalten, ihre Unterteilungen). Gezaehlt wird darum je Baustein.
+// Haelt der Ordner mehrere, tragen Stil und Test den Namen ihres Bausteins
+// vorn; der laengste Treffer gewinnt, sonst zoege Kanban den kanbanSpalteStil.
+function bausteineIn(ordner, dateien) {
+  const namen = dateien
+    .filter((d) => /class \w+ extends Grundbaustein/.test(readFileSync(path.join(ordner, d), 'utf8')))
+    .map((d) => d.replace(/\.ts$/, ''))
+  const zuordnung = new Map(namen.map((n) => [n, []]))
+  if (namen.length === 1) return { zuordnung: new Map([[namen[0], dateien]]), ohne: [] }
+  const ohne = []
+  for (const datei of dateien) {
+    const klein = datei.toLowerCase()
+    const treffer = namen
+      .filter((n) => klein.startsWith(n.toLowerCase()))
+      .sort((a, b) => b.length - a.length)[0]
+    if (treffer === undefined) ohne.push(datei)
+    else zuordnung.get(treffer).push(datei)
+  }
+  return { zuordnung, ohne }
+}
+
 function pruefeBaustein(name) {
   const ordner = path.join(ORDNER, name)
   const dateien = dateienIn(ordner)
   if (dateien.some((d) => /Block\.ts$/.test(d))) return { name, alt: true, maengel: [] }
   const maengel = []
   const wo0 = (satz) => maengel.push(`${name}: ${satz}`)
-  if (dateien.length > HOECHSTENS_DATEIEN) wo0(`${dateien.length} Dateien; erlaubt sind Verhalten, Stil, Test`)
+  const { zuordnung, ohne } = bausteineIn(ordner, dateien)
+  if (zuordnung.size === 0) wo0('kein Baustein; der Ordner meldet keine Klasse am Grundbaustein an')
+  for (const datei of ohne) {
+    wo0(`${datei} gehoert zu keinem Baustein; Stil und Test heissen wie ihr Baustein`)
+  }
+  for (const [baustein, eigene] of zuordnung) {
+    if (eigene.length > HOECHSTENS_DATEIEN) {
+      wo0(`${baustein} hat ${eigene.length} Dateien; erlaubt sind Verhalten, Stil, Test`)
+    }
+  }
   for (const datei of dateien) {
     const text = readFileSync(path.join(ordner, datei), 'utf8').replace(/\r\n/g, '\n')
     const zeilen = text.split('\n')

@@ -89,8 +89,8 @@ function textUndTabelleMaske(): Maskenbaum {
   }
 }
 
-const VERBOTEN_KLEIN = ['tabelle', 'erfassung', 'kanban', 'formfeld', 'card', 'popup', 'datum', 'button']
-const VERBOTEN_MITTEL = ['erfassung', 'kanban', 'formfeld', 'nachschlagen', 'DialogRahmen', 'vorschlag']
+const VERBOTEN_KLEIN = ['tabelle', 'erfassung', 'kanban', 'formfeld', 'karte', 'popup', 'datum', 'button']
+const VERBOTEN_MITTEL = ['erfassung', 'kanban', 'formfeld', 'nachschlagen', 'DialogRahmen', 'vorschlag', 'kartenTafel']
 
 // Kern und Bruecke reisen wie eine Faehigkeit: nur mit dem Baustein, der sie
 // importiert. Ein Trenner holt keine Daten, also faehrt keine SoftEngine mit.

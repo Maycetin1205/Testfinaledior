@@ -1,11 +1,13 @@
 // Die Version des Masken-Aufbaus und die Hebung der letzten alten Staende.
-export const CURRENT_SCHEMA_VERSION = 13
+export const CURRENT_SCHEMA_VERSION = 14
 
 // Format 9 trug die englischen Schluessel (type, props, kind, params ...),
 // Format 10 an den Bausteinen noch source, tagField und die on...-Ereignisse,
 // Format 11 am Formularfeld noch fieldType, placeholder, options und value,
-// Format 12 an der Schaltflaeche noch label.
-const HEBBAR = [9, 10, 11, 12]
+// Format 12 an der Schaltflaeche noch label,
+// Format 13 an der Tafel noch card, kanban-muster, heading, variant und
+// statusField.
+const HEBBAR = [9, 10, 11, 12, 13]
 
 export function schemaLesbar(version: unknown): version is number {
   return version === CURRENT_SCHEMA_VERSION
@@ -70,9 +72,52 @@ function hebeBausteinNamen(x: unknown): void {
     // Nur an der Schaltflaeche: sie ist der einzige Baustein, dessen
     // Beschriftung `label` hiess.
     if (node.typ === 'button') um(node.werte, { label: 'beschriftung' })
+    // Die Tafel und ihre Teile. `card` heisst auch als Typ deutsch; die
+    // Bindungen reisen mit ihren Stellen.
+    if (node.typ === 'card') {
+      um(node.werte, {
+        heading: 'titel', heading2: 'titel2', time: 'zeit', date: 'datum',
+        meta: 'unterzeile', chipText: 'chip', chipVariant: 'chipFarbwelt',
+        headingField: 'titelField', heading2Field: 'titel2Field', timeField: 'zeitField',
+        dateField: 'datumField', metaField: 'unterzeileField', chipTextField: 'chipField',
+      })
+      node.typ = 'karte'
+    }
+    if (node.typ === 'kanban') um(node.werte, { statusField: 'spaltenFeld' })
+    if (node.typ === 'kanban-spalte') {
+      um(node.werte, { heading: 'titel', variant: 'farbwelt', zimmerField: 'unterteilungsFeld' })
+    }
+    if (node.typ === 'kanban-zimmer') um(node.werte, { heading: 'titel' })
     if (objekt(node.ketten)) {
       um(node.ketten, { onRowClick: 'zeileGewaehlt', onRowDblClick: 'zeileDoppelt', onF4: 'tasteF4' })
     }
+  }
+}
+
+// Die Tafel hielt ihre Vorlage in einem eigenen Baustein `kanban-muster`, den
+// der Editor als Kasten ueber der Tafel zeigte. Der Kasten ist weg, die Karte
+// haengt unmittelbar an der Tafel. Ohne Tafel darueber faellt die Vorlage weg:
+// ein Knoten ohne Eltern waere kein Baum mehr.
+function hebeKartenVorlage(x: unknown): void {
+  if (!objekt(x)) return
+  for (const [id, knoten] of Object.entries(x)) {
+    if (!objekt(knoten) || knoten.typ !== 'kanban-muster') continue
+    const elternId = typeof knoten.elternId === 'string' ? knoten.elternId : ''
+    const kinder = Array.isArray(knoten.kinderIds)
+      ? knoten.kinderIds.filter((k): k is string => typeof k === 'string')
+      : []
+    const eltern = x[elternId]
+    const traegt = objekt(eltern) && Array.isArray(eltern.kinderIds)
+    if (traegt) {
+      eltern.kinderIds = (eltern.kinderIds as unknown[]).flatMap((k) => (k === id ? kinder : [k]))
+    }
+    for (const kind of kinder) {
+      const kindKnoten = x[kind]
+      if (!objekt(kindKnoten)) continue
+      if (traegt) kindKnoten.elternId = elternId
+      else delete x[kind]
+    }
+    delete x[id]
   }
 }
 
@@ -96,6 +141,7 @@ export function hebeStand(roh: unknown): unknown {
   if (roh.schemaVersion !== CURRENT_SCHEMA_VERSION && !HEBBAR.includes(roh.schemaVersion)) return roh
   const gehoben = roh.schemaVersion === 9 ? hebeSchluessel(roh) : (JSON.parse(JSON.stringify(roh)) as Record<string, unknown>)
   hebeBausteinNamen(gehoben.tree)
+  hebeKartenVorlage(gehoben.tree)
   hebeAltlasten(gehoben.tree)
   gehoben.schemaVersion = CURRENT_SCHEMA_VERSION
   return gehoben

@@ -71,8 +71,9 @@ function attributWert(value: unknown): string {
 }
 
 interface TemplateCtx {
-  type: string
+  typ: string
   id: string | undefined
+  richtung: Richtung
 }
 
 // Spalten-Kennung -> Platz fuer die Ketten-Parameter, generisch ueber die
@@ -110,9 +111,11 @@ function nodeToHtml(
   const rechnet = faehigkeit(def, 'rechnen')?.prop
 
   const pad = '  '.repeat(depth)
-  if (templateCtx && node.typ === templateCtx.type) {
+  if (templateCtx && node.typ === templateCtx.typ) {
     if (node.id !== templateCtx.id) return ''
-    const inner = nodeToHtml(tree, node, parentDirection, depth + 1, popupName, spaltenIndex, sources, undefined, rasterEbene)
+    // Gemessen wird die Vorlage an dem Platz, an dem die Kopien LIEGEN, nicht
+    // an dem, an dem sie haengt.
+    const inner = nodeToHtml(tree, node, templateCtx.richtung, depth + 1, popupName, spaltenIndex, sources, undefined, rasterEbene)
     return `${pad}<template data-ff-template>\n${inner}\n${pad}</template>`
   }
 
@@ -186,7 +189,11 @@ function nodeToHtml(
   const childDirection = richtungDerKinder(def, node.werte)
 
   const childCtx: TemplateCtx | undefined = def.musterKind
-    ? { type: def.musterKind.type, id: ersterNachfahreVomTyp(tree, node.id, def.musterKind.type) }
+    ? {
+        typ: def.musterKind.typ,
+        id: ersterNachfahreVomTyp(tree, node.id, def.musterKind.typ),
+        richtung: def.musterKind.richtung ?? childDirection,
+      }
     : templateCtx
   const children = node.kinderIds
     .map((id) => tree[id])

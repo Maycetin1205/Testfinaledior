@@ -1,10 +1,10 @@
 // Die eine Farbliste der Maske: Wert, Klarname, Farbpaar als Token-Namen.
 import type { Wahloption } from './eigenschaft'
 
-export type StatusVariant = 'info' | 'success' | 'warning' | 'danger'
+export type FarbweltWert = 'info' | 'success' | 'warning' | 'danger'
 
 export interface Farbwelt {
-  wert: StatusVariant
+  wert: FarbweltWert
   name: string
   // Die Namen der Token, nicht die Werte: die Farben stehen in design/maske.css.
   stark: string
@@ -18,8 +18,8 @@ export const FARBWELTEN: readonly Farbwelt[] = [
   { wert: 'danger', name: 'Fehler', stark: '--se-red', sanft: '--se-red-soft' },
 ]
 
-export function coerceStatusVariant(value: string): StatusVariant {
-  return FARBWELTEN.some((f) => f.wert === value) ? (value as StatusVariant) : 'info'
+export function farbweltWert(wert: string): FarbweltWert {
+  return FARBWELTEN.some((f) => f.wert === wert) ? (wert as FarbweltWert) : 'info'
 }
 
 export function farbweltOptionen(): Wahloption[] {

@@ -91,14 +91,12 @@ html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
     <ff-tabelle quelle="q-pos" spalten="[{&quot;kennung&quot;:&quot;sp-art&quot;,&quot;titel&quot;:&quot;ArtNr&quot;,&quot;feld&quot;:&quot;18_25&quot;},{&quot;kennung&quot;:&quot;sp-bez&quot;,&quot;titel&quot;:&quot;Bezeichnung&quot;,&quot;feld&quot;:&quot;45_60&quot;}]" data-ff-block-id="t2" data-ff-hauptinhalt fuellt style="grid-column:21 / span 28;grid-row:26 / span 12;min-width:0;min-height:0"></ff-tabelle>
     <ff-formfeld beschriftung="Bezeichnung" quelle="q-pos" wertfield="45_60" data-ff-block-id="f1" data-ff-hauptinhalt fuellt style="grid-column:11 / span 16;grid-row:1 / span 3;min-width:0;min-height:0"></ff-formfeld>
     <ff-button beschriftung="Schreiben" data-ff-aktionen="{&quot;onClick&quot;:[{&quot;art&quot;:&quot;RELATION&quot;,&quot;ergebnisName&quot;:&quot;gelesen&quot;,&quot;relationId&quot;:&quot;r-get&quot;,&quot;parameter&quot;:[{&quot;quelle&quot;:&quot;fixed&quot;,&quot;wert&quot;:&quot;R&quot;},{&quot;quelle&quot;:&quot;fixed&quot;,&quot;wert&quot;:&quot;0&quot;},{&quot;quelle&quot;:&quot;fixed&quot;,&quot;wert&quot;:&quot;255&quot;},{&quot;quelle&quot;:&quot;previous_result&quot;,&quot;wert&quot;:&quot;&quot;}],&quot;zusatzParameter&quot;:[]},{&quot;art&quot;:&quot;RELATION&quot;,&quot;ergebnisName&quot;:&quot;&quot;,&quot;relationId&quot;:&quot;r-put&quot;,&quot;parameter&quot;:[{&quot;quelle&quot;:&quot;context&quot;,&quot;wert&quot;:&quot;PINDEX&quot;},{&quot;quelle&quot;:&quot;erfassungszelle&quot;,&quot;wert&quot;:&quot;2&quot;,&quot;bausteinId&quot;:&quot;t1&quot;},{&quot;quelle&quot;:&quot;fixed&quot;,&quot;wert&quot;:&quot;L&quot;},{&quot;quelle&quot;:&quot;step_result&quot;,&quot;wert&quot;:&quot;0&quot;}],&quot;zusatzParameter&quot;:[{&quot;quelle&quot;:&quot;fixed&quot;,&quot;wert&quot;:&quot;X&quot;}]},{&quot;art&quot;:&quot;START_TOOL&quot;,&quot;ergebnisName&quot;:&quot;&quot;,&quot;toolNr&quot;:&quot;42&quot;,&quot;toolParameter&quot;:[&quot;a b&quot;]},{&quot;art&quot;:&quot;BW_LINK&quot;,&quot;ergebnisName&quot;:&quot;&quot;,&quot;befehl&quot;:&quot;0,REFRESH&quot;},{&quot;art&quot;:&quot;POPUP_OPEN&quot;,&quot;ergebnisName&quot;:&quot;&quot;,&quot;popup&quot;:&quot;Hinweis&quot;}]}" data-ff-hauptinhalt fuellt style="grid-column:27 / span 8;grid-row:1 / span 3;min-width:0;min-height:0"></ff-button>
-    <ff-kanban quelle="q-pos" statusfield="18_25" data-ff-block-id="k1" data-ff-hauptinhalt fuellt style="grid-column:19 / span 30;grid-row:4 / span 22;min-width:0;min-height:0">
-      <ff-kanban-muster>
-        <template data-ff-template>
-          <ff-card heading="Karte" headingfield="45_60" style="align-self:stretch"></ff-card>
-        </template>
-      </ff-kanban-muster>
-      <ff-kanban-spalte heading="Offen" wert="ART-B" style="flex-grow:1;flex-basis:0;min-width:0">
-        <ff-kanban-zimmer heading="Zimmer 1" wert="Z1" style="align-self:stretch"></ff-kanban-zimmer>
+    <ff-kanban quelle="q-pos" spaltenfeld="18_25" data-ff-block-id="k1" data-ff-hauptinhalt fuellt style="grid-column:19 / span 30;grid-row:4 / span 22;min-width:0;min-height:0">
+      <template data-ff-template>
+        <ff-karte titel="Karte" titelfield="45_60" style="align-self:stretch"></ff-karte>
+      </template>
+      <ff-kanban-spalte titel="Offen" wert="ART-B" style="flex-grow:1;flex-basis:0;min-width:0">
+        <ff-kanban-zimmer titel="Zimmer 1" wert="Z1" style="align-self:stretch"></ff-kanban-zimmer>
       </ff-kanban-spalte>
     </ff-kanban>
     <ff-text data-ff-hauptinhalt fuellt style="grid-column:35 / span 14;grid-row:1 / span 3;min-width:0;min-height:0"></ff-text>

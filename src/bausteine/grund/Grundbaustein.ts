@@ -49,7 +49,6 @@ function beschreibe(BlockClass: BausteinKlasse): void {
     kinderRichtung: BlockClass.kinderRichtung,
     inPalette: BlockClass.inPalette,
     musterKind: BlockClass.musterKind,
-    editorPlatz: BlockClass.editorPlatz,
     behaelterRahmen: BlockClass.behaelterRahmen,
     kindKnopf: BlockClass.kindKnopf,
     faehigkeiten: faehig.faehigkeiten,

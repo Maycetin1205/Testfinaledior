@@ -54,10 +54,15 @@ export interface BausteinArt {
   kinderVorgabe?: readonly KindVorgabe[]
   kinderRichtung?: Richtung
   inPalette?: boolean
-  musterKind?: { type: string; label: string }
-  editorPlatz?: string
+  // Die eine Vorlage, nach der eine Tafel ihre Laufzeitkinder baut. Der Export
+  // macht aus ihr ein <template>, der Editor zeigt sie an ihrem Platz.
+  // `richtung`: wie die FERTIGEN Kinder stapeln — eine Karte haengt an der
+  // Tafel, liegt aber in einer Spalte, und danach richtet sich ihr Mass.
+  musterKind?: { typ: string; name: string; richtung?: Richtung }
   behaelterRahmen?: boolean
-  kindKnopf?: { label: string; childType: string }
+  // nameAusFeld: der Knopf heisst wie das Feld in dieser Eigenschaft, sobald
+  // eines gewaehlt ist — sonst wie `name`.
+  kindKnopf?: { name: string; kindTyp: string; nameAusFeld?: string }
   seite?: boolean
   raster?: Partial<RasterMass>
 }

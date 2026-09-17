@@ -62,9 +62,10 @@ export const PLATZHALTER_KLARTEXT: Record<string, { name: string; hinweis: strin
     name: 'Wert',
     hinweis: 'Neuer Wert (z. B. Titel der Zielspalte)',
   },
+  // Der rohe Platzhalter bleibt ZIMMER: er steht in gespeicherten Ketten.
   ZIMMER: {
-    name: 'Zimmer',
-    hinweis: 'Titel des Ziel-Zimmers beim Ablegen (leer ohne Zimmer)',
+    name: 'Unterteilung',
+    hinweis: 'Titel der Ziel-Unterteilung beim Ablegen (leer ohne Unterteilung)',
   },
   NOW_DATE: {
     name: 'Heutiges Datum',
