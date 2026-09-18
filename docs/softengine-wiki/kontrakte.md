@@ -228,6 +228,68 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   verloren. Nicht per Echttest.
 - Gilt in: `kern/daten/relationen.ts`, `bausteine/faehigkeiten/ereignisse.ts`.
 
+## 7a. Schreiben über die ERP-Maske (MASKENEVENT, Echttest 2026-09-18)
+
+Belegt: eine HTML-Maske kann in den offenen Beleg schreiben, OHNE
+PUT_RELATION. Getestet mit SoftEngines eigenem Layoutrahmen 00006 (seine
+Dateien lagen dafür im Ordner 00001, den die Belegerfassung öffnet): in der
+Kachel „Abweichende Bankverbindung“ den Kontoinhaber geändert, übernommen,
+Beleg geschlossen und neu geöffnet — der Wert stand drin.
+
+Der Ablauf, gelesen in SoftEngines eigenem Modul (`HTMLEditor/V2/JS/
+SEDataList.js`, `SEJSONProcessing.js` der Auslieferung), nicht selbst gebaut:
+
+- Bestellt wird der Block `MASKE`: `{ID, BEREICH, FELDER, REFRESH_FELDER,
+  ALIAS}`. `ID` ist die Maskennummer der Installation (hier `1211S5OPT26`
+  Bankverbindung, `1211S5OPT01` Anschrift, `BEREICH: "BEL"`). Geliefert wird
+  `Daten.Masken.<ALIAS>`, je Feld mit Name, Pos, Len, Format, Flag, RollNdx,
+  Status (`A` = nur Anzeige) und HelpNr.
+- Bearbeiten an: `MASKENEVENT {EVENT:'KARTEIKARTEN_DEAKTIVIEREN'}`, dann
+  `{EVENT:'BEARBEITUNG_AKTIV'}` — beide ohne ID.
+- Feld ändern: `{ID:<maskenid>, BEREICH, EVENT:'UPDATE_MASKE_FELD',
+  PARAMS:{POS, LEN, VALUE, FIELDFORMAT}}`. `maskenid` ist der Feldname bis
+  zum ersten Unterstrich.
+- Auswahlliste des ERP öffnen: `{ID, BEREICH,
+  EVENT:'OPEN_REFRESH_MASKE_FELD', PARAMS:{POS, LEN, REFRESH, REFRESHFLAG,
+  HELPNR}}`.
+- Speichern/verwerfen: `{ID:<Id der Liste>, EVENT:'SAVE_MASKE_FELD'}` bzw.
+  `'ABORT_MASKE_FELD'`. ⚠ Hier ist `ID` die Element-Id der Liste, beim Ändern
+  dagegen die Maskenkennung — zwei verschiedene Dinge unter demselben Namen.
+- Bearbeiten aus: `{EVENT:'BEARBEITUNG_BEENDET'}` und
+  `{EVENT:'KARTEIKARTEN_AKTIVIEREN '}` — mit Leerzeichen am Ende, so steht es
+  im Quelltext.
+- Antwort: keine eigene Nachricht. Es kommt eine normale Datenlieferung mit
+  `Daten.Var.DATEN_AENDERUNG_AKTIV = "true"`, die geänderten Werte stecken
+  darin. Bei der Auswahlliste `REFRESH_MASKE_FELD_ANTWORT` und
+  `REFRESH_MASKE_FELD_INHALT`.
+
+**Zweiter Echttest, 2026-09-18, aus der Maske des Aufbau-Editors** (Rahmen
+00001 der Belegerfassung, Konsole, ohne `selib`):
+
+- Der `MASKE`-Block wirkt auch in einer Editor-Maske. `1211S5OPT01`/`BEL` kam
+  an als `Daten.Masken.<ALIAS>` mit den Werten (`1211S5OPT01_107_30`:
+  Name, `_6331_46`: Strasse …), den Klartexten (`REFRESH_…_1789_3`:
+  „Deutschland“) und der Feldbeschreibung als Array `MASKE` mit 20 Einträgen.
+- Geschrieben wurde mit genau vier Nachrichten, von Hand in der Konsole:
+  `BEARBEITUNG_AKTIV` → `UPDATE_MASKE_FELD` (`ID:'1211S5OPT01'`,
+  `BEREICH:'BEL'`, `PARAMS:{POS:'137', LEN:'30', VALUE:'PROBE1',
+  FIELDFORMAT:'L'}`) → `SAVE_MASKE_FELD` → `BEARBEITUNG_BEENDET`.
+  Nach Schliessen und Neuöffnen des Belegs lieferte SoftEngine `PROBE1`.
+- ⚠ Damit ist die ID-Frage entschieden: `SAVE_MASKE_FELD` nimmt die
+  **Maskenkennung** (`1211S5OPT01`). Die Element-Id aus `SEDataList.js` ist
+  nur selibs eigene Buchführung, keine Vorschrift.
+- `basisHTML_SND_MSG` gibt bei allen vier Rufen `undefined` zurück; ein
+  Erfolg ist daran nicht zu erkennen, nur an der nächsten Lieferung.
+- ❌ Positionsmasken kommen in der Belegerfassung NICHT: `POSDETOPT50`/`POS`
+  bestellt → `Daten.Masken.<ALIAS>` blieb `undefined`. Passt dazu, dass die
+  Auslieferung diese Masken nur in den Rahmen 00007 und 00017 verwendet
+  (Positionsdetail), und dort ohne `maskedit`. Für Positionen bleibt es
+  vorerst bei PUT_RELATION.
+
+Nicht belegt: ob eine Zelle der Erfassung auf diesem Weg beschrieben werden
+kann (dazu müsste die Positionsmaske ankommen), und ob das ERP einen
+abgelehnten Wert meldet.
+
 ## 8. Positionen zur Laufzeit lesen (Hol-Relation)
 
 Belegt 2026-08-10/11, Echttests:
