@@ -120,12 +120,15 @@ export function tabelleAnsicht(frage: AnsichtFrage): TabelleAnsicht {
     ? null
     : Math.max(1, frage.gemessen.passen - belegt)
   const proSeite = gemessenPassen ?? Math.max(1, OHNE_MESSUNG - belegt)
+  // Eine Seite zeigt mindestens eine Datenzeile, Leere darf ganz fehlen: sonst
+  // stuende neben der Erfassungszeile eine Zeile mehr, als hineinpasst.
+  const frei = frage.gemessen === null ? null : Math.max(0, frage.gemessen.passen - belegt)
   const aufteilungsFrage = {
     sichtbar: alleSichtbar,
     hatQuelle,
     proSeite,
     wunschSeite: frage.wunschSeite,
-    platzhalterZeilen: platzhalterZeilen(gemessenPassen),
+    platzhalterZeilen: platzhalterZeilen(frei),
   }
   const { seiten, seite, zeilen } = frage.blaettert
     ? seitenAufteilung(aufteilungsFrage)
@@ -141,7 +144,7 @@ export function tabelleAnsicht(frage: AnsichtFrage): TabelleAnsicht {
     seite,
     zeilen,
 
-    linealTakte: linealTakte(gemessenPassen, zeilen.length),
+    linealTakte: linealTakte(frei, zeilen.length),
 
     summen: summenVon(frage, alleSichtbar),
   }

@@ -159,10 +159,12 @@ export const tabelleStil = css`
       }
       .kopf > div.z { justify-content: flex-end; text-align: right; }
 
+      /* Zwei Titelzeilen passen genau in einen Takt: die Seitenrechnung zaehlt
+         den Kopf als eine Zeile, jeder Pixel darueber rollte den Koerper. */
       .kopf > div {
         display: flex;
         align-items: center;
-        line-height: 1.25;
+        line-height: calc((var(--takt) - var(--se-border)) / 2);
         white-space: normal;
         cursor: pointer;
         user-select: none;
