@@ -6,6 +6,9 @@ interface Bestellung {
   VAR?: { ID: string; FELDER: string }[]
   SEFILELOOP: { ALIAS: string; ID: string; KOPFSATZ_INDEX?: string; FELDER: string }[]
   ERPAPICALL: { ALIAS: string; ID: string; FELDER: string }[]
+  MASKE?: {
+    ID: string; BEREICH: string; FELDER: string; REFRESH_FELDER: string; ALIAS: string
+  }[]
 }
 
 function bestellung(
@@ -160,6 +163,39 @@ test('eine Lesequelle bestellt keine Satznummer', () => {
 // Lieferung — sie darf deshalb in keinem Abschnitt der Bestellung stehen.
 // Stuende sie im SEFILELOOP, bestellte die Maske eine Tabelle, die es nicht
 // gibt (ID:""), und SoftEngine braeche laut Kontrakt die ganze Loop-Liste ab.
+// Echttest 2026-09-18 (kontrakte.md 7a): so bestellt, kam die Maske samt
+// Feldbeschreibung an. FELDER und REFRESH_FELDER stehen fest auf '*' — die
+// Beschreibung ist der Zweck der Bestellung, und ohne die Klartexte staende in
+// jeder Zelle ein Code. Der Bereich wird gross geschrieben, sonst findet
+// SoftEngine die Maske nicht.
+test('eine ERP-Maske wird ganz bestellt, mit Bereich in Grossbuchstaben', () => {
+  const anschrift: Datenquelle = {
+    id: 'q-maske',
+    name: 'Anschrift',
+    art: 'erpmaske',
+    idbId: '1211S5OPT01',
+    bereich: 'bel',
+    felder: [],
+  }
+  const raus = bestellung([anschrift, artikel])
+  expect(raus.MASKE).toEqual([
+    {
+      ID: '1211S5OPT01',
+      BEREICH: 'BEL',
+      FELDER: '*',
+      REFRESH_FELDER: '*',
+      ALIAS: 'Anschrift',
+    },
+  ])
+  // Sie ist keine Zeilenquelle: im Loop haette sie eine Tabelle bestellt, die
+  // es nicht gibt.
+  expect(raus.SEFILELOOP.map((e) => e.ALIAS)).toEqual(['ART'])
+})
+
+test('ohne ERP-Maske steht kein MASKE-Block in der Bestellung', () => {
+  expect(bestellung([artikel]).MASKE).toBeUndefined()
+})
+
 test('„Wert per Relation" wird nicht bestellt', () => {
   const adressnummer: Datenquelle = {
     id: 'q-adrnr',

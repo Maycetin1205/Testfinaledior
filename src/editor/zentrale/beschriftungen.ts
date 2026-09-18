@@ -122,6 +122,14 @@ const QUELLEN_WORTE: Record<QuellenArtKennung, QuellenWorte> = {
     spaltenBeispiel: 'z. B. NUMMER',
     standardFelder: [],
   },
+  erpmaske: {
+    name: 'ERP-Maske',
+    kennungLabel: 'Maskennummer',
+    kennungBeispiel: '1211S5OPT01',
+    spaltenLabel: '',
+    spaltenBeispiel: '',
+    standardFelder: [],
+  },
 }
 
 export function quellenWorte(kind: QuellenArtKennung): QuellenWorte {

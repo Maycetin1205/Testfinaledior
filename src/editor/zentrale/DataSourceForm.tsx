@@ -58,6 +58,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const [kopfsatzEingabe, setKopfsatzEingabe] = useState(source?.kopfsatzIndex ?? '')
 
   const [vorsatzEingabe, setVorsatzEingabe] = useState(source?.feldVorsatz ?? '')
+  const [bereichEingabe, setBereichEingabe] = useState(source?.bereich ?? '')
 
   const [lieferung, setLieferung] = useState<'liste' | 'offenerSatz'>(
     source?.lieferung ?? 'liste',
@@ -99,6 +100,8 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const kennungEingeben = tabellenKennungNoetig(art)
 
   const kopfsatzEingeben = art.kopfsatzMoeglich
+
+  const bereichEingeben = art.bereichNoetig
 
   const holenMoeglich = art.relationLadenMoeglich
 
@@ -183,6 +186,10 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     kopfsatzEingeben && kopfsatzEingabe.trim() !== '' && kopfsatzAusEingabe(kopfsatzEingabe) === ''
       ? 'Ungültig — Beispiel: BEL_0_11.'
       : ''
+
+  const bereichFehler = bereichEingeben && bereichEingabe.trim() === ''
+    ? 'Bereich fehlt (z. B. BEL).'
+    : ''
   const zeilenFehler = zeilen.map((z) => {
     if (z.label.trim() === '') return 'Klarname fehlt.'
     if (!art.spaltenNamen && FELDCODE.test(z.label.trim())) {
@@ -222,7 +229,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     ? 'Relationsnummer fehlt — nur Ziffern.'
     : ''
   const alleFehler = [
-    nameFehler, kennungFehler, kopfsatzFehler, doppeltFehler,
+    nameFehler, kennungFehler, kopfsatzFehler, bereichFehler, doppeltFehler,
     relationNrFehler, holFehler,
     ...zeilenFehler,
   ]
@@ -242,6 +249,8 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         : {}),
 
       ...(vorsatz !== '' ? { feldVorsatz: vorsatz } : {}),
+
+      ...(bereichEingeben ? { bereich: bereichEingabe.trim().toUpperCase() } : {}),
 
       ...(offenerSatz ? { lieferung: 'offenerSatz' as const } : {}),
 
@@ -305,6 +314,20 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                 placeholder={`z. B. ${worte.kennungBeispiel}`}
                 className="w-32"
                 onChange={(e) => setKennungEingabe(e.target.value)}
+              />
+            )}
+          </Zeile>
+        )}
+
+        {bereichEingeben && (
+          <Zeile label="Bereich" fehler={zeigeFehler ? bereichFehler : undefined}>
+            {(f) => (
+              <Feld
+                {...f}
+                value={bereichEingabe}
+                placeholder="z. B. BEL"
+                className="w-32"
+                onChange={(e) => setBereichEingabe(e.target.value)}
               />
             )}
           </Zeile>

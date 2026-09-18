@@ -11,6 +11,7 @@ export type QuellenArtKennung =
   | 'erpabfrage'
   | 'dataset'
   | 'relationswert'
+  | 'erpmaske'
 
 export interface QuellenArt {
   id: QuellenArtKennung
@@ -31,7 +32,11 @@ export interface QuellenArt {
 
   varMoeglich: boolean
 
-  bestellBlock: 'sefileloop' | 'erpapicall' | 'dataset'
+  bestellBlock: 'sefileloop' | 'erpapicall' | 'dataset' | 'maske'
+
+  // Der Bereich des offenen Satzes (BEL, POS): nur eine ERP-Maske braucht ihn,
+  // SoftEngine findet die Maske sonst nicht (kontrakte.md 7a).
+  bereichNoetig: boolean
 
   // Die Felder dieser Art heissen mit Klarnamen, nicht mit Position und Laenge.
   // Steuert Eingabe UND Pruefung.
@@ -64,6 +69,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     satzNummerMoeglich: true,
     varMoeglich: false,
     bestellBlock: 'sefileloop',
+    bereichNoetig: false,
     spaltenNamen: false,
     idbKurzform: true,
     feldVorsatzMoeglich: false,
@@ -79,6 +85,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     satzNummerMoeglich: true,
     varMoeglich: true,
     bestellBlock: 'sefileloop',
+    bereichNoetig: false,
     spaltenNamen: false,
     idbKurzform: true,
     feldVorsatzMoeglich: false,
@@ -94,6 +101,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     satzNummerMoeglich: true,
     varMoeglich: false,
     bestellBlock: 'sefileloop',
+    bereichNoetig: false,
     spaltenNamen: false,
     idbKurzform: true,
     feldVorsatzMoeglich: false,
@@ -110,6 +118,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     varMoeglich: true,
 
     bestellBlock: 'sefileloop',
+    bereichNoetig: false,
     spaltenNamen: false,
     idbKurzform: true,
     feldVorsatzMoeglich: false,
@@ -128,6 +137,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     varMoeglich: true,
 
     bestellBlock: 'sefileloop',
+    bereichNoetig: false,
     spaltenNamen: false,
     idbKurzform: true,
     feldVorsatzMoeglich: false,
@@ -144,6 +154,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     satzNummerMoeglich: true,
     varMoeglich: false,
     bestellBlock: 'sefileloop',
+    bereichNoetig: false,
     spaltenNamen: false,
     idbKurzform: true,
     feldVorsatzMoeglich: false,
@@ -160,6 +171,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     satzNummerMoeglich: false,
     varMoeglich: false,
     bestellBlock: 'erpapicall',
+    bereichNoetig: false,
     spaltenNamen: false,
     idbKurzform: true,
     feldVorsatzMoeglich: true,
@@ -175,6 +187,7 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     satzNummerMoeglich: false,
     varMoeglich: false,
     bestellBlock: 'dataset',
+    bereichNoetig: false,
     spaltenNamen: true,
     idbKurzform: false,
     feldVorsatzMoeglich: false,
@@ -193,10 +206,32 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     satzNummerMoeglich: false,
     varMoeglich: false,
     bestellBlock: 'sefileloop',
+    bereichNoetig: false,
     spaltenNamen: true,
     idbKurzform: false,
     feldVorsatzMoeglich: false,
     holWertMoeglich: true,
+  },
+
+  // Eine Maske des ERP zum offenen Satz. Sie wird IMMER ganz bestellt
+  // (`FELDER: "*"`), denn ihre Feldbeschreibung ist der Zweck: Position, Laenge
+  // und Format jedes Feldes kommen mit und machen das Schreiben erst moeglich
+  // (kontrakte.md 7a). Die Feldcodes tragen die Maskennummer als Vorsatz.
+  erpmaske: {
+    id: 'erpmaske',
+    tabellenId: '',
+    felderEinzeln: false,
+    kopfsatzMoeglich: false,
+    kopfsatzStandard: '',
+    relationLadenMoeglich: false,
+    satzNummerMoeglich: false,
+    varMoeglich: false,
+    bestellBlock: 'maske',
+    bereichNoetig: true,
+    spaltenNamen: false,
+    idbKurzform: false,
+    feldVorsatzMoeglich: false,
+    holWertMoeglich: false,
   },
 }
 

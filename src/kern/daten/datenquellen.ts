@@ -72,7 +72,16 @@ export interface Datenquelle {
 
   feldVorsatz?: string
 
+  // Nur die ERP-Maske: der Bereich des offenen Satzes (BEL, POS, IDBSE0880).
+  bereich?: string
+
   felder: readonly Datenfeld[]
+}
+
+// SoftEngine schreibt den Bereich gross (kontrakte.md 7a); klein geschrieben
+// findet es die Maske nicht, und die Bestellung faellt still aus.
+export function bereichVon(source: Datenquelle): string {
+  return (source.bereich ?? '').trim().toUpperCase()
 }
 
 // Diese Quelle wartet auf keine Lieferung, sie fragt selbst; darum steht sie
@@ -255,6 +264,13 @@ export function pruefeDatenquellen(
       weg('die Tabellen-Kennung fehlt (z. B. IDB0001)')
       continue
     }
+    // Ohne Bereich liefert SoftEngine zu dieser Maske nichts, und die Maske
+    // stuende ohne Feldbeschreibung da.
+    if (artFuer(e.art as QuellenArtKennung).bereichNoetig
+      && (typeof e.bereich !== 'string' || e.bereich.trim() === '')) {
+      weg('der Bereich der ERP-Maske fehlt (z. B. BEL)')
+      continue
+    }
     const fields: Datenfeld[] = []
     let feldNr = 0
     for (const f of Array.isArray(e.felder) ? e.felder : []) {
@@ -313,6 +329,9 @@ export function pruefeDatenquellen(
       ...(e.lieferung === 'offenerSatz' ? { lieferung: 'offenerSatz' as const } : {}),
       ...(typeof e.feldVorsatz === 'string' && e.feldVorsatz !== ''
         ? { feldVorsatz: e.feldVorsatz }
+        : {}),
+      ...(typeof e.bereich === 'string' && e.bereich.trim() !== ''
+        ? { bereich: e.bereich.trim().toUpperCase() }
         : {}),
       ...(ladeRelation ? { ladeRelation } : {}),
       ...(holWert ? { holWert } : {}),

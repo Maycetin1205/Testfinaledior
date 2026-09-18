@@ -1,6 +1,7 @@
 // Schreibt die SEvariablen: was die Maske bei SoftEngine bestellt.
 import {
   artFuer,
+  bereichVon,
   bestellteFelder,
   holtSelbst,
   istOffenerSatz,
@@ -42,6 +43,7 @@ export function baueSevariablen(
   const bestellbar = used.filter((s) => !holtSelbst(s))
   const perApi = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'erpapicall')
   const perDataSet = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'dataset')
+  const perMaske = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'maske')
 
   // Der offene Satz wird NICHT als Loop bestellt: SoftEngine liefert ihn im
   // VAR-Abschnitt (kontrakte.md 6). Ein Loop daneben waere eine zweite
@@ -65,6 +67,16 @@ export function baueSevariablen(
     ID: tabellenIdVon(s),
     ALIAS: s.name,
     FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+  }))
+  // Eine ERP-Maske wird ganz bestellt: die Feldbeschreibung (Position, Laenge,
+  // Format) ist der Zweck, und ohne die Klartexte staende in jeder Zelle ein
+  // Code (kontrakte.md 7a). Alle Masken der Auslieferung bestellen so.
+  const maske = perMaske.map((s) => ({
+    ID: tabellenIdVon(s),
+    BEREICH: bereichVon(s),
+    FELDER: '*',
+    REFRESH_FELDER: '*',
+    ALIAS: s.name,
   }))
   const sefileloop = geordnet.map((s) => {
     const kopfsatz = kopfsatzVon(s)
@@ -90,6 +102,7 @@ export function baueSevariablen(
       SEFILELOOP: sefileloop,
       ERPAPICALL: erpapicall,
       ...(dataset.length > 0 ? { DATASET: dataset } : {}),
+      ...(maske.length > 0 ? { MASKE: maske } : {}),
     }, null, 2),
   ) + '\n'
 }
