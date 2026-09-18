@@ -24,6 +24,7 @@ import {
   type Datenquelle,
   type QuellenArtKennung,
 } from '../../kern/daten/datenquellen'
+import { leseMaskenFelder } from '../../kern/daten/maskenFelder'
 import { relationPasstZurSuche } from '../../kern/daten/relationen'
 import { useDataSources } from '../zustand/useDataSources'
 import { useRelations } from '../zustand/useRelations'
@@ -59,6 +60,11 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
   const [vorsatzEingabe, setVorsatzEingabe] = useState(source?.feldVorsatz ?? '')
   const [bereichEingabe, setBereichEingabe] = useState(source?.bereich ?? '')
+
+  // Die Feldbeschreibung einer ERP-Maske entsteht erst im ERP; der Editor im
+  // Browser kennt sie nicht. Darum wird sie einmal eingelesen statt abgetippt.
+  const [maskenText, setMaskenText] = useState('')
+  const [maskenHinweis, setMaskenHinweis] = useState('')
 
   const [lieferung, setLieferung] = useState<'liste' | 'offenerSatz'>(
     source?.lieferung ?? 'liste',
@@ -190,6 +196,21 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const bereichFehler = bereichEingeben && bereichEingabe.trim() === ''
     ? 'Bereich fehlt (z. B. BEL).'
     : ''
+
+  function maskenFelderUebernehmen() {
+    const gelesen = leseMaskenFelder(maskenText)
+    if (gelesen === null) {
+      setMaskenHinweis('Daraus wird keine Feldbeschreibung. Erwartet wird, was SEDATA.Daten.Masken.<Name> liefert.')
+      return
+    }
+    setZeilen(gelesen.felder.map((f) => zeileFromField(f, gelesen.vorsatz, false)))
+    if (gelesen.vorsatz !== '') setVorsatzEingabe(gelesen.vorsatz)
+    const teile = [`${gelesen.felder.length} Felder übernommen`]
+    if (gelesen.nurAnzeige > 0) teile.push(`${gelesen.nurAnzeige} davon nur Anzeige`)
+    if (gelesen.uebersprungen > 0) teile.push(`${gelesen.uebersprungen} ohne Feldcode übersprungen`)
+    setMaskenHinweis(`${teile.join(', ')}.`)
+    setMaskenText('')
+  }
   const zeilenFehler = zeilen.map((z) => {
     if (z.label.trim() === '') return 'Klarname fehlt.'
     if (!art.spaltenNamen && FELDCODE.test(z.label.trim())) {
@@ -329,6 +350,30 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                 className="w-32"
                 onChange={(e) => setBereichEingabe(e.target.value)}
               />
+            )}
+          </Zeile>
+        )}
+
+        {bereichEingeben && (
+          <Zeile label="Felder einlesen">
+            {() => (
+              <div className="flex flex-col gap-1">
+                <textarea
+                  value={maskenText}
+                  onChange={(e) => setMaskenText(e.target.value)}
+                  rows={3}
+                  placeholder="In SoftEngine F12, SEDATA.Daten.Masken.NAME kopieren und hier einfügen"
+                  className="w-full rounded border border-linie bg-panel p-1.5 font-mono text-dicht"
+                />
+                <div className="flex items-center gap-2">
+                  <Knopf onClick={maskenFelderUebernehmen} disabled={maskenText.trim() === ''}>
+                    Felder übernehmen
+                  </Knopf>
+                  {maskenHinweis !== '' && (
+                    <span className="text-dicht text-matt">{maskenHinweis}</span>
+                  )}
+                </div>
+              </div>
             )}
           </Zeile>
         )}

@@ -230,7 +230,9 @@ const ARTEN: Record<QuellenArtKennung, QuellenArt> = {
     bereichNoetig: true,
     spaltenNamen: false,
     idbKurzform: false,
-    feldVorsatzMoeglich: false,
+    // Die Feldnamen der Lieferung tragen die Maskennummer vorn
+    // ('1211S5OPT01_11_8'); als Vorsatz bleiben die Codes in der Liste kurz.
+    feldVorsatzMoeglich: true,
     holWertMoeglich: false,
   },
 }
