@@ -17,7 +17,9 @@ import { BAUSTEIN_ID_ATTR, kettenFuerExport } from '../kern/daten/aktionen'
 import { berechnungenFuerExport } from '../kern/daten/berechnung'
 import { AUSWAHL_FOLGE_PROP } from '../kern/daten/auswahlFolge'
 import {
+  bestellteFelder,
   felderHinterSchnitt,
+  holtNachOeffnen,
   istOffenerSatz,
   holWertVon,
   ladeRelationVon,
@@ -258,6 +260,14 @@ export function exportMask(
           ? { ladeRelation: { ...lade, zusatzFelder: felderHinterSchnitt(benutzteFelder.get(s.id)) } }
           : {}),
         ...(hol ? { holWert: { ...hol, felder: s.felder.map((f) => f.code) } } : {}),
+        ...(holtNachOeffnen(s)
+          ? {
+            abfrage: {
+              id: tabellenIdVon(s),
+              felder: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+            },
+          }
+          : {}),
       }
     })) + ';',
   ))

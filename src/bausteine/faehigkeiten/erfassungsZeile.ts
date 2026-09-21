@@ -168,19 +168,12 @@ export function fensterSpaltenIn(umfeld: ErfassungsUmfeld, index: number): Spalt
   )
 }
 
-// Die Automatik der Tabellenspalte: alle Spalten, die auf dieselbe Hilfsquelle
-// zeigen, jedes Feld einmal.
+// Die Automatik der Tabellenspalte ist die des Formularfelds: nur das eigene
+// Feld. So sehen alle Suchfenster gleich aus; mehr stellt der Bauer selbst dazu.
 function automatikSpaltenIn(umfeld: ErfassungsUmfeld, index: number): Spalte[] {
   const ziel = zielIn(umfeld, index)
   if (ziel.art !== 'verknuepft' || ziel.quelleId === '' || ziel.code === '') return []
-  const raus: Spalte[] = []
-  for (const spalte of umfeld.spalten) {
-    const anderes = zellenzielVon(spalte, umfeld.quelleId)
-    if (anderes.quelleId !== ziel.quelleId || anderes.code === '') continue
-    if (raus.some((s) => s.feld === anderes.code)) continue
-    raus.push({ kennung: `feld:${anderes.code}`, titel: spalte.titel, feld: anderes.code })
-  }
-  return raus
+  return [{ kennung: `feld:${ziel.code}`, titel: umfeld.spalten[index]?.titel ?? '', feld: ziel.code }]
 }
 
 export function passendeSaetze(

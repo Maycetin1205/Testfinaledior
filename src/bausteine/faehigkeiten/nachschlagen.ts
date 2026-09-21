@@ -70,6 +70,17 @@ export function vorschlaegeImFensterStand<T extends Vorschlag & { satz: unknown 
 export const FENSTER_BREITE = 520
 export const FENSTER_HOEHE = 380
 
+// Unter 120 px ist kein Fenster mehr, ueber 2000 passt es auf keinen Bildschirm.
+const FENSTER_MIN = 120
+const FENSTER_MAX = 2000
+
+export function gueltigesMass(v: unknown, standard: number): number {
+  if (v === undefined || v === null || v === '') return standard
+  const zahl = typeof v === 'number' ? v : Number(v)
+  if (!Number.isFinite(zahl)) return standard
+  return Math.min(FENSTER_MAX, Math.max(FENSTER_MIN, Math.round(zahl)))
+}
+
 // Das Startmass ist fuer ZWEI Spalten gemacht; die Erfassungszeile gibt alle
 // Spalten ihrer Quelle mit, das koennen sechs sein.
 export function fensterBreiteFuer(spalten: number): number {

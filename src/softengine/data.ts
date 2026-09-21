@@ -15,6 +15,12 @@ export type LaufzeitLadeRelation = LadeRelation & { zusatzFelder: readonly strin
 // Namen er die Antwort ablegen soll.
 export type LaufzeitHolWert = HolWert & { felder: readonly string[] }
 
+// Eine ERP-Abfrage, die die Maske nach dem Oeffnen selbst stellt.
+export interface LaufzeitAbfrage {
+  id: string
+  felder: string
+}
+
 export interface LaufzeitQuelle {
   id: string
   name: string
@@ -25,6 +31,7 @@ export interface LaufzeitQuelle {
   offenerSatz: boolean
   ladeRelation?: LaufzeitLadeRelation
   holWert?: LaufzeitHolWert
+  abfrage?: LaufzeitAbfrage
 }
 
 export function quelleAusListe(list: unknown, id: string): LaufzeitQuelle | undefined {
@@ -52,6 +59,12 @@ export function quelleAusListe(list: unknown, id: string): LaufzeitQuelle | unde
         : []
       holWert = { ...gepruefterWert, felder }
     }
+
+    const roheAbfrage = entry.abfrage
+    const abfrage = istObjekt(roheAbfrage) && typeof roheAbfrage.id === 'string'
+      && roheAbfrage.id !== '' && typeof roheAbfrage.felder === 'string'
+      ? { id: roheAbfrage.id, felder: roheAbfrage.felder }
+      : undefined
     return {
       id,
       name: entry.name,
@@ -60,9 +73,32 @@ export function quelleAusListe(list: unknown, id: string): LaufzeitQuelle | unde
       offenerSatz: entry.offenerSatz === true,
       ...(ladeRelation ? { ladeRelation } : {}),
       ...(holWert ? { holWert } : {}),
+      ...(abfrage ? { abfrage } : {}),
     }
   }
   return undefined
+}
+
+// SoftEngine legt die Zeilen je Abfrage unter einen anderen Namen
+// (ARTIKELLISTE.ARTIKEL, CHARGENLISTE.CHARGE, IDBID0001LISTE.IDBID0001, Echttest
+// 21.09.); gemeinsam ist nur die Endung LISTE. Eine einzelne Zeile kann ohne
+// Liste kommen, damit rechnet SoftEngines eigene Vorlage RGBP07.
+export function zeilenAusAbfrageAntwort(raw: unknown): unknown[] | undefined {
+  let antwort = raw
+  if (typeof antwort === 'string') {
+    try { antwort = JSON.parse(antwort) } catch { return undefined }
+  }
+  if (!istObjekt(antwort) || Array.isArray(antwort)) return undefined
+  const schluessel = Object.keys(antwort).find((k) => /LISTE$/i.test(k))
+  if (schluessel === undefined) return undefined
+  const liste = antwort[schluessel]
+  if (Array.isArray(liste)) return liste
+  if (!istObjekt(liste)) return []
+  const inhalte = Object.values(liste)
+  const reihe = inhalte.find((v): v is unknown[] => Array.isArray(v))
+  if (reihe) return reihe
+  const einzeln = inhalte.find(istObjekt)
+  return einzeln === undefined ? [] : [einzeln]
 }
 
 // SoftEngine liefert ein Feld mal blank, mal als Kasten {WERT: ...}. Ohne das

@@ -1,10 +1,6 @@
 // Die Zellen der Erfassungszeile: zeichnen, Tasten annehmen, Fenster oeffnen.
 import type { TemplateResult } from 'lit'
-import {
-  fensterBreiteFuer,
-  FENSTER_HOEHE,
-  oeffneNachschlagen,
-} from './nachschlagen'
+import { oeffneNachschlagen } from './nachschlagen'
 import { tasteVon } from './vorschlagStand'
 import type { ErfassungsLauf } from './erfassungsLauf'
 import {
@@ -30,6 +26,9 @@ export interface ErfassungsWirt {
 
   // Ohne Kopfzeile ist die Zelle der einzige Ort, an dem der Titel stehen kann.
   titelInZelle: () => boolean
+
+  // Ein Mass fuer alle Suchfenster der Erfassung, egal aus welcher Spalte.
+  fensterMass: () => { breite: number; hoehe: number }
 }
 
 function waehle(wirt: ErfassungsWirt, index: number, listenIndex: number): void {
@@ -53,8 +52,7 @@ function fenster(wirt: ErfassungsWirt, index: number): void {
     speicherTitel: spalte.titel,
     spalten,
     titel: spalte.titel,
-    breite: spalte.fensterBreite ?? fensterBreiteFuer(spalten.length),
-    hoehe: spalte.fensterHoehe ?? FENSTER_HOEHE,
+    ...wirt.fensterMass(),
     eintraege: wirt.lauf.eintraege(umfeld, index),
     // Esc oder eine Wahl im Fenster: die Schreibmarke steht danach wieder in
     // dieser Zelle, nicht im Nirgendwo.

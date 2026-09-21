@@ -172,7 +172,9 @@ jeder Punkt ein eigener Commit und ein SoftEngine-Test durch den Nutzer:
 4. Startpaket: GET_RELATION-, REFRESH- und TABELLE-Bloecke in den SEvariablen
    als neue Quellenarten. DATASET bleibt: ob der Block traegt, ist nicht per
    Echttest belegt (kontrakte.md 17); erst der Test des Nutzers entscheidet.
-5. Nicht bauen: alle Artikel vorladen. Nachschlagen sucht beim Tippen.
+5. Entschieden 21.09. nach Echttest (kontrakte.md 10): ERP-Abfragen stehen
+   nicht im Bestellzettel, die Maske holt sie nach dem Oeffnen ganz. Suche beim
+   Tippen per FREISELEKT war mit 1,25 s je Suche langsamer.
 6. Gebaut, Echttest steht aus: ein BW_LINK-Schritt geht wie SoftEngines
    `sendBWLinkIntern` als `HTMLEVENT { art: 'BWLINK', params }` hinaus, ein
    Befehl mit START_TOOL als START_TOOL-Nachricht (kontrakte.md 13). Erst

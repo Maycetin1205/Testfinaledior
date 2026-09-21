@@ -87,7 +87,14 @@ export function bereichVon(source: Datenquelle): string {
 // Diese Quelle wartet auf keine Lieferung, sie fragt selbst; darum steht sie
 // nicht in der SEvariablen-Bestellung.
 export function holtSelbst(source: Datenquelle): boolean {
-  return ladeRelationVon(source) !== null || holWertVon(source) !== null
+  return ladeRelationVon(source) !== null || holWertVon(source) !== null || holtNachOeffnen(source)
+}
+
+// Im Bestellzettel hielte eine ERP-Abfrage die Maske auf, bis SoftEngine alles
+// gesammelt hat (Echttest 21.09.: 2666 ms statt 445 ms); nach dem Oeffnen
+// gefragt, kommt sie, waehrend man schon arbeitet.
+export function holtNachOeffnen(source: Datenquelle): boolean {
+  return artFuer(source.art).bestellBlock === 'erpapicall'
 }
 
 export function feldKlarname(

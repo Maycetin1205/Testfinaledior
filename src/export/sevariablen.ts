@@ -41,7 +41,6 @@ export function baueSevariablen(
   holSchluessel: ReadonlyMap<string, string[]>,
 ): string {
   const bestellbar = used.filter((s) => !holtSelbst(s))
-  const perApi = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'erpapicall')
   const perDataSet = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'dataset')
   const perMaske = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'maske')
 
@@ -56,11 +55,6 @@ export function baueSevariablen(
     ),
   )
 
-  const erpapicall = perApi.map((s) => ({
-    ID: tabellenIdVon(s),
-    ALIAS: s.name,
-    FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
-  }))
   // DataSets legen ihre Zeilen unter Daten.Tabellen.<ALIAS> ab, dieselbe Form
   // wie MEMTAB.
   const dataset = perDataSet.map((s) => ({
@@ -100,7 +94,9 @@ export function baueSevariablen(
     JSON.stringify({
       ...(varAbschnitt.length > 0 ? { VAR: varAbschnitt } : {}),
       SEFILELOOP: sefileloop,
-      ERPAPICALL: erpapicall,
+      // Bleibt leer: ERP-Abfragen fragt die Maske nach dem Oeffnen selbst
+      // (holtNachOeffnen). Der leere Block haelt die Datei in ihrer Form.
+      ERPAPICALL: [],
       ...(dataset.length > 0 ? { DATASET: dataset } : {}),
       ...(maske.length > 0 ? { MASKE: maske } : {}),
     }, null, 2),

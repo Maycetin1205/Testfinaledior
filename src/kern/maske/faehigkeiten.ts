@@ -27,6 +27,7 @@ export interface Ereignis {
 export interface SuchFenster {
   // Ohne Angabe hat der Baustein EIN Fenster in seinen eigenen Eigenschaften.
   // Mit ihr hat jeder Eintrag dieser Liste eines (die Spalten der Erfassung).
+  // Das Mass steht immer am Baustein: alle seine Fenster sind gleich gross.
   eintraegeProp?: string
   spaltenSchluessel: string
   breiteSchluessel: string

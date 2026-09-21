@@ -17,7 +17,12 @@ import {
 } from '../faehigkeiten/listenStand'
 import { standardSpalten } from '../faehigkeiten/spalten'
 import { tabelleStil } from '../faehigkeiten/tabelleStil'
-import { schliesseNachschlagenFuer } from '../faehigkeiten/nachschlagen'
+import {
+  FENSTER_BREITE,
+  FENSTER_HOEHE,
+  gueltigesMass,
+  schliesseNachschlagenFuer,
+} from '../faehigkeiten/nachschlagen'
 import { vorschlagStil } from '../faehigkeiten/vorschlagListe'
 import { meldeVormerkungen } from '../faehigkeiten/vormerkStand'
 import { geheInZelle, zellenEingabeStil, zellenFelder } from '../faehigkeiten/zellenEingabe'
@@ -58,8 +63,8 @@ export class Erfassung extends Grundbaustein {
     { art: 'loeschen', wenn: { schluessel: 'loeschbar', gleich: 'ja' } },
     { art: 'haeltGesendete' },
     { art: 'rechnen', prop: BERECHNUNGEN_PROP },
-    // Jede Spalte mit Hilfsquelle hat ihr eigenes Suchfenster (F5); eingestellt
-    // wird es IM Fenster, das der Spaltenkopf aufmacht.
+    // Jede Spalte mit Hilfsquelle hat ihr eigenes Suchfenster (F5), alle gleich
+    // gross: die Spalten stehen an der Spalte, das Mass am Baustein.
     {
       art: 'suchfenster',
       fenster: {
@@ -69,7 +74,7 @@ export class Erfassung extends Grundbaustein {
         spaltenSchluessel: 'fensterSpalten',
         breiteSchluessel: 'fensterBreite',
         hoeheSchluessel: 'fensterHoehe',
-        automatik: 'Ohne Spalten nimmt das Fenster die Spalten derselben Hilfsquelle.',
+        automatik: 'Ohne Spalten zeigt das Fenster eine: das Feld dieser Spalte.',
       },
     },
   ]
@@ -78,6 +83,8 @@ export class Erfassung extends Grundbaustein {
     ...listenVorgaben(),
     loeschbar: 'nein',
     [BERECHNUNGEN_PROP]: [],
+    fensterBreite: FENSTER_BREITE,
+    fensterHoehe: FENSTER_HOEHE,
   }
 
   // Hinter der Suchzeile, wo der Schalter in der Liste stand.
@@ -117,6 +124,10 @@ export class Erfassung extends Grundbaustein {
   @property() leerText = LEER_TEXT_STANDARD
 
   @property() loeschbar = 'nein'
+
+  @property({ type: Number }) fensterBreite = FENSTER_BREITE
+
+  @property({ type: Number }) fensterHoehe = FENSTER_HOEHE
 
   @property({
     converter: {
@@ -268,6 +279,10 @@ export class Erfassung extends Grundbaustein {
       // Bei eingeschalteter Kopfzeile stehen die Titel schon oben; ein zweites
       // Mal in der Zelle waere dasselbe Wort doppelt.
       titelInZelle: () => this.kopfzeile !== 'ja',
+      fensterMass: () => ({
+        breite: gueltigesMass(this.fensterBreite, FENSTER_BREITE),
+        hoehe: gueltigesMass(this.fensterHoehe, FENSTER_HOEHE),
+      }),
     }
   }
 

@@ -1,4 +1,4 @@
-// Relations-Rufe an SoftEngine: einer zur Zeit, mit Warteschlange und Verfallsmarke.
+// Fragen an SoftEngine, Relationen und ERP-Abfragen: eine zur Zeit, mit Warteschlange und Verfallsmarke.
 import {
   RELATIONS_VERBEN,
   type RelationsVorlage,
@@ -10,7 +10,9 @@ import {
   quelleAusListe,
   feldLesen,
   istObjekt,
+  zeilenAusAbfrageAntwort,
   zeilenAusLieferung,
+  type LaufzeitAbfrage,
 } from './data'
 import { meldeFehler } from './meldung'
 
@@ -199,8 +201,21 @@ interface GetJob {
   optionen: RelationOptionen
 }
 
-const getQueue: GetJob[] = []
-let getBusy = false
+export interface AbfrageAntwort {
+  // Fehlt, wenn die Abfrage nicht hinausging oder unbeantwortet blieb.
+  zeilen?: unknown[]
+}
+
+interface AbfrageJob {
+  abfrage: LaufzeitAbfrage
+  name: string
+  resolve: (antwort: AbfrageAntwort) => void
+}
+
+// Relationen und ERP-Abfragen teilen EINE Schlange: SoftEngines Antworten tragen
+// keinen Absender, zwei Fragen zugleich liessen sich nicht auseinanderhalten.
+const warteschlange: (GetJob | AbfrageJob)[] = []
+let rufUnterwegs = false
 const GET_TIMEOUT_MS = 20_000
 const GET_POLL_MS = 100
 
@@ -224,10 +239,14 @@ export function setzeVerfallZurueck(): void {
   verfallenBis = 0
 }
 
-function runNextGet(): void {
-  if (getBusy || getQueue.length === 0) return
-  getBusy = true
-  const job = getQueue.shift()!
+function naechsterRuf(): void {
+  if (rufUnterwegs || warteschlange.length === 0) return
+  rufUnterwegs = true
+  const job = warteschlange.shift()!
+  if ('abfrage' in job) {
+    stelleAbfrage(job)
+    return
+  }
   let settled = false
   let verfallenGenutzt = false
   let unsubscribe: (() => void) | null = null
@@ -242,10 +261,10 @@ function runNextGet(): void {
     unsubscribe?.()
     if (poll !== null) clearInterval(poll)
     if (timeout !== null) clearTimeout(timeout)
-    getBusy = false
+    rufUnterwegs = false
     job.resolve(fehler === undefined ? { wert, roh } : { wert, roh, fehler })
 
-    queueMicrotask(runNextGet)
+    queueMicrotask(naechsterRuf)
   }
 
   // Der Balken schweigt bei 'still', der Bericht an die Kette nie: sonst braeche
@@ -261,6 +280,9 @@ function runNextGet(): void {
     const satzAntwort = job.optionen.satzAntwort === true
 
     unsubscribe = onSeAntwort((raw) => {
+      // Eine Listen-Antwort gehoert nie zu einer Relation; verspaetet, gaebe sie
+      // sonst ihren ersten Wert als Ergebnis aus.
+      if (zeilenAusAbfrageAntwort(raw) !== undefined) return
       const result = satzAntwort ? extractSatzAntwort(raw) : ergebnisAusAntwort(raw)
       if (result === undefined) return
       if (verfaelltRueckruf && markeGilt()) {
@@ -274,6 +296,10 @@ function runNextGet(): void {
     poll = setInterval(() => {
       const nachricht = newSeMessageResult(seFenster().SEDATA, before, satzAntwort)
       if (nachricht === undefined) return
+      if (zeilenAusAbfrageAntwort(nachricht.roh) !== undefined) {
+        before.add(nachricht.schluessel)
+        return
+      }
       if (verfaelltNachlese && markeGilt()) {
         verfaelltNachlese = false
         verfallenGenutzt = true
@@ -330,8 +356,72 @@ export function relationAusfuehren(
     return Promise.resolve({ wert: '', roh: undefined })
   }
   return new Promise((resolve) => {
-    getQueue.push({ template, params: [...params], resolve, optionen })
-    runNextGet()
+    warteschlange.push({ template, params: [...params], resolve, optionen })
+    naechsterRuf()
+  })
+}
+
+// Antworten tragen keinen Absender. Eine verspaetete Antwort auf eine fruehere
+// Abfrage erkennt man an den Feldern: sie traegt keines der bestellten. Mit
+// Vorsatz geliefert (BEL_0_11 auf 0_11) zaehlt es wie beim Lesen als Treffer.
+function passtZurAbfrage(zeilen: readonly unknown[], felder: string): boolean {
+  const erste = zeilen[0]
+  if (erste === undefined || felder.trim() === '*') return true
+  if (!istObjekt(erste)) return false
+  const schluessel = Object.keys(erste)
+  return felder.split(',').map((f) => f.trim()).filter((f) => f !== '')
+    .some((f) => schluessel.some((k) => k === f || k.endsWith(`_${f}`)))
+}
+
+function stelleAbfrage(job: AbfrageJob): void {
+  let erledigt = false
+  let abmelden: (() => void) | null = null
+  let uhr: ReturnType<typeof setTimeout> | null = null
+
+  // Wie bei den Relationen gibt `fertig` die Schlange in JEDEM Fall frei.
+  const fertig = (zeilen?: unknown[]): void => {
+    if (erledigt) return
+    erledigt = true
+    abmelden?.()
+    if (uhr !== null) clearTimeout(uhr)
+    rufUnterwegs = false
+    job.resolve(zeilen === undefined ? {} : { zeilen })
+    queueMicrotask(naechsterRuf)
+  }
+  const gescheitert = (text: string): void => {
+    meldeFehler(text)
+    fertig()
+  }
+
+  try {
+    const g = seFenster()
+    abmelden = onSeAntwort((raw) => {
+      const zeilen = zeilenAusAbfrageAntwort(raw)
+      if (zeilen === undefined || !passtZurAbfrage(zeilen, job.abfrage.felder)) return
+      fertig(zeilen)
+    })
+    uhr = setTimeout(() => {
+      gescheitert(`„${job.name}“ laden: SoftEngine hat nicht geantwortet (${job.abfrage.id}).`)
+    }, GET_TIMEOUT_MS)
+    if (typeof g.basisHTML_SND_MSG !== 'function') {
+      gescheitert(`„${job.name}“ laden nicht möglich: keine Verbindung zu SoftEngine.`)
+      return
+    }
+    g.basisHTML_SND_MSG('ERPAPICALL', {
+      ID: job.abfrage.id,
+      ALIAS: job.name,
+      FELDER: job.abfrage.felder,
+    })
+  } catch (error) {
+    gescheitert(`„${job.name}“ laden fehlgeschlagen (${job.abfrage.id}): ${fehlertext(error)}`)
+  }
+}
+
+export function abfrageAusfuehren(abfrage: LaufzeitAbfrage, name: string): Promise<AbfrageAntwort> {
+  starteSe()
+  return new Promise((resolve) => {
+    warteschlange.push({ abfrage, name, resolve })
+    naechsterRuf()
   })
 }
 

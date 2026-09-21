@@ -1,10 +1,11 @@
-// Quellen, die ihre Zeilen erst auf eine Auswahl hin holen, samt Bremse gegen Kreis-Feuer.
+// Quellen, die ihre Zeilen selbst holen: auf eine Auswahl hin, je Lieferung oder nach dem Oeffnen.
 import type { BausteinArt } from '../../kern/maske/bausteinArt'
 import { faehigkeit, hatFaehigkeit } from '../../kern/maske/faehigkeiten'
 import { alleBausteinArten } from '../../kern/maske/registry'
 import { eigenschaftSichtbar } from '../../kern/maske/eigenschaft'
 import { QUELLE_PROP } from '../../kern/maske/quelleProp'
 import { BAUSTEIN_ID_ATTR } from '../../kern/daten/aktionen'
+import { holeAbfrageQuelle } from '../../softengine/abfrageLader'
 import { hatSeDaten, onSeDaten } from '../../softengine/bridge'
 import { laufzeitQuellen } from '../../softengine/laufzeitQuellen'
 import { meldeFehler } from '../../softengine/meldung'
@@ -128,6 +129,15 @@ function holeWertQuellen(): void {
   }
 }
 
+// Die Quellen, die eine ERP-Abfrage nach dem Oeffnen holt. Erst wenn Beleg und
+// Positionen da sind: dann steht die Maske schon, und die Listen kommen nach.
+function holeAbfrageQuellen(): void {
+  for (const quelle of laufzeitQuellen()) {
+    if (!quelle.abfrage) continue
+    holeAbfrageQuelle(quelle, quelle.abfrage)
+  }
+}
+
 export function verdrahteHolendeQuellen(): void {
   if (verdrahtet) return
   verdrahtet = true
@@ -135,9 +145,16 @@ export function verdrahteHolendeQuellen(): void {
 
 // NUR bei einer echten Lieferung: das Ablegen der Antwort stoesst selbst an,
 // und ein Anstoss, der wieder holt, waere ein unbremsbarer Kreis.
-  onSeDaten((lieferung) => { if (lieferung) holeWertQuellen() })
+  onSeDaten((lieferung) => {
+    if (!lieferung) return
+    holeWertQuellen()
+    holeAbfrageQuellen()
+  })
 
   // Stand die Lieferung schon, als der erste Baustein sich anschloss, kommt
   // fuer sie kein `lieferung`-Ruf mehr.
-  if (hatSeDaten()) holeWertQuellen()
+  if (hatSeDaten()) {
+    holeWertQuellen()
+    holeAbfrageQuellen()
+  }
 }

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import type { Datenquelle } from '../kern/daten/datenquellen'
+import { bestellteFelder, type Datenquelle } from '../kern/daten/datenquellen'
 import { baueSevariablen } from './sevariablen'
 
 interface Bestellung {
@@ -100,7 +100,9 @@ test('bestellt werden nur die Felder, die die Maske liest', () => {
   expect(raus.SEFILELOOP[0]?.FELDER).toBe('18_25,164_8')
 })
 
-test('das gilt auch fuer die ERP-Abfrage', () => {
+// Im Bestellzettel hielte die ERP-Abfrage die Maske auf; die Maske fragt sie
+// nach dem Oeffnen selbst, mit denselben, nur benutzten Feldern.
+test('die ERP-Abfrage steht nicht im Bestellzettel und fragt nur benutzte Felder', () => {
   const abfrage: Datenquelle = {
     id: 'q-api',
     name: 'Artikelstamm',
@@ -110,9 +112,8 @@ test('das gilt auch fuer die ERP-Abfrage', () => {
     felder: felder(['ART_1_25', 'ART_51_60', 'ART_759_10', 'ART_2035_80']),
   }
   const raus = bestellung([abfrage], new Map([['q-api', new Set(['ART_51_60'])]]))
-  expect(raus.ERPAPICALL).toEqual([
-    { ID: 'ARTIKEL.GET', ALIAS: 'Artikelstamm', FELDER: 'ART_51_60' },
-  ])
+  expect(raus.ERPAPICALL).toEqual([])
+  expect(bestellteFelder(abfrage, new Set(['ART_51_60']))).toBe('ART_51_60')
 })
 
 // Der Rueckfall: '*' ist bei diesen Arten nicht erlaubt, und eine leere
@@ -155,8 +156,7 @@ test('eine Lesequelle bestellt keine Satznummer', () => {
     satzFeld: '0_10',
     felder: felder(['ART_1_25', 'ART_51_60']),
   }
-  const raus = bestellung([lesequelle], new Map([['q-lese', new Set(['ART_51_60'])]]))
-  expect(raus.ERPAPICALL[0]?.FELDER).toBe('ART_51_60')
+  expect(bestellteFelder(lesequelle, new Set(['ART_51_60']))).toBe('ART_51_60')
 })
 
 // Eine Quelle, die ihren Wert selbst per Relation holt, wartet auf keine

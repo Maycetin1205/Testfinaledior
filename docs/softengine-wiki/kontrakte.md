@@ -327,14 +327,26 @@ Belegt 2026-08-10/11, Echttests:
   > (ohne ADRNR = alle Sätze; verifiziert 2026-06-11).
   > Antwort: `SEDATA.Daten.ErpApiCall.Haustiere.Zeilen[]` mit Schlüsseln
   > `LFA_pos_len`."
-- ⚠ **Bestellt wird nur BEIM LADEN.** Ein ERPAPICALL zur Laufzeit per
-  `basisHTML_SND_MSG` **fror im Echttest 2026-08-11 die WinUI-Maske ein**
-  (nur noch über den Task-Manager zu beenden). Tabu, bis die
-  ErpApiCall-Referenz der Installation vorliegt.
+- **Nach dem Oeffnen gefragt, nicht bestellt.** Echttest des Nutzers
+  2026-09-21, WinUI, Belegerfassung Layoutrahmen 00001: dieselben fuenf Listen
+  im Bestellzettel -> „Maske hat ihre Daten" nach 2666 ms, Fokus hakt; als
+  Nachricht nach dem Oeffnen -> Maske nach 445 ms, danach ARTIKEL.GET 5953
+  Zeilen in 652 ms, IDBID0001.GET 670 in 104 ms, IDBID0010.GET 631 in 116 ms,
+  CHARGE.GET 1759 in 172 ms, dazu BELEG.GET. Nichts fror ein.
+- Nachricht: `basisHTML_SND_MSG('ERPAPICALL', { ID, ALIAS, FELDER })`, Felder
+  mit Vorsatz. Die Antwort kommt ueber den REGISTER-Rueckruf, ohne `Daten`-Block
+  und ohne Absender: `{ ARTIKELLISTE: { ARTIKEL: [...] } }`,
+  `{ ELEMENTNAME, IDBID0001LISTE: { IDBID0001: [...] } }`,
+  `{ CHARGENLISTE: { CHARGE: [...] } }`. Die Zeilen tragen die bestellten
+  Schluessel. Darum immer nur eine Frage zugleich, dieselbe Schlange wie GET.
+- Mit `FREISELEKT` (`GET_RELATION[992!ART_51_60!<Begriff>!0]=1`, wie SoftEngines
+  Vorlage RGBP07) kommen nur Treffer, aber je Suche rund 1,25 s: alle Artikel
+  auf einmal sind schneller (Echttest 2026-09-21).
 - Nicht belegt und darum nicht angeboten: Kopfsatz, offener Satz (VAR),
-  Hol-Relation, Schreibweg.
-- Gilt in: `kern/daten/quellenArten.ts` (`erpabfrage`), `softengine/data.ts`
-  (`rowsFor`).
+  Hol-Relation, Schreibweg. WebUI nicht getestet.
+- Gilt in: `kern/daten/datenquellen.ts` (`holtNachOeffnen`),
+  `softengine/abfrageLader.ts`, `softengine/relations.ts` (`abfrageAusfuehren`),
+  `softengine/data.ts` (`zeilenAusAbfrageAntwort`).
 
 ## 11. Anlegen (SE-Wissen, wird NICHT gebaut)
 
