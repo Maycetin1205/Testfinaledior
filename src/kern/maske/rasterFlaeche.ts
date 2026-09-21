@@ -3,6 +3,7 @@ import { WURZEL_ID, type Baustein, type Maskenbaum } from './baum'
 import { neuerTeilbaum } from './neuerBaustein'
 import { darfEnthalten, bausteinArt } from './registry'
 import {
+  ersteLuecke,
   naechsteFreieZeile,
   rasterPlatzLesen,
   RASTER,
@@ -23,14 +24,38 @@ export function freieZeileAuf(tree: Maskenbaum, parentId: string): number {
   )
 }
 
+export function platzAuf(
+  tree: Maskenbaum,
+  parentId: string,
+  w: number,
+  h: number,
+  zeilen: number | null,
+): { x: number; y: number } | null {
+  return ersteLuecke(
+    kinderImFluss(tree, parentId).map((n) => rasterPlatzLesen(n.werte)),
+    w,
+    h,
+    zeilen,
+  )
+}
+
 export function freiePositionFuerKopie(
   tree: Maskenbaum,
   parentId: string,
   kopie: Baustein,
-): Baustein {
+  zeilen: number | null = null,
+): Baustein | null {
   const eltern = tree[parentId]
   if (!eltern || !istRasterFlaeche(eltern)) return kopie
   const pos = rasterPlatzLesen(kopie.werte)
+  if (zeilen !== null) {
+    const platz = platzAuf(tree, parentId, pos.w, pos.h, zeilen)
+    if (!platz) return null
+    return {
+      ...kopie,
+      werte: { ...kopie.werte, rasterX: platz.x, rasterY: platz.y, rasterW: pos.w, rasterH: pos.h },
+    }
+  }
   const y = freieZeileAuf(tree, parentId)
   if (y === pos.y) return kopie
   return {

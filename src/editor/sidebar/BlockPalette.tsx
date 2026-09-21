@@ -9,6 +9,7 @@ import { darfEnthalten, alleBausteinArten } from '../../kern/maske/registry'
 import type { Kategorie, BausteinArt } from '../../kern/maske/bausteinArt'
 import { editorAngabenVon } from '../../kern/maske/editorAngaben'
 import { setNewBlockDrag } from '../canvas/dnd'
+import { kapazitaetVon } from '../canvas/rasterFlaeche'
 import { useEditor } from '../zustand/useEditor'
 
 const ERSATZ_SYMBOL = Component
@@ -82,7 +83,10 @@ export function BlockPalette() {
               <PaletteKarte
                 key={def.typ}
                 def={def}
-                onAdd={() => ed.addBlock(def.typ, insertParentFor(def.typ))}
+                onAdd={() => {
+                  const parentId = insertParentFor(def.typ)
+                  ed.addBlock(def.typ, parentId, undefined, kapazitaetVon(ed.tree, parentId))
+                }}
               />
             ))}
           </div>

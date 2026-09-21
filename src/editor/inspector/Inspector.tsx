@@ -12,6 +12,7 @@ import { Gruppe } from '@/editor/werkbank/Gruppe'
 import { Knopf } from '@/editor/werkbank/Knopf'
 import { Zeile } from '@/editor/werkbank/Zeile'
 import { bausteinName } from '../../kern/maske/bausteinName'
+import { kapazitaetVon } from '../canvas/rasterFlaeche'
 import { useAbschnitt } from './abschnittStand'
 import { AktionenSektion } from './AktionenSektion'
 import { AuswahlFolgeSektion } from './AuswahlFolgeSektion'
@@ -136,7 +137,7 @@ export function Inspector() {
           nurZeichen
           aria-label="Duplizieren (Ctrl+D)"
           title="Duplizieren (Ctrl+D)"
-          onClick={() => ed.duplicateBlock(block.id)}
+          onClick={() => ed.duplicateBlock(block.id, kapazitaetVon(ed.tree, block.elternId))}
           disabled={ed.isRemoveProtected(block.id)}
         >
           <Copy size={14} />

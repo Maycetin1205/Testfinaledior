@@ -3,8 +3,9 @@ import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
 import type { Baustein } from '../../kern/maske/baum'
 import { bausteinArt } from '../../kern/maske/registry'
 import { RASTER, rasterPlatzLesen, rasterMassVon } from '../../kern/maske/raster'
+import { freieZeileAuf } from '../../kern/maske/rasterFlaeche'
 import type { Editor } from '../zustand/Editor'
-import { flaecheVon, hoeheImKasten, zeilenKapazitaet } from './rasterFlaeche'
+import { flaecheVon, hoeheImKasten, kapazitaetVon, zeilenKapazitaet } from './rasterFlaeche'
 import { zieheGroesse } from './zieheGroesse'
 
 export function useBlockResize(
@@ -54,12 +55,14 @@ export function useBlockResize(
       const kapazitaet = flaeche && node.elternId
         ? zeilenKapazitaet(editor.tree, node.elternId, flaeche)
         : null
+      const eigene = kapazitaetVon(editor.tree, node.id)
+      const inhalt = eigene === null ? 0 : freieZeileAuf(editor.tree, node.id) + pos.h - eigene
       zieheGroesse(editor, e, {
         achse: 'y',
         prop: 'rasterH',
         getId: () => blockRef.current.id,
         start: pos.h,
-        min: Math.max(1, spec.minHoehe),
+        min: Math.max(1, spec.minHoehe, inhalt),
         schritt: (rect.height + RASTER.gapPx) / pos.h,
 
         anwenden: (id, wert) => {

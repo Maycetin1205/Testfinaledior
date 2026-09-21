@@ -84,3 +84,20 @@ export function rasterPlatzStil(pos: RasterPlatz): Record<string, string | numbe
 export function naechsteFreieZeile(positionen: readonly RasterPlatz[]): number {
   return positionen.reduce((max, p) => Math.max(max, p.y + p.h), 0)
 }
+
+export function ersteLuecke(
+  belegt: readonly RasterPlatz[],
+  w: number,
+  h: number,
+  zeilen: number | null,
+): { x: number; y: number } | null {
+  if (zeilen === null) return { x: 0, y: naechsteFreieZeile(belegt) }
+  const frei = (x: number, y: number) => belegt.every((p) =>
+    x + w <= p.x || p.x + p.w <= x || y + h <= p.y || p.y + p.h <= y)
+  for (let y = 0; y + h <= zeilen; y++) {
+    for (let x = 0; x + w <= RASTER.spalten; x++) {
+      if (frei(x, y)) return { x, y }
+    }
+  }
+  return null
+}

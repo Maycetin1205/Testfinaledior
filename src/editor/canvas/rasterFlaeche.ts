@@ -92,6 +92,12 @@ export function zeilenKapazitaet(
   return Math.max(1, Math.floor((innen + abstand) / (RASTER.zeilePx + abstand)))
 }
 
+export function kapazitaetVon(tree: Maskenbaum, id: string | null | undefined): number | null {
+  const node = id ? tree[id] : undefined
+  const flaeche = node ? flaecheDesBausteins(node) : null
+  return node && flaeche ? zeilenKapazitaet(tree, node.id, flaeche) : null
+}
+
 // Unter der letzten Zeile, die noch in den Kasten passt, faengt der Schnitt an:
 // dort ist ein Baustein weder zu sehen noch anzuklicken. Darum haelt ihn diese
 // Zeile beim Ziehen auf.

@@ -1,5 +1,6 @@
 // Die Tastenkuerzel des Editors.
 import { useEffect } from 'react'
+import { kapazitaetVon } from '../canvas/rasterFlaeche'
 import { useEditorInstance } from './EditorContext'
 import { loescheBaustein } from './loescheBaustein'
 import { speichereMaskeAlsDatei } from './maskenDatei'
@@ -105,7 +106,9 @@ export function useKeyboardShortcuts() {
           editor.redo()
           break
         case 'duplizieren':
-          if (gewaehlt) editor.duplicateBlock(gewaehlt)
+          if (gewaehlt) {
+            editor.duplicateBlock(gewaehlt, kapazitaetVon(editor.tree, editor.getNode(gewaehlt)?.elternId))
+          }
           break
       }
     }

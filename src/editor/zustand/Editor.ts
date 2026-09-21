@@ -33,9 +33,9 @@ import {
   type SeitenEintrag,
 } from '../../kern/maske/seiten'
 import {
-  freieZeileAuf,
   istRasterFlaeche,
   neuerBlockAnZelle,
+  platzAuf,
   verschiebeInContainer,
   zelleneinzug,
   zellenGroesse,
@@ -222,18 +222,26 @@ export class Editor extends Subject<Editor> {
     this.notify(this)
   }
 
-  addBlock(type: string, parentId?: string, index?: number): Baustein | null {
+  addBlock(
+    type: string,
+    parentId?: string,
+    index?: number,
+    zeilen: number | null = null,
+  ): Baustein | null {
     const parent = this._tree[parentId ?? this.rootId]
     if (!parent || !darfEnthalten(parent.typ, type)) return null
+    const spec = rasterMassVon(bausteinArt(type))
+    const platz = istRasterFlaeche(parent)
+      ? platzAuf(this._tree, parent.id, spec.startBreite, spec.startHoehe, zeilen)
+      : undefined
+    if (platz === null) return null
     this.pushHistory()
     const { nodes, rootId } = neuerTeilbaum(type)
     const node = nodes[rootId]
     node.elternId = parent.id
 
-    if (istRasterFlaeche(parent)) {
-      const spec = rasterMassVon(bausteinArt(type))
-      const y = freieZeileAuf(this._tree, parent.id)
-      node.werte = { ...node.werte, rasterX: 0, rasterY: y, rasterW: spec.startBreite, rasterH: spec.startHoehe }
+    if (platz) {
+      node.werte = { ...node.werte, rasterX: platz.x, rasterY: platz.y, rasterW: spec.startBreite, rasterH: spec.startHoehe }
     }
     const childIds = [...parent.kinderIds]
     const at = index === undefined
@@ -370,9 +378,9 @@ export class Editor extends Subject<Editor> {
     this.notify(this)
   }
 
-  duplicateBlock(id: string): Baustein | null {
+  duplicateBlock(id: string, zeilen: number | null = null): Baustein | null {
     if (this.isRemoveProtected(id)) return null
-    const res = dupliziereTeilbaum(this._tree, id)
+    const res = dupliziereTeilbaum(this._tree, id, zeilen)
     if (!res) return null
     this.pushHistory()
     this._tree = res.tree

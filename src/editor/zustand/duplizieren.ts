@@ -139,15 +139,18 @@ function mitFreiemSeitenNamen(tree: Maskenbaum, id: string, kopie: Baustein): Ba
 export function dupliziereTeilbaum(
   tree: Maskenbaum,
   id: string,
+  zeilen: number | null = null,
 ): { tree: Maskenbaum; kopieId: string } | null {
   const original = tree[id]
   if (!original || id === WURZEL_ID || original.elternId === null) return null
   const parent = tree[original.elternId]
   if (!parent) return null
   const { nodes, kopieId } = kloneTeilbaum(tree, id)
-  nodes[kopieId] = istSeitenBaustein(original)
+  const kopie = istSeitenBaustein(original)
     ? mitFreiemSeitenNamen(tree, id, nodes[kopieId])
-    : freiePositionFuerKopie(tree, parent.id, nodes[kopieId])
+    : freiePositionFuerKopie(tree, parent.id, nodes[kopieId], zeilen)
+  if (!kopie) return null
+  nodes[kopieId] = kopie
   const childIds = [...parent.kinderIds]
   childIds.splice(parent.kinderIds.indexOf(id) + 1, 0, kopieId)
   return {
