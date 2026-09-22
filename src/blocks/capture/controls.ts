@@ -1,147 +1,113 @@
 import type { TemplateResult } from 'lit'
 import { openLookup } from '../behavior/lookup'
 import { keyOf } from '../behavior/suggestionState'
-import type { CaptureRun } from './run'
-import {
-  captureRowTpl,
-  windowColumnsIn,
-  targetIn,
-  type CaptureContext,
-} from './row'
+import { reportError } from '../../softengine/report'
 import type { ColumnView } from '../behavior/columns'
+import type { CaptureLedger } from './ledger'
+import { captureRowTpl } from './row'
 
-export interface CaptureHost {
+// Where the capture row is drawn and how big its lookup window opens. The
+// ledger answers everything else.
+export interface CaptureRowPlacement {
+  ledger: CaptureLedger
+
   block: HTMLElement
 
-  run: CaptureRun
+  inEditor: boolean
 
-  context: () => CaptureContext
+  titleInCell: boolean
 
-  report: () => void
+  sourceId: string
 
-  focus: (index: number) => void
+  windowWidth: number
 
-  captureRow: () => boolean
-
-  titleInCell: () => boolean
-
-  windowMetrics: () => { width: number; height: number }
+  windowHeight: number
 }
 
-function choose(host: CaptureHost, index: number, listIndex: number): void {
-  const hit = host.run.suggestions[listIndex]
-  if (hit === undefined) return
-  host.run.adopt(host.context(), index, hit.record)
-  host.report()
-}
-
-function window(host: CaptureHost, index: number): void {
-  const context = host.context()
-  const column = context.columns[index]
-  const target = targetIn(context, index)
-  if (column === undefined || target.sourceId === '' || target.code === '') return
-  const columns = windowColumnsIn(context, index)
+function openWindow(placement: CaptureRowPlacement, index: number): void {
+  const problem = placement.ledger.lookupProblemAt(index)
+  if (problem !== '') {
+    reportError(problem)
+    return
+  }
+  const spot = placement.ledger.lookupAt(index)
+  if (spot === null) return
   openLookup({
-    el: host.block,
-    spot: column.key,
-    sourceId: target.sourceId,
-    storageField: target.code,
-    storageTitle: column.title,
-    columns,
-    title: column.title,
-    ...host.windowMetrics(),
-    entries: host.run.entries(context, index),
+    el: placement.block,
+    spot: spot.spot,
+    sourceId: spot.sourceId,
+    storageField: spot.field,
+    storageTitle: spot.title,
+    columns: spot.columns,
+    title: spot.title,
+    width: placement.windowWidth,
+    height: placement.windowHeight,
+    entries: spot.entries,
 
-    backFocus: () => host.focus(index),
-    searchText: host.run.valueAt(context, index),
+    backFocus: () => placement.ledger.focusCell(index),
+    searchText: spot.searchText,
     onAdopt: (_display, _value, record) => {
-      host.run.adopt(host.context(), index, record)
-      host.report()
-      jump(host, index, 'Enter')
+      placement.ledger.adopt(index, record)
+      placement.ledger.jumpFrom(index, 'Enter')
     },
   })
 }
 
-export function jump(host: CaptureHost, index: number, key: string): boolean {
-  const context = host.context()
-  if (key === 'Tab') {
-    const next = host.run.neighbourSlot(context, index, 1)
-    if (next !== -1) {
-      host.focus(next)
-      return true
-    }
-    return host.captureRow()
-  }
-  const target = host.run.nextEmpty(context, index)
-  if (target !== -1) host.focus(target)
-  else if (key === 'Enter') host.captureRow()
-  return true
-}
-
-function key(host: CaptureHost, index: number, e: KeyboardEvent): void {
+function key(placement: CaptureRowPlacement, index: number, e: KeyboardEvent): void {
+  const ledger = placement.ledger
   if (e.key === 'F5') e.preventDefault()
 
   if (e.key === 'Tab' && e.shiftKey) {
-    const previous = host.run.neighbourSlot(host.context(), index, -1)
+    const previous = ledger.neighbour(index, -1)
     if (previous === -1) return
     e.preventDefault()
-    host.focus(previous)
-    host.report()
+    ledger.focusCell(previous)
     return
   }
-  const follow = host.run.decideKey(host.context(), index, keyOf(e))
+  const follow = ledger.decideKey(index, keyOf(e))
   if (follow === 'nothing') {
     if (e.key === 'Enter') e.preventDefault()
     return
   }
   let keep = true
   if (follow === 'adopt') {
-    choose(host, index, host.run.mark)
-    keep = jump(host, index, e.key)
-  } else if (follow === 'window') window(host, index)
-  else if (follow === 'liste-auf') host.run.openList(index)
-  else if (follow === 'further') keep = jump(host, index, e.key)
-  else if (follow === 'clear') host.run.empty(host.context(), index)
+    ledger.adoptSuggestion(index, ledger.mark)
+    keep = ledger.jumpFrom(index, e.key)
+  } else if (follow === 'window') openWindow(placement, index)
+  else if (follow === 'liste-auf') ledger.openList(index)
+  else if (follow === 'further') keep = ledger.jumpFrom(index, e.key)
+  else if (follow === 'clear') ledger.empty(index)
   if (keep) e.preventDefault()
-  host.report()
 }
 
 export function captureRowFor(
-  host: CaptureHost,
+  placement: CaptureRowPlacement,
   cols: Readonly<Record<string, string>>,
   listToTop: boolean,
 
   view: ColumnView,
 ): TemplateResult {
-  const context = host.context()
+  const ledger = placement.ledger
+  const cells = placement.inEditor ? [] : ledger.rowView()
   return captureRowTpl({
     columns: view.columns,
     slots: view.slots,
-    sourceId: context.sourceId,
+    sourceId: placement.sourceId,
     cols,
-    titleInCell: host.titleInCell(),
-    inEditor: host.block.hasAttribute('data-ff-editor'),
-    value: (i) => host.run.valueAt(context, i),
-    automatic: (i) => host.run.isAutomatic(context, i),
-    typingColumn: host.run.typingColumn,
-    suggestions: host.run.suggestions,
-    mark: host.run.mark,
+    titleInCell: placement.titleInCell,
+    inEditor: placement.inEditor,
+    value: (i) => cells[i]?.value ?? '',
+    automatic: (i) => cells[i]?.automatic === true,
+    typingColumn: ledger.typingColumn,
+    suggestions: ledger.suggestions,
+    mark: ledger.mark,
     listToTop,
-    hints: host.run.hints,
+    hints: ledger.hints,
   }, {
-    typing: (i, text) => {
-      host.run.type(i, text)
-      host.report()
-    },
-    key: (i, e) => key(host, i, e),
-    leave: (i) => {
-      host.run.leave(i)
-      host.report()
-    },
-    chooseSuggestion: (listIndex) => choose(host, host.run.typingColumn, listIndex),
-    setMark: (listIndex) => {
-      host.run.setMark(listIndex)
-      host.report()
-    },
+    typing: (i, text) => ledger.type(i, text),
+    key: (i, e) => key(placement, i, e),
+    leave: (i) => ledger.leave(i),
+    chooseSuggestion: (listIndex) => ledger.adoptSuggestion(ledger.typingColumn, listIndex),
+    setMark: (listIndex) => ledger.setMark(listIndex),
   })
 }

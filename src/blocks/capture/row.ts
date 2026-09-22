@@ -10,6 +10,7 @@ import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
 import type { KeyPair } from '../../core/data/extraSources'
+import { leftOf } from '../behavior/foreignSources'
 import { fieldRead } from '../../softengine/data'
 
 export interface CapturePlacement {
@@ -126,8 +127,40 @@ export function cellTargetOf(
   return { kind: 'linked', sourceId, code }
 }
 
+// What the capture reads a cell against: its own columns, its own source and
+// the helper sources standing left of it.
+export function captureContext(
+  block: HTMLElement,
+  columns: readonly CaptureColumn[],
+  sourceId: string,
+  calculations: readonly Calculation[],
+): CaptureContext {
+  const left = leftOf(block)
+  return {
+    block,
+    columns,
+    calculations,
+    sourceId,
+    pairsTo: (id) => left.find((v) => v.sourceId === id)?.pairs ?? [],
+    partnerOf: (id) => left.find((v) => v.sourceId === id)?.partnerId ?? '',
+  }
+}
+
 export function targetIn(context: CaptureContext, index: number): CellTarget {
   return cellTargetOf(context.columns[index], context.sourceId)
+}
+
+// The next column left or right that the operator can see; a hidden one is
+// stepped over.
+export function neighbourSlot(
+  columns: readonly CaptureColumn[],
+  off: number,
+  direction: 1 | -1,
+): number {
+  for (let i = off + direction; i >= 0 && i < columns.length; i += direction) {
+    if (columns[i]?.hidden !== true) return i
+  }
+  return -1
 }
 
 export function linkedSourcesIn(context: CaptureContext): string[] {

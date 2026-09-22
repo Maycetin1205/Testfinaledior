@@ -1,21 +1,21 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
+import { booleanProperty, type Property } from '../../core/block/property'
 import { inputSpotTpl } from '../behavior/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
 import { asNumber } from '../behavior/sorting'
 import type { Column } from '../behavior/columns'
 import { WITHOUT_DECORATION, type RowDecoration } from '../behavior/tableBody'
-import type { RowsEditing } from './rowEditing'
-import type { RowsIcon } from './rowStatus'
+import type { CaptureLedger, RowsIcon } from './ledger'
 
 export function typingCellTpl(
-  state: RowsEditing,
+  ledger: CaptureLedger,
   rawIndex: number,
   slot: number,
   column: Column,
 ): TemplateResult {
-  const value = state.cellValue(rawIndex, slot)
+  const value = ledger.cellValue(rawIndex, slot)
   return html`<div
     class=${asNumber(value) !== null ? 'tippbar zahl' : 'typable'}
     role="cell"
@@ -23,18 +23,28 @@ export function typingCellTpl(
     value,
     title: column.title,
     placeholder: '',
-    klasse: cellsClass(state.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
+    klasse: cellsClass(ledger.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
     holderClass: 'zell-halter',
     slot,
     suggestions: [],
     mark: 0,
   }, {
-    typing: (text) => state.typeCell(rawIndex, slot, text),
-    key: (e) => state.keyCell(rawIndex, slot, e),
-    leave: (text) => state.leaveCell(rawIndex, slot, text),
+    typing: (text) => ledger.typeCell(rawIndex, slot, text),
+    key: (e) => ledger.keyCell(rawIndex, slot, e),
+    leave: (text) => ledger.leaveCell(rawIndex, slot, text),
     chooseSuggestion: () => {},
     setMark: () => {},
   })}</div>`
+}
+
+export function deletableProperty(): Property<boolean> {
+  return booleanProperty({
+    default: false,
+    label: 'Zeilen löschbar',
+    help: 'Kreuz an jeder Zeile: merkt sie zum Löschen vor.',
+    attribute: 'deletable',
+    needsSource: true,
+  })
 }
 
 export function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateResult {
@@ -122,7 +132,7 @@ export interface DecorationPlacement {
 
   typable: boolean
 
-  rows: RowsEditing
+  ledger: CaptureLedger
 }
 
 export function captureDecoration(placement: DecorationPlacement): (rawIndex: number | null) => RowDecoration {
@@ -134,22 +144,22 @@ export function captureDecoration(placement: DecorationPlacement): (rawIndex: nu
         right: placement.deletable && placement.inEditor ? crossDisplayTpl() : nothing,
       }
     }
-    const icon = placement.rows.statusOf(rawIndex)
-    const deleted = placement.rows.isDeleted(rawIndex)
+    const icon = placement.ledger.statusOf(rawIndex)
+    const deleted = placement.ledger.isDeleted(rawIndex)
     return {
       status: icon.status === 'booked' ? '' : icon.status,
       title: icon.title,
       klasse: deleted ? 'deleted' : '',
       missingText: icon.status === 'error' ? icon.title : '',
       cell: (slot, column) => (placement.typable && columnEditable(column)
-        ? typingCellTpl(placement.rows, rawIndex, slot, column)
+        ? typingCellTpl(placement.ledger, rawIndex, slot, column)
         : null),
       right: cross
-        ? deleteCrossTpl(deleted, () => placement.rows.toggleDeletion(rawIndex))
+        ? deleteCrossTpl(deleted, () => placement.ledger.toggleDeletion(rawIndex))
         : nothing,
       key: (e) => {
         if (e.key !== 'Delete' || !cross) return false
-        placement.rows.toggleDeletion(rawIndex)
+        placement.ledger.toggleDeletion(rawIndex)
         return true
       },
     }

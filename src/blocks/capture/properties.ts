@@ -6,7 +6,7 @@ import {
 } from '../../core/data/calculation'
 import { listProperties } from '../behavior/listDeclaration'
 import { captureColumnsProperty } from './column'
-import { deletableProperty } from './rowEditing'
+import { deletableProperty } from './body'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/lookup'
 import { reportError } from '../../softengine/report'
 

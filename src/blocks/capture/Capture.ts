@@ -7,7 +7,6 @@ import {
   calculationsFrom,
   type Calculation,
 } from '../../core/data/calculation'
-import { reportError } from '../../softengine/report'
 import { emptyStyle } from '../behavior/emptyState'
 import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
 import { RecordList } from '../behavior/recordList'
@@ -23,25 +22,16 @@ import { reportPendingMarks } from '../behavior/pendingState'
 import { walkInCell, cellsInputStyle, cellsFields } from './cells'
 import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../behavior/sourceRows'
 import type { Sublines, RowDecoration } from '../behavior/tableBody'
-import { CaptureState } from './state'
-import { captureRowFor, type CaptureHost } from './controls'
+import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
 import {
   CAPTURE_COLUMNS_BINDING,
   coerceCaptureColumns,
   type CaptureColumn,
 } from './column'
-import type { CaptureContext } from './row'
-import { RowsEditing } from './rowEditing'
-import { RunState, type RowsIcon } from './rowStatus'
+import { CaptureLedger } from './ledger'
 import { captureStyle } from './captureStyle'
 import { captureProperties, type CaptureValues } from './properties'
-
-const NOT_ARRIVED = 'Nicht im Beleg angekommen.'
-
-const NOT_CHANGED = 'Im Beleg unverändert geblieben.'
-
-const NOT_DELETED = 'Steht noch im Beleg.'
 
 export interface Capture extends CaptureValues {}
 
@@ -64,79 +54,58 @@ export class Capture extends BlockElement {
 
   @property({ attribute: false }) rowsReport: RowsReport = WITHOUT_ROWS
 
-  private readonly _capture = new CaptureState()
-
-  private readonly _run = new RunState(() => this.requestUpdate())
-
-  private readonly _rows = new RowsEditing({
+  private readonly _ledger = new CaptureLedger({
     block: this,
     columns: () => this.listColumns(),
     calculations: () => this.listCalculations(),
+    sourceId: () => this.source,
     rawRows: () => this.rawRows,
     dataRows: () => this.dataRows,
     report: () => this.requestUpdate(),
-    run: this._run,
-    focusCaptureCell: (index) => this.focusCaptureCell(index),
+    focusCell: (index) => this.focusCaptureCell(index),
+    captured: () => {
+      this.requestUpdate()
+      this.focusCaptureCell(0)
+      this.showLastCaptured()
+    },
   })
 
   private readonly _list = new RecordList(this, {
-    cellValue: (rawIndex, slot) => this._rows.cellValue(rawIndex, slot),
+    cellValue: (rawIndex, slot) => this._ledger.cellValue(rawIndex, slot),
     decoration: () => this.rowsDecoration(),
     bottom: () => this.underRows(),
   })
 
   get capturedRows(): readonly (readonly string[])[] {
-    return this._capture.pendingMarks(this.captureContext()).map((v) => v.values)
+    return this._ledger.pendingMarks().map((v) => v.values)
   }
 
   get capturedKey(): readonly string[] {
-    return this._capture.pendingMarks(this.captureContext()).map((v) => v.key)
+    return this._ledger.pendingMarks().map((v) => v.key)
   }
 
   get changedRows(): readonly { record: string; values: readonly string[] }[] {
-    return this._rows.changedRows
+    return this._ledger.changedRows
   }
 
   get deletedRows(): readonly { record: string; values: readonly string[] }[] {
-    return this._rows.deletedRows
+    return this._ledger.deletedRows
   }
 
   rowWrites(kind: PendingKind, key: string): void {
-    this._run.writes(kind, key)
+    this._ledger.writes(kind, key)
   }
 
   rowFailed(kind: PendingKind, key: string, message: string): void {
-    this._run.failed(kind, key, message)
+    this._ledger.failed(kind, key, message)
   }
 
   runDone(kind: PendingKind, written: readonly WrittenRow[]): void {
-    const key = written.map((z) => z.key)
-    this._run.done(kind, key)
-    if (kind === 'captured') {
-      if (this._capture.markWritten(this.captureContext(), written)) {
-        this.requestUpdate()
-      }
-      return
-    }
-    this._rows.remove(kind, key)
+    this._ledger.runDone(kind, written)
   }
 
   checkArrival(delivery: Delivery | null): void {
-    const report = this._capture.checkArrival(delivery, this.listColumns())
-    for (const key of report.missing) {
-      this._run.failed('captured', key, NOT_ARRIVED)
-    }
-    const booked = this._rows.checkArrival(delivery)
-    for (const record of booked.changeMissing) {
-      this._run.failed('changed', record, NOT_CHANGED)
-    }
-    for (const record of booked.deletionMissing) {
-      this._run.failed('deleted', record, NOT_DELETED)
-    }
-
-    const message = [report.message, booked.message].filter((text) => text !== '').join(' ')
-    if (message !== '') reportError(message)
-    if (report.changed || booked.moved) this.requestUpdate()
+    this._ledger.checkArrival(delivery)
   }
 
   listColumns(): CaptureColumn[] {
@@ -147,44 +116,10 @@ export class Capture extends BlockElement {
     return calculationsFrom(this.calculations)
   }
 
-  private captureContext(): CaptureContext {
-    return this._capture.context(
-      this,
-      this.listColumns(),
-      this.source,
-      this.listCalculations(),
-    )
-  }
-
-  private captureHost(): CaptureHost {
-    return {
-      block: this,
-      run: this._capture.run,
-      context: () => this.captureContext(),
-      report: () => this.requestUpdate(),
-      focus: (index) => this.focusCaptureCell(index),
-      captureRow: () => this.captureRow(),
-
-      titleInCell: () => !this.headerRow,
-      windowMetrics: () => ({
-        width: validMetrics(this.windowWidth, WINDOW_WIDTH),
-        height: validMetrics(this.windowHeight, WINDOW_HEIGHT),
-      }),
-    }
-  }
-
   private focusCaptureCell(index: number): void {
     void this.updateComplete.then(() => {
       walkInCell(cellsFields(this.shadowRoot, '.zeile.erfassung', index)[0])
     })
-  }
-
-  private captureRow(): boolean {
-    if (!this._capture.capture(this.captureContext())) return false
-    this.requestUpdate()
-    this.focusCaptureCell(0)
-    this.showLastCaptured()
-    return true
   }
 
   private showLastCaptured(): void {
@@ -192,14 +127,6 @@ export class Capture extends BlockElement {
       const body = this.shadowRoot?.querySelector<HTMLElement>('.koerper')
       if (body) body.scrollTop = body.scrollHeight
     })
-  }
-
-  private capturedState(index: number): RowsIcon {
-    return this._run.shows(
-      'captured',
-      this._capture.key[index] ?? '',
-      this._capture.isWritten(index) ? 'written' : 'captured',
-    )
   }
 
   private get changePossible(): boolean {
@@ -211,40 +138,42 @@ export class Capture extends BlockElement {
       inEditor: this.inEditor,
       deletable: this.deletable,
       typable: this.changePossible,
-      rows: this._rows,
+      ledger: this._ledger,
     })
   }
 
   private underRows(): Sublines {
-    const captured = this._capture.rows
+    const captured = this._ledger.capturedValues
     return {
       count: 1 + captured.length,
       render: ({ view, cols, rulerTicks }) => {
-        const correctionSlot = this._capture.correctionSlot
+        const correctionSlot = this._ledger.correctionSlot
         return capturedRowsTpl({
           columns: view.columns,
           slots: view.slots,
           cols,
           inEditor: this.inEditor,
           captured,
-          capturedState: (index) => this.capturedState(index),
+          capturedState: (index) => this._ledger.capturedStatus(index),
           correctionSlot,
           capture: captureRowFor(
-            this.captureHost(),
+            {
+              ledger: this._ledger,
+              block: this,
+              inEditor: this.inEditor,
+              titleInCell: !this.headerRow,
+              sourceId: this.source,
+              windowWidth: validMetrics(this.windowWidth, WINDOW_WIDTH),
+              windowHeight: validMetrics(this.windowHeight, WINDOW_HEIGHT),
+            },
             cols,
 
             correctionSlot === null && (rulerTicks ?? 1) <= 0,
             view,
           ),
         }, {
-          takeCapturedRow: (index) => {
-            if (this._capture.remove(index)) this.requestUpdate()
-          },
-          holeCapturedRow: (index) => {
-            if (!this._capture.bringBack(this.captureContext(), index)) return
-            this.requestUpdate()
-            this.focusCaptureCell(0)
-          },
+          takeCapturedRow: (index) => this._ledger.removeCaptured(index),
+          holeCapturedRow: (index) => this._ledger.bringBackCaptured(index),
         })
       },
     }
@@ -281,7 +210,7 @@ export class Capture extends BlockElement {
     super.willUpdate(changed)
     if (changed.has('columns')) this._list.columnsSwitched()
     if (this.inEditor) return
-    this._capture.run.refreshSuggestions(this.captureContext())
+    this._ledger.refresh()
   }
 
   protected override updated(): void {
