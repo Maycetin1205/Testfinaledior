@@ -1,121 +1,37 @@
-import { html, type TemplateResult } from 'lit'
-import {
-  booleanProperty,
-  fieldProperty,
-  numberProperty,
-  sourceProperty,
-  structuredProperty,
-  textProperty,
-  type Condition,
-} from '../../core/block/property'
-import type { Capability } from '../../core/block/capability'
-import { giverIdOf, plainSelection, setSelection } from './selection'
+import { html, nothing, type TemplateResult } from 'lit'
+import { giverIdOf, plainSelection, setSelection } from '../behavior/selection'
 import {
   automaticColumns,
-  coerceLookupColumns,
   onlyHitFind,
-  WINDOW_WIDTH,
-  WINDOW_HEIGHT,
   followOnLeave,
   holeEntries,
   magnifierIcon,
-  LOOKUP_COLUMNS_BINDING,
   openLookup,
   recordFitsToSelection,
   closeLookupFor,
   suggestionsInWindowState,
   type Entry,
-} from './lookup'
-import type { Column } from './columns'
-import { keyOf, SuggestionState } from './suggestionState'
-import { inputSpotTpl } from './inputSpot'
+} from '../behavior/lookup'
+import type { Column } from '../behavior/columns'
+import { keyOf, SuggestionState } from '../behavior/suggestionState'
+import { inputSpotTpl } from '../behavior/inputSpot'
 
-// What a lookup field carries, declared once for every block that has one.
-export function lookupProperties(when?: Condition) {
-  return {
-    lookupSource: sourceProperty({
-      default: '',
-      label: 'Quelle',
-      help: 'Quelle, aus der der Bediener eine Zeile wählt.',
-      attribute: 'lookupsource',
-      ...(when ? { when } : {}),
-    }),
-    storageField: fieldProperty({
-      default: '',
-      label: 'Gespeichert wird',
-      help: 'Feld, dessen Wert die Maske sich merkt (z. B. die Nummer).',
-      attribute: 'storagefield',
-      sourceProp: 'lookupSource',
-      plainNameProp: 'storageTitle',
-      ...(when ? { when } : {}),
-    }),
-    storageTitle: textProperty({
-      default: '',
-      label: 'Gespeichert wird — Klarname',
-      help: 'Der lesbare Name des gespeicherten Feldes.',
-      place: 'none',
-      attribute: 'storagetitle',
-    }),
-    lookupColumns: structuredProperty<Column[]>({
-      read: (raw) => (raw === undefined || Array.isArray(raw)
-        ? { ok: true, value: coerceLookupColumns(raw) }
-        : { ok: false, reason: 'Spaltenliste erwartet' }),
-      toAttribute: (value) => JSON.stringify(value),
-      fromAttribute: (raw) => coerceLookupColumns(raw ?? ''),
-    }, {
-      default: [],
-      label: 'Spalten im Fenster',
-      help: 'Was das Nachschlage-Fenster zeigt.',
-      place: 'none',
-      attribute: 'lookupcolumns',
-    }),
-    windowWidth: numberProperty({
-      default: WINDOW_WIDTH,
-      label: 'Fensterbreite',
-      help: 'Breite des Nachschlage-Fensters in Pixeln.',
-      place: 'none',
-      attribute: 'lookupwidth',
-    }),
-    windowHeight: numberProperty({
-      default: WINDOW_HEIGHT,
-      label: 'Fensterhöhe',
-      help: 'Höhe des Nachschlage-Fensters in Pixeln.',
-      place: 'none',
-      attribute: 'lookupheight',
-    }),
-    onlyHit: booleanProperty({
-      default: false,
-      label: 'Einzigen Treffer übernehmen',
-      help: 'Bleibt genau ein Satz übrig, übernimmt das Feld ihn von selbst.',
-      attribute: 'onlyhit',
-      ...(when ? { when } : {}),
-    }),
-  }
+const WITHOUT_SETTING = 'Nachschlagen braucht hier eine Quelle und ein gespeichertes Feld.'
+
+const WITHOUT_SOURCE = 'Die Nachschlage-Quelle dieses Feldes gibt es in dieser Maske nicht.'
+
+const WITHOUT_RECORDS = 'Die Nachschlage-Quelle hat keine Sätze.'
+
+// What one look into the source found: the rows to offer, or why there are
+// none. The operator never faces a list that simply stays shut.
+interface LookedUp {
+  entries: Entry[]
+  reason: string
 }
 
-export function lookupCapabilities(when?: Condition): Capability[] {
-  return [
-    { kind: 'recordPick', sourceProp: 'lookupSource', when },
-    { kind: 'list', binding: LOOKUP_COLUMNS_BINDING },
-    {
-      kind: 'lookupWindow',
-      window: {
-        columnsKey: 'lookupColumns',
-        widthKey: 'windowWidth',
-        heightKey: 'windowHeight',
-        sourceProp: 'lookupSource',
-        storageFieldProp: 'storageField',
-        storageTitleProp: 'storageTitle',
-        automatic: 'Ohne Spalten zeigt das Fenster eine: das gespeicherte Feld.'
-          + ' Die erste Spalte ist, was nach der Wahl im Feld steht.',
-        spot: '.lupe',
-        when,
-      },
-    },
-  ]
-}
+const QUIET: LookedUp = { entries: [], reason: '' }
 
-export interface LookupFieldHost {
+export interface LookupControlHost {
   block: HTMLElement
   report: () => void
   inEditor: () => boolean
@@ -134,18 +50,20 @@ export interface LookupFieldHost {
   changed: () => void
 }
 
-export class LookupField {
+export class LookupControl {
   private display = ''
 
   private typed: string | null = null
 
   private record: unknown = undefined
 
+  private reason = ''
+
   private readonly list = new SuggestionState<Entry>()
 
-  private readonly host: LookupFieldHost
+  private readonly host: LookupControlHost
 
-  constructor(host: LookupFieldHost) {
+  constructor(host: LookupControlHost) {
     this.host = host
   }
 
@@ -153,16 +71,20 @@ export class LookupField {
     return this.typed ?? this.display
   }
 
-  get listOpen(): boolean {
-    return this.list.open
+  // Suggestions and reason hang out of the field box; the block needs to know
+  // so it can lift itself above the next one.
+  get hangsBelow(): boolean {
+    return this.list.open || this.reason !== ''
   }
 
   dragTo(): void {
-    this.list.show(this.computeSuggestions())
+    const found = this.lookAt()
+    this.list.show(found.entries)
+    this.reason = found.reason
   }
 
   render(klasse: string, title: string): TemplateResult {
-    return inputSpotTpl({
+    return html`${inputSpotTpl({
       value: this.inField,
       title,
 
@@ -182,6 +104,7 @@ export class LookupField {
       typing: (value) => {
         this.typed = value
         this.list.ofFront()
+        this.host.report()
       },
       key: (e) => this.key(e),
       leave: () => this.leave(),
@@ -190,7 +113,9 @@ export class LookupField {
         this.list.setMark(i)
         this.host.report()
       },
-    })
+    })}${this.reason === ''
+      ? nothing
+      : html`<div class="grund-liste" role="status">${this.reason}</div>`}`
   }
 
   private openWindow(searchText = ''): void {
@@ -207,26 +132,36 @@ export class LookupField {
       searchText,
 
       backFocus: () => this.host.block.shadowRoot
-        ?.querySelector<HTMLInputElement>('.nachschlag .ctrl')?.focus(),
+        ?.querySelector<HTMLInputElement>('.lookup .ctrl')?.focus(),
       onAdopt: (display, value, record) => this.adoptAndReport(display, value, record),
     })
   }
 
-  private computeSuggestions(): Entry[] {
-    if (this.list.closed || this.host.inEditor()) return []
-    if (this.typed === null && !this.list.opened) return []
-    const result = this.entries()
-    if (!result.ok) return []
+  private lookAt(): LookedUp {
+    if (this.list.closed || this.host.inEditor()) return QUIET
+    if (this.typed === null && !this.list.opened) return QUIET
     const typed = this.typed ?? ''
 
-    if (typed === '' && !this.list.opened) return []
+    if (typed === '' && !this.list.opened) return QUIET
+
+    const result = this.entries()
+    if (!result.ok) {
+      return {
+        entries: [],
+        reason: result.base === 'incomplete' ? WITHOUT_SETTING : WITHOUT_SOURCE,
+      }
+    }
+    if (result.entries.length === 0) return { entries: [], reason: WITHOUT_RECORDS }
+
     const own = this.host.columns()
-    return suggestionsInWindowState(
+    const hit = suggestionsInWindowState(
       result.entries,
       typed,
       own.length > 0 ? own : this.automatic(),
       this.host.block,
     )
+    if (hit.length > 0) return { entries: hit, reason: '' }
+    return { entries: [], reason: `Kein Satz passt zu „${typed.trim()}“.` }
   }
 
   private entries(): ReturnType<typeof holeEntries> {

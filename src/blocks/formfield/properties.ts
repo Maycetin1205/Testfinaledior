@@ -1,12 +1,16 @@
 import {
+  booleanProperty,
   choiceProperty,
   fieldProperty,
+  numberProperty,
   sourceProperty,
+  structuredProperty,
   textProperty,
   type Condition,
   type ValuesOf,
 } from '../../core/block/property'
-import { lookupProperties } from '../behavior/lookupField'
+import type { Column } from '../behavior/columns'
+import { coerceLookupColumns, WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/lookup'
 
 export const FIELD_TYPES = [
   'text', 'number', 'textarea', 'select', 'date', 'time', 'checkbox', 'lookup',
@@ -69,7 +73,63 @@ export const formFieldProperties = {
     attribute: 'valuefield',
     when: { key: 'fieldType', noneOf: WITHOUT_VALUE },
   }),
-  ...lookupProperties(ONLY_LOOKUP),
+  lookupSource: sourceProperty({
+    default: '',
+    label: 'Quelle',
+    help: 'Quelle, aus der der Bediener eine Zeile wählt.',
+    attribute: 'lookupsource',
+    when: ONLY_LOOKUP,
+  }),
+  storageField: fieldProperty({
+    default: '',
+    label: 'Gespeichert wird',
+    help: 'Feld, dessen Wert die Maske sich merkt (z. B. die Nummer).',
+    attribute: 'storagefield',
+    sourceProp: 'lookupSource',
+    plainNameProp: 'storageTitle',
+    when: ONLY_LOOKUP,
+  }),
+  storageTitle: textProperty({
+    default: '',
+    label: 'Gespeichert wird — Klarname',
+    help: 'Der lesbare Name des gespeicherten Feldes.',
+    place: 'none',
+    attribute: 'storagetitle',
+  }),
+  lookupColumns: structuredProperty<Column[]>({
+    read: (raw) => (raw === undefined || Array.isArray(raw)
+      ? { ok: true, value: coerceLookupColumns(raw) }
+      : { ok: false, reason: 'Spaltenliste erwartet' }),
+    toAttribute: (value) => JSON.stringify(value),
+    fromAttribute: (raw) => coerceLookupColumns(raw ?? ''),
+  }, {
+    default: [],
+    label: 'Spalten im Fenster',
+    help: 'Was das Nachschlage-Fenster zeigt.',
+    place: 'none',
+    attribute: 'lookupcolumns',
+  }),
+  windowWidth: numberProperty({
+    default: WINDOW_WIDTH,
+    label: 'Fensterbreite',
+    help: 'Breite des Nachschlage-Fensters in Pixeln.',
+    place: 'none',
+    attribute: 'lookupwidth',
+  }),
+  windowHeight: numberProperty({
+    default: WINDOW_HEIGHT,
+    label: 'Fensterhöhe',
+    help: 'Höhe des Nachschlage-Fensters in Pixeln.',
+    place: 'none',
+    attribute: 'lookupheight',
+  }),
+  onlyHit: booleanProperty({
+    default: false,
+    label: 'Einzigen Treffer übernehmen',
+    help: 'Bleibt genau ein Satz übrig, übernimmt das Feld ihn von selbst.',
+    attribute: 'onlyhit',
+    when: ONLY_LOOKUP,
+  }),
   appearance: choiceProperty([
     { value: 'standard', name: 'Standard (Kasten)' },
     { value: 'line', name: 'Linie (Unterstrichen)' },

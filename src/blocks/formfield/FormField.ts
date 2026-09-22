@@ -1,11 +1,17 @@
 import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
-import { state } from 'lit/decorators.js'
+import { property, state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable } from '../../core/block/capability'
-import { coerceLookupColumns } from '../behavior/lookup'
-import { LookupField, lookupCapabilities } from '../behavior/lookupField'
+import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../behavior/lookup'
 import { suggestionStyle } from '../behavior/suggestionList'
-import { valueDisconnected, valueRegistered } from '../behavior/valueLink'
+import { LookupControl } from './lookupControl'
+import {
+  NOT_READ,
+  valueDisconnected,
+  valueReason,
+  valueRegistered,
+  type ValueReport,
+} from './valueBinding'
 import { fieldStyle } from './formFieldStyle'
 import {
   FIELD_TYPES,
@@ -28,7 +34,7 @@ const PH_CLASS: Partial<Record<FieldType, string>> = {
   select: 'ph-select',
   date: 'ph-nativ',
   time: 'ph-nativ',
-  lookup: 'ph-nachschlag',
+  lookup: 'ph-lookup',
 }
 
 function dateForInput(value: string): string {
@@ -49,11 +55,14 @@ export class FormField extends BlockElement {
 
   static override styles: CSSResultGroup = [BlockElement.styles, fieldStyle, suggestionStyle]
 
+  // What the last read of the bound field found; the binding fills it in.
+  @property({ attribute: false }) valueReport: ValueReport = NOT_READ
+
   @state() private ticked = false
 
   @state() private inControl = false
 
-  private readonly _lookup = new LookupField({
+  private readonly _lookup = new LookupControl({
     block: this,
     report: () => this.requestUpdate(),
     inEditor: () => this.inEditor,
@@ -139,6 +148,19 @@ export class FormField extends BlockElement {
     }
   }
 
+  // The empty field either names the reason it read nothing or offers its
+  // label; both stand in the same spot.
+  private placeholderTpl(kind: FieldType, empty: boolean, reason: string): TemplateResult {
+    if (reason !== '') {
+      return html`<span class="ph grund" role="status" title=${reason}>${reason}</span>`
+    }
+    return this.textTpl(
+      `ph ${PH_CLASS[kind] ?? ''}`.trim(),
+      !empty,
+      kind !== 'lookup' && this.valueField !== '',
+    )
+  }
+
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed)
     this._lookup.dragTo()
@@ -147,7 +169,7 @@ export class FormField extends BlockElement {
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
 
-    this.toggleAttribute('data-ff-list', this._lookup.listOpen)
+    this.toggleAttribute('data-ff-list', this._lookup.hangsBelow)
   }
 
   override render(): TemplateResult {
@@ -169,6 +191,9 @@ export class FormField extends BlockElement {
     const valueBindable = kind !== 'lookup'
     const inField = valueBindable ? this.value : this._lookup.inField
     const empty = inField === ''
+    const reason = empty && valueBindable && !this.inEditor
+      ? valueReason(this.valueReport, this.source, this.valueField)
+      : ''
     const huelleClasses = `huelle${empty ? ' leer' : ''}${this.inControl ? ' tippt' : ''}`
     const fieldClasses = `feld${this.appearance === 'line' ? ' linie' : ''}`
     return html`<div class=${fieldClasses}>
@@ -179,7 +204,7 @@ export class FormField extends BlockElement {
       >
         ${this.controlTpl(kind)}
         ${WITH_PLACEHOLDER.includes(kind)
-          ? this.textTpl(`ph ${PH_CLASS[kind] ?? ''}`.trim(), !empty, valueBindable && this.valueField !== '')
+          ? this.placeholderTpl(kind, empty, reason)
           : nothing}
       </div>
     </div>`
@@ -204,7 +229,23 @@ defineBlock(FormField, {
   capabilities: [
     { kind: 'source', when: { key: 'fieldType', notEquals: 'lookup' } },
     { kind: 'followsSelection' },
-    ...lookupCapabilities(ONLY_LOOKUP),
+    { kind: 'recordPick', sourceProp: 'lookupSource', when: ONLY_LOOKUP },
+    { kind: 'list', binding: LOOKUP_COLUMNS_BINDING },
+    {
+      kind: 'lookupWindow',
+      window: {
+        columnsKey: 'lookupColumns',
+        widthKey: 'windowWidth',
+        heightKey: 'windowHeight',
+        sourceProp: 'lookupSource',
+        storageFieldProp: 'storageField',
+        storageTitleProp: 'storageTitle',
+        automatic: 'Ohne Spalten zeigt das Fenster eine: das gespeicherte Feld.'
+          + ' Die erste Spalte ist, was nach der Wahl im Feld steht.',
+        spot: '.lupe',
+        when: ONLY_LOOKUP,
+      },
+    },
     bindable<typeof formFieldProperties>([
       {
         prop: 'value',

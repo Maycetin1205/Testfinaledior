@@ -39,7 +39,7 @@ export const fieldStyle = css`
   .feld.linie .ctrl,
   :host([data-ff-editor]) .feld.linie .ctrl,
   :host([data-ff-editor]) .feld.linie .huelle[data-ff-bound] .ctrl,
-  :host([data-ff-editor]) .feld.linie .nachschlag .ctrl {
+  :host([data-ff-editor]) .feld.linie .lookup .ctrl {
     border: none !important;
     border-bottom: 1.5px solid var(--se-line) !important;
     border-radius: 0 !important;
@@ -85,7 +85,9 @@ export const fieldStyle = css`
 
   /* Der Platzhalter laesst die Lupe frei: im Editor ist er klickbar und wuerde
      sie sonst fast ganz verdecken. */
-  .ph-nachschlag { right: 34px; }
+  .ph-lookup { right: 34px; }
+
+  .ph.grund { color: var(--se-muted); }
 
   .huelle.leer input[type="date"]:not(:focus)::-webkit-datetime-edit,
   .huelle.leer input[type="time"]:not(:focus)::-webkit-datetime-edit { opacity: 0; }
@@ -106,8 +108,28 @@ export const fieldStyle = css`
     accent-color: var(--se-accent);
   }
 
-  .nachschlag { position: relative; }
-  .nachschlag .ctrl { padding-right: 34px; border-style: dashed; }
+  .lookup { position: relative; }
+  .lookup .ctrl { padding-right: 34px; border-style: dashed; }
+
+  /* Steht statt der Vorschlagsliste: warum das Nachschlagen nichts anbietet.
+     Sie haengt im selben Kasten unter dem Feld. */
+  .grund-liste {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    box-sizing: border-box;
+    margin-top: 2px;
+    padding: 4px 10px;
+    background: var(--se-panel);
+    border: var(--se-border) solid var(--se-line);
+    border-radius: var(--se-r-md);
+    color: var(--se-muted);
+    font-size: var(--se-fs-sm);
+    line-height: 1.4;
+    pointer-events: none;
+  }
 
   /* Die offene Vorschlagsliste haengt unten aus dem Feld heraus; Raster-Kinder
      stapeln in DOM-Reihenfolge, ohne diesen Vorrang laege sie unter dem
