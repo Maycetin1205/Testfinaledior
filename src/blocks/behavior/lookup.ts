@@ -334,8 +334,8 @@ export function openLookup(args: LookupArgs): void {
     viewport
     escape-closes
     data-ff-lookup
-    ?ziehbar=${args.inEditor === true}
-    .titel=${args.title !== '' ? args.title : 'Nachschlagen'}
+    ?movable=${args.inEditor === true}
+    .heading=${args.title !== '' ? args.title : 'Nachschlagen'}
     .width=${args.width}
     .height=${args.height}
     @ff-dialog-close=${() => close()}
