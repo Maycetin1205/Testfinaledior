@@ -45,14 +45,19 @@ und in der Maske; was der Editor zeigt, ist der Export.
   Individualfelder) ist Daten, nie Code. Je Kunde hunderte Felder.
 - Nur `src/softengine/` kennt `window`, `SEDATA`, `selib` und Host-Funktionen.
 
-## Umbau (Stand 21.09.2026)
+## Umbau (Stand 22.09.2026)
 
 Der Stand vor dem Umbau ist Commit `7ebe69c`. Er laeuft in SoftEngine.
 Reihenfolge, je Schritt ein Commit, danach testet der Nutzer:
 
 1. Sichern. Erledigt.
-2. Fundament: typisiertes Bausteinmodell, ein Zustandsort im Editor,
-   englische Bezeichner, Kommentare bereinigt, kein Dev-Server-Plugin.
+2. Fundament. Erledigt (Commits 4cd762f bis ee35c03): Englisch, je Baustein
+   eine `properties.ts`, Store als einziger Zustandsort, Maske und
+   Kundendatei (Datenquellen, Relationen) getrennt, beide auf der Platte,
+   Vorgaben in `library/default.json`. Pruefsteine des Nutzers:
+   `C:/Users/mu.aycetin/Desktop/Aufbau-Pruefstein/maske.json` und
+   `bibliothek.json` muessen nach jedem Commit laden. Export mit englischen
+   Attributen laeuft in SoftEngine WinUI (22.09.).
 3. Bausteine: jeder Baustein ein geschlossener Ordner; Erfassung,
    Formularfeld, Kanban neu geschnitten; Lesen scheitert nicht still.
 4. Datencenter, Inspector, Aktionen: Bedienung neu als Seitenleiste neben
