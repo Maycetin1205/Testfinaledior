@@ -9,7 +9,7 @@ import type { Eigenschaft } from '../../kern/maske/eigenschaft'
 import { satzIndexVon } from '../../softengine/data'
 import { auswahlWiederfinden, geberIdVon, merkmalVon, waehleAuswahl } from '../faehigkeiten/auswahl'
 import { meldeKettenFehler, runEvent } from '../faehigkeiten/ereignisse'
-import { farbweltEigenschaft, farbweltStil, farbweltWert, type FarbweltWert } from '../faehigkeiten/farbwelt'
+import { farbweltStil, farbweltWert, type FarbweltWert } from '../faehigkeiten/farbwelt'
 import { LEER_TEXT_STANDARD, leerStil, leerTextEigenschaft, leerZustand } from '../faehigkeiten/leerZustand'
 import { holeDatenVorspann, macheDatenAnschluss, tagFeldEigenschaft } from '../faehigkeiten/quelle'
 import {
@@ -18,6 +18,7 @@ import {
   ablageSchluessel,
   ablageWerte,
   alleAblagen,
+  naechsteAblage,
   standardTafelSpalten,
   tafelSpaltenEigenschaft,
   tafelSpaltenLesen,
@@ -26,19 +27,18 @@ import {
   type Ablage,
   type TafelSpalte,
 } from '../faehigkeiten/tafelSpalten'
+import {
+  STELLEN,
+  karteInhalt,
+  kartenEigenschaften,
+  markeVon,
+  markenLesen,
+  vergleicheKarten,
+  type KartenWerte,
+  type Markierung,
+  type Stelle,
+} from '../faehigkeiten/tafelKarte'
 import { tafelStil } from './tafelStil'
-
-type Stelle = 'titel' | 'unterzeile' | 'text' | 'datum' | 'zeit' | 'chip' | 'bild'
-
-const STELLEN: readonly { stelle: Stelle; name: string }[] = [
-  { stelle: 'titel', name: 'Titel' },
-  { stelle: 'unterzeile', name: 'Unterzeile' },
-  { stelle: 'text', name: 'Text' },
-  { stelle: 'datum', name: 'Datum' },
-  { stelle: 'zeit', name: 'Zeit' },
-  { stelle: 'chip', name: 'Chip' },
-  { stelle: 'bild', name: 'Avatar (Bild)' },
-]
 
 const STRICH = '—'
 const UNTERTEILUNG_LEER = 'frei · hierher ziehen'
@@ -47,7 +47,7 @@ interface Karte {
   schluessel: string
   zeile: unknown
   satz: string
-  werte: Record<Stelle, string>
+  werte: KartenWerte
   ablage: Ablage
 }
 
@@ -89,22 +89,22 @@ export class Tafel extends Grundbaustein {
     leerText: LEER_TEXT_STANDARD,
     spalten: standardTafelSpalten(),
     chipFarbwelt: 'info',
+    bildArt: 'bild',
+    marken: [] as Markierung[],
+    sortierFeld: '',
     titelFeld: '',
+    titelZusatzFeld: '',
     unterzeileFeld: '',
+    zeitFeld: '',
+    markeFeld: '',
     textFeld: '',
     datumFeld: '',
-    zeitFeld: '',
     chipFeld: '',
     bildFeld: '',
   }
 
   static override readonly eigenschaften: Eigenschaft[] = [
     tafelSpaltenEigenschaft(),
-    {
-      ...farbweltEigenschaft('chipFarbwelt', 'Bedeutung des Chips auf den Karten — bestimmt die Chip-Farbe.'),
-      name: 'Farbe des Chips',
-      bearbeitung: 'inspector',
-    },
     leerTextEigenschaft(),
     {
       schluessel: 'spaltenFeld',
@@ -113,14 +113,7 @@ export class Tafel extends Grundbaustein {
       art: 'field',
     },
     tagFeldEigenschaft(),
-    ...STELLEN.map(({ stelle, name }): Eigenschaft => ({
-      schluessel: `${stelle}Feld`,
-      name: `Karte: ${name}`,
-      beschreibung: stelle === 'bild'
-        ? 'Feld mit dem Bild der Karte (Adresse oder Pfad). Leer: kein Avatar.'
-        : `Feld, das auf jeder Karte als ${name} steht. Leer: die Stelle fehlt.`,
-      art: 'field',
-    })),
+    ...kartenEigenschaften(),
   ]
 
   static override styles: CSSResultGroup = [Grundbaustein.styles, leerStil, farbweltStil, tafelStil]
@@ -133,16 +126,28 @@ export class Tafel extends Grundbaustein {
   })
   spalten: TafelSpalte[] = standardTafelSpalten()
 
+  @property({
+    converter: {
+      fromAttribute: (v: string | null): Markierung[] => markenLesen(v),
+      toAttribute: (v: Markierung[]): string => JSON.stringify(v),
+    },
+  })
+  marken: Markierung[] = []
+
   @property() quelle = ''
   @property() spaltenFeld = ''
   @property() tagFeld = ''
   @property() leerText = LEER_TEXT_STANDARD
   @property() chipFarbwelt: FarbweltWert = 'info'
+  @property() bildArt = 'bild'
+  @property() sortierFeld = ''
   @property() titelFeld = ''
+  @property() titelZusatzFeld = ''
   @property() unterzeileFeld = ''
+  @property() zeitFeld = ''
+  @property() markeFeld = ''
   @property() textFeld = ''
   @property() datumFeld = ''
-  @property() zeitFeld = ''
   @property() chipFeld = ''
   @property() bildFeld = ''
 
@@ -188,14 +193,14 @@ export class Tafel extends Grundbaustein {
       if (satz !== '') satzAnzahl.set(satz, (satzAnzahl.get(satz) ?? 0) + 1)
     }
     const vorkommen = new Map<string, number>()
-    const karten = vorspann.zeilen.map((zeile): Karte => {
+    const karten = vorspann.zeilen.map((zeile) => {
       const satz = satzIndexVon(vorspann.quelle, zeile)
       const eindeutig = satz !== '' && satzAnzahl.get(satz) === 1
       const basis = JSON.stringify([vorspann.quelle.id, eindeutig ? 'satz' : 'inhalt', eindeutig ? satz : merkmalVon(zeile)])
       const nummer = vorkommen.get(basis) ?? 0
       vorkommen.set(basis, nummer + 1)
       const lies = (feld: string): string => (feld === '' ? '' : vorspann.lies(zeile, feld))
-      const werte = Object.fromEntries(STELLEN.map(({ stelle }) => [stelle, lies(this.feldVon(stelle))]))
+      const werte = Object.fromEntries(STELLEN.map(({ stelle }) => [stelle, lies(this.feldVon(stelle))])) as KartenWerte
       const schluessel = `${basis}:${nummer}`
       const ablage = ablageFuer(spalten, this.spaltenFeld, lies)
       const erwartet = this._erwartet
@@ -203,8 +208,12 @@ export class Tafel extends Grundbaustein {
         erwartet.angekommen = ablageSchluessel(ablage) === erwartet.ziel
           && zeigtAuf(spalten, this.spaltenFeld, ablage, lies)
       }
-      return { schluessel, zeile, satz: eindeutig ? satz : '', werte: werte as Record<Stelle, string>, ablage }
+      return { schluessel, zeile, satz: eindeutig ? satz : '', werte, ablage, sortierung: lies(this.sortierFeld) }
     })
+    if (this.markeFeld !== '' || this.sortierFeld !== '') {
+      const marken = markenLesen(this.marken)
+      karten.sort((a, b) => vergleicheKarten({ ...a.werte, sortierung: a.sortierung }, { ...b.werte, sortierung: b.sortierung }, marken))
+    }
     const treffer = auswahlWiederfinden(geberIdVon(this), karten, (k) => k.zeile, (k) => k.schluessel)
     this._gewaehlt = treffer.length > 0 ? karten[treffer[0]].schluessel : ''
     if (!karten.some((k) => k.schluessel === this._gezogen)) this._gezogen = ''
@@ -240,7 +249,8 @@ export class Tafel extends Grundbaustein {
     this._schreibt = true
     this._meldung = 'Verschiebung wird gesendet …'
     try {
-      const ergebnis = await runEvent(this, 'onCardDrop', { PINDEX: karte.satz, ...ablageWerte(this.spaltenListe(), ablage) })
+      const werte = ablageWerte(this.spaltenListe(), this.spaltenFeld, ablage)
+      const ergebnis = await runEvent(this, 'onCardDrop', { PINDEX: karte.satz, ...werte })
       if (ergebnis.abgebrochen) {
         this._erwartet = null
         this._meldung = 'Die Aktion ist fehlgeschlagen. Die Karte zeigt den zuletzt geladenen Stand.'
@@ -272,7 +282,19 @@ export class Tafel extends Grundbaustein {
     return this._karten.find((k) => k.schluessel === schluessel)
   }
 
+  private belegt(ablage: Ablage): number {
+    const schluessel = ablageSchluessel(ablage)
+    return this._karten.filter((k) => ablageSchluessel(k.ablage) === schluessel).length
+  }
+
+  private weiter(ereignis: Event, karte: Karte): void {
+    ereignis.stopPropagation()
+    const ziel = naechsteAblage(this.spaltenListe(), karte.ablage, (a) => this.belegt(a))
+    if (ziel) void this.verschiebe(karte, ziel)
+  }
+
   private beiTaste(ereignis: KeyboardEvent, karte: Karte): void {
+    if (ereignis.target !== ereignis.currentTarget) return
     if (ereignis.key !== 'Enter' && ereignis.key !== ' ') return
     ereignis.preventDefault()
     this.waehle(karte)
@@ -316,44 +338,30 @@ export class Tafel extends Grundbaustein {
     if (ziel) void this.verschiebe(karte, ziel)
   }
 
-  private stelle(stelle: Stelle, klasse: string, wert: string): TemplateResult {
-    return html`<span class=${klasse} data-ff-spot=${stelle}>${wert.trim() === '' ? STRICH : wert}</span>`
-  }
-
-  private bild(wert: string): TemplateResult {
-    return html`<span class="bild" data-ff-spot="bild">${wert.trim() === ''
-      ? nothing
-      : html`<img src=${wert} alt="" @error=${(e: Event) => { (e.target as HTMLElement).hidden = true }}>`}</span>`
+  // Der Knopf traegt die Farbe der Spalte, in die er die Karte schiebt.
+  private knopf(spalten: readonly TafelSpalte[], von: Ablage, karte: Karte | null): TemplateResult | typeof nothing {
+    const text = spalten[von.spalte].knopf.trim()
+    const ziel = naechsteAblage(spalten, von, (a) => this.belegt(a))
+    if (text === '' || !ziel) return nothing
+    return html`<button type="button" class="weiter v-${farbweltWert(spalten[ziel.spalte].farbwelt)}"
+      draggable="false" ?disabled=${karte === null || this._schreibt || karte.satz === ''}
+      @click=${(e: Event) => { if (karte) this.weiter(e, karte) }}>${text}</button>`
   }
 
   // Ohne Karte zeichnet der Editor die Form: jede gebundene Stelle als Strich.
-  // In der Maske fehlt eine Stelle, deren Feld leer ist.
-  private karte(karte: Karte | null): TemplateResult {
-    const gebunden = (s: Stelle): boolean => this.feldVon(s) !== ''
-    const wert = (s: Stelle): string => karte?.werte[s] ?? ''
-    const zeigt = (s: Stelle): boolean => gebunden(s) && (karte === null || wert(s).trim() !== '')
-    const leer = !STELLEN.some(({ stelle }) => zeigt(stelle))
-    const kopf = zeigt('bild') || zeigt('titel') || zeigt('unterzeile') || leer
-    const fuss = zeigt('datum') || zeigt('zeit') || zeigt('chip')
-    const inhalt = html`
-      ${kopf ? html`<div class="kopf">
-        ${zeigt('bild') ? this.bild(wert('bild')) : nothing}
-        <div class="namen">
-          ${zeigt('titel') || leer ? this.stelle('titel', 'name', wert('titel')) : nothing}
-          ${zeigt('unterzeile') ? this.stelle('unterzeile', 'zusatz', wert('unterzeile')) : nothing}
-        </div>
-      </div>` : nothing}
-      ${zeigt('text') ? this.stelle('text', 'grund', wert('text')) : nothing}
-      ${fuss ? html`<div class="fuss">
-        ${zeigt('datum') ? this.stelle('datum', 'datum', wert('datum')) : nothing}
-        ${zeigt('zeit') ? this.stelle('zeit', 'zeit', wert('zeit')) : nothing}
-        ${zeigt('chip') ? this.stelle('chip', `chip v-${farbweltWert(this.chipFarbwelt)}`, wert('chip')) : nothing}
-      </div>` : nothing}`
+  private karte(spalten: readonly TafelSpalte[], ablage: Ablage, karte: Karte | null): TemplateResult {
+    const inhalt = html`${karteInhalt(karte?.werte ?? null, {
+      gebunden: (s) => this.feldVon(s) !== '',
+      bildArt: this.bildArt,
+      chipFarbwelt: this.chipFarbwelt,
+      marken: markenLesen(this.marken),
+    })}${this.knopf(spalten, ablage, karte)}`
     if (karte === null) return html`<div class="karte">${inhalt}</div>`
     const gewaehlt = karte.schluessel === this._gewaehlt
-    const titel = wert('titel') || 'Karte'
+    const hervor = this.markeFeld !== '' && markeVon(karte.werte.marke, markenLesen(this.marken)).farbwelt === 'danger'
+    const titel = karte.werte.titel || 'Karte'
     return html`<div
-      class="karte${gewaehlt ? ' gewaehlt' : ''}${karte.schluessel === this._gezogen ? ' zieht' : ''}"
+      class="karte${gewaehlt ? ' gewaehlt' : ''}${hervor ? ' hervor' : ''}${karte.schluessel === this._gezogen ? ' zieht' : ''}"
       role="button"
       tabindex="0"
       aria-pressed=${String(gewaehlt)}
@@ -366,10 +374,10 @@ export class Tafel extends Grundbaustein {
     >${inhalt}</div>`
   }
 
-  private kartenIn(ablage: Ablage): TemplateResult | TemplateResult[] {
-    if (this.imEditor) return this.karte(null)
+  private kartenIn(spalten: readonly TafelSpalte[], ablage: Ablage): TemplateResult | TemplateResult[] {
+    if (this.imEditor) return this.karte(spalten, ablage, null)
     const schluessel = ablageSchluessel(ablage)
-    return this._karten.filter((k) => ablageSchluessel(k.ablage) === schluessel).map((k) => this.karte(k))
+    return this._karten.filter((k) => ablageSchluessel(k.ablage) === schluessel).map((k) => this.karte(spalten, ablage, k))
   }
 
   private ablage(ablage: Ablage, klasse: string, inhalt: TemplateResult): TemplateResult {
@@ -381,23 +389,30 @@ export class Tafel extends Grundbaustein {
     >${inhalt}</div>`
   }
 
-  private spalte(spalte: TafelSpalte, index: number): TemplateResult {
+  private spalte(spalten: readonly TafelSpalte[], spalte: TafelSpalte, index: number): TemplateResult | typeof nothing {
+    const versteckt = spalte.versteckt === 'ja'
+    if (versteckt && !this.imEditor) return nothing
     const unter = unterteilungenVon(spalte)
-    const anzahl = this._karten.filter((k) => k.ablage.spalte === index).length
-    const leer = (ablage: Ablage): boolean => this._geliefert && !this.imEditor
-      && !this._karten.some((k) => ablageSchluessel(k.ablage) === ablageSchluessel(ablage))
+    const zeigtZahl = this._geliefert && !this.imEditor
+    const leer = (ablage: Ablage): boolean => zeigtZahl && this.belegt(ablage) === 0
     const rumpf = unter.length === 0
-      ? html`${this.kartenIn({ spalte: index, unterteilung: -1 })}
+      ? html`${this.kartenIn(spalten, { spalte: index, unterteilung: -1 })}
           ${leer({ spalte: index, unterteilung: -1 }) ? leerZustand(this.leerText) : nothing}`
       : html`${unter.map((u, i) => this.ablage({ spalte: index, unterteilung: i }, 'unterteilung', html`
-          <div class="unterkopf">${u.titel}</div>
-          ${this.kartenIn({ spalte: index, unterteilung: i })}
-          ${leer({ spalte: index, unterteilung: i }) ? html`<div class="frei">${UNTERTEILUNG_LEER}</div>` : nothing}`))}`
-    return this.ablage({ spalte: index, unterteilung: unter.length === 0 ? -1 : 0 }, `spalte v-${farbweltWert(spalte.farbwelt)}`, html`
+          <div class="unterkopf"><span>${u.titel}</span>
+            <span class="unterzahl">${zeigtZahl ? this.belegt({ spalte: index, unterteilung: i }) : STRICH}</span></div>
+          <div class="unterrumpf">
+            ${this.kartenIn(spalten, { spalte: index, unterteilung: i })}
+            ${leer({ spalte: index, unterteilung: i }) ? html`<div class="frei">${UNTERTEILUNG_LEER}</div>` : nothing}
+          </div>`))}`
+    const anzahl = this._karten.filter((k) => k.ablage.spalte === index).length
+    return this.ablage({ spalte: index, unterteilung: unter.length === 0 ? -1 : 0 },
+      `spalte v-${farbweltWert(spalte.farbwelt)}${versteckt ? ' versteckt' : ''}`, html`
       <div class="spaltenkopf">
         <span class="punkt"></span>
         <span class="titel">${spalte.titel}</span>
-        <span class="anzahl">${this._geliefert && !this.imEditor ? anzahl : STRICH}</span>
+        ${versteckt ? html`<span class="hinweis">in der Maske ausgeblendet</span>` : nothing}
+        <span class="anzahl">${zeigtZahl ? anzahl : STRICH}</span>
       </div>
       <div class="rumpf">${rumpf}</div>`)
   }
@@ -418,11 +433,12 @@ export class Tafel extends Grundbaustein {
   }
 
   override render(): TemplateResult {
+    const spalten = this.spaltenListe()
     return html`
       <p class="meldung" role="status" aria-live="polite">${this._meldung}</p>
       ${this.bedienung()}
       <div class="tafel" aria-busy=${String(this._schreibt)}>
-        ${this.spaltenListe().map((s, i) => this.spalte(s, i))}
+        ${spalten.map((s, i) => this.spalte(spalten, s, i))}
       </div>`
   }
 }

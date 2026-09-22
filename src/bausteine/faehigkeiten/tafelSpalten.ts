@@ -15,6 +15,12 @@ export interface TafelSpalte {
   auffang: 'ja' | 'nein'
   unterteilungsFeld: string
   unterteilungen: Unterteilung[]
+  // Karten mit diesem Wert gehoeren hierher, erscheinen aber nicht: so wird
+  // „Erledigt“ nicht zum Auffang.
+  versteckt: 'ja' | 'nein'
+  // Beschriftung des Knopfs auf jeder Karte dieser Spalte, der sie eine Spalte
+  // weiterschiebt. Leer: kein Knopf.
+  knopf: string
 }
 
 // Wo eine Karte liegt: in der Spalte selbst (unterteilung -1) oder in einer
@@ -28,7 +34,7 @@ export const SPALTE_TITEL_STANDARD = 'Neue Spalte'
 export const UNTERTEILUNG_TITEL_STANDARD = 'Neue Unterteilung'
 
 function neueSpalte(titel = SPALTE_TITEL_STANDARD, farbwelt: FarbweltWert = 'info'): TafelSpalte {
-  return { titel, farbwelt, wert: '', auffang: 'nein', unterteilungsFeld: '', unterteilungen: [] }
+  return { titel, farbwelt, wert: '', auffang: 'nein', unterteilungsFeld: '', unterteilungen: [], versteckt: 'nein', knopf: '' }
 }
 
 export function standardTafelSpalten(): TafelSpalte[] {
@@ -53,6 +59,8 @@ function alsSpalte(x: unknown): TafelSpalte {
     auffang: o.auffang === 'ja' ? 'ja' : 'nein',
     unterteilungsFeld: text(o.unterteilungsFeld, ''),
     unterteilungen: Array.isArray(o.unterteilungen) ? o.unterteilungen.map(alsUnterteilung) : [],
+    versteckt: o.versteckt === 'ja' ? 'ja' : 'nein',
+    knopf: text(o.knopf, ''),
   }
 }
 
@@ -78,10 +86,26 @@ export function zuordnungsWert(eintrag: { titel: string; wert: string }): string
   return eintrag.wert.trim() !== '' ? eintrag.wert.trim() : eintrag.titel
 }
 
-function platzMitWert(wert: string, eintraege: readonly { titel: string; wert: string }[]): number {
-  const gesucht = wert.trim().toLowerCase()
-  if (gesucht === '') return -1
-  return eintraege.findIndex((e) => zuordnungsWert(e).trim().toLowerCase() === gesucht)
+// Die Auffangspalte ohne eigenen Wert steht fuer „noch nichts eingetragen“:
+// wer eine Karte dorthin legt, leert das Feld, statt den Titel zu schreiben.
+function spaltenWert(spalte: TafelSpalte): string {
+  return spalte.auffang === 'ja' && spalte.wert.trim() === '' ? '' : zuordnungsWert(spalte)
+}
+
+// Unterteilt eine Spalte nach demselben Feld, nach dem die Tafel einsortiert,
+// traegt jede Unterteilung einen eigenen Wert dieses Felds („Behandlungszimmer
+// 3“), und die Spalte sammelt sie alle.
+function teiltImSelbenFeld(spalte: TafelSpalte, spaltenFeld: string): boolean {
+  return spaltenFeld !== '' && spalte.unterteilungsFeld === spaltenFeld
+}
+
+function gleich(a: string, b: string): boolean {
+  return a.trim().toLowerCase() === b.trim().toLowerCase()
+}
+
+function platzMitWert(wert: string, werte: readonly string[]): number {
+  if (wert.trim() === '') return -1
+  return werte.findIndex((w) => w.trim() !== '' && gleich(w, wert))
 }
 
 // Unbekannte Werte fallen in die Auffangspalte, ohne sie in die erste; in der
@@ -91,37 +115,48 @@ export function ablageFuer(
   spaltenFeld: string,
   lies: (feld: string) => string,
 ): Ablage {
-  const platz = spaltenFeld === '' ? -1 : platzMitWert(lies(spaltenFeld), spalten)
-  const auffang = spalten.findIndex((s) => s.auffang === 'ja')
-  const spalte = platz >= 0 ? platz : Math.max(auffang, 0)
+  const wert = spaltenFeld === '' ? '' : lies(spaltenFeld)
+  let spalte = platzMitWert(wert, spalten.map(spaltenWert))
+  if (spalte < 0) {
+    for (const [i, s] of spalten.entries()) {
+      if (!teiltImSelbenFeld(s, spaltenFeld)) continue
+      const unter = platzMitWert(wert, s.unterteilungen.map(zuordnungsWert))
+      if (unter >= 0) return { spalte: i, unterteilung: unter }
+    }
+    spalte = Math.max(spalten.findIndex((s) => s.auffang === 'ja'), 0)
+  }
   const unter = unterteilungenVon(spalten[spalte])
   if (unter.length === 0) return { spalte, unterteilung: -1 }
-  return { spalte, unterteilung: Math.max(platzMitWert(lies(spalten[spalte].unterteilungsFeld), unter), 0) }
+  const feld = spalten[spalte].unterteilungsFeld
+  return { spalte, unterteilung: Math.max(platzMitWert(lies(feld), unter.map(zuordnungsWert)), 0) }
 }
 
 // Ob die Felder einer Zeile genau diese Ablage nennen; die Auffangspalte zaehlt
-// nicht: eine Verschiebung ist erst bestaetigt, wenn das ERP den Wert traegt.
+// nur mit leerem Feld: eine Verschiebung ist erst bestaetigt, wenn das ERP den
+// Wert traegt.
 export function zeigtAuf(
   spalten: readonly TafelSpalte[],
   spaltenFeld: string,
   ablage: Ablage,
   lies: (feld: string) => string,
 ): boolean {
-  const gleich = (a: string, b: string): boolean => a.trim().toLowerCase() === b.trim().toLowerCase()
   const spalte = spalten[ablage.spalte]
-  if (spaltenFeld === '' || !spalte || !gleich(lies(spaltenFeld), zuordnungsWert(spalte))) return false
-  const unter = unterteilungenVon(spalte)[ablage.unterteilung]
-  return !unter || gleich(lies(spalte.unterteilungsFeld), zuordnungsWert(unter))
+  if (spaltenFeld === '' || !spalte) return false
+  const werte = ablageWerte(spalten, spaltenFeld, ablage)
+  if (!gleich(lies(spaltenFeld), werte.VALUE)) return false
+  return werte.ZIMMER === '' || teiltImSelbenFeld(spalte, spaltenFeld)
+    || gleich(lies(spalte.unterteilungsFeld), werte.ZIMMER)
 }
 
 export function ablageSchluessel(ablage: Ablage): string {
   return `${ablage.spalte}:${ablage.unterteilung}`
 }
 
-// Jede Stelle, an die eine Karte kann: je Spalte ihre Unterteilungen, sonst
-// die Spalte selbst.
+// Jede Stelle, an die eine Karte kann: je sichtbare Spalte ihre Unterteilungen,
+// sonst die Spalte selbst.
 export function alleAblagen(spalten: readonly TafelSpalte[]): Ablage[] {
   return spalten.flatMap((s, spalte) => {
+    if (s.versteckt === 'ja') return []
     const unter = unterteilungenVon(s)
     return unter.length === 0
       ? [{ spalte, unterteilung: -1 }]
@@ -135,11 +170,33 @@ export function ablageName(spalten: readonly TafelSpalte[], ablage: Ablage): str
   return unter ? `${spalte.titel} / ${unter.titel}` : spalte.titel
 }
 
-// Was „Karte verschoben“ als VALUE und ZIMMER an die Kette gibt.
-export function ablageWerte(spalten: readonly TafelSpalte[], ablage: Ablage): { VALUE: string; ZIMMER: string } {
+// Was „Karte verschoben“ als VALUE und ZIMMER an die Kette gibt. VALUE ist
+// immer der Wert, den das Feld „Einsortieren nach“ danach tragen muss.
+export function ablageWerte(
+  spalten: readonly TafelSpalte[],
+  spaltenFeld: string,
+  ablage: Ablage,
+): { VALUE: string; ZIMMER: string } {
   const spalte = spalten[ablage.spalte]
   const unter = unterteilungenVon(spalte)[ablage.unterteilung]
-  return { VALUE: zuordnungsWert(spalte), ZIMMER: unter ? zuordnungsWert(unter) : '' }
+  if (!unter) return { VALUE: spaltenWert(spalte), ZIMMER: '' }
+  const zimmer = zuordnungsWert(unter)
+  return { VALUE: teiltImSelbenFeld(spalte, spaltenFeld) ? zimmer : spaltenWert(spalte), ZIMMER: zimmer }
+}
+
+// Wohin der Knopf auf der Karte sie schiebt: in die naechste sichtbare Spalte,
+// dort in die erste Unterteilung ohne Karte, sonst in die erste.
+export function naechsteAblage(
+  spalten: readonly TafelSpalte[],
+  von: Ablage,
+  belegt: (ablage: Ablage) => number,
+): Ablage | null {
+  const spalte = spalten.findIndex((s, i) => i > von.spalte && s.versteckt !== 'ja')
+  if (spalte < 0) return null
+  const unter = unterteilungenVon(spalten[spalte])
+  if (unter.length === 0) return { spalte, unterteilung: -1 }
+  const frei = unter.findIndex((_, unterteilung) => belegt({ spalte, unterteilung }) === 0)
+  return { spalte, unterteilung: Math.max(frei, 0) }
 }
 
 // Der Inspector pflegt die Spalten als Liste; jede Spalte traegt ihre
@@ -164,13 +221,20 @@ export function tafelSpaltenEigenschaft(): Eigenschaft {
         beschreibung: 'Steht im Feld „Einsortieren nach“, wenn eine Karte hier liegt. Leer: der Titel.',
         art: 'text',
       },
-      jaNeinEigenschaft('auffang', 'Auffangspalte', 'Einträge ohne passenden Wert landen hier.', {
+      jaNeinEigenschaft('auffang', 'Auffangspalte', 'Einträge ohne passenden Wert landen hier. Ohne eigenen Wert leert das Hineinziehen das Feld.', {
         einzigUnterGeschwistern: true,
       }),
+      jaNeinEigenschaft('versteckt', 'In der Maske ausblenden', 'Karten mit diesem Wert erscheinen nicht, etwa „Erledigt“. Im Editor bleibt die Spalte blass sichtbar.'),
+      {
+        schluessel: 'knopf',
+        name: 'Knopf auf jeder Karte',
+        beschreibung: 'Beschriftung, z. B. „Anmelden →“. Der Knopf schiebt die Karte in die nächste Spalte, dort in die erste freie Unterteilung. Leer: kein Knopf.',
+        art: 'text',
+      },
       {
         schluessel: 'unterteilungsFeld',
         name: 'Unterteilen nach',
-        beschreibung: 'Datenfeld, nach dem die Spalte unterteilt wird, z. B. Mitarbeiter oder Raum. Unbekannte Werte landen in der ersten Unterteilung.',
+        beschreibung: 'Datenfeld, nach dem die Spalte unterteilt wird, z. B. Mitarbeiter oder Raum. Ist es dasselbe Feld wie „Einsortieren nach“, gehört jeder Wert einer Unterteilung zu dieser Spalte (z. B. „Behandlungszimmer 1“ bis „4“). Unbekannte Werte landen in der ersten Unterteilung.',
         art: 'field',
       },
       {
