@@ -1,7 +1,7 @@
 // Die eine Farbliste der Maske: Wert, Klarname, Farbpaar als Token-Namen.
 import type { Wahloption } from './eigenschaft'
 
-export type FarbweltWert = 'info' | 'success' | 'warning' | 'danger'
+export type FarbweltWert = 'info' | 'success' | 'warning' | 'danger' | 'neutral'
 
 export interface Farbwelt {
   wert: FarbweltWert
@@ -9,13 +9,28 @@ export interface Farbwelt {
   // Die Namen der Token, nicht die Werte: die Farben stehen in design/maske.css.
   stark: string
   sanft: string
+  schrift: string
+  schale: string
+  rand: string
+}
+
+function toene(farbe: string): Omit<Farbwelt, 'wert' | 'name'> {
+  return {
+    stark: `--se-${farbe}`,
+    sanft: `--se-${farbe}-soft`,
+    schrift: `--se-${farbe}-text`,
+    schale: `--se-${farbe}-shell`,
+    rand: `--se-${farbe}-line`,
+  }
 }
 
 export const FARBWELTEN: readonly Farbwelt[] = [
-  { wert: 'info', name: 'Hinweis', stark: '--se-blue', sanft: '--se-blue-soft' },
-  { wert: 'success', name: 'Erfolg', stark: '--se-green', sanft: '--se-green-soft' },
-  { wert: 'warning', name: 'Warnung', stark: '--se-amber', sanft: '--se-amber-soft' },
-  { wert: 'danger', name: 'Fehler', stark: '--se-red', sanft: '--se-red-soft' },
+  { wert: 'info', name: 'Hinweis', ...toene('blue') },
+  { wert: 'success', name: 'Erfolg', ...toene('green') },
+  { wert: 'warning', name: 'Warnung', ...toene('amber') },
+  { wert: 'danger', name: 'Fehler', ...toene('red') },
+  // Ohne Bedeutung: fuer das, was nur da ist, etwa die Termine, die noch warten.
+  { wert: 'neutral', name: 'Neutral', ...toene('slate') },
 ]
 
 export function farbweltWert(wert: string): FarbweltWert {

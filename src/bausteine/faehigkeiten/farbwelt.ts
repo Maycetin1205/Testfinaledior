@@ -18,5 +18,6 @@ export function farbweltEigenschaft(schluessel: string, beschreibung: string): E
 }
 
 export const farbweltStil = css`${unsafeCSS(FARBWELTEN
-  .map((f) => `.v-${f.wert} { --fw-stark: var(${f.stark}); --fw-sanft: var(${f.sanft}); }`)
+  .map((f) => `.v-${f.wert} { --fw-stark: var(${f.stark}); --fw-sanft: var(${f.sanft}); `
+    + `--fw-schrift: var(${f.schrift}); --fw-schale: var(${f.schale}); --fw-rand: var(${f.rand}); }`)
   .join('\n  '))}`
