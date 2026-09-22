@@ -1,14 +1,12 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import { textProperty } from '../../core/block/property'
-import type { Capability } from '../../core/block/capability'
+import { BlockElement, defineBlock } from '../base/BlockElement'
 import { sectionsOf, chainsRead } from '../../core/data/actions'
 import { reportChainsError, runEvent, searchCarrier } from '../behavior/events'
 import { PENDING_EVENT, pendingRows } from '../behavior/pendingState'
 import { startSe } from '../../softengine/bridge'
 import { buttonStyle } from './buttonStyle'
+import { buttonProperties, type ButtonValues } from './properties'
 
 const CLICK = 'onClick'
 const CHAINS_ATTR = 'data-ff-actions'
@@ -31,33 +29,13 @@ function openRows(el: HTMLElement): number | undefined {
   return counted.size === 0 ? undefined : open
 }
 
+export interface Button extends ButtonValues {}
+
 export class Button extends BlockElement {
   static readonly type = 'button'
   static readonly tag = 'ff-button'
-  static readonly displayName = 'Schaltfläche'
-  static readonly category: Category = 'input'
-
-  static readonly capabilities: readonly Capability[] = [
-    { kind: 'events', list: [{ key: CLICK, name: 'Klick' }] },
-  ]
-
-  static readonly blockProperties = {
-    label: textProperty({
-      default: 'Schaltfläche',
-      label: 'Beschriftung',
-      help: 'Was auf der Schaltfläche steht.',
-      place: 'block',
-      attribute: 'label',
-    }),
-  }
-
-  static readonly widthEditable = false
-
-  static readonly grid = { startWidth: 8, startHeight: 2, minWidth: 4, minHeight: 2 }
 
   static override styles: CSSResultGroup = [BlockElement.styles, buttonStyle]
-
-  label = 'Schaltfläche'
 
   @state() private open: number | undefined = undefined
 
@@ -98,4 +76,11 @@ export class Button extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(Button)
+defineBlock(Button, {
+  name: 'Schaltfläche',
+  category: 'input',
+  properties: buttonProperties,
+  capabilities: [{ kind: 'events', list: [{ key: CLICK, name: 'Klick' }] }],
+  widthEditable: false,
+  grid: { startWidth: 8, startHeight: 2, minWidth: 4, minHeight: 2 },
+})

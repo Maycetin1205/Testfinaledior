@@ -1,18 +1,32 @@
-import { css, LitElement, type CSSResultGroup } from 'lit'
+import { css, LitElement, type CSSResultGroup, type PropertyDeclaration } from 'lit'
 import { property } from 'lit/decorators.js'
-import type { BlockElementContract, BlockClass } from '../../core/block/blockClass'
-import type { PropertyMap } from '../../core/block/property'
-import { registerBlockType } from '../../core/block/registry'
+import type { BlockDeclaration } from '../../core/block/blockType'
 import { hasCapability } from '../../core/block/capability'
+import type { PropertyMap, PropertyValue } from '../../core/block/property'
+import { registerBlockType } from '../../core/block/registry'
 import { widthProperty } from '../../core/block/flow'
 import { GRID_PROPERTIES } from '../../core/block/grid'
+import { deepClone } from '../../core/deepClone'
 import { followsSelectionProperty } from '../../core/data/selectionFollow'
 import { extraSourcesProperty } from '../../core/data/extraSources'
 import { startRename } from './inlineRename'
 
+// What a block states beyond its element: name, category, properties and
+// everything the editor needs. Type and tag stay on the class, where the
+// element and the other blocks read them.
+export type BlockShape = Omit<BlockDeclaration, 'type' | 'tag'>
+
+export interface BlockElementClass {
+  readonly type: string
+  readonly tag: string
+  declaredProperties: PropertyMap
+  createProperty(name: PropertyKey, options: PropertyDeclaration): void
+  new(): BlockElement
+}
+
 // What every block carries, whatever it shows.
-function allProperties(BlockClass: BlockClass): PropertyMap {
-  const capable = { capabilities: BlockClass.capabilities ?? [] }
+function allProperties(shape: BlockShape): PropertyMap {
+  const capable = { capabilities: shape.capabilities ?? [] }
   return {
     width: widthProperty,
     ...GRID_PROPERTIES,
@@ -20,23 +34,13 @@ function allProperties(BlockClass: BlockClass): PropertyMap {
     ...(hasCapability(capable, 'followsSelection')
       ? { followsSelection: followsSelectionProperty }
       : null),
-    ...BlockClass.blockProperties,
+    ...shape.properties,
   }
 }
 
-function define(BlockClass: BlockClass): void {
-  if (!customElements.get(BlockClass.tag)) {
-    customElements.define(
-      BlockClass.tag,
-      BlockClass as unknown as CustomElementConstructor,
-    )
-  }
-}
-
-// The mask half: every declared property becomes a lit property with the
-// converter its declaration carries.
-function declareLitProperties(BlockClass: BlockClass, properties: PropertyMap): void {
-  const element = BlockClass as unknown as typeof LitElement
+// The mask half: every property with an attribute becomes a lit property with
+// the converter its declaration carries.
+function declareLitProperties(element: BlockElementClass, properties: PropertyMap): void {
   for (const [name, declared] of Object.entries(properties)) {
     if (declared.attribute === '') continue
     element.createProperty(name, {
@@ -49,33 +53,19 @@ function declareLitProperties(BlockClass: BlockClass, properties: PropertyMap): 
   }
 }
 
-function describe(BlockClass: BlockClass, properties: PropertyMap): void {
-  registerBlockType({
-    type: BlockClass.type,
-    tag: BlockClass.tag,
-    name: BlockClass.displayName,
-    category: BlockClass.category,
-    properties,
-    takesChildren: BlockClass.takesChildren ?? false,
-    widthEditable: BlockClass.widthEditable ?? true,
-    heightEditable: BlockClass.heightEditable ?? false,
-    allowedChildren: BlockClass.allowedChildren,
-    allowedParent: BlockClass.allowedParent,
-    fixedWidth: BlockClass.fixedWidth,
-    childDefaults: BlockClass.childDefaults,
-    childDirection: BlockClass.childDirection,
-    inPalette: BlockClass.inPalette,
-    templateKind: BlockClass.templateKind,
-    containerFrame: BlockClass.containerFrame,
-    childButton: BlockClass.childButton,
-    capabilities: BlockClass.capabilities ?? [],
-    page: BlockClass.page,
-    gridArea: BlockClass.gridArea,
-    grid: BlockClass.grid,
-  })
+function startValues(properties: PropertyMap): Record<string, PropertyValue> {
+  const out: Record<string, PropertyValue> = {}
+  for (const [name, declared] of Object.entries(properties)) {
+    if (declared.attribute === '') continue
+    out[name] = deepClone(declared.default) as PropertyValue
+  }
+  return out
 }
 
-export abstract class BlockElement extends LitElement implements BlockElementContract {
+export abstract class BlockElement extends LitElement {
+  // Filled by defineBlock; every block reads its own declaration from here.
+  static declaredProperties: PropertyMap = {}
+
   static override styles: CSSResultGroup = css`
     :host { display: block; }
     :host([hidden]) { display: none; }
@@ -94,8 +84,13 @@ export abstract class BlockElement extends LitElement implements BlockElementCon
   @property({ type: Boolean, reflect: true, attribute: 'data-editable' })
   editable = false
 
+  constructor() {
+    super()
+    Object.assign(this, startValues(this.properties))
+  }
+
   get properties(): PropertyMap {
-    return (this.constructor as { blockProperties?: PropertyMap }).blockProperties ?? {}
+    return (this.constructor as typeof BlockElement).declaredProperties
   }
 
   get inEditor(): boolean {
@@ -122,11 +117,14 @@ export abstract class BlockElement extends LitElement implements BlockElementCon
       return detail.rejected !== true
     })
   }
+}
 
-  static defineAndRegister(BlockClass: BlockClass): void {
-    const properties = allProperties(BlockClass)
-    declareLitProperties(BlockClass, properties)
-    define(BlockClass)
-    describe(BlockClass, properties)
-  }
+// One declaration becomes the lit properties, the custom element and the
+// registry entry.
+export function defineBlock(element: BlockElementClass, shape: BlockShape): void {
+  const properties = allProperties(shape)
+  element.declaredProperties = properties
+  declareLitProperties(element, properties)
+  if (!customElements.get(element.tag)) customElements.define(element.tag, element)
+  registerBlockType({ ...shape, type: element.type, tag: element.tag, properties })
 }

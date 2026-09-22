@@ -72,6 +72,11 @@ export default defineConfig([
   {
     files: ['src/blocks/**/*.{ts,tsx}'],
     rules: {
+      // A block takes the types of its properties from its own declaration
+      // instead of writing them down a second time; the base class fills the
+      // values in before anything reads them.
+      '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
       'no-restricted-imports': ['error', {
         patterns: [{
           group: ['**/softengine/bridge'],

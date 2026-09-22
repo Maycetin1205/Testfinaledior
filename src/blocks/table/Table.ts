@@ -1,53 +1,20 @@
 import { type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import type { Capability } from '../../core/block/capability'
-import { EMPTY_TEXT_STANDARD, emptyStyle } from '../behavior/emptyState'
-import {
-  LIST_GRID,
-  ListState,
-  listProperties,
-  listCapabilities,
-} from '../behavior/listState'
-import {
-  COLUMNS_BINDING,
-  coerceColumns,
-  standardColumns,
-  type Column,
-} from '../behavior/columns'
+import { BlockElement, defineBlock } from '../base/BlockElement'
+import { emptyStyle } from '../behavior/emptyState'
+import { LIST_GRID, ListState, listCapabilities } from '../behavior/listState'
+import { COLUMNS_BINDING, coerceColumns } from '../behavior/columns'
 import { tableStyle } from '../behavior/tableStyle'
 import type { ProvidedRow, DataOwnership } from '../behavior/rowLink'
+import { tableProperties, type TableValues } from './properties'
+
+export interface Table extends TableValues {}
 
 export class Table extends BlockElement {
   static readonly type = 'table'
   static readonly tag = 'ff-table'
-  static readonly displayName = 'Tabelle'
-  static readonly category: Category = 'display'
-
-  static readonly capabilities: readonly Capability[] = listCapabilities(COLUMNS_BINDING)
-
-  static readonly blockProperties = listProperties()
-
-  static readonly grid = LIST_GRID
 
   static override styles: CSSResultGroup = [BlockElement.styles, emptyStyle, tableStyle]
-
-  columns: Column[] = standardColumns()
-
-  source = ''
-
-  search = true
-
-  paging = true
-
-  headerRow = true
-
-  columnPicker = false
-
-  dayField = ''
-
-  emptyText = EMPTY_TEXT_STANDARD
 
   @property({ attribute: false }) dataRows: string[][] = []
 
@@ -126,4 +93,10 @@ export class Table extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(Table)
+defineBlock(Table, {
+  name: 'Tabelle',
+  category: 'display',
+  properties: tableProperties,
+  capabilities: listCapabilities(COLUMNS_BINDING),
+  grid: LIST_GRID,
+})

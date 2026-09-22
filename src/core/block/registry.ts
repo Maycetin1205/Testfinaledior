@@ -1,13 +1,20 @@
 import { ROOT_TYPE } from './tree'
-import type { BlockType } from './blockType'
+import type { BlockDeclaration, BlockType } from './blockType'
 
 const registry = new Map<string, BlockType>()
 
-export function registerBlockType(def: BlockType): void {
-  if (registry.has(def.type)) {
-    throw new Error(`Bausteintyp "${def.type}" ist schon angemeldet.`)
+export function registerBlockType(declared: BlockDeclaration): void {
+  if (registry.has(declared.type)) {
+    throw new Error(`Bausteintyp "${declared.type}" ist schon angemeldet.`)
   }
-  registry.set(def.type, def)
+  registry.set(declared.type, {
+    ...declared,
+    properties: declared.properties ?? {},
+    capabilities: declared.capabilities ?? [],
+    takesChildren: declared.takesChildren ?? false,
+    widthEditable: declared.widthEditable ?? true,
+    heightEditable: declared.heightEditable ?? false,
+  })
 }
 
 export function blockType(type: string): BlockType | undefined {

@@ -1,5 +1,6 @@
 import { css } from 'lit'
 import { bindingAttr, capability } from '../../core/block/capability'
+import { blockType } from '../../core/block/registry'
 import { fieldRead, recordIndexOf } from '../../softengine/data'
 import { selectionRefind, giverIdOf, traitOf, chooseSelection } from './selection'
 import { holeDataPreamble, makeDataLink } from './source'
@@ -98,7 +99,7 @@ function cardsOf(area: HTMLElement): HTMLElement[] {
 }
 
 function setEmptyHints(board: HTMLElement, columns: readonly HTMLElement[]): void {
-  const record = board.getAttribute('leertext') ?? EMPTY_TEXT_STANDARD
+  const record = board.getAttribute('emptytext') ?? EMPTY_TEXT_STANDARD
   const set = (el: HTMLElement, text: string): void => {
     (el as unknown as { emptyHint: string }).emptyHint = text
   }
@@ -112,13 +113,13 @@ function setEmptyHints(board: HTMLElement, columns: readonly HTMLElement[]): voi
 function mappingValue(el: HTMLElement, standardTitle: string): string {
   const value = (el.getAttribute('value') ?? '').trim()
   if (value !== '') return value
-  return el.getAttribute('title') ?? standardTitle
+  return el.getAttribute('heading') ?? standardTitle
 }
 
 function targetRoom(column: HTMLElement, row: unknown): HTMLElement | null {
   const room = roomOf(column)
   if (room.length === 0) return null
-  const field = column.getAttribute('unterteilungsfeld') ?? ''
+  const field = column.getAttribute('groupingfield') ?? ''
   if (field === '') return room[0]
 
   const values = room.map((z) => mappingValue(z, ROOM_TITLE_STANDARD))
@@ -140,7 +141,7 @@ function controls(board: HTMLElement): BoardControls {
 }
 
 function titleOf(card: HTMLElement, withoutTitle: string): string {
-  return String((card as Card).title || withoutTitle)
+  return String((card as Card).heading || withoutTitle)
 }
 
 function markTarget(next: HTMLElement | null): void {
@@ -193,8 +194,8 @@ function collectTargets(board: HTMLElement, columns: readonly HTMLElement[]): Bo
     for (const [zi, room] of (rooms.length > 0 ? rooms : [null]).entries()) {
       const id = `${si}:${zi}`
       targets.set(id, { column, room: room })
-      const name = column.getAttribute('title') ?? COLUMN_TITLE_STANDARD
-      list.push({ id, name: room ? `${name} / ${room.getAttribute('title') ?? 'Unterteilung'}` : name })
+      const name = column.getAttribute('heading') ?? COLUMN_TITLE_STANDARD
+      list.push({ id, name: room ? `${name} / ${room.getAttribute('heading') ?? 'Unterteilung'}` : name })
     }
   })
   controls(board).targets = list
@@ -211,10 +212,10 @@ function hydrate(board: HTMLElement, delivery: boolean): void {
 
   state.targets = collectTargets(board, columns)
 
-  const columnsField = board.getAttribute('spaltenfeld') ?? ''
+  const columnsField = board.getAttribute('columnsfield') ?? ''
   const values = columns.map((s) => mappingValue(s, COLUMN_TITLE_STANDARD))
-  const catchAll = catchAllSlot(columns.map((s) => s.getAttribute('catchAll')))
-  const spots = capability({ capabilities: Card.capabilities }, 'bindable')?.spots ?? []
+  const catchAll = catchAllSlot(columns.map((s) => s.getAttribute('catchall')))
+  const spots = capability(blockType(Card.type), 'bindable')?.spots ?? []
   if (delivery && state.expected) state.expected.arrived = false
   const next = new Map<string, HTMLElement>()
   const order = new Map<HTMLElement, HTMLElement[]>()
@@ -252,7 +253,7 @@ function hydrate(board: HTMLElement, delivery: boolean): void {
     if (delivery && state.expected?.key === key && state.expected.target === store) {
       const columnFits = columnsField !== '' && slotWithValue(fieldRead(row, columnsField),
         [mappingValue(column, COLUMN_TITLE_STANDARD)]) === 0
-      const roomField = column.getAttribute('unterteilungsfeld') ?? ''
+      const roomField = column.getAttribute('groupingfield') ?? ''
       const roomFits = store === column || (roomField !== '' && slotWithValue(fieldRead(row, roomField),
         [mappingValue(store, ROOM_TITLE_STANDARD)]) === 0)
       state.expected.arrived = columnFits && roomFits

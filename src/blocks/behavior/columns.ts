@@ -1,4 +1,4 @@
-import { assignKeys, type ListBinding } from '../../core/block/listBinding'
+import { assignKeys, listForExport, type ListBinding } from '../../core/block/listBinding'
 import { structuredProperty, type Property } from '../../core/block/property'
 
 export type Column = {
@@ -212,7 +212,7 @@ export function columnsProperty(): Property<Column[]> {
     read: (raw) => (raw === undefined || Array.isArray(raw)
       ? { ok: true, value: coerceColumns(raw) }
       : { ok: false, reason: 'Spaltenliste erwartet' }),
-    toAttribute: (value) => JSON.stringify(value),
+    toAttribute: (value) => JSON.stringify(listForExport(value, COLUMNS_BINDING)),
     fromAttribute: (raw) => (raw === null ? standardColumns() : tryCoerceColumns(raw)),
   }, {
     default: standardColumns(),

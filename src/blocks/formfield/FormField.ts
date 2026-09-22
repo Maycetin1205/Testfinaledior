@@ -1,29 +1,20 @@
 import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import {
-  choiceProperty,
-  fieldProperty,
-  sourceProperty,
-  textProperty,
-  type Condition,
-} from '../../core/block/property'
-import { actionValue, bindable, type Capability } from '../../core/block/capability'
-import { coerceLookupColumns, WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/lookup'
-import {
-  LookupField,
-  lookupProperties,
-  lookupCapabilities,
-} from '../behavior/lookupField'
-import type { Column } from '../behavior/columns'
+import { BlockElement, defineBlock } from '../base/BlockElement'
+import { actionValue, bindable } from '../../core/block/capability'
+import { coerceLookupColumns } from '../behavior/lookup'
+import { LookupField, lookupCapabilities } from '../behavior/lookupField'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { valueDisconnected, valueRegistered } from '../behavior/valueLink'
 import { fieldStyle } from './formFieldStyle'
-
-const FIELD_TYPES = ['text', 'number', 'textarea', 'select', 'date', 'time', 'checkbox', 'lookup'] as const
-
-type FieldType = (typeof FIELD_TYPES)[number]
+import {
+  FIELD_TYPES,
+  ONLY_LOOKUP,
+  WITHOUT_VALUE,
+  formFieldProperties,
+  type FieldType,
+  type FormFieldValues,
+} from './properties'
 
 function fieldTypeOf(v: unknown): FieldType {
   return FIELD_TYPES.includes(v as FieldType) ? (v as FieldType) : 'text'
@@ -40,10 +31,6 @@ const PH_CLASS: Partial<Record<FieldType, string>> = {
   lookup: 'ph-nachschlag',
 }
 
-const ONLY_LOOKUP: Condition = { key: 'fieldType', equals: 'lookup' }
-
-const WITHOUT_VALUE: readonly FieldType[] = ['checkbox', 'lookup']
-
 function dateForInput(value: string): string {
   const german = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value)
   return german ? `${german[3]}-${german[2]}-${german[1]}` : value
@@ -54,123 +41,13 @@ function dateFromInput(value: string): string {
   return iso ? `${iso[3]}.${iso[2]}.${iso[1]}` : value
 }
 
+export interface FormField extends FormFieldValues {}
+
 export class FormField extends BlockElement {
   static readonly type = 'formfield'
   static readonly tag = 'ff-formfield'
-  static readonly displayName = 'Formularfeld'
-  static readonly category: Category = 'input'
-
-  static readonly capabilities: readonly Capability[] = [
-    { kind: 'source', when: { key: 'fieldType', notEquals: 'lookup' } },
-    { kind: 'followsSelection' },
-    ...lookupCapabilities(ONLY_LOOKUP),
-    bindable<typeof FormField.blockProperties>([
-      {
-        prop: 'value',
-        name: 'Wert',
-        when: { key: 'fieldType', noneOf: WITHOUT_VALUE },
-        previewProp: 'label',
-      },
-    ]),
-    actionValue<typeof FormField.blockProperties>([{ prop: 'value', name: 'Wert' }]),
-    { kind: 'events', list: [{ key: 'onChange', name: 'Wert geändert' }] },
-  ]
-
-  static readonly grid = { startWidth: 12, startHeight: 2, minWidth: 4, minHeight: 2 }
-
-  static readonly blockProperties = {
-    fieldType: choiceProperty([
-      { value: 'text', name: 'Text' },
-      { value: 'number', name: 'Zahl' },
-      { value: 'textarea', name: 'Mehrzeilig' },
-      { value: 'select', name: 'Auswahl' },
-      { value: 'date', name: 'Datum' },
-      { value: 'time', name: 'Uhrzeit' },
-      { value: 'checkbox', name: 'Ankreuzfeld' },
-      { value: 'lookup', name: 'Nachschlagen' },
-    ], {
-      default: 'text',
-      label: 'Feldtyp',
-      help: 'Welche Art Eingabe das Feld annimmt.',
-      attribute: 'fieldtype',
-    }),
-    label: textProperty({
-      default: 'Feldname',
-      label: 'Beschriftung',
-      help: 'Was vor dem Feld steht.',
-      place: 'block',
-      attribute: 'label',
-    }),
-    options: textProperty({
-      default: '',
-      label: 'Auswahl-Optionen',
-      help: 'Einträge durch Komma getrennt, z. B. "Zimmer 1, Zimmer 2".',
-      attribute: 'options',
-      when: { key: 'fieldType', equals: 'select' },
-    }),
-    source: sourceProperty({
-      default: '',
-      label: 'Datenquelle',
-      help: 'Die Quelle, aus der das Feld seinen Wert liest.',
-      place: 'none',
-      attribute: 'source',
-    }),
-    value: textProperty({
-      default: '',
-      label: 'Wert',
-      help: 'Was im Feld steht, solange kein Feld gebunden ist.',
-      place: 'none',
-      attribute: 'value',
-    }),
-    valueField: fieldProperty({
-      default: '',
-      label: 'Feld',
-      help: 'Feld, dessen Wert angezeigt wird.',
-      attribute: 'valuefield',
-      when: { key: 'fieldType', noneOf: WITHOUT_VALUE },
-    }),
-    ...lookupProperties(ONLY_LOOKUP),
-    appearance: choiceProperty([
-      { value: 'standard', name: 'Standard (Kasten)' },
-      { value: 'line', name: 'Linie (Unterstrichen)' },
-    ], {
-      default: 'standard',
-      label: 'Darstellung',
-      help: 'Kasten oder dezente Linie (z. B. Unterschriftsbereich).',
-      attribute: 'appearance',
-      when: { key: 'fieldType', noneOf: ['checkbox'] },
-    }),
-  }
 
   static override styles: CSSResultGroup = [BlockElement.styles, fieldStyle, suggestionStyle]
-
-  fieldType = 'text'
-
-  label = 'Feldname'
-
-  options = ''
-
-  source = ''
-
-  value = ''
-
-  valueField = ''
-
-  lookupSource = ''
-
-  storageField = ''
-
-  storageTitle = ''
-
-  lookupColumns: Column[] = []
-
-  windowWidth = WINDOW_WIDTH
-
-  windowHeight = WINDOW_HEIGHT
-
-  onlyHit = false
-
-  appearance = 'standard'
 
   @state() private ticked = false
 
@@ -320,4 +197,24 @@ export class FormField extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(FormField)
+defineBlock(FormField, {
+  name: 'Formularfeld',
+  category: 'input',
+  properties: formFieldProperties,
+  capabilities: [
+    { kind: 'source', when: { key: 'fieldType', notEquals: 'lookup' } },
+    { kind: 'followsSelection' },
+    ...lookupCapabilities(ONLY_LOOKUP),
+    bindable<typeof formFieldProperties>([
+      {
+        prop: 'value',
+        name: 'Wert',
+        when: { key: 'fieldType', noneOf: WITHOUT_VALUE },
+        previewProp: 'label',
+      },
+    ]),
+    actionValue<typeof formFieldProperties>([{ prop: 'value', name: 'Wert' }]),
+    { kind: 'events', list: [{ key: 'onChange', name: 'Wert geändert' }] },
+  ],
+  grid: { startWidth: 12, startHeight: 2, minWidth: 4, minHeight: 2 },
+})

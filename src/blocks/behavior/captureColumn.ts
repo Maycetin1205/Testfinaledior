@@ -1,5 +1,5 @@
 import type { EntrySwitch, ListBinding } from '../../core/block/blockType'
-import { flagOn, flagFor } from '../../core/block/listBinding'
+import { flagOn, flagFor, listForExport } from '../../core/block/listBinding'
 import { coerceColumns, COLUMNS_BINDING, standardColumns, type Column } from './columns'
 import { structuredProperty, type Property } from '../../core/block/property'
 
@@ -77,7 +77,7 @@ export function captureColumnsProperty(): Property<CaptureColumn[]> {
     read: (raw) => (raw === undefined || Array.isArray(raw)
       ? { ok: true, value: coerceCaptureColumns(raw) }
       : { ok: false, reason: 'Spaltenliste erwartet' }),
-    toAttribute: (value) => JSON.stringify(value),
+    toAttribute: (value) => JSON.stringify(listForExport(value, CAPTURE_COLUMNS_BINDING)),
     fromAttribute: (raw) => (raw === null ? standardColumns() : tryCoerceCaptureColumns(raw)),
   }, {
     default: standardColumns(),

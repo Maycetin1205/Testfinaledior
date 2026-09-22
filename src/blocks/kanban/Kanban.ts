@@ -1,13 +1,6 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import type { ChildDefault } from '../../core/block/blockType'
-import type { Capability } from '../../core/block/capability'
-import type { Direction, FlowWidth } from '../../core/block/flow'
-import { fieldProperty, sourceProperty } from '../../core/block/property'
-import { emptyTextProperty } from '../behavior/emptyState'
-import { dayFieldProperty } from '../behavior/source'
+import { BlockElement, defineBlock } from '../base/BlockElement'
 import {
   CARD_TYPE,
   boardUnregister,
@@ -17,62 +10,13 @@ import {
 } from '../behavior/cardBoard'
 import { KanbanColumn } from './KanbanColumn'
 import { kanbanStyle } from './kanbanStyle'
+import { kanbanProperties, type KanbanValues } from './properties'
+
+export interface Kanban extends KanbanValues {}
 
 export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
-  static readonly displayName = 'Kanban'
-  static readonly category: Category = 'display'
-
-  static readonly capabilities: readonly Capability[] = [
-    { kind: 'source' },
-    { kind: 'recordPick' },
-    {
-      kind: 'events',
-      list: [
-        { key: 'onCardClick', name: 'Karte angeklickt' },
-        { key: 'onCardDrop', name: 'Karte verschoben' },
-      ],
-    },
-  ]
-
-  static readonly takesChildren = true
-  static readonly allowedChildren = [CARD_TYPE, KanbanColumn.type]
-  static readonly childDirection: Direction = 'row'
-
-  static readonly fixedWidth: FlowWidth = 'fill'
-  static readonly widthEditable = false
-  static readonly heightEditable = true
-  static readonly childButton = { name: 'Spalte', childType: KanbanColumn.type }
-
-  static readonly templateKind = { type: CARD_TYPE, name: 'Kartenmuster', direction: 'column' as const }
-
-  static readonly grid = { startWidth: 48, startHeight: 20, minWidth: 12, minHeight: 8 }
-
-  static readonly blockProperties = {
-    source: sourceProperty({
-      default: '',
-      label: 'Datenquelle',
-      help: 'Die Quelle, deren Zeilen als Karten liegen.',
-      place: 'none',
-      attribute: 'source',
-    }),
-    columnsField: fieldProperty({
-      default: '',
-      label: 'Einsortieren nach',
-      help: 'Feld, das die Spalte bestimmt. Leer: alle in die Auffang-Spalte.',
-      attribute: 'columnsfield',
-    }),
-    dayField: dayFieldProperty(),
-    emptyText: emptyTextProperty(),
-  }
-
-  static readonly childDefaults: ChildDefault[] = [
-    { type: CARD_TYPE },
-    { type: KanbanColumn.type, values: { title: 'Offen', tone: 'warning' } },
-    { type: KanbanColumn.type, values: { title: 'In Arbeit', tone: 'info' } },
-    { type: KanbanColumn.type, values: { title: 'Fertig', tone: 'success' } },
-  ]
 
   static override styles: CSSResultGroup = [BlockElement.styles, kanbanStyle]
 
@@ -114,4 +58,34 @@ export class Kanban extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(Kanban)
+defineBlock(Kanban, {
+  name: 'Kanban',
+  category: 'display',
+  properties: kanbanProperties,
+  capabilities: [
+    { kind: 'source' },
+    { kind: 'recordPick' },
+    {
+      kind: 'events',
+      list: [
+        { key: 'onCardClick', name: 'Karte angeklickt' },
+        { key: 'onCardDrop', name: 'Karte verschoben' },
+      ],
+    },
+  ],
+  takesChildren: true,
+  allowedChildren: [CARD_TYPE, KanbanColumn.type],
+  childDirection: 'row',
+  fixedWidth: 'fill',
+  widthEditable: false,
+  heightEditable: true,
+  childButton: { name: 'Spalte', childType: KanbanColumn.type },
+  childDefaults: [
+    { type: CARD_TYPE },
+    { type: KanbanColumn.type, values: { heading: 'Offen', tone: 'warning' } },
+    { type: KanbanColumn.type, values: { heading: 'In Arbeit', tone: 'info' } },
+    { type: KanbanColumn.type, values: { heading: 'Fertig', tone: 'success' } },
+  ],
+  templateKind: { type: CARD_TYPE, name: 'Kartenmuster', direction: 'column' },
+  grid: { startWidth: 48, startHeight: 20, minWidth: 12, minHeight: 8 },
+})

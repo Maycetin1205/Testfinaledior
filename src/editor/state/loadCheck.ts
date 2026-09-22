@@ -52,13 +52,21 @@ export function checkTreeState(raw: {
     if (id === ROOT_ID && (node.type !== ROOT_TYPE || node.parentId !== null)) {
       find(id, 'die Wurzel des Masken-Aufbaus ist ungültig')
     }
-    const props = id === ROOT_ID
-      ? Object.fromEntries(Object.entries(node.values).filter(([key, value]) =>
-        [MASK_NAME_PROP, DOCUMENT_FRAME_PROP].includes(key) && typeof value === 'string')) as Record<string, PropertyValue>
-      : valuesClean(node.type, node.values).values
+    const read = id === ROOT_ID
+      ? {
+          values: Object.fromEntries(Object.entries(node.values).filter(([key, value]) =>
+            [MASK_NAME_PROP, DOCUMENT_FRAME_PROP].includes(key) && typeof value === 'string')) as Record<string, PropertyValue>,
+          problems: [],
+        }
+      : valuesClean(node.type, node.values)
+    const props = read.values
+    const spot = id === ROOT_ID ? 'an der Maske selbst' : `am Baustein „${id}“`
     const events = chainsClean(node.chains, (capability(def, 'events')?.list ?? []).map((event) => event.key))
-    if (!noLoss(node.values, props)) {
-      find(id, id === ROOT_ID ? 'an der Maske selbst stimmen Angaben nicht' : `am Baustein „${id}“ stimmen Angaben nicht`)
+    for (const problem of read.problems) {
+      find(id, `${spot}: „${problem.property}“ — ${problem.reason}`)
+    }
+    if (read.problems.length === 0 && !noLoss(node.values, props)) {
+      find(id, `${spot} stimmt eine Angabe nicht: ${firstDeviation(node.values, props)}`)
     }
     if (!noLoss(withoutOldParameterKey(node.chains), events)) {
       find(id, `eine Aktion am Baustein „${id}“ ist unlesbar`)

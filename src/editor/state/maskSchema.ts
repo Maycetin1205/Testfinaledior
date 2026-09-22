@@ -1,9 +1,11 @@
-// Lifts a saved mask to the format this editor reads. Version 16 is the one
-// that renamed every stored name from German to English; everything below it
-// first runs the older steps and then that rename.
-export const CURRENT_SCHEMA_VERSION = 16
+// Lifts a saved mask to the format this editor reads. Version 16 renamed every
+// stored name from German to English, version 17 the names that rename missed;
+// a file below them first runs the older steps.
+export const CURRENT_SCHEMA_VERSION = 17
 
-const LIFTABLE = [9, 10, 11, 12, 13, 14, 15]
+const ENGLISH_NAMES = 16
+
+const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16]
 
 export function schemaReadable(version: unknown): version is number {
   return version === CURRENT_SCHEMA_VERSION
@@ -379,13 +381,53 @@ function liftToEnglish(state: Record<string, unknown>): void {
   liftLibraries(state)
 }
 
+// ---- version 17: the names the english rename missed ----
+
+const BLOCK_TYPES_17: Record<string, string> = { 'kanban-zimmer': 'kanban-room' }
+
+const PER_TYPE_17: Record<string, Record<string, string>> = {
+  'kanban-column': { title: 'heading' },
+  'kanban-room': { title: 'heading' },
+}
+
+const VALUE_WORDS_17: Record<string, Record<string, Record<string, string>>> = {
+  text: { color: { gedaempft: 'muted' } },
+}
+
+// The mark that a column title was typed by hand, inside every column list.
+const ENTRY_KEYS_17: Record<string, string> = { titelVonHand: 'titleByHand' }
+
+function liftMissedNames(x: unknown): void {
+  if (!isPlainObject(x)) return
+  for (const node of Object.values(x)) {
+    if (!isPlainObject(node) || typeof node.type !== 'string') continue
+    const type = BLOCK_TYPES_17[node.type] ?? node.type
+    node.type = type
+    const values = node.values
+    if (!isPlainObject(values)) continue
+
+    const perType = PER_TYPE_17[type]
+    if (perType) to(values, perType)
+
+    const words = VALUE_WORDS_17[type]
+    for (const [key, table] of Object.entries(words ?? {})) {
+      const held = values[key]
+      if (typeof held === 'string' && held in table) values[key] = table[held]
+    }
+
+    for (const key of ['columns', 'lookupColumns']) {
+      if (Array.isArray(values[key])) renameDeep(values[key], ENTRY_KEYS_17)
+    }
+  }
+}
+
 export function liftState(raw: unknown): unknown {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return raw
   if (raw.schemaVersion !== CURRENT_SCHEMA_VERSION && !LIFTABLE.includes(raw.schemaVersion)) return raw
   const lifted = raw.schemaVersion === 9
     ? liftKey(raw)
     : (JSON.parse(JSON.stringify(raw)) as Record<string, unknown>)
-  if (raw.schemaVersion < CURRENT_SCHEMA_VERSION) {
+  if (raw.schemaVersion < ENGLISH_NAMES) {
     liftBlockNames(lifted.tree)
     liftLineStyle(lifted.tree)
     liftCardsTemplate(lifted.tree)
@@ -393,6 +435,7 @@ export function liftState(raw: unknown): unknown {
     liftLegacy(lifted.tree)
     liftToEnglish(lifted)
   }
+  if (raw.schemaVersion < CURRENT_SCHEMA_VERSION) liftMissedNames(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

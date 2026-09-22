@@ -1,8 +1,6 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import type { Capability } from '../../core/block/capability'
+import { BlockElement, defineBlock } from '../base/BlockElement'
 import { onChosenDay, chosenDay, setChosenDay } from '../behavior/chosenDay'
 import { dateStyle } from './datePickerStyle'
 
@@ -23,12 +21,6 @@ function tagPlus(key: string, days: number): string {
 export class DatePicker extends BlockElement {
   static readonly type = 'date'
   static readonly tag = 'ff-date'
-  static readonly displayName = 'Datum'
-  static readonly category: Category = 'display'
-
-  static readonly capabilities: readonly Capability[] = []
-
-  static readonly grid = { startWidth: 18, startHeight: 2, minWidth: 10, minHeight: 2 }
 
   static override styles: CSSResultGroup = [BlockElement.styles, dateStyle]
 
@@ -75,4 +67,8 @@ export class DatePicker extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(DatePicker)
+defineBlock(DatePicker, {
+  name: 'Datum',
+  category: 'display',
+  grid: { startWidth: 18, startHeight: 2, minWidth: 10, minHeight: 2 },
+})

@@ -1,16 +1,7 @@
-import type { Category } from './blockClass'
 import type { Capability } from './capability'
 import type { Direction, FlowWidth } from './flow'
 import type { GridMetrics } from './grid'
 import type { PropertyMap, PropertyValue } from './property'
-
-export type { Category }
-
-export interface ChildDefault {
-  type: string
-  values?: Record<string, PropertyValue>
-  children?: readonly ChildDefault[]
-}
 
 export {
   fieldChoicesRead,
@@ -33,18 +24,29 @@ export {
   type FieldTarget,
 } from './binding'
 
-export interface BlockType {
+export type Category = 'input' | 'display' | 'layout'
+
+export interface ChildDefault {
+  type: string
+  values?: Record<string, PropertyValue>
+  children?: readonly ChildDefault[]
+}
+
+// Everything a block states about itself. The registry keeps this, the editor
+// and the export read it; nothing about a block is written down twice.
+export interface BlockDeclaration {
   type: string
   tag: string
   name: string
   category: Category
-  properties: PropertyMap
 
-  capabilities: readonly Capability[]
+  properties?: PropertyMap
+  capabilities?: readonly Capability[]
 
-  takesChildren: boolean
-  widthEditable: boolean
-  heightEditable: boolean
+  takesChildren?: boolean
+  widthEditable?: boolean
+  heightEditable?: boolean
+
   allowedChildren?: readonly string[]
   allowedParent?: readonly string[]
   fixedWidth?: FlowWidth
@@ -61,3 +63,9 @@ export interface BlockType {
   gridArea?: boolean
   grid?: Partial<GridMetrics>
 }
+
+// The registry fills in what a block left open, so readers never test for it.
+export type BlockType = BlockDeclaration & Required<Pick<
+  BlockDeclaration,
+  'properties' | 'capabilities' | 'takesChildren' | 'widthEditable' | 'heightEditable'
+>>

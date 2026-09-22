@@ -1,6 +1,6 @@
 import '../blocks/register'
 
-import { addEditorFacts } from '../core/block/editorFacts'
+import type { ReactElement } from 'react'
 import {
   IconArea,
   IconDate,
@@ -26,18 +26,20 @@ import { Table } from '../blocks/table/Table'
 import { Text } from '../blocks/text/Text'
 import { Divider } from '../blocks/divider/Divider'
 
-const ICONS = [
-  [Area.type, IconArea],
-  [Button.type, IconButton],
-  [Card.type, IconCard],
-  [DatePicker.type, IconDate],
-  [FormField.type, IconFormField],
-  [Kanban.type, IconKanban],
-  [KanbanColumn.type, IconKanbanColumn],
-  [Popup.type, IconPopup],
-  [Table.type, IconTable],
-  [Text.type, IconText],
-  [Divider.type, IconDivider],
-] as const
+// The sign in the palette is the editor's business, not the block's: it is
+// drawn with react and never travels into a mask.
+export type BlockIcon = (properties: { size?: number | string }) => ReactElement
 
-for (const [type, symbol] of ICONS) addEditorFacts(type, { symbol })
+export const BLOCK_ICONS: Record<string, BlockIcon> = {
+  [Area.type]: IconArea,
+  [Button.type]: IconButton,
+  [Card.type]: IconCard,
+  [DatePicker.type]: IconDate,
+  [FormField.type]: IconFormField,
+  [Kanban.type]: IconKanban,
+  [KanbanColumn.type]: IconKanbanColumn,
+  [Popup.type]: IconPopup,
+  [Table.type]: IconTable,
+  [Text.type]: IconText,
+  [Divider.type]: IconDivider,
+}

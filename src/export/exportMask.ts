@@ -1,5 +1,5 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
-import { listForExport, listRead } from '../core/block/blockType'
+import { listRead } from '../core/block/blockType'
 import { bindingProp, capability, applies } from '../core/block/capability'
 import { blockType } from '../core/block/registry'
 import {
@@ -13,7 +13,6 @@ import {
   carriesDeletions,
 } from '../core/block/treeQuery'
 import { BLOCK_ID_ATTR, chainsForExport } from '../core/data/actions'
-import { calculationsForExport } from '../core/data/calculation'
 import { SELECTION_FOLLOW_PROP } from '../core/data/selectionFollow'
 import {
   orderedFields,
@@ -65,10 +64,6 @@ export interface MaskExport {
   sevariablen: string
 }
 
-function attributValue(value: unknown): string {
-  return Array.isArray(value) ? JSON.stringify(value) : String(value ?? '')
-}
-
 interface TemplateCtx {
   type: string
   id: string | undefined
@@ -103,9 +98,6 @@ function nodeToHtml(
 ): string {
   const def = blockType(node.type)
   if (!def) return ''
-  const list = capability(def, 'list')?.binding
-  const computes = capability(def, 'compute')?.prop
-
   const pad = '  '.repeat(depth)
   if (templateCtx && node.type === templateCtx.type) {
     if (node.id !== templateCtx.id) return ''
@@ -131,8 +123,8 @@ function nodeToHtml(
     }
   }
 
-  // One attribute per declared property, left out when the value is the
-  // declared default.
+  // One attribute per declared property, written the way the declaration
+  // writes it and left out when the value is the declared default.
   const attrs = Object.entries(def.properties)
     .map(([key, declared]) => {
       if (declared.attribute === '') return ''
@@ -145,18 +137,13 @@ function nodeToHtml(
       const held = node.values[key] ?? standard
 
       const pagesIdProp = pagesPlainName.get(key)
-      const value = pagesIdProp !== undefined
-        ? popupName(String(node.values[pagesIdProp] ?? ''))
-        : list !== undefined && key === list.prop
-          ? listForExport(held, list)
-          : key === computes
-            ? calculationsForExport(held)
-            : held
       const raw = previewSpots.has(key)
         ? previewRaw(node, previewSpots.get(key)!, sources, standard)
-        : attributValue(value)
+        : pagesIdProp !== undefined
+          ? popupName(String(node.values[pagesIdProp] ?? ''))
+          : declared.type.toAttribute(held)
 
-      if (raw === attributValue(standard)) return ''
+      if (raw === declared.type.toAttribute(standard)) return ''
       return ` ${declared.attribute}="${escapeHtmlAttr(raw)}"`
     })
     .join('')

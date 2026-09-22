@@ -1,12 +1,10 @@
 import { html, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
-import { numberProperty, textProperty } from '../../core/block/property'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import type { Capability } from '../../core/block/capability'
+import { BlockElement, defineBlock } from '../base/BlockElement'
 import { ROOT_TYPE } from '../../core/block/tree'
 import '../behavior/DialogFrame'
 import { popupStyle } from './popupStyle'
+import { popupProperties, type PopupValues } from './properties'
 
 const FOCUSABLE = 'input,select,textarea,button,a[href],[tabindex]:not([tabindex="-1"])'
 
@@ -21,50 +19,13 @@ function firstFocusSpot(root: ParentNode): HTMLElement | null {
   return null
 }
 
+export interface Popup extends PopupValues {}
+
 export class Popup extends BlockElement {
   static readonly type = 'popup'
   static readonly tag = 'ff-popup'
-  static readonly displayName = 'Popup'
-  static readonly category: Category = 'layout'
-
-  static readonly capabilities: readonly Capability[] = []
-
-  static readonly takesChildren = true
-  static readonly inPalette = false
-  static readonly allowedParent = [ROOT_TYPE]
-  static readonly page = true
-  static readonly widthEditable = false
-  static readonly containerFrame = false
-
-  static readonly blockProperties = {
-    name: textProperty({
-      default: 'Popup',
-      label: 'Name',
-      help: 'Unter diesem Namen rufen Aktionen das Popup auf.',
-      place: 'block',
-      attribute: 'name',
-    }),
-    popupWidth: numberProperty({
-      default: 520,
-      label: 'Breite',
-      help: 'Breite des Popups in Pixeln.',
-      place: 'none',
-      attribute: 'popupwidth',
-    }),
-    popupHeight: numberProperty({
-      default: 380,
-      label: 'Höhe',
-      help: 'Höhe des Popups in Pixeln.',
-      place: 'none',
-      attribute: 'popupheight',
-    }),
-  }
 
   static override styles: CSSResultGroup = [BlockElement.styles, popupStyle]
-
-  name = 'Popup'
-  popupWidth = 520
-  popupHeight = 380
 
   @property({ type: Boolean, reflect: true }) open = false
 
@@ -102,4 +63,14 @@ export class Popup extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(Popup)
+defineBlock(Popup, {
+  name: 'Popup',
+  category: 'layout',
+  properties: popupProperties,
+  takesChildren: true,
+  inPalette: false,
+  allowedParent: [ROOT_TYPE],
+  page: true,
+  widthEditable: false,
+  containerFrame: false,
+})

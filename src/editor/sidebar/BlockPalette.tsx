@@ -1,4 +1,4 @@
-import { Component, Plus, Search, type Icon } from '@/editor/icons/icon'
+import { Component, Plus, Search } from '@/editor/icons/icon'
 import { createElement, useState } from 'react'
 import { Field } from '@/editor/widgets/Field'
 import { Group } from '@/editor/widgets/Group'
@@ -6,15 +6,15 @@ import { Button } from '@/editor/widgets/PushButton'
 import { ROOT_ID, ROOT_TYPE } from '../../core/block/tree'
 import { mayContain, allBlockTypes } from '../../core/block/registry'
 import type { Category, BlockType } from '../../core/block/blockType'
-import { editorFactsOf } from '../../core/block/editorFacts'
+import { BLOCK_ICONS, type BlockIcon } from '../blockIcons'
 import { setNewBlockDrag } from '../canvas/dnd'
 import { capacityOf } from '../canvas/gridArea'
 import { useEditor } from '../state/useEditor'
 
-const REPLACEMENT_SYMBOL = Component
+const REPLACEMENT_SYMBOL: BlockIcon = (properties) => createElement(Component, properties)
 
-function symbolOf(type: string): Icon {
-  return (editorFactsOf(type).symbol ?? REPLACEMENT_SYMBOL) as Icon
+function symbolOf(type: string): BlockIcon {
+  return BLOCK_ICONS[type] ?? REPLACEMENT_SYMBOL
 }
 
 const CATEGORY_LABEL: Record<Category, string> = {

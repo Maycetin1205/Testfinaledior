@@ -1,19 +1,15 @@
 import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import { numberProperty, structuredProperty } from '../../core/block/property'
-import type { Capability, WrittenRow, Delivery, PendingKind } from '../../core/block/capability'
-import { CALCULATIONS_PROP, calculationsFrom, type Calculation } from '../../core/data/calculation'
-import { reportError } from '../../softengine/report'
-import { EMPTY_TEXT_STANDARD, emptyStyle } from '../behavior/emptyState'
+import { BlockElement, defineBlock } from '../base/BlockElement'
+import type { WrittenRow, Delivery, PendingKind } from '../../core/block/capability'
 import {
-  LIST_GRID,
-  ListState,
-  listProperties,
-  listCapabilities,
-} from '../behavior/listState'
-import { standardColumns } from '../behavior/columns'
+  CALCULATIONS_PROP,
+  calculationsFrom,
+  type Calculation,
+} from '../../core/data/calculation'
+import { reportError } from '../../softengine/report'
+import { emptyStyle } from '../behavior/emptyState'
+import { LIST_GRID, ListState, listCapabilities } from '../behavior/listState'
 import { tableStyle } from '../behavior/tableStyle'
 import {
   WINDOW_WIDTH,
@@ -32,13 +28,13 @@ import { capturedRowsTpl, captureDecoration } from '../behavior/captureBody'
 import {
   CAPTURE_COLUMNS_BINDING,
   coerceCaptureColumns,
-  captureColumnsProperty,
   type CaptureColumn,
 } from '../behavior/captureColumn'
 import type { CaptureContext } from '../behavior/captureRow'
-import { RowsEditing, deletableProperty } from '../behavior/rowEditing'
+import { RowsEditing } from '../behavior/rowEditing'
 import { RunState, type RowsIcon } from '../behavior/rowStatus'
 import { captureStyle } from './captureStyle'
+import { captureProperties, type CaptureValues } from './properties'
 
 const NOT_ARRIVED = 'Nicht im Beleg angekommen.'
 
@@ -46,75 +42,11 @@ const NOT_CHANGED = 'Im Beleg unverändert geblieben.'
 
 const NOT_DELETED = 'Steht noch im Beleg.'
 
+export interface Capture extends CaptureValues {}
+
 export class Capture extends BlockElement {
   static readonly type = 'capture'
   static readonly tag = 'ff-capture'
-  static readonly displayName = 'Erfassung'
-  static readonly category: Category = 'input'
-
-  static readonly capabilities: readonly Capability[] = [
-    ...listCapabilities(CAPTURE_COLUMNS_BINDING),
-    { kind: 'capture' },
-    { kind: 'change', key: 'editable' },
-    { kind: 'delete', when: { key: 'deletable', equals: true } },
-    { kind: 'holdsSent' },
-    { kind: 'compute', prop: CALCULATIONS_PROP },
-
-    {
-      kind: 'lookupWindow',
-      window: {
-        entriesProp: 'columns',
-        titleKey: 'title',
-        sourceKey: 'fillField',
-        columnsKey: 'windowColumns',
-        widthKey: 'windowWidth',
-        heightKey: 'windowHeight',
-        automatic: 'Ohne Spalten zeigt das Fenster eine: das Feld dieser Spalte.',
-      },
-    },
-  ]
-
-  static readonly blockProperties = {
-    ...listProperties(),
-    columns: captureColumnsProperty(),
-    deletable: deletableProperty(),
-    calculations: structuredProperty<Calculation[]>({
-      read: (raw) => (raw === undefined || Array.isArray(raw)
-        ? { ok: true, value: calculationsFrom(raw) }
-        : { ok: false, reason: 'Liste von Berechnungen erwartet' }),
-      toAttribute: (value) => JSON.stringify(value),
-      fromAttribute: (raw) => {
-        if (raw === null) return []
-        try {
-          return calculationsFrom(JSON.parse(raw))
-        } catch {
-          return []
-        }
-      },
-    }, {
-      default: [],
-      label: 'Berechnungen',
-      help: 'Rechnungen, die eine Zelle aus anderen Zellen füllen.',
-      place: 'none',
-      attribute: 'calculations',
-    }),
-    windowWidth: numberProperty({
-      default: WINDOW_WIDTH,
-      label: 'Fensterbreite',
-      help: 'Breite des Nachschlage-Fensters in Pixeln.',
-      place: 'none',
-      attribute: 'lookupwidth',
-    }),
-    windowHeight: numberProperty({
-      default: WINDOW_HEIGHT,
-      label: 'Fensterhöhe',
-      help: 'Höhe des Nachschlage-Fensters in Pixeln.',
-      place: 'none',
-      attribute: 'lookupheight',
-    }),
-  }
-
-  static readonly grid = LIST_GRID
 
   static override styles: CSSResultGroup = [
     BlockElement.styles,
@@ -124,30 +56,6 @@ export class Capture extends BlockElement {
     cellsInputStyle,
     captureStyle,
   ]
-
-  columns: CaptureColumn[] = standardColumns()
-
-  source = ''
-
-  search = true
-
-  paging = true
-
-  headerRow = true
-
-  columnPicker = false
-
-  dayField = ''
-
-  emptyText = EMPTY_TEXT_STANDARD
-
-  deletable = false
-
-  windowWidth = WINDOW_WIDTH
-
-  windowHeight = WINDOW_HEIGHT
-
-  calculations: Calculation[] = []
 
   @property({ attribute: false }) dataRows: string[][] = []
 
@@ -405,4 +313,29 @@ export class Capture extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(Capture)
+defineBlock(Capture, {
+  name: 'Erfassung',
+  category: 'input',
+  properties: captureProperties,
+  capabilities: [
+    ...listCapabilities(CAPTURE_COLUMNS_BINDING),
+    { kind: 'capture' },
+    { kind: 'change', key: 'editable' },
+    { kind: 'delete', when: { key: 'deletable', equals: true } },
+    { kind: 'holdsSent' },
+    { kind: 'compute', prop: CALCULATIONS_PROP },
+    {
+      kind: 'lookupWindow',
+      window: {
+        entriesProp: 'columns',
+        titleKey: 'title',
+        sourceKey: 'fillField',
+        columnsKey: 'windowColumns',
+        widthKey: 'windowWidth',
+        heightKey: 'windowHeight',
+        automatic: 'Ohne Spalten zeigt das Fenster eine: das Feld dieser Spalte.',
+      },
+    },
+  ],
+  grid: LIST_GRID,
+})

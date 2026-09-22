@@ -1,165 +1,19 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
-import { BlockElement } from '../base/BlockElement'
-import type { Category } from '../../core/block/blockClass'
-import { bindable, type BindingProp, type Capability } from '../../core/block/capability'
-import type { FlowWidth } from '../../core/block/flow'
-import { fieldProperty, textProperty } from '../../core/block/property'
-import {
-  toneProperty,
-  toneStyle,
-  toneValue,
-  type ToneValue,
-} from '../behavior/tone'
+import { BlockElement, defineBlock } from '../base/BlockElement'
+import { bindable, type BindingProp } from '../../core/block/capability'
+import { toneStyle, toneValue } from '../behavior/tone'
 import { cardsStyle } from './cardStyle'
+import { cardProperties, type CardValues } from './properties'
 
 type TextSpot = 'heading' | 'heading2' | 'time' | 'date' | 'subline' | 'text'
+
+export interface Card extends CardValues {}
 
 export class Card extends BlockElement {
   static readonly type = 'card'
   static readonly tag = 'ff-card'
-  static readonly displayName = 'Karte'
-  static readonly category: Category = 'display'
-
-  static readonly allowedParent = ['kanban']
-  static readonly inPalette = false
-
-  static readonly fixedWidth: FlowWidth = 'fill'
-  static readonly widthEditable = false
-
-  static readonly blockProperties = {
-    chipTone: toneProperty(
-      'Bedeutung des Chips auf der Karte — bestimmt die Chip-Farbe.',
-      'chiptone',
-    ),
-    heading: textProperty({
-      default: '',
-      label: 'Titel',
-      help: 'Was an dieser Stelle der Karte steht.',
-      place: 'block',
-      attribute: 'heading',
-    }),
-    heading2: textProperty({
-      default: '',
-      label: 'Titel 2',
-      help: 'Was an dieser Stelle der Karte steht.',
-      place: 'block',
-      attribute: 'heading2',
-    }),
-    time: textProperty({
-      default: '',
-      label: 'Zeit',
-      help: 'Was an dieser Stelle der Karte steht.',
-      place: 'block',
-      attribute: 'time',
-    }),
-    date: textProperty({
-      default: '',
-      label: 'Datum',
-      help: 'Was an dieser Stelle der Karte steht.',
-      place: 'block',
-      attribute: 'date',
-    }),
-    subline: textProperty({
-      default: '',
-      label: 'Unterzeile',
-      help: 'Was an dieser Stelle der Karte steht.',
-      place: 'block',
-      attribute: 'subline',
-    }),
-    text: textProperty({
-      default: '',
-      label: 'Textzeile',
-      help: 'Was an dieser Stelle der Karte steht.',
-      place: 'block',
-      attribute: 'text',
-    }),
-    chip: textProperty({
-      default: '',
-      label: 'Chip',
-      help: 'Was an dieser Stelle der Karte steht.',
-      place: 'block',
-      attribute: 'chip',
-    }),
-    headingField: fieldProperty({
-      default: '',
-      label: 'Titel — Feld',
-      help: 'Das Feld, dessen Wert an dieser Stelle steht.',
-      place: 'none',
-      attribute: 'headingfield',
-    }),
-    heading2Field: fieldProperty({
-      default: '',
-      label: 'Titel 2 — Feld',
-      help: 'Das Feld, dessen Wert an dieser Stelle steht.',
-      place: 'none',
-      attribute: 'heading2field',
-    }),
-    timeField: fieldProperty({
-      default: '',
-      label: 'Zeit — Feld',
-      help: 'Das Feld, dessen Wert an dieser Stelle steht.',
-      place: 'none',
-      attribute: 'timefield',
-    }),
-    dateField: fieldProperty({
-      default: '',
-      label: 'Datum — Feld',
-      help: 'Das Feld, dessen Wert an dieser Stelle steht.',
-      place: 'none',
-      attribute: 'datefield',
-    }),
-    sublineField: fieldProperty({
-      default: '',
-      label: 'Unterzeile — Feld',
-      help: 'Das Feld, dessen Wert an dieser Stelle steht.',
-      place: 'none',
-      attribute: 'sublinefield',
-    }),
-    textField: fieldProperty({
-      default: '',
-      label: 'Textzeile — Feld',
-      help: 'Das Feld, dessen Wert an dieser Stelle steht.',
-      place: 'none',
-      attribute: 'textfield',
-    }),
-    chipField: fieldProperty({
-      default: '',
-      label: 'Chip — Feld',
-      help: 'Das Feld, dessen Wert an dieser Stelle steht.',
-      place: 'none',
-      attribute: 'chipfield',
-    }),
-  }
-
-  static readonly capabilities: readonly Capability[] = [
-    bindable<typeof Card.blockProperties>([
-      { prop: 'time', name: 'Zeit' },
-      { prop: 'date', name: 'Datum' },
-      { prop: 'heading', name: 'Titel' },
-      { prop: 'heading2', name: 'Titel 2' },
-      { prop: 'subline', name: 'Unterzeile' },
-      { prop: 'text', name: 'Textzeile' },
-      { prop: 'chip', name: 'Chip' },
-    ]),
-  ]
 
   static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, cardsStyle]
-
-  chipTone: ToneValue = 'info'
-  heading = ''
-  heading2 = ''
-  time = ''
-  date = ''
-  subline = ''
-  text = ''
-  chip = ''
-  headingField = ''
-  heading2Field = ''
-  timeField = ''
-  dateField = ''
-  sublineField = ''
-  textField = ''
-  chipField = ''
 
   private spot(prop: TextSpot | 'chip', klasse: string): TemplateResult {
     return html`<span
@@ -194,4 +48,23 @@ export class Card extends BlockElement {
   }
 }
 
-BlockElement.defineAndRegister(Card)
+defineBlock(Card, {
+  name: 'Karte',
+  category: 'display',
+  properties: cardProperties,
+  capabilities: [
+    bindable<typeof cardProperties>([
+      { prop: 'time', name: 'Zeit' },
+      { prop: 'date', name: 'Datum' },
+      { prop: 'heading', name: 'Titel' },
+      { prop: 'heading2', name: 'Titel 2' },
+      { prop: 'subline', name: 'Unterzeile' },
+      { prop: 'text', name: 'Textzeile' },
+      { prop: 'chip', name: 'Chip' },
+    ]),
+  ],
+  allowedParent: ['kanban'],
+  inPalette: false,
+  fixedWidth: 'fill',
+  widthEditable: false,
+})
