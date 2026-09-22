@@ -1,5 +1,5 @@
 import { isObjekt, messagesContent, dataFromContent, type Objekt } from './data'
-import { startEditingSignal } from './editingSignal'
+
 import { reportError } from './report'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SEDATA/selib sind
@@ -212,7 +212,6 @@ export function startSe(): void {
   g.initData = g.Erstellen
   g.ReloadData = () => { ring(dataAreNeu()) }
   focusBridgeBuild()
-  startEditingSignal(focusOnUs)
   registerSe()
 
   window.addEventListener('message', (evt) => {
