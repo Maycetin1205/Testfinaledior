@@ -44,20 +44,20 @@ export function PopupPage({ popupId }: { popupId: string }) {
   const node = ed.getNode(popupId)
   if (!node) return null
   const selected = ed.selectedId === node.id
-  const width = popupNumber(node.values.width, 520)
-  const height = popupNumber(node.values.height, 380)
+  const width = popupNumber(node.values.popupWidth, 520)
+  const height = popupNumber(node.values.popupHeight, 380)
 
   const visibleWidth = stage ? Math.min(width, Math.max(40, stage.b - DIALOG_EDGE)) : width
   const visibleHeight = stage ? Math.min(height, Math.max(40, stage.h - DIALOG_EDGE)) : height
 
   const startResize = (
     e: ReactPointerEvent<HTMLDivElement>,
-    prop: 'width' | 'height',
+    prop: 'popupWidth' | 'popupHeight',
     start: number,
     min: number,
   ) => {
     dragSize(ed, e, {
-      axis: prop === 'width' ? 'x' : 'y',
+      axis: prop === 'popupWidth' ? 'x' : 'y',
       prop,
       getId: () => node.id,
       start,
@@ -113,7 +113,7 @@ export function PopupPage({ popupId }: { popupId: string }) {
           <div
             draggable={false}
             data-ff-editor-helper
-            onPointerDown={(e) => startResize(e, 'width', visibleWidth, POPUP_MIN_WIDTH)}
+            onPointerDown={(e) => startResize(e, 'popupWidth', visibleWidth, POPUP_MIN_WIDTH)}
             onDragStart={(e) => e.preventDefault()}
             onDoubleClick={(e) => {
               e.stopPropagation()
@@ -136,7 +136,7 @@ export function PopupPage({ popupId }: { popupId: string }) {
           <div
             draggable={false}
             data-ff-editor-helper
-            onPointerDown={(e) => startResize(e, 'height', visibleHeight, POPUP_MIN_HEIGHT)}
+            onPointerDown={(e) => startResize(e, 'popupHeight', visibleHeight, POPUP_MIN_HEIGHT)}
             onDragStart={(e) => e.preventDefault()}
             onDoubleClick={(e) => {
               e.stopPropagation()

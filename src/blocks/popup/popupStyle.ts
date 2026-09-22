@@ -3,7 +3,7 @@ import { gridAreaCss } from '../../core/block/grid'
 
 export const popupStyle = css`
   :host { display: none; }
-  :host([offen]),
+  :host([open]),
   :host([data-ff-editor]) {
     display: block;
     position: absolute;
