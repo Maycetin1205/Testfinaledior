@@ -1,75 +1,77 @@
-/* Die Werte der Maske: kuehl, petrol, dicht — die Optik, die in BueroWARE
-   laeuft. Alles, was die Bausteine an Farbe, Schrift und Mass brauchen, steht
-   hier; ein Baustein erfindet keinen eigenen Wert. */
+/* Die Werte der Maske: warm, ruhig, gut lesbar aus einem Meter Abstand, fuer
+   den Empfang einer Praxis. Farbe traegt Bedeutung (rot Notfall, bernstein
+   wartet, gruen fertig, blau Hinweis); alles andere bleibt neutral. Alles, was
+   die Bausteine an Farbe, Schrift und Mass brauchen, steht hier; ein Baustein
+   erfindet keinen eigenen Wert. */
 :root {
 
-  --se-bg:        #f3f8fa;
+  --se-bg:        #f5f3ef;
   --se-panel:     #ffffff;
-  --se-panel-2:   #f6fbfc;
+  --se-panel-2:   #faf8f5;
 
-  --se-ink:       #1b2d3e;
-  --se-muted:     #5f7386;
-  --se-faint:     #9fb3c0;
+  --se-ink:       #24211d;
+  --se-muted:     #6b645b;
+  --se-faint:     #aaa298;
 
-  --se-line:      #d8e5ea;
-  --se-line-soft: #e8f0f4;
+  --se-line:      #e4ded5;
+  --se-line-soft: #eeeae3;
 
-  --se-scrim:     rgba(27, 45, 62, 0.45);
+  --se-scrim:     rgba(36, 33, 29, 0.45);
 
-  --se-accent:      #00778f;
-  --se-accent-dark: #00647a;
-  --se-accent-soft: #e8f6f9;
+  --se-accent:      #2b6f63;
+  --se-accent-dark: #215a50;
+  --se-accent-soft: #e7f2ef;
 
   /* Die gewaehlte Zeile, das Zebra und der Zeilen-Hover. */
-  --se-auswahl:     #d3eef5;
-  --se-zebra:       #f7fbfc;
-  --se-hover:       #eef7f9;
+  --se-auswahl:     #d6ebe6;
+  --se-zebra:       #faf8f5;
+  --se-hover:       #f1efea;
 
-  --se-red:         #b3261e;
-  --se-red-soft:    #fdecea;
+  --se-red:         #c0392b;
+  --se-red-soft:    #fbe9e6;
 
   /* Bernstein heisst "vorgemerkt, noch nicht geschrieben": die geaenderte
      Zelle und die neue Zeile. */
-  --se-amber:       #f0a53a;
-  --se-amber-soft:  #fff6e1;
+  --se-amber:       #e09a1a;
+  --se-amber-soft:  #fdf3dc;
 
-  --se-blue:        #5e93be;
-  --se-blue-soft:   #e2edf5;
-  --se-green:       #1f7a4d;
-  --se-green-soft:  #e2f3ea;
+  --se-blue:        #4a7bab;
+  --se-blue-soft:   #e6eef6;
+  --se-green:       #2e7d4f;
+  --se-green-soft:  #e3f2e8;
 
-  --se-red-shell:   #fdf3f2;  --se-red-line:   #f0cdc9;
-  --se-amber-shell: #fffdf4;  --se-amber-line: #ecd9a4;
-  --se-blue-shell:  #f5f9fc;  --se-blue-line:  #d2e2ee;
-  --se-green-shell: #f6fbf8;  --se-green-line: #cfe6d8;
+  --se-red-shell:   #fdf5f4;  --se-red-line:   #f1d0cb;
+  --se-amber-shell: #fffaf0;  --se-amber-line: #efd9a6;
+  --se-blue-shell:  #f6f9fc;  --se-blue-line:  #d3e0ee;
+  --se-green-shell: #f6fbf7;  --se-green-line: #cde6d6;
 
   --se-card-bg:     #ffffff;
-  --se-card-line:   #d8e5ea;
+  --se-card-line:   #e4ded5;
 
   --se-border: 1px;
 
-  --se-r-sm:   4px;
-  --se-r-md:   6px;
-  --se-r-lg:   10px;
+  --se-r-sm:   6px;
+  --se-r-md:   10px;
+  --se-r-lg:   14px;
 
-  --se-schatten: 0 1px 2px rgba(27, 45, 62, 0.05), 0 4px 12px rgba(27, 45, 62, 0.06);
+  --se-schatten: 0 1px 2px rgba(36, 33, 29, 0.05), 0 6px 16px rgba(36, 33, 29, 0.07);
 
   --se-font: "Segoe UI Variable Text", "Segoe UI", system-ui, Tahoma, sans-serif;
-  --se-mono: "IBM Plex Mono", Consolas, monospace;
-  --se-fs:      13px;
-  --se-fs-sm:   12px;
-  --se-fs-xs:   10.5px;
-  --se-fs-lg:   14px;
+  --se-mono: "Cascadia Mono", Consolas, monospace;
+  --se-fs:      14px;
+  --se-fs-sm:   12.5px;
+  --se-fs-xs:   11px;
+  --se-fs-lg:   16px;
 
   /* Spaltentitel: eine Stufe kleiner als der Inhalt, damit zwei Zeilen Titel
      in den Kopf passen. */
-  --se-fs-kopf: 11.5px;
+  --se-fs-kopf: 12px;
 
   --se-lh: 1.4;
 
-  --se-gap-sm: 6px;
-  --se-gap:    10px;
-  --se-gap-lg: 16px;
+  --se-gap-sm: 8px;
+  --se-gap:    12px;
+  --se-gap-lg: 18px;
 
   --se-move: 130ms ease-out;
 }

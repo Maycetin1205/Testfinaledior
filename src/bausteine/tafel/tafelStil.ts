@@ -41,15 +41,19 @@ export const tafelStil = css`
     overflow-x: auto;
   }
 
+  /* Die Spalte bleibt neutral; ihre Bedeutung traegt nur der Streifen oben
+     und die Zahl, sonst stuende am Empfang alles in Farbe. */
   .spalte {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
-    min-width: 180px;
+    min-width: 200px;
     min-height: 0;
     overflow: hidden;
-    background: var(--fw-sanft);
+    background: var(--se-panel-2);
+    border: var(--se-border) solid var(--se-line);
+    border-top: 4px solid var(--fw-stark);
     border-radius: var(--se-r-lg);
   }
 
@@ -58,20 +62,21 @@ export const tafelStil = css`
     display: flex;
     align-items: center;
     gap: var(--se-gap-sm);
-    padding: 10px 12px;
+    padding: 12px 14px 10px;
   }
 
   .punkt {
     flex: none;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
     background: var(--fw-stark);
   }
 
   .titel {
     color: var(--se-ink);
-    font-size: var(--se-fs);
-    font-weight: 600;
+    font-size: var(--se-fs-lg);
+    font-weight: 700;
     line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
@@ -80,16 +85,15 @@ export const tafelStil = css`
 
   .anzahl {
     margin-left: auto;
-    min-width: 22px;
-    padding: 1px 8px;
+    min-width: 26px;
+    padding: 3px 9px;
     line-height: 1;
-    border-radius: var(--se-r-sm);
-    background: var(--se-panel);
-    border: var(--se-border) solid var(--fw-stark);
+    border-radius: 999px;
+    background: var(--fw-sanft);
     text-align: center;
-    font-family: var(--se-mono);
     font-size: var(--se-fs-sm);
-    font-weight: 600;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
     color: var(--se-ink);
   }
 
@@ -142,11 +146,12 @@ export const tafelStil = css`
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 11px 13px 12px;
+    padding: 12px 14px 13px;
     background: var(--se-card-bg);
     border: var(--se-border) solid var(--se-card-line);
     border-radius: var(--se-r-md);
-    transition: border-color var(--se-move);
+    box-shadow: var(--se-schatten);
+    transition: border-color var(--se-move), box-shadow var(--se-move);
   }
   .karte[role='button'] { cursor: pointer; }
   .karte:hover { border-color: var(--se-faint); }
@@ -160,8 +165,8 @@ export const tafelStil = css`
   .bild {
     box-sizing: border-box;
     flex: none;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     overflow: hidden;
     border-radius: 50%;
     background: var(--se-panel);
@@ -220,9 +225,8 @@ export const tafelStil = css`
     gap: 6px;
     flex: none;
     margin-left: auto;
-    padding: 5px 11px 5px 9px;
-    border-radius: var(--se-r-sm);
-    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
+    padding: 4px 11px 4px 9px;
+    border-radius: 999px;
     font-size: var(--se-fs-sm);
     font-weight: 700;
     line-height: 1.3;
@@ -234,8 +238,9 @@ export const tafelStil = css`
   .chip::before {
     content: '';
     flex: none;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
     background: var(--fw-stark);
   }
 `
