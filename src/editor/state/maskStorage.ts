@@ -10,7 +10,7 @@ import {
   type LibraryContent,
 } from './libraryFile'
 import { checkTreeState } from './loadCheck'
-import { CURRENT_SCHEMA_VERSION, liftKey, liftState, schemaReadable } from './maskSchema'
+import { CURRENT_SCHEMA_VERSION, liftKey, liftLibraries, liftState, schemaReadable } from './maskSchema'
 import { messages } from './messages'
 import {
   copyRecord,
@@ -73,6 +73,7 @@ function withSavedDataCenter(state: LoadedState | null): LoadedState | null {
 
 function rescuedLibrary(raw: unknown): LoadedState | null {
   const state = liftKey(raw) as Record<string, unknown>
+  liftLibraries(state)
   const sources = libraryCheck(state.dataSources, checkDataSources, AREA_SOURCES)
   const relation = libraryCheck(state.relation, checkRelationTemplates, AREA_RELATION)
   if (!sources.ok && !relation.ok) return null

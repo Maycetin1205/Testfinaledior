@@ -10,7 +10,7 @@ import { checkRelationTemplates, type RelationTemplate } from '../../core/data/r
 import { downloadFile } from './fileDownload'
 import type { EditorStore } from './EditorStore'
 import { firstDeviation, noLoss } from './loadCheck'
-import { liftKey } from './maskSchema'
+import { liftKey, liftLibraries } from './maskSchema'
 import { messages } from './messages'
 
 export const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
@@ -101,6 +101,7 @@ export function packLibraryFrom(text: string): LibraryResult {
     return rejected('Die Datei enthält keine Bibliothek.')
   }
   const o = liftKey(raw) as Record<string, unknown>
+  liftLibraries(o)
 
   if (o.kind !== LIBRARY_FILE_KIND) {
     return rejected(

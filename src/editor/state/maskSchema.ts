@@ -263,7 +263,7 @@ const EXTRA_SOURCE_KEYS: Record<string, string> = {
 const SOURCE_KEYS: Record<string, string> = {
   art: 'kind', felder: 'fields', satzFeld: 'recordField', kopfsatzIndex: 'headerKeyIndex',
   lieferung: 'delivery', ladeRelation: 'loadRelation', holWert: 'getValue',
-  feldVorsatz: 'fieldPrefix', bereich: 'area', zeichen: 'chars',
+  feldVorsatz: 'fieldPrefix', bereich: 'area', zeichen: 'icon',
   belegartFeld: 'documentKindField', belegnummerFeld: 'documentNumberField',
   jahrFeld: 'yearField', archivFeld: 'archiveField', endeFelder: 'endFields',
   zusatzParameterErlaubt: 'extraParameterAllowed', offenerSatz: 'openRecord',
@@ -274,6 +274,8 @@ const SOURCE_KINDS: Record<string, string> = {
   belegposition: 'documentItem', datei: 'file', relationswert: 'relationValue',
   erpabfrage: 'erpQuery', erpmaske: 'erpMask',
 }
+
+const DELIVERY_VALUES: Record<string, string> = { liste: 'list', offenerSatz: 'openRecord' }
 
 function renameDeep(x: unknown, pairs: Record<string, string>): void {
   if (Array.isArray(x)) { x.forEach((e) => renameDeep(e, pairs)); return }
@@ -289,18 +291,39 @@ function liftSteps(chains: Record<string, unknown>): void {
     for (const step of steps) {
       if (!isPlainObject(step)) continue
       to(step, STEP_KEYS)
-      for (const list of ['parameter', 'extraParameter']) {
-        const params = step[list]
-        if (!Array.isArray(params)) continue
-        for (const p of params) {
-          if (!isPlainObject(p)) continue
-          to(p, PARAMETER_KEYS)
-          const from = p.source
-          if (typeof from === 'string' && from in PARAMETER_SOURCES) p.source = PARAMETER_SOURCES[from]
-        }
-      }
+      for (const list of ['parameter', 'extraParameter']) liftParameters(step[list])
     }
   }
+}
+
+function liftParameters(params: unknown): void {
+  if (!Array.isArray(params)) return
+  for (const p of params) {
+    if (!isPlainObject(p)) continue
+    to(p, PARAMETER_KEYS)
+    const from = p.source
+    if (typeof from === 'string' && from in PARAMETER_SOURCES) p.source = PARAMETER_SOURCES[from]
+  }
+}
+
+// Data sources and relation templates sit in the mask, in the library file and
+// in the browser copy of the data center; all three readers come through here.
+export function liftLibraries(state: Record<string, unknown>): void {
+  const sources = state.datenquellen ?? state.dataSources
+  if (Array.isArray(sources)) {
+    renameDeep(sources, SOURCE_KEYS)
+    for (const source of sources) {
+      if (!isPlainObject(source)) continue
+      const kind = source.kind
+      if (typeof kind === 'string' && kind in SOURCE_KINDS) source.kind = SOURCE_KINDS[kind]
+      const delivery = source.delivery
+      if (typeof delivery === 'string' && delivery in DELIVERY_VALUES) source.delivery = DELIVERY_VALUES[delivery]
+      if (isPlainObject(source.getValue)) liftParameters(source.getValue.parameter)
+    }
+  }
+  const relations = state.relationen ?? state.relations ?? state.relation
+  if (Array.isArray(relations)) renameDeep(relations, SOURCE_KEYS)
+  to(state, { datenquellen: 'dataSources', relationen: 'relation', relations: 'relation' })
 }
 
 function liftValues(type: string, values: Record<string, unknown>): void {
@@ -353,18 +376,7 @@ function liftToEnglish(state: Record<string, unknown>): void {
     }
   }
 
-  const sources = state.datenquellen ?? state.dataSources
-  if (Array.isArray(sources)) {
-    renameDeep(sources, SOURCE_KEYS)
-    for (const source of sources) {
-      if (!isPlainObject(source)) continue
-      const kind = source.kind
-      if (typeof kind === 'string' && kind in SOURCE_KINDS) source.kind = SOURCE_KINDS[kind]
-    }
-  }
-  const relations = state.relationen ?? state.relations
-  if (Array.isArray(relations)) renameDeep(relations, SOURCE_KEYS)
-  to(state, { datenquellen: 'dataSources', relationen: 'relations' })
+  liftLibraries(state)
 }
 
 export function liftState(raw: unknown): unknown {
