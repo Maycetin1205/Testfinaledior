@@ -44,7 +44,20 @@ interface WaehlerFall {
   onWaehle: (wert: string) => void
 }
 
-export function PropControl({
+// Der Zusatz einer Eigenschaft steht sichtbar darunter, fuer jedes Bedienelement gleich.
+export function PropControl(props: PropControlProps) {
+  const zusatz = props.property.zusatz
+  const control = <PropControlKern {...props} />
+  if (!zusatz || props.kompakt) return control
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5">
+      {control}
+      <p className="text-dicht text-matt">{zusatz}</p>
+    </div>
+  )
+}
+
+function PropControlKern({
   block,
   property,
   sourceInReach,

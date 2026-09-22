@@ -54,6 +54,9 @@ export function eigenschaftSichtbar(
   return Object.is(wert, bedingung.gleich)
 }
 
+// Die vier Abschnitte des Inspectors, in dieser Reihenfolge fuer jeden Baustein.
+export type InspectorAbschnitt = 'daten' | 'inhalt' | 'aussehen'
+
 export interface Eigenschaft {
   schluessel: string
   name: string
@@ -78,6 +81,15 @@ export interface Eigenschaft {
   klarnameProp?: string
 
   nurImEditor?: boolean
+
+  // Ohne Angabe folgt der Abschnitt aus der Art: Feld, Quelle, Relation sind
+  // Daten, Texte und Listen Inhalt, alles Uebrige Aussehen.
+  abschnitt?: InspectorAbschnitt
+  // Eigenschaften mit derselben Gruppe stehen im Abschnitt unter einer Ueberschrift.
+  gruppe?: string
+  // Steht sichtbar unter dem Bedienelement, nicht als Tooltip: auf dem Tablet
+  // gibt es keinen.
+  zusatz?: string
 
   eintrag?: Eigenschaft[]
   // Name eines Eintrags auf dem Knopf „+ Spalte“ und der Wert, mit dem er anfaengt.
@@ -105,4 +117,11 @@ export function jaNeinEigenschaft(
     ],
     ...weiteres,
   }
+}
+
+export function abschnittVon(p: Eigenschaft): InspectorAbschnitt {
+  if (p.abschnitt) return p.abschnitt
+  if (p.art === 'field' || p.art === 'quelle' || p.art === 'relation') return 'daten'
+  if (p.art === 'text' || p.art === 'textarea' || p.art === 'eintraege' || p.art === 'seite') return 'inhalt'
+  return 'aussehen'
 }

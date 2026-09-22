@@ -1,24 +1,34 @@
 // Der Inspector: die Einstellungen des gewaehlten Bausteins.
-import { useMemo, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Copy, MousePointer2 } from '@/editor/zeichen/zeichen'
 import { eigenschaftenFuer } from '../../kern/maske/eigenschaftsOrt'
 import { bausteinArt } from '../../kern/maske/registry'
 import { faehigkeit } from '../../kern/maske/faehigkeiten'
-import { type Eigenschaft } from '../../kern/maske/eigenschaft'
+import { abschnittVon, type Eigenschaft, type InspectorAbschnitt } from '../../kern/maske/eigenschaft'
 import { darfAuswahlFolgen, traegtEigeneQuelle } from '../../kern/maske/baumFragen'
 import { useDataSources } from '../zustand/useDataSources'
 import { useEditor } from '../zustand/useEditor'
-import { Gruppe } from '@/editor/werkbank/Gruppe'
+import { Reiter } from '@/editor/werkbank/Reiter'
 import { Knopf } from '@/editor/werkbank/Knopf'
 import { Zeile } from '@/editor/werkbank/Zeile'
 import { bausteinName } from '../../kern/maske/bausteinName'
 import { kapazitaetVon } from '../canvas/rasterFlaeche'
-import { useAbschnitt } from './abschnittStand'
 import { AktionenSektion } from './AktionenSektion'
 import { AuswahlFolgeSektion } from './AuswahlFolgeSektion'
 import { PropControl } from './PropControl'
 import { QuellenListe } from './QuellenListe'
 import { SuchfensterSektion } from './SuchfensterSektion'
+
+// Dieselben vier Reiter in derselben Reihenfolge fuer jeden Baustein; ein Reiter
+// ohne Inhalt faellt weg.
+type InspectorReiter = InspectorAbschnitt | 'aktionen'
+
+const REITER: readonly { id: InspectorReiter; name: string }[] = [
+  { id: 'daten', name: 'Daten' },
+  { id: 'inhalt', name: 'Inhalt' },
+  { id: 'aussehen', name: 'Aussehen' },
+  { id: 'aktionen', name: 'Aktionen' },
+]
 
 interface InspectorZeile {
   row?: string
@@ -53,8 +63,7 @@ function Panel({ titel, aktionen, children }: {
 
 export function Inspector() {
   // Vor jedem fruehen `return`: Hooks laufen in jedem Durchgang gleich oft.
-  const [felderOffen, schalteFelder] = useAbschnitt('felder')
-  const [aktionenOffen, schalteAktionen] = useAbschnitt('aktionen')
+  const [reiter, setReiter] = useState<InspectorReiter>('daten')
   const ed = useEditor()
 
   const quellen = useDataSources()
@@ -105,32 +114,75 @@ export function Inspector() {
   )
 
   const visibleProps = eigenschaftenFuer(block, def, 'inspector')
-
-  // Nach unten wandert nur, was WIRKLICH auf ein Feld, eine Quelle oder eine
-  // Relation zeigt. `requiresDataSource` gehoert nicht dazu: es steckt auch an
-  // gewoehnlichen Ja/Nein-Schaltern, die sonst auf zwei Seiten des Trennstrichs
-  // laegen.
-  const dataProps = visibleProps.filter(
-    (p) => p.art === 'field' || p.art === 'quelle' || p.art === 'relation',
-  )
-  const generalProps = visibleProps.filter((p) => !dataProps.includes(p))
-
-  // Getrennt nach FORM, nicht nach Thema: ein Ja/Nein ist eine Kachel und steht
-  // neben seinesgleichen, ein Wert ist eine Zeile mit Beschriftung darueber.
-  const kachelProps = generalProps.filter((p) => p.art === 'jaNein')
-  // Eine Liste von Eintraegen ist zu gross fuer eine Zeile und bekommt ihre
-  // eigene Gruppe.
-  const listenProps = generalProps.filter((p) => p.art === 'eintraege')
-  const wertProps = generalProps.filter((p) => p.art !== 'jaNein' && p.art !== 'eintraege')
-
-  const showDataSection = traegtEigeneQuelle(block) || dataProps.length > 0
+  const imAbschnitt = (a: InspectorAbschnitt): Eigenschaft[] => visibleProps.filter((p) => abschnittVon(p) === a)
 
   const ereignisse = faehigkeit(def, 'ereignisse')?.liste ?? []
-  const hatAktionen = ereignisse.length > 0
 
   // Das Suchfenster bringt die Faehigkeit Nachschlagen mit; gefragt wird sie,
   // nicht der Bausteintyp.
   const suchFenster = faehigkeit(def, 'suchfenster')?.fenster
+  const eigeneQuelle = traegtEigeneQuelle(block)
+  const folgt = darfAuswahlFolgen(block)
+
+  // Getrennt nach FORM: ein Ja/Nein ist eine Kachel neben seinesgleichen, ein
+  // Wert eine Zeile, eine Liste bekommt eine eigene Ueberschrift.
+  const darstellen = (props: Eigenschaft[]): ReactNode => {
+    const gruppen = [...new Set(props.map((p) => p.gruppe ?? ''))]
+    return gruppen.map((gruppe) => {
+      const eigene = props.filter((p) => (p.gruppe ?? '') === gruppe)
+      const kacheln = eigene.filter((p) => p.art === 'jaNein')
+      const listen = eigene.filter((p) => p.art === 'eintraege')
+      const werte = eigene.filter((p) => p.art !== 'jaNein' && p.art !== 'eintraege')
+      return (
+        <section key={gruppe} className="flex flex-col gap-2">
+          {gruppe !== '' && <h3 className="text-ui font-semibold text-tinte">{gruppe}</h3>}
+          {kacheln.length > 0 && <div className="flex flex-wrap gap-1.5">{kacheln.map((p) => propControl(p))}</div>}
+          {werte.length > 0 && (
+            <div className="inspektor-werte">
+              {inspectorZeilen(werte).map((zeile) =>
+                zeile.row ? (
+                  <Zeile key={`zeile:${zeile.row}`} label={zeile.row}>
+                    {() => (
+                      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                        {zeile.props.map((p) => propControl(p, true))}
+                      </div>
+                    )}
+                  </Zeile>
+                ) : (
+                  propControl(zeile.props[0])
+                ),
+              )}
+            </div>
+          )}
+          {listen.map((p) => (
+            <div key={p.schluessel} className="flex flex-col gap-1.5">
+              <h3 className="text-ui font-semibold text-tinte" title={p.beschreibung}>{p.name}</h3>
+              {propControl(p)}
+            </div>
+          ))}
+        </section>
+      )
+    })
+  }
+
+  const datenProps = imAbschnitt('daten')
+  const inhaltProps = imAbschnitt('inhalt')
+  const aussehenProps = imAbschnitt('aussehen')
+  const reiterInhalt: Record<InspectorReiter, ReactNode | null> = {
+    daten: eigeneQuelle || datenProps.length > 0 || suchFenster !== undefined || folgt ? (
+      <>
+        {eigeneQuelle && <QuellenListe block={block} />}
+        {darstellen(datenProps)}
+        {suchFenster && <SuchfensterSektion block={block} fenster={suchFenster} />}
+        {folgt && <AuswahlFolgeSektion block={block} />}
+      </>
+    ) : null,
+    inhalt: inhaltProps.length > 0 ? darstellen(inhaltProps) : null,
+    aussehen: aussehenProps.length > 0 ? darstellen(aussehenProps) : null,
+    aktionen: ereignisse.length > 0 ? <AktionenSektion block={block} events={ereignisse} /> : null,
+  }
+  const vorhanden = REITER.filter((r) => reiterInhalt[r.id] !== null)
+  const aktiv = vorhanden.find((r) => r.id === reiter) ?? vorhanden[0]
 
   return (
     <Panel
@@ -148,70 +200,19 @@ export function Inspector() {
       )}
     >
       <div className="flex flex-col gap-4">
-        {kachelProps.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {kachelProps.map((p) => propControl(p))}
+        {vorhanden.length > 0 && (
+          <div className="flex gap-1 border-b border-linie pb-2" role="tablist">
+            {vorhanden.map((r) => (
+              <Reiter key={r.id} aktiv={r.id === aktiv?.id} onClick={() => setReiter(r.id)}>{r.name}</Reiter>
+            ))}
           </div>
         )}
-
-        {wertProps.length > 0 && (
-          <div className="inspektor-werte">
-            {inspectorZeilen(wertProps).map((zeile) =>
-              zeile.row ? (
-                <Zeile key={`zeile:${zeile.row}`} label={zeile.row}>
-                  {() => (
-                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                      {zeile.props.map((p) => propControl(p, true))}
-                    </div>
-                  )}
-                </Zeile>
-              ) : (
-                propControl(zeile.props[0])
-              ),
-            )}
-          </div>
-        )}
-
-        {listenProps.map((p) => (
-          <Gruppe key={p.schluessel} titel={p.name}>
-            {propControl(p)}
-          </Gruppe>
-        ))}
-
-        {showDataSection && (
-          <div className="flex flex-col gap-4">
-            {traegtEigeneQuelle(block) && <QuellenListe block={block} />}
-            {/* Eigene Ueberschrift: ohne sie standen die Datenfelder optisch
-                INNERHALB der Gruppe „Datenquellen" und lasen sich wie deren
-                Einstellungen — beim Kanban sah der ganze Inspector nach
-                Datenquelle aus. */}
-            {dataProps.length > 0 && (
-              <Gruppe titel="Felder" offen={felderOffen} onSchalte={schalteFelder}>
-                <div className="inspektor-werte">
-                  {dataProps.map((p) => propControl(p))}
-                </div>
-              </Gruppe>
-            )}
-          </div>
-        )}
-
-        {suchFenster && <SuchfensterSektion block={block} fenster={suchFenster} />}
-
-        {darfAuswahlFolgen(block) && <AuswahlFolgeSektion block={block} />}
-
-        {hatAktionen && (
-          <Gruppe titel="Aktionen" offen={aktionenOffen} onSchalte={schalteAktionen}>
-            <AktionenSektion block={block} events={ereignisse} />
-          </Gruppe>
-        )}
-
-        {generalProps.length === 0 && !showDataSection && !hatAktionen
-          && !darfAuswahlFolgen(block) && suchFenster === undefined && (
-            // Sonst steht der Bediener vor einer leeren Flaeche und weiss nicht,
-            // ob der Baustein nichts kann oder der Editor kaputt ist.
+        {aktiv && reiterInhalt[aktiv.id]}
+        {!aktiv && (
+          // Sonst steht der Bediener vor einer leeren Flaeche und weiss nicht,
+          // ob der Baustein nichts kann oder der Editor kaputt ist.
           <p className="text-ui text-matt">Gestaltung direkt am Baustein. Hier sind keine weiteren Daten- oder Verhaltenseinstellungen nötig.</p>
         )}
-
       </div>
     </Panel>
   )

@@ -59,6 +59,17 @@ export function EintraegeControl(props: EintraegeControlProps) {
 
   const bedienung = (e: Eintrag, at: number, teil: Eigenschaft) => {
     if (!eigenschaftSichtbar(teil.wenn, e)) return null
+    const control = bedienungKern(e, at, teil)
+    if (!teil.zusatz || control === null) return control
+    return (
+      <div key={teil.schluessel} className="flex min-w-0 flex-col gap-0.5">
+        {control}
+        <p className="text-dicht text-matt">{teil.zusatz}</p>
+      </div>
+    )
+  }
+
+  const bedienungKern = (e: Eintrag, at: number, teil: Eigenschaft) => {
     const wert = e[teil.schluessel]
     const setzeWert = (v: unknown) => setze(at, teil, v)
     switch (teil.art) {
