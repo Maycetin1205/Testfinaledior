@@ -17,6 +17,9 @@ export type EigenschaftsArt =
   | 'relation'
 // seite speichert die feste Kennung. klarnameProp haelt den lesbaren Seitennamen.
   | 'seite'
+// eintraege speichert eine Liste von Objekten; `eintrag` beschreibt, was jeder
+// Eintrag traegt. Der Inspector zeichnet je Eintrag dieselben Bedienelemente.
+  | 'eintraege'
 
 
 export interface Wahloption {
@@ -75,6 +78,12 @@ export interface Eigenschaft {
   klarnameProp?: string
 
   nurImEditor?: boolean
+
+  eintrag?: Eigenschaft[]
+  // Name eines Eintrags auf dem Knopf „+ Spalte“ und der Wert, mit dem er anfaengt.
+  eintragName?: string
+  neuerEintrag?: () => Record<string, unknown>
+  titelSchluessel?: string
 }
 
 // Die eine Stelle fuer eine Ja/Nein-Eigenschaft. Die REIHENFOLGE der Optionen

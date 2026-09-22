@@ -118,7 +118,10 @@ export function Inspector() {
   // Getrennt nach FORM, nicht nach Thema: ein Ja/Nein ist eine Kachel und steht
   // neben seinesgleichen, ein Wert ist eine Zeile mit Beschriftung darueber.
   const kachelProps = generalProps.filter((p) => p.art === 'jaNein')
-  const wertProps = generalProps.filter((p) => p.art !== 'jaNein')
+  // Eine Liste von Eintraegen ist zu gross fuer eine Zeile und bekommt ihre
+  // eigene Gruppe.
+  const listenProps = generalProps.filter((p) => p.art === 'eintraege')
+  const wertProps = generalProps.filter((p) => p.art !== 'jaNein' && p.art !== 'eintraege')
 
   const showDataSection = traegtEigeneQuelle(block) || dataProps.length > 0
 
@@ -168,6 +171,12 @@ export function Inspector() {
             )}
           </div>
         )}
+
+        {listenProps.map((p) => (
+          <Gruppe key={p.schluessel} titel={p.name}>
+            {propControl(p)}
+          </Gruppe>
+        ))}
 
         {showDataSection && (
           <div className="flex flex-col gap-4">

@@ -73,6 +73,9 @@ laufenden Schritt gehoert.
    Formularfeld erledigt. Danach die uebrigen Bausteine genau so,
    Reihenfolge: Text, Datum, Button, Popup, Kanban mit Card, Trenner,
    Anmeldung. Kein Baustein bleibt alt: die Palette ist das Produkt.
+   „Kanban (neu)“ (`bausteine/tafel/`, ein Baustein ohne Kinder) steht zum
+   Vergleich neben dem alten Kanban; er ersetzt ihn erst nach dem Test des
+   Nutzers, dann mit Umwandlung alter Masken.
 4. Editor: Flaeche, Palette, Inspector, Datencenter, Design. Das Datencenter
    wird gegen kontrakte.md neu gedacht, nicht aus dem heutigen Code
    abgeschrieben: Quellenarten nach Abschnitt 4, 4a, 4c (Bestellung,

@@ -10,6 +10,7 @@ import { useEditor } from '../zustand/useEditor'
 import type { ListeGruppe } from '@/editor/werkbank/Liste'
 import { KachelControl } from './controls/KachelControl'
 import { ColorTileControl } from './controls/ColorTileControl'
+import { EintraegeControl } from './controls/EintraegeControl'
 import { NumberControl } from './controls/NumberControl'
 import { PickerControl } from './controls/PickerControl'
 import { SegmentControl } from './controls/SegmentControl'
@@ -219,6 +220,16 @@ export function PropControl({
   switch (kind) {
     case 'text':
       return <TextControl property={property} value={String(value ?? '')} onChange={set} {...sitzung} />
+    case 'eintraege':
+      return (
+        <EintraegeControl
+          property={property}
+          value={value ?? def?.vorgaben[property.schluessel]}
+          onChange={set}
+          feldQuelle={feldQuelle}
+          {...sitzung}
+        />
+      )
     case 'textarea':
       return <TextareaControl property={property} value={String(value ?? '')} onChange={set} {...sitzung} />
 

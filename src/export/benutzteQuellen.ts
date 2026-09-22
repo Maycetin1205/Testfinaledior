@@ -3,7 +3,7 @@ import { WURZEL_ID, type Baustein, type Maskenbaum } from '../kern/maske/baum'
 import { feldWahlenLesen, listeLesen, zerlegeBindung } from '../kern/maske/bausteinArt'
 import { bindungsProp, faehigkeit } from '../kern/maske/faehigkeiten'
 import { bausteinArt } from '../kern/maske/registry'
-import { eigenschaftSichtbar } from '../kern/maske/eigenschaft'
+import { eigenschaftSichtbar, type Eigenschaft } from '../kern/maske/eigenschaft'
 import {
   auswahlQuelleIdVon,
   bindbareStellenVon,
@@ -75,6 +75,21 @@ export function collectDataSources(
   return acc
 }
 
+// Felder, die in einer Liste von Eintraegen stecken: eine Spalte der Tafel
+// unterteilt nach einem Feld, das die Maske sonst nicht bestellte.
+function eintragsFelder(prop: Eigenschaft, wert: unknown): unknown[] {
+  if (!Array.isArray(wert)) return []
+  return wert.flatMap((x) => {
+    if (!x || typeof x !== 'object') return []
+    const eintrag = x as Record<string, unknown>
+    return (prop.eintrag ?? []).flatMap((teil) => {
+      if (!eigenschaftSichtbar(teil.wenn, eintrag)) return []
+      if (teil.art === 'field') return [eintrag[teil.schluessel]]
+      return teil.art === 'eintraege' ? eintragsFelder(teil, eintrag[teil.schluessel]) : []
+    })
+  })
+}
+
 export function benutzteFelderJeQuelle(
   tree: Maskenbaum,
   sources: readonly Datenquelle[],
@@ -142,6 +157,10 @@ export function benutzteFelderJeQuelle(
     }
 
     for (const prop of def?.eigenschaften ?? []) {
+      if (prop.art === 'eintraege') {
+        eintragsFelder(prop, node.werte[prop.schluessel]).forEach(merkeBindung)
+        continue
+      }
       if (prop.art !== 'field') continue
       if (!eigenschaftSichtbar(prop.wenn, node.werte)) continue
       // Ohne `quelleProp` steht im Wert dieselbe Form wie in einer Bindung; er

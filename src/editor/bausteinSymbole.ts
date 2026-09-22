@@ -24,6 +24,7 @@ import { Kanban } from '../bausteine/kanban/Kanban'
 import { KanbanSpalte } from '../bausteine/kanban/KanbanSpalte'
 import { Popup } from '../bausteine/popup/Popup'
 import { Tabelle } from '../bausteine/tabelle/Tabelle'
+import { Tafel } from '../bausteine/tafel/Tafel'
 import { Text } from '../bausteine/text/Text'
 import { Trenner } from '../bausteine/trenner/Trenner'
 
@@ -38,6 +39,7 @@ const SYMBOLE = [
   [KanbanSpalte.typ, ZeichenKanbanSpalte],
   [Popup.typ, ZeichenPopup],
   [Tabelle.typ, ZeichenTabelle],
+  [Tafel.typ, ZeichenKanban],
   [Text.typ, ZeichenText],
   [Trenner.typ, ZeichenTrenner],
 ] as const
