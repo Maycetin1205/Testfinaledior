@@ -74,18 +74,33 @@ export function sourceFromList(list: unknown, id: string): RuntimeSource | undef
   return undefined
 }
 
+// The webware names its list and its element in the answer and puts the record
+// layout and the field descriptions beside the rows; the winui sends rows only.
 export function rowsFromQueryAnswer(raw: unknown): unknown[] | undefined {
   let answer = raw
   if (typeof answer === 'string') {
     try { answer = JSON.parse(answer) } catch { return undefined }
   }
   if (!isObjekt(answer) || Array.isArray(answer)) return undefined
+
+  const listName = answer.LISTENNAME
+  const elementName = answer.ELEMENTNAME
+  if (typeof listName === 'string' && typeof elementName === 'string') {
+    const named = answer[listName]
+    if (isObjekt(named)) {
+      const rows = named[elementName]
+      if (Array.isArray(rows)) return rows
+    }
+  }
+
   const key = Object.keys(answer).find((k) => /LISTE$/i.test(k))
   if (key === undefined) return undefined
   const list = answer[key]
   if (Array.isArray(list)) return list
   if (!isObjekt(list)) return []
-  const contents = Object.values(list)
+  const contents = Object.entries(list)
+    .filter(([k]) => k !== 'SAT' && k !== 'TFELD')
+    .map(([, v]) => v)
   const row = contents.find((v): v is unknown[] => Array.isArray(v))
   if (row) return row
   const single = contents.find(isObjekt)
