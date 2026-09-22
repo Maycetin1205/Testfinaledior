@@ -52,7 +52,7 @@ export const tafelStil = css`
     border: 1.5px solid var(--fw-rand);
     border-radius: var(--se-r-lg);
   }
-  .spalte.versteckt { opacity: 0.5; border-style: dashed; }
+  .spalte.versteckt, .platz.versteckt { opacity: 0.5; border-style: dashed; }
 
   .spaltenkopf {
     flex: none;
@@ -84,7 +84,7 @@ export const tafelStil = css`
   .hinweis { font-size: var(--se-fs-xs); color: var(--se-muted); white-space: nowrap; }
 
   .anzahl,
-  .unterzahl {
+  .platzzahl {
     margin-left: auto;
     min-width: 22px;
     padding: 1px 8px;
@@ -108,16 +108,16 @@ export const tafelStil = css`
     overflow-y: auto;
   }
   /* Die Spalte rollt, ihr Inhalt schrumpft nicht: sonst schneidet sie Karten ab. */
-  .rumpf > *, .unterrumpf > * { flex: none; }
+  .rumpf > *, .platzrumpf > * { flex: none; }
 
-  .unterteilung {
+  .platz {
     border: 1.5px solid var(--fw-rand);
     border-radius: var(--se-r-sm);
     background: var(--se-panel);
     overflow: hidden;
   }
 
-  .unterkopf {
+  .platzkopf {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -127,10 +127,10 @@ export const tafelStil = css`
     font-size: 13px;
     font-weight: 600;
   }
-  .unterkopf span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .unterzahl { border: none; background: none; padding: 0; }
+  .platzkopf span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .platzzahl { border: none; background: none; padding: 0; }
 
-  .unterrumpf { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+  .platzrumpf { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
 
   .frei {
     padding: 8px 12px;

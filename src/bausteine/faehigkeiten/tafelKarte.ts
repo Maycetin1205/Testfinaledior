@@ -9,8 +9,8 @@ export type Stelle = 'titel' | 'titelZusatz' | 'unterzeile' | 'zeit' | 'marke' |
 
 export type KartenWerte = Record<Stelle, string>
 
-// Der Platz steht im Namen, nicht in einem Tooltip: auf dem Tablet gibt es
-// keinen, und wer ein langes Feld bindet, soll vorher lesen, was abgeschnitten wird.
+// Wer ein langes Feld bindet, soll vorher lesen, was abgeschnitten wird: der
+// Platz steht im Inspector sichtbar unter der Feldwahl.
 export const STELLEN: readonly { stelle: Stelle; name: string; platz: string }[] = [
   { stelle: 'titel', name: 'Titel', platz: '1 Zeile, danach …' },
   { stelle: 'titelZusatz', name: 'Zusatz neben dem Titel', platz: 'teilt sich die Zeile mit dem Titel' },
@@ -70,24 +70,30 @@ export function vergleicheKarten(
   return a.sortierung.localeCompare(b.sortierung, 'de', { numeric: true })
 }
 
+const KARTE = 'Was auf jeder Karte steht'
+
 export function kartenEigenschaften(): Eigenschaft[] {
   return [
     ...STELLEN.map(({ stelle, name, platz }): Eigenschaft => ({
       schluessel: `${stelle}Feld`,
-      name: `Karte: ${name} · ${platz}`,
-      beschreibung: `Feld, das auf jeder Karte als ${name} steht. Leer: die Stelle fehlt.`,
+      name,
+      beschreibung: `Feld, das auf jeder Karte als ${name} steht.`,
+      zusatz: `Platz: ${platz}. Nicht gebunden: die Stelle fehlt.`,
       art: 'field',
+      abschnitt: 'inhalt',
+      gruppe: KARTE,
     })),
     {
       schluessel: 'sortierFeld',
       name: 'Karten sortieren nach',
-      beschreibung: 'Nach den Markierungen (in ihrer Reihenfolge) werden die Karten nach diesem Feld sortiert, z. B. der Uhrzeit. Leer: wie geliefert.',
+      beschreibung: 'Feld, nach dem die Karten in jedem Platz stehen.',
+      zusatz: 'Zuerst gilt die Reihenfolge der Markierungen, dann dieses Feld, z. B. die Uhrzeit. Nicht gebunden: wie geliefert.',
       art: 'field',
     },
     {
       schluessel: 'bildArt',
       name: 'Avatar zeigt',
-      beschreibung: 'Bild: das Feld enthält eine Bildadresse. Tiersymbol: das Feld enthält die Tierart (Hund, Katze, …).',
+      beschreibung: 'Bild: das Feld enthält eine Bildadresse. Tiersymbol: das Feld enthält die Tierart.',
       art: 'segment',
       bearbeitung: 'inspector',
       optionen: [{ wert: 'bild', name: 'Bild' }, { wert: 'tier', name: 'Tiersymbol' }],
@@ -95,16 +101,17 @@ export function kartenEigenschaften(): Eigenschaft[] {
     },
     {
       schluessel: 'marken',
-      name: 'Markierungen',
-      beschreibung: 'Welche Werte des Felds „Markierung“ welche Farbe tragen. Die Reihenfolge ist auch die Sortierung: der erste Wert steht oben.',
+      name: 'Farben der Markierung',
+      beschreibung: 'Welcher Wert der Markierung welche Farbe trägt. Die Reihenfolge ist auch die Sortierung: der erste Wert steht oben.',
       art: 'eintraege',
+      abschnitt: 'aussehen',
       bearbeitung: 'inspector',
-      eintragName: 'Markierung',
+      eintragName: 'Wert',
       titelSchluessel: 'wert',
       neuerEintrag: () => ({ wert: '', farbwelt: 'danger' }),
       wenn: { schluessel: 'markeFeld', ungleich: '' },
       eintrag: [
-        { schluessel: 'wert', name: 'Wert im Feld', beschreibung: 'Genau dieser Wert, Groß- und Kleinschreibung egal, z. B. „Notfall“.', art: 'text' },
+        { schluessel: 'wert', name: 'Wert im Feld', beschreibung: 'z. B. „Notfall“', zusatz: 'Genau dieser Wert, Groß- und Kleinschreibung egal.', art: 'text' },
         farbweltEigenschaft('farbwelt', 'Farbe der Markierung. „Fehler“ rahmt zusätzlich die ganze Karte rot.'),
       ],
     },

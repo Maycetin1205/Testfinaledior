@@ -164,7 +164,7 @@ export type Ketten = Record<string, Schritt[]>
 // Loesch-Relation {DROP_PINDEX}; leer taugt sie in keiner von beiden.
 export const SATZ_PLATZHALTER = ['PINDEX', 'DROP_PINDEX'] as const
 
-export const AKTIONS_PLATZHALTER = [...SATZ_PLATZHALTER, 'VALUE', 'ZIMMER', 'NOW_DATE'] as const
+export const AKTIONS_PLATZHALTER = [...SATZ_PLATZHALTER, 'VALUE', 'PLATZ', 'ZIMMER', 'NOW_DATE'] as const
 
 export function relationsParameterVorgabe(
   relation: Pick<RelationsVorlage, 'parameter'>,

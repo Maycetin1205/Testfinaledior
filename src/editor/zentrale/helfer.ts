@@ -60,7 +60,11 @@ export const PLATZHALTER_KLARTEXT: Record<string, { name: string; hinweis: strin
   },
   VALUE: {
     name: 'Wert',
-    hinweis: 'Neuer Wert (z. B. Titel der Zielspalte)',
+    hinweis: 'Neuer Wert: beim Kanban (neu) der Wert des Ziel-Platzes',
+  },
+  PLATZ: {
+    name: 'Platz',
+    hinweis: 'Name des Ziel-Platzes beim Verschieben einer Karte (Kanban neu)',
   },
   // Der rohe Platzhalter bleibt ZIMMER: er steht in gespeicherten Ketten.
   ZIMMER: {

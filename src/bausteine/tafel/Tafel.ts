@@ -1,4 +1,4 @@
-// Baustein Kanban (neu): eine Tafel, die Spalten, Unterteilungen und Karten selbst zeichnet.
+// Baustein Kanban (neu): eine Tafel, die Spalten, Plätze und Karten selbst zeichnet.
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property, state } from 'lit/decorators.js'
 import { Grundbaustein } from '../grund/Grundbaustein'
@@ -18,12 +18,13 @@ import {
   ablageSchluessel,
   ablageWerte,
   alleAblagen,
+  istSichtbar,
   naechsteAblage,
+  sichtbarePlaetze,
   standardTafelSpalten,
   tafelSpaltenEigenschaft,
   tafelSpaltenLesen,
-  unterteilungenVon,
-  zeigtAuf,
+  traegtWert,
   type Ablage,
   type TafelSpalte,
 } from '../faehigkeiten/tafelSpalten'
@@ -41,7 +42,7 @@ import {
 import { tafelStil } from './tafelStil'
 
 const STRICH = '—'
-const UNTERTEILUNG_LEER = 'frei · hierher ziehen'
+const PLATZ_LEER = 'frei · hierher ziehen'
 
 interface Karte {
   schluessel: string
@@ -104,16 +105,17 @@ export class Tafel extends Grundbaustein {
   }
 
   static override readonly eigenschaften: Eigenschaft[] = [
-    tafelSpaltenEigenschaft(),
-    leerTextEigenschaft(),
     {
       schluessel: 'spaltenFeld',
-      name: 'Einsortieren nach',
-      beschreibung: 'Feld, das die Spalte bestimmt. Leer: alle in die Auffangspalte.',
+      name: 'Karten liegen nach',
+      beschreibung: 'Das Feld, dessen Wert sagt, auf welchem Platz eine Karte liegt.',
+      zusatz: 'Jeder Platz nennt unter „Spalten und Plätze“ seinen Wert in diesem Feld. Verschieben schreibt diesen Wert über die Aktion „Karte verschoben“.',
       art: 'field',
     },
     tagFeldEigenschaft(),
+    tafelSpaltenEigenschaft(),
     ...kartenEigenschaften(),
+    { ...leerTextEigenschaft(), bearbeitung: 'inspector', abschnitt: 'inhalt', gruppe: 'Wenn die Quelle nichts liefert' },
   ]
 
   static override styles: CSSResultGroup = [Grundbaustein.styles, leerStil, farbweltStil, tafelStil]
@@ -202,11 +204,11 @@ export class Tafel extends Grundbaustein {
       const lies = (feld: string): string => (feld === '' ? '' : vorspann.lies(zeile, feld))
       const werte = Object.fromEntries(STELLEN.map(({ stelle }) => [stelle, lies(this.feldVon(stelle))])) as KartenWerte
       const schluessel = `${basis}:${nummer}`
-      const ablage = ablageFuer(spalten, this.spaltenFeld, lies)
+      const wert = lies(this.spaltenFeld)
+      const ablage = ablageFuer(spalten, wert)
       const erwartet = this._erwartet
       if (lieferung && erwartet?.schluessel === schluessel) {
-        erwartet.angekommen = ablageSchluessel(ablage) === erwartet.ziel
-          && zeigtAuf(spalten, this.spaltenFeld, ablage, lies)
+        erwartet.angekommen = ablageSchluessel(ablage) === erwartet.ziel && traegtWert(spalten, ablage, wert)
       }
       return { schluessel, zeile, satz: eindeutig ? satz : '', werte, ablage, sortierung: lies(this.sortierFeld) }
     })
@@ -249,7 +251,7 @@ export class Tafel extends Grundbaustein {
     this._schreibt = true
     this._meldung = 'Verschiebung wird gesendet …'
     try {
-      const werte = ablageWerte(this.spaltenListe(), this.spaltenFeld, ablage)
+      const werte = ablageWerte(this.spaltenListe(), ablage)
       const ergebnis = await runEvent(this, 'onCardDrop', { PINDEX: karte.satz, ...werte })
       if (ergebnis.abgebrochen) {
         this._erwartet = null
@@ -389,29 +391,34 @@ export class Tafel extends Grundbaustein {
     >${inhalt}</div>`
   }
 
+  // Eine Spalte mit einem Platz zeigt nur ihre Ueberschrift; mehrere Plaetze
+  // stehen als eigene Kaesten mit ihrem Namen darin.
   private spalte(spalten: readonly TafelSpalte[], spalte: TafelSpalte, index: number): TemplateResult | typeof nothing {
-    const versteckt = spalte.versteckt === 'ja'
-    if (versteckt && !this.imEditor) return nothing
-    const unter = unterteilungenVon(spalte)
-    const zeigtZahl = this._geliefert && !this.imEditor
-    const leer = (ablage: Ablage): boolean => zeigtZahl && this.belegt(ablage) === 0
-    const rumpf = unter.length === 0
-      ? html`${this.kartenIn(spalten, { spalte: index, unterteilung: -1 })}
-          ${leer({ spalte: index, unterteilung: -1 }) ? leerZustand(this.leerText) : nothing}`
-      : html`${unter.map((u, i) => this.ablage({ spalte: index, unterteilung: i }, 'unterteilung', html`
-          <div class="unterkopf"><span>${u.titel}</span>
-            <span class="unterzahl">${zeigtZahl ? this.belegt({ spalte: index, unterteilung: i }) : STRICH}</span></div>
-          <div class="unterrumpf">
-            ${this.kartenIn(spalten, { spalte: index, unterteilung: i })}
-            ${leer({ spalte: index, unterteilung: i }) ? html`<div class="frei">${UNTERTEILUNG_LEER}</div>` : nothing}
+    const imEditor = this.imEditor
+    const gezeigt = imEditor ? spalte.plaetze.map((_, i) => i) : sichtbarePlaetze(spalte)
+    if (gezeigt.length === 0) return nothing
+    const zeigtZahl = this._geliefert && !imEditor
+    const ablage = (platz: number): Ablage => ({ spalte: index, platz })
+    const leer = (a: Ablage): boolean => zeigtZahl && this.belegt(a) === 0
+    const blass = (a: Ablage): string => (istSichtbar(spalten, a) ? '' : ' versteckt')
+    const rumpf = gezeigt.length === 1
+      ? html`${this.kartenIn(spalten, ablage(gezeigt[0]))}
+          ${leer(ablage(gezeigt[0])) ? leerZustand(this.leerText) : nothing}`
+      : html`${gezeigt.map((pi) => this.ablage(ablage(pi), `platz${blass(ablage(pi))}`, html`
+          <div class="platzkopf"><span>${spalte.plaetze[pi].name}</span>
+            ${istSichtbar(spalten, ablage(pi)) ? nothing : html`<span class="hinweis">in der Maske nicht gezeigt</span>`}
+            <span class="platzzahl">${zeigtZahl ? this.belegt(ablage(pi)) : STRICH}</span></div>
+          <div class="platzrumpf">
+            ${this.kartenIn(spalten, ablage(pi))}
+            ${leer(ablage(pi)) ? html`<div class="frei">${PLATZ_LEER}</div>` : nothing}
           </div>`))}`
-    const anzahl = this._karten.filter((k) => k.ablage.spalte === index).length
-    return this.ablage({ spalte: index, unterteilung: unter.length === 0 ? -1 : 0 },
-      `spalte v-${farbweltWert(spalte.farbwelt)}${versteckt ? ' versteckt' : ''}`, html`
+    const anzahl = gezeigt.reduce((summe, pi) => summe + this.belegt(ablage(pi)), 0)
+    const einzigerVersteckt = gezeigt.length === 1 && !istSichtbar(spalten, ablage(gezeigt[0]))
+    return this.ablage(ablage(gezeigt[0]), `spalte v-${farbweltWert(spalte.farbwelt)}${einzigerVersteckt ? ' versteckt' : ''}`, html`
       <div class="spaltenkopf">
         <span class="punkt"></span>
         <span class="titel">${spalte.titel}</span>
-        ${versteckt ? html`<span class="hinweis">in der Maske ausgeblendet</span>` : nothing}
+        ${einzigerVersteckt ? html`<span class="hinweis">in der Maske nicht gezeigt</span>` : nothing}
         <span class="anzahl">${zeigtZahl ? anzahl : STRICH}</span>
       </div>
       <div class="rumpf">${rumpf}</div>`)
