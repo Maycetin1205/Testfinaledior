@@ -26,7 +26,6 @@ import { SelectionBar } from './SelectionBar'
 import { ColumnsControls } from './ColumnControls'
 import { useFieldBinding } from './FieldBinding'
 import { openLookupInEditor } from './lookupWindowState'
-import { openSection } from '../inspector/sectionState'
 import { useBlockResize } from './useBlockResize'
 import { useLitElement } from './useLitElement'
 
@@ -126,7 +125,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         if (slot !== null && searchWindow !== undefined && elementRef.current
           && openLookupInEditor(editor, elementRef.current, block.id, searchWindow, slot)) {
           e.stopPropagation()
-          openSection('lookupWindow')
+          editor.setSection('lookupWindow', true)
           onSelect?.()
           return
         }

@@ -11,7 +11,6 @@ import { fieldPlainName } from '../../core/data/dataSources'
 import { propertiesFor } from '../../core/block/propertyPlace'
 import { Popover } from '@/editor/widgets/Popover'
 import { PropControl } from '../inspector/PropControl'
-import { openCalculationsWindow } from './calculationsWindowState'
 
 interface SelectionBarProps {
   block: BlockNode
@@ -123,7 +122,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
 
       {canCompute(block) && (
         <Button className="h-6 px-1.5 text-dicht" title="Berechnungen dieser Erfassung: drei Werte ergeben den vierten"
-          onClick={() => openCalculationsWindow(block.id)}>
+          onClick={() => editor.openCalculations(block.id)}>
           <Link2 size={12} /> Berechnungen
         </Button>
       )}

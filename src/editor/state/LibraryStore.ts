@@ -6,7 +6,6 @@ export interface LibraryEntry { id: string }
 export class LibraryStore<T extends LibraryEntry> extends Subject<LibraryStore<T>> {
   private _entries: T[]
   private _version = 0
-  private _ofHandChanged = false
 
   constructor(stock: readonly T[] = []) {
     super()
@@ -16,22 +15,18 @@ export class LibraryStore<T extends LibraryEntry> extends Subject<LibraryStore<T
   get list(): readonly T[] { return this._entries }
   get version(): number { return this._version }
 
-  get ofHandChanged(): boolean { return this._ofHandChanged }
-
   get(id: string): T | undefined {
     return this._entries.find((e) => e.id === id)
   }
 
-  private beforeChange = new Set<() => void>()
+  private readonly beforeChange = new Subject()
 
   observeBeforeChange(fn: () => void): () => void {
-    this.beforeChange.add(fn)
-    return () => { this.beforeChange.delete(fn) }
+    return this.beforeChange.subscribe(fn)
   }
 
   private reportBeforeChange(): void {
-    this._ofHandChanged = true
-    for (const fn of [...this.beforeChange]) fn()
+    this.beforeChange.notify()
   }
 
   override notify(data: LibraryStore<T>): void {

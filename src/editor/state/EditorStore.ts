@@ -3,15 +3,34 @@ import type { PropertyValue } from '../../core/block/property'
 import { newSubtree } from '../../core/block/newBlock'
 import { mayContain, blockType } from '../../core/block/registry'
 import { gridMetricsOf } from '../../core/block/grid'
+import type { LookupWindow } from '../../core/block/capability'
 import { type ActionChains } from '../../core/data/actions'
 import { type DataSource } from '../../core/data/dataSources'
 import { type SourceInReach } from '../../core/data/extraSources'
 import { DataSourceStore } from './DataSourceStore'
 import { firstSourceInReach, sourcesInReach } from '../../core/block/sourcesInReach'
 import { gestureBracket, History, type EditorSnapshot, type GestureBracket } from './history'
-import type { MaskContent } from './maskFile'
-import { messages } from './messages'
-import { loadFromStorage, persistState, SAVE_DEBOUNCE_MS } from './maskStorage'
+import {
+  missingRecord,
+  usedRelationIds,
+  usedSourceIds,
+  type MaskContent,
+} from './maskFile'
+import { addOn } from './libraryFile'
+import { FileOnDisk } from './fileOnDisk'
+import { readSections, writeSections, type SectionName } from './inspectorSections'
+import { MessageList } from './messages'
+import {
+  carriedLibrary,
+  emptyMask,
+  loadFromStorage,
+  loadLibraryFromStorage,
+  persistLibrary,
+  persistMask,
+  reportDropped,
+  SAVE_DEBOUNCE_MS,
+  type StoredMask,
+} from './maskStorage'
 import { RelationStore } from './RelationStore'
 import { droppedKeys, withoutColumnsPointer } from './columnCleanup'
 import { SavePlanner } from './savePlanner'
@@ -43,6 +62,13 @@ import {
 import { selectionOnPage, selectionTarget } from '../../core/block/selection'
 import { deepClone } from '../../core/deepClone'
 
+// Which lookup window the editor shows, and for which spot of which block.
+export interface OpenLookup {
+  blockId: string
+  window: LookupWindow
+  slot: number
+}
+
 export class EditorStore extends Subject<EditorStore> {
   readonly dataSources: DataSourceStore
   readonly relation: RelationStore
@@ -54,30 +80,40 @@ export class EditorStore extends Subject<EditorStore> {
   private _version = 0
   private _history = new History()
 
-  private _planner = new SavePlanner(
-    () => persistState(this._tree, this._selectedId, {
-      dataSources: this.dataSources.list,
-      relation: this.relation.list,
-      activePageId: this.activePageId,
-    }, this.dataCenterOfHandChanged),
-    SAVE_DEBOUNCE_MS,
-  )
-  private _hydrated = false
+  readonly messages = new MessageList()
 
-  private get dataCenterOfHandChanged(): boolean {
-    return this.dataSources.ofHandChanged || this.relation.ofHandChanged
-  }
+  // The two files the builder picked on disk. Until then the browser store
+  // alone holds the work, as before.
+  readonly maskOnDisk = new FileOnDisk()
+  readonly libraryOnDisk = new FileOnDisk()
+
+  // What the editor shows besides the mask: the open windows and the unfolded
+  // inspector sections. That is no change to the mask, so it has its own
+  // signal and plans no save.
+  readonly view = new Subject<EditorStore>()
+  private _viewVersion = 0
+  private _calculationsFor: string | null = null
+  private _lookupWindow: OpenLookup | null = null
+  private _sections = readSections()
+
+  private _planner = new SavePlanner(() => this.persist(), SAVE_DEBOUNCE_MS)
+  private _hydrated = false
 
   private _placesAgainFrom = false
 
-  constructor(content?: MaskContent) {
+  constructor() {
     super()
-    const persisted = content ? null : loadFromStorage()
-    this.dataSources = new DataSourceStore(content?.dataSources ?? persisted?.dataSources)
-    this.relation = new RelationStore(content?.relation ?? persisted?.relation)
-    this._tree = content?.tree ?? persisted?.tree ?? emptyTree()
-    this._activePageId = persisted?.activePageId ?? ROOT_ID
-    this._selectedId = this.selectionOnActivePage(persisted?.selectedId ?? null)
+    const library = loadLibraryFromStorage(this.messages)
+    const persisted = loadFromStorage(this.messages) ?? emptyMask()
+    const carried = carriedLibrary()
+    this.dataSources = new DataSourceStore(
+      addOn(library.dataSources, carried.dataSources).list,
+    )
+    this.relation = new RelationStore(addOn(library.relation, carried.relation).list)
+    this._tree = persisted.tree
+    this._activePageId = persisted.activePageId
+    this._selectedId = this.selectionOnActivePage(persisted.selectedId)
+    this.reportMissing(persisted.sourceIds, persisted.relationIds)
     this._hydrated = true
 
     for (const store of [this.dataSources, this.relation]) {
@@ -339,7 +375,7 @@ export class EditorStore extends Subject<EditorStore> {
       droppedKeys(def, attr, node.values[attr], value),
     )
     if (cleaned.parameter > 0) {
-      messages.report(
+      this.messages.report(
         `Spalte gelöscht: ${cleaned.parameter} Ketten-Parameter auf `
         + `${cleaned.blocks} Baustein(en) zeigten darauf und sind jetzt ausgeschaltet. `
         + 'Strg+Z holt alles zurück.',
@@ -430,11 +466,73 @@ export class EditorStore extends Subject<EditorStore> {
 
   replaceMask(content: MaskContent): void {
     this.pushHistory()
-    this.setLibraries(content)
+    this.setLibraries({
+      dataSources: addOn(this.dataSources.list, content.dataSources).list,
+      relation: addOn(this.relation.list, content.relation).list,
+    })
     this._tree = content.tree
     this._selectedId = null
     this._activePageId = ROOT_ID
     this.notify(this)
+    reportDropped(content.dropped, this.messages)
+    this.reportMissing(content.sourceIds, content.relationIds)
+  }
+
+  // A mask names the keys it uses. What the customer file does not hold gets
+  // named instead of loading as if it were there.
+  private reportMissing(sourceIds: readonly string[], relationIds: readonly string[]): void {
+    const record = [
+      missingRecord('Datenquelle(n)', sourceIds, new Set(this.dataSources.list.map((s) => s.id))),
+      missingRecord('Relation(en)', relationIds, new Set(this.relation.list.map((r) => r.id))),
+    ].filter((text) => text !== '')
+    if (record.length > 0) this.messages.report(record.join('\n'))
+  }
+
+  get viewVersion(): number { return this._viewVersion }
+
+  private viewChanged(): void {
+    this._viewVersion++
+    this.view.notify(this)
+  }
+
+  get calculationsFor(): string | null { return this._calculationsFor }
+
+  openCalculations(blockId: string | null): void {
+    if (this._calculationsFor === blockId) return
+    this._calculationsFor = blockId
+    this.viewChanged()
+  }
+
+  get lookupWindow(): OpenLookup | null { return this._lookupWindow }
+
+  setLookupWindow(open: OpenLookup | null): void {
+    if (this._lookupWindow === open) return
+    this._lookupWindow = open
+    this.viewChanged()
+  }
+
+  sectionOpen(name: SectionName): boolean { return this._sections[name] ?? false }
+
+  setSection(name: SectionName, open: boolean): void {
+    if (this.sectionOpen(name) === open) return
+    this._sections = { ...this._sections, [name]: open }
+    writeSections(this._sections)
+    this.viewChanged()
+  }
+
+  private persist(): void {
+    const mask: StoredMask = {
+      tree: this._tree,
+      selectedId: this._selectedId,
+      activePageId: this.activePageId,
+      sourceIds: usedSourceIds(this._tree, this.dataSources.list),
+      relationIds: usedRelationIds(this._tree, this.dataSources.list, this.relation.list),
+    }
+    void this.maskOnDisk.writeAgain(persistMask(mask, this.messages))
+    void this.libraryOnDisk.writeAgain(persistLibrary({
+      dataSources: this.dataSources.list,
+      relation: this.relation.list,
+    }))
   }
 
   saveNow(): void {

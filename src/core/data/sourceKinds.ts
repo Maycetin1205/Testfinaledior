@@ -19,7 +19,6 @@ export interface SourceKind {
 
   headerKeyPossible: boolean
 
-  headerKeyStandard: string
 
   relationLoadPossible: boolean
 
@@ -50,7 +49,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: '',
     fieldsSingle: false,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: true,
     varPossible: false,
@@ -66,7 +64,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: 'ADR',
     fieldsSingle: true,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: true,
     varPossible: true,
@@ -82,7 +79,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: 'ART',
     fieldsSingle: true,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: true,
     varPossible: false,
@@ -98,7 +94,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: 'BEL',
     fieldsSingle: true,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: true,
     varPossible: true,
@@ -116,7 +111,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: 'POS',
     fieldsSingle: true,
     headerKeyPossible: true,
-    headerKeyStandard: 'BEL_0_11',
     relationLoadPossible: true,
     recordNumberPossible: true,
 
@@ -135,7 +129,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: '',
     fieldsSingle: true,
     headerKeyPossible: true,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: true,
     varPossible: false,
@@ -152,7 +145,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: '',
     fieldsSingle: true,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: false,
     varPossible: false,
@@ -168,7 +160,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: '',
     fieldsSingle: true,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: false,
     varPossible: false,
@@ -185,7 +176,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: '',
     fieldsSingle: true,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: false,
     varPossible: false,
@@ -202,7 +192,6 @@ const KINDS: Record<SourceKindId, SourceKind> = {
     tableId: '',
     fieldsSingle: false,
     headerKeyPossible: false,
-    headerKeyStandard: '',
     relationLoadPossible: false,
     recordNumberPossible: false,
     varPossible: false,

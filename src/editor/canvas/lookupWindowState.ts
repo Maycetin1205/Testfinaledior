@@ -165,39 +165,10 @@ export function blockElementInEditor(blockId: string, tag: string): HTMLElement 
   return null
 }
 
-export interface OpenWindow {
-  blockId: string
-  window: LookupWindow
-  slot: number
-}
-
 export function windowFrameInEditor(): DialogFrame | null {
   return document.body.querySelector<DialogFrame>(
     `${DIALOG_FRAME_TAG}[data-ff-lookup]`,
   )
-}
-
-let openWindow: OpenWindow | null = null
-const listeners = new Set<() => void>()
-
-export function openWindowInEditor(): OpenWindow | null {
-  return openWindow
-}
-
-export function onWindowSwitch(fn: () => void): () => void {
-  listeners.add(fn)
-  return () => {
-    listeners.delete(fn)
-  }
-}
-
-function report(next: OpenWindow | null): void {
-  openWindow = next
-  for (const fn of [...listeners]) fn()
-}
-
-export function windowInEditorForget(): void {
-  if (openWindow !== null) report(null)
 }
 
 function wireWidths(
@@ -251,6 +222,6 @@ export function openLookupInEditor(
   const frame = windowFrameInEditor()
   if (frame === null) return false
   wireWidths(frame, ed, blockId, window, slot)
-  report({ blockId, window, slot })
+  ed.setLookupWindow({ blockId, window, slot })
   return true
 }

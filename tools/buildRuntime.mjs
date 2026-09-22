@@ -5,8 +5,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, w
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// The mask always gets the production build of lit, whatever the environment
-// says: otherwise it carries 15 kB of development warnings depending on the call.
+// The mask always gets the production build of lit, whatever the environment says:
+// the development warnings would otherwise travel into every mask.
 process.env.NODE_ENV = 'production'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')

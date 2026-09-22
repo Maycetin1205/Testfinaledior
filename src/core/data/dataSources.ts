@@ -20,7 +20,6 @@ export {
 } from './getValue'
 export {
   fieldsBehindCut,
-  LOAD_RELATION_STANDARD,
   loadRelationOf,
   relationNrFromInput,
   type LoadRelation,

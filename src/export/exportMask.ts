@@ -267,7 +267,7 @@ export function exportMask(
     '<style>',
     tokensCss,
     '',
-    '/* Grundgeruest + Wurzel-Raster (identisch zum Editor-Canvas, rasterFlaecheStil) */',
+    '/* Grundgeruest und Wurzel-Raster, gleich der Flaeche im Editor */',
     'html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }',
 
     `.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto;`

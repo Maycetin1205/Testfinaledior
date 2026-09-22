@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { cn } from '@/editor/widgets/cn'
 import { Checkbox } from '@/editor/widgets/Checkbox'
 import { Button } from '@/editor/widgets/PushButton'
+import { Field } from '@/editor/widgets/Field'
+import { Row } from '@/editor/widgets/Row'
 import { keyDisplay } from '../../core/data/dataSources'
 import type { DtkTable } from '../../core/data/dtkImport'
 import { useDataSources } from '../state/useDataSources'
@@ -31,6 +33,11 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
       ),
   )
 
+  const [recordField, setRecordField] = useState('')
+  const recordFieldError = recordField.trim() === ''
+    ? 'Das Satzfeld fehlt — ohne es weiß der Editor nicht, wo die Satznummer steht.'
+    : ''
+
   function toggle(key: string) {
     setTicked((old) => {
       const next = new Set(old)
@@ -41,6 +48,7 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
   }
 
   function adopt() {
+    if (recordFieldError !== '') return
     for (const t of tables) {
       if (!ticked.has(t.key) || present.has(t.key)) continue
       store.add({
@@ -48,7 +56,7 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
         kind: 'idb',
         idbId: t.key,
 
-        recordField: '0_10',
+        recordField: recordField.trim(),
         fields: t.fields,
       })
     }
@@ -117,10 +125,22 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
             </div>
           </>
         )}
+        {tables.length > 0 && (
+          <Row label="Satzfeld" error={recordFieldError}>
+            {(f) => (
+              <Field
+                {...f}
+                value={recordField}
+                placeholder="Position_Länge, z. B. 0_10"
+                onChange={(e) => setRecordField(e.target.value)}
+              />
+            )}
+          </Row>
+        )}
         <div className="flex justify-end gap-2 border-t border-linie pt-3">
           <Button onClick={onClose}>Abbrechen</Button>
           {tables.length > 0 && (
-            <Button kind="primary" disabled={count === 0} onClick={adopt}>
+            <Button kind="primary" disabled={count === 0 || recordFieldError !== ''} onClick={adopt}>
               {count === 1 ? '1 Tabelle übernehmen' : `${count} Tabellen übernehmen`}
             </Button>
           )}

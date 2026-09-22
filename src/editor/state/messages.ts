@@ -8,9 +8,15 @@ export interface Message {
   kind: MessageKind
 }
 
+// What a reader needs to say something to the builder. The editor store holds
+// the one list; loading and saving only write into it.
+export interface MessageSink {
+  report(text: string, kind?: MessageKind): void
+}
+
 const AT_MOST = 5
 
-class MessageList extends Subject<MessageList> {
+export class MessageList extends Subject<MessageList> implements MessageSink {
   private _list: Message[] = []
   private _version = 0
   private nextId = 1
@@ -41,5 +47,3 @@ class MessageList extends Subject<MessageList> {
     this.notify(this)
   }
 }
-
-export const messages = new MessageList()

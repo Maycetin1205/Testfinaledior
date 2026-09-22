@@ -16,7 +16,6 @@ import {
   keyDisplay,
   keyFromInput,
   headerKeyFromInput,
-  LOAD_RELATION_STANDARD,
   SOURCE_KINDS,
   relationNrFromInput,
   tableKeyNeeded,
@@ -36,7 +35,6 @@ import { sourcesWording } from './wording'
 import {
   EMPTY_ROW,
   rowFromField,
-  rowFilled,
   rowsCode,
   rowsIcon,
   type FieldRow,
@@ -69,13 +67,13 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
   const load = source?.loadRelation
   const [rowsAway, setRowsAway] = useState<'geschoben' | 'fetch'>(load ? 'fetch' : 'geschoben')
-  const [relationNr, setRelationNr] = useState(load?.nr ?? LOAD_RELATION_STANDARD.nr)
+  const [relationNr, setRelationNr] = useState(load?.nr ?? '')
   const fieldMapping = {
-    documentKindField: load?.documentKindField ?? LOAD_RELATION_STANDARD.documentKindField,
-    documentNumberField: load?.documentNumberField ?? LOAD_RELATION_STANDARD.documentNumberField,
-    yearField: load?.yearField ?? LOAD_RELATION_STANDARD.yearField,
-    archiveField: load?.archiveField ?? LOAD_RELATION_STANDARD.archiveField,
-    endFields: load?.endFields ?? LOAD_RELATION_STANDARD.endFields,
+    documentKindField: load?.documentKindField ?? '',
+    documentNumberField: load?.documentNumberField ?? '',
+    yearField: load?.yearField ?? '',
+    archiveField: load?.archiveField ?? '',
+    endFields: load?.endFields ?? [],
   }
   const [rows, setRows] = useState<FieldRow[]>(
     source && source.fields.length > 0
@@ -155,14 +153,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
   function chooseKind(next: SourceKindId): void {
     setKind(next)
-    const newKind = sourceKind(next)
-    const standardFields = sourcesWording(next).standardFields
-    if (standardFields.length > 0 && !rows.some(rowFilled)) {
-      setRows(standardFields.map((f) => rowFromField(f)))
-    }
-    if (newKind.headerKeyStandard !== '' && headerKeyInput.trim() === '') {
-      setHeaderKeyInput(newKind.headerKeyStandard)
-    }
   }
 
   const nameDouble = store.list.some(

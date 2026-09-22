@@ -1,7 +1,6 @@
 import type { EditorStore } from './EditorStore'
-import { messages } from './messages'
 import { allCopies, type Backup } from './backup'
-import { readState, STORAGE_KEY } from './maskStorage'
+import { libraryInMask, readState, STORAGE_KEY } from './maskStorage'
 
 export interface CopyState {
   key: string
@@ -88,21 +87,25 @@ export function contentText(copy: CopyState): string {
 export function spotCopyAgainFrom(editor: EditorStore, key: string): void {
   const copy = allCopies(STORAGE_KEY).find((k) => k.key === key)
   if (copy === undefined) {
-    messages.report('Diese Notfallkopie liegt nicht mehr im Browser-Speicher.')
+    editor.messages.report('Diese Notfallkopie liegt nicht mehr im Browser-Speicher.')
     return
   }
-  const state = readState(copy.raw, STORAGE_KEY)
+  const state = readState(copy.raw, STORAGE_KEY, editor.messages)
   if (state === null) return
+  const carried = libraryInMask(copy.raw)
   editor.replaceMask({
     tree: state.tree,
-    dataSources: [...state.dataSources],
-    relation: [...state.relation],
+    dataSources: [...carried.dataSources],
+    relation: [...carried.relation],
+    sourceIds: state.sourceIds,
+    relationIds: state.relationIds,
+    dropped: [],
   })
 
-  messages.report(
+  editor.messages.report(
     `Notfallkopie vom ${timeText(toState(copy))} wiederhergestellt: `
     + `${numbersRecord(
-      Object.keys(state.tree).length - 1, state.dataSources.length, state.relation.length,
+      Object.keys(state.tree).length - 1, carried.dataSources.length, carried.relation.length,
     )}. Strg+Z nimmt es zurück.`,
     'hint',
   )

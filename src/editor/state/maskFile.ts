@@ -6,7 +6,9 @@ import {
   type LoadProblem,
 } from '../../core/data/loadProblem'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
-import { downloadFile } from './fileDownload'
+import { collectDataSources } from '../../export/usedSources'
+import { collectRelation } from '../../export/usedRelations'
+import { writeFile } from './fileOnDisk'
 import {
   LIBRARY_FILE_KIND,
   libraryCheck,
@@ -14,25 +16,32 @@ import {
 } from './libraryFile'
 import type { EditorStore } from './EditorStore'
 import { checkTreeState } from './loadCheck'
-import { messages } from './messages'
-import { reportDropped } from './maskStorage'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
 
 const MASK_FILE_KIND = 'aufbau-editor-maske'
 
-const MASK_FILE_VERSION = 2
+// Version 3 keeps only the keys of the data sources and relations the mask
+// uses; the sources themselves live in the customer file.
+const MASK_FILE_VERSION = 3
+
+const READABLE_FILE_VERSIONS = [2, 3]
 
 export interface MaskContent {
   tree: MaskTree
+
+  // What an older file still carried inside the mask.
   dataSources: DataSource[]
   relation: RelationTemplate[]
+
+  sourceIds: readonly string[]
+  relationIds: readonly string[]
+
+  // Block types this editor does not know any more.
+  dropped: readonly string[]
 }
 
 export type UnpackResult =
-  | {
-    ok: true
-    content: MaskContent
-  }
+  | { ok: true; content: MaskContent }
   | { ok: false; base: string; problems: readonly LoadProblem[] }
 
 function damagedRecord(problems: readonly LoadProblem[]): string {
@@ -41,29 +50,43 @@ function damagedRecord(problems: readonly LoadProblem[]): string {
     + 'nicht unbemerkt Teile deiner Maske verlorengehen.'
 }
 
-function packMask(content: MaskContent): string {
+export function usedSourceIds(
+  tree: MaskTree,
+  sources: readonly DataSource[],
+): string[] {
+  return collectDataSources(tree, sources).map((s) => s.id)
+}
+
+export function usedRelationIds(
+  tree: MaskTree,
+  sources: readonly DataSource[],
+  relation: readonly RelationTemplate[],
+): string[] {
+  return collectRelation(tree, relation, collectDataSources(tree, sources)).map((r) => r.id)
+}
+
+export function packMask(editor: EditorStore): string {
+  const sources = editor.dataSources.list
   return JSON.stringify(
     {
       kind: MASK_FILE_KIND,
       fileVersion: MASK_FILE_VERSION,
       schemaVersion: CURRENT_SCHEMA_VERSION,
-      tree: content.tree,
-      dataSources: content.dataSources,
-      relation: content.relation,
+      tree: editor.tree,
+      sourceIds: usedSourceIds(editor.tree, sources),
+      relationIds: usedRelationIds(editor.tree, sources, editor.relation.list),
     },
     null,
     2,
   ) + '\n'
 }
 
+function maskFileName(): string {
+  return `aufbau-maske-${new Date().toISOString().slice(0, 10)}.json`
+}
+
 export function saveMaskAsFile(editor: EditorStore): void {
-  const text = packMask({
-    tree: editor.tree,
-    dataSources: [...editor.dataSources.list],
-    relation: [...editor.relation.list],
-  })
-  const today = new Date().toISOString().slice(0, 10)
-  downloadFile(`aufbau-maske-${today}.json`, text, 'application/json')
+  void writeFile(editor.maskOnDisk, maskFileName(), packMask(editor), editor.messages)
 }
 
 export async function loadMaskFromFile(editor: EditorStore, file: File): Promise<void> {
@@ -71,18 +94,18 @@ export async function loadMaskFromFile(editor: EditorStore, file: File): Promise
   try {
     text = await file.text()
   } catch {
-    messages.report('Die Datei konnte nicht gelesen werden.')
+    editor.messages.report('Die Datei konnte nicht gelesen werden.')
     return
   }
   const result = packMaskFrom(text)
   if (!result.ok) {
-    messages.report(problemText(result.base, result.problems))
+    editor.messages.report(problemText(result.base, result.problems))
     return
   }
   editor.replaceMask(result.content)
 }
 
-function packMaskFrom(text: string): UnpackResult {
+export function packMaskFrom(text: string): UnpackResult {
   try {
     return unpack(text)
   } catch {
@@ -92,6 +115,23 @@ function packMaskFrom(text: string): UnpackResult {
 
 function rejected(base: string): UnpackResult {
   return { ok: false, base, problems: [] }
+}
+
+function keysOf(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return []
+  return raw.filter((id): id is string => typeof id === 'string' && id !== '')
+}
+
+// Names what the mask asks for but the customer file does not hold.
+export function missingRecord(
+  plainName: string,
+  wanted: readonly string[],
+  present: ReadonlySet<string>,
+): string {
+  const missing = wanted.filter((id) => !present.has(id))
+  if (missing.length === 0) return ''
+  return `${missing.length} ${plainName} der Maske fehlen in der Kundendatei: `
+    + `${missing.join(', ')}.`
 }
 
 function unpack(text: string): UnpackResult {
@@ -108,7 +148,7 @@ function unpack(text: string): UnpackResult {
 
   if (o.kind === LIBRARY_FILE_KIND) {
     return rejected(
-      'Das ist eine Bibliotheksdatei (nur Datenquellen und Relationen, ohne '
+      'Das ist eine Kundendatei (nur Datenquellen und Relationen, ohne '
       + 'Bausteine). Sie wird im Datencenter über „Bibliothek laden…" geladen.',
     )
   }
@@ -127,7 +167,7 @@ function unpack(text: string): UnpackResult {
       + 'nicht geladen werden.',
     )
   }
-  if (fileVersion !== MASK_FILE_VERSION) {
+  if (!READABLE_FILE_VERSIONS.includes(fileVersion)) {
     return rejected('Dieses Maskendateiformat wird nicht unterstützt.')
   }
 
@@ -160,12 +200,17 @@ function unpack(text: string): UnpackResult {
 
     return { ok: false, base: damagedRecord(state.problems), problems: state.problems }
   }
-  reportDropped(state.dropped)
   const tree = state.tree
 
-  const sources = libraryCheck(o.dataSources, checkDataSources, AREA_SOURCES)
+  // Only an older file carries its sources; they move into the customer file.
+  const embedded = fileVersion < MASK_FILE_VERSION
+  const sources = embedded
+    ? libraryCheck(o.dataSources, checkDataSources, AREA_SOURCES)
+    : { ok: true as const, list: [] }
   if (!sources.ok) return { ok: false, base: sources.base, problems: sources.problems }
-  const relation = libraryCheck(o.relation, checkRelationTemplates, AREA_RELATION)
+  const relation = embedded
+    ? libraryCheck(o.relation, checkRelationTemplates, AREA_RELATION)
+    : { ok: true as const, list: [] }
   if (!relation.ok) return { ok: false, base: relation.base, problems: relation.problems }
 
   return {
@@ -174,6 +219,9 @@ function unpack(text: string): UnpackResult {
       tree: tree.tree,
       dataSources: sources.list,
       relation: relation.list,
+      dropped: state.dropped,
+      sourceIds: embedded ? sources.list.map((s) => s.id) : keysOf(o.sourceIds),
+      relationIds: embedded ? relation.list.map((r) => r.id) : keysOf(o.relationIds),
     },
   }
 }

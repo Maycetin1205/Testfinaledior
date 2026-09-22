@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/editor/widgets/cn'
 import { LEVEL_OVER_MASK_WINDOW } from '@/editor/widgets/PickerDialog'
@@ -14,15 +14,13 @@ import {
 import { sourcesKey } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
+import { useView } from '../state/useView'
+import type { OpenLookup } from '../state/EditorStore'
 import { useInputSession } from '../inspector/controls/editSession'
 import {
-  onWindowSwitch,
-  windowInEditorForget,
   windowFrameInEditor,
   windowStateOf,
-  openWindowInEditor,
   type WindowState,
-  type OpenWindow,
 } from './lookupWindowState'
 import { widthFromIcon } from './fieldWidth'
 import { FieldPicker, type PickerGroup } from './FieldPicker'
@@ -91,13 +89,13 @@ function carryTo(frame: DialogFrame, state: WindowState, before: Metrics | null)
 }
 
 export function WindowColumns() {
-  const open = useSyncExternalStore(onWindowSwitch, openWindowInEditor)
+  const open = useView().lookupWindow
   if (open === null) return null
 
   return <Heads key={`${open.blockId}:${open.slot}`} open={open} />
 }
 
-function Heads({ open }: { open: OpenWindow }) {
+function Heads({ open }: { open: OpenLookup }) {
   const ed = useEditor()
   const library = useDataSources().list
   const [metrics, setMetrics] = useState<Measurement>(NOTHING)
@@ -110,13 +108,13 @@ function Heads({ open }: { open: OpenWindow }) {
 
   useEffect(() => {
     const check = (): void => {
-      if (windowFrameInEditor() === null) windowInEditorForget()
+      if (windowFrameInEditor() === null) ed.setLookupWindow(null)
     }
     const mo = new MutationObserver(check)
     mo.observe(document.body, { childList: true })
     check()
     return () => mo.disconnect()
-  }, [open])
+  }, [ed, open])
 
   useEffect(() => {
     const frame = windowFrameInEditor()

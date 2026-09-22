@@ -1,10 +1,9 @@
 import { useSyncExternalStore } from 'react'
-import { messages } from './messages'
+import { useEditorInstance } from './EditorContext'
+import type { MessageList } from './messages'
 
-const subscribe = (cb: () => void) => messages.subscribe(cb)
-const stateOf = () => messages.version
-
-export function useMessages() {
-  useSyncExternalStore(subscribe, stateOf)
+export function useMessages(): MessageList {
+  const messages = useEditorInstance().messages
+  useSyncExternalStore((cb) => messages.subscribe(cb), () => messages.version)
   return messages
 }

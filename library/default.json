@@ -1,0 +1,62 @@
+{
+  "kind": "aufbau-editor-bibliothek",
+  "fileVersion": 2,
+  "dataSources": [
+    {
+      "id": "3f1c7a20-8c4e-4d36-9a71-2b5e0d6f1a01",
+      "name": "Beleg",
+      "kind": "document",
+      "fields": [
+        { "code": "0_11", "name": "Satzschlüssel" },
+        { "code": "2_1", "name": "Belegart" },
+        { "code": "3_8", "name": "Belegnummer" },
+        { "code": "11_8", "name": "Kundennummer" },
+        { "code": "19_10", "name": "Belegdatum" },
+        { "code": "393_12", "name": "Warenwert" },
+        { "code": "441_12", "name": "MwSt-Betrag" },
+        { "code": "453_12", "name": "Gesamtbetrag" },
+        { "code": "3440_60", "name": "Bezeichnung" }
+      ]
+    },
+    {
+      "id": "3f1c7a20-8c4e-4d36-9a71-2b5e0d6f1a02",
+      "name": "Belegposition",
+      "kind": "documentItem",
+      "headerKeyIndex": "BEL_0_11",
+      "loadRelation": {
+        "nr": "69",
+        "documentKindField": "2_1",
+        "documentNumberField": "3_8",
+        "yearField": "0_1",
+        "archiveField": "1_1",
+        "endFields": ["11_6", "18_25"]
+      },
+      "fields": [
+        { "code": "2_1", "name": "Belegart" },
+        { "code": "3_8", "name": "Belegnummer" },
+        { "code": "11_6", "name": "Positionsnummer" },
+        { "code": "17_1", "name": "Zeilenart" },
+        { "code": "18_25", "name": "Artikelnummer" },
+        { "code": "45_60", "name": "Bezeichnung" },
+        { "code": "164_8", "name": "Menge" },
+        { "code": "246_9", "name": "Einzelpreis" },
+        { "code": "280_12", "name": "Gesamtpreis" },
+        { "code": "372_5", "name": "MwSt-Satz" },
+        { "code": "645_10", "name": "Satznummer" },
+        { "code": "689_5", "name": "Mengeneinheit" },
+        { "code": "1401_12", "name": "Rohertrag" },
+        { "code": "2558_1", "name": "Farbkennzeichen" },
+        { "code": "3164_12", "name": "Rabatt" }
+      ]
+    }
+  ],
+  "relation": [
+    {
+      "id": "standard-put",
+      "name": "Standard-Schreiben (PUT)",
+      "verb": "PUT_RELATION",
+      "nr": "174",
+      "parameter": ["{FELD_POS}", "{FELD_LEN}", "L", "{PINDEX}", "{RELID}", "{VALUE}"]
+    }
+  ]
+}

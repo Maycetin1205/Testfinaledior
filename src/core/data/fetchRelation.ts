@@ -12,15 +12,6 @@ export interface LoadRelation {
   endFields: readonly string[]
 }
 
-export const LOAD_RELATION_STANDARD = {
-  nr: '69',
-  documentKindField: '2_1',
-  documentNumberField: '3_8',
-  yearField: '0_1',
-  archiveField: '1_1',
-  endFields: ['11_6', '18_25'] as readonly string[],
-}
-
 export const POS_LEN = /^\d+_\d+$/
 const ONLY_DIGITS = /^\d+$/
 

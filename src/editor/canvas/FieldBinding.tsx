@@ -22,7 +22,6 @@ import { applyProps } from '../state/valuesPatch'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { widthFromIcon, iconOf } from './fieldWidth'
-import { openCalculationsWindow } from './calculationsWindowState'
 import { openLookupInEditor } from './lookupWindowState'
 import { useInputSession } from '../inspector/controls/editSession'
 import { openDataCenter } from '../datacenter/openDataCenter'
@@ -281,7 +280,7 @@ export function useFieldBinding({
                 label: 'Berechnung…',
                 hint: 'Eine Gleichung über mehrere Spalten: drei Werte ergeben den vierten.',
                 onOpen: () => {
-                  openCalculationsWindow(block.id)
+                  editor.openCalculations(block.id)
                   setListPicker(null)
                 },
               }]),

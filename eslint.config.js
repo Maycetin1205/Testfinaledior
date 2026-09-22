@@ -45,22 +45,13 @@ export default defineConfig([
     files: ['src/core/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': ['error', {
-        paths: [
-          { name: 'lit', message: 'src/core must stay framework free.' },
-          { name: 'react', message: 'src/core must stay framework free.' },
-          { name: 'react-dom', message: 'src/core must stay framework free.' },
-        ],
         patterns: [
           {
-            group: ['lit/*', 'react/*', 'react-dom/*'],
+            group: ['lit', 'lit/*', 'react', 'react/*', 'react-dom', 'react-dom/*'],
             message: 'src/core must stay framework free.',
           },
           {
-            regex: '^(?:\\.\\./)+(?:blocks|design|editor|export|softengine)(?:/|$)',
-            message: 'src/core must not import an outer application layer.',
-          },
-          {
-            group: ['@/blocks/*', '@/design/*', '@/editor/*', '@/export/*', '@/softengine/*'],
+            regex: '^(?:(?:\\.\\./)+|@/)(?:blocks|design|editor|export|softengine)(?:/|$)',
             message: 'src/core must not import an outer application layer.',
           },
         ],
@@ -80,7 +71,7 @@ export default defineConfig([
       'no-restricted-imports': ['error', {
         patterns: [{
           group: ['**/softengine/bridge'],
-          importNames: ['seFenster', 'hostCall'],
+          importNames: ['hostCall'],
           message: 'Blocks touch SoftEngine only through the door.',
         }],
       }],

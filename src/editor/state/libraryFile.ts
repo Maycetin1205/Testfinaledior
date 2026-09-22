@@ -7,11 +7,10 @@ import {
   type LoadProblem,
 } from '../../core/data/loadProblem'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
-import { downloadFile } from './fileDownload'
+import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
 import { firstDeviation, noLoss } from './loadCheck'
 import { liftKey, liftLibraries } from './maskSchema'
-import { messages } from './messages'
 
 export const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
@@ -78,12 +77,16 @@ export function packLibrary(content: LibraryContent): string {
 }
 
 export function saveLibraryAsFile(editor: EditorStore): void {
-  const text = packLibrary({
-    dataSources: [...editor.dataSources.list],
-    relation: [...editor.relation.list],
-  })
   const today = new Date().toISOString().slice(0, 10)
-  downloadFile(`aufbau-bibliothek-${today}.json`, text, 'application/json')
+  void writeFile(
+    editor.libraryOnDisk,
+    `aufbau-bibliothek-${today}.json`,
+    packLibrary({
+      dataSources: [...editor.dataSources.list],
+      relation: [...editor.relation.list],
+    }),
+    editor.messages,
+  )
 }
 
 function rejected(base: string): LibraryResult {
@@ -173,19 +176,19 @@ export async function loadLibraryFromFile(editor: EditorStore, file: File): Prom
   try {
     text = await file.text()
   } catch {
-    messages.report('Die Datei konnte nicht gelesen werden.')
+    editor.messages.report('Die Datei konnte nicht gelesen werden.')
     return
   }
   const result = packLibraryFrom(text)
   if (!result.ok) {
-    messages.report(problemText(result.base, result.problems))
+    editor.messages.report(problemText(result.base, result.problems))
     return
   }
 
   const sources = addOn(editor.dataSources.list, result.content.dataSources)
   const relation = addOn(editor.relation.list, result.content.relation)
   if (sources.list === editor.dataSources.list && relation.list === editor.relation.list) {
-    messages.report('Alles aus der Bibliotheksdatei war schon da — nichts geändert.', 'hint')
+    editor.messages.report('Alles aus der Bibliotheksdatei war schon da — nichts geändert.', 'hint')
     return
   }
 
@@ -194,7 +197,7 @@ export async function loadLibraryFromFile(editor: EditorStore, file: File): Prom
     if (relation.list !== editor.relation.list) editor.relation.replaceAll(relation.list)
   })
 
-  messages.report([
+  editor.messages.report([
     'Bibliothek geladen.',
     stockRecord(AREA_SOURCES, sources),
     stockRecord(AREA_RELATION, relation),

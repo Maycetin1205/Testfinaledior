@@ -16,7 +16,7 @@ export default defineConfig({
     },
   },
   test: {
-    // Without this the `?raw` import of mask.css yields an EMPTY string in a
+    // Without this the `?raw` import of mask.css yields an empty string in a
     // test run (vitest stubs CSS), and the export test would check a mask
     // without the mask tokens.
     css: true,

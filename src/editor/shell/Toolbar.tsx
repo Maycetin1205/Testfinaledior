@@ -23,7 +23,6 @@ import { exportMask } from '../../export/exportMask'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
 import { downloadFile } from '../state/fileDownload'
 import { loadMaskFromFile, saveMaskAsFile } from '../state/maskFile'
-import { messages } from '../state/messages'
 import { useEditor } from '../state/useEditor'
 import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/PushButton'
@@ -65,7 +64,7 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
     )
     const failed = failedChecks(validateMaskHtml(html))
     if (failed.length > 0) {
-      messages.report(
+      ed.messages.report(
         'Export abgebrochen — die Datei hätte in SoftEngine nicht geladen:\n\n'
         + failed.map((f) => `• ${f.name}: ${f.detail}`).join('\n'),
       )

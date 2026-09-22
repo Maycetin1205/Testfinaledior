@@ -22,8 +22,8 @@ export interface ChoiceOption {
   value: string
   name: string
 
-  // Fertiges CSS. Tragen ALLE Optionen eine Farbe, zeichnet der Inspector
-  // Kacheln statt einer Liste.
+  // Ready made css. Carry all options a color, the inspector draws tiles
+  // instead of a list.
   color?: string
 }
 

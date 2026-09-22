@@ -1,4 +1,4 @@
-import { messages } from './messages'
+import type { MessageSink } from './messages'
 
 const BACKUP_SUFFIX = '__notfallkopie'
 
@@ -77,9 +77,10 @@ export function saveUnreadable(
   storageKey: string,
   raw: string,
   name: string,
+  sink: MessageSink,
 ): void {
   const backupKey = makeCopyOn(storageKey, raw)
-  messages.report(
+  sink.report(
     `Der gespeicherte Stand „${name}" war beschädigt und konnte nicht `
     + `gelesen werden.\n${copyRecord(storageKey, backupKey)}\n`
     + 'Es geht vorerst ohne diesen Stand weiter.',
@@ -96,11 +97,12 @@ export function reportStorageFailure(
   storageKey: string,
   name: string,
   error: unknown,
+  sink: MessageSink,
 ): void {
   console.warn(`Speichern fehlgeschlagen (${name})`, error)
   if (reported.has(storageKey)) return
   reported.add(storageKey)
-  messages.report(
+  sink.report(
     `„${name}" konnte nicht im Browser gespeichert werden.\n\n`
     + 'Das heißt: Änderungen von jetzt an sind beim Schließen des Fensters '
     + 'verloren. Der Editor läuft weiter, aber ohne Sicherung.\n\n'

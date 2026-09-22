@@ -31,16 +31,6 @@ export type RelationSyntax = Pick<
   'verb' | 'nr' | 'parameter' | 'extraParameterAllowed'
 >
 
-export const BUILT_IN_RELATION: readonly RelationTemplate[] = [
-  {
-    id: 'standard-put',
-    name: 'Standard-Schreiben (PUT)',
-    verb: 'PUT_RELATION',
-    nr: '174',
-    parameter: ['{FELD_POS}', '{FELD_LEN}', 'L', '{PINDEX}', '{RELID}', '{VALUE}'],
-  },
-]
-
 export function relIdFromIdbId(idbId: string): string {
   return idbId.replace(/^IDB/, '')
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState } from 'react'
 import { Dialog } from '@/editor/widgets/Dialog'
 import { Button } from '@/editor/widgets/PushButton'
 import { coerceColumns } from '../../blocks/behavior/columns'
@@ -9,14 +9,10 @@ import { sourcesInReach } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { CalculationDialog, type ColumnHead } from '../inspector/CalculationDialog'
-import {
-  onCalculationsSwitch,
-  calculationsWindowOpenFor,
-  closeCalculationsWindow,
-} from './calculationsWindowState'
+import { useView } from '../state/useView'
 
 export function CalculationsWindow() {
-  const blockId = useSyncExternalStore(onCalculationsSwitch, calculationsWindowOpenFor)
+  const blockId = useView().calculationsFor
   if (blockId === null) return null
 
   return <Window key={blockId} blockId={blockId} />
@@ -31,8 +27,8 @@ function Window({ blockId }: { blockId: string }) {
   const prop = block === undefined ? undefined : capability(blockType(block.type), 'compute')?.prop
 
   useEffect(() => {
-    if (block === undefined || prop === undefined) closeCalculationsWindow()
-  }, [block, prop])
+    if (block === undefined || prop === undefined) ed.openCalculations(null)
+  }, [ed, block, prop])
   if (block === undefined || prop === undefined) return null
 
   const calculations = calculationsFrom(block.values[prop])
@@ -50,7 +46,7 @@ function Window({ blockId }: { blockId: string }) {
     set([...calculations, next])
     setChosen(next.key)
   }
-  const close = (): void => closeCalculationsWindow()
+  const close = (): void => ed.openCalculations(null)
 
   const current = calculations.find((b) => b.key === chosen) ?? calculations[0]
   if (current === undefined) {

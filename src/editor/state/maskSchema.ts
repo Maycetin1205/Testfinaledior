@@ -308,8 +308,8 @@ function liftParameters(params: unknown): void {
   }
 }
 
-// Data sources and relation templates sit in the mask, in the library file and
-// in the browser copy of the data center; all three readers come through here.
+// Data sources and relation templates come from the customer file and from
+// masks saved before the split; both readers come through here.
 export function liftLibraries(state: Record<string, unknown>): void {
   const sources = state.datenquellen ?? state.dataSources
   if (Array.isArray(sources)) {

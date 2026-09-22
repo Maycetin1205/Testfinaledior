@@ -1,4 +1,3 @@
-import { messages } from './messages'
 import type { EditorStore } from './EditorStore'
 
 const TEMPLATE_CARD_PROTECTED =
@@ -7,7 +6,7 @@ const TEMPLATE_CARD_PROTECTED =
 
 export function deleteBlock(editor: EditorStore, id: string): void {
   if (editor.isRemoveProtected(id)) {
-    messages.report(TEMPLATE_CARD_PROTECTED)
+    editor.messages.report(TEMPLATE_CARD_PROTECTED)
     return
   }
   editor.removeBlock(id)
