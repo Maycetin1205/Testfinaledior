@@ -20,20 +20,20 @@ import {
 } from '../behavior/lookup'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { reportPendingMarks } from '../behavior/pendingState'
-import { walkInCell, cellsInputStyle, cellsFields } from '../behavior/cellInput'
+import { walkInCell, cellsInputStyle, cellsFields } from './cells'
 import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../behavior/sourceRows'
 import type { Sublines, RowDecoration } from '../behavior/tableBody'
-import { CaptureState } from '../behavior/captureState'
-import { captureRowFor, type CaptureHost } from '../behavior/captureControls'
-import { capturedRowsTpl, captureDecoration } from '../behavior/captureBody'
+import { CaptureState } from './state'
+import { captureRowFor, type CaptureHost } from './controls'
+import { capturedRowsTpl, captureDecoration } from './body'
 import {
   CAPTURE_COLUMNS_BINDING,
   coerceCaptureColumns,
   type CaptureColumn,
-} from '../behavior/captureColumn'
-import type { CaptureContext } from '../behavior/captureRow'
-import { RowsEditing } from '../behavior/rowEditing'
-import { RunState, type RowsIcon } from '../behavior/rowStatus'
+} from './column'
+import type { CaptureContext } from './row'
+import { RowsEditing } from './rowEditing'
+import { RunState, type RowsIcon } from './rowStatus'
 import { captureStyle } from './captureStyle'
 import { captureProperties, type CaptureValues } from './properties'
 

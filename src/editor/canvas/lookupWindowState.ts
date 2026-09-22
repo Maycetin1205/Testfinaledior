@@ -1,6 +1,5 @@
 import { SOURCE_PROP } from '../../core/block/sourceProperty'
-import { coerceCaptureColumns } from '../../blocks/behavior/captureColumn'
-import { windowColumnsIn } from '../../blocks/behavior/captureRow'
+import { coerceCaptureColumns, windowColumnsIn } from '../../blocks/capture'
 import {
   WINDOW_HEIGHT,
   automaticColumns,

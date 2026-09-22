@@ -1,14 +1,14 @@
 import type { TemplateResult } from 'lit'
-import { openLookup } from './lookup'
-import { keyOf } from './suggestionState'
-import type { CaptureRun } from './captureRun'
+import { openLookup } from '../behavior/lookup'
+import { keyOf } from '../behavior/suggestionState'
+import type { CaptureRun } from './run'
 import {
   captureRowTpl,
   windowColumnsIn,
   targetIn,
   type CaptureContext,
-} from './captureRow'
-import type { ColumnView } from './columns'
+} from './row'
+import type { ColumnView } from '../behavior/columns'
 
 export interface CaptureHost {
   block: HTMLElement

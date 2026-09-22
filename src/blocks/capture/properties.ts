@@ -5,9 +5,12 @@ import {
   type Calculation,
 } from '../../core/data/calculation'
 import { listProperties } from '../behavior/listDeclaration'
-import { captureColumnsProperty } from '../behavior/captureColumn'
-import { deletableProperty } from '../behavior/rowEditing'
+import { captureColumnsProperty } from './column'
+import { deletableProperty } from './rowEditing'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/lookup'
+import { reportError } from '../../softengine/report'
+
+const UNREADABLE = 'Die Berechnungen dieser Erfassung sind unlesbar; sie rechnet nicht.'
 
 export const captureProperties = {
   ...listProperties(),
@@ -23,6 +26,7 @@ export const captureProperties = {
       try {
         return calculationsFrom(JSON.parse(raw))
       } catch {
+        reportError(UNREADABLE)
         return []
       }
     },

@@ -1,7 +1,15 @@
 import type { EntrySwitch, ListBinding } from '../../core/block/blockType'
-import { flagOn, flagFor, listForExport } from '../../core/block/listBinding'
-import { coerceColumns, COLUMNS_BINDING, standardColumns, type Column } from './columns'
-import { structuredProperty, type Property } from '../../core/block/property'
+import { splitBinding } from '../../core/block/blockType'
+import { listForExport } from '../../core/block/listBinding'
+import { coerceColumns, COLUMNS_BINDING, standardColumns, type Column } from '../behavior/columns'
+import {
+  isPropertyEntry,
+  structuredProperty,
+  type Property,
+} from '../../core/block/property'
+import { reportError } from '../../softengine/report'
+
+const UNREADABLE = 'Die Spaltenliste dieser Erfassung ist unlesbar; sie zeigt eine leere Spalte.'
 
 export type CaptureColumn = Column & {
   editable?: boolean
@@ -11,18 +19,18 @@ export type CaptureColumn = Column & {
   windowColumns?: Column[]
 }
 
-function capturePart(x: unknown): Partial<CaptureColumn> {
-  if (!x || typeof x !== 'object') return {}
-  const o = x as Record<string, unknown>
+function capturePart(raw: unknown): Partial<CaptureColumn> {
+  if (!isPropertyEntry(raw)) return {}
+  const { editable, fillField, windowColumns } = raw
   return {
-    ...(typeof o.editable === 'boolean' ? { editable: o.editable } : {}),
+    ...(typeof editable === 'boolean' ? { editable } : {}),
 
-    ...(typeof o.fillField === 'string' && o.fillField.trim() !== ''
-      ? { fillField: o.fillField.trim() }
+    ...(typeof fillField === 'string' && fillField.trim() !== ''
+      ? { fillField: fillField.trim() }
       : {}),
 
-    ...(Array.isArray(o.windowColumns) && o.windowColumns.length > 0
-      ? { windowColumns: coerceColumns(o.windowColumns) }
+    ...(Array.isArray(windowColumns) && windowColumns.length > 0
+      ? { windowColumns: coerceColumns(windowColumns) }
       : {}),
   }
 }
@@ -36,6 +44,7 @@ export function tryCoerceCaptureColumns(v: string): CaptureColumn[] {
   try {
     return coerceCaptureColumns(JSON.parse(v))
   } catch {
+    reportError(UNREADABLE)
     return standardColumns()
   }
 }
@@ -65,11 +74,12 @@ export const CAPTURE_COLUMNS_BINDING: ListBinding = {
   ],
 }
 
-export function columnEditable(column: Column): boolean {
-  const entry = column as unknown as Record<string, unknown>
-  return column.field !== ''
-    && flagFor(CAPTURE_COLUMNS_BINDING, entry).includes(EDITABLE)
-    && flagOn(EDITABLE, entry)
+// A field of a helper source is looked up, never typed: the switch does not
+// even show for such a column.
+export function columnEditable(column: CaptureColumn): boolean {
+  if (column.field === '') return false
+  if (splitBinding(column.field).sourceId !== '') return false
+  return column.editable ?? EDITABLE.standard === true
 }
 
 export function captureColumnsProperty(): Property<CaptureColumn[]> {

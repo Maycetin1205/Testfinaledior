@@ -1,11 +1,12 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import type { Suggestion } from './suggestionList'
-import { inputSpotTpl, cellsClass } from './cellInput'
-import { windowColumnsOr } from './lookup'
-import { asNumber } from './sorting'
-import { CELL_PLACEHOLDER, type Column } from './columns'
-import type { CaptureColumn } from './captureColumn'
+import type { Suggestion } from '../behavior/suggestionList'
+import { inputSpotTpl } from '../behavior/inputSpot'
+import { cellsClass } from './cells'
+import { windowColumnsOr } from '../behavior/lookup'
+import { asNumber } from '../behavior/sorting'
+import { CELL_PLACEHOLDER, type Column } from '../behavior/columns'
+import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
 import type { KeyPair } from '../../core/data/extraSources'
@@ -90,7 +91,7 @@ export function captureRowTpl(
   </div>`
 }
 
-export type CellKind = 'free' | 'own' | 'verknuepft'
+export type CellKind = 'free' | 'own' | 'linked'
 
 export interface CellTarget {
   kind: CellKind
@@ -122,7 +123,7 @@ export function cellTargetOf(
   if (field === '') return { kind: 'free', sourceId: '', code: '' }
   const { sourceId, code } = splitBinding(field)
   if (sourceId === '') return { kind: 'own', sourceId: tablesSourceId, code }
-  return { kind: 'verknuepft', sourceId, code }
+  return { kind: 'linked', sourceId, code }
 }
 
 export function targetIn(context: CaptureContext, index: number): CellTarget {
@@ -133,7 +134,7 @@ export function linkedSourcesIn(context: CaptureContext): string[] {
   const out: string[] = []
   for (const column of context.columns) {
     const target = cellTargetOf(column, context.sourceId)
-    if (target.kind !== 'verknuepft' || target.sourceId === '') continue
+    if (target.kind !== 'linked' || target.sourceId === '') continue
     if (!out.includes(target.sourceId)) out.push(target.sourceId)
   }
   return out
@@ -165,7 +166,7 @@ export function windowColumnsIn(context: CaptureContext, index: number): Column[
 
 function automaticColumnsIn(context: CaptureContext, index: number): Column[] {
   const target = targetIn(context, index)
-  if (target.kind !== 'verknuepft' || target.sourceId === '' || target.code === '') return []
+  if (target.kind !== 'linked' || target.sourceId === '' || target.code === '') return []
   return [{ key: `feld:${target.code}`, title: context.columns[index]?.title ?? '', field: target.code }]
 }
 

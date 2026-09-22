@@ -28,7 +28,7 @@ import {
 } from './lookup'
 import type { Column } from './columns'
 import { keyOf, SuggestionState } from './suggestionState'
-import { inputSpotTpl } from './cellInput'
+import { inputSpotTpl } from './inputSpot'
 
 // What a lookup field carries, declared once for every block that has one.
 export function lookupProperties(when?: Condition) {

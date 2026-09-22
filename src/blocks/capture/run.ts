@@ -2,10 +2,10 @@ import {
   lookupEntries,
   sourcesRows,
   type Entry,
-} from './lookup'
+} from '../behavior/lookup'
 import { fieldRead } from '../../softengine/data'
-import { suggestionsInWindowState } from './lookup'
-import { SuggestionState, type KeysFollow } from './suggestionState'
+import { suggestionsInWindowState } from '../behavior/lookup'
+import { SuggestionState, type KeysFollow } from '../behavior/suggestionState'
 import {
   allFactors,
   calculationFlaws,
@@ -16,8 +16,8 @@ import {
   type FactorState,
 } from '../../core/data/calculation'
 import { splitBinding } from '../../core/block/binding'
-import { asNumber } from './sorting'
-import { columnWithKey } from './columns'
+import { asNumber } from '../behavior/sorting'
+import { columnWithKey } from '../behavior/columns'
 import {
   displayColumnIn,
   windowColumnsIn,
@@ -26,7 +26,7 @@ import {
   cellTargetOf,
   targetIn,
   type CaptureContext,
-} from './captureRow'
+} from './row'
 
 export class CaptureRun {
   private typed = new Map<number, string>()
@@ -162,7 +162,7 @@ export class CaptureRun {
       listOpen: this._typingColumn === index && this.list.open,
       fieldEmpty: this.valueAt(context, index) === '',
       typed: this.typed.get(index) !== undefined,
-      lookupable: target.kind === 'verknuepft',
+      lookupable: target.kind === 'linked',
       hasRecords: () => this.entries(context, index).length > 0,
       jumps: true,
     })
@@ -354,7 +354,7 @@ export class CaptureRun {
 
   entries(context: CaptureContext, index: number): Entry[] {
     const target = targetIn(context, index)
-    if (target.kind !== 'verknuepft' || target.sourceId === '' || target.code === '') return []
+    if (target.kind !== 'linked' || target.sourceId === '' || target.code === '') return []
     const rows = sourcesRows(target.sourceId)
     if (rows === null) return []
     const records = this.possible(context, target.sourceId, rows)

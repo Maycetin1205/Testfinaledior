@@ -1,10 +1,10 @@
 import type { WrittenRow, Delivery } from '../../core/block/capability'
 import type { Calculation } from '../../core/data/calculation'
-import { leftOf } from './foreignSources'
+import { leftOf } from '../behavior/foreignSources'
 import { arrivalCheck, missingMessage, type MissingRow } from './arrival'
-import { CaptureRun } from './captureRun'
-import type { CaptureContext } from './captureRow'
-import type { CaptureColumn } from './captureColumn'
+import { CaptureRun } from './run'
+import type { CaptureContext } from './row'
+import type { CaptureColumn } from './column'
 
 export interface ArrivalReport {
   message: string
