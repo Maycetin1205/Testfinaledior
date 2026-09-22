@@ -1,3 +1,4 @@
+import { isPropertyEntry } from '../../core/block/property'
 import type { KeyPair } from '../../core/data/extraSources'
 
 export interface PairEntry {
@@ -24,21 +25,21 @@ export function pairListFromAttribut(
     const parsed: unknown = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
     const acc: PairEntry[] = []
-    for (const e of parsed) {
-      if (!e || typeof e !== 'object') continue
-      const ee = e as Record<string, unknown>
-      const id = ee[idField]
+    for (const entry of parsed) {
+      if (!isPropertyEntry(entry)) continue
+      const id = entry[idField]
       if (typeof id !== 'string' || id === '') continue
       const pairs: KeyPair[] = []
-      for (const p of Array.isArray(ee.pairs) ? ee.pairs : []) {
-        if (!p || typeof p !== 'object') continue
-        const pp = p as Record<string, unknown>
-        if (typeof pp.ofField !== 'string' || typeof pp.toField !== 'string') continue
-        if (pp.ofField.trim() === '' || pp.toField.trim() === '') continue
-        pairs.push({ ofField: pp.ofField, toField: pp.toField })
+      for (const pair of Array.isArray(entry.pairs) ? entry.pairs : []) {
+        if (!isPropertyEntry(pair)) continue
+        if (typeof pair.ofField !== 'string' || typeof pair.toField !== 'string') continue
+        if (pair.ofField.trim() === '' || pair.toField.trim() === '') continue
+        pairs.push({ ofField: pair.ofField, toField: pair.toField })
       }
       if (pairs.length === 0 && choice.withoutPairsKeep !== true) continue
-      const partnerId = typeof ee.partnerId === 'string' && ee.partnerId !== id ? ee.partnerId : ''
+      const partnerId = typeof entry.partnerId === 'string' && entry.partnerId !== id
+        ? entry.partnerId
+        : ''
       acc.push({ id, partnerId, pairs })
     }
     return acc

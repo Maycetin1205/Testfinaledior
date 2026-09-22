@@ -1,11 +1,18 @@
 import { type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
+import type { Calculation } from '../../core/data/calculation'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { emptyStyle } from '../behavior/emptyState'
-import { LIST_GRID, ListState, listCapabilities } from '../behavior/listState'
-import { COLUMNS_BINDING, coerceColumns } from '../behavior/columns'
+import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
+import { RecordList } from '../behavior/recordList'
+import { COLUMNS_BINDING, coerceColumns, type Column } from '../behavior/columns'
 import { tableStyle } from '../behavior/tableStyle'
-import type { ProvidedRow, DataOwnership } from '../behavior/rowLink'
+import {
+  WITHOUT_ROWS,
+  type HandedRow,
+  type RowsFrom,
+  type RowsReport,
+} from '../behavior/sourceRows'
 import { tableProperties, type TableValues } from './properties'
 
 export interface Table extends TableValues {}
@@ -20,41 +27,28 @@ export class Table extends BlockElement {
 
   @property({ attribute: false }) rawRows: unknown[] = []
 
-  @property({ attribute: false }) bySelectionFiltered = false
+  @property({ attribute: false }) rowsReport: RowsReport = WITHOUT_ROWS
 
-  @property({ attribute: false }) dataDelivered = false
+  private readonly _list = new RecordList(this)
 
-  private readonly _list = new ListState({
-    block: this,
-    report: () => this.requestUpdate(),
-    columns: () => coerceColumns(this.columns),
-    calculations: () => [],
-
-    writeColumns: (columns) => {
-      this.dispatchEvent(new CustomEvent('ff-prop-change', {
-        detail: { attr: 'columns', value: columns },
-        bubbles: true,
-        composed: true,
-      }))
-    },
-    source: () => this.source,
-    search: () => this.search,
-    paging: () => this.paging,
-    headerRow: () => this.headerRow,
-    columnPicker: () => this.columnPicker,
-    emptyText: () => this.emptyText,
-  })
-
-  get ownership(): DataOwnership {
-    return this._list.ownership
+  listColumns(): readonly Column[] {
+    return coerceColumns(this.columns)
   }
 
-  set ownership(next: DataOwnership) {
-    this._list.ownership = next
+  listCalculations(): readonly Calculation[] {
+    return []
   }
 
-  set providedRows(rows: readonly ProvidedRow[]) {
-    this._list.providedRows = rows
+  get rowsFrom(): RowsFrom {
+    return this._list.rowsFrom
+  }
+
+  set rowsFrom(next: RowsFrom) {
+    this._list.rowsFrom = next
+  }
+
+  set handedRows(rows: readonly HandedRow[]) {
+    this._list.handedRows = rows
   }
 
   focusSearch(): boolean {

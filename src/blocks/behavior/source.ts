@@ -40,6 +40,9 @@ export interface DataPreamble {
 
   rows: unknown[]
 
+  // How many rows the source holds before the day filter takes some away.
+  inSource: number
+
   read: FieldReader
 }
 
@@ -48,12 +51,13 @@ export function holeDataPreamble(el: HTMLElement): DataPreamble | null {
   if (sourceId === '') return null
   const source = runtimeSource(sourceId)
   if (!source) return null
+  const delivered = rowsTheSource(source)
   const rows = rowsAtTag(
-    rowsTheSource(source),
+    delivered,
     el.getAttribute(TAG_FIELD_ATTR) ?? '',
     chosenDay(),
   )
-  return { source, rows, read: makeFieldReader(el) }
+  return { source, rows, inSource: delivered.length, read: makeFieldReader(el) }
 }
 
 export interface DataLink<T extends HTMLElement> {

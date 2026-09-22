@@ -8,7 +8,7 @@ import {
   type RowMetrics,
 } from './pageSize'
 import { sortIndizes, TOTAL_NACHKOMMA, totalText } from './sorting'
-import { columnsRaster, type Column } from './columns'
+import { columnsRaster, type Column, type ColumnsRaster } from './columns'
 import { rowFits } from './textSearch'
 
 export interface ViewQuestion {
@@ -19,8 +19,11 @@ export interface ViewQuestion {
 
   widthOf?: (index: number) => number | undefined
 
-  hasSource: boolean
-  dataDelivered: boolean
+  // False in the editor: there the list draws placeholder rows, not data.
+  showsRows: boolean
+
+  empty: boolean
+
   dataRows: readonly string[][]
   searchText: string
 
@@ -39,12 +42,12 @@ export interface ViewQuestion {
 }
 
 export interface TableRenderModel {
-  cols: Record<string, string>
+  cols: ColumnsRaster
 
   tick: number
 
   rowsHeight: number
-  hasSource: boolean
+  showsRows: boolean
   empty: boolean
 
   total: number
@@ -90,18 +93,16 @@ function visibleIndizes(question: ViewQuestion): number[] {
 export function tableRenderModel(question: ViewQuestion): TableRenderModel {
   const rendered = question.rendered ?? question.columns
   const slots = question.slots ?? rendered.map((_, i) => i)
-  const cols = {
+  const cols: ColumnsRaster = {
     gridTemplateColumns: columnsRaster(rendered, (j) => question.widthOf?.(slots[j] ?? j)),
   }
 
   const tick = ROWS_HEIGHT
   const rowsHeight = question.measured?.rowsHeight ?? tick
 
-  const hasSource = question.hasSource
+  const showsRows = question.showsRows
 
-  const empty = question.takenRows > 0
-    ? false
-    : showsEmptyState(hasSource, question.dataDelivered, question.dataRows.length)
+  const empty = question.takenRows > 0 ? false : question.empty
 
   const allVisible = visibleIndizes(question)
 
@@ -114,7 +115,7 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
   const free = question.measured === null ? null : Math.max(0, question.measured.fit - taken)
   const splitQuestion = {
     visible: allVisible,
-    hasSource,
+    showsRows,
     perPage,
     wishPage: question.wishPage,
     placeholderRows: placeholderRows(free),
@@ -126,7 +127,7 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
     cols,
     tick,
     rowsHeight,
-    hasSource,
+    showsRows,
     empty,
     total: allVisible.length,
     pageCount: pages,
@@ -150,26 +151,14 @@ function fittingIndizes(
   return out
 }
 
-export function showsRealData(inEditor: boolean, source: string): boolean {
-  return !inEditor && source.trim() !== ''
-}
-
-function showsEmptyState(
-  hasSource: boolean,
-  dataDelivered: boolean,
-  rows: number,
-): boolean {
-  return hasSource && dataDelivered && rows === 0
-}
-
 export function recordText(args: {
-  hasSource: boolean
+  showsRows: boolean
   visible: number
   total: number
   searchesActive: boolean
   selectionActive?: boolean
 }): string {
-  if (!args.hasSource) return '— Datensätze'
+  if (!args.showsRows) return '— Datensätze'
   const extra = args.selectionActive ? ' · durch Auswahl gefiltert' : ''
 
   const word = (n: number): string => (n === 1 ? 'Datensatz' : 'Datensätze')

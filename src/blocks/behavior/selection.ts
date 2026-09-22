@@ -1,15 +1,16 @@
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../../core/data/selectionFollow'
-import { fieldRead } from '../../softengine/data'
+import { fieldRead, isObjekt } from '../../softengine/data'
 import { pairListFromAttribut } from './pairList'
 
+// Two deliveries of the same record may list their fields in a different order,
+// so the trait sorts them before it compares.
 export function traitOf(row: unknown): string {
   if (row == null) return ''
   try {
     return JSON.stringify(row, (_key, value: unknown) => {
-      if (!value || typeof value !== 'object' || Array.isArray(value)) return value
-      const isPlainObject = value as Record<string, unknown>
-      return Object.fromEntries(Object.keys(isPlainObject).sort().map((key) => [key, isPlainObject[key]]))
+      if (!isObjekt(value) || Array.isArray(value)) return value
+      return Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]]))
     }) ?? ''
   } catch {
     return ''

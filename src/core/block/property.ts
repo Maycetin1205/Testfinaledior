@@ -42,6 +42,12 @@ export interface PropertyEntry {
 
 export type PropertyValue = string | number | boolean | readonly PropertyEntry[]
 
+// Stored values arrive as unknown: from the mask file, from an attribute, from
+// browser storage. This is the one step from unknown to a readable entry.
+export function isPropertyEntry(raw: unknown): raw is PropertyEntry {
+  return typeof raw === 'object' && raw !== null && !Array.isArray(raw)
+}
+
 export interface PropertyType<V> {
   control: ControlKind
   read(raw: unknown): ReadResult<V>

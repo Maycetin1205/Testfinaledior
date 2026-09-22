@@ -266,11 +266,11 @@ function runtimeTableTpl(args: LookupArgs, entries: readonly Entry[]): TemplateR
     return html`<ff-table
       data-ff-editor
       fills
-      suche="ja"
-      spaltenwahl="ja"
+      search="true"
+      columnpicker="true"
       style="--se-r-lg:0px"
-      .besitz=${'provided'}
-      .spalten=${columns}
+      .rowsFrom=${'handed'}
+      .columns=${columns}
     ></ff-table>`
   }
 
@@ -282,13 +282,13 @@ function runtimeTableTpl(args: LookupArgs, entries: readonly Entry[]): TemplateR
   return html`<ff-table
     data-ff-block-id=${lookupKey(args.el, args.spot)}
     fills
-    suche="ja"
-    spaltenwahl="ja"
+    search="true"
+    columnpicker="true"
     style="--se-r-lg:0px"
-    .besitz=${'provided'}
-    .spalten=${columns}
-    .leerText=${'Diese Quelle hat keine Sätze.'}
-    .bereitgestellteZeilen=${entries.map((e) => ({
+    .rowsFrom=${'handed'}
+    .columns=${columns}
+    .emptyText=${'Diese Quelle hat keine Sätze.'}
+    .handedRows=${entries.map((e) => ({
       rawRow: e.record,
       cells: own.length > 0
         ? own.map((s) => (s.field === '' ? '' : fieldRead(e.record, s.field)))

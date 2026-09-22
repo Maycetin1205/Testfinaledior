@@ -9,7 +9,8 @@ import {
 } from '../../core/data/calculation'
 import { reportError } from '../../softengine/report'
 import { emptyStyle } from '../behavior/emptyState'
-import { LIST_GRID, ListState, listCapabilities } from '../behavior/listState'
+import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
+import { RecordList } from '../behavior/recordList'
 import { tableStyle } from '../behavior/tableStyle'
 import {
   WINDOW_WIDTH,
@@ -20,7 +21,7 @@ import {
 import { suggestionStyle } from '../behavior/suggestionList'
 import { reportPendingMarks } from '../behavior/pendingState'
 import { walkInCell, cellsInputStyle, cellsFields } from '../behavior/cellInput'
-import { hasRecordNumber } from '../behavior/rowLink'
+import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../behavior/sourceRows'
 import type { Sublines, RowDecoration } from '../behavior/tableBody'
 import { CaptureState } from '../behavior/captureState'
 import { captureRowFor, type CaptureHost } from '../behavior/captureControls'
@@ -61,9 +62,7 @@ export class Capture extends BlockElement {
 
   @property({ attribute: false }) rawRows: unknown[] = []
 
-  @property({ attribute: false }) bySelectionFiltered = false
-
-  @property({ attribute: false }) dataDelivered = false
+  @property({ attribute: false }) rowsReport: RowsReport = WITHOUT_ROWS
 
   private readonly _capture = new CaptureState()
 
@@ -71,8 +70,8 @@ export class Capture extends BlockElement {
 
   private readonly _rows = new RowsEditing({
     block: this,
-    columns: () => this.columnsList(),
-    calculations: () => this.calculationList(),
+    columns: () => this.listColumns(),
+    calculations: () => this.listCalculations(),
     rawRows: () => this.rawRows,
     dataRows: () => this.dataRows,
     report: () => this.requestUpdate(),
@@ -80,25 +79,7 @@ export class Capture extends BlockElement {
     focusCaptureCell: (index) => this.focusCaptureCell(index),
   })
 
-  private readonly _list = new ListState({
-    block: this,
-    report: () => this.requestUpdate(),
-    columns: () => this.columnsList(),
-    calculations: () => this.calculationList(),
-
-    writeColumns: (columns) => {
-      this.dispatchEvent(new CustomEvent('ff-prop-change', {
-        detail: { attr: 'columns', value: columns },
-        bubbles: true,
-        composed: true,
-      }))
-    },
-    source: () => this.source,
-    search: () => this.search,
-    paging: () => this.paging,
-    headerRow: () => this.headerRow,
-    columnPicker: () => this.columnPicker,
-    emptyText: () => this.emptyText,
+  private readonly _list = new RecordList(this, {
     cellValue: (rawIndex, slot) => this._rows.cellValue(rawIndex, slot),
     decoration: () => this.rowsDecoration(),
     bottom: () => this.underRows(),
@@ -141,7 +122,7 @@ export class Capture extends BlockElement {
   }
 
   checkArrival(delivery: Delivery | null): void {
-    const report = this._capture.checkArrival(delivery, this.columnsList())
+    const report = this._capture.checkArrival(delivery, this.listColumns())
     for (const key of report.missing) {
       this._run.failed('captured', key, NOT_ARRIVED)
     }
@@ -158,20 +139,20 @@ export class Capture extends BlockElement {
     if (report.changed || booked.moved) this.requestUpdate()
   }
 
-  private columnsList(): CaptureColumn[] {
+  listColumns(): CaptureColumn[] {
     return coerceCaptureColumns(this.columns)
   }
 
-  private calculationList(): readonly Calculation[] {
+  listCalculations(): readonly Calculation[] {
     return calculationsFrom(this.calculations)
   }
 
   private captureContext(): CaptureContext {
     return this._capture.context(
       this,
-      this.columnsList(),
+      this.listColumns(),
       this.source,
-      this.calculationList(),
+      this.listCalculations(),
     )
   }
 

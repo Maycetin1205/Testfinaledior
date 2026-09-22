@@ -54,7 +54,8 @@ export interface Split {
 export interface SplitQuestion {
   visible: readonly number[]
 
-  hasSource: boolean
+  // False in the editor: placeholder rows stand in for data that is not there.
+  showsRows: boolean
   perPage: number
 
   wishPage: number
@@ -64,10 +65,10 @@ export interface SplitQuestion {
 
 export function scrollSplit({
   visible,
-  hasSource,
+  showsRows,
   placeholderRows,
 }: SplitQuestion): Split {
-  if (!hasSource) {
+  if (!showsRows) {
     return { pages: 1, page: 0, rows: Array.from({ length: placeholderRows }, () => null) }
   }
   return { pages: 1, page: 0, rows: [...visible] }
@@ -75,15 +76,15 @@ export function scrollSplit({
 
 export function pagesSplit({
   visible,
-  hasSource,
+  showsRows,
   perPage,
   wishPage,
   placeholderRows,
 }: SplitQuestion): Split {
-  const pages = hasSource ? Math.max(1, Math.ceil(visible.length / perPage)) : 1
+  const pages = showsRows ? Math.max(1, Math.ceil(visible.length / perPage)) : 1
 
   const page = Math.min(Math.max(wishPage, 0), pages - 1)
-  if (!hasSource) {
+  if (!showsRows) {
     return { pages, page, rows: Array.from({ length: placeholderRows }, () => null) }
   }
   return { pages, page, rows: [...visible.slice(page * perPage, (page + 1) * perPage)] }

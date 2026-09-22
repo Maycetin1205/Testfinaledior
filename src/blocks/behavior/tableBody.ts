@@ -4,10 +4,15 @@ import { emptyState } from './emptyState'
 import { columnsChoiceTpl, type ColumnsChoiceAct, type ColumnsChoicePlacement } from './columnPicker'
 import { markHit } from './textSearch'
 import { asNumber } from './sorting'
-import { CELL_PLACEHOLDER, type Column, type ColumnView } from './columns'
+import {
+  CELL_PLACEHOLDER,
+  type Column,
+  type ColumnView,
+  type ColumnsRaster,
+} from './columns'
 import { widthsHandles, type WidthsHost } from './columnWidth'
 import { moveRowsFocus, focusFirstRow, focusSearchRow } from './rowActivation'
-import { recordText } from './tableView'
+import { recordText } from './tableModel'
 
 export interface RowDecoration {
   status: string
@@ -40,7 +45,7 @@ export interface Sublines {
 
   render: (placement: {
     view: ColumnView
-    cols: Readonly<Record<string, string>>
+    cols: ColumnsRaster
     rulerTicks: number | null
   }) => TemplateResult
 }
@@ -50,7 +55,7 @@ export interface BodyPlacement {
 
   slots: readonly number[]
 
-  cols: Readonly<Record<string, string>>
+  cols: ColumnsRaster
 
   editable: boolean
 
@@ -75,7 +80,7 @@ export interface BodyPlacement {
 
   rulerTicks: number | null
 
-  hasSource: boolean
+  showsRows: boolean
   selectionIndex: number
 
   empty: boolean
@@ -125,7 +130,7 @@ function rowTpl(
   const decoration = placement.decoration(rawIndex)
   return html`<div
     class="zeile${viewIndex % 2 === 1 ? ' zebra' : ''}${
-      rawIndex !== null && placement.hasSource ? ' waehlbar' : ''}${
+      rawIndex !== null && placement.showsRows ? ' waehlbar' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' gewaehlt' : ''}${
       decoration.klasse === '' ? '' : ' ' + decoration.klasse}"
     role="row"
@@ -235,7 +240,7 @@ export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResul
 }
 
 export interface FootPlacement {
-  hasSource: boolean
+  showsRows: boolean
 
   visible: number
   total: number
@@ -265,7 +270,7 @@ export function tableFoot(
   if (!saysSomething) return html`<div class="fusszeile fusszeile--still"></div>`
   return html`<div class="fusszeile">
     <div class="seiten-info">${recordText({
-      hasSource: placement.hasSource,
+      showsRows: placement.showsRows,
       visible: placement.visible,
       total: placement.total,
       searchesActive: placement.searchesActive,

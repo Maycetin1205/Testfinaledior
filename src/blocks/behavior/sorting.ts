@@ -1,3 +1,4 @@
+import { isPropertyEntry } from '../../core/block/property'
 import { makeOperatorState } from './operatorState'
 
 const EMPTY_LAST = 1
@@ -103,11 +104,10 @@ export interface RememberedSorting {
 }
 
 function readSorting(raw: unknown): RememberedSorting | null {
-  if (typeof raw !== 'object' || raw === null) return null
-  const o = raw as Record<string, unknown>
-  const key = typeof o.key === 'string' ? o.key.trim() : ''
+  if (!isPropertyEntry(raw)) return null
+  const key = typeof raw.key === 'string' ? raw.key.trim() : ''
   if (key === '') return null
-  return { key, on: o.on !== false }
+  return { key, on: raw.on !== false }
 }
 
 export const rememberedSorting = makeOperatorState('ff_sortierung_', readSorting)

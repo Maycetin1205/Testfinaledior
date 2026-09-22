@@ -1,10 +1,12 @@
+import { chainsRead } from '../../core/data/actions'
 import {
   selectionFor,
   giverIdOf,
   chooseSelection,
+  setSelection,
 } from './selection'
 import { reportChainsError, runEvent } from './events'
-import { rowsIndexOf, rowsTraitOf } from './rowLink'
+import { rowsIndexOf, rowsTraitOf } from './sourceRows'
 
 export const ROW_ACTIVATED_EVENT = 'ff-zeile-aktiviert'
 
@@ -161,4 +163,32 @@ export function rowDouble(
   if (rawRow === undefined) return
   runEvent(el, ROW_DOUBLE, { PINDEX: rowsIndexOf(el, rawRow) })
     .catch(reportChainsError)
+}
+
+export interface ActionRowElement extends HTMLElement {
+  inEditor: boolean
+  rawRows: unknown[]
+}
+
+// F4 runs the action chain at the row the operator stands on: the focused one,
+// else the chosen one.
+export function actionKeyAtRow(
+  el: ActionRowElement,
+  choice: RowsChoice,
+  e: KeyboardEvent,
+): void {
+  if (el.inEditor || e.defaultPrevented || e.key !== 'F4'
+    || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+  if (!chainsRead(el.getAttribute('data-ff-actions'))[KEY_F4]?.length) return
+  e.preventDefault()
+  e.stopPropagation()
+  if (e.repeat) return
+
+  const focus = focusedRawIndex(el.shadowRoot)
+  const slot = focus === undefined ? choice.slotIn(el.rawRows) : focus
+  const row = slot === null ? undefined : el.rawRows[slot]
+  if (row === undefined) return
+  setSelection(giverIdOf(el), row, true, rowsTraitOf(el, row))
+  const record = rowsIndexOf(el, row)
+  runEvent(el, KEY_F4, { PINDEX: record, DROP_PINDEX: record }).catch(reportChainsError)
 }

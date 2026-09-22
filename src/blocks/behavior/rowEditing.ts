@@ -2,7 +2,7 @@ import type { Delivery, PendingKind } from '../../core/block/capability'
 import { booleanProperty, type Property } from '../../core/block/property'
 import { walkInCell, cellsFields } from './cellInput'
 import { addRow, resultSlots, type Calculation } from '../../core/data/calculation'
-import { rowsIndexOf } from './rowLink'
+import { rowsIndexOf } from './sourceRows'
 import { asNumber } from './sorting'
 import { columnWithKey, type Column } from './columns'
 import {

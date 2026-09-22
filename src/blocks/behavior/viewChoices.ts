@@ -4,28 +4,26 @@ import {
   headHeight,
   WITHOUT_BODY,
   bodyHeight,
+  ROWS_HEIGHT,
   type MessTarget,
   type RowMetrics,
 } from './pageSize'
 import { focusedRawIndex, spotRowsFocusFrom } from './rowActivation'
 import { rememberedSorting } from './sorting'
 
-export interface ViewHost {
-  block: HTMLElement & MessTarget
-
-  editable: () => boolean
-
-  rowsHeight: () => number
-
-  report: () => void
-
-  columns: () => readonly { key: string }[]
-
-  remembersSorting: () => boolean
+// The element whose view the operator changes.
+export interface ViewElement extends HTMLElement, MessTarget {
+  inEditor: boolean
+  editable: boolean
+  requestUpdate: () => void
 }
 
-export class ViewState {
-  private readonly host: ViewHost
+// What the operator chose about the view: search text, sort column, page — plus
+// how many rows the body currently fits.
+export class ViewChoices {
+  private readonly el: ViewElement
+
+  private readonly columns: () => readonly { key: string }[]
 
   private _searchText = ''
 
@@ -47,8 +45,9 @@ export class ViewState {
   private _focusRow: number | null = null
   private _focusFetch = false
 
-  constructor(host: ViewHost) {
-    this.host = host
+  constructor(el: ViewElement, columns: () => readonly { key: string }[]) {
+    this.el = el
+    this.columns = columns
   }
 
   get searchText(): string {
@@ -59,24 +58,30 @@ export class ViewState {
     return this._searchText.trim() !== ''
   }
 
+  // Only the mask remembers what the operator sorted by; in the editor the
+  // builder's own order stands.
+  private get remembers(): boolean {
+    return !this.el.inEditor
+  }
+
   private holeRemembered(): void {
     if (this._rememberedRead) return
     this._rememberedRead = true
-    if (!this.host.remembersSorting()) return
-    const state = rememberedSorting.read(this.host.block)
+    if (!this.remembers) return
+    const state = rememberedSorting.read(this.el)
     if (state === null) return
 
-    const slot = this.host.columns().findIndex((s) => s.key === state.key)
+    const slot = this.columns().findIndex((s) => s.key === state.key)
     if (slot < 0) return
     this._sortColumn = slot
     this._sortOn = state.on
   }
 
   private rememberSorting(): void {
-    if (!this.host.remembersSorting()) return
-    const key = this.host.columns()[this._sortColumn]?.key ?? ''
+    if (!this.remembers) return
+    const key = this.columns()[this._sortColumn]?.key ?? ''
     rememberedSorting.remember(
-      this.host.block,
+      this.el,
       this._sortColumn < 0 || key === '' ? null : { key, on: this._sortOn },
     )
   }
@@ -103,11 +108,11 @@ export class ViewState {
     this.rememberRowsFocus()
     this._searchText = text
     this._page = 0
-    this.host.report()
+    this.el.requestUpdate()
   }
 
   clickSort(index: number): void {
-    if (this.host.editable()) return
+    if (this.el.editable) return
     this.rememberRowsFocus()
 
     this.holeRemembered()
@@ -119,55 +124,53 @@ export class ViewState {
     }
     this._page = 0
     this.rememberSorting()
-    this.host.report()
+    this.el.requestUpdate()
   }
 
   goToPage(to: number): void {
     this.rememberRowsFocus()
     this._page = to
-    this.host.report()
+    this.el.requestUpdate()
   }
 
   focusSearch(): boolean {
-    const field = this.host.block.shadowRoot
-      ?.querySelector<HTMLInputElement>('.suchzeile input')
+    const field = this.el.shadowRoot?.querySelector<HTMLInputElement>('.suchzeile input')
     if (!field) return false
     field.focus()
     return true
   }
 
   private rememberRowsFocus(): void {
-    const raw = focusedRawIndex(this.host.block.shadowRoot)
+    const raw = focusedRawIndex(this.el.shadowRoot)
     this._focusFetch = raw !== undefined
     this._focusRow = raw ?? null
   }
 
   private measureBody(): void {
-    const tick = this.host.rowsHeight()
-    this._tickMeasured = tick
-    const { metrics, height, head } = measuredMetrics(this.host.block, tick)
+    this._tickMeasured = ROWS_HEIGHT
+    const { metrics, height, head } = measuredMetrics(this.el, ROWS_HEIGHT)
     this._bodyMeasured = height
     this._headMeasured = head
     if (metrics?.fit === this._metrics?.fit && metrics?.rowsHeight === this._metrics?.rowsHeight) return
     this._metrics = metrics
-    this.host.report()
+    this.el.requestUpdate()
   }
 
   observe(): void {
     if (this._observers) return
-    this._observers = observeBody(this.host.block, () => this.measureBody())
+    this._observers = observeBody(this.el, () => this.measureBody())
     if (this._observers) this.measureBody()
   }
 
   toRender(): void {
-    if (this._tickMeasured !== this.host.rowsHeight()
-      || this._bodyMeasured !== bodyHeight(this.host.block)
-      || this._headMeasured !== headHeight(this.host.block)) {
+    if (this._tickMeasured !== ROWS_HEIGHT
+      || this._bodyMeasured !== bodyHeight(this.el)
+      || this._headMeasured !== headHeight(this.el)) {
       this.measureBody()
     }
     if (!this._focusFetch) return
     this._focusFetch = false
-    spotRowsFocusFrom(this.host.block.shadowRoot, this._focusRow)
+    spotRowsFocusFrom(this.el.shadowRoot, this._focusRow)
   }
 
   resolve(): void {

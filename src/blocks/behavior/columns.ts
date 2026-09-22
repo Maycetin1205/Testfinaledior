@@ -1,5 +1,10 @@
 import { assignKeys, listForExport, type ListBinding } from '../../core/block/listBinding'
-import { structuredProperty, type Property } from '../../core/block/property'
+import {
+  isPropertyEntry,
+  structuredProperty,
+  type Property,
+  type PropertyEntry,
+} from '../../core/block/property'
 
 export type Column = {
   key: string
@@ -80,34 +85,37 @@ function asWidth(v: unknown): number | undefined {
 
 const KNOWN_FACTS = ['key', 'title', 'field', 'width', 'total', 'hidden']
 
-function extraFacts(o: Record<string, unknown>): Record<string, unknown> {
-  const rest: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(o)) {
+// A column entry may carry facts of the block that declared it: the capture
+// keeps its own per column. They travel through untouched.
+type ColumnFacts = { [key: string]: PropertyEntry[string] }
+
+function extraFacts(entry: PropertyEntry): ColumnFacts {
+  const rest: ColumnFacts = {}
+  for (const [key, value] of Object.entries(entry)) {
     if (value !== undefined && !KNOWN_FACTS.includes(key)) rest[key] = value
   }
   return rest
 }
 
-function asColumn(x: unknown, index: number): Column {
-  if (x && typeof x === 'object') {
-    const o = x as Record<string, unknown>
-    const width = o.width === undefined ? undefined : asWidth(o.width)
+function asColumn(raw: unknown, index: number): Column {
+  if (isPropertyEntry(raw)) {
+    const width = raw.width === undefined ? undefined : asWidth(raw.width)
     const column: Column = {
-      key: typeof o.key === 'string' ? o.key.trim() : '',
-      title: typeof o.title === 'string' ? o.title : standardTitleFor(index),
-      field: typeof o.field === 'string' ? o.field : '',
+      key: typeof raw.key === 'string' ? raw.key.trim() : '',
+      title: typeof raw.title === 'string' ? raw.title : standardTitleFor(index),
+      field: typeof raw.field === 'string' ? raw.field : '',
 
       ...(width === undefined ? {} : { width }),
 
-      ...(typeof o.total === 'boolean' ? { total: o.total } : {}),
+      ...(typeof raw.total === 'boolean' ? { total: raw.total } : {}),
 
-      ...(typeof o.hidden === 'boolean' ? { hidden: o.hidden } : {}),
+      ...(typeof raw.hidden === 'boolean' ? { hidden: raw.hidden } : {}),
     }
 
-    return Object.assign(extraFacts(o), column)
+    return Object.assign(extraFacts(raw), column)
   }
 
-  if (typeof x === 'string') return { ...newColumn(index), title: x }
+  if (typeof raw === 'string') return { ...newColumn(index), title: raw }
   return newColumn(index)
 }
 
@@ -132,6 +140,18 @@ export function tryCoerceColumns(v: string): Column[] {
   } catch {
     return standardColumns()
   }
+}
+
+// The css grid template the head, the rows and the ruler all stand on.
+export type ColumnsRaster = { gridTemplateColumns: string }
+
+// The editor owns the tree; a block asks it to store changed columns.
+export function sendColumnsChange(el: HTMLElement, columns: readonly Column[]): void {
+  el.dispatchEvent(new CustomEvent('ff-prop-change', {
+    detail: { attr: 'columns', value: columns },
+    bubbles: true,
+    composed: true,
+  }))
 }
 
 export function columnsRaster(
