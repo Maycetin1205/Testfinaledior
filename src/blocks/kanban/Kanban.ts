@@ -1,13 +1,9 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import {
-  CARD_TYPE,
-  boardUnregister,
-  boardRegister,
-  MOVE_EVENT,
-  type BoardTarget,
-} from '../behavior/cardBoard'
+import { emptyState, emptyStyle } from '../behavior/emptyState'
+import { boardMoveTo, boardRegister, boardUnregister } from './board'
+import { CARD_TYPE, type BoardTarget } from './places'
 import { KanbanColumn } from './KanbanColumn'
 import { kanbanStyle } from './kanbanStyle'
 import { kanbanProperties, type KanbanValues } from './properties'
@@ -18,24 +14,27 @@ export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, kanbanStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, emptyStyle, kanbanStyle]
 
-  @property({ attribute: false }) message = ''
+  @property({ attribute: false }) moveMessage = ''
+  @property({ attribute: false }) readMessage = ''
+  @property({ attribute: false }) boardHint = ''
   @property({ attribute: false }) busy = false
   @property({ attribute: false }) selectionTitle = ''
   @property({ attribute: false }) currentTarget = ''
   @property({ attribute: false }) targets: BoardTarget[] = []
 
-  private targetChosen(ereignis: Event): void {
-    const field = ereignis.currentTarget as HTMLSelectElement
+  private targetChosen(event: Event): void {
+    const field = event.currentTarget as HTMLSelectElement
     const target = field.value
     field.value = this.currentTarget
-    this.dispatchEvent(new CustomEvent(MOVE_EVENT, { detail: target }))
+    boardMoveTo(this, target)
   }
 
   override render(): TemplateResult {
     return html`
-      <p class="meldung" role="status" aria-live="polite">${this.message}</p>
+      <p class="meldung" role="status" aria-live="polite">${this.moveMessage}</p>
+      <p class="meldung">${this.readMessage}</p>
       ${this.selectionTitle ? html`<label class="bedienung">
         <span>${this.selectionTitle} verschieben nach</span>
         <select aria-label="Ziel für die gewählte Karte" .value=${this.currentTarget}
@@ -44,7 +43,10 @@ export class Kanban extends BlockElement {
           ${this.targets.map((target) => html`<option value=${target.id} ?selected=${target.id === this.currentTarget}>${target.name}</option>`)}
         </select>
       </label>` : ''}
-      <div class="tafel"><slot></slot></div>`
+      <div class="tafel">
+        <slot></slot>
+        ${emptyState(this.boardHint, true)}
+      </div>`
   }
 
   override connectedCallback(): void {

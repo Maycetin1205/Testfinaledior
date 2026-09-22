@@ -1,18 +1,12 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { toneStyle, toneValue } from '../behavior/tone'
-import { emptyStyle, emptyState } from '../behavior/emptyState'
-import {
-  CARD_TAG,
-  COLUMN_TAG,
-  boardAreasStyle,
-  TARGET_CLASS,
-  ROOM_CONTENT_EVENT,
-} from '../behavior/cardBoard'
+import { emptyState, emptyStyle } from '../behavior/emptyState'
+import { COLUMN_TAG, TARGET_CLASS, placeStyle } from './places'
 import { KanbanRoom } from './KanbanRoom'
-import { kanbanColumnStyle } from './kanbanColumnStyle'
-import { kanbanColumnProperties, type KanbanColumnValues } from './columnProperties'
+import { columnStyle } from './columnStyle'
+import { kanbanColumnProperties, type KanbanColumnValues } from './properties'
 
 export interface KanbanColumn extends KanbanColumnValues {}
 
@@ -23,26 +17,14 @@ export class KanbanColumn extends BlockElement {
   static override styles: CSSResultGroup = [
     BlockElement.styles,
     emptyStyle,
-    boardAreasStyle,
+    placeStyle,
     toneStyle,
-    kanbanColumnStyle,
+    columnStyle,
   ]
 
   @property({ attribute: false }) emptyHint = ''
 
-  @state() private _count = 0
-
-  constructor() {
-    super()
-
-    this.addEventListener(ROOM_CONTENT_EVENT, () => this.count())
-  }
-
-  private count(): void {
-    this._count = Array.from(this.querySelectorAll(CARD_TAG))
-      .filter((el) => !el.hasAttribute('data-ff-editor'))
-      .length
-  }
+  @property({ attribute: false }) cardCount = 0
 
   override render(): TemplateResult {
     return html`<div class="spalte ${TARGET_CLASS} v-${toneValue(this.tone)}">
@@ -53,10 +35,10 @@ export class KanbanColumn extends BlockElement {
           data-ff-editable
           @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'heading')}
         >${this.heading}</span>
-        <span class="anzahl">${this._count}</span>
+        <span class="anzahl">${this.cardCount}</span>
       </div>
       <div class="rumpf">
-        <slot @slotchange=${this.count}></slot>
+        <slot></slot>
         ${emptyState(this.emptyHint)}
       </div>
     </div>`

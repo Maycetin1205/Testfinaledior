@@ -1,6 +1,6 @@
 import { css } from 'lit'
 
-export const kanbanRoomStyle = css`
+export const roomStyle = css`
   :host { display: block; }
 
   .kopf {

@@ -1,15 +1,10 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { emptyStyle, emptyState } from '../behavior/emptyState'
-import {
-  boardAreasStyle,
-  TARGET_CLASS,
-  ROOM_CONTENT_EVENT,
-  ROOM_TAG,
-} from '../behavior/cardBoard'
-import { kanbanRoomStyle } from './kanbanRoomStyle'
-import { kanbanRoomProperties, type KanbanRoomValues } from './roomProperties'
+import { emptyState, emptyStyle } from '../behavior/emptyState'
+import { ROOM_TAG, TARGET_CLASS, placeStyle } from './places'
+import { roomStyle } from './roomStyle'
+import { kanbanRoomProperties, type KanbanRoomValues } from './properties'
 
 export interface KanbanRoom extends KanbanRoomValues {}
 
@@ -20,18 +15,11 @@ export class KanbanRoom extends BlockElement {
   static override styles: CSSResultGroup = [
     BlockElement.styles,
     emptyStyle,
-    boardAreasStyle,
-    kanbanRoomStyle,
+    placeStyle,
+    roomStyle,
   ]
 
   @property({ attribute: false }) emptyHint = ''
-
-  private contentSwitched(): void {
-    this.dispatchEvent(new CustomEvent(ROOM_CONTENT_EVENT, {
-      bubbles: true,
-      composed: true,
-    }))
-  }
 
   override render(): TemplateResult {
     return html`<div class="zimmer ${TARGET_CLASS}">
@@ -41,7 +29,7 @@ export class KanbanRoom extends BlockElement {
         @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'heading')}
       >${this.heading}</div>
       <div class="rumpf">
-        <slot @slotchange=${this.contentSwitched}></slot>
+        <slot></slot>
         ${emptyState(this.emptyHint)}
       </div>
     </div>`

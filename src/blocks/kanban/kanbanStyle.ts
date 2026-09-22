@@ -41,4 +41,6 @@ export const kanbanStyle = css`
   }
 
   .tafel slot { display: contents; }
+
+  .tafel .leer { flex: 1; align-self: center; }
 `

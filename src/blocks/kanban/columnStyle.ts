@@ -1,6 +1,6 @@
 import { css } from 'lit'
 
-export const kanbanColumnStyle = css`
+export const columnStyle = css`
   :host {
     display: flex;
     flex-direction: column;
