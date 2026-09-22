@@ -1,14 +1,13 @@
-// Waehlt zu einer Baustein-Eigenschaft das passende Bedienelement.
-import type { Baustein } from '../../kern/maske/baum'
-import { bausteinArt } from '../../kern/maske/registry'
-import { faehigkeit } from '../../kern/maske/faehigkeiten'
-import type { Eigenschaft } from '../../kern/maske/eigenschaft'
-import { quellenKennung, type Datenquelle } from '../../kern/daten/datenquellen'
-import { useDataSources } from '../zustand/useDataSources'
-import { useRelations } from '../zustand/useRelations'
-import { useEditor } from '../zustand/useEditor'
-import type { ListeGruppe } from '@/editor/werkbank/Liste'
-import { KachelControl } from './controls/KachelControl'
+import type { BlockNode } from '../../core/block/tree'
+import { blockType } from '../../core/block/registry'
+import { capability } from '../../core/block/capability'
+import type { Property } from '../../core/block/property'
+import { sourcesKey, type DataSource } from '../../core/data/dataSources'
+import { useDataSources } from '../state/useDataSources'
+import { useRelation } from '../state/useRelations'
+import { useEditor } from '../state/useEditor'
+import type { ListGroup } from '@/editor/widgets/List'
+import { TileControl } from './controls/TileControl'
 import { ColorTileControl } from './controls/ColorTileControl'
 import { NumberControl } from './controls/NumberControl'
 import { PickerControl } from './controls/PickerControl'
@@ -17,64 +16,63 @@ import { SelectControl } from './controls/SelectControl'
 import { TextareaControl } from './controls/TextareaControl'
 import { TextControl } from './controls/TextControl'
 
-// Die zwei Rueckrufe, die der Inspector durchreicht: sie klammern eine Eingabe zu
-// EINEM Undo-Schritt. Nicht zu verwechseln mit der Eingabesitzung, dem Hook, der
-// sie fuer ein einzelnes Feld auf- und zumacht.
-export interface BearbeitungsRueckrufe {
-  onBeginBearbeitung: () => void
-  onEndeBearbeitung: () => void
+export interface EditCallbacks {
+  onBeginEditing: () => void
+  onEndEditing: () => void
 }
 
 export interface PropControlProps {
-  block: Baustein
-  property: Eigenschaft
+  block: BlockNode
+  propertyKey: string
+  property: Property<unknown>
 
-  sourceInReach: Datenquelle | undefined
-  sitzung: BearbeitungsRueckrufe
+  sourceInReach: DataSource | undefined
+  session: EditCallbacks
 
-  kompakt?: boolean
+  compact?: boolean
 }
 
-interface WaehlerFall {
-  nenner: string
-  gruppen: ListeGruppe[]
-  wert: string
-  leerText: string
-  onWaehle: (wert: string) => void
+interface PickerCase {
+  denominator: string
+  groups: ListGroup[]
+  value: string
+  emptyText: string
+  onChoose: (value: string) => void
 }
 
 export function PropControl({
   block,
+  propertyKey,
   property,
   sourceInReach,
-  sitzung,
-  kompakt = false,
+  session,
+  compact = false,
 }: PropControlProps) {
   const ed = useEditor()
 
-  const relations = useRelations()
+  const relation = useRelation()
 
-  const quellen = useDataSources()
-  const def = bausteinArt(block.typ)
+  const sources = useDataSources()
+  const def = blockType(block.type)
 
-  const value = block.werte[property.schluessel]
-  const kind = property.art
-  const set = (v: unknown) => ed.updateProperty(block.id, property.schluessel, v)
+  const value = block.values[propertyKey]
+  const kind = property.type.control
+  const set = (v: unknown) => ed.updateProperty(block.id, propertyKey, v)
 
-  const feldQuelle = property.quelleProp
-    ? quellen.get(String(block.werte[property.quelleProp] ?? ''))
+  const fieldSource = property.sourceProp
+    ? sources.get(String(block.values[property.sourceProp] ?? ''))
     : sourceInReach
 
-  if (kompakt) {
+  if (compact) {
     if (kind === 'number') {
-      return <NumberControl property={property} value={value} onChange={set} {...sitzung} />
+      return <NumberControl property={property} value={value} onChange={set} {...session} />
     }
     if (kind === 'segment') {
       return (
         <SegmentControl
-          name={property.name}
-          description={property.beschreibung}
-          options={property.optionen ?? []}
+          name={property.label}
+          description={property.help}
+          options={property.type.options ?? []}
           value={String(value ?? '')}
           onChange={set}
         />
@@ -82,52 +80,49 @@ export function PropControl({
     }
   }
 
-  if (property.brauchtQuelle && !sourceInReach) return null
-  if (kind === 'field' && !feldQuelle) {
-    return <p className="text-dicht text-matt">{property.name}: zuerst eine passende Datenquelle verbinden.</p>
+  if (property.needsSource && !sourceInReach) return null
+  if (kind === 'field' && !fieldSource) {
+    return <p className="text-dicht text-matt">{property.label}: zuerst eine passende Datenquelle verbinden.</p>
   }
 
-  // Erst NACH den Sperren oben: eine Kachel ohne Datenquelle waere ein Schalter
-  // fuer etwas, das es nicht gibt.
-  if (kind === 'jaNein') {
-    return <KachelControl property={property} value={value} onChange={set} />
+  if (kind === 'boolean') {
+    return <TileControl property={property} value={value} onChange={set} />
   }
 
-  const waehlerFall = (): WaehlerFall | undefined => {
+  const pickerCase = (): PickerCase | undefined => {
     switch (kind) {
-      case 'quelle':
+      case 'source':
         return {
-          nenner: 'Quelle',
-          gruppen: [{
-            key: 'quellen',
-            eintraege: quellen.list.map((q) => ({
-              wert: q.id,
+          denominator: 'Quelle',
+          groups: [{
+            key: 'sources',
+            entries: sources.list.map((q) => ({
+              value: q.id,
               name: q.name,
-              kennung: quellenKennung(q),
+              badge: sourcesKey(q),
             })),
           }],
-          wert: typeof value === 'string' ? value : '',
-          leerText: 'Keine',
-          onWaehle: (neueId) => {
-            if (neueId === String(value ?? '')) return
+          value: typeof value === 'string' ? value : '',
+          emptyText: 'Keine',
+          onChoose: (newId) => {
+            if (newId === String(value ?? '')) return
 
-            ed.transaktion(() => {
-              set(neueId)
+            ed.transaction(() => {
+              set(newId)
 
-              for (const andere of def?.eigenschaften ?? []) {
-                if (andere.quelleProp !== property.schluessel) continue
-                ed.updateProperty(block.id, andere.schluessel, '')
-                if (andere.klarnameProp) {
-                  ed.updateProperty(block.id, andere.klarnameProp, '')
+              for (const [otherKey, other] of Object.entries(def?.properties ?? {})) {
+                if (other.sourceProp !== propertyKey) continue
+                ed.updateProperty(block.id, otherKey, '')
+                if (other.plainNameProp) {
+                  ed.updateProperty(block.id, other.plainNameProp, '')
                 }
               }
-  // Auch eine Liste, die ihre Feldcodes aus DIESER Quelle nimmt, zeigt nach dem
-  // Wechsel ins Leere: sie behielte sonst Codes der alten Quelle.
-              const liste = faehigkeit(def, 'liste')?.bindung
-              const alteListe = liste ? block.werte[liste.prop] : undefined
-              if (liste?.quelleProp === property.schluessel
-                && Array.isArray(alteListe) && alteListe.length > 0) {
-                ed.updateProperty(block.id, liste.prop, [])
+
+              const list = capability(def, 'list')?.binding
+              const oldList = list ? block.values[list.prop] : undefined
+              if (list?.sourceProp === propertyKey
+                && Array.isArray(oldList) && oldList.length > 0) {
+                ed.updateProperty(block.id, list.prop, [])
               }
             })
           },
@@ -135,47 +130,47 @@ export function PropControl({
 
       case 'field':
         return {
-          nenner: 'Feld',
-          gruppen: [{
-            key: 'felder',
-            name: feldQuelle?.name,
-            kennung: feldQuelle ? quellenKennung(feldQuelle) : undefined,
-            eintraege: (feldQuelle?.felder ?? []).map((f) => ({
-              wert: f.code,
+          denominator: 'Feld',
+          groups: [{
+            key: 'fields',
+            name: fieldSource?.name,
+            badge: fieldSource ? sourcesKey(fieldSource) : undefined,
+            entries: (fieldSource?.fields ?? []).map((f) => ({
+              value: f.code,
               name: f.name,
-              kennung: f.code,
+              badge: f.code,
             })),
           }],
-          wert: value == null ? '' : String(value),
-          leerText: 'Nicht gebunden',
-          onWaehle: (code) => {
-            ed.transaktion(() => {
+          value: value == null ? '' : String(value),
+          emptyText: 'Nicht gebunden',
+          onChoose: (code) => {
+            ed.transaction(() => {
               set(code)
 
-              if (property.klarnameProp) {
-                const klarname = feldQuelle?.felder.find((f) => f.code === code)?.name ?? ''
-                ed.updateProperty(block.id, property.klarnameProp, klarname)
+              if (property.plainNameProp) {
+                const plainName = fieldSource?.fields.find((f) => f.code === code)?.name ?? ''
+                ed.updateProperty(block.id, property.plainNameProp, plainName)
               }
             })
           },
         }
 
-      case 'seite': {
-        const seiten = ed.pages.filter((s) => s.istHauptseite)
+      case 'page': {
+        const pages = ed.pages.filter((s) => s.isMainPage)
         return {
-          nenner: 'Seite',
-          gruppen: [{
-            key: 'seiten',
-            eintraege: seiten.map((s) => ({ wert: s.id, name: s.name })),
+          denominator: 'Seite',
+          groups: [{
+            key: 'pages',
+            entries: pages.map((s) => ({ value: s.id, name: s.name })),
           }],
-          wert: typeof value === 'string' ? value : '',
-          leerText: 'Keine',
-          onWaehle: (id) => {
-            ed.transaktion(() => {
+          value: typeof value === 'string' ? value : '',
+          emptyText: 'Keine',
+          onChoose: (id) => {
+            ed.transaction(() => {
               set(id)
-              if (property.klarnameProp) {
-                ed.updateProperty(block.id, property.klarnameProp,
-                  seiten.find((s) => s.id === id)?.name ?? '')
+              if (property.plainNameProp) {
+                ed.updateProperty(block.id, property.plainNameProp,
+                  pages.find((s) => s.id === id)?.name ?? '')
               }
             })
           },
@@ -184,18 +179,18 @@ export function PropControl({
 
       case 'relation':
         return {
-          nenner: 'Relation',
-          gruppen: [{
-            key: 'relationen',
-            eintraege: relations.list.map((r) => ({
-              wert: r.id,
+          denominator: 'Relation',
+          groups: [{
+            key: 'relation',
+            entries: relation.list.map((r) => ({
+              value: r.id,
               name: r.name,
-              kennung: r.nr,
+              badge: r.nr,
             })),
           }],
-          wert: typeof value === 'string' ? value : '',
-          leerText: 'Keine',
-          onWaehle: set,
+          value: typeof value === 'string' ? value : '',
+          emptyText: 'Keine',
+          onChoose: set,
         }
 
       default:
@@ -203,14 +198,14 @@ export function PropControl({
     }
   }
 
-  const fall = waehlerFall()
+  const fall = pickerCase()
   if (fall) {
-    const { nenner, ...rest } = fall
+    const { denominator, ...rest } = fall
     return (
       <PickerControl
-        label={property.name}
-        hinweis={property.beschreibung}
-        bezeichnung={`${nenner} für ${property.name}`}
+        label={property.label}
+        hint={property.help}
+        name={`${denominator} für ${property.label}`}
         {...rest}
       />
     )
@@ -218,37 +213,36 @@ export function PropControl({
 
   switch (kind) {
     case 'text':
-      return <TextControl property={property} value={String(value ?? '')} onChange={set} {...sitzung} />
-    case 'textarea':
-      return <TextareaControl property={property} value={String(value ?? '')} onChange={set} {...sitzung} />
+      return <TextControl property={property} value={String(value ?? '')} onChange={set} {...session} />
+    case 'longText':
+      return <TextareaControl property={property} value={String(value ?? '')} onChange={set} {...session} />
 
     case 'number':
-      return <NumberControl label={property.name} property={property} value={value} onChange={set} {...sitzung} />
+      return <NumberControl label={property.label} property={property} value={value} onChange={set} {...session} />
     case 'segment':
       return (
         <SegmentControl
-          label={property.name}
-          name={property.name}
-          description={property.beschreibung}
-          options={property.optionen ?? []}
+          label={property.label}
+          name={property.label}
+          description={property.help}
+          options={property.type.options ?? []}
           value={String(value ?? '')}
           onChange={set}
         />
       )
-    case 'select': {
-      const opts = property.optionen ?? []
-      const gemeinsam = {
-        label: property.name,
-        description: property.beschreibung,
+    case 'choice': {
+      const opts = property.type.options ?? []
+      const shared = {
+        label: property.label,
+        description: property.help,
         options: opts,
         value: String(value ?? ''),
         onChange: set,
       }
 
-      // Kacheln nur, wenn jede Option ihre Farbe mitbringt; sonst die Liste.
-      return opts.length > 0 && opts.every((o) => o.farbe !== undefined)
-        ? <ColorTileControl {...gemeinsam} />
-        : <SelectControl {...gemeinsam} />
+      return opts.length > 0 && opts.every((o) => o.color !== undefined)
+        ? <ColorTileControl {...shared} />
+        : <SelectControl {...shared} />
     }
     default:
       return null

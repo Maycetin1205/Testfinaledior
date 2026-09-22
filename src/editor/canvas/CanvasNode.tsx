@@ -1,35 +1,32 @@
-// Ein Baustein auf der Leinwand samt seinen Kindern.
 import { Fragment, type DragEvent } from 'react'
-import type { Baustein } from '../../kern/maske/baum'
-import { darfEnthalten, bausteinArt } from '../../kern/maske/registry'
+import type { BlockNode } from '../../core/block/tree'
+import { mayContain, blockType } from '../../core/block/registry'
 import {
-  flussHoeheStil,
-  flussBreiteStil,
-  flussHoeheLesen,
-  flussBreiteLesen,
-  richtungDerKinder,
-  type Richtung,
-} from '../../kern/maske/fluss'
-import { rasterPlatzLesen, rasterPlatzStil, type RasterPlatz } from '../../kern/maske/raster'
-import { istRasterFlaeche } from '../../kern/maske/rasterFlaeche'
-import { useEditor } from '../zustand/useEditor'
+  flowHeightStyle,
+  flowWidthStyle,
+  flowHeightRead,
+  flowWidthRead,
+  directionTheChildren,
+  type Direction,
+} from '../../core/block/flow'
+import { gridSlotRead, gridSlotStyle, type GridSlot } from '../../core/block/grid'
+import { isGridArea } from '../../core/block/gridArea'
+import { useEditor } from '../state/useEditor'
 import { BlockHost } from './BlockHost'
 import { isNewBlockDrag, newBlockDragType } from './dnd'
 import { commitDrop, useDnd } from './dndState'
-import { cn } from '@/editor/werkbank/cn'
-import { ziehePosition } from './rasterMove'
+import { cn } from '@/editor/widgets/cn'
+import { dragPosition } from './gridMove'
 
 const CONTAINER_EDGE = 12
 
-// Wo der gezogene Baustein landet. Der Umriss wird in der Flaeche gezeichnet,
-// die ihn aufnimmt: nur dort zaehlen die Zellen, die er zeigt.
-function RasterGeist({ platz }: { platz: RasterPlatz }) {
+function RasterGhost({ slot }: { slot: GridSlot }) {
   return (
     <div
       aria-hidden
       data-ff-editor-helper
       style={{
-        ...rasterPlatzStil(platz),
+        ...gridSlotStyle(slot),
         pointerEvents: 'none',
         background: 'hsl(var(--wb-auswahl) / 0.16)',
         border: '2px dashed hsl(var(--wb-auswahl))',
@@ -39,7 +36,7 @@ function RasterGeist({ platz }: { platz: RasterPlatz }) {
   )
 }
 
-function InsertionLine({ direction }: { direction: Richtung }) {
+function InsertionLine({ direction }: { direction: Direction }) {
   return (
     <div
       data-ff-editor-helper
@@ -52,31 +49,29 @@ function InsertionLine({ direction }: { direction: Richtung }) {
 }
 
 export function NodeList(
-  { parentId, direction, raster = false, vorlage }:
-  { parentId: string; direction: Richtung; raster?: boolean; vorlage?: Baustein },
+  { parentId, direction, grid = false, template }:
+  { parentId: string; direction: Direction; grid?: boolean; template?: BlockNode },
 ) {
   const ed = useEditor()
   const dnd = useDnd()
 
-  const alle = ed.childNodesOf(parentId)
-  // Die Vorlage einer Tafel haengt im Baum an der Tafel, damit eine geloeschte
-  // Spalte sie nicht mitnimmt. Gezeigt wird sie dort, wo zur Laufzeit die
-  // Karten liegen: so tief im ersten Kind, wie es Kinder aufnimmt.
-  const muster = bausteinArt(ed.getNode(parentId)?.typ ?? '')?.musterKind
-  const eigene = muster ? alle.find((n) => n.typ === muster.typ) : undefined
-  const nodes = eigene ? alle.filter((n) => n.id !== eigene.id) : alle
-  const weiter = vorlage ?? eigene
+  const all = ed.childNodesOf(parentId)
+
+  const templateChild = blockType(ed.getNode(parentId)?.type ?? '')?.templateKind
+  const own = templateChild ? all.find((n) => n.type === templateChild.type) : undefined
+  const nodes = own ? all.filter((n) => n.id !== own.id) : all
+  const further = template ?? own
 
   const lineAt = (i: number) =>
-    !raster
+    !grid
     && dnd.dropTarget?.kind === 'flow'
     && dnd.dropTarget.parentId === parentId
     && dnd.dropTarget.index === i
 
-  const vorlageHier = weiter !== undefined && nodes.length === 0 ? weiter : undefined
-  const vorlageWeiter = weiter !== undefined && nodes.length > 0 ? weiter : undefined
+  const templateHere = further !== undefined && nodes.length === 0 ? further : undefined
+  const templateFurther = further !== undefined && nodes.length > 0 ? further : undefined
 
-  const geist = raster && dnd.dropTarget?.kind === 'raster' && dnd.dropTarget.parentId === parentId
+  const ghost = grid && dnd.dropTarget?.kind === 'grid' && dnd.dropTarget.parentId === parentId
     ? dnd.dropTarget
     : null
 
@@ -90,55 +85,52 @@ export function NodeList(
             index={i}
             parentId={parentId}
             listDirection={direction}
-            raster={raster}
-            vorlage={i === 0 ? vorlageWeiter : undefined}
+            grid={grid}
+            template={i === 0 ? templateFurther : undefined}
           />
         </Fragment>
       ))}
       {lineAt(nodes.length) && <InsertionLine direction={direction} />}
-      {vorlageHier && <VorlageKnoten vorlage={vorlageHier} rueckfallEltern={parentId} direction={direction} />}
-      {geist && <RasterGeist platz={geist} />}
+      {templateHere && <TemplateNode template={templateHere} fallbackParent={parentId} direction={direction} />}
+      {ghost && <RasterGhost slot={ghost} />}
     </>
   )
 }
 
-// Die Vorlage wird als gewoehnlicher Knoten gezeichnet, aber mit IHRER Stelle
-// im Baum: Auswaehlen, Binden und Loeschschutz haengen daran.
-function VorlageKnoten(
-  { vorlage, rueckfallEltern, direction }:
-  { vorlage: Baustein; rueckfallEltern: string; direction: Richtung },
+function TemplateNode(
+  { template, fallbackParent, direction }:
+  { template: BlockNode; fallbackParent: string; direction: Direction },
 ) {
   const ed = useEditor()
-  const elternId = vorlage.elternId ?? rueckfallEltern
-  const index = ed.childNodesOf(elternId).findIndex((n) => n.id === vorlage.id)
+  const parentId = template.parentId ?? fallbackParent
+  const index = ed.childNodesOf(parentId).findIndex((n) => n.id === template.id)
   return (
     <CanvasNode
-      node={vorlage}
+      node={template}
       index={Math.max(0, index)}
-      parentId={elternId}
+      parentId={parentId}
       listDirection={direction}
     />
   )
 }
 
 interface CanvasNodeProps {
-  node: Baustein
+  node: BlockNode
   index: number
   parentId: string
-  listDirection: Richtung
+  listDirection: Direction
 
-  raster?: boolean
+  grid?: boolean
 
-  // Die Vorlage der Tafel, die hier oder tiefer im ersten Kind zu zeichnen ist.
-  vorlage?: Baustein
+  template?: BlockNode
 }
 
-function CanvasNode({ node, index, parentId, listDirection, raster = false, vorlage }: CanvasNodeProps) {
+function CanvasNode({ node, index, parentId, listDirection, grid = false, template }: CanvasNodeProps) {
   const ed = useEditor()
   const dnd = useDnd()
-  const def = bausteinArt(node.typ)
-  const isContainer = def?.nimmtKinder ?? false
-  const childDirection = richtungDerKinder(def, node.werte)
+  const def = blockType(node.type)
+  const isContainer = def?.takesChildren ?? false
+  const childDirection = directionTheChildren(def, node.values)
 
   const invalidTarget = (targetParentId: string) =>
     dnd.dragId !== null && ed.isInSubtree(dnd.dragId, targetParentId)
@@ -158,14 +150,14 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false, vorl
     const rect = e.currentTarget.getBoundingClientRect()
 
     const draggedType = dnd.dragId !== null
-      ? ed.getNode(dnd.dragId)?.typ ?? null
+      ? ed.getNode(dnd.dragId)?.type ?? null
       : newBlockDragType(e.dataTransfer)
 
     const allowedIn = (containerType: string) =>
-      draggedType !== null && darfEnthalten(containerType, draggedType)
-    const parentType = ed.getNode(parentId)?.typ ?? ''
+      draggedType !== null && mayContain(containerType, draggedType)
+    const parentType = ed.getNode(parentId)?.type ?? ''
 
-    if (isContainer && !invalidTarget(node.id) && allowedIn(node.typ)) {
+    if (isContainer && !invalidTarget(node.id) && allowedIn(node.type)) {
       const before = listDirection === 'row'
         ? e.clientX < rect.left + CONTAINER_EDGE
         : e.clientY < rect.top + CONTAINER_EDGE
@@ -188,34 +180,34 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false, vorl
     dnd.setDropTarget({ kind: 'flow', parentId, index: after ? index + 1 : index })
   }
 
-  const inhalt = (
+  const content = (
     <BlockHost
       block={node}
       selected={ed.selectedId === node.id}
-      onSelect={() => ed.waehleGetroffenen(node.id)}
-      raster={raster}
+      onSelect={() => ed.chooseHit(node.id)}
+      grid={grid}
     >
       {isContainer && (
         <NodeList
           parentId={node.id}
           direction={childDirection}
-          raster={istRasterFlaeche(node)}
-          vorlage={vorlage}
+          grid={isGridArea(node)}
+          template={template}
         />
       )}
     </BlockHost>
   )
 
-  if (raster) {
+  if (grid) {
     return (
       <div
-        onPointerDown={(e) => ziehePosition(ed, dnd, e, node, parentId)}
+        onPointerDown={(e) => dragPosition(ed, dnd, e, node, parentId)}
         style={{
           opacity: dnd.dragId === node.id ? 0.4 : 1,
-          ...rasterPlatzStil(rasterPlatzLesen(node.werte)),
+          ...gridSlotStyle(gridSlotRead(node.values)),
         }}
       >
-        {inhalt}
+        {content}
       </div>
     )
   }
@@ -233,11 +225,11 @@ function CanvasNode({ node, index, parentId, listDirection, raster = false, vorl
       onDragEnd={dnd.reset}
       style={{
         opacity: dnd.dragId === node.id ? 0.4 : 1,
-        ...flussBreiteStil(flussBreiteLesen(node.werte.width), listDirection, def?.festeBreite),
-        ...flussHoeheStil(flussHoeheLesen(node.werte.height), listDirection),
+        ...flowWidthStyle(flowWidthRead(node.values.width), listDirection, def?.fixedWidth),
+        ...flowHeightStyle(flowHeightRead(node.values.height), listDirection),
       }}
     >
-      {inhalt}
+      {content}
     </div>
   )
 }

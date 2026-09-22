@@ -1,7 +1,6 @@
-// Eine Wahl aus wenigen Moeglichkeiten als Zungenreihe.
-import type { Wahloption } from '../../../kern/maske/eigenschaft'
-import { Segment } from '@/editor/werkbank/Segment'
-import { Zeile } from '@/editor/werkbank/Zeile'
+import type { ChoiceOption } from '../../../core/block/property'
+import { Segment } from '@/editor/widgets/Segment'
+import { Row } from '@/editor/widgets/Row'
 import { segmentIcon } from '../segmentIcons'
 
 interface SegmentControlProps {
@@ -9,7 +8,7 @@ interface SegmentControlProps {
   label?: string
   description?: string
   value: string
-  options: Wahloption[]
+  options: readonly ChoiceOption[]
   onChange: (value: string) => void
 }
 
@@ -17,15 +16,15 @@ function Segmente({ name, description, value, options, onChange, id }: SegmentCo
   return (
     <Segment
       id={id}
-      bezeichnung={name}
-      hinweis={description}
-      wert={value}
-      optionen={options.map((o) => ({
-        wert: o.wert,
+      name={name}
+      hint={description}
+      value={value}
+      options={options.map((o) => ({
+        value: o.value,
         name: o.name,
-        zeichen: segmentIcon(o.wert, { size: 13 }),
+        icon: segmentIcon(o.value, { size: 13 }),
       }))}
-      onWaehle={onChange}
+      onChoose={onChange}
     />
   )
 }
@@ -34,8 +33,8 @@ export function SegmentControl({ label, ...rest }: SegmentControlProps) {
   if (!label) return <Segmente {...rest} />
 
   return (
-    <Zeile label={label} hinweis={rest.description}>
+    <Row label={label} hint={rest.description}>
       {(kind) => <Segmente {...rest} description={undefined} id={kind.id} />}
-    </Zeile>
+    </Row>
   )
 }

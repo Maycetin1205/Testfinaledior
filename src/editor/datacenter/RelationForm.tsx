@@ -1,0 +1,108 @@
+import { useState } from 'react'
+import { Field } from '@/editor/widgets/Field'
+import { Button } from '@/editor/widgets/PushButton'
+import { Row } from '@/editor/widgets/Row'
+import {
+  relationSyntaxAsText,
+  relationSyntaxRead,
+  type RelationTemplate,
+} from '../../core/data/relations'
+import { useRelation } from '../state/useRelations'
+import { FormCard } from './FormCard'
+
+interface RelationFormProps {
+  relation?: RelationTemplate
+  onClose: () => void
+}
+
+export function RelationForm({ relation, onClose }: RelationFormProps) {
+  const store = useRelation()
+  const [name, setName] = useState(relation?.name ?? '')
+  const [syntaxInput, setSyntaxInput] = useState(
+    relation ? relationSyntaxAsText(relation) : '',
+  )
+  const [showError, setShowError] = useState(false)
+
+  const syntax = syntaxInput.trim() === '' ? null : relationSyntaxRead(syntaxInput)
+  const nameError = name.trim() === '' ? 'Anzeigename fehlt.' : ''
+  const syntaxError = syntaxInput.trim() === ''
+    ? 'Syntax fehlt.'
+    : syntax
+      ? ''
+      : 'Syntax ist ungültig.'
+
+  function save() {
+    if (nameError !== '' || !syntax) {
+      setShowError(true)
+      return
+    }
+    const data: Omit<RelationTemplate, 'id'> = {
+      name: name.trim(),
+      verb: syntax.verb,
+      nr: syntax.nr,
+      parameter: [...syntax.parameter],
+      extraParameterAllowed: syntax.extraParameterAllowed,
+    }
+    if (relation) store.update(relation.id, data)
+    else store.add(data)
+    onClose()
+  }
+
+  return (
+    <FormCard title={relation ? 'Relation bearbeiten' : 'Neue Relation'} onClose={onClose}>
+      <div className="flex flex-col gap-2">
+        <Row label="Anzeigename" error={showError ? nameError : undefined}>
+          {(kind) => (
+            <Field
+              {...kind}
+              value={name}
+              placeholder="z. B. Termin verschieben"
+              onChange={(e) => setName(e.target.value)}
+            />
+          )}
+        </Row>
+
+        <Row
+          wide
+          label="SoftEngine-Syntax"
+          error={
+            showError || (syntaxInput.trim() !== '' && !syntax) ? syntaxError : undefined
+          }
+        >
+          {(kind) => (
+            <Field
+              {...kind}
+              value={syntaxInput}
+              placeholder="z. B. GET_RELATION[640!{IDBID}!{DATUM}]"
+              className="font-mono text-dicht"
+              onChange={(e) => setSyntaxInput(e.target.value)}
+            />
+          )}
+        </Row>
+
+        {syntax && (
+          <div className="rounded border border-linie bg-control p-2 text-dicht">
+            <div className="font-medium text-tinte">
+              {syntax.verb.replace('_RELATION', '')} {syntax.nr} · {syntax.parameter.length} Parameter
+              {syntax.extraParameterAllowed ? ' · weitere erlaubt' : ''}
+            </div>
+            <div className="mt-1 max-h-32 overflow-y-auto font-mono text-matt">
+              {syntax.parameter.map((param, i) => (
+                <div key={i} className="flex gap-2">
+                  <span className="w-5 shrink-0 text-right">{i + 1}.</span>
+                  <span>{param === '' ? '(leer)' : param}</span>
+                </div>
+              ))}
+              {syntax.parameter.length === 0 && <div>Keine Parameter.</div>}
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-end gap-2 border-t border-linie pt-3">
+          <Button onClick={onClose}>Abbrechen</Button>
+          <Button kind="primary" onClick={save}>Speichern</Button>
+        </div>
+      </div>
+    </FormCard>
+  )
+}

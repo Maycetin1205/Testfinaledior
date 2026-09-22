@@ -8,7 +8,6 @@
     "skipLibCheck": true,
     "strict": true,
 
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
@@ -18,19 +17,14 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
 
-    /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    /* Wer eine Basisklassen-Stelle ersetzt, muss es hinschreiben. Sonst sieht
-       ein versehentliches Ueberschreiben (Tippfehler im Namen, gleicher Name
-       aus Versehen) genauso aus wie ein gewolltes. Betrifft vor allem die
-       Bausteine ueber BasicBlock/LitElement. */
+    /* Whoever replaces a base class member must write it down. Otherwise an
+       accidental override looks exactly like an intended one. */
     "noImplicitOverride": true,
 
-    /* Path-Alias fuer shadcn-Style Imports: '@/ui/button' -> 'src/ui/button'.
-       Vite-Pendant: alias-Eintrag in vite.config.ts. */
     "paths": {
       "@/*": ["./src/*"]
     }

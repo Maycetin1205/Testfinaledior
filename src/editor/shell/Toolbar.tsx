@@ -1,4 +1,3 @@
-// Die Werkzeugleiste des Editors: Maskenname, Seiten, Datencenter, Export.
 import {
   Download,
   FileText,
@@ -10,259 +9,253 @@ import {
   SlidersHorizontal,
   Trash2,
   Undo2,
-} from '@/editor/zeichen/zeichen'
+} from '@/editor/icons/icon'
 import { useRef, useState } from 'react'
 import {
-  BELEG_RAHMEN_PROP,
-  RAHMEN_STELLEN,
-  belegDateinamen,
-  rahmenNummerVon,
-} from '../../kern/maske/belegRahmen'
-import { WURZEL_ID } from '../../kern/maske/baum'
-import { MASKEN_NAME_PROP, MASKEN_NAME_STANDARD, maskenNameVon } from '../../kern/maske/maskenName'
+  DOCUMENT_FRAME_PROP,
+  FRAME_SPOTS,
+  documentFileNames,
+  frameNumberOf,
+} from '../../core/block/documentFrame'
+import { ROOT_ID } from '../../core/block/tree'
+import { MASK_NAME_PROP, MASK_NAME_STANDARD, maskNameOf } from '../../core/block/maskName'
 import { exportMask } from '../../export/exportMask'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
-import { downloadFile } from '../zustand/dateiDownload'
-import { ladeMaskeAusDatei, speichereMaskeAlsDatei } from '../zustand/maskenDatei'
-import { meldungen } from '../zustand/meldungen'
-import { useEditor } from '../zustand/useEditor'
-import { Feld } from '@/editor/werkbank/Feld'
-import { Knopf } from '@/editor/werkbank/Knopf'
-import { MenueZeile } from '@/editor/werkbank/MenueZeile'
-import { Popover } from '@/editor/werkbank/Popover'
-import { Trenner } from '@/editor/werkbank/Trenner'
-import { useEingabeSitzung } from '../inspector/controls/eingabeSitzung'
-import { NotfallkopienFenster } from './NotfallkopienFenster'
+import { downloadFile } from '../state/fileDownload'
+import { loadMaskFromFile, saveMaskAsFile } from '../state/maskFile'
+import { messages } from '../state/messages'
+import { useEditor } from '../state/useEditor'
+import { Field } from '@/editor/widgets/Field'
+import { Button } from '@/editor/widgets/PushButton'
+import { MenuRow } from '@/editor/widgets/MenuRow'
+import { Popover } from '@/editor/widgets/Popover'
+import { Divider } from '@/editor/widgets/Separator'
+import { useInputSession } from '../inspector/controls/editSession'
+import { BackupsWindow } from './BackupsWindow'
 
-const MASKEN_NAMEN = {
+const MASK_NAMES = {
   html: 'index.basis.source.html',
   sevariablen: 'index.basis.SEvariablen.json',
 }
 
-const RAHMEN_TITEL = 'Nummer des Layoutrahmens — nur für den Beleg-Export.'
+const FRAME_TITLE = 'Nummer des Layoutrahmens — nur für den Beleg-Export.'
   + ' Leer heißt: diese Maske ist kein Belegrahmen.'
 
-const RAHMEN_FEHLT = 'Beleg-Export — braucht die Nummer des Layoutrahmens im Feld davor'
+const FRAME_MISSING = 'Beleg-Export — braucht die Nummer des Layoutrahmens im Feld davor'
 
-function belegTitel(nummer: string): string {
-  const namen = belegDateinamen(nummer)
-  return `Beleg-Export — ${namen.html} und ${namen.sevariablen}`
+function documentTitle(number: string): string {
+  const names = documentFileNames(number)
+  return `Beleg-Export — ${names.html} und ${names.sevariablen}`
 }
 
-export function Toolbar({ onDatencenter }: { onDatencenter: () => void }) {
+export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
   const ed = useEditor()
 
-  // Der Maskenname wird wie jede Eigenschaft im Baum gefuehrt; eine Tipp-Sitzung
-  // ist EIN Undo-Schritt.
-  const nameSitzung = useEingabeSitzung(() => ed.beginTransaction(), () => ed.endTransaction())
-  const rahmenSitzung = useEingabeSitzung(() => ed.beginTransaction(), () => ed.endTransaction())
-  const maskenName = String(ed.tree[WURZEL_ID]?.werte[MASKEN_NAME_PROP] ?? '')
-  const rahmenRoh = String(ed.tree[WURZEL_ID]?.werte[BELEG_RAHMEN_PROP] ?? '')
-  const rahmen = rahmenNummerVon(ed.tree)
+  const nameSession = useInputSession(() => ed.beginTransaction(), () => ed.endTransaction())
+  const frameSession = useInputSession(() => ed.beginTransaction(), () => ed.endTransaction())
+  const maskName = String(ed.tree[ROOT_ID]?.values[MASK_NAME_PROP] ?? '')
+  const frameRaw = String(ed.tree[ROOT_ID]?.values[DOCUMENT_FRAME_PROP] ?? '')
+  const frame = frameNumberOf(ed.tree)
 
-  // Dieselbe Maske, nur unter anderem Dateinamen: ein Layoutrahmen der
-  // Belegerfassung heisst Rahmen<Nummer>, jede andere Maske index.
-  const handleExport = (namen: { html: string; sevariablen: string }) => {
-    const sources = ed.datenquellen.list
-    const relations = ed.relationen.list
+  const handleExport = (names: { html: string; sevariablen: string }) => {
+    const sources = ed.dataSources.list
+    const relation = ed.relation.list
     const { html, sevariablen } = exportMask(
-      ed.tree, maskenNameVon(ed.tree), sources, relations,
+      ed.tree, maskNameOf(ed.tree), sources, relation,
     )
     const failed = failedChecks(validateMaskHtml(html))
     if (failed.length > 0) {
-      meldungen.melde(
+      messages.report(
         'Export abgebrochen — die Datei hätte in SoftEngine nicht geladen:\n\n'
         + failed.map((f) => `• ${f.name}: ${f.detail}`).join('\n'),
       )
       return
     }
 
-    downloadFile(namen.html, html, 'text/html')
-    downloadFile(namen.sevariablen, sevariablen, 'application/json')
+    downloadFile(names.html, html, 'text/html')
+    downloadFile(names.sevariablen, sevariablen, 'application/json')
   }
 
   return (
     <div className="flex shrink-0 items-center gap-1.5">
-      <WeitereAktionen
+      <ExtraActions
         onClearAll={() => ed.clear()}
         clearDisabled={ed.blockCount === 0}
-        onSpeichern={() => speichereMaskeAlsDatei(ed)}
-        onDatei={(datei) => void ladeMaskeAusDatei(ed, datei)}
+        onSave={() => saveMaskAsFile(ed)}
+        onFile={(file) => void loadMaskFromFile(ed, file)}
       />
 
-      <Trenner senkrecht className="mx-1" />
+      <Divider vertical className="mx-1" />
 
-      <Feld
-        value={maskenName}
-        placeholder={MASKEN_NAME_STANDARD}
+      <Field
+        value={maskName}
+        placeholder={MASK_NAME_STANDARD}
         aria-label="Name der Maske"
         title="Name der Maske — wird der Titel der exportierten Maske und ihr Anmeldename in SoftEngine"
         className="w-40"
         onChange={(e) => {
-          nameSitzung.beginnen()
-          ed.updateProperty(WURZEL_ID, MASKEN_NAME_PROP, e.currentTarget.value)
+          nameSession.begin()
+          ed.updateProperty(ROOT_ID, MASK_NAME_PROP, e.currentTarget.value)
         }}
-        onBlur={nameSitzung.beenden}
+        onBlur={nameSession.finish}
       />
 
-      <Feld
-        value={rahmenRoh}
+      <Field
+        value={frameRaw}
         placeholder="Nr."
         inputMode="numeric"
-        maxLength={RAHMEN_STELLEN}
+        maxLength={FRAME_SPOTS}
         aria-label="Nummer des Belegerfassungs-Layoutrahmens"
-        title={RAHMEN_TITEL}
+        title={FRAME_TITLE}
         className="w-16"
         onChange={(e) => {
-          rahmenSitzung.beginnen()
-          ed.updateProperty(WURZEL_ID, BELEG_RAHMEN_PROP, e.currentTarget.value)
+          frameSession.begin()
+          ed.updateProperty(ROOT_ID, DOCUMENT_FRAME_PROP, e.currentTarget.value)
         }}
-        onBlur={rahmenSitzung.beenden}
+        onBlur={frameSession.finish}
       />
 
-      <Knopf
-        onClick={onDatencenter}
+      <Button
+        onClick={onDataCenter}
         title="Datencenter — Datenquellen und Relationen der Maske"
       >
         <SlidersHorizontal size={14} /> Datencenter
-      </Knopf>
+      </Button>
 
-      <Knopf
+      <Button
         aria-label="Als Belegerfassungs-Layoutrahmen exportieren"
-        title={rahmen === '' ? RAHMEN_FEHLT : belegTitel(rahmen)}
-        onClick={() => handleExport(belegDateinamen(rahmen))}
-        disabled={ed.blockCount === 0 || rahmen === ''}
+        title={frame === '' ? FRAME_MISSING : documentTitle(frame)}
+        onClick={() => handleExport(documentFileNames(frame))}
+        disabled={ed.blockCount === 0 || frame === ''}
       >
         <FileText size={14} /> Beleg-Export
-      </Knopf>
+      </Button>
 
-      <Knopf
-        art="primaer"
+      <Button
+        kind="primary"
         aria-label="Als SoftEngine-Maske exportieren"
         title="Export — Maskendatei und SEvariablen, beide in denselben Ordner"
-        onClick={() => handleExport(MASKEN_NAMEN)}
+        onClick={() => handleExport(MASK_NAMES)}
         disabled={ed.blockCount === 0}
       >
         <Download size={14} /> Exportieren
-      </Knopf>
+      </Button>
     </div>
   )
 }
 
-export function VerlaufKnoepfe() {
+export function HistoryButtons() {
   const ed = useEditor()
   return (
     <div className="flex items-center">
-      <Knopf
-        nurZeichen
+      <Button
+        onlyIcon
         aria-label="Rückgängig (Ctrl+Z)"
         title="Rückgängig"
         onClick={() => ed.undo()}
         disabled={!ed.canUndo}
       >
         <Undo2 size={15} />
-      </Knopf>
-      <Knopf
-        nurZeichen
+      </Button>
+      <Button
+        onlyIcon
         aria-label="Wiederholen (Ctrl+Shift+Z)"
         title="Wiederholen"
         onClick={() => ed.redo()}
         disabled={!ed.canRedo}
       >
         <Redo2 size={15} />
-      </Knopf>
+      </Button>
     </div>
   )
 }
 
-// Speichern, Laden und Leeren fragen nicht nach: Strg+Z nimmt jedes davon
-// zurueck, auch eine geladene Maskendatei.
-function WeitereAktionen({
+function ExtraActions({
   onClearAll,
   clearDisabled,
-  onSpeichern,
-  onDatei,
+  onSave,
+  onFile,
 }: {
   onClearAll: () => void
   clearDisabled: boolean
-  onSpeichern: () => void
-  onDatei: (datei: File) => void
+  onSave: () => void
+  onFile: (file: File) => void
 }) {
-  const [offen, setOffen] = useState(false)
-  const [kopienOffen, setKopienOffen] = useState(false)
-  const knopf = useRef<HTMLButtonElement>(null)
-  const dateiRef = useRef<HTMLInputElement>(null)
+  const [open, setOpen] = useState(false)
+  const [copiesOpen, setCopiesOpen] = useState(false)
+  const button = useRef<HTMLButtonElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   return (
     <>
-      <Knopf onClick={onSpeichern} title="Maskendatei speichern (Strg+S)">
+      <Button onClick={onSave} title="Maskendatei speichern (Strg+S)">
         <Save size={14} /> Speichern
-      </Knopf>
-      <Knopf onClick={() => dateiRef.current?.click()} title="Gespeicherte Maske laden">
+      </Button>
+      <Button onClick={() => fileRef.current?.click()} title="Gespeicherte Maske laden">
         <FolderOpen size={14} /> Laden
-      </Knopf>
-      <Knopf
-        ref={knopf}
-        nurZeichen
+      </Button>
+      <Button
+        ref={button}
+        onlyIcon
         aria-label="Weitere Aktionen"
         title="Weitere Aktionen"
         aria-haspopup="menu"
-        aria-expanded={offen}
-        onClick={() => setOffen((v) => !v)}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
       >
         <MoreHorizontal size={15} />
-      </Knopf>
+      </Button>
 
       <input
-        ref={dateiRef}
+        ref={fileRef}
         type="file"
         accept=".json,application/json"
         className="hidden"
         onChange={(e) => {
-          const datei = e.target.files?.[0]
+          const file = e.target.files?.[0]
           try {
-            if (datei) onDatei(datei)
+            if (file) onFile(file)
           } finally {
             e.target.value = ''
           }
         }}
       />
 
-      {offen && (
+      {open && (
         <Popover
-          bezeichnung="Weitere Aktionen"
-          anker={knopf}
-          breite={200}
-          onClose={() => setOffen(false)}
+          name="Weitere Aktionen"
+          anchor={button}
+          width={200}
+          onClose={() => setOpen(false)}
         >
           <div role="menu" className="flex flex-col">
-            <MenueZeile
+            <MenuRow
               role="menuitem"
-              zeichen={<FileUp size={14} />}
+              icon={<FileUp size={14} />}
               onClick={() => {
-                setOffen(false)
-                setKopienOffen(true)
+                setOpen(false)
+                setCopiesOpen(true)
               }}
             >
               Notfallkopie wiederherstellen…
-            </MenueZeile>
-            <MenueZeile
+            </MenuRow>
+            <MenuRow
               role="menuitem"
-              art="gefahr"
-              zeichen={<Trash2 size={14} />}
+              kind="risk"
+              icon={<Trash2 size={14} />}
               disabled={clearDisabled}
               onClick={() => {
-                setOffen(false)
+                setOpen(false)
                 onClearAll()
               }}
             >
               Alle Bausteine löschen
-            </MenueZeile>
+            </MenuRow>
           </div>
         </Popover>
       )}
 
-      {kopienOffen && <NotfallkopienFenster onClose={() => setKopienOffen(false)} />}
+      {copiesOpen && <BackupsWindow onClose={() => setCopiesOpen(false)} />}
     </>
   )
 }

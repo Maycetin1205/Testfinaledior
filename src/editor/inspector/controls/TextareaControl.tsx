@@ -1,40 +1,39 @@
-// Ein mehrzeiliger Text im Inspector.
-import type { Eigenschaft } from '../../../kern/maske/eigenschaft'
-import { useEingabeSitzung } from './eingabeSitzung'
-import { FeldMehrzeilig } from '@/editor/werkbank/Feld'
-import { Zeile } from '@/editor/werkbank/Zeile'
+import type { Property } from '../../../core/block/property'
+import { useInputSession } from './editSession'
+import { FieldMultiline } from '@/editor/widgets/Field'
+import { Row } from '@/editor/widgets/Row'
 
 interface TextareaControlProps {
-  property: Eigenschaft
+  property: Property<unknown>
   value: string
   onChange: (value: string) => void
 
-  onBeginBearbeitung?: () => void
-  onEndeBearbeitung?: () => void
+  onBeginEditing?: () => void
+  onEndEditing?: () => void
 }
 
 export function TextareaControl({
   property,
   value,
   onChange,
-  onBeginBearbeitung,
-  onEndeBearbeitung,
+  onBeginEditing,
+  onEndEditing,
 }: TextareaControlProps) {
-  const sitzung = useEingabeSitzung(onBeginBearbeitung, onEndeBearbeitung)
+  const session = useInputSession(onBeginEditing, onEndEditing)
   return (
-    <Zeile breit label={property.name} hinweis={property.beschreibung}>
+    <Row wide label={property.label} hint={property.help}>
       {(kind) => (
-        <FeldMehrzeilig
+        <FieldMultiline
           {...kind}
           value={value ?? ''}
-          maxLength={property.maxLaenge || undefined}
+          maxLength={property.maxLength || undefined}
           onChange={(e) => {
-            sitzung.beginnen()
+            session.begin()
             onChange(e.currentTarget.value)
           }}
-          onBlur={sitzung.beenden}
+          onBlur={session.finish}
         />
       )}
-    </Zeile>
+    </Row>
   )
 }

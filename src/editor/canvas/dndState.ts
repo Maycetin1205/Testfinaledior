@@ -1,12 +1,11 @@
-// Der Stand eines laufenden Zugs von der Palette auf die Leinwand.
 import { createContext, useContext, type DragEvent } from 'react'
-import { bausteinArt } from '../../kern/maske/registry'
-import type { useEditor } from '../zustand/useEditor'
+import { blockType } from '../../core/block/registry'
+import type { useEditor } from '../state/useEditor'
 import { isNewBlockDrag, NEW_BLOCK_MIME } from './dnd'
 
 type DropTarget =
   | { kind: 'flow'; parentId: string; index: number }
-  | { kind: 'raster'; parentId: string; x: number; y: number; w: number; h: number }
+  | { kind: 'grid'; parentId: string; x: number; y: number; w: number; h: number }
 
 interface DndState {
   dragId: string | null
@@ -16,10 +15,10 @@ interface DndState {
   reset: () => void
 }
 
-function gleichesZiel(a: DropTarget | null, b: DropTarget | null): boolean {
+function sameTarget(a: DropTarget | null, b: DropTarget | null): boolean {
   if (a === b) return true
   if (!a || !b) return false
-  if (a.kind === 'raster' && b.kind === 'raster') {
+  if (a.kind === 'grid' && b.kind === 'grid') {
     return a.parentId === b.parentId
       && a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h
   }
@@ -43,12 +42,12 @@ function commitDrop(
   dnd: DndState,
 ): void {
   const target = dnd.dropTarget
-  if (target?.kind === 'raster') {
+  if (target?.kind === 'grid') {
     if (dnd.dragId !== null) {
       ed.moveNodeToCell(dnd.dragId, target.parentId, target.x, target.y)
     } else if (isNewBlockDrag(e.dataTransfer)) {
       const type = e.dataTransfer.getData(NEW_BLOCK_MIME)
-      if (bausteinArt(type)) ed.addBlockAtCell(type, target.parentId, target.x, target.y)
+      if (blockType(type)) ed.addBlockAtCell(type, target.parentId, target.x, target.y)
     }
   } else if (target) {
     if (dnd.dragId !== null) {
@@ -56,11 +55,11 @@ function commitDrop(
       ed.selectBlock(dnd.dragId)
     } else if (isNewBlockDrag(e.dataTransfer)) {
       const type = e.dataTransfer.getData(NEW_BLOCK_MIME)
-      if (bausteinArt(type)) ed.addBlock(type, target.parentId, target.index)
+      if (blockType(type)) ed.addBlock(type, target.parentId, target.index)
     }
   }
   dnd.reset()
 }
 
 export type { DndState, DropTarget }
-export { commitDrop, DndContext, gleichesZiel, useDnd }
+export { commitDrop, DndContext, sameTarget, useDnd }

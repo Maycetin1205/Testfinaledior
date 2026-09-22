@@ -1,16 +1,15 @@
-// Das Ziehen an Breite und Hoehe eines Bausteins.
 import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
-import type { Baustein } from '../../kern/maske/baum'
-import { bausteinArt } from '../../kern/maske/registry'
-import { RASTER, rasterPlatzLesen, rasterMassVon } from '../../kern/maske/raster'
-import { freieZeileAuf } from '../../kern/maske/rasterFlaeche'
-import type { Editor } from '../zustand/Editor'
-import { flaecheVon, hoeheImKasten, kapazitaetVon, zeilenKapazitaet } from './rasterFlaeche'
-import { zieheGroesse } from './zieheGroesse'
+import type { BlockNode } from '../../core/block/tree'
+import { blockType } from '../../core/block/registry'
+import { GRID, gridSlotRead, gridMetricsOf } from '../../core/block/grid'
+import { freeRowOn } from '../../core/block/gridArea'
+import type { EditorStore } from '../state/EditorStore'
+import { areaOf, heightInBox, capacityOf, rowsCapacity } from './gridArea'
+import { dragSize } from './dragSize'
 
 export function useBlockResize(
-  editor: Editor,
-  blockRef: RefObject<Baustein>,
+  editor: EditorStore,
+  blockRef: RefObject<BlockNode>,
   elementRef: RefObject<HTMLElement | null>,
   rootRef: RefObject<HTMLElement | null>,
 ) {
@@ -21,8 +20,8 @@ export function useBlockResize(
   ) {
     const host = elementRef.current
     if (!host) return
-    zieheGroesse(editor, e, {
-      achse: prop === 'width' ? 'x' : 'y',
+    dragSize(editor, e, {
+      axis: prop === 'width' ? 'x' : 'y',
       prop,
       getId: () => blockRef.current.id,
       start: host.getBoundingClientRect()[prop],
@@ -30,43 +29,41 @@ export function useBlockResize(
     })
   }
 
-  function startRasterResize(e: ReactPointerEvent<HTMLDivElement>, achse: 'x' | 'y') {
+  function startRasterResize(e: ReactPointerEvent<HTMLDivElement>, axis: 'x' | 'y') {
     const el = rootRef.current
     if (!el) return
     const node = blockRef.current
-    const pos = rasterPlatzLesen(node.werte)
-    const spec = rasterMassVon(bausteinArt(node.typ))
+    const pos = gridSlotRead(node.values)
+    const spec = gridMetricsOf(blockType(node.type))
     const rect = el.getBoundingClientRect()
-    if (achse === 'x') {
-      zieheGroesse(editor, e, {
-        achse: 'x',
-        prop: 'rasterW',
+    if (axis === 'x') {
+      dragSize(editor, e, {
+        axis: 'x',
+        prop: 'gridW',
         getId: () => blockRef.current.id,
         start: pos.w,
-        min: Math.max(1, spec.minBreite),
-        schritt: (rect.width + RASTER.gapPx) / pos.w,
+        min: Math.max(1, spec.minWidth),
+        step: (rect.width + GRID.gapPx) / pos.w,
 
-        anwenden: (id, wert) => editor.resizeNodeToCells(id, 'x', wert),
+        apply: (id, value) => editor.resizeNodeToCells(id, 'x', value),
       })
     } else {
-      // Der Kasten um den Baustein waechst beim Ziehen nicht mit: was unter
-      // seine letzte Zeile reicht, waere weg.
-      const flaeche = el.parentElement ? flaecheVon(el.parentElement) : null
-      const kapazitaet = flaeche && node.elternId
-        ? zeilenKapazitaet(editor.tree, node.elternId, flaeche)
+      const area = el.parentElement ? areaOf(el.parentElement) : null
+      const capacity = area && node.parentId
+        ? rowsCapacity(editor.tree, node.parentId, area)
         : null
-      const eigene = kapazitaetVon(editor.tree, node.id)
-      const inhalt = eigene === null ? 0 : freieZeileAuf(editor.tree, node.id) + pos.h - eigene
-      zieheGroesse(editor, e, {
-        achse: 'y',
-        prop: 'rasterH',
+      const own = capacityOf(editor.tree, node.id)
+      const content = own === null ? 0 : freeRowOn(editor.tree, node.id) + pos.h - own
+      dragSize(editor, e, {
+        axis: 'y',
+        prop: 'gridH',
         getId: () => blockRef.current.id,
         start: pos.h,
-        min: Math.max(1, spec.minHoehe, inhalt),
-        schritt: (rect.height + RASTER.gapPx) / pos.h,
+        min: Math.max(1, spec.minHeight, content),
+        step: (rect.height + GRID.gapPx) / pos.h,
 
-        anwenden: (id, wert) => {
-          editor.resizeNodeToCells(id, 'y', hoeheImKasten(kapazitaet, pos.y, wert))
+        apply: (id, value) => {
+          editor.resizeNodeToCells(id, 'y', heightInBox(capacity, pos.y, value))
         },
       })
     }

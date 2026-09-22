@@ -1,62 +1,61 @@
-// Die Palette: alle Bausteine, die man auf die Flaeche ziehen kann.
-import { Component, Plus, Search, type Zeichen } from '@/editor/zeichen/zeichen'
+import { Component, Plus, Search, type Icon } from '@/editor/icons/icon'
 import { createElement, useState } from 'react'
-import { Feld } from '@/editor/werkbank/Feld'
-import { Gruppe } from '@/editor/werkbank/Gruppe'
-import { Knopf } from '@/editor/werkbank/Knopf'
-import { WURZEL_ID, WURZEL_TYP } from '../../kern/maske/baum'
-import { darfEnthalten, alleBausteinArten } from '../../kern/maske/registry'
-import type { Kategorie, BausteinArt } from '../../kern/maske/bausteinArt'
-import { editorAngabenVon } from '../../kern/maske/editorAngaben'
+import { Field } from '@/editor/widgets/Field'
+import { Group } from '@/editor/widgets/Group'
+import { Button } from '@/editor/widgets/PushButton'
+import { ROOT_ID, ROOT_TYPE } from '../../core/block/tree'
+import { mayContain, allBlockTypes } from '../../core/block/registry'
+import type { Category, BlockType } from '../../core/block/blockType'
+import { editorFactsOf } from '../../core/block/editorFacts'
 import { setNewBlockDrag } from '../canvas/dnd'
-import { kapazitaetVon } from '../canvas/rasterFlaeche'
-import { useEditor } from '../zustand/useEditor'
+import { capacityOf } from '../canvas/gridArea'
+import { useEditor } from '../state/useEditor'
 
-const ERSATZ_SYMBOL = Component
+const REPLACEMENT_SYMBOL = Component
 
-function symbolVon(type: string): Zeichen {
-  return (editorAngabenVon(type).symbol ?? ERSATZ_SYMBOL) as Zeichen
+function symbolOf(type: string): Icon {
+  return (editorFactsOf(type).symbol ?? REPLACEMENT_SYMBOL) as Icon
 }
 
-const CATEGORY_LABEL: Record<Kategorie, string> = {
+const CATEGORY_LABEL: Record<Category, string> = {
   layout: 'Layout',
-  eingabe: 'Eingabe',
-  anzeige: 'Anzeige',
+  input: 'Eingabe',
+  display: 'Anzeige',
 }
 
-const CATEGORY_ORDER: Kategorie[] = ['layout', 'eingabe', 'anzeige']
+const CATEGORY_ORDER: Category[] = ['layout', 'input', 'display']
 
 export function BlockPalette() {
   const ed = useEditor()
   const [query, setQuery] = useState('')
 
-  const definitions = alleBausteinArten().filter((d) => d.inPalette !== false)
+  const definitions = allBlockTypes().filter((d) => d.inPalette !== false)
 
   const q = query.trim().toLowerCase()
   const filtered = definitions.filter((d) => {
     if (!q) return true
     return d.name.toLowerCase().includes(q)
-      || d.typ.toLowerCase().includes(q)
+      || d.type.toLowerCase().includes(q)
       || d.tag.toLowerCase().includes(q)
   })
 
-  const grouped: Record<Kategorie, BausteinArt[]> = {
+  const grouped: Record<Category, BlockType[]> = {
     layout: [],
-    eingabe: [],
-    anzeige: [],
+    input: [],
+    display: [],
   }
-  for (const def of filtered) grouped[def.kategorie]?.push(def)
+  for (const def of filtered) grouped[def.category]?.push(def)
 
   const insertParentFor = (type: string): string | undefined => {
     let cur = ed.selectedId ? ed.getNode(ed.selectedId) : null
     while (cur) {
-      if (darfEnthalten(cur.typ, type)) return cur.id
-      cur = cur.elternId ? ed.getNode(cur.elternId) : null
+      if (mayContain(cur.type, type)) return cur.id
+      cur = cur.parentId ? ed.getNode(cur.parentId) : null
     }
 
-    const aktiveSeite = ed.getNode(ed.rootId)
-    if (aktiveSeite && !darfEnthalten(aktiveSeite.typ, type) && darfEnthalten(WURZEL_TYP, type)) {
-      return WURZEL_ID
+    const activePage = ed.getNode(ed.rootId)
+    if (activePage && !mayContain(activePage.type, type) && mayContain(ROOT_TYPE, type)) {
+      return ROOT_ID
     }
     return undefined
   }
@@ -65,7 +64,7 @@ export function BlockPalette() {
     <div className="flex flex-col gap-2">
       <label className="relative flex items-center">
         <Search size={13} aria-hidden className="absolute left-2 text-matt" />
-        <Feld
+        <Field
           value={query}
           onChange={(e) => setQuery(e.currentTarget.value)}
           placeholder="Baustein suchen…"
@@ -77,48 +76,48 @@ export function BlockPalette() {
       {filtered.length === 0 && <p className="text-ui text-matt">Keine Treffer.</p>}
 
       {CATEGORY_ORDER.filter((cat) => (grouped[cat]?.length ?? 0) > 0).map((cat) => (
-        <Gruppe key={cat} titel={CATEGORY_LABEL[cat]}>
+        <Group key={cat} title={CATEGORY_LABEL[cat]}>
           <div className="flex flex-col gap-1">
             {grouped[cat].map((def) => (
-              <PaletteKarte
-                key={def.typ}
+              <PaletteCard
+                key={def.type}
                 def={def}
                 onAdd={() => {
-                  const parentId = insertParentFor(def.typ)
-                  ed.addBlock(def.typ, parentId, undefined, kapazitaetVon(ed.tree, parentId))
+                  const parentId = insertParentFor(def.type)
+                  ed.addBlock(def.type, parentId, undefined, capacityOf(ed.tree, parentId))
                 }}
               />
             ))}
           </div>
-        </Gruppe>
+        </Group>
       ))}
     </div>
   )
 }
 
-interface PaletteKarteProps {
-  def: BausteinArt
+interface PaletteCardProps {
+  def: BlockType
   onAdd: () => void
 }
 
-function PaletteKarte({ def, onAdd }: PaletteKarteProps) {
+function PaletteCard({ def, onAdd }: PaletteCardProps) {
   return (
-    <Knopf
+    <Button
       onClick={onAdd}
       draggable
       onDragStart={(e) => {
-        setNewBlockDrag(e.dataTransfer, def.typ)
+        setNewBlockDrag(e.dataTransfer, def.type)
         e.dataTransfer.effectAllowed = 'copy'
       }}
       className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 px-2 text-left hover:border-akzent"
     >
       <span className="flex shrink-0 items-center text-matt group-hover:text-tinte">
-        {createElement(symbolVon(def.typ), { size: 15 })}
+        {createElement(symbolOf(def.type), { size: 15 })}
       </span>
       <span className="truncate">{def.name}</span>
       <span className="flex shrink-0 items-center text-matt opacity-0 transition-opacity group-hover:opacity-100">
         <Plus size={13} />
       </span>
-    </Knopf>
+    </Button>
   )
 }

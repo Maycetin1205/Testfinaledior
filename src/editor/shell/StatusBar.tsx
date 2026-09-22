@@ -1,11 +1,10 @@
-// Der Balken unter der Leinwand: Stand und Meldungen.
-import { bausteinName } from '../../kern/maske/bausteinName'
-import { useDataSources } from '../zustand/useDataSources'
-import { useEditor } from '../zustand/useEditor'
+import { blockName } from '../../core/block/blockName'
+import { useDataSources } from '../state/useDataSources'
+import { useEditor } from '../state/useEditor'
 
 export function StatusBar() {
   const ed = useEditor()
-  const quellen = useDataSources().list
+  const sources = useDataSources().list
   const selected = ed.selectedNode
   const page = ed.pages.find((p) => p.id === ed.activePageId)
 
@@ -20,7 +19,7 @@ export function StatusBar() {
           <span>
             Auswahl{' '}
             <strong className="font-semibold text-tinte">
-              {bausteinName(selected, quellen)}
+              {blockName(selected, sources)}
             </strong>
           </span>
         )}

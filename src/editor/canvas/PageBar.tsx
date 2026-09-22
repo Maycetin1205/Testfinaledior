@@ -1,0 +1,82 @@
+import { Trash } from '@/editor/icons/icon'
+import { Fragment, useState } from 'react'
+import { Field } from '@/editor/widgets/Field'
+import { Button } from '@/editor/widgets/PushButton'
+import { Tabs } from '@/editor/widgets/Tabs'
+import { allBlockTypes } from '../../core/block/registry'
+import { deleteBlock } from '../state/removeBlock'
+import { useEditor } from '../state/useEditor'
+
+export function PagesBar() {
+  const ed = useEditor()
+  const pages = ed.pages
+  const active = ed.activePageId
+
+  const [rename, setRename] = useState<{ id: string; text: string } | null>(null)
+  const pagesKinds = allBlockTypes().filter((def) => def.page)
+
+  const adopt = () => {
+    if (!rename) return
+    const name = rename.text.trim()
+    if (name !== '') ed.updateProperty(rename.id, 'name', name)
+    setRename(null)
+  }
+
+  return (
+    <div
+      className="flex max-w-[44vw] items-center gap-0.5 overflow-x-auto rounded border border-linie bg-control p-0.5"
+      data-ff-editor-helper
+    >
+      {pages.map((p) => (
+        rename?.id === p.id ? (
+          <Field
+            key={p.id}
+            autoFocus
+            aria-label="Seitenname"
+            value={rename.text}
+            onChange={(e) => setRename({ id: p.id, text: e.target.value })}
+            onBlur={adopt}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') adopt()
+              if (e.key === 'Escape') setRename(null)
+            }}
+            className="h-6 w-32 shrink-0"
+          />
+        ) : (
+          <Fragment key={p.id}>
+            <Tabs
+              active={p.id === active}
+              onClick={() => ed.setActivePage(p.id)}
+              onDoubleClick={() => {
+                if (!p.isMainPage) setRename({ id: p.id, text: p.name })
+              }}
+              title={p.isMainPage ? undefined : 'Doppelklick: umbenennen'}
+            >
+              {p.name}
+            </Tabs>
+            {p.id === active && !p.isMainPage && (
+              <Button
+                onlyIcon
+                title="Seite löschen (Strg+Z stellt sie zurück)"
+                aria-label={`Seite ${p.name} löschen`}
+                onClick={() => deleteBlock(ed, p.id)}
+                className="h-6 w-auto rounded-l-none bg-akzent/15 pr-1.5 hover:bg-akzent/15 hover:text-fehler"
+              >
+                <Trash size={12} />
+              </Button>
+            )}
+          </Fragment>
+        )
+      ))}
+      {pagesKinds.map((def) => (
+        <Tabs
+          key={def.type}
+          onClick={() => ed.addPage(def.type)}
+          title={`Neue Seite anlegen: ${def.name}`}
+        >
+          ＋ {def.name}
+        </Tabs>
+      ))}
+    </div>
+  )
+}

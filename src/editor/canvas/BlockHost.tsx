@@ -1,4 +1,3 @@
-// Der Wirt eines Bausteins auf der Leinwand: Auswahl, Anfasser, Editor-Hilfen.
 import {
   useLayoutEffect,
   useMemo,
@@ -8,68 +7,67 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { cn } from '@/editor/werkbank/cn'
-import type { Baustein } from '../../kern/maske/baum'
+import { cn } from '@/editor/widgets/cn'
+import type { BlockNode } from '../../core/block/tree'
 import {
-  quellenAufloesen,
-  WEITERE_QUELLEN_PROP,
-  type QuelleInReichweite,
-} from '../../kern/daten/weitereQuellen'
-import { bausteinArt } from '../../kern/maske/registry'
-import { faehigkeit } from '../../kern/maske/faehigkeiten'
-import { rasterMassVon } from '../../kern/maske/raster'
-import { bindbareStellenVon, QUELLE_PROP, traegtEigeneQuelle } from '../../kern/maske/baumFragen'
-import { useEditorInstance } from '../zustand/EditorContext'
-import { loescheBaustein } from '../zustand/loescheBaustein'
-import { quellenTraeger } from '../../kern/maske/quellenReichweite'
-import { useDataSources } from '../zustand/useDataSources'
-import { AuswahlLeiste } from './AuswahlLeiste'
-import { SpaltenBedienung } from './SpaltenBedienung'
-import { useFeldBindung } from './FeldBindung'
-import { oeffneFensterImEditor } from './fensterStand'
-import { oeffneAbschnitt } from '../inspector/abschnittStand'
+  sourcesResolve,
+  EXTRA_SOURCES_PROP,
+  type SourceInReach,
+} from '../../core/data/extraSources'
+import { blockType } from '../../core/block/registry'
+import { capability } from '../../core/block/capability'
+import { gridMetricsOf } from '../../core/block/grid'
+import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block/treeQuery'
+import { useEditorInstance } from '../state/EditorContext'
+import { deleteBlock } from '../state/removeBlock'
+import { sourcesCarrier } from '../../core/block/sourcesInReach'
+import { useDataSources } from '../state/useDataSources'
+import { SelectionBar } from './SelectionBar'
+import { ColumnsControls } from './ColumnControls'
+import { useFieldBinding } from './FieldBinding'
+import { openLookupInEditor } from './lookupWindowState'
+import { openSection } from '../inspector/sectionState'
 import { useBlockResize } from './useBlockResize'
 import { useLitElement } from './useLitElement'
 
 interface BlockHostProps {
-  block: Baustein
+  block: BlockNode
   selected?: boolean
 
   onSelect?: () => void
 
-  raster?: boolean
+  grid?: boolean
 
   children?: ReactNode
 }
 
-const KEINE_QUELLEN: readonly QuelleInReichweite[] = []
+const NO_SOURCES: readonly SourceInReach[] = []
 
-// Der Rand, der dem Behaelter selbst gehoert, in Pixeln. Nur im Editor.
-const GREIFRAND = 10
+const GRAB_EDGE = 10
 
-export function BlockHost({ block, selected, onSelect, raster = false, children }: BlockHostProps) {
+export function BlockHost({ block, selected, onSelect, grid = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
   const rootRef = useRef<HTMLDivElement | null>(null)
-  const def = bausteinArt(block.typ)
-  const isContainer = def?.nimmtKinder ?? false
-  const liste = faehigkeit(def, 'liste')?.bindung
-  const suchFenster = faehigkeit(def, 'suchfenster')?.fenster
+  const def = blockType(block.type)
+  const isContainer = def?.takesChildren ?? false
+  const list = capability(def, 'list')?.binding
+  const searchWindow = capability(def, 'lookupWindow')?.window
 
-  const quellenBibliothek = useDataSources()
+  const sourcesLibrary = useDataSources()
 
-  const bindableSpots = useMemo(() => bindbareStellenVon(block), [block])
+  const bindableSpots = useMemo(() => bindableSpotsOf(block), [block])
 
-  const traeger = quellenTraeger(editor.tree, block.id)
-  const braucht = bindableSpots.length > 0 || traegtEigeneQuelle(block)
-  const bibliothek = quellenBibliothek.list
-  const quellen = useMemo(
-    () => (braucht && traeger
-      ? quellenAufloesen(traeger.werte[QUELLE_PROP], traeger.werte[WEITERE_QUELLEN_PROP], bibliothek)
-      : KEINE_QUELLEN),
-    [braucht, traeger, bibliothek],
+  const carrier = sourcesCarrier(editor.tree, block.id)
+  const needs = bindableSpots.length > 0 || carriesOwnSource(block)
+  const library = sourcesLibrary.list
+  const sources = useMemo(
+    () => (needs && carrier
+      ? sourcesResolve(carrier.values[SOURCE_PROP], carrier.values[EXTRA_SOURCES_PROP], library)
+      : NO_SOURCES),
+    [needs, carrier, library],
   )
 
-  const blockRef = useRef<Baustein>(block)
+  const blockRef = useRef<BlockNode>(block)
   useLayoutEffect(() => {
     blockRef.current = block
   })
@@ -80,36 +78,32 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
     block,
     selected,
     bindableSpots,
-    quellen,
-    raster,
+    sources,
+    grid,
   })
 
-  const { onClick, onDoubleClick, pickers } = useFeldBindung({
+  const { onClick, onDoubleClick, pickers } = useFieldBinding({
     editor,
     blockRef,
     block,
     selected,
     bindableSpots,
-    listenBindung: liste,
-    suchFenster,
-    quellen,
+    listBinding: list,
+    searchWindow,
+    sources,
     containerRef,
     element,
     onSelect,
   })
 
-  // Die Lupe macht im Editor dasselbe Fenster auf wie beim Bediener. Der Wirt
-  // faengt ihren Klick ab; dazu geht der Abschnitt „Suchfenster" im Inspector
-  // auf, denn dort steht dieselbe Einstellung ohne den Umweg ueber die Flaeche.
-  const fensterStelle = suchFenster?.stelle
-  const aufFensterStelle = (e: ReactMouseEvent<HTMLDivElement>): number | null => {
-    if (fensterStelle === undefined) return null
+  const windowSpot = searchWindow?.spot
+  const onWindowSpot = (e: ReactMouseEvent<HTMLDivElement>): number | null => {
+    if (windowSpot === undefined) return null
     for (const t of e.nativeEvent.composedPath()) {
       if (t === e.currentTarget) return null
-      if (t instanceof HTMLElement && t.matches(fensterStelle)) {
-        // Ohne eigene Kennung ist es das eine Fenster des Bausteins.
-        const platz = Number(t.getAttribute('data-ff-eintrag'))
-        return Number.isInteger(platz) && platz >= 0 ? platz : 0
+      if (t instanceof HTMLElement && t.matches(windowSpot)) {
+        const slot = Number(t.getAttribute('data-ff-entry'))
+        return Number.isInteger(slot) && slot >= 0 ? slot : 0
       }
     }
     return null
@@ -117,22 +111,22 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
 
   const { startResize, startRasterResize } = useBlockResize(editor, blockRef, elementRef, rootRef)
 
-  const resizable = def?.breiteAenderbar ?? true
-  const heightResizable = def?.hoeheAenderbar === true
+  const resizable = def?.widthEditable ?? true
+  const heightResizable = def?.heightEditable === true
 
-  const rasterSpec = rasterMassVon(def)
+  const rasterSpec = gridMetricsOf(def)
 
-  const rasterZiehbar = raster
+  const rasterDraggable = grid
 
   return (
     <div
       ref={rootRef}
       onClick={(e) => {
-        const platz = aufFensterStelle(e)
-        if (platz !== null && suchFenster !== undefined && elementRef.current
-          && oeffneFensterImEditor(editor, elementRef.current, block.id, suchFenster, platz)) {
+        const slot = onWindowSpot(e)
+        if (slot !== null && searchWindow !== undefined && elementRef.current
+          && openLookupInEditor(editor, elementRef.current, block.id, searchWindow, slot)) {
           e.stopPropagation()
-          oeffneAbschnitt('suchfenster')
+          openSection('lookupWindow')
           onSelect?.()
           return
         }
@@ -158,7 +152,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           pointerEvents: 'auto',
           height: '100%',
 
-          ...(isContainer && def?.behaelterRahmen !== false
+          ...(isContainer && def?.containerFrame !== false
             ? {
                 border: '1.5px dashed hsl(var(--wb-linie))',
                 borderRadius: 4,
@@ -166,10 +160,7 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
               }
             : null),
 
-          // Ein Behaelter auf dem Raster fuellt sich mit seinen Kindern, und die
-          // fangen jeden Klick: ohne diesen Rand gaebe es keine Stelle mehr, an
-          // der er selbst zu waehlen und zu ziehen ist.
-          ...(isContainer && raster ? { padding: GREIFRAND, boxSizing: 'border-box' as const } : null),
+          ...(isContainer && grid ? { padding: GRAB_EDGE, boxSizing: 'border-box' as const } : null),
         }}
       >
         {element && isContainer && children != null
@@ -177,67 +168,67 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
           : null}
       </div>
       {pickers}
-      {liste?.eintragStellen !== undefined && (
-        <SpaltenBedienung
+      {list?.entrySpots !== undefined && (
+        <ColumnsControls
           block={block}
-          bindung={liste}
-          selektor={liste.eintragStellen}
+          binding={list}
+          selector={list.entrySpots}
           element={element}
-          wirt={rootRef}
+          host={rootRef}
           container={containerRef}
           onSelect={onSelect}
         />
       )}
       {selected && (
-        <AuswahlLeiste
+        <SelectionBar
           block={block}
           def={def}
-          wirt={rootRef}
-          onEntfernen={editor.isRemoveProtected(block.id) ? undefined : () => loescheBaustein(editor, blockRef.current.id)}
+          host={rootRef}
+          onRemove={editor.isRemoveProtected(block.id) ? undefined : () => deleteBlock(editor, blockRef.current.id)}
         />
       )}
 
-      {selected && rasterZiehbar && rasterSpec.breiteZiehbar && (
-        <Anfasser
-          achse="x"
+      {selected && rasterDraggable && rasterSpec.widthDraggable && (
+        <Handle
+          axis="x"
           title="Breite ziehen (rastet auf Zellen) · Doppelklick: Startgröße"
           onStart={(e) => startRasterResize(e, 'x')}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'rasterW', rasterMassVon(bausteinArt(node.typ)).startBreite)
+            editor.updateProperty(node.id, 'gridW', gridMetricsOf(blockType(node.type)).startWidth)
           }}
         />
       )}
-      {selected && rasterZiehbar && (
-        <Anfasser
-          achse="y"
+      {selected && rasterDraggable && (
+        <Handle
+          axis="y"
           title="Höhe ziehen (rastet auf Zellen) · Doppelklick: Startgröße"
           onStart={(e) => startRasterResize(e, 'y')}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'rasterH', rasterMassVon(bausteinArt(node.typ)).startHoehe)
+            editor.updateProperty(node.id, 'gridH', gridMetricsOf(blockType(node.type)).startHeight)
           }}
         />
       )}
-      {selected && !raster && resizable && (
-        <Anfasser
-          achse="x"
+      {selected && !grid && resizable && (
+        <Handle
+          axis="x"
           title="Breite ziehen · Doppelklick: Standard"
           onStart={(e) => startResize(e, 'width', 40)}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'width', bausteinArt(node.typ)?.vorgaben.width ?? 'auto')
+            editor.updateProperty(node.id, 'width', blockType(node.type)?.properties.width?.default ?? 'auto')
           }}
         />
       )}
-      {selected && !raster && heightResizable && (
-        <Anfasser
-          achse="y"
+      {selected && !grid && heightResizable && (
+        <Handle
+          axis="y"
           title="Höhe ziehen · Doppelklick: Standard"
           onStart={(e) => startResize(e, 'height', 120)}
           onReset={() => {
             const node = blockRef.current
-            editor.updateProperty(node.id, 'height', bausteinArt(node.typ)?.vorgaben.height ?? 'auto')
+            editor.updateProperty(node.id, 'height', blockType(node.type)?.properties.height?.default ?? 'auto')
           }}
         />
       )}
@@ -245,15 +236,14 @@ export function BlockHost({ block, selected, onSelect, raster = false, children 
   )
 }
 
-interface AnfasserProps {
-  achse: 'x' | 'y'
+interface HandleProps {
+  axis: 'x' | 'y'
   title: string
   onStart: (e: ReactPointerEvent<HTMLDivElement>) => void
   onReset: () => void
 }
 
-// Der eine Anfasser fuer Breite und Hoehe: ein Pillenstrich in der Auswahlfarbe.
-function Anfasser({ achse, title, onStart, onReset }: AnfasserProps) {
+function Handle({ axis, title, onStart, onReset }: HandleProps) {
   return (
     <div
       draggable={false}
@@ -266,7 +256,7 @@ function Anfasser({ achse, title, onStart, onReset }: AnfasserProps) {
       }}
       className={cn(
         'absolute rounded-[4px] bg-[hsl(var(--wb-auswahl))]',
-        achse === 'x'
+        axis === 'x'
           ? '-right-1 top-1/2 h-[26px] w-[7px] -translate-y-1/2 cursor-ew-resize'
           : '-bottom-1 left-1/2 h-[7px] w-[26px] -translate-x-1/2 cursor-ns-resize',
       )}

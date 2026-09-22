@@ -1,120 +1,108 @@
-// Die gelieferten Daten lesen: Quellen, Zeilen, Felder, Satznummern.
-import { pruefeHolWert, type HolWert } from '../kern/daten/holWert'
-import { POS_LEN, pruefeLadeRelation, type LadeRelation } from '../kern/daten/ladeRelation'
-import { geholteZeilenFuer } from './geholteZeilen'
+import { checkGetValue, type GetValue } from '../core/data/getValue'
+import { POS_LEN, checkLoadRelation, type LoadRelation } from '../core/data/fetchRelation'
+import { fetchedRowsFor } from './fetchedRows'
 
 export type Objekt = Record<string, unknown>
 
-export function istObjekt(v: unknown): v is Objekt {
+export function isObjekt(v: unknown): v is Objekt {
   return typeof v === 'object' && v !== null
 }
 
-export type LaufzeitLadeRelation = LadeRelation & { zusatzFelder: readonly string[] }
+export type RuntimeLoadRelation = LoadRelation & { extraFields: readonly string[] }
 
-// Die Feldnamen reisen MIT: ohne sie wuesste der Wert-Lader nicht, unter welchem
-// Namen er die Antwort ablegen soll.
-export type LaufzeitHolWert = HolWert & { felder: readonly string[] }
+export type RuntimeGetValue = GetValue & { fields: readonly string[] }
 
-// Eine ERP-Abfrage, die die Maske nach dem Oeffnen selbst stellt.
-export interface LaufzeitAbfrage {
+export interface RuntimeQuery {
   id: string
-  felder: string
+  fields: string
 }
 
-export interface LaufzeitQuelle {
+export interface RuntimeSource {
   id: string
   name: string
-  tabellenId: string
-  satzFeld: string
+  tableId: string
+  recordField: string
 
-  // Diese Quelle ist keine Liste, sondern DER Satz, der gerade offen ist.
-  offenerSatz: boolean
-  ladeRelation?: LaufzeitLadeRelation
-  holWert?: LaufzeitHolWert
-  abfrage?: LaufzeitAbfrage
+  openRecord: boolean
+  loadRelation?: RuntimeLoadRelation
+  getValue?: RuntimeGetValue
+  query?: RuntimeQuery
 }
 
-export function quelleAusListe(list: unknown, id: string): LaufzeitQuelle | undefined {
+export function sourceFromList(list: unknown, id: string): RuntimeSource | undefined {
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {
-    if (!istObjekt(entry) || entry.id !== id) continue
-    if (typeof entry.name !== 'string' || typeof entry.tabellenId !== 'string') continue
+    if (!isObjekt(entry) || entry.id !== id) continue
+    if (typeof entry.name !== 'string' || typeof entry.tableId !== 'string') continue
 
-    let ladeRelation: LaufzeitLadeRelation | undefined
-    const geprueft = pruefeLadeRelation(entry.ladeRelation)
-    if (geprueft && istObjekt(entry.ladeRelation)) {
-      const zf = entry.ladeRelation.zusatzFelder
-      const zusatzFelder = Array.isArray(zf)
+    let loadRelation: RuntimeLoadRelation | undefined
+    const checked = checkLoadRelation(entry.loadRelation)
+    if (checked && isObjekt(entry.loadRelation)) {
+      const zf = entry.loadRelation.extraFields
+      const extraFields = Array.isArray(zf)
         ? zf.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
         : []
-      ladeRelation = { ...geprueft, zusatzFelder }
+      loadRelation = { ...checked, extraFields }
     }
 
-    let holWert: LaufzeitHolWert | undefined
-    const gepruefterWert = pruefeHolWert(entry.holWert)
-    if (gepruefterWert && istObjekt(entry.holWert)) {
-      const roh = entry.holWert.felder
-      const felder = Array.isArray(roh)
-        ? roh.filter((f): f is string => typeof f === 'string' && f !== '')
+    let getValue: RuntimeGetValue | undefined
+    const checkedValue = checkGetValue(entry.getValue)
+    if (checkedValue && isObjekt(entry.getValue)) {
+      const raw = entry.getValue.fields
+      const fields = Array.isArray(raw)
+        ? raw.filter((f): f is string => typeof f === 'string' && f !== '')
         : []
-      holWert = { ...gepruefterWert, felder }
+      getValue = { ...checkedValue, fields }
     }
 
-    const roheAbfrage = entry.abfrage
-    const abfrage = istObjekt(roheAbfrage) && typeof roheAbfrage.id === 'string'
-      && roheAbfrage.id !== '' && typeof roheAbfrage.felder === 'string'
-      ? { id: roheAbfrage.id, felder: roheAbfrage.felder }
+    const rawQuery = entry.query
+    const query = isObjekt(rawQuery) && typeof rawQuery.id === 'string'
+      && rawQuery.id !== '' && typeof rawQuery.fields === 'string'
+      ? { id: rawQuery.id, fields: rawQuery.fields }
       : undefined
     return {
       id,
       name: entry.name,
-      tabellenId: entry.tabellenId,
-      satzFeld: typeof entry.satzFeld === 'string' ? entry.satzFeld : '',
-      offenerSatz: entry.offenerSatz === true,
-      ...(ladeRelation ? { ladeRelation } : {}),
-      ...(holWert ? { holWert } : {}),
-      ...(abfrage ? { abfrage } : {}),
+      tableId: entry.tableId,
+      recordField: typeof entry.recordField === 'string' ? entry.recordField : '',
+      openRecord: entry.openRecord === true,
+      ...(loadRelation ? { loadRelation } : {}),
+      ...(getValue ? { getValue } : {}),
+      ...(query ? { query } : {}),
     }
   }
   return undefined
 }
 
-// SoftEngine legt die Zeilen je Abfrage unter einen anderen Namen
-// (ARTIKELLISTE.ARTIKEL, CHARGENLISTE.CHARGE, IDBID0001LISTE.IDBID0001, Echttest
-// 21.09.); gemeinsam ist nur die Endung LISTE. Eine einzelne Zeile kann ohne
-// Liste kommen, damit rechnet SoftEngines eigene Vorlage RGBP07.
-export function zeilenAusAbfrageAntwort(raw: unknown): unknown[] | undefined {
-  let antwort = raw
-  if (typeof antwort === 'string') {
-    try { antwort = JSON.parse(antwort) } catch { return undefined }
+export function rowsFromQueryAnswer(raw: unknown): unknown[] | undefined {
+  let answer = raw
+  if (typeof answer === 'string') {
+    try { answer = JSON.parse(answer) } catch { return undefined }
   }
-  if (!istObjekt(antwort) || Array.isArray(antwort)) return undefined
-  const schluessel = Object.keys(antwort).find((k) => /LISTE$/i.test(k))
-  if (schluessel === undefined) return undefined
-  const liste = antwort[schluessel]
-  if (Array.isArray(liste)) return liste
-  if (!istObjekt(liste)) return []
-  const inhalte = Object.values(liste)
-  const reihe = inhalte.find((v): v is unknown[] => Array.isArray(v))
-  if (reihe) return reihe
-  const einzeln = inhalte.find(istObjekt)
-  return einzeln === undefined ? [] : [einzeln]
+  if (!isObjekt(answer) || Array.isArray(answer)) return undefined
+  const key = Object.keys(answer).find((k) => /LISTE$/i.test(k))
+  if (key === undefined) return undefined
+  const list = answer[key]
+  if (Array.isArray(list)) return list
+  if (!isObjekt(list)) return []
+  const contents = Object.values(list)
+  const row = contents.find((v): v is unknown[] => Array.isArray(v))
+  if (row) return row
+  const single = contents.find(isObjekt)
+  return single === undefined ? [] : [single]
 }
 
-// SoftEngine liefert ein Feld mal blank, mal als Kasten {WERT: ...}. Ohne das
-// Auspacken stuende woertlich "[object Object]" in der Zelle, und weil das nicht
-// leer ist, griffe der Rueckfall in feldLesen nie.
 function asTrimmedString(v: unknown): string {
   if (v == null) return ''
   if (typeof v === 'object' && !Array.isArray(v)) {
-    const inhalt = (v as Record<string, unknown>).WERT
-    return inhalt == null || typeof inhalt === 'object' ? '' : String(inhalt).trim()
+    const content = (v as Record<string, unknown>).WERT
+    return content == null || typeof content === 'object' ? '' : String(content).trim()
   }
   return String(v).trim()
 }
 
-export function feldLesen(row: unknown, code: string): string {
-  if (!istObjekt(row) || code === '') return ''
+export function fieldRead(row: unknown, code: string): string {
+  if (!isObjekt(row) || code === '') return ''
   const key = code.trim()
   const direct = asTrimmedString(row[key])
   if (direct !== '') return direct
@@ -127,8 +115,8 @@ export function feldLesen(row: unknown, code: string): string {
   const m = /^(\d+)_(\d+)$/.exec(key)
   if (!m) return ''
 
-  const rohQuelle = row.SATZNEU ?? row.SATZ ?? row.satzneu ?? row.satz ?? row.RAW ?? row.raw
-  const raw = rohQuelle == null ? '' : String(rohQuelle)
+  const rawSource = row.SATZNEU ?? row.SATZ ?? row.satzneu ?? row.satz ?? row.RAW ?? row.raw
+  const raw = rawSource == null ? '' : String(rawSource)
   if (raw === '') return ''
   const pos = Number(m[1])
   const len = Number(m[2])
@@ -136,14 +124,12 @@ export function feldLesen(row: unknown, code: string): string {
   return raw.substring(pos, pos + len).trim()
 }
 
-// Die Satznummer EINER Zeile, die Ketten als {PINDEX} weitergeben. Die eine
-// Stelle dafuer, statt einer Kopie je Baustein.
-export function satzIndexVon(source: { satzFeld: string }, row: unknown): string {
-  return source.satzFeld === '' ? '' : feldLesen(row, source.satzFeld)
+export function recordIndexOf(source: { recordField: string }, row: unknown): string {
+  return source.recordField === '' ? '' : fieldRead(row, source.recordField)
 }
 
-export function feldSchreiben(row: unknown, code: string, value: string): boolean {
-  if (!istObjekt(row) || code === '') return false
+export function fieldWrite(row: unknown, code: string, value: string): boolean {
+  if (!isObjekt(row) || code === '') return false
   const key = code.trim()
   let written = false
 
@@ -173,8 +159,16 @@ export function feldSchreiben(row: unknown, code: string, value: string): boolea
   return written
 }
 
+function jsonOrNothing(text: string): unknown {
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
 function rowsOfEntry(entry: unknown): unknown[] {
-  if (!istObjekt(entry)) return Array.isArray(entry) ? entry : []
+  if (!isObjekt(entry)) return Array.isArray(entry) ? entry : []
   const candidates = [
     entry.Zeilen, entry.zeilen, entry.Saetze, entry.saetze,
     entry.Rows, entry.rows, entry.Daten, entry.daten,
@@ -182,10 +176,8 @@ function rowsOfEntry(entry: unknown): unknown[] {
   for (const c of candidates) {
     if (Array.isArray(c)) return c
     if (typeof c === 'string') {
-      try {
-        const parsed: unknown = JSON.parse(c)
-        if (Array.isArray(parsed)) return parsed
-      } catch { /* kein JSON -> nächster Kandidat */ }
+      const parsed = jsonOrNothing(c)
+      if (Array.isArray(parsed)) return parsed
     }
   }
   return []
@@ -195,68 +187,62 @@ function sameAlias(a: unknown, alias: string): boolean {
   return asTrimmedString(a).toLowerCase() === alias.trim().toLowerCase()
 }
 
-function varBlockVon(daten: Objekt): Objekt | undefined {
+function varBlockOf(data: Objekt): Objekt | undefined {
   for (const key of ['Var', 'VAR', 'var']) {
-    const block = daten[key]
-    if (istObjekt(block)) return block
+    const block = data[key]
+    if (isObjekt(block)) return block
   }
   return undefined
 }
 
-// Der offene Satz liegt im VAR-Abschnitt unter der Tabellen-ID, mit
-// WINDOW_VARIABLE als Rueckfall (kontrakte.md 6). Aus dem Fenster kommt nur, was
-// zu DIESER Tabelle gehoert, sonst zoege ein fremder Eintrag in den Satz ein.
-// Herausgereicht wird EINE Zeile, damit jede vorhandene Bindung weiterliest.
-function offenerSatzZeilen(seData: unknown, tableId: string): unknown[] {
-  if (!istObjekt(seData) || !istObjekt(seData.Daten)) return []
+function openRecordRows(seData: unknown, tableId: string): unknown[] {
+  if (!isObjekt(seData) || !isObjekt(seData.Daten)) return []
   const id = tableId.trim()
   if (id === '') return []
-  const varBlock = varBlockVon(seData.Daten)
+  const varBlock = varBlockOf(seData.Daten)
   if (!varBlock) return []
 
-  const satz: Objekt = {}
-  const fenster = varBlock.WINDOW_VARIABLE ?? varBlock.Window_Variable
-  if (istObjekt(fenster)) {
-    const vorsatz = id.toUpperCase() + '_'
-    for (const key of Object.keys(fenster)) {
-      if (key.toUpperCase().startsWith(vorsatz)) satz[key] = fenster[key]
+  const record: Objekt = {}
+  const window = varBlock.WINDOW_VARIABLE ?? varBlock.Window_Variable
+  if (isObjekt(window)) {
+    const prefix = id.toUpperCase() + '_'
+    for (const key of Object.keys(window)) {
+      if (key.toUpperCase().startsWith(prefix)) record[key] = window[key]
     }
   }
-  const eigen = varBlock[id] ?? varBlock[id.toUpperCase()]
-  if (istObjekt(eigen)) {
-    for (const key of Object.keys(eigen)) {
-      if (asTrimmedString(eigen[key]) !== '' || !(key in satz)) satz[key] = eigen[key]
+  const own = varBlock[id] ?? varBlock[id.toUpperCase()]
+  if (isObjekt(own)) {
+    for (const key of Object.keys(own)) {
+      if (asTrimmedString(own[key]) !== '' || !(key in record)) record[key] = own[key]
     }
   }
-  return Object.keys(satz).length === 0 ? [] : [satz]
+  return Object.keys(record).length === 0 ? [] : [record]
 }
 
-export function zeilenAusLieferung(
+export function rowsFromDelivery(
   seData: unknown,
   alias: string,
   idbId: string,
 
-  // Ohne den Schalter bleibt VAR ungelesen: eine Listen-Quelle mit leerer
-  // Schleife soll nicht heimlich den Kopfsatz als Zeile ausgeben.
-  offenerSatz = false,
+  openRecord = false,
 ): unknown[] {
-  if (!istObjekt(seData) || !istObjekt(seData.Daten)) return []
-  if (offenerSatz) return offenerSatzZeilen(seData, idbId)
-  const daten = seData.Daten
+  if (!isObjekt(seData) || !isObjekt(seData.Daten)) return []
+  if (openRecord) return openRecordRows(seData, idbId)
+  const data = seData.Daten
 
-  const sfl = daten.SEFileLoop
+  const sfl = data.SEFileLoop
   if (Array.isArray(sfl)) {
     for (const entry of sfl) {
-      if (istObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias))) {
+      if (isObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias))) {
         const rows = rowsOfEntry(entry)
         if (rows.length > 0) return rows
       }
     }
-  } else if (istObjekt(sfl)) {
+  } else if (isObjekt(sfl)) {
     for (const key of Object.keys(sfl)) {
       const entry = sfl[key]
       if (sameAlias(key, alias)
-        || (istObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias)))) {
+        || (isObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias)))) {
         const rows = rowsOfEntry(entry)
         if (rows.length > 0) return rows
       }
@@ -264,17 +250,17 @@ export function zeilenAusLieferung(
   }
 
   for (const key of ['ErpApiCall', 'ERPAPICALL', 'erpapicall']) {
-    const api = daten[key]
-    if (!istObjekt(api)) continue
-    for (const eintrag of Object.keys(api)) {
-      if (!sameAlias(eintrag, alias)) continue
-      const rows = rowsOfEntry(api[eintrag])
+    const api = data[key]
+    if (!isObjekt(api)) continue
+    for (const entry of Object.keys(api)) {
+      if (!sameAlias(entry, alias)) continue
+      const rows = rowsOfEntry(api[entry])
       if (rows.length > 0) return rows
     }
   }
 
-  const tab = daten.Tabellen
-  if (istObjekt(tab)) {
+  const tab = data.Tabellen
+  if (isObjekt(tab)) {
     const keys = [alias, alias.toUpperCase(), alias.toLowerCase(), idbId]
     for (const key of keys) {
       if (key !== '' && key in tab) {
@@ -290,27 +276,27 @@ export function zeilenAusLieferung(
     }
   }
 
-  return geholteZeilenFuer(alias) ?? []
+  return fetchedRowsFor(alias) ?? []
 }
 
-export function datenAusInhalt(raw: unknown): Objekt | undefined {
+export function dataFromContent(raw: unknown): Objekt | undefined {
   let data = raw
   if (typeof data === 'string') {
     try { data = JSON.parse(data) } catch { return undefined }
   }
-  if (!istObjekt(data) || !istObjekt(data.Daten)) return undefined
-  const daten = data.Daten
-  if (!daten.SEFileLoop && !daten.Tabellen && !daten.ErpApiCall && !varBlockVon(daten)) {
+  if (!isObjekt(data) || !isObjekt(data.Daten)) return undefined
+  const block = data.Daten
+  if (!block.SEFileLoop && !block.Tabellen && !block.ErpApiCall && !varBlockOf(block)) {
     return undefined
   }
-  return daten
+  return block
 }
 
-export function nachrichtenInhalt(eventData: unknown): unknown {
+export function messagesContent(eventData: unknown): unknown {
   let d = eventData
   if (typeof d === 'string') {
     try { d = JSON.parse(d) } catch { return undefined }
   }
-  if (!istObjekt(d) || !istObjekt(d.MSG)) return undefined
+  if (!isObjekt(d) || !isObjekt(d.MSG)) return undefined
   return d.MSG.DATA
 }

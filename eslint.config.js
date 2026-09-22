@@ -5,39 +5,10 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
-// tsconfigRootDir explizit setzen, damit der Typpruefer nur dieses Projekt als
-// Wurzel nimmt.
 const rootDir = import.meta.dirname
 
-const coreOuterLayers = '(?:bausteine|design|editor|export|softengine)'
-
-function restrictCoreImports(files, parentSegments) {
-  return {
-    files,
-    rules: {
-      'no-restricted-imports': ['error', {
-        paths: [
-          { name: 'lit', message: 'Der fachliche Core muss frameworkfrei bleiben.' },
-          { name: 'react', message: 'Der fachliche Core muss frameworkfrei bleiben.' },
-          { name: 'react-dom', message: 'Der fachliche Core muss frameworkfrei bleiben.' },
-        ],
-        patterns: [
-          {
-            group: ['lit/*', 'react/*', 'react-dom/*'],
-            message: 'Der fachliche Core muss frameworkfrei bleiben.',
-          },
-          {
-            regex: `^(?:\\.\\./){${parentSegments}}${coreOuterLayers}(?:/|$)`,
-            message: 'Der fachliche Core darf keine aeussere Anwendungsschicht importieren.',
-          },
-        ],
-      }],
-    },
-  }
-}
-
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'src/export/generated']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -53,11 +24,9 @@ export default defineConfig([
       },
     },
   },
-  // Typ-gestuetztes Linten NUR fuer diese eine Regel: ein vergessenes `.catch`
-  // an einer Aktionskette verschluckt jeden Fehler, und ein `void` davor sieht
-  // aus wie Absicht. Die Regel braucht den Typpruefer, darum `projectService`.
-  // Bewusst nicht der ganze `recommendedTypeChecked`-Satz, der bringt hunderte
-  // Funde ohne Nutzen.
+  // Type-aware linting for this one rule only: a forgotten `.catch` on an
+  // action chain swallows every error, and a `void` in front of it looks like
+  // intent. The rule needs the type checker, hence `projectService`.
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -70,22 +39,46 @@ export default defineConfig([
       '@typescript-eslint/no-floating-promises': 'error',
     },
   },
-  // Regel 4: nur src/softengine kennt die Globals. Ein Baustein bekommt Daten
-  // ueber benannte Funktionen (laufzeitQuellen, befehle, relations).
+  // src/core is the framework-free model: no lit, no react, and no import of
+  // an outer layer. One rule for every depth under src/core.
   {
-    files: ['src/bausteine/**/*.{ts,tsx}'],
+    files: ['src/core/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        paths: [
+          { name: 'lit', message: 'src/core must stay framework free.' },
+          { name: 'react', message: 'src/core must stay framework free.' },
+          { name: 'react-dom', message: 'src/core must stay framework free.' },
+        ],
+        patterns: [
+          {
+            group: ['lit/*', 'react/*', 'react-dom/*'],
+            message: 'src/core must stay framework free.',
+          },
+          {
+            regex: '^(?:\\.\\./)+(?:blocks|design|editor|export|softengine)(?:/|$)',
+            message: 'src/core must not import an outer application layer.',
+          },
+          {
+            group: ['@/blocks/*', '@/design/*', '@/editor/*', '@/export/*', '@/softengine/*'],
+            message: 'src/core must not import an outer application layer.',
+          },
+        ],
+      }],
+    },
+  },
+  // Only src/softengine knows the host globals. A block gets its data through
+  // named functions (runtimeSources, commands, relations).
+  {
+    files: ['src/blocks/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [{
           group: ['**/softengine/bridge'],
-          importNames: ['seGlobal'],
-          message: 'Bausteine fassen SoftEngine nur durch die Tuer an.',
+          importNames: ['seFenster', 'hostCall'],
+          message: 'Blocks touch SoftEngine only through the door.',
         }],
       }],
     },
   },
-  restrictCoreImports(['src/kern/*.{ts,tsx}'], 1),
-  restrictCoreImports(['src/kern/*/*.{ts,tsx}'], 2),
-  restrictCoreImports(['src/kern/*/*/*.{ts,tsx}'], 3),
-  restrictCoreImports(['src/kern/*/*/*/*.{ts,tsx}'], 4),
 ])

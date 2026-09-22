@@ -1,40 +1,39 @@
-// Ein einzeiliger Text im Inspector.
-import type { Eigenschaft } from '../../../kern/maske/eigenschaft'
-import { useEingabeSitzung } from './eingabeSitzung'
-import { Feld } from '@/editor/werkbank/Feld'
-import { Zeile } from '@/editor/werkbank/Zeile'
+import type { Property } from '../../../core/block/property'
+import { useInputSession } from './editSession'
+import { Field } from '@/editor/widgets/Field'
+import { Row } from '@/editor/widgets/Row'
 
 interface TextControlProps {
-  property: Eigenschaft
+  property: Property<unknown>
   value: string
   onChange: (value: string) => void
 
-  onBeginBearbeitung?: () => void
-  onEndeBearbeitung?: () => void
+  onBeginEditing?: () => void
+  onEndEditing?: () => void
 }
 
 export function TextControl({
   property,
   value,
   onChange,
-  onBeginBearbeitung,
-  onEndeBearbeitung,
+  onBeginEditing,
+  onEndEditing,
 }: TextControlProps) {
-  const sitzung = useEingabeSitzung(onBeginBearbeitung, onEndeBearbeitung)
+  const session = useInputSession(onBeginEditing, onEndEditing)
   return (
-    <Zeile label={property.name} hinweis={property.beschreibung}>
+    <Row label={property.label} hint={property.help}>
       {(kind) => (
-        <Feld
+        <Field
           {...kind}
           value={value}
-          maxLength={property.maxLaenge || undefined}
+          maxLength={property.maxLength || undefined}
           onChange={(e) => {
-            sitzung.beginnen()
+            session.begin()
             onChange(e.currentTarget.value)
           }}
-          onBlur={sitzung.beenden}
+          onBlur={session.finish}
         />
       )}
-    </Zeile>
+    </Row>
   )
 }

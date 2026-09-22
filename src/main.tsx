@@ -1,7 +1,6 @@
-// Startet den Editor im Browser.
 import './design/editor.css'
-import './design/maske.css'
-import './editor/bausteinSymbole'
+import './design/mask.css'
+import './editor/blockIcons'
 
 import { createRoot } from 'react-dom/client'
 import { App } from './editor/App'

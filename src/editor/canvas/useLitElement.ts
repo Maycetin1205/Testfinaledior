@@ -1,40 +1,35 @@
-// Bindet ein Lit-Baustein-Element an den Editor-Baum: Attribute hin, Aenderungen zurueck.
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
-import type { Baustein } from '../../kern/maske/baum'
-import { zerlegeBindung } from '../../kern/maske/bausteinArt'
-import { bindungsProp, type BindbareStelle } from '../../kern/maske/faehigkeiten'
-import { bausteinArt } from '../../kern/maske/registry'
-import type { QuelleInReichweite } from '../../kern/daten/weitereQuellen'
-import type { Editor } from '../zustand/Editor'
-import type { GestenKlammer } from '../zustand/history'
+import type { BlockNode } from '../../core/block/tree'
+import { splitBinding } from '../../core/block/blockType'
+import { bindingProp, type BindableSpot } from '../../core/block/capability'
+import { blockType } from '../../core/block/registry'
+import type { SourceInReach } from '../../core/data/extraSources'
+import type { EditorStore } from '../state/EditorStore'
+import type { GestureBracket } from '../state/history'
 
-const FREMD_ZEICHEN = ' ↗'
+const FOREIGN_ICON = ' ↗'
 
 interface PropChangeDetail {
   attr: string
   value: unknown
 
-  // Ein Baustein, der eine ZUSAMMENHAENGENDE Handlung meldet (Ziehen), setzt sie:
-  // der Editor klammert alles dazwischen zu EINEM Undo-Schritt.
-  geste?: 'beginn' | 'ende'
+  gesture?: 'beginn' | 'end'
 
-  // Vom Editor gesetzt, wenn er den Wert NICHT uebernommen hat. Das Ereignis
-  // laeuft synchron: der Baustein liest die Antwort direkt nach dem Senden.
-  abgelehnt?: boolean
+  rejected?: boolean
 }
 
 interface LitElementArgs {
-  editor: Editor
+  editor: EditorStore
 
-  blockRef: RefObject<Baustein>
-  block: Baustein
+  blockRef: RefObject<BlockNode>
+  block: BlockNode
   selected: boolean | undefined
-  bindableSpots: readonly BindbareStelle[]
+  bindableSpots: readonly BindableSpot[]
 
-  quellen: readonly QuelleInReichweite[]
+  sources: readonly SourceInReach[]
 
-  raster: boolean
+  grid: boolean
 }
 
 export function useLitElement({
@@ -43,20 +38,20 @@ export function useLitElement({
   block,
   selected,
   bindableSpots,
-  quellen,
-  raster,
+  sources,
+  grid,
 }: LitElementArgs) {
   const containerRef = useRef<HTMLDivElement | null>(null)
 
-  const klammer = useRef<GestenKlammer | null>(null)
+  const bracket = useRef<GestureBracket | null>(null)
 
   const elementRef = useRef<HTMLElement | null>(null)
   const [element, setElement] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
-    const def = bausteinArt(block.typ)
+    const def = blockType(block.type)
     if (!def) {
-      console.warn(`BlockHost: keine Bausteinart für Typ "${block.typ}"`)
+      console.warn(`BlockHost: keine Bausteinart für Typ "${block.type}"`)
       return
     }
     const container = containerRef.current
@@ -73,60 +68,58 @@ export function useLitElement({
       const ce = e as CustomEvent<PropChangeDetail>
       const detail = ce.detail
       if (!detail || typeof detail.attr !== 'string') return
-      if (detail.geste === 'beginn' && !klammer.current) {
-        klammer.current = editor.oeffneGeste()
+      if (detail.gesture === 'beginn' && !bracket.current) {
+        bracket.current = editor.openGesture()
       }
-      klammer.current?.oeffne()
-      const uebernommen = editor.updateProperty(blockRef.current.id, detail.attr, detail.value)
-      if (!uebernommen) detail.abgelehnt = true
-      if (detail.geste === 'ende') {
-        klammer.current?.schliesse()
-        klammer.current = null
+      bracket.current?.open()
+      const adopted = editor.updateProperty(blockRef.current.id, detail.attr, detail.value)
+      if (!adopted) detail.rejected = true
+      if (detail.gesture === 'end') {
+        bracket.current?.close()
+        bracket.current = null
       }
     }
     el.addEventListener('ff-prop-change', onPropChange)
 
     return () => {
-    // Stirbt das Element mitten im Zug, bleibt die Klammer sonst offen und
-    // schluckt jede spaetere Aenderung in denselben Undo-Schritt.
-      klammer.current?.schliesse()
-      klammer.current = null
+      bracket.current?.close()
+      bracket.current = null
       el.removeEventListener('ff-prop-change', onPropChange)
       if (container.contains(el)) container.removeChild(el)
       elementRef.current = null
       setElement(null)
     }
-  }, [block.typ, editor, blockRef])
+  }, [block.type, editor, blockRef])
 
   useEffect(() => {
     const el = elementRef.current
     if (!el) return
     const elAny = el as unknown as Record<string, unknown>
-    for (const [key, value] of Object.entries(block.werte)) {
+    for (const [key, value] of Object.entries(block.values)) {
       elAny[key] = value
     }
 
     for (const spot of bindableSpots) {
-      const wert = block.werte[bindungsProp(spot.prop)]
-      if (typeof wert !== 'string' || wert === '') continue
+      const value = block.values[bindingProp(spot.prop)]
+      if (typeof value !== 'string' || value === '') continue
 
-      const { quelleId, code } = zerlegeBindung(wert)
-      const quelle = quelleId === ''
-        ? quellen[0]?.quelle
-        : quellen.find((q) => q.quelle.id === quelleId)?.quelle
-      const field = quelle?.felder.find((f) => f.code === code)
+      const { sourceId, code } = splitBinding(value)
+      const source = sourceId === ''
+        ? sources[0]?.source
+        : sources.find((q) => q.source.id === sourceId)?.source
+      const field = source?.fields.find((f) => f.code === code)
       if (field) {
-        elAny[spot.vorschauProp ?? spot.prop] = field.name
-          + (quelleId === '' ? '' : FREMD_ZEICHEN)
+        elAny[spot.previewProp ?? spot.prop] = field.name
+          + (sourceId === '' ? '' : FOREIGN_ICON)
       } else {
-        elAny[bindungsProp(spot.prop)] = ''
+        elAny[bindingProp(spot.prop)] = ''
       }
     }
 
     elAny.editable = !!selected
 
-    el.toggleAttribute('fuellt', !!raster)
-  }, [element, block.typ, block.werte, selected, bindableSpots, quellen, raster])
+    el.toggleAttribute('fills', !!grid)
+  }, [element, block.type, block.values, selected, bindableSpots, sources, grid])
 
   return { containerRef, elementRef, element }
 }

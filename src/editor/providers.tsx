@@ -1,36 +1,35 @@
-// Die Kontexte, in denen der Editor laeuft.
 import { useEffect, useState, type ReactNode } from 'react'
-import { Editor } from './zustand/Editor'
-import { EditorProvider } from './zustand/EditorProvider'
-import { Fehlergrenze } from './Fehlergrenze'
+import { EditorStore } from './state/EditorStore'
+import { EditorProvider } from './state/EditorProvider'
+import { ErrorBoundary } from './ErrorBoundary'
 
 interface ProvidersProps {
   children: ReactNode
 }
 
 export function Providers({ children }: ProvidersProps) {
-  const [editor] = useState(() => new Editor())
+  const [editor] = useState(() => new EditorStore())
 
   useEffect(() => {
-    const rette = (): void => {
-      editor.speichereJetzt()
+    const rescue = (): void => {
+      editor.saveNow()
     }
-    const beiVerborgen = (): void => {
-      if (document.visibilityState === 'hidden') rette()
+    const onHidden = (): void => {
+      if (document.visibilityState === 'hidden') rescue()
     }
-    window.addEventListener('pagehide', rette)
-    document.addEventListener('visibilitychange', beiVerborgen)
+    window.addEventListener('pagehide', rescue)
+    document.addEventListener('visibilitychange', onHidden)
     return () => {
-      window.removeEventListener('pagehide', rette)
-      document.removeEventListener('visibilitychange', beiVerborgen)
+      window.removeEventListener('pagehide', rescue)
+      document.removeEventListener('visibilitychange', onHidden)
     }
   }, [editor])
 
   return (
     <EditorProvider editor={editor}>
-      <Fehlergrenze>
+      <ErrorBoundary>
         {children}
-      </Fehlergrenze>
+      </ErrorBoundary>
     </EditorProvider>
   )
 }

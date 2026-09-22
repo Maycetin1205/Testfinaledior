@@ -1,54 +1,53 @@
-// Schreibt die Maskendatei: aus dem Baustein-Baum wird HTML fuer SoftEngine.
-import { WURZEL_ID, type Baustein, type Maskenbaum } from '../kern/maske/baum'
-import { listeFuerExport, listeLesen } from '../kern/maske/bausteinArt'
-import { bindungsProp, faehigkeit, gilt } from '../kern/maske/faehigkeiten'
-import { bausteinArt } from '../kern/maske/registry'
+import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
+import { listForExport, listRead } from '../core/block/blockType'
+import { bindingProp, capability, applies } from '../core/block/capability'
+import { blockType } from '../core/block/registry'
 import {
-  bindbareStellenVon,
-  darfAuswahlFolgen,
-  ersterNachfahreVomTyp,
-  istAuswahlGeber,
-  QUELLE_PROP,
-  traegtAenderungen,
-  traegtEigeneQuelle,
-  traegtLoeschungen,
-} from '../kern/maske/baumFragen'
-import { BAUSTEIN_ID_ATTR, kettenFuerExport } from '../kern/daten/aktionen'
-import { berechnungenFuerExport } from '../kern/daten/berechnung'
-import { AUSWAHL_FOLGE_PROP } from '../kern/daten/auswahlFolge'
+  bindableSpotsOf,
+  maySelectionFollows,
+  firstDescendantOfType,
+  isSelectionGiver,
+  SOURCE_PROP,
+  carriesChanges,
+  carriesOwnSource,
+  carriesDeletions,
+} from '../core/block/treeQuery'
+import { BLOCK_ID_ATTR, chainsForExport } from '../core/data/actions'
+import { calculationsForExport } from '../core/data/calculation'
+import { SELECTION_FOLLOW_PROP } from '../core/data/selectionFollow'
 import {
-  bestellteFelder,
-  felderHinterSchnitt,
-  holtNachOeffnen,
-  istOffenerSatz,
-  holWertVon,
-  ladeRelationVon,
-  mitEindeutigenNamen,
-  satzNummerVon,
-  tabellenIdVon,
-  type Datenquelle,
-} from '../kern/daten/datenquellen'
-import type { RelationsVorlage } from '../kern/daten/relationen'
-import { WEITERE_QUELLEN_PROP } from '../kern/daten/weitereQuellen'
-import { seitenDerMaske } from '../kern/maske/seiten'
-import { istRasterFlaeche } from '../kern/maske/rasterFlaeche'
+  orderedFields,
+  fieldsBehindCut,
+  fetchesToOpen,
+  isOpenRecord,
+  getValueOf,
+  loadRelationOf,
+  withUniqueNames,
+  recordNumberOf,
+  tableIdOf,
+  type DataSource,
+} from '../core/data/dataSources'
+import type { RelationTemplate } from '../core/data/relations'
+import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
+import { pagesTheMask } from '../core/block/pages'
+import { isGridArea } from '../core/block/gridArea'
 import {
-  richtungDerKinder,
-  WURZEL_FLUSS,
-  type Richtung,
-} from '../kern/maske/fluss'
-import { rasterFlaecheCss } from '../kern/maske/raster'
-import tokensCssRaw from '../design/maske.css?raw'
+  directionTheChildren,
+  ROOT_FLOW,
+  type Direction,
+} from '../core/block/flow'
+import { gridAreaCss } from '../core/block/grid'
+import tokensCssRaw from '../design/mask.css?raw'
 import {
-  benutzteFelderJeQuelle,
+  usedFieldsPerSource,
   collectDataSources,
-  holSchluesselJeGeber,
-} from './benutzteQuellen'
-import { collectRelations } from './benutzteRelationen'
-import { baueSevariablen } from './sevariablen'
-import { vorschauRoh, vorschauStellenVon } from './bindungsVorschau'
-import { styleAttr } from './knotenStil'
-import { laufzeitSkriptFuer } from './laufzeitTeile'
+  getKeyPerGiver,
+} from './usedSources'
+import { collectRelation } from './usedRelations'
+import { buildSevariablen } from './sevariablen'
+import { previewRaw, previewSpotsOf } from './bindingPreview'
+import { styleAttr } from './nodeStyle'
+import { runtimeScriptFor } from './runtimeParts'
 import {
   escapeHtmlAttr,
   escapeHtmlText,
@@ -57,153 +56,143 @@ import {
   guardScriptContent,
   stripCssComments,
 } from './serializer'
-import { BRUECKE_SKRIPT } from './validator'
+import { BRIDGE_SCRIPT } from './validator'
 
-const LAYOUT_ATTR_AUSNAHME = new Set(['width', 'height', 'rasterX', 'rasterY', 'rasterW', 'rasterH'])
-
-const EIGENE_QUELLE_PROPS = new Set([QUELLE_PROP, WEITERE_QUELLEN_PROP])
+const OWN_SOURCE_PROPS = new Set([SOURCE_PROP, EXTRA_SOURCES_PROP])
 
 export interface MaskExport {
   html: string
   sevariablen: string
 }
 
-function attributWert(value: unknown): string {
+function attributValue(value: unknown): string {
   return Array.isArray(value) ? JSON.stringify(value) : String(value ?? '')
 }
 
 interface TemplateCtx {
-  typ: string
+  type: string
   id: string | undefined
-  richtung: Richtung
+  direction: Direction
 }
 
-// Spalten-Kennung -> Platz fuer die Ketten-Parameter, generisch ueber die
-// Listen-Bindung des Ziel-Bausteins. Unbekannt gibt '-1', die Laufzeit liefert
-// dann den leeren Wert.
-function spaltenIndexFuer(tree: Maskenbaum): (blockId: string, kennung: string) => string {
-  return (blockId, kennung) => {
-    const ziel = tree[blockId]
-    const bindung = ziel ? faehigkeit(bausteinArt(ziel.typ), 'liste')?.bindung : undefined
-    const key = bindung?.kennungSchluessel
-    if (!ziel || !bindung || key === undefined) return '-1'
-    return String(listeLesen(ziel.werte[bindung.prop], bindung)
-      .findIndex((eintrag) => eintrag[key] === kennung))
+function columnsIndexFor(tree: MaskTree): (blockId: string, key: string) => string {
+  return (blockId, key) => {
+    const target = tree[blockId]
+    const binding = target ? capability(blockType(target.type), 'list')?.binding : undefined
+    const keyProperty = binding?.keyProperty
+    if (!target || !binding || keyProperty === undefined) return '-1'
+    return String(listRead(target.values[binding.prop], binding)
+      .findIndex((entry) => entry[keyProperty] === key))
   }
 }
 
 function nodeToHtml(
-  tree: Maskenbaum,
-  node: Baustein,
-  parentDirection: Richtung,
+  tree: MaskTree,
+  node: BlockNode,
+  parentDirection: Direction,
   depth: number,
 
   popupName: (id: string) => string,
 
-  spaltenIndex: (blockId: string, kennung: string) => string,
+  columnsIndex: (blockId: string, key: string) => string,
 
-  sources: readonly Datenquelle[],
+  sources: readonly DataSource[],
   templateCtx?: TemplateCtx,
 
-  rasterEbene = false,
+  gridLevel = false,
 ): string {
-  const def = bausteinArt(node.typ)
+  const def = blockType(node.type)
   if (!def) return ''
-  const liste = faehigkeit(def, 'liste')?.bindung
-  const rechnet = faehigkeit(def, 'rechnen')?.prop
+  const list = capability(def, 'list')?.binding
+  const computes = capability(def, 'compute')?.prop
 
   const pad = '  '.repeat(depth)
-  if (templateCtx && node.typ === templateCtx.typ) {
+  if (templateCtx && node.type === templateCtx.type) {
     if (node.id !== templateCtx.id) return ''
-    // Gemessen wird die Vorlage an dem Platz, an dem die Kopien LIEGEN, nicht
-    // an dem, an dem sie haengt.
-    const inner = nodeToHtml(tree, node, templateCtx.richtung, depth + 1, popupName, spaltenIndex, sources, undefined, rasterEbene)
+
+    const inner = nodeToHtml(tree, node, templateCtx.direction, depth + 1, popupName, columnsIndex, sources, undefined, gridLevel)
     return `${pad}<template data-ff-template>\n${inner}\n${pad}</template>`
   }
 
-  const bindbareStellen = bindbareStellenVon(node)
-  const bindbar = new Set(bindbareStellen.map((spot) => spot.prop))
-  const stilleBindungen = new Set<string>(
-    (faehigkeit(def, 'bindbar')?.stellen ?? [])
-      .filter((spot) => !bindbar.has(spot.prop))
-      .map((spot) => bindungsProp(spot.prop)),
+  const bindableSpots = bindableSpotsOf(node)
+  const bindable = new Set(bindableSpots.map((spot) => spot.prop))
+  const silentBindings = new Set<string>(
+    (capability(def, 'bindable')?.spots ?? [])
+      .filter((spot) => !bindable.has(spot.prop))
+      .map((spot) => bindingProp(spot.prop)),
   )
 
-  const vorschauStellen = vorschauStellenVon(node)
+  const previewSpots = previewSpotsOf(node)
 
-  const nurImEditor = new Set(
-    def.eigenschaften.filter((p) => p.nurImEditor).map((p) => p.schluessel),
-  )
-
-  const seitenKlarname = new Map<string, string>()
-  for (const p of def.eigenschaften) {
-    if (p.art === 'seite' && p.klarnameProp) seitenKlarname.set(p.klarnameProp, p.schluessel)
+  const pagesPlainName = new Map<string, string>()
+  for (const [key, declared] of Object.entries(def.properties)) {
+    if (declared.type.control === 'page' && declared.plainNameProp) {
+      pagesPlainName.set(declared.plainNameProp, key)
+    }
   }
 
-  const attrs = Object.keys(def.vorgaben)
-    .filter((key) => !LAYOUT_ATTR_AUSNAHME.has(key))
-    .map((key) => {
-      if (key === AUSWAHL_FOLGE_PROP && !darfAuswahlFolgen(node)) return ''
+  // One attribute per declared property, left out when the value is the
+  // declared default.
+  const attrs = Object.entries(def.properties)
+    .map(([key, declared]) => {
+      if (declared.attribute === '') return ''
+      if (key === SELECTION_FOLLOW_PROP && !maySelectionFollows(node)) return ''
 
-      if (EIGENE_QUELLE_PROPS.has(key) && !traegtEigeneQuelle(node)) return ''
-      if (stilleBindungen.has(key)) return ''
+      if (OWN_SOURCE_PROPS.has(key) && !carriesOwnSource(node)) return ''
+      if (silentBindings.has(key)) return ''
 
-      if (nurImEditor.has(key)) return ''
-      const standard = def.vorgaben[key]
+      const standard = declared.default
+      const held = node.values[key] ?? standard
 
-      const seitenIdProp = seitenKlarname.get(key)
-      const wert = seitenIdProp !== undefined
-        ? popupName(String(node.werte[seitenIdProp] ?? ''))
-        : liste !== undefined && key === liste.prop
-          ? listeFuerExport(node.werte[key] ?? standard, liste)
-          : key === rechnet
-            ? berechnungenFuerExport(node.werte[key] ?? standard)
-            : (node.werte[key] ?? standard)
-      const roh = vorschauStellen.has(key)
-        ? vorschauRoh(node, vorschauStellen.get(key)!, sources, standard)
-        : attributWert(wert)
+      const pagesIdProp = pagesPlainName.get(key)
+      const value = pagesIdProp !== undefined
+        ? popupName(String(node.values[pagesIdProp] ?? ''))
+        : list !== undefined && key === list.prop
+          ? listForExport(held, list)
+          : key === computes
+            ? calculationsForExport(held)
+            : held
+      const raw = previewSpots.has(key)
+        ? previewRaw(node, previewSpots.get(key)!, sources, standard)
+        : attributValue(value)
 
-      if (roh === attributWert(standard)) return ''
-      return ` ${key.toLowerCase()}="${escapeHtmlAttr(roh)}"`
+      if (raw === attributValue(standard)) return ''
+      return ` ${declared.attribute}="${escapeHtmlAttr(raw)}"`
     })
     .join('')
 
-  const aktionen = kettenFuerExport(node.ketten, (faehigkeit(def, 'ereignisse')?.liste ?? []).map((e) => e.schluessel), popupName, spaltenIndex)
-  const aktionenAttr = aktionen ? ` data-ff-aktionen="${escapeHtmlAttr(aktionen)}"` : ''
-  // Die EINE Kennung eines Bausteins in der Maske. Sie traegt, wer fuer eine
-  // Kette adressierbar sein muss und wer eine Zeile gibt; alle Leser der
-  // Laufzeit greifen ueber dieses Attribut.
-  const adressierbar = (faehigkeit(def, 'aktionswert')?.stellen.length ?? 0) > 0
-    || gilt(faehigkeit(def, 'erfassen'), node.werte)
-    || traegtAenderungen(node)
-    || traegtLoeschungen(node)
-    || istAuswahlGeber(node)
-  const kennungAttr = adressierbar ? ` ${BAUSTEIN_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
+  const actions = chainsForExport(node.chains, (capability(def, 'events')?.list ?? []).map((e) => e.key), popupName, columnsIndex)
+  const actionsAttr = actions ? ` data-ff-actions="${escapeHtmlAttr(actions)}"` : ''
 
-  const fuelltAttr = rasterEbene && def.seite !== true ? ' fuellt' : ''
+  const addressable = (capability(def, 'actionValue')?.spots.length ?? 0) > 0
+    || applies(capability(def, 'capture'), node.values)
+    || carriesChanges(node)
+    || carriesDeletions(node)
+    || isSelectionGiver(node)
+  const keyAttr = addressable ? ` ${BLOCK_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
 
-  const seitenAttr = node.elternId === WURZEL_ID && !def.seite ? ' data-ff-hauptinhalt' : ''
-  const open = `${pad}<${def.tag}${attrs}${aktionenAttr}${kennungAttr}${seitenAttr}${fuelltAttr}${styleAttr(node, parentDirection, def.festeBreite, rasterEbene, def.seite === true)}>`
-  if (!def.nimmtKinder || node.kinderIds.length === 0) {
+  const fillsAttr = gridLevel && def.page !== true ? ' fills' : ''
+
+  const pagesAttr = node.parentId === ROOT_ID && !def.page ? ' data-ff-main' : ''
+  const open = `${pad}<${def.tag}${attrs}${actionsAttr}${keyAttr}${pagesAttr}${fillsAttr}${styleAttr(node, parentDirection, def.fixedWidth, gridLevel, def.page === true)}>`
+  if (!def.takesChildren || node.childIds.length === 0) {
     return `${open}</${def.tag}>`
   }
 
-  const childDirection = richtungDerKinder(def, node.werte)
+  const childDirection = directionTheChildren(def, node.values)
 
-  const childCtx: TemplateCtx | undefined = def.musterKind
+  const childCtx: TemplateCtx | undefined = def.templateKind
     ? {
-        typ: def.musterKind.typ,
-        id: ersterNachfahreVomTyp(tree, node.id, def.musterKind.typ),
-        richtung: def.musterKind.richtung ?? childDirection,
+        type: def.templateKind.type,
+        id: firstDescendantOfType(tree, node.id, def.templateKind.type),
+        direction: def.templateKind.direction ?? childDirection,
       }
     : templateCtx
-  const children = node.kinderIds
+  const children = node.childIds
     .map((id) => tree[id])
-    .filter((c): c is Baustein => Boolean(c))
-    // Ist dieser Knoten eine FLAECHE, liegen seine Kinder in Zellen. Gefragt
-    // wird die eine Stelle, die auch der Editor fragt: raet der Export selbst,
-    // sitzen die Bausteine in SoftEngine woanders als im Editor.
-    .map((c) => nodeToHtml(tree, c, childDirection, depth + 1, popupName, spaltenIndex, sources, childCtx, istRasterFlaeche(node)))
+    .filter((c): c is BlockNode => Boolean(c))
+
+    .map((c) => nodeToHtml(tree, c, childDirection, depth + 1, popupName, columnsIndex, sources, childCtx, isGridArea(node)))
     .filter((html) => html !== '')
     .join('\n')
   return children === ''
@@ -212,59 +201,55 @@ function nodeToHtml(
 }
 
 export function exportMask(
-  tree: Maskenbaum,
+  tree: MaskTree,
   title = 'Maske',
 
-  sources: readonly Datenquelle[] = [],
+  sources: readonly DataSource[] = [],
 
-  relations: readonly RelationsVorlage[] = [],
+  relation: readonly RelationTemplate[] = [],
 ): MaskExport {
-  const root = tree[WURZEL_ID]
+  const root = tree[ROOT_ID]
 
-  const seitenNameById = new Map(seitenDerMaske(tree).map((s) => [s.id, s.name]))
-  const popupName = (id: string): string => seitenNameById.get(id) ?? ''
-  const spaltenIndex = spaltenIndexFuer(tree)
+  const pagesNameById = new Map(pagesTheMask(tree).map((s) => [s.id, s.name]))
+  const popupName = (id: string): string => pagesNameById.get(id) ?? ''
+  const columnsIndex = columnsIndexFor(tree)
 
-  const blocks = (root?.kinderIds ?? [])
+  const blocks = (root?.childIds ?? [])
     .map((id) => tree[id])
-    .filter((n): n is Baustein => Boolean(n))
-    .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, spaltenIndex, sources, undefined, true))
+    .filter((n): n is BlockNode => Boolean(n))
+    .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, columnsIndex, sources, undefined, true))
     .join('\n')
 
-  // Eindeutige Namen VOR beiden Verbrauchern: Bestellung und FF_DATA_SOURCES
-  // muessen denselben Namen tragen, sonst sucht die Laufzeit einen Alias, den
-  // SoftEngine nie geliefert hat.
-  const used = mitEindeutigenNamen(collectDataSources(tree, sources))
+  const used = withUniqueNames(collectDataSources(tree, sources))
 
-  const benutzteFelder = benutzteFelderJeQuelle(tree, sources)
+  const usedFields = usedFieldsPerSource(tree, sources)
 
-  const holSchluessel = holSchluesselJeGeber(tree, used)
-  const usedRelations = collectRelations(tree, relations, used)
+  const getKey = getKeyPerGiver(tree, used)
+  const usedRelation = collectRelation(tree, relation, used)
 
   const tokensCss = stripCssComments(tokensCssRaw)
-  // Die Maske bleibt eine Datei plus die SEvariablen: der Kunde bekommt einen
-  // festen Stand, nichts wird nachgeladen.
-  const laufzeitJs = guardScriptContent(escapeNonAsciiJs(laufzeitSkriptFuer(benutzteTypen(tree))))
+
+  const runtimeJs = guardScriptContent(escapeNonAsciiJs(runtimeScriptFor(usedTypes(tree))))
 
   const sourcesJs = guardJsonScript(escapeNonAsciiJs(
     'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => {
-      const lade = ladeRelationVon(s)
-      const hol = holWertVon(s)
+      const load = loadRelationOf(s)
+      const get = getValueOf(s)
       return {
         id: s.id,
         name: s.name,
-        tabellenId: tabellenIdVon(s),
-        satzFeld: satzNummerVon(s),
-        ...(istOffenerSatz(s) ? { offenerSatz: true } : {}),
-        ...(lade
-          ? { ladeRelation: { ...lade, zusatzFelder: felderHinterSchnitt(benutzteFelder.get(s.id)) } }
+        tableId: tableIdOf(s),
+        recordField: recordNumberOf(s),
+        ...(isOpenRecord(s) ? { openRecord: true } : {}),
+        ...(load
+          ? { loadRelation: { ...load, extraFields: fieldsBehindCut(usedFields.get(s.id)) } }
           : {}),
-        ...(hol ? { holWert: { ...hol, felder: s.felder.map((f) => f.code) } } : {}),
-        ...(holtNachOeffnen(s)
+        ...(get ? { getValue: { ...get, fields: s.fields.map((f) => f.code) } } : {}),
+        ...(fetchesToOpen(s)
           ? {
-            abfrage: {
-              id: tabellenIdVon(s),
-              felder: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+            query: {
+              id: tableIdOf(s),
+              fields: orderedFields(s, usedFields.get(s.id), getKey.get(s.id) ?? []),
             },
           }
           : {}),
@@ -272,17 +257,17 @@ export function exportMask(
     })) + ';',
   ))
 
-  const relationsJs = guardJsonScript(escapeNonAsciiJs(
-    'window.FF_RELATIONS = ' + JSON.stringify(usedRelations.map((r) => ({
+  const relationJs = guardJsonScript(escapeNonAsciiJs(
+    'window.FF_RELATIONS = ' + JSON.stringify(usedRelation.map((r) => ({
       id: r.id,
       verb: r.verb,
       nr: r.nr,
       parameter: r.parameter,
-      zusatzParameterErlaubt: r.zusatzParameterErlaubt === true,
+      extraParameterAllowed: r.extraParameterAllowed === true,
     }))) + ';',
   ))
 
-  const wurzelPadding = `${WURZEL_FLUSS.padding}px`
+  const rootPadding = `${ROOT_FLOW.padding}px`
 
   const html = [
     '<!DOCTYPE html>',
@@ -290,20 +275,18 @@ export function exportMask(
     '<head>',
     '<meta charset="UTF-8" />',
     `<title>${escapeHtmlText(title)}</title>`,
-    // Nur die Bruecke, nicht SoftEngines ganzer Kopf (kontrakte.md 1).
-    BRUECKE_SKRIPT,
+
+    BRIDGE_SCRIPT,
     '<style>',
     tokensCss,
     '',
     '/* Grundgeruest + Wurzel-Raster (identisch zum Editor-Canvas, rasterFlaecheStil) */',
     'html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }',
-    // Farbe und Schrift haengen an der Wurzel, nicht am body, und jeder Baustein
-    // erbt sie ausdruecklich: SoftEngines Rahmen faerbt html/body selbst und gibt
-    // mit `*` jedem Element Tahoma 12px.
+
     `.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto;`
       + ` background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs);`
       + ` line-height: var(--se-lh); color: var(--se-ink);`
-      + ` ${rasterFlaecheCss()}; padding: ${wurzelPadding}; }`,
+      + ` ${gridAreaCss()}; padding: ${rootPadding}; }`,
     '.ff-root * { font-family: inherit; font-size: inherit; }',
     '</style>',
     '</head>',
@@ -313,30 +296,28 @@ export function exportMask(
     '  </div>',
     '<script>',
     sourcesJs,
-    relationsJs,
+    relationJs,
     '</script>',
     '<script>',
-    laufzeitJs,
+    runtimeJs,
     '</script>',
     '</body>',
     '</html>',
   ].join('\n')
 
-  const sevariablen = baueSevariablen(used, benutzteFelder, holSchluessel)
+  const sevariablen = buildSevariablen(used, usedFields, getKey)
 
   return { html, sevariablen }
 }
 
-// Welche Bausteintypen in der Maske stehen — danach richtet sich, welche
-// Laufzeitteile sie braucht.
-function benutzteTypen(tree: Maskenbaum): Set<string> {
-  const typen = new Set<string>()
-  const gehe = (id: string): void => {
+function usedTypes(tree: MaskTree): Set<string> {
+  const types = new Set<string>()
+  const walk = (id: string): void => {
     const node = tree[id]
     if (!node) return
-    if (id !== WURZEL_ID) typen.add(node.typ)
-    for (const kindId of node.kinderIds) gehe(kindId)
+    if (id !== ROOT_ID) types.add(node.type)
+    for (const kindId of node.childIds) walk(kindId)
   }
-  gehe(WURZEL_ID)
-  return typen
+  walk(ROOT_ID)
+  return types
 }

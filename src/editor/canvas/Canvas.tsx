@@ -1,23 +1,22 @@
-// Die Leinwand: die Maskenflaeche im Editor mit ihren Seiten.
 import { useCallback, useMemo, useState, type DragEvent } from 'react'
-import { WURZEL_FLUSS } from '../../kern/maske/fluss'
-import { rasterFlaecheStil } from '../../kern/maske/raster'
-import { useEditor } from '../zustand/useEditor'
+import { ROOT_FLOW } from '../../core/block/flow'
+import { gridAreaStyle } from '../../core/block/grid'
+import { useEditor } from '../state/useEditor'
 import { NodeList } from './CanvasNode'
-import { LeerHinweis } from './LeerHinweis'
+import { EmptyHint } from './EmptyHint'
 import { isNewBlockDrag } from './dnd'
-import { commitDrop, DndContext, gleichesZiel, type DndState, type DropTarget } from './dndState'
-import { rasterZiel } from './rasterDnd'
-import { flaecheUnterZeiger } from './rasterFlaeche'
-import { PopupSeite } from './PopupSeite'
+import { commitDrop, DndContext, sameTarget, type DndState, type DropTarget } from './dndState'
+import { rasterTarget } from './gridDnd'
+import { areaUnderPointer } from './gridArea'
+import { PopupPage } from './PopupPage'
 
 export function Canvas() {
   const ed = useEditor()
   const [dragId, setDragId] = useState<string | null>(null)
-  const [dropTarget, merkeDropTarget] = useState<DropTarget | null>(null)
+  const [dropTarget, rememberDropTarget] = useState<DropTarget | null>(null)
 
-  const setDropTarget = useCallback((ziel: DropTarget | null) => {
-    merkeDropTarget((vorher) => (gleichesZiel(vorher, ziel) ? vorher : ziel))
+  const setDropTarget = useCallback((target: DropTarget | null) => {
+    rememberDropTarget((before) => (sameTarget(before, target) ? before : target))
   }, [])
 
   const dnd = useMemo<DndState>(() => ({
@@ -31,14 +30,14 @@ export function Canvas() {
     },
   }), [dragId, dropTarget, setDropTarget])
 
-  const hauptseite = ed.pages.find((p) => p.id === ed.activePageId)?.istHauptseite ?? true
+  const mainPage = ed.pages.find((p) => p.id === ed.activePageId)?.isMainPage ?? true
 
   const onGridDragOver = (e: DragEvent) => {
-    if (!hauptseite || (dragId === null && !isNewBlockDrag(e.dataTransfer))) return
-    const ziel = flaecheUnterZeiger(ed.tree, ed.rootId, e.clientX, e.clientY)
-    if (!ziel) return setDropTarget(null)
+    if (!mainPage || (dragId === null && !isNewBlockDrag(e.dataTransfer))) return
+    const target = areaUnderPointer(ed.tree, ed.rootId, e.clientX, e.clientY)
+    if (!target) return setDropTarget(null)
     e.preventDefault()
-    setDropTarget(rasterZiel(e, ed, dnd, ziel.parentId, ziel.flaeche))
+    setDropTarget(rasterTarget(e, ed, dnd, target.parentId, target.area))
   }
 
   return (
@@ -59,12 +58,12 @@ export function Canvas() {
           }}
         >
           <div
-            data-ff-wurzelflaeche
+            data-ff-root-area
 
             className="h-full min-h-0 overflow-auto"
             style={{
-              ...rasterFlaecheStil(),
-              padding: WURZEL_FLUSS.padding,
+              ...gridAreaStyle(),
+              padding: ROOT_FLOW.padding,
               boxSizing: 'border-box',
               background: 'var(--se-bg)',
             }}
@@ -79,15 +78,15 @@ export function Canvas() {
               }
             }}
           >
-            {hauptseite && <NodeList parentId={ed.rootId} direction="column" raster />}
+            {mainPage && <NodeList parentId={ed.rootId} direction="column" grid />}
           </div>
 
-          {hauptseite && ed.childNodesOf(ed.rootId).length === 0 && (
+          {mainPage && ed.childNodesOf(ed.rootId).length === 0 && (
             <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <LeerHinweis titel="Leere Maske" />
+              <EmptyHint title="Leere Maske" />
             </div>
           )}
-          {!hauptseite && <PopupSeite popupId={ed.activePageId} />}
+          {!mainPage && <PopupPage popupId={ed.activePageId} />}
         </div>
       </div>
     </DndContext.Provider>

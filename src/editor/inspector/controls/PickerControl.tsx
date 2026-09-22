@@ -1,107 +1,98 @@
-// Der eine Waehler des Inspectors: Knopf plus suchbare Liste.
 import { useRef, useState, type ReactNode } from 'react'
-import { ChevronDown } from '@/editor/zeichen/zeichen'
-import { cn } from '@/editor/werkbank/cn'
-import { EINGABE_KANTE } from '@/editor/werkbank/Feld'
-import { Knopf } from '@/editor/werkbank/Knopf'
-import { Liste, type ListeGruppe } from '@/editor/werkbank/Liste'
-import { Popover } from '@/editor/werkbank/Popover'
-import { Zeile, type ZeileKind } from '@/editor/werkbank/Zeile'
+import { ChevronDown } from '@/editor/icons/icon'
+import { cn } from '@/editor/widgets/cn'
+import { INPUT_EDGE } from '@/editor/widgets/Field'
+import { Button } from '@/editor/widgets/PushButton'
+import { List, type ListGroup } from '@/editor/widgets/List'
+import { Popover } from '@/editor/widgets/Popover'
+import { Row, type RowKind } from '@/editor/widgets/Row'
 
 export interface PickerControlProps {
-  // Ohne Beschriftung steht der Waehler blank in einer Zeile (Feldpaare).
   label?: string
-  hinweis?: string
-  fehler?: ReactNode
+  hint?: string
+  error?: ReactNode
 
-  bezeichnung: string
-  gruppen: readonly ListeGruppe[]
-  wert: string
+  name: string
+  groups: readonly ListGroup[]
+  value: string
 
-  // Zeile fuer „nichts gewaehlt". Fehlt sie, ist die Wahl Pflicht.
-  leerText?: string
-  platzhalter?: string
+  emptyText?: string
+  placeholder?: string
   className?: string
-  onWaehle: (wert: string) => void
+  onChoose: (value: string) => void
 }
 
-// `Wahl` (natives select) kann nicht suchen, und eine Datenquelle hat hunderte
-// Felder. Also Popover und Liste, aber an EINER Stelle.
 export function PickerControl({
   label,
-  hinweis,
-  fehler,
-  bezeichnung,
-  gruppen,
-  wert,
-  leerText,
-  platzhalter = '— wählen —',
+  hint,
+  error,
+  name,
+  groups,
+  value,
+  emptyText,
+  placeholder = '— wählen —',
   className,
-  onWaehle,
+  onChoose,
 }: PickerControlProps) {
-  const [offen, setOffen] = useState(false)
-  const knopfRef = useRef<HTMLButtonElement | null>(null)
+  const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
 
-  const treffer = gruppen.flatMap((g) => g.eintraege).find((e) => e.wert === wert)
+  const hit = groups.flatMap((g) => g.entries).find((e) => e.value === value)
 
-  // Ein Wert, den keine Gruppe kennt, faellt rot auf statt lautlos als „nichts
-  // gewaehlt" zu erscheinen.
-  const unbekannt = wert !== '' && treffer === undefined
+  const unknown = value !== '' && hit === undefined
 
-  // Der geschlossene Knopf zeigt NUR den Klarnamen; die Kennung naehme sich bis
-  // zur halben Breite. Sie steht in der Liste und im Tooltip.
-  const gezeigt = unbekannt ? 'fehlt' : (treffer?.name ?? leerText ?? platzhalter)
-  const tooltip = unbekannt
-    ? `Nicht mehr vorhanden: ${wert}`
-    : [treffer?.name, treffer?.kennung].filter((t) => t !== undefined && t !== '').join(' — ')
+  const shown = unknown ? 'missing' : (hit?.name ?? emptyText ?? placeholder)
+  const tooltip = unknown
+    ? `Nicht mehr vorhanden: ${value}`
+    : [hit?.name, hit?.badge].filter((t) => t !== undefined && t !== '').join(' — ')
 
-  const knopf = (kind?: ZeileKind) => (
-    <Knopf
-      ref={knopfRef}
+  const button = (kind?: RowKind) => (
+    <Button
+      ref={buttonRef}
       id={kind?.id}
       aria-describedby={kind?.['aria-describedby']}
       aria-invalid={kind?.['aria-invalid']}
       aria-haspopup="dialog"
-      aria-expanded={offen}
-      aria-label={label === undefined ? `${bezeichnung}: ${gezeigt}` : undefined}
-      title={tooltip === '' ? (label === undefined ? bezeichnung : undefined) : tooltip}
-      onClick={() => setOffen(!offen)}
-      className={cn(EINGABE_KANTE, 'flex h-steuer items-center gap-2 px-2 text-left', className)}
+      aria-expanded={open}
+      aria-label={label === undefined ? `${name}: ${shown}` : undefined}
+      title={tooltip === '' ? (label === undefined ? name : undefined) : tooltip}
+      onClick={() => setOpen(!open)}
+      className={cn(INPUT_EDGE, 'flex h-steuer items-center gap-2 px-2 text-left', className)}
     >
       <span
         className={cn(
           'min-w-0 flex-1 truncate',
-          wert === '' && 'text-matt',
-          unbekannt ? 'text-fehler' : wert !== '' && 'font-medium',
+          value === '' && 'text-matt',
+          unknown ? 'text-fehler' : value !== '' && 'font-medium',
         )}
       >
-        {gezeigt}
+        {shown}
       </span>
       <ChevronDown size={13} aria-hidden className="shrink-0 text-matt" />
-    </Knopf>
+    </Button>
   )
 
   return (
     <>
-      {label === undefined && fehler === undefined
-        ? knopf()
-        : <Zeile label={label} hinweis={hinweis} fehler={fehler}>{(kind) => knopf(kind)}</Zeile>}
+      {label === undefined && error === undefined
+        ? button()
+        : <Row label={label} hint={hint} error={error}>{(kind) => button(kind)}</Row>}
 
-      {offen && (
+      {open && (
         <Popover
-          bezeichnung={bezeichnung}
-          anker={knopfRef}
-          escapeAbfangen
-          onClose={() => setOffen(false)}
+          name={name}
+          anchor={buttonRef}
+          escapeCatch
+          onClose={() => setOpen(false)}
         >
-          <Liste
-            suchbar
-            gruppen={gruppen}
-            wert={wert}
-            leerText={leerText}
-            onWaehle={(v) => {
-              onWaehle(v)
-              setOffen(false)
+          <List
+            searchable
+            groups={groups}
+            value={value}
+            emptyText={emptyText}
+            onChoose={(v) => {
+              onChoose(v)
+              setOpen(false)
             }}
           />
         </Popover>

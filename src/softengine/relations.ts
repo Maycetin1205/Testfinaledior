@@ -1,54 +1,51 @@
-// Fragen an SoftEngine, Relationen und ERP-Abfragen: eine zur Zeit, mit Warteschlange und Verfallsmarke.
 import {
-  RELATIONS_VERBEN,
-  type RelationsVorlage,
-  type RelationsVerb,
-} from '../kern/daten/relationen'
-import { BAUSTEIN_ID_ATTR, type Parameter } from '../kern/daten/aktionen'
-import { starteSe, onSeAntwort, seFenster } from './bridge'
+  RELATION_VERBS,
+  type RelationTemplate,
+  type RelationVerb,
+} from '../core/data/relations'
+import { BLOCK_ID_ATTR, type Parameter } from '../core/data/actions'
+import { startSe, onSeAnswer, seWindow } from './bridge'
 import {
-  quelleAusListe,
-  feldLesen,
-  istObjekt,
-  zeilenAusAbfrageAntwort,
-  zeilenAusLieferung,
-  type LaufzeitAbfrage,
+  sourceFromList,
+  fieldRead,
+  isObjekt,
+  rowsFromQueryAnswer,
+  rowsFromDelivery,
+  type RuntimeQuery,
 } from './data'
-import { meldeFehler } from './meldung'
+import { reportError } from './report'
 
-export interface RelationAntwort {
-  wert: string
+export interface RelationAnswer {
+  value: string
 
-  roh: unknown
+  raw: unknown
 
-  // Gesetzt, wenn der Ruf nicht hinausging oder unbeantwortet blieb. Leer heisst
-  // NICHT „die ERP hat uebernommen": ein PUT ist ein Einweg-Ruf.
-  fehler?: string
+  error?: string
 }
 
-function fehlertext(error: unknown): string {
+function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-export type LaufzeitRelation = Pick<RelationsVorlage, 'id' | 'verb' | 'nr' | 'parameter'>
+export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter'>
 
-export function laufzeitRelation(id: string): LaufzeitRelation | undefined {
-  return relationAusListe(seFenster().FF_RELATIONS, id)
+export function runtimeRelation(id: string): RuntimeRelation | undefined {
+  return relationFromList(seWindow().FF_RELATIONS, id)
 }
 
-export function relationAusListe(list: unknown, id: string): LaufzeitRelation | undefined {
+export function relationFromList(list: unknown, id: string): RuntimeRelation | undefined {
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {
-    if (!istObjekt(entry) || entry.id !== id) continue
-    if (typeof entry.verb !== 'string' || !RELATIONS_VERBEN.includes(entry.verb as RelationsVerb)) continue
+    if (!isObjekt(entry) || entry.id !== id) continue
+    if (typeof entry.verb !== 'string' || !RELATION_VERBS.includes(entry.verb as RelationVerb)) continue
     if (typeof entry.nr !== 'string' || entry.nr === '') continue
     if (!Array.isArray(entry.parameter) || entry.parameter.some((p) => typeof p !== 'string')) continue
-    return { id, verb: entry.verb as RelationsVerb, nr: entry.nr, parameter: entry.parameter as string[] }
+    return { id, verb: entry.verb as RelationVerb, nr: entry.nr, parameter: entry.parameter as string[] }
   }
   return undefined
 }
 
-const SATZ_SCHLUESSEL = ['RESULT', 'result'] as const
+const RECORD_KEY = ['RESULT', 'result'] as const
 
 const RESULT_KEYS = [
   'RESULT', 'result', 'PINDEX', 'pindex', 'INDEX', 'index',
@@ -80,7 +77,7 @@ function firstScalar(value: unknown, depth: number): string | undefined {
     }
     return undefined
   }
-  if (!istObjekt(value)) return undefined
+  if (!isObjekt(value)) return undefined
   for (const key of RESULT_KEYS) {
     if (!(key in value)) continue
     const found = firstScalar(value[key], depth + 1)
@@ -93,234 +90,218 @@ function firstScalar(value: unknown, depth: number): string | undefined {
   return undefined
 }
 
-export function ergebnisAusAntwort(raw: unknown): string | undefined {
+export function resultFromAnswer(raw: unknown): string | undefined {
   const value = parsed(raw)
-  if (!istObjekt(value)) return undefined
+  if (!isObjekt(value)) return undefined
   for (const key of RESULT_KEYS) {
     if (!(key in value)) continue
     const found = firstScalar(value[key], 0)
     if (found !== undefined) return found
   }
-  // Traegt die Nachricht den RESULT-Schluessel, IST sie die Antwort, auch leer.
-  // Bliebe der Job offen, liefe er in den Timeout und stellte die Verfallsmarke
-  // scharf, die dann die erste echte Antwort des naechsten Rufs verwuerfe.
-  for (const key of SATZ_SCHLUESSEL) {
+
+  for (const key of RECORD_KEY) {
     if (typeof value[key] === 'string') return ''
   }
   for (const entry of Object.values(value)) {
     if (Array.isArray(entry)) {
       for (const item of entry) {
-        const found = ergebnisAusAntwort(item)
+        const found = resultFromAnswer(item)
         if (found !== undefined) return found
       }
-    } else if (istObjekt(entry)) {
-      const found = ergebnisAusAntwort(entry)
+    } else if (isObjekt(entry)) {
+      const found = resultFromAnswer(entry)
       if (found !== undefined) return found
     }
   }
   return undefined
 }
 
-function extractSatzAntwort(raw: unknown, tiefe = 0): string | undefined {
-  if (tiefe > 12) return undefined
+function extractRecordAnswer(raw: unknown, depth = 0): string | undefined {
+  if (depth > 12) return undefined
   const value = typeof raw === 'string' ? parsed(raw) : raw
   if (Array.isArray(value)) {
     for (const entry of value) {
-      const found = extractSatzAntwort(entry, tiefe + 1)
+      const found = extractRecordAnswer(entry, depth + 1)
       if (found !== undefined) return found
     }
     return undefined
   }
-  if (!istObjekt(value)) return undefined
-  for (const key of SATZ_SCHLUESSEL) {
-    const wert = value[key]
-    if (typeof wert === 'string') return wert
-    if (typeof wert === 'number' || typeof wert === 'boolean') return String(wert)
+  if (!isObjekt(value)) return undefined
+  for (const key of RECORD_KEY) {
+    const found = value[key]
+    if (typeof found === 'string') return found
+    if (typeof found === 'number' || typeof found === 'boolean') return String(found)
   }
   for (const entry of Object.values(value)) {
-    const found = extractSatzAntwort(entry, tiefe + 1)
+    const found = extractRecordAnswer(entry, depth + 1)
     if (found !== undefined) return found
   }
   return undefined
 }
 
-export function feldAusAntwort(raw: unknown, code: string, tiefe = 0): string {
-  if (code.trim() === '' || tiefe > 12) return ''
+export function fieldFromAnswer(raw: unknown, code: string, depth = 0): string {
+  if (code.trim() === '' || depth > 12) return ''
   const value = typeof raw === 'string' ? parsed(raw) : raw
   if (Array.isArray(value)) {
     for (const entry of value) {
-      const found = feldAusAntwort(entry, code, tiefe + 1)
+      const found = fieldFromAnswer(entry, code, depth + 1)
       if (found !== '') return found
     }
     return ''
   }
-  if (!istObjekt(value)) return ''
-  const direkt = feldLesen(value, code)
+  if (!isObjekt(value)) return ''
+  const direkt = fieldRead(value, code)
   if (direkt !== '') return direkt
   for (const entry of Object.values(value)) {
-    const found = feldAusAntwort(entry, code, tiefe + 1)
+    const found = fieldFromAnswer(entry, code, depth + 1)
     if (found !== '') return found
   }
   return ''
 }
 
 function seMessageKeys(seData: unknown): string[] {
-  if (!istObjekt(seData)) return []
+  if (!isObjekt(seData)) return []
   return Object.keys(seData).filter((key) => /^Message\d+$/.test(key))
 }
 
-export interface NeueNachricht extends RelationAntwort {
-  schluessel: string
+export interface NewMessage extends RelationAnswer {
+  key: string
 }
 
 function newSeMessageResult(
   seData: unknown,
   before: ReadonlySet<string>,
-  satzAntwort = false,
-): NeueNachricht | undefined {
-  if (!istObjekt(seData)) return undefined
+  recordAnswer = false,
+): NewMessage | undefined {
+  if (!isObjekt(seData)) return undefined
   const keys = seMessageKeys(seData)
     .filter((key) => !before.has(key))
     .sort((a, b) => Number(b.slice(7)) - Number(a.slice(7)))
   for (const key of keys) {
-    const found = satzAntwort ? extractSatzAntwort(seData[key]) : ergebnisAusAntwort(seData[key])
-    if (found !== undefined) return { wert: found, roh: seData[key], schluessel: key }
+    const found = recordAnswer ? extractRecordAnswer(seData[key]) : resultFromAnswer(seData[key])
+    if (found !== undefined) return { value: found, raw: seData[key], key: key }
   }
   return undefined
 }
 
-export interface RelationOptionen {
-  still?: boolean
-  satzAntwort?: boolean
+export interface RelationOptions {
+  silent?: boolean
+  recordAnswer?: boolean
 }
 
 interface GetJob {
-  template: LaufzeitRelation
+  template: RuntimeRelation
   params: string[]
-  resolve: (antwort: RelationAntwort) => void
-  optionen: RelationOptionen
+  resolve: (answer: RelationAnswer) => void
+  options: RelationOptions
 }
 
-export interface AbfrageAntwort {
-  // Fehlt, wenn die Abfrage nicht hinausging oder unbeantwortet blieb.
-  zeilen?: unknown[]
+export interface QueryAnswer {
+  rows?: unknown[]
 }
 
-interface AbfrageJob {
-  abfrage: LaufzeitAbfrage
+interface QueryJob {
+  query: RuntimeQuery
   name: string
-  resolve: (antwort: AbfrageAntwort) => void
+  resolve: (answer: QueryAnswer) => void
 }
 
-// Relationen und ERP-Abfragen teilen EINE Schlange: SoftEngines Antworten tragen
-// keinen Absender, zwei Fragen zugleich liessen sich nicht auseinanderhalten.
-const warteschlange: (GetJob | AbfrageJob)[] = []
-let rufUnterwegs = false
+const queue: (GetJob | QueryJob)[] = []
+let callInFlight = false
 const GET_TIMEOUT_MS = 20_000
 const GET_POLL_MS = 100
 
-// Eine Antwort sagt nicht, auf welche Frage sie gehoert; es ist immer nur EIN Ruf
-// unterwegs. Laeuft er in den Timeout, ist seine Antwort noch unterwegs und loeste
-// sonst den naechsten Frager mit fremden Daten auf — darum verfaellt danach die
-// naechste eintreffende Antwort. Zwei Grenzen halten die Marke davon ab, selbst
-// zum Fehler zu werden.
-const VERFALL_MS = GET_TIMEOUT_MS
-let verfallenBis = 0
-let verfaelltRueckruf = false
-let verfaelltNachlese = false
+const EXPIRY_MS = GET_TIMEOUT_MS
+let expiredTo = 0
+let expiresCallback = false
+let expiresReread = false
 
-function markeGilt(): boolean {
-  return Date.now() < verfallenBis
+function markApplies(): boolean {
+  return Date.now() < expiredTo
 }
 
-export function setzeVerfallZurueck(): void {
-  verfaelltRueckruf = false
-  verfaelltNachlese = false
-  verfallenBis = 0
+export function setExpiryBack(): void {
+  expiresCallback = false
+  expiresReread = false
+  expiredTo = 0
 }
 
-function naechsterRuf(): void {
-  if (rufUnterwegs || warteschlange.length === 0) return
-  rufUnterwegs = true
-  const job = warteschlange.shift()!
-  if ('abfrage' in job) {
-    stelleAbfrage(job)
+function nextCall(): void {
+  if (callInFlight || queue.length === 0) return
+  callInFlight = true
+  const job = queue.shift()!
+  if ('query' in job) {
+    spotQuery(job)
     return
   }
   let settled = false
-  let verfallenGenutzt = false
+  let expiredGenutzt = false
   let unsubscribe: (() => void) | null = null
   let poll: ReturnType<typeof setInterval> | null = null
   let timeout: ReturnType<typeof setTimeout> | null = null
 
-  // `finish` gibt die Warteschlange in JEDEM Fall frei; bliebe sie stehen, laedt
-  // die Maske fuer den Rest der Sitzung keine Daten mehr.
-  const finish = (wert: string, roh: unknown, fehler?: string): void => {
+  const finish = (value: string, raw: unknown, error?: string): void => {
     if (settled) return
     settled = true
     unsubscribe?.()
     if (poll !== null) clearInterval(poll)
     if (timeout !== null) clearTimeout(timeout)
-    rufUnterwegs = false
-    job.resolve(fehler === undefined ? { wert, roh } : { wert, roh, fehler })
+    callInFlight = false
+    job.resolve(error === undefined ? { value, raw } : { value, raw, error })
 
-    queueMicrotask(naechsterRuf)
+    queueMicrotask(nextCall)
   }
 
-  // Der Balken schweigt bei 'still', der Bericht an die Kette nie: sonst braeche
-  // ein Lauf ab, ohne dass jemand sagen kann, woran.
-  const gescheitert = (text: string): void => {
-    if (!job.optionen.still) meldeFehler(text)
+  const failed = (text: string): void => {
+    if (!job.options.silent) reportError(text)
     finish('', undefined, text)
   }
 
   try {
-    const g = seFenster()
+    const g = seWindow()
     const before = new Set(seMessageKeys(g.SEDATA))
-    const satzAntwort = job.optionen.satzAntwort === true
+    const recordAnswer = job.options.recordAnswer === true
 
-    unsubscribe = onSeAntwort((raw) => {
-      // Eine Listen-Antwort gehoert nie zu einer Relation; verspaetet, gaebe sie
-      // sonst ihren ersten Wert als Ergebnis aus.
-      if (zeilenAusAbfrageAntwort(raw) !== undefined) return
-      const result = satzAntwort ? extractSatzAntwort(raw) : ergebnisAusAntwort(raw)
+    unsubscribe = onSeAnswer((raw) => {
+      if (rowsFromQueryAnswer(raw) !== undefined) return
+      const result = recordAnswer ? extractRecordAnswer(raw) : resultFromAnswer(raw)
       if (result === undefined) return
-      if (verfaelltRueckruf && markeGilt()) {
-        verfaelltRueckruf = false
-        verfallenGenutzt = true
+      if (expiresCallback && markApplies()) {
+        expiresCallback = false
+        expiredGenutzt = true
         return
       }
       finish(result, raw)
     })
 
     poll = setInterval(() => {
-      const nachricht = newSeMessageResult(seFenster().SEDATA, before, satzAntwort)
-      if (nachricht === undefined) return
-      if (zeilenAusAbfrageAntwort(nachricht.roh) !== undefined) {
-        before.add(nachricht.schluessel)
+      const message = newSeMessageResult(seWindow().SEDATA, before, recordAnswer)
+      if (message === undefined) return
+      if (rowsFromQueryAnswer(message.raw) !== undefined) {
+        before.add(message.key)
         return
       }
-      if (verfaelltNachlese && markeGilt()) {
-        verfaelltNachlese = false
-        verfallenGenutzt = true
-      // Sonst faende der naechste Durchlauf dieselbe Nachricht erneut.
-        before.add(nachricht.schluessel)
+      if (expiresReread && markApplies()) {
+        expiresReread = false
+        expiredGenutzt = true
+
+        before.add(message.key)
         return
       }
-      finish(nachricht.wert, nachricht.roh)
+      finish(message.value, message.raw)
     }, GET_POLL_MS)
 
     timeout = setTimeout(() => {
-      if (!verfallenGenutzt) {
-        verfaelltRueckruf = true
-        verfaelltNachlese = true
-        verfallenBis = Date.now() + VERFALL_MS
+      if (!expiredGenutzt) {
+        expiresCallback = true
+        expiresReread = true
+        expiredTo = Date.now() + EXPIRY_MS
       }
-      gescheitert(`Daten laden: SoftEngine hat nicht geantwortet (Relation Nr. ${job.template.nr}).`)
+      failed(`Daten laden: SoftEngine hat nicht geantwortet (Relation Nr. ${job.template.nr}).`)
     }, GET_TIMEOUT_MS)
 
     if (typeof g.basisHTML_SND_MSG !== 'function') {
-      gescheitert('Daten laden nicht möglich: keine Verbindung zu SoftEngine.')
+      failed('Daten laden nicht möglich: keine Verbindung zu SoftEngine.')
       return
     }
     g.basisHTML_SND_MSG('GET_RELATION', {
@@ -328,174 +309,168 @@ function naechsterRuf(): void {
       PARAMS: job.params,
     })
   } catch (error) {
-    gescheitert(`Daten laden fehlgeschlagen (Relation Nr. ${job.template.nr}): ${fehlertext(error)}`)
+    failed(`Daten laden fehlgeschlagen (Relation Nr. ${job.template.nr}): ${errorText(error)}`)
   }
 }
 
-export function relationAusfuehren(
-  template: LaufzeitRelation,
+export function relationRun(
+  template: RuntimeRelation,
   params: readonly string[],
-  optionen: RelationOptionen = {},
-): Promise<RelationAntwort> {
-  starteSe()
-  const g = seFenster()
+  options: RelationOptions = {},
+): Promise<RelationAnswer> {
+  startSe()
+  const g = seWindow()
   if (template.verb !== 'GET_RELATION') {
     if (typeof g.basisHTML_SND_MSG !== 'function') {
       const text = 'Speichern nicht möglich: keine Verbindung zu SoftEngine. Die Eingabe wurde NICHT übernommen.'
-      meldeFehler(text)
-      return Promise.resolve({ wert: '', roh: undefined, fehler: text })
+      reportError(text)
+      return Promise.resolve({ value: '', raw: undefined, error: text })
     }
     try {
       g.basisHTML_SND_MSG(template.verb, { NR: template.nr, PARAMS: [...params] })
     } catch (error) {
-      const text = `Speichern fehlgeschlagen (Relation Nr. ${template.nr}): ${fehlertext(error)}`
-      meldeFehler(text)
-      return Promise.resolve({ wert: '', roh: undefined, fehler: text })
+      const text = `Speichern fehlgeschlagen (Relation Nr. ${template.nr}): ${errorText(error)}`
+      reportError(text)
+      return Promise.resolve({ value: '', raw: undefined, error: text })
     }
 
-    return Promise.resolve({ wert: '', roh: undefined })
+    return Promise.resolve({ value: '', raw: undefined })
   }
   return new Promise((resolve) => {
-    warteschlange.push({ template, params: [...params], resolve, optionen })
-    naechsterRuf()
+    queue.push({ template, params: [...params], resolve, options })
+    nextCall()
   })
 }
 
-// Antworten tragen keinen Absender. Eine verspaetete Antwort auf eine fruehere
-// Abfrage erkennt man an den Feldern: sie traegt keines der bestellten. Mit
-// Vorsatz geliefert (BEL_0_11 auf 0_11) zaehlt es wie beim Lesen als Treffer.
-function passtZurAbfrage(zeilen: readonly unknown[], felder: string): boolean {
-  const erste = zeilen[0]
-  if (erste === undefined || felder.trim() === '*') return true
-  if (!istObjekt(erste)) return false
-  const schluessel = Object.keys(erste)
-  return felder.split(',').map((f) => f.trim()).filter((f) => f !== '')
-    .some((f) => schluessel.some((k) => k === f || k.endsWith(`_${f}`)))
+function fitsToQuery(rows: readonly unknown[], fields: string): boolean {
+  const first = rows[0]
+  if (first === undefined || fields.trim() === '*') return true
+  if (!isObjekt(first)) return false
+  const key = Object.keys(first)
+  return fields.split(',').map((f) => f.trim()).filter((f) => f !== '')
+    .some((f) => key.some((k) => k === f || k.endsWith(`_${f}`)))
 }
 
-function stelleAbfrage(job: AbfrageJob): void {
-  let erledigt = false
-  let abmelden: (() => void) | null = null
-  let uhr: ReturnType<typeof setTimeout> | null = null
+function spotQuery(job: QueryJob): void {
+  let settled = false
+  let unregister: (() => void) | null = null
+  let clock: ReturnType<typeof setTimeout> | null = null
 
-  // Wie bei den Relationen gibt `fertig` die Schlange in JEDEM Fall frei.
-  const fertig = (zeilen?: unknown[]): void => {
-    if (erledigt) return
-    erledigt = true
-    abmelden?.()
-    if (uhr !== null) clearTimeout(uhr)
-    rufUnterwegs = false
-    job.resolve(zeilen === undefined ? {} : { zeilen })
-    queueMicrotask(naechsterRuf)
+  const done = (rows?: unknown[]): void => {
+    if (settled) return
+    settled = true
+    unregister?.()
+    if (clock !== null) clearTimeout(clock)
+    callInFlight = false
+    job.resolve(rows === undefined ? {} : { rows })
+    queueMicrotask(nextCall)
   }
-  const gescheitert = (text: string): void => {
-    meldeFehler(text)
-    fertig()
+  const failed = (text: string): void => {
+    reportError(text)
+    done()
   }
 
   try {
-    const g = seFenster()
-    abmelden = onSeAntwort((raw) => {
-      const zeilen = zeilenAusAbfrageAntwort(raw)
-      if (zeilen === undefined || !passtZurAbfrage(zeilen, job.abfrage.felder)) return
-      fertig(zeilen)
+    const g = seWindow()
+    unregister = onSeAnswer((raw) => {
+      const rows = rowsFromQueryAnswer(raw)
+      if (rows === undefined || !fitsToQuery(rows, job.query.fields)) return
+      done(rows)
     })
-    uhr = setTimeout(() => {
-      gescheitert(`„${job.name}“ laden: SoftEngine hat nicht geantwortet (${job.abfrage.id}).`)
+    clock = setTimeout(() => {
+      failed(`„${job.name}“ laden: SoftEngine hat nicht geantwortet (${job.query.id}).`)
     }, GET_TIMEOUT_MS)
     if (typeof g.basisHTML_SND_MSG !== 'function') {
-      gescheitert(`„${job.name}“ laden nicht möglich: keine Verbindung zu SoftEngine.`)
+      failed(`„${job.name}“ laden nicht möglich: keine Verbindung zu SoftEngine.`)
       return
     }
     g.basisHTML_SND_MSG('ERPAPICALL', {
-      ID: job.abfrage.id,
+      ID: job.query.id,
       ALIAS: job.name,
-      FELDER: job.abfrage.felder,
+      FELDER: job.query.fields,
     })
   } catch (error) {
-    gescheitert(`„${job.name}“ laden fehlgeschlagen (${job.abfrage.id}): ${fehlertext(error)}`)
+    failed(`„${job.name}“ laden fehlgeschlagen (${job.query.id}): ${errorText(error)}`)
   }
 }
 
-export function abfrageAusfuehren(abfrage: LaufzeitAbfrage, name: string): Promise<AbfrageAntwort> {
-  starteSe()
+export function queryRun(query: RuntimeQuery, name: string): Promise<QueryAnswer> {
+  startSe()
   return new Promise((resolve) => {
-    warteschlange.push({ abfrage, name, resolve })
-    naechsterRuf()
+    queue.push({ query, name, resolve })
+    nextCall()
   })
 }
 
-export interface LaufzeitWerte {
+export interface RuntimeValues {
   context: Readonly<Record<string, string | undefined>>
   previousResult: string
 
   stepResults?: readonly string[]
 
-  stepRohErgebnisse?: readonly unknown[]
+  stepRawResults?: readonly unknown[]
 
-  gewaehlteZeile?: (geberId: string) => unknown
+  chosenRow?: (geberId: string) => unknown
 
-  // Gesetzt, wenn die Kette gerade EINE Zeile abarbeitet: liefert den Zellwert
-  // der Spalte dieser Zeile.
-  zeilenZelle?: (blockId: string, spaltenIndex: number) => string
+  rowsCell?: (blockId: string, columnsIndex: number) => string
 }
 
 function resolveBlockValue(binding: Parameter, runtime: unknown): string {
-  if (!istObjekt(runtime)) return ''
+  if (!isObjekt(runtime)) return ''
   const doc = runtime.document as ParentNode | undefined
   if (!doc || typeof doc.querySelectorAll !== 'function') return ''
-  const element = Array.from(doc.querySelectorAll<HTMLElement>(`[${BAUSTEIN_ID_ATTR}]`))
-    .find((candidate) => candidate.getAttribute(BAUSTEIN_ID_ATTR) === binding.bausteinId)
+  const element = Array.from(doc.querySelectorAll<HTMLElement>(`[${BLOCK_ID_ATTR}]`))
+    .find((candidate) => candidate.getAttribute(BLOCK_ID_ATTR) === binding.blockId)
   if (!element) return ''
-  const raw = (element as unknown as Record<string, unknown>)[binding.wert]
+  const raw = (element as unknown as Record<string, unknown>)[binding.value]
   return raw == null ? '' : String(raw)
 }
 
-export function parameterAufloesen(
+export function parameterResolve(
   binding: Parameter,
-  values: LaufzeitWerte,
-  runtime: unknown = seFenster(),
+  values: RuntimeValues,
+  runtime: unknown = seWindow(),
 ): string {
-  if (binding.quelle === 'aus') return ''
-  if (binding.quelle === 'fixed') return binding.wert
-  if (binding.quelle === 'context') return values.context[binding.wert] ?? ''
-  if (binding.quelle === 'previous_result') return values.previousResult
-  if (binding.quelle === 'step_result') {
-    const idx = Number(binding.wert)
+  if (binding.source === 'from') return ''
+  if (binding.source === 'fixed') return binding.value
+  if (binding.source === 'context') return values.context[binding.value] ?? ''
+  if (binding.source === 'previous_result') return values.previousResult
+  if (binding.source === 'step_result') {
+    const idx = Number(binding.value)
     if (!Number.isInteger(idx) || idx < 0) return ''
 
-    const feld = binding.ergebnisFeld ?? ''
-    if (feld === '') return values.stepResults?.[idx] ?? ''
-    return feldAusAntwort(values.stepRohErgebnisse?.[idx], feld)
+    const field = binding.resultField ?? ''
+    if (field === '') return values.stepResults?.[idx] ?? ''
+    return fieldFromAnswer(values.stepRawResults?.[idx], field)
   }
-  if (binding.quelle === 'block_value') return resolveBlockValue(binding, runtime)
-  if (binding.quelle === 'erfassungszelle'
-    || binding.quelle === 'aenderungszelle'
-    || binding.quelle === 'loeschzelle') {
-    const index = Number(binding.wert)
+  if (binding.source === 'block_value') return resolveBlockValue(binding, runtime)
+  if (binding.source === 'captureCell'
+    || binding.source === 'changeCell'
+    || binding.source === 'deleteCell') {
+    const index = Number(binding.value)
     if (!Number.isInteger(index) || index < 0) return ''
-    return values.zeilenZelle?.(binding.bausteinId ?? '', index) ?? ''
+    return values.rowsCell?.(binding.blockId ?? '', index) ?? ''
   }
-  if (binding.quelle === 'gewaehlte_zeile') {
-    const zeile = values.gewaehlteZeile?.(binding.bausteinId ?? '')
-    return zeile === undefined ? '' : feldLesen(zeile, binding.wert)
+  if (binding.source === 'chosenRow') {
+    const row = values.chosenRow?.(binding.blockId ?? '')
+    return row === undefined ? '' : fieldRead(row, binding.value)
   }
-  if (!istObjekt(runtime)) return ''
+  if (!isObjekt(runtime)) return ''
 
-  if (binding.quelle === 'se_variable') {
+  if (binding.source === 'seVariable') {
     const seData = runtime.SEDATA
-    if (!istObjekt(seData) || !istObjekt(seData.Daten) || !istObjekt(seData.Daten.VARArrays)) return ''
-    const value = seData.Daten.VARArrays[binding.wert]
+    if (!isObjekt(seData) || !isObjekt(seData.Daten) || !isObjekt(seData.Daten.VARArrays)) return ''
+    const value = seData.Daten.VARArrays[binding.value]
     return value == null ? '' : String(value)
   }
 
-  const source = quelleAusListe(runtime.FF_DATA_SOURCES, binding.quelleId ?? '')
+  const source = sourceFromList(runtime.FF_DATA_SOURCES, binding.sourceId ?? '')
   if (!source) return ''
-  const rows = zeilenAusLieferung(runtime.SEDATA, source.name, source.tabellenId, source.offenerSatz)
+  const rows = rowsFromDelivery(runtime.SEDATA, source.name, source.tableId, source.openRecord)
   const pindex = values.context.PINDEX ?? ''
 
-  const row = pindex !== '' && source.satzFeld !== ''
-    ? rows.find((entry) => feldLesen(entry, source.satzFeld) === pindex)
+  const row = pindex !== '' && source.recordField !== ''
+    ? rows.find((entry) => fieldRead(entry, source.recordField) === pindex)
     : rows[0]
-  return row ? feldLesen(row, binding.wert) : ''
+  return row ? fieldRead(row, binding.value) : ''
 }

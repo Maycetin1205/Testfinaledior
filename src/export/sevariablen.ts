@@ -1,104 +1,93 @@
-// Schreibt die SEvariablen: was die Maske bei SoftEngine bestellt.
 import {
-  artFuer,
-  bereichVon,
-  bestellteFelder,
-  holtSelbst,
-  istOffenerSatz,
-  kopfsatzVon,
-  loopReihenfolge,
-  tabellenIdVon,
-  varAusKopfsaetzen,
-  type Datenquelle,
-} from '../kern/daten/datenquellen'
+  sourceKind,
+  areaOf,
+  orderedFields,
+  fetchesSelf,
+  isOpenRecord,
+  headerKeyOf,
+  loopOrder,
+  tableIdOf,
+  varFromHeaderKeys,
+  type DataSource,
+} from '../core/data/dataSources'
 import { escapeNonAsciiJs } from './serializer'
 
-// Kopfsatz-Index und offener Satz koennen auf DIESELBE Tabelle zeigen. Zwei
-// VAR-Eintraege mit derselben ID waeren eine doppelte Bestellung.
-function varZusammen(
-  ...gruppen: { ID: string; FELDER: string }[][]
+function varTogether(
+  ...groups: { ID: string; FELDER: string }[][]
 ): { ID: string; FELDER: string }[] {
-  const proId = new Map<string, string[]>()
-  for (const eintrag of gruppen.flat()) {
-    if (eintrag.ID === '') continue
-    const codes = proId.get(eintrag.ID) ?? []
-    for (const roh of eintrag.FELDER.split(',')) {
-      const code = roh.trim()
+  const perId = new Map<string, string[]>()
+  for (const entry of groups.flat()) {
+    if (entry.ID === '') continue
+    const codes = perId.get(entry.ID) ?? []
+    for (const raw of entry.FELDER.split(',')) {
+      const code = raw.trim()
       if (code !== '' && !codes.includes(code)) codes.push(code)
     }
-    proId.set(eintrag.ID, codes)
+    perId.set(entry.ID, codes)
   }
-  return [...proId]
+  return [...perId]
     .filter(([, codes]) => codes.length > 0)
     .map(([ID, codes]) => ({ ID, FELDER: codes.join(',') }))
 }
 
-export function baueSevariablen(
-  used: readonly Datenquelle[],
+export function buildSevariablen(
+  used: readonly DataSource[],
 
-  benutzteFelder: ReadonlyMap<string, ReadonlySet<string>>,
+  usedFields: ReadonlyMap<string, ReadonlySet<string>>,
 
-  holSchluessel: ReadonlyMap<string, string[]>,
+  getKey: ReadonlyMap<string, string[]>,
 ): string {
-  const bestellbar = used.filter((s) => !holtSelbst(s))
-  const perDataSet = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'dataset')
-  const perMaske = bestellbar.filter((s) => artFuer(s.art).bestellBlock === 'maske')
+  const orderable = used.filter((s) => !fetchesSelf(s))
+  const perDataSet = orderable.filter((s) => sourceKind(s.kind).orderBlock === 'dataset')
+  const perMask = orderable.filter((s) => sourceKind(s.kind).orderBlock === 'mask')
 
-  // Der offene Satz wird NICHT als Loop bestellt: SoftEngine liefert ihn im
-  // VAR-Abschnitt (kontrakte.md 6). Ein Loop daneben waere eine zweite
-  // Bestellung derselben Werte.
-  const offeneSaetze = bestellbar.filter(istOffenerSatz)
+  const openRecords = orderable.filter(isOpenRecord)
 
-  const geordnet = loopReihenfolge(
-    bestellbar.filter(
-      (s) => artFuer(s.art).bestellBlock === 'sefileloop' && !istOffenerSatz(s),
+  const ordered = loopOrder(
+    orderable.filter(
+      (s) => sourceKind(s.kind).orderBlock === 'sefileloop' && !isOpenRecord(s),
     ),
   )
 
-  // DataSets legen ihre Zeilen unter Daten.Tabellen.<ALIAS> ab, dieselbe Form
-  // wie MEMTAB.
   const dataset = perDataSet.map((s) => ({
-    ID: tabellenIdVon(s),
+    ID: tableIdOf(s),
     ALIAS: s.name,
-    FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+    FELDER: orderedFields(s, usedFields.get(s.id), getKey.get(s.id) ?? []),
   }))
-  // Eine ERP-Maske wird ganz bestellt: die Feldbeschreibung (Position, Laenge,
-  // Format) ist der Zweck, und ohne die Klartexte staende in jeder Zelle ein
-  // Code (kontrakte.md 7a). Alle Masken der Auslieferung bestellen so.
-  const maske = perMaske.map((s) => ({
-    ID: tabellenIdVon(s),
-    BEREICH: bereichVon(s),
+
+  const mask = perMask.map((s) => ({
+    ID: tableIdOf(s),
+    BEREICH: areaOf(s),
     FELDER: '*',
     REFRESH_FELDER: '*',
     ALIAS: s.name,
   }))
-  const sefileloop = geordnet.map((s) => {
-    const kopfsatz = kopfsatzVon(s)
+  const sefileloop = ordered.map((s) => {
+    const headerKey = headerKeyOf(s)
     return {
       INDEX_NR: 0,
       ALIAS: s.name,
-      ID: tabellenIdVon(s),
-      ...(kopfsatz !== '' ? { KOPFSATZ_INDEX: kopfsatz } : {}),
-      FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+      ID: tableIdOf(s),
+      ...(headerKey !== '' ? { KOPFSATZ_INDEX: headerKey } : {}),
+      FELDER: orderedFields(s, usedFields.get(s.id), getKey.get(s.id) ?? []),
     }
   })
 
-  const varAbschnitt = varZusammen(
-    varAusKopfsaetzen(geordnet),
-    offeneSaetze.map((s) => ({
-      ID: tabellenIdVon(s),
-      FELDER: bestellteFelder(s, benutzteFelder.get(s.id), holSchluessel.get(s.id) ?? []),
+  const varSection = varTogether(
+    varFromHeaderKeys(ordered),
+    openRecords.map((s) => ({
+      ID: tableIdOf(s),
+      FELDER: orderedFields(s, usedFields.get(s.id), getKey.get(s.id) ?? []),
     })),
   )
   return escapeNonAsciiJs(
     JSON.stringify({
-      ...(varAbschnitt.length > 0 ? { VAR: varAbschnitt } : {}),
+      ...(varSection.length > 0 ? { VAR: varSection } : {}),
       SEFILELOOP: sefileloop,
-      // Bleibt leer: ERP-Abfragen fragt die Maske nach dem Oeffnen selbst
-      // (holtNachOeffnen). Der leere Block haelt die Datei in ihrer Form.
+
       ERPAPICALL: [],
       ...(dataset.length > 0 ? { DATASET: dataset } : {}),
-      ...(maske.length > 0 ? { MASKE: maske } : {}),
+      ...(mask.length > 0 ? { MASKE: mask } : {}),
     }, null, 2),
   ) + '\n'
 }

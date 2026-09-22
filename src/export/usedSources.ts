@@ -1,0 +1,216 @@
+import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
+import { fieldChoicesRead, listRead, splitBinding } from '../core/block/blockType'
+import { bindingProp, capability } from '../core/block/capability'
+import { blockType } from '../core/block/registry'
+import { propertyVisible } from '../core/block/property'
+import {
+  selectionSourceIdOf,
+  bindableSpotsOf,
+  maySelectionFollows,
+  SOURCE_PROP,
+  sourcesIdsInChainsOf,
+  carriesOwnSource,
+} from '../core/block/treeQuery'
+import { SELECTION_FOLLOW_PROP, selectionFollowsFrom, followUsable } from '../core/data/selectionFollow'
+import { dataFieldsFrom } from '../core/data/calculation'
+import { loadRelationOf, sourcesFromGetValue, type DataSource } from '../core/data/dataSources'
+import {
+  sourceUsable,
+  completePairs,
+  EXTRA_SOURCES_PROP,
+  extraSourcesFrom,
+  type SourceInReach,
+} from '../core/data/extraSources'
+import { sourcesInReach } from '../core/block/sourcesInReach'
+
+export function collectDataSources(
+  tree: MaskTree,
+  sources: readonly DataSource[],
+): DataSource[] {
+  const seen = new Set<string>()
+  const acc: DataSource[] = []
+  const add = (id: unknown): void => {
+    const src = typeof id === 'string' ? sources.find((s) => s.id === id) : undefined
+    if (src && !seen.has(src.id)) {
+      seen.add(src.id)
+      acc.push(src)
+    }
+  }
+  const visit = (node: BlockNode | undefined): void => {
+    if (!node) return
+
+    if (carriesOwnSource(node)) {
+      add(node.values[SOURCE_PROP])
+
+      for (const q of extraSourcesFrom(node.values[EXTRA_SOURCES_PROP])) {
+        if (sourceUsable(q)) add(q.sourceId)
+      }
+    }
+
+    const def = blockType(node.type)
+    for (const [key, prop] of Object.entries(def?.properties ?? {})) {
+      if (prop.type.control === 'source' && propertyVisible(prop.when, node.values)) {
+        add(node.values[key])
+      }
+    }
+
+    const compute = capability(def, 'compute')
+    if (compute) {
+      for (const field of dataFieldsFrom(node.values[compute.prop])) {
+        add(splitBinding(field).sourceId)
+      }
+    }
+
+    for (const id of sourcesIdsInChainsOf(node)) add(id)
+    node.childIds.forEach((id) => visit(tree[id]))
+  }
+  visit(tree[ROOT_ID])
+
+  for (let i = 0; i < acc.length; i++) {
+    for (const { sourceId } of sourcesFromGetValue(acc[i])) add(sourceId)
+  }
+  return acc
+}
+
+export function usedFieldsPerSource(
+  tree: MaskTree,
+  sources: readonly DataSource[],
+): Map<string, ReadonlySet<string>> {
+  const fields = new Map<string, Set<string>>()
+
+  const remember = (sourceId: string, code: unknown): void => {
+    if (sourceId === '' || typeof code !== 'string' || code.trim() === '') return
+    const present = fields.get(sourceId)
+    if (present) present.add(code.trim())
+    else fields.set(sourceId, new Set([code.trim()]))
+  }
+
+  const visit = (node: BlockNode | undefined): void => {
+    if (!node) return
+    const def = blockType(node.type)
+
+    let reach: SourceInReach[] | undefined
+    const inReach = (): SourceInReach[] => (
+      reach ??= sourcesInReach(tree, node.id, sources)
+    )
+
+    const rememberBinding = (value: unknown): void => {
+      if (typeof value !== 'string' || value === '') return
+      const { sourceId, code } = splitBinding(value)
+      const target = sourceId === ''
+        ? inReach()[0]
+        : inReach().find((q) => q.source.id === sourceId)
+      if (target) remember(target.source.id, code)
+    }
+
+    for (const spot of bindableSpotsOf(node)) {
+      rememberBinding(node.values[bindingProp(spot.prop)])
+    }
+
+    const b = capability(def, 'list')?.binding
+    if (b) {
+      const ownSource = b.sourceProp === undefined
+        ? undefined
+        : String(node.values[b.sourceProp] ?? '')
+      const rememberEntryField = (value: unknown): void => {
+        if (ownSource === undefined) rememberBinding(value)
+        else remember(ownSource, value)
+      }
+
+      for (const entry of listRead(node.values[b.prop], b)) {
+        rememberEntryField(entry[b.fieldKey])
+
+        for (const { value } of fieldChoicesRead(b, entry)) rememberEntryField(value)
+      }
+    }
+
+    const compute = capability(def, 'compute')
+    if (compute) {
+      for (const field of dataFieldsFrom(node.values[compute.prop])) {
+        rememberBinding(field)
+      }
+    }
+
+    for (const [key, prop] of Object.entries(def?.properties ?? {})) {
+      if (prop.type.control !== 'field') continue
+      if (!propertyVisible(prop.when, node.values)) continue
+
+      if (prop.sourceProp === undefined) rememberBinding(node.values[key])
+      else remember(String(node.values[prop.sourceProp] ?? ''), node.values[key])
+    }
+
+    if (carriesOwnSource(node)) {
+      const first = typeof node.values[SOURCE_PROP] === 'string' ? node.values[SOURCE_PROP] : ''
+      for (const q of extraSourcesFrom(node.values[EXTRA_SOURCES_PROP])) {
+        if (!sourceUsable(q)) continue
+
+        const partner = q.partnerId === '' ? first : q.partnerId
+        for (const pair of completePairs(q)) {
+          remember(partner, pair.ofField)
+          remember(q.sourceId, pair.toField)
+        }
+      }
+    }
+
+    if (maySelectionFollows(node)) {
+      const own = selectionSourceIdOf(node)
+      for (const follow of selectionFollowsFrom(node.values[SELECTION_FOLLOW_PROP])) {
+        if (!followUsable(follow)) continue
+        const giver = selectionSourceIdOf(tree[follow.giverId])
+        for (const pair of completePairs(follow)) {
+          remember(giver, pair.ofField)
+          remember(own, pair.toField)
+        }
+      }
+    }
+
+    for (const event of capability(def, 'events')?.list ?? []) {
+      for (const step of node.chains?.[event.key] ?? []) {
+        if (step.kind !== 'RELATION') continue
+        for (const binding of [...step.parameter, ...step.extraParameter]) {
+          if (binding.source === 'data_field') {
+            remember(binding.sourceId ?? '', binding.value)
+          } else if (binding.source === 'chosenRow') {
+            remember(selectionSourceIdOf(tree[binding.blockId ?? '']), binding.value)
+          }
+        }
+      }
+    }
+    node.childIds.forEach((id) => visit(tree[id]))
+  }
+  visit(tree[ROOT_ID])
+
+  for (const source of collectDataSources(tree, sources)) {
+    for (const { sourceId, code } of sourcesFromGetValue(source)) remember(sourceId, code)
+  }
+  return fields
+}
+
+export function getKeyPerGiver(
+  tree: MaskTree,
+  sources: readonly DataSource[],
+): Map<string, string[]> {
+  const perGiver = new Map<string, string[]>()
+  const remember = (giverId: string, codes: readonly string[]): void => {
+    if (giverId === '') return
+    const list = perGiver.get(giverId) ?? []
+    for (const code of codes) if (code !== '' && !list.includes(code)) list.push(code)
+    perGiver.set(giverId, list)
+  }
+  const visit = (node: BlockNode | undefined): void => {
+    if (!node) return
+    const source = sources.find((s) => s.id === selectionSourceIdOf(node))
+    const load = source ? loadRelationOf(source) : null
+    if (load) {
+      for (const follow of selectionFollowsFrom(node.values[SELECTION_FOLLOW_PROP])) {
+        remember(
+          selectionSourceIdOf(tree[follow.giverId]),
+          [load.documentKindField, load.documentNumberField, load.yearField, load.archiveField],
+        )
+      }
+    }
+    node.childIds.forEach((id) => visit(tree[id]))
+  }
+  visit(tree[ROOT_ID])
+  return perGiver
+}

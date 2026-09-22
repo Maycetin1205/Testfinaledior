@@ -1,20 +1,19 @@
-// Die Zeichen der Zungenreihen im Inspector.
 import { createElement, type ReactElement } from 'react'
 import {
   AlignCenter,
   AlignLeft,
   AlignRight,
-  type Zeichen,
-  type ZeichenProps,
-} from '@/editor/zeichen/zeichen'
+  type Icon,
+  type IconProps,
+} from '@/editor/icons/icon'
 
-const ICONS: Record<string, Zeichen> = {
-  links: AlignLeft,
-  mitte: AlignCenter,
-  rechts: AlignRight,
+const ICONS: Record<string, Icon> = {
+  left: AlignLeft,
+  center: AlignCenter,
+  right: AlignRight,
 }
 
-export function segmentIcon(value: string, props?: ZeichenProps): ReactElement | undefined {
+export function segmentIcon(value: string, props?: IconProps): ReactElement | undefined {
   const icon = ICONS[value]
   return icon ? createElement(icon, props) : undefined
 }

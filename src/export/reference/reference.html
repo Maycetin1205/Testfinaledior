@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Referenzmaske</title>
+<script src="<!--SOFTENGINE-VAR!EditorPfad-->/JS/JS/basis.html.interface.js"></script>
+<style>
+:root {
+
+  --se-bg:        #f3f8fa;
+  --se-panel:     #ffffff;
+  --se-panel-2:   #f6fbfc;
+
+  --se-ink:       #1b2d3e;
+  --se-muted:     #5f7386;
+  --se-faint:     #9fb3c0;
+
+  --se-line:      #d8e5ea;
+  --se-line-soft: #e8f0f4;
+
+  --se-scrim:     rgba(27, 45, 62, 0.45);
+
+  --se-accent:      #00778f;
+  --se-accent-dark: #00647a;
+  --se-accent-soft: #e8f6f9;
+
+  --se-auswahl:     #d3eef5;
+  --se-zebra:       #f7fbfc;
+  --se-hover:       #eef7f9;
+
+  --se-red:         #b3261e;
+  --se-red-soft:    #fdecea;
+
+  --se-amber:       #f0a53a;
+  --se-amber-soft:  #fff6e1;
+
+  --se-blue:        #5e93be;
+  --se-blue-soft:   #e2edf5;
+  --se-green:       #1f7a4d;
+  --se-green-soft:  #e2f3ea;
+
+  --se-red-shell:   #fdf3f2;  --se-red-line:   #f0cdc9;
+  --se-amber-shell: #fffdf4;  --se-amber-line: #ecd9a4;
+  --se-blue-shell:  #f5f9fc;  --se-blue-line:  #d2e2ee;
+  --se-green-shell: #f6fbf8;  --se-green-line: #cfe6d8;
+
+  --se-card-bg:     #ffffff;
+  --se-card-line:   #d8e5ea;
+
+  --se-border: 1px;
+
+  --se-r-sm:   4px;
+  --se-r-md:   6px;
+  --se-r-lg:   10px;
+
+  --se-schatten: 0 1px 2px rgba(27, 45, 62, 0.05), 0 4px 12px rgba(27, 45, 62, 0.06);
+
+  --se-font: "Segoe UI Variable Text", "Segoe UI", system-ui, Tahoma, sans-serif;
+  --se-mono: "IBM Plex Mono", Consolas, monospace;
+  --se-fs:      13px;
+  --se-fs-sm:   12px;
+  --se-fs-xs:   10.5px;
+  --se-fs-lg:   14px;
+
+  --se-fs-kopf: 11.5px;
+
+  --se-lh: 1.4;
+
+  --se-gap-sm: 6px;
+  --se-gap:    10px;
+  --se-gap-lg: 16px;
+
+  --se-move: 130ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --se-move: 0ms;
+  }
+}
+
+/* Grundgeruest + Wurzel-Raster (identisch zum Editor-Canvas, rasterFlaecheStil) */
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }
+.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto; background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink); display:grid;grid-template-columns:repeat(48, 1fr);grid-auto-rows:12px;gap:4px;align-content:start; padding: 16px; }
+.ff-root * { font-family: inherit; font-size: inherit; }
+</style>
+</head>
+<body>
+  <div class="ff-root">
+    <ff-capture extrasources="[{&quot;sourceId&quot;:&quot;q-art&quot;,&quot;partnerId&quot;:&quot;&quot;,&quot;pairs&quot;:[]}]" source="q-pos" columns="[{&quot;key&quot;:&quot;sp-art&quot;,&quot;title&quot;:&quot;ArtNr&quot;,&quot;field&quot;:&quot;18_25&quot;,&quot;kind&quot;:&quot;text&quot;},{&quot;key&quot;:&quot;sp-bez&quot;,&quot;title&quot;:&quot;Bezeichnung&quot;,&quot;field&quot;:&quot;45_60&quot;,&quot;kind&quot;:&quot;text&quot;,&quot;fillField&quot;:&quot;q-art::bez&quot;},{&quot;key&quot;:&quot;sp-menge&quot;,&quot;title&quot;:&quot;Menge&quot;,&quot;field&quot;:&quot;164_8&quot;,&quot;kind&quot;:&quot;text&quot;},{&quot;key&quot;:&quot;sp-doppelt&quot;,&quot;title&quot;:&quot;Doppelt&quot;,&quot;field&quot;:&quot;&quot;}]" deletable="true" calculations="[{&quot;key&quot;:&quot;b1&quot;,&quot;name&quot;:&quot;Doppelt&quot;,&quot;lead&quot;:{&quot;kind&quot;:&quot;column&quot;,&quot;key&quot;:&quot;f0&quot;,&quot;column&quot;:&quot;sp-doppelt&quot;,&quot;unit&quot;:&quot;count&quot;,&quot;result&quot;:true,&quot;round&quot;:{&quot;spots&quot;:2,&quot;direction&quot;:&quot;kfm&quot;}},&quot;numerator&quot;:[{&quot;kind&quot;:&quot;column&quot;,&quot;key&quot;:&quot;f1&quot;,&quot;column&quot;:&quot;sp-menge&quot;,&quot;unit&quot;:&quot;count&quot;,&quot;result&quot;:false,&quot;round&quot;:{&quot;spots&quot;:3,&quot;direction&quot;:&quot;kfm&quot;}},{&quot;kind&quot;:&quot;number&quot;,&quot;key&quot;:&quot;f2&quot;,&quot;name&quot;:&quot;2&quot;,&quot;number&quot;:2,&quot;unit&quot;:&quot;count&quot;}],&quot;denominator&quot;:[]}]" data-ff-block-id="t1" data-ff-main fills style="grid-column:1 / span 16;grid-row:4 / span 22;min-width:0;min-height:0"></ff-capture>
+    <ff-table source="q-pos" columns="[{&quot;key&quot;:&quot;sp-art&quot;,&quot;title&quot;:&quot;ArtNr&quot;,&quot;field&quot;:&quot;18_25&quot;},{&quot;key&quot;:&quot;sp-bez&quot;,&quot;title&quot;:&quot;Bezeichnung&quot;,&quot;field&quot;:&quot;45_60&quot;}]" data-ff-block-id="t2" data-ff-main fills style="grid-column:21 / span 28;grid-row:26 / span 12;min-width:0;min-height:0"></ff-table>
+    <ff-formfield label="Bezeichnung" source="q-pos" valuefield="45_60" data-ff-block-id="f1" data-ff-main fills style="grid-column:11 / span 16;grid-row:1 / span 3;min-width:0;min-height:0"></ff-formfield>
+    <ff-button label="Schreiben" data-ff-actions="{&quot;onClick&quot;:[{&quot;kind&quot;:&quot;RELATION&quot;,&quot;resultName&quot;:&quot;read&quot;,&quot;relationId&quot;:&quot;r-get&quot;,&quot;parameter&quot;:[{&quot;source&quot;:&quot;fixed&quot;,&quot;value&quot;:&quot;R&quot;},{&quot;source&quot;:&quot;fixed&quot;,&quot;value&quot;:&quot;0&quot;},{&quot;source&quot;:&quot;fixed&quot;,&quot;value&quot;:&quot;255&quot;},{&quot;source&quot;:&quot;previous_result&quot;,&quot;value&quot;:&quot;&quot;}],&quot;extraParameter&quot;:[]},{&quot;kind&quot;:&quot;RELATION&quot;,&quot;resultName&quot;:&quot;&quot;,&quot;relationId&quot;:&quot;r-put&quot;,&quot;parameter&quot;:[{&quot;source&quot;:&quot;context&quot;,&quot;value&quot;:&quot;PINDEX&quot;},{&quot;source&quot;:&quot;captureCell&quot;,&quot;value&quot;:&quot;2&quot;,&quot;blockId&quot;:&quot;t1&quot;},{&quot;source&quot;:&quot;fixed&quot;,&quot;value&quot;:&quot;L&quot;},{&quot;source&quot;:&quot;step_result&quot;,&quot;value&quot;:&quot;0&quot;}],&quot;extraParameter&quot;:[{&quot;source&quot;:&quot;fixed&quot;,&quot;value&quot;:&quot;X&quot;}]},{&quot;kind&quot;:&quot;START_TOOL&quot;,&quot;resultName&quot;:&quot;&quot;,&quot;toolNr&quot;:&quot;42&quot;,&quot;toolParameter&quot;:[&quot;a b&quot;]},{&quot;kind&quot;:&quot;BW_LINK&quot;,&quot;resultName&quot;:&quot;&quot;,&quot;command&quot;:&quot;0,REFRESH&quot;},{&quot;kind&quot;:&quot;POPUP_OPEN&quot;,&quot;resultName&quot;:&quot;&quot;,&quot;popup&quot;:&quot;Hinweis&quot;}]}" data-ff-main fills style="grid-column:27 / span 8;grid-row:1 / span 3;min-width:0;min-height:0"></ff-button>
+    <ff-kanban source="q-pos" columnsfield="18_25" data-ff-block-id="k1" data-ff-main fills style="grid-column:19 / span 30;grid-row:4 / span 22;min-width:0;min-height:0">
+      <template data-ff-template>
+        <ff-card heading="Karte" headingfield="45_60" style="align-self:stretch"></ff-card>
+      </template>
+      <ff-kanban-column heading="Offen" value="ART-B" style="flex-grow:1;flex-basis:0;min-width:0"></ff-kanban-column>
+    </ff-kanban>
+    <ff-text data-ff-main fills style="grid-column:35 / span 14;grid-row:1 / span 3;min-width:0;min-height:0"></ff-text>
+    <ff-date data-ff-main fills style="grid-column:1 / span 10;grid-row:1 / span 3;min-width:0;min-height:0"></ff-date>
+    <ff-divider direction="vertical" linestyle="dashed" thickness="2" color="accent" data-ff-main fills style="grid-column:19 / span 2;grid-row:26 / span 12;min-width:0;min-height:0"></ff-divider>
+    <ff-popup name="Hinweis">
+      <ff-text fills style="grid-column:1 / span 48;grid-row:1 / span 1;min-width:0;min-height:0"></ff-text>
+    </ff-popup>
+  </div>
+<script>
+window.FF_DATA_SOURCES = [{"id":"q-pos","name":"Belegpositionen","tableId":"POS","recordField":"645_10"},{"id":"q-art","name":"Artikelstamm","tableId":"ART","recordField":""}];
+window.FF_RELATIONS = [{"id":"r-get","verb":"GET_RELATION","nr":"69","parameter":["BELART","POS","LEN","BELNR"],"extraParameterAllowed":false},{"id":"r-put","verb":"PUT_RELATION","nr":"174","parameter":["{PINDEX}","45_60","L",""],"extraParameterAllowed":true}];
+</script>
+<!-- Laufzeit separat geprüft -->
+</body>
+</html>

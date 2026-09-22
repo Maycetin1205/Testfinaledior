@@ -1,29 +1,28 @@
-// Eine Wahl aus einer Liste als natives Auswahlfeld.
-import type { Wahloption } from '../../../kern/maske/eigenschaft'
-import { Wahl } from '@/editor/werkbank/Wahl'
-import { Zeile } from '@/editor/werkbank/Zeile'
+import type { ChoiceOption } from '../../../core/block/property'
+import { Choice } from '@/editor/widgets/Select'
+import { Row } from '@/editor/widgets/Row'
 
-type SelectOption = Wahloption & { detail?: string }
+type SelectOption = ChoiceOption & { detail?: string }
 
 interface SelectControlProps {
   label: string
   description?: string
   value: string
-  options: SelectOption[]
+  options: readonly SelectOption[]
   onChange: (value: string) => void
 }
 
 export function SelectControl({ label, description, value, options, onChange }: SelectControlProps) {
   return (
-    <Zeile label={label} hinweis={description}>
+    <Row label={label} hint={description}>
       {(kind) => (
-        <Wahl
+        <Choice
           {...kind}
-          wert={value ?? ''}
-          optionen={options.map((o) => ({ wert: o.wert, name: o.name, kennung: o.detail }))}
-          onWaehle={onChange}
+          value={value ?? ''}
+          options={options.map((o) => ({ value: o.value, name: o.name, badge: o.detail }))}
+          onChoose={onChange}
         />
       )}
-    </Zeile>
+    </Row>
   )
 }
