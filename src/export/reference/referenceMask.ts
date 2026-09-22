@@ -141,8 +141,7 @@ export function referenceTree(): MaskTree {
     }, ['c1', 'ks1']),
     ks1: node('ks1', 'kanban-column', 'k1', {
       heading: 'Offen', value: 'ART-B', tone: 'info',
-    }, ['kz1']),
-    kz1: node('kz1', 'kanban-room', 'ks1', { heading: 'Zimmer 1', value: 'Z1' }),
+    }),
     tx1: node('tx1', 'text', ROOT_ID, { gridX: 34, gridY: 0, gridW: 14, gridH: 3 }),
     d1: node('d1', 'date', ROOT_ID, { gridX: 0, gridY: 0, gridW: 10, gridH: 3 }),
     tr1: node('tr1', 'divider', ROOT_ID, {

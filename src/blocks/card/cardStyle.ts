@@ -25,7 +25,7 @@ export const cardsStyle = css`
   }
 
   .name,
-  .zusatz {
+  .extra {
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -37,12 +37,12 @@ export const cardsStyle = css`
     font-weight: 700;
     line-height: 1.25;
   }
-  .zusatz {
+  .extra {
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
   }
 
-  .grund {
+  .base {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -68,8 +68,8 @@ export const cardsStyle = css`
     text-overflow: ellipsis;
   }
 
-  .datum,
-  .zeit {
+  .date,
+  .time {
     flex: none;
     color: var(--se-muted);
     font-size: var(--se-fs-sm);

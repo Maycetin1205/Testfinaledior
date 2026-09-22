@@ -2,8 +2,8 @@ import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { emptyState, emptyStyle } from '../behavior/emptyState'
-import { boardMoveTo, boardRegister, boardUnregister } from './board'
-import { CARD_TYPE, type BoardTarget } from './places'
+import { boardRegister, boardUnregister } from './board'
+import { CARD_TYPE } from './places'
 import { KanbanColumn } from './KanbanColumn'
 import { kanbanStyle } from './kanbanStyle'
 import { kanbanProperties, type KanbanValues } from './properties'
@@ -20,29 +20,11 @@ export class Kanban extends BlockElement {
   @property({ attribute: false }) readMessage = ''
   @property({ attribute: false }) boardHint = ''
   @property({ attribute: false }) busy = false
-  @property({ attribute: false }) selectionTitle = ''
-  @property({ attribute: false }) currentTarget = ''
-  @property({ attribute: false }) targets: BoardTarget[] = []
-
-  private targetChosen(event: Event): void {
-    const field = event.currentTarget as HTMLSelectElement
-    const target = field.value
-    field.value = this.currentTarget
-    boardMoveTo(this, target)
-  }
 
   override render(): TemplateResult {
     return html`
       <p class="meldung" role="status" aria-live="polite">${this.moveMessage}</p>
       <p class="meldung">${this.readMessage}</p>
-      ${this.selectionTitle ? html`<label class="bedienung">
-        <span>${this.selectionTitle} verschieben nach</span>
-        <select aria-label="Ziel für die gewählte Karte" .value=${this.currentTarget}
-          ?disabled=${this.busy}
-          @change=${this.targetChosen}>
-          ${this.targets.map((target) => html`<option value=${target.id} ?selected=${target.id === this.currentTarget}>${target.name}</option>`)}
-        </select>
-      </label>` : ''}
       <div class="tafel">
         <slot></slot>
         ${emptyState(this.boardHint, true)}

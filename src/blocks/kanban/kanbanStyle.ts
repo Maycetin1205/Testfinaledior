@@ -11,24 +11,6 @@ export const kanbanStyle = css`
     color: var(--se-muted);
   }
 
-  .bedienung {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  select {
-    font: inherit;
-    max-width: 100%;
-    padding: 6px;
-    border: 1px solid var(--se-muted);
-    border-radius: var(--se-r-md);
-    color: var(--se-ink);
-    background: var(--se-panel);
-  }
-
   .tafel {
     display: flex;
     flex-direction: row;

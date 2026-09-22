@@ -1,11 +1,11 @@
 // Lifts a saved mask to the format this editor reads. Version 16 renamed every
 // stored name from German to English, version 17 the names that rename missed;
 // a file below them first runs the older steps.
-export const CURRENT_SCHEMA_VERSION = 17
+export const CURRENT_SCHEMA_VERSION = 18
 
 const ENGLISH_NAMES = 16
 
-const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16]
+const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17]
 
 export function schemaReadable(version: unknown): version is number {
   return version === CURRENT_SCHEMA_VERSION
@@ -435,12 +435,45 @@ export function liftState(raw: unknown): unknown {
     liftLegacy(lifted.tree)
     liftToEnglish(lifted)
   }
-  if (raw.schemaVersion < CURRENT_SCHEMA_VERSION) liftMissedNames(lifted.tree)
+  if (raw.schemaVersion < 17) liftMissedNames(lifted.tree)
+  if (raw.schemaVersion < 18) liftWithoutRooms(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
 
-export const DROPPED_TYPES: readonly string[] = ['navi', 'navi-eintrag', 'ansicht', 'view']
+// ---- version 18: a kanban has columns, no rooms inside them ----
+
+function liftWithoutRooms(x: unknown): void {
+  if (!isPlainObject(x)) return
+  for (const node of Object.values(x)) {
+    if (!isPlainObject(node)) continue
+    if (node.type === 'kanban-column' && isPlainObject(node.values)) delete node.values.groupingField
+    if (!isPlainObject(node.chains)) continue
+    for (const steps of Object.values(node.chains)) {
+      if (!Array.isArray(steps)) continue
+      for (const step of steps) {
+        if (!isPlainObject(step)) continue
+        for (const key of ['parameter', 'extraParameter']) {
+          const list = step[key]
+          if (!Array.isArray(list)) continue
+          for (const binding of list) {
+            if (isPlainObject(binding) && binding.source === 'context' && binding.value === 'ZIMMER') {
+              binding.source = 'fixed'
+              binding.value = ''
+            }
+          }
+        }
+        if (Array.isArray(step.toolParameter)) {
+          step.toolParameter = step.toolParameter.map((p) => p === '{ZIMMER}' ? '' : p)
+        }
+      }
+    }
+  }
+}
+
+export const DROPPED_TYPES: readonly string[] = [
+  'navi', 'navi-eintrag', 'ansicht', 'view', 'kanban-room',
+]
 
 export function withoutDropped(
   tree: Record<string, unknown>,

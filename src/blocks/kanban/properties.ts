@@ -8,7 +8,7 @@ import {
 import { emptyTextProperty } from '../behavior/emptyState'
 import { dayFieldProperty } from '../behavior/source'
 import { toneProperty } from '../behavior/tone'
-import { COLUMN_TITLE_STANDARD, ROOM_TITLE_STANDARD } from './places'
+import { COLUMN_TITLE_STANDARD } from './places'
 
 export const kanbanProperties = {
   source: sourceProperty({
@@ -55,32 +55,6 @@ export const kanbanColumnProperties = {
     needsSource: true,
     onlyUnderSiblings: true,
   }),
-  groupingField: fieldProperty({
-    default: '',
-    label: 'Unterteilen nach',
-    help: 'Wähle das Datenfeld, nach dem die Spalte unterteilt wird, z. B. Mitarbeiter oder '
-      + 'Raum. Die Unterteilungen heißen danach wie dieses Feld. Trage an jeder den passenden '
-      + 'ERP-Wert ein; unbekannte Werte landen in der ersten.',
-    attribute: 'groupingfield',
-  }),
 }
 
 export type KanbanColumnValues = ValuesOf<typeof kanbanColumnProperties>
-
-export const kanbanRoomProperties = {
-  heading: textProperty({
-    default: ROOM_TITLE_STANDARD,
-    label: 'Titel',
-    help: 'Die Überschrift der Unterteilung.',
-    place: 'block',
-    attribute: 'heading',
-  }),
-  value: textProperty({
-    default: '',
-    label: 'Wert im ERP',
-    help: 'Steht im Feld der Unterteilung, wenn eine Karte hier liegt. Leer: der Titel.',
-    attribute: 'value',
-  }),
-}
-
-export type KanbanRoomValues = ValuesOf<typeof kanbanRoomProperties>

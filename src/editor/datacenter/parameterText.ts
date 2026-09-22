@@ -60,10 +60,6 @@ export const PLACEHOLDER_PLAIN_TEXT: Record<string, { name: string; hint: string
     hint: 'Neuer Wert (z. B. Titel der Zielspalte)',
   },
 
-  ZIMMER: {
-    name: 'Unterteilung',
-    hint: 'Titel der Ziel-Unterteilung beim Ablegen (leer ohne Unterteilung)',
-  },
   NOW_DATE: {
     name: 'Heutiges Datum',
     hint: 'Heutiges Datum',

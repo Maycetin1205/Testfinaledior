@@ -8,7 +8,7 @@ export const RELATION_VERBS: readonly RelationVerb[] = [
 
 const RELATION_PLACEHOLDERS = [
   'FELD_POS', 'FELD_LEN', 'PINDEX', 'SELKEY', 'DROP_PINDEX',
-  'RELID', 'VALUE', 'ZIMMER', 'NOW_DATE',
+  'RELID', 'VALUE', 'NOW_DATE',
 ] as const
 
 export type PlaceholderValues = Readonly<Record<string, string | undefined>>

@@ -4,36 +4,22 @@ import { recordIndexOf } from '../../softengine/data'
 import { chooseSelection, giverIdOf, selectionRefind, traitOf } from '../behavior/selection'
 import { holeDataPreamble, makeDataLink, sourceIdOf } from '../behavior/source'
 import { reportChainsError, runEvent } from '../behavior/events'
-import { Card } from '../card/Card'
 import {
   CARD_TYPE,
-  COLUMN_TITLE_STANDARD,
-  ROOM_EMPTY_TEXT,
   TARGET_ATTR,
   boardPlan,
   cardsOf,
+  columnTitle,
   columnValue,
-  dropPlace,
   fallbackColumn,
   isCard,
   isColumn,
-  isRoom,
-  placeTitle,
-  placementFits,
   placementOf,
-  roomValue,
-  roomsOf,
-  targetsOf,
-  type BoardTarget,
-  type CardPlace,
   type ColumnPlace,
 } from './places'
 import { WITHOUT_COLUMN, cardsReason, misplacedNotice } from './reasons'
 
 const DRAGS_ATTR = 'data-ff-dragging'
-
-// How long a sent move waits for data that confirm it before it says so.
-const CONFIRM_WAIT_MS = 20000
 
 // What the board writes on its element; the kanban only shows it.
 export interface BoardElement extends HTMLElement {
@@ -44,52 +30,29 @@ export interface BoardElement extends HTMLElement {
   readMessage: string
   boardHint: string
   busy: boolean
-  selectionTitle: string
-  currentTarget: string
-  targets: BoardTarget[]
 }
 
 interface CardData {
   row: unknown
 
-  // Empty when no record number names this row alone; such a card cannot move.
+  // The record number the host knows this row by; empty when the source names none.
   record: string
 
   key: string
 }
 
-interface Sent {
-  key: string
-  place: CardPlace
-  arrived: boolean
-}
-
-function cardTitle(card: HTMLElement, without: string): string {
-  const text = card instanceof Card ? card.heading : card.getAttribute('heading') ?? ''
-  return text.trim() === '' ? without : text
-}
-
 // One board holds everything a kanban knows at runtime: its cards, where they
-// lie, what is being dragged and what was sent to the host. The three elements
-// only show what it writes on them.
+// lie and what is being dragged. The elements only show what it writes on them.
 class Board {
   private cards = new Map<HTMLElement, CardData>()
-
-  private targets = new Map<string, { column: ColumnPlace; place: CardPlace }>()
-
-  private selected: HTMLElement | null = null
 
   private template: HTMLElement | null = null
 
   private writes = false
 
-  private sent: Sent | null = null
-
-  private waitTimer?: ReturnType<typeof setTimeout>
-
   private dragging: HTMLElement | null = null
 
-  private hover: CardPlace | null = null
+  private hover: ColumnPlace | null = null
 
   private unwire: (() => void)[] = []
 
@@ -99,7 +62,7 @@ class Board {
     this.el = el
   }
 
-  hydrate(delivery: boolean): void {
+  hydrate(): void {
     const el = this.el
     const preamble = holeDataPreamble(el)
     const plan = boardPlan(el, el.columnsField)
@@ -110,24 +73,15 @@ class Board {
 
     if (!preamble || template === null || plan.columns.length === 0) {
       this.takeCards(new Map())
-      this.targets = new Map()
-      el.targets = []
       el.readMessage = ''
       this.showPlaces(plan.columns, reason)
-      this.refreshControls()
       return
     }
-
-    const found = targetsOf(plan)
-    this.targets = found.byId
-    el.targets = found.list
-
-    if (delivery && this.sent) this.sent.arrived = false
 
     const byKey = new Map([...this.cards].map(([card, data]) => [data.key, card]))
     const spots = capability(blockType(CARD_TYPE), 'bindable')?.spots ?? []
     const next = new Map<HTMLElement, CardData>()
-    const order = new Map<CardPlace, HTMLElement[]>()
+    const order = new Map<ColumnPlace, HTMLElement[]>()
     const occurrences = new Map<string, number>()
     const recordCount = new Map<string, number>()
     let withoutValue = 0
@@ -151,56 +105,38 @@ class Board {
       const key = `${base}:${number}`
 
       const card = byKey.get(key) ?? template.cloneNode(true) as HTMLElement
-      next.set(card, { row, record: unique ? record : '', key })
-      card.draggable = !this.writes && unique
+      next.set(card, { row, record, key })
+      card.draggable = !this.writes
       card.tabIndex = 0
       card.setAttribute('role', 'button')
       for (const spot of spots) {
         const field = card.getAttribute(bindingAttr(spot.prop)) ?? ''
         if (field !== '') Object.assign(card, { [spot.prop]: preamble.read(row, field) })
       }
-      const title = cardTitle(card, 'Karte')
-      card.setAttribute('aria-label', unique
-        ? title
-        : `${title} – keine eindeutige Satznummer, Verschieben nicht möglich`)
 
       const placement = placementOf(plan, row)
       if (placement.trouble === 'withoutValue') withoutValue += 1
       if (placement.trouble === 'withoutColumn') withoutColumn += 1
-      const lying = order.get(placement.place) ?? []
+      const lying = order.get(placement.column) ?? []
       lying.push(card)
-      order.set(placement.place, lying)
-
-      if (delivery && this.sent?.key === key && this.sent.place === placement.place) {
-        this.sent.arrived = placementFits(plan, row, placement.column, placement.place)
-      }
+      order.set(placement.column, lying)
     }
 
     this.takeCards(next)
-    for (const [place, cards] of order) {
-      let anchor: Element | null = cardsOf(place)[0] ?? null
+    for (const [column, cards] of order) {
+      let anchor: Element | null = cardsOf(column)[0] ?? null
       for (const card of cards) {
         if (card === anchor) anchor = anchor.nextElementSibling
         else {
           if (this.dragging === card) this.endDrag()
-          place.insertBefore(card, anchor)
+          column.insertBefore(card, anchor)
         }
       }
     }
 
     this.showPlaces(plan.columns, reason)
-    el.readMessage = misplacedNotice(
-      withoutValue,
-      withoutColumn,
-      placeTitle(fallbackColumn(plan), COLUMN_TITLE_STANDARD),
-    )
+    el.readMessage = misplacedNotice(withoutValue, withoutColumn, columnTitle(fallbackColumn(plan)))
     this.refreshSelection()
-    if (this.sent?.arrived && !this.writes) this.confirmed()
-  }
-
-  moveToTarget(id: string): void {
-    const chosen = this.targets.get(id)
-    if (chosen && this.selected) void this.move(this.selected, chosen.column, chosen.place)
   }
 
   wire(): void {
@@ -228,7 +164,7 @@ class Board {
     on('dragstart', (event) => {
       const card = this.cardFrom(event)
       if (!card) return
-      if (this.writes || !card.draggable) { event.preventDefault(); return }
+      if (this.writes) { event.preventDefault(); return }
       this.dragging = card
       event.dataTransfer?.setData('text/plain', this.cards.get(card)?.record ?? '')
       if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move'
@@ -236,11 +172,11 @@ class Board {
     })
     on('dragend', () => { this.endDrag() })
     on('dragover', (event) => {
-      const column = this.placeFrom(event, isColumn)
+      const column = this.columnFrom(event)
       if (!this.dragging || !column || this.writes) return
       event.preventDefault()
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'move'
-      this.markTarget(dropPlace(column, this.placeFrom(event, isRoom)))
+      this.markTarget(column)
     })
     on('dragleave', (event) => {
       if (!(event.relatedTarget instanceof Node) || !el.contains(event.relatedTarget)) {
@@ -248,11 +184,11 @@ class Board {
       }
     })
     on('drop', (event) => {
-      const column = this.placeFrom(event, isColumn)
+      const column = this.columnFrom(event)
       const card = this.dragging
       if (!column || !card) return
       event.preventDefault()
-      void this.move(card, column, dropPlace(column, this.placeFrom(event, isRoom)))
+      void this.move(card, column)
       this.endDrag()
     })
   }
@@ -260,7 +196,6 @@ class Board {
   stopped(): void {
     for (const off of this.unwire) off()
     this.unwire = []
-    clearTimeout(this.waitTimer)
     this.endDrag()
   }
 
@@ -285,17 +220,9 @@ class Board {
 
   private showPlaces(columns: readonly ColumnPlace[], reason: string): void {
     for (const column of columns) {
-      const rooms = roomsOf(column)
-      let count = cardsOf(column).length
-      for (const room of rooms) {
-        const own = cardsOf(room).length
-        count += own
-        room.emptyHint = own > 0 ? '' : reason !== '' ? reason : ROOM_EMPTY_TEXT
-      }
+      const count = cardsOf(column).length
       column.cardCount = count
-      column.emptyHint = rooms.length === 0 && count === 0
-        ? reason !== '' ? reason : this.el.emptyText
-        : ''
+      column.emptyHint = count === 0 ? (reason !== '' ? reason : this.el.emptyText) : ''
     }
   }
 
@@ -311,16 +238,6 @@ class Board {
       card.toggleAttribute('data-ff-selection', hit.has(i))
       card.setAttribute('aria-pressed', String(hit.has(i)))
     })
-    this.selected = cards.find((_, i) => hit.has(i)) ?? null
-    this.refreshControls()
-  }
-
-  private refreshControls(): void {
-    const card = this.selected
-    this.el.selectionTitle = card ? cardTitle(card, 'Gewählte Karte') : ''
-    this.el.currentTarget = card
-      ? [...this.targets].find(([, t]) => t.place === card.parentElement)?.[0] ?? ''
-      : ''
   }
 
   private choose(card: HTMLElement): void {
@@ -330,22 +247,21 @@ class Board {
     runEvent(this.el, 'onCardClick', { PINDEX: data.record }).catch(reportChainsError)
   }
 
-  private placeFrom<T extends HTMLElement>(
-    event: Event,
-    is: (el: EventTarget) => el is T,
-  ): T | null {
+  private columnFrom(event: Event): ColumnPlace | null {
     for (const el of event.composedPath()) {
-      if (is(el) && this.el.contains(el)) return el
+      if (isColumn(el) && this.el.contains(el)) return el
     }
     return null
   }
 
   private cardFrom(event: Event): HTMLElement | null {
-    const card = this.placeFrom(event, isCard)
-    return card && this.cards.has(card) ? card : null
+    for (const el of event.composedPath()) {
+      if (isCard(el) && this.cards.has(el)) return el
+    }
+    return null
   }
 
-  private markTarget(next: CardPlace | null): void {
+  private markTarget(next: ColumnPlace | null): void {
     if (this.hover === next) return
     this.hover?.removeAttribute(TARGET_ATTR)
     this.hover = next
@@ -362,67 +278,55 @@ class Board {
     this.writes = writes
     this.el.busy = writes
     this.el.setAttribute('aria-busy', String(writes))
-    for (const [card, data] of this.cards) card.draggable = !writes && data.record !== ''
+    for (const card of this.cards.keys()) card.draggable = !writes
   }
 
-  private confirmed(): void {
-    clearTimeout(this.waitTimer)
-    this.sent = null
-    this.el.moveMessage = 'Verschiebung in den geladenen Daten bestätigt.'
+  private recount(): void {
+    this.showPlaces(boardPlan(this.el, this.el.columnsField).columns, '')
   }
 
-  private async move(card: HTMLElement, column: ColumnPlace, place: CardPlace): Promise<void> {
+  // The card lies in its new column at once. Fails the action, it lies again
+  // where it came from; the next delivery sorts by the data anyway.
+  private async move(card: HTMLElement, column: ColumnPlace): Promise<void> {
     const el = this.el
     if (this.writes) {
       el.moveMessage = 'Eine Verschiebung wird bereits gesendet. Bitte kurz warten.'
       return
     }
     const data = this.cards.get(card)
-    if (!data || data.record === '') {
-      el.moveMessage = 'Diese Karte hat keine eindeutige Satznummer. Prüfe die Datenquelle im Editor.'
-      return
-    }
-    if (card.parentElement === place) return
+    const from = card.parentElement
+    if (!data || from === column || !isColumn(from ?? el)) return
 
-    clearTimeout(this.waitTimer)
-    this.sent = { key: data.key, place, arrived: false }
+    column.append(card)
+    this.recount()
     this.showWriteState(true)
-    el.moveMessage = 'Verschiebung wird gesendet …'
+    el.moveMessage = ''
+    let back = ''
     try {
       const result = await runEvent(el, 'onCardDrop', {
         PINDEX: data.record,
         VALUE: columnValue(column),
-        ZIMMER: place === column ? '' : roomValue(place),
       })
       if (result.cancelled) {
-        this.sent = null
-        el.moveMessage = 'Die Aktion ist fehlgeschlagen. Die Karte zeigt den zuletzt geladenen Stand.'
+        back = 'Die Aktion ist fehlgeschlagen. Die Karte liegt wieder, wo sie war.'
       } else if (!result.ran) {
-        this.sent = null
-        el.moveMessage = result.busy
+        back = result.busy
           ? 'Die Aktion läuft bereits.'
           : 'Für „Karte verschoben“ ist noch keine Aktion eingerichtet.'
       } else if (!result.written) {
-        this.sent = null
-        el.moveMessage = 'Aktion ausgeführt. Sie hat keine Daten geschrieben.'
-      } else if (this.sent?.arrived) {
-        this.confirmed()
-      } else {
-        el.moveMessage = 'Gesendet. Die Karte wechselt ihren Platz, sobald neue Daten die Änderung bestätigen.'
-        this.waitTimer = setTimeout(() => {
-          if (this.sent) {
-            el.moveMessage = 'Die Verschiebung ist noch nicht durch neue Daten bestätigt. '
-              + 'Angezeigt wird der zuletzt geladene Stand.'
-          }
-        }, CONFIRM_WAIT_MS)
+        back = 'Aktion ausgeführt. Sie hat keine Daten geschrieben.'
       }
     } catch (error) {
-      this.sent = null
-      el.moveMessage = 'Verschiebung fehlgeschlagen. Bitte die Fehlermeldung beachten.'
+      back = 'Verschiebung fehlgeschlagen. Bitte die Fehlermeldung beachten.'
       reportChainsError(error)
     } finally {
       this.showWriteState(false)
     }
+    if (back !== '' && card.parentElement === column && from !== null) {
+      from.append(card)
+      this.recount()
+    }
+    el.moveMessage = back
   }
 }
 
@@ -440,7 +344,7 @@ function boardOf(el: BoardElement): Board {
 }
 
 const link = makeDataLink<BoardElement>({
-  hydrate: (el, delivery) => { boardOf(el).hydrate(delivery) },
+  hydrate: (el) => { boardOf(el).hydrate() },
   wire: (el) => { boardOf(el).wire() },
 })
 
@@ -451,8 +355,4 @@ export function boardRegister(el: BoardElement): void {
 export function boardUnregister(el: BoardElement): void {
   link.disconnect(el)
   boards.get(el)?.stopped()
-}
-
-export function boardMoveTo(el: BoardElement, targetId: string): void {
-  boards.get(el)?.moveToTarget(targetId)
 }

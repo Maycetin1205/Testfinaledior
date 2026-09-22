@@ -145,7 +145,7 @@ export type ActionChains = Record<string, Step[]>
 
 export const RECORD_PLACEHOLDER = ['PINDEX', 'DROP_PINDEX'] as const
 
-export const ACTION_PLACEHOLDER = [...RECORD_PLACEHOLDER, 'VALUE', 'ZIMMER', 'NOW_DATE'] as const
+export const ACTION_PLACEHOLDER = [...RECORD_PLACEHOLDER, 'VALUE', 'NOW_DATE'] as const
 
 export function relationParameterDefault(
   relation: Pick<RelationTemplate, 'parameter'>,

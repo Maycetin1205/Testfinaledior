@@ -4,7 +4,6 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import { toneStyle, toneValue } from '../behavior/tone'
 import { emptyState, emptyStyle } from '../behavior/emptyState'
 import { COLUMN_TAG, TARGET_CLASS, placeStyle } from './places'
-import { KanbanRoom } from './KanbanRoom'
 import { columnStyle } from './columnStyle'
 import { kanbanColumnProperties, type KanbanColumnValues } from './properties'
 
@@ -49,13 +48,10 @@ defineBlock(KanbanColumn, {
   name: 'Kanban-Spalte',
   category: 'display',
   properties: kanbanColumnProperties,
+
+  // No block of its own may lie in a column; the board's card template is drawn here.
   takesChildren: true,
-  allowedChildren: [KanbanRoom.type],
-  childButton: {
-    name: 'Unterteilung',
-    childType: KanbanRoom.type,
-    nameFromField: 'groupingField',
-  },
+  allowedChildren: [],
   childDirection: 'column',
   inPalette: false,
   containerFrame: false,
