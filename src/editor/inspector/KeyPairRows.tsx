@@ -40,7 +40,7 @@ export function KeyPairRows({
       name={name}
       groups={[{
         key: 'fields',
-        entries: fields.map((f) => ({ value: f.code, name: f.name, key: f.code })),
+        entries: fields.map((f) => ({ value: f.code, name: f.name, badge: f.code })),
       }]}
       value={value}
       emptyText="Nicht gebunden"

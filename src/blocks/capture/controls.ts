@@ -5,6 +5,9 @@ import type { ColumnView } from '../behavior/columns'
 import type { CaptureLedger } from './ledger'
 import { captureRowTpl } from './row'
 
+// The lookup window draws its rows with the table block.
+import '../table/Table'
+
 // Where the capture row is drawn and how big its lookup window opens. The
 // ledger answers everything else.
 export interface CaptureRowPlacement {

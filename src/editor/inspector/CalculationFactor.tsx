@@ -28,7 +28,7 @@ function fieldOptions(source: SourceInReach | undefined): ChoiceOption[] {
   return (source?.source.fields ?? []).map((f) => ({
     value: f.code,
     name: f.name === '' ? f.code : f.name,
-    key: f.code,
+    badge: f.code,
   }))
 }
 

@@ -74,14 +74,14 @@ export function SourcesList({ block }: SourcesListProps) {
   const partnerSelection = (index: number) => {
     const own = extra[index]
     const entries = [
-      { value: first, name: library.find((s) => s.id === first)?.name ?? '', key: 'Datenquelle 1' },
+      { value: first, name: library.find((s) => s.id === first)?.name ?? '', badge: 'Datenquelle 1' },
       ...extra
         .map((q, at) => ({ q, at }))
         .filter(({ q, at }) => at !== index && q.sourceId !== '' && q.sourceId !== own?.sourceId)
         .map(({ q, at }) => ({
           value: q.sourceId,
           name: library.find((s) => s.id === q.sourceId)?.name ?? '',
-          key: `Datenquelle ${at + 2}`,
+          badge: `Datenquelle ${at + 2}`,
         })),
     ]
     return (
@@ -105,7 +105,7 @@ export function SourcesList({ block }: SourcesListProps) {
         entries: options(value).map((s) => ({
           value: s.id,
           name: s.name,
-          key: sourcesKey(s),
+          badge: sourcesKey(s),
         })),
       }]}
       value={value}

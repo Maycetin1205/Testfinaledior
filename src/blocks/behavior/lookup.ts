@@ -1,6 +1,7 @@
 import { html, render, type TemplateResult } from 'lit'
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import type { ListBinding } from '../../core/block/listBinding'
+import { blockType } from '../../core/block/registry'
 import { fieldRead } from '../../softengine/data'
 import { runtimeSource, rowsTheSource } from '../../softengine/runtimeSources'
 import { rowsToSelection } from './selection'
@@ -18,12 +19,15 @@ import {
   ROW_ACTIVATED_EVENT,
   type RowActivatedDetail,
 } from './rowActivation'
+import type { HandedRow, RowsFrom } from './sourceRows'
 
-import '../table/Table'
-
-const WINDOW_TABLE_TAG = 'ff-table'
+// The block that opens a lookup brings the table block along.
+const WINDOW_TABLE_TYPE = 'table'
 
 interface WindowTable extends HTMLElement {
+  rowsFrom: RowsFrom
+  columns: Column[]
+  handedRows: readonly HandedRow[]
   setSearchText: (text: string) => void
   focusSearch: () => boolean
   updateComplete: Promise<boolean>
@@ -253,42 +257,32 @@ export function automaticColumns(args: ColumnsSource): Column[] {
   return [{ key: `feld:${args.storageField}`, title, field: args.storageField }]
 }
 
-function runtimeTableTpl(args: LookupArgs, entries: readonly Entry[]): TemplateResult {
+function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): WindowTable {
   const own = coerceLookupColumns([...args.columns])
   const columns = lookupColumns(windowColumnsOr(own, () => automaticColumns(args)))
 
-  if (args.inEditor === true) {
-    return html`<ff-table
-      data-ff-editor
-      fills
-      search="true"
-      columnpicker="true"
-      style="--se-r-lg:0px"
-      .rowsFrom=${'handed'}
-      .columns=${columns}
-    ></ff-table>`
-  }
+  const table = document.createElement(tag) as WindowTable
+  if (args.inEditor === true) table.setAttribute('data-ff-editor', '')
+  else table.setAttribute(BLOCK_ID_ATTR, lookupKey(args.el, args.spot))
+  table.setAttribute('fills', '')
+  table.setAttribute('search', 'true')
+  table.setAttribute('columnpicker', 'true')
+  table.style.setProperty('--se-r-lg', '0px')
+  table.rowsFrom = 'handed'
+  table.columns = columns
+  if (args.inEditor === true) return table
 
   const singleColumn = onlyOneColumn(
     displayFieldOf(own, args.storageField),
     args.storageField,
   )
-
-  return html`<ff-table
-    data-ff-block-id=${lookupKey(args.el, args.spot)}
-    fills
-    search="true"
-    columnpicker="true"
-    style="--se-r-lg:0px"
-    .rowsFrom=${'handed'}
-    .columns=${columns}
-    .handedRows=${entries.map((e) => ({
-      rawRow: e.record,
-      cells: own.length > 0
-        ? own.map((s) => (s.field === '' ? '' : fieldRead(e.record, s.field)))
-        : (singleColumn ? [e.value] : [e.display, e.value]),
-    }))}
-  ></ff-table>`
+  table.handedRows = entries.map((e) => ({
+    rawRow: e.record,
+    cells: own.length > 0
+      ? own.map((s) => (s.field === '' ? '' : fieldRead(e.record, s.field)))
+      : (singleColumn ? [e.value] : [e.display, e.value]),
+  }))
+  return table
 }
 
 function wireDrag(dialog: DialogFrame, args: LookupArgs): void {
@@ -305,6 +299,9 @@ function wireDrag(dialog: DialogFrame, args: LookupArgs): void {
 }
 
 export function openLookup(args: LookupArgs): void {
+  const tag = blockType(WINDOW_TABLE_TYPE)?.tag
+  if (tag === undefined) return
+
   let entries = args.entries
 
   if (entries === undefined && args.inEditor !== true) {
@@ -317,6 +314,7 @@ export function openLookup(args: LookupArgs): void {
 
   close(false)
 
+  const table = windowTable(tag, args, found)
   const holder = document.createElement('div')
   holder.style.display = 'contents'
   render(html`<ff-dialog
@@ -329,12 +327,11 @@ export function openLookup(args: LookupArgs): void {
     .height=${args.height}
     @ff-dialog-close=${() => close()}
     @click=${(e: Event) => e.stopPropagation()}
-  >${runtimeTableTpl(args, found)}</ff-dialog>`, holder)
+  >${table}</ff-dialog>`, holder)
 
   const dialog = holder.querySelector<DialogFrame>(DIALOG_FRAME_TAG)
-  const table = holder.querySelector<WindowTable>(WINDOW_TABLE_TAG)
   if (dialog && args.inEditor === true) wireDrag(dialog, args)
-  table?.addEventListener(ROW_ACTIVATED_EVENT, (event) => {
+  table.addEventListener(ROW_ACTIVATED_EVENT, (event) => {
     const detail = (event as CustomEvent<RowActivatedDetail>).detail
     const entry = found[detail.rawIndex]
     if (!entry) return
@@ -348,9 +345,9 @@ export function openLookup(args: LookupArgs): void {
   openFor = args.el
 
   const brought = args.searchText ?? ''
-  if (table && brought !== '') table.setSearchText(brought)
+  if (brought !== '') table.setSearchText(brought)
 
-  if (dialog && table) {
+  if (dialog) {
     void Promise.all([dialog.updateComplete, table.updateComplete]).then(() => {
       if (dialog.isConnected) table.focusSearch()
     })

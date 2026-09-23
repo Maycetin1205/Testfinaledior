@@ -26,6 +26,7 @@ export const placeStyle = css`
 // A column is where cards lie. The board fills it and tells it what to show.
 export interface ColumnPlace extends HTMLElement {
   cardCount: number
+  catchAll: boolean
 }
 
 export function isColumn(el: EventTarget): el is ColumnPlace {
@@ -81,7 +82,7 @@ export function boardPlan(board: HTMLElement, columnsField: string): BoardPlan {
     columns,
     values: columns.map(columnValue),
     field: columnsField.trim(),
-    catchAll: columns.findIndex((c) => (c.getAttribute('catchall') ?? '').trim() === 'ja'),
+    catchAll: columns.findIndex((c) => c.catchAll),
   }
 }
 

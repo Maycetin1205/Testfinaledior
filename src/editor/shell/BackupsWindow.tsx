@@ -41,7 +41,7 @@ export function BackupsWindow({ onClose }: { onClose: () => void }) {
               entries: copies.map((copy) => ({
                 value: copy.key,
                 name: contentText(copy),
-                key: timeText(copy),
+                badge: timeText(copy),
                 disabled: !copy.readable,
               })),
             }]}

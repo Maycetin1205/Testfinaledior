@@ -45,10 +45,10 @@ export function FieldAdoptPicker({
         group = { key: field.sourceId, name: field.sourceName, entries: [] }
         toSource.set(field.sourceId, group)
       }
-      ;(group.entries as { value: string; name: string; key: string }[]).push({
+      ;(group.entries as { value: string; name: string; badge: string }[]).push({
         value: `${field.sourceId}${DIVIDER}${field.code}`,
         name: field.label,
-        key: field.posLen,
+        badge: field.posLen,
       })
     }
     return [...toSource.values()]

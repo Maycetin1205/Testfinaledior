@@ -7,7 +7,7 @@ export interface ChoiceOption {
   value: string
   name: string
 
-  key?: string
+  badge?: string
   disabled?: boolean
 }
 
@@ -42,7 +42,7 @@ export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
           {unknown && <option value={value}>{value}</option>}
           {options.map((o) => (
             <option key={o.value} value={o.value} disabled={o.disabled}>
-              {o.key === undefined || o.key === '' ? o.name : `${o.name} — ${o.key}`}
+              {o.badge === undefined || o.badge === '' ? o.name : `${o.name} — ${o.badge}`}
             </option>
           ))}
         </select>

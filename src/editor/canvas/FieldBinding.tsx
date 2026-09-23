@@ -52,13 +52,13 @@ function pickerGroups(sources: readonly SourceInReach[]): PickerGroup[] {
     ? {
         sourceId: '',
         name: q.source.name,
-        key: sourcesKey(q.source),
+        badge: sourcesKey(q.source),
         fields: q.source.fields,
       }
     : {
         sourceId: q.source.id,
         name: q.source.name,
-        key: sourcesKey(q.source),
+        badge: sourcesKey(q.source),
         fields: q.source.fields,
       }))
 }
@@ -158,7 +158,7 @@ export function useFieldBinding({
   const groups = pickerGroups(sources)
 
   const sourcesChoice = !libraryOffer ? undefined : {
-    entries: library.map((s) => ({ value: s.id, name: s.name, key: sourcesKey(s) })),
+    entries: library.map((s) => ({ value: s.id, name: s.name, badge: sourcesKey(s) })),
     onDataCenter: openDataCenter,
     onChoose: (sourceId: string) => {
       const carrier = sourcesCarrier(editor.tree, blockRef.current.id)

@@ -61,7 +61,7 @@ interface FieldPickerProps {
   extraFields?: readonly PickerField[]
 
   sourcesChoice?: {
-    entries: readonly { value: string; name: string; key?: string }[]
+    entries: readonly { value: string; name: string; badge?: string }[]
     onChoose: (sourceId: string) => void
 
     onDataCenter?: () => void
@@ -118,7 +118,7 @@ function listGroups(groups: readonly PickerGroup[]): ListGroup[] {
     entries: g.fields.map((f) => ({
       value: bindingWithSource(g.sourceId, f.code),
       name: f.name,
-      key: f.code,
+      badge: f.code,
     })),
   }))
 }

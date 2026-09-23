@@ -17,7 +17,7 @@ import type { BindingProps } from './choices'
 const PLACEHOLDER_ENTRIES: ListEntry[] = ACTION_PLACEHOLDER.map((value) => ({
   value,
   name: PLACEHOLDER_PLAIN_TEXT[value]?.name ?? value,
-  key: value,
+  badge: value,
 }))
 
 function Pair({ children }: { children: ReactNode }) {
@@ -92,7 +92,7 @@ export function DataFieldBinding({ binding, choices, onChange }: BindingProps) {
           entries: choices.dataSources.map((s) => ({
             value: s.id,
             name: s.name,
-            key: sourcesKey(s),
+            badge: sourcesKey(s),
           })),
         }]}
         value={binding.sourceId ?? ''}

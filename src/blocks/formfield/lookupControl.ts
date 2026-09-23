@@ -16,6 +16,9 @@ import type { Column } from '../behavior/columns'
 import { keyOf, SuggestionState } from '../behavior/suggestionState'
 import { inputSpotTpl } from '../behavior/inputSpot'
 
+// The lookup window draws its rows with the table block.
+import '../table/Table'
+
 export interface LookupControlHost {
   block: HTMLElement
   report: () => void
