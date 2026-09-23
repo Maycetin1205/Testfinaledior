@@ -5,14 +5,18 @@ import type { RelationTemplate } from '../../core/data/relations'
 import { packLibrary, packLibraryFrom } from './libraryFile'
 import { checkTreeState } from './checkTreeState'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
-import { makeCopyOn } from './backup'
+import { makeCopyOn, moveCopies } from './backup'
 
 // One key for the mask, one for the customer file. Nothing is matched up
 // between them: the mask names the keys it uses, the customer file holds the
 // sources themselves.
-export const STORAGE_KEY = 'aufbau_editor_mvp_v1'
+export const STORAGE_KEY = 'aufbau_editor_mask'
 
-const LIBRARY_KEY = 'aufbau_editor_datencenter'
+const LIBRARY_KEY = 'aufbau_editor_library'
+
+const FORMER_STORAGE_KEY = 'aufbau_editor_mvp_v1'
+
+const FORMER_LIBRARY_KEY = 'aufbau_editor_datencenter'
 export const SAVE_DEBOUNCE_MS = 500
 
 export interface StoredMask {
@@ -29,12 +33,25 @@ export interface StoredLibrary {
   relation: readonly RelationTemplate[]
 }
 
-function read(key: string): string | null {
+function read(key: string, formerKey: string): string | null {
   try {
-    return typeof localStorage === 'undefined' ? null : localStorage.getItem(key)
+    if (typeof localStorage === 'undefined') return null
+    const text = readMoved(key, formerKey)
+    moveCopies(formerKey, key)
+    return text
   } catch {
     return null
   }
+}
+
+export function readMoved(key: string, formerKey: string): string | null {
+  const text = localStorage.getItem(key)
+  if (text !== null) return text
+  const former = localStorage.getItem(formerKey)
+  if (former === null) return null
+  write(key, former)
+  if (localStorage.getItem(key) === former) localStorage.removeItem(formerKey)
+  return former
 }
 
 function write(key: string, text: string): void {
@@ -46,7 +63,7 @@ function write(key: string, text: string): void {
 }
 
 export function loadLibraryFromStorage(): StoredLibrary {
-  const raw = read(LIBRARY_KEY)
+  const raw = read(LIBRARY_KEY, FORMER_LIBRARY_KEY)
   if (raw === null) return { dataSources: [], relation: [] }
   const result = packLibraryFrom(raw)
   if (result.ok) return result.content
@@ -60,14 +77,14 @@ function keysOf(raw: unknown): string[] {
 }
 
 export function loadFromStorage(): StoredMask | null {
-  const raw = read(STORAGE_KEY)
+  const raw = read(STORAGE_KEY, FORMER_STORAGE_KEY)
   return raw === null ? null : readState(raw, STORAGE_KEY)
 }
 
 // A mask saved before the split still carries its sources; they belong in the
 // customer file now.
 export function carriedLibrary(): StoredLibrary {
-  const raw = read(STORAGE_KEY)
+  const raw = read(STORAGE_KEY, FORMER_STORAGE_KEY)
   return raw === null ? { dataSources: [], relation: [] } : libraryInMask(raw)
 }
 

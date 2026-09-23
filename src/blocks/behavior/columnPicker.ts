@@ -8,7 +8,7 @@ function readRemoved(raw: unknown): string[] | null {
   return list.length === 0 ? null : list
 }
 
-const rememberedColumnsChoice = makeOperatorState('ff_spaltenwahl_', readRemoved)
+const rememberedColumnsChoice = makeOperatorState('ff_column_choice_', 'ff_spaltenwahl_', readRemoved)
 
 export interface ColumnsChoicePlacement {
   selectable: readonly Column[]

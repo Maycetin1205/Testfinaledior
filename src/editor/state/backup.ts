@@ -1,4 +1,6 @@
-const BACKUP_SUFFIX = '__notfallkopie'
+const BACKUP_SUFFIX = '__backup'
+
+const FORMER_SUFFIX = '__notfallkopie'
 
 function backupKeyFor(storageKey: string): string {
   return `${storageKey}${BACKUP_SUFFIX}`
@@ -23,6 +25,26 @@ export function makeCopyOn(storageKey: string, raw: string): string | null {
     return key
   } catch {
     return null
+  }
+}
+
+export function moveCopies(formerKey: string, storageKey: string): void {
+  try {
+    const formerPrefix = `${formerKey}${FORMER_SUFFIX}`
+    const keys: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key !== null && key.startsWith(formerPrefix)) keys.push(key)
+    }
+    for (const key of keys) {
+      const raw = localStorage.getItem(key)
+      const target = backupKeyFor(storageKey) + key.slice(formerPrefix.length)
+      if (raw === null || localStorage.getItem(target) !== null) continue
+      localStorage.setItem(target, raw)
+      localStorage.removeItem(key)
+    }
+  } catch {
+    return
   }
 }
 

@@ -13,7 +13,8 @@ import {
   type DialogFrame,
 } from './DialogFrame'
 import { rememberedSorting, sortIndices } from './sorting'
-import { coerceColumns, DEFAULT_TITLE, type Column } from './columns'
+import { LOOKUP_KEY_PART } from './operatorState'
+import { coerceColumns, DEFAULT_TITLE, FIELD_KEY_PREFIX, type Column } from './columns'
 import { fittingSuggestions, SUGGESTIONS_MAX, type Suggestion } from './suggestionList'
 import {
   ROW_ACTIVATED_EVENT,
@@ -41,11 +42,11 @@ export function magnifierIcon(): TemplateResult {
 }
 
 function lookupKey(el: HTMLElement, spot = 'field'): string {
-  return `${el.getAttribute(BLOCK_ID_ATTR) ?? ''}/nachschlagen/${spot}`
+  return `${el.getAttribute(BLOCK_ID_ATTR) ?? ''}${LOOKUP_KEY_PART}${spot}`
 }
 
 function lookupColumns(columns: readonly Column[]): Column[] {
-  return coerceColumns(columns.map((s) => ({ ...s, key: s.key || `feld:${s.field}` })))
+  return coerceColumns(columns.map((s) => ({ ...s, key: s.key || `${FIELD_KEY_PREFIX}${s.field}` })))
 }
 
 export function suggestionsInWindowState<T extends Suggestion & { record: unknown }>(
@@ -60,7 +61,7 @@ export function suggestionsInWindowState<T extends Suggestion & { record: unknow
 
   if (column !== undefined && state !== null) {
     const values = hit.map((e) => [fieldRead(e.record, column.field)])
-    return sortIndices(values, 0, state.on).slice(0, SUGGESTIONS_MAX).map((i) => hit[i])
+    return sortIndices(values, 0, state.ascending).slice(0, SUGGESTIONS_MAX).map((i) => hit[i])
   }
   return hit.slice(0, SUGGESTIONS_MAX)
 }
@@ -254,7 +255,7 @@ type ColumnsSource = Pick<LookupArgs, 'storageField' | 'storageTitle'>
 
 export function automaticColumns(args: ColumnsSource): Column[] {
   const title = args.storageTitle !== '' ? args.storageTitle : 'Wert'
-  return [{ key: `feld:${args.storageField}`, title, field: args.storageField }]
+  return [{ key: `${FIELD_KEY_PREFIX}${args.storageField}`, title, field: args.storageField }]
 }
 
 function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): WindowTable {

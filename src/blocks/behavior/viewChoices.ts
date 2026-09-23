@@ -74,7 +74,7 @@ export class ViewChoices {
     const slot = this.columns().findIndex((s) => s.key === state.key)
     if (slot < 0) return
     this._sortColumn = slot
-    this._sortAscending = state.on
+    this._sortAscending = state.ascending
   }
 
   private rememberSorting(): void {
@@ -82,7 +82,7 @@ export class ViewChoices {
     const key = this.columns()[this._sortColumn]?.key ?? ''
     rememberedSorting.remember(
       this.el,
-      this._sortColumn < 0 || key === '' ? null : { key, on: this._sortAscending },
+      this._sortColumn < 0 || key === '' ? null : { key, ascending: this._sortAscending },
     )
   }
 

@@ -73,17 +73,17 @@ export function sortIndices(
 
 export interface RememberedSorting {
   key: string
-  on: boolean
+  ascending: boolean
 }
 
 function readSorting(raw: unknown): RememberedSorting | null {
   if (!isPropertyEntry(raw)) return null
   const key = typeof raw.key === 'string' ? raw.key.trim() : ''
   if (key === '') return null
-  return { key, on: raw.on !== false }
+  return { key, ascending: raw.ascending !== false }
 }
 
-export const rememberedSorting = makeOperatorState('ff_sortierung_', readSorting)
+export const rememberedSorting = makeOperatorState('ff_sorting_', 'ff_sortierung_', readSorting)
 
 export function totalText(values: readonly string[], min: number, max: number): string {
   let total = 0

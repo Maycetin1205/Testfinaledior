@@ -1,6 +1,9 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
+import { readMoved } from '../state/maskStorage'
 
-const KEY = 'aufbau_editor_inspector_breite'
+const KEY = 'aufbau_editor_inspector_width'
+
+const FORMER_KEY = 'aufbau_editor_inspector_breite'
 
 export const INSPECTOR_MIN = 300
 export const INSPECTOR_MAX = 600
@@ -14,7 +17,7 @@ export function clampWidth(n: number): number {
 export function readWidth(): number {
   try {
     if (typeof localStorage === 'undefined') return INSPECTOR_DEFAULT
-    const raw = localStorage.getItem(KEY)
+    const raw = readMoved(KEY, FORMER_KEY)
     return raw === null ? INSPECTOR_DEFAULT : clampWidth(Number(raw))
   } catch {
     return INSPECTOR_DEFAULT

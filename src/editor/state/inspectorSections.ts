@@ -1,4 +1,8 @@
-const KEY = 'aufbau_editor_inspector_abschnitte'
+import { readMoved } from './maskStorage'
+
+const KEY = 'aufbau_editor_inspector_sections'
+
+const FORMER_KEY = 'aufbau_editor_inspector_abschnitte'
 
 export type SectionName =
   | 'dataSources'
@@ -10,7 +14,7 @@ export type SectionName =
 export function readSections(): Record<string, boolean> {
   try {
     if (typeof localStorage === 'undefined') return {}
-    const raw = localStorage.getItem(KEY)
+    const raw = readMoved(KEY, FORMER_KEY)
     if (raw === null) return {}
     const value: unknown = JSON.parse(raw)
     if (typeof value !== 'object' || value === null || Array.isArray(value)) return {}

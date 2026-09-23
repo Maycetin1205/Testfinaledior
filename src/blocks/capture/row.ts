@@ -5,7 +5,7 @@ import { inputSpotTpl } from '../behavior/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../behavior/lookup'
 import { asNumber } from '../behavior/sorting'
-import { CELL_PLACEHOLDER, type Column } from '../behavior/columns'
+import { CELL_PLACEHOLDER, FIELD_KEY_PREFIX, type Column } from '../behavior/columns'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -197,7 +197,7 @@ export function windowColumnsIn(context: CaptureContext, index: number): Column[
 function automaticColumnsIn(context: CaptureContext, index: number): Column[] {
   const target = targetIn(context, index)
   if (target.kind !== 'linked' || target.sourceId === '' || target.code === '') return []
-  return [{ key: `feld:${target.code}`, title: context.columns[index]?.title ?? '', field: target.code }]
+  return [{ key: `${FIELD_KEY_PREFIX}${target.code}`, title: context.columns[index]?.title ?? '', field: target.code }]
 }
 
 export function fittingRecords(
