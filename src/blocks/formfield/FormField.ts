@@ -1,17 +1,11 @@
 import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
-import { property, state } from 'lit/decorators.js'
+import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable } from '../../core/block/capability'
 import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../behavior/lookup'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { LookupControl } from './lookupControl'
-import {
-  NOT_READ,
-  valueDisconnected,
-  valueReason,
-  valueRegistered,
-  type ValueReport,
-} from './valueBinding'
+import { valueDisconnected, valueRegistered } from './valueBinding'
 import { fieldStyle } from './formFieldStyle'
 import {
   FIELD_TYPES,
@@ -54,9 +48,6 @@ export class FormField extends BlockElement {
   static readonly tag = 'ff-formfield'
 
   static override styles: CSSResultGroup = [BlockElement.styles, fieldStyle, suggestionStyle]
-
-  // What the last read of the bound field found; the binding fills it in.
-  @property({ attribute: false }) valueReport: ValueReport = NOT_READ
 
   @state() private ticked = false
 
@@ -128,9 +119,7 @@ export class FormField extends BlockElement {
         return html`<select class="ctrl" .value=${this.value} @input=${this.onInput} @change=${this.onChange}>
           <option value="" disabled hidden></option>
           ${foreignValue ? html`<option value=${this.value} hidden>${this.value}</option>` : nothing}
-          ${entries.length === 0
-            ? html`<option disabled>(keine Optionen)</option>`
-            : entries.map((o) => html`<option value=${o}>${o}</option>`)}
+          ${entries.map((o) => html`<option value=${o}>${o}</option>`)}
         </select>`
       }
       case 'lookup':
@@ -148,12 +137,7 @@ export class FormField extends BlockElement {
     }
   }
 
-  // The empty field either names the reason it read nothing or offers its
-  // label; both stand in the same spot.
-  private placeholderTpl(kind: FieldType, empty: boolean, reason: string): TemplateResult {
-    if (reason !== '') {
-      return html`<span class="ph grund" role="status" title=${reason}>${reason}</span>`
-    }
+  private placeholderTpl(kind: FieldType, empty: boolean): TemplateResult {
     return this.textTpl(
       `ph ${PH_CLASS[kind] ?? ''}`.trim(),
       !empty,
@@ -191,9 +175,6 @@ export class FormField extends BlockElement {
     const valueBindable = kind !== 'lookup'
     const inField = valueBindable ? this.value : this._lookup.inField
     const empty = inField === ''
-    const reason = empty && valueBindable && !this.inEditor
-      ? valueReason(this.valueReport, this.source, this.valueField)
-      : ''
     const huelleClasses = `huelle${empty ? ' leer' : ''}${this.inControl ? ' tippt' : ''}`
     const fieldClasses = `feld${this.appearance === 'line' ? ' linie' : ''}`
     return html`<div class=${fieldClasses}>
@@ -204,7 +185,7 @@ export class FormField extends BlockElement {
       >
         ${this.controlTpl(kind)}
         ${WITH_PLACEHOLDER.includes(kind)
-          ? this.placeholderTpl(kind, empty, reason)
+          ? this.placeholderTpl(kind, empty)
           : nothing}
       </div>
     </div>`

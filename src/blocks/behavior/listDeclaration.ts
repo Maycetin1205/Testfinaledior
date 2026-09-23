@@ -1,7 +1,6 @@
 import { booleanProperty, sourceProperty, type ValuesOf } from '../../core/block/property'
 import type { Capability } from '../../core/block/capability'
 import type { ListBinding } from '../../core/block/listBinding'
-import { emptyTextProperty } from './emptyState'
 import { dayFieldProperty } from './source'
 import { columnsProperty } from './columns'
 import { KEY_F4, ROW_DOUBLE, ROW_CHOSEN } from './rowActivation'
@@ -40,7 +39,6 @@ export function listProperties() {
       attribute: 'columnpicker',
     }),
     dayField: dayFieldProperty(),
-    emptyText: emptyTextProperty(),
   }
 }
 

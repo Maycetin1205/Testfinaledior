@@ -2,7 +2,6 @@ import { type CSSResultGroup, type PropertyValues, type TemplateResult } from 'l
 import { property } from 'lit/decorators.js'
 import type { Calculation } from '../../core/data/calculation'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { emptyStyle } from '../behavior/emptyState'
 import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
 import { RecordList } from '../behavior/recordList'
 import { COLUMNS_BINDING, coerceColumns, type Column } from '../behavior/columns'
@@ -21,7 +20,7 @@ export class Table extends BlockElement {
   static readonly type = 'table'
   static readonly tag = 'ff-table'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, emptyStyle, tableStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, tableStyle]
 
   @property({ attribute: false }) dataRows: string[][] = []
 

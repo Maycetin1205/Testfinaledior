@@ -2,7 +2,6 @@ import { reportTrigger } from './bridge'
 import { fieldRead, type RuntimeLoadRelation } from './data'
 import { fetchedRowsFor, setFetchedRows } from './fetchedRows'
 import { relationRun, type RelationAnswer } from './relations'
-import { reportError } from './report'
 
 const MAX_POSITIONEN = 999
 
@@ -45,14 +44,7 @@ async function question(
       '',
       '',
     ],
-    { silent: true, recordAnswer: true },
-  )
-}
-
-function reportCancel(nr: string, posNr: number, base: string): void {
-  reportError(
-    `Positionen laden bei Zeile ${posNr} abgebrochen (Relation Nr. ${nr}): ${base} `
-    + 'Es werden keine Positionen angezeigt — die Liste wäre unvollständig.',
+    { recordAnswer: true },
   )
 }
 
@@ -79,16 +71,6 @@ export function loadRowsPerRelation(
 
   if (key.documentKind === '' || key.documentNumber === '') {
     emptySource(source.name)
-    const missing = [
-      key.documentKind === '' ? `Belegart (${load.documentKindField})` : '',
-      key.documentNumber === '' ? `Belegnummer (${load.documentNumberField})` : '',
-    ].filter((t) => t !== '').join(' und ')
-    reportError(
-      `Positionen laden: die angeklickte Zeile hat keine ${missing}. `
-      + `Relation Nr. ${load.nr} kann so nicht gefragt werden — zeigt der `
-      + 'angeklickte Baustein wirklich die Belegliste, die unter "Beleg kommt '
-      + 'aus" steht?',
-    )
     return
   }
 
@@ -96,22 +78,15 @@ export function loadRowsPerRelation(
 
   void (async () => {
     const rows: Record<string, string>[] = []
-    let endSeen = false
 
     for (let posNr = 1; posNr <= MAX_POSITIONEN; posNr += 1) {
       const answer = await question(load, key, posNr, CUT_POS, CUT_LEN)
       if (generationen.get(source.id) !== gen) return
 
-      if (answer.error !== undefined) {
-        reportCancel(load.nr, posNr, answer.error)
-        return
-      }
+      if (answer.failed === true) return
       const record = answer.value
 
-      if (load.endFields.every((field) => fieldRead({ SATZ: record }, field) === '')) {
-        endSeen = true
-        break
-      }
+      if (load.endFields.every((field) => fieldRead({ SATZ: record }, field) === '')) break
 
       const row: Record<string, string> = { SATZ: record }
       for (const field of load.extraFields) {
@@ -124,21 +99,10 @@ export function loadRowsPerRelation(
           field.slice(divider + 1),
         )
         if (generationen.get(source.id) !== gen) return
-        if (extra.error !== undefined) {
-          reportCancel(load.nr, posNr, extra.error)
-          return
-        }
+        if (extra.failed === true) return
         row[field] = extra.value
       }
       rows.push(row)
-    }
-
-    if (!endSeen) {
-      reportError(
-        `Positionen laden: nach ${MAX_POSITIONEN} Zeilen ohne Ende-Kennung abgebrochen `
-        + `(Relation Nr. ${load.nr}) — die Liste ist wahrscheinlich unvollständig, `
-        + 'vermutlich passen Relationsnummer oder Ende-Felder nicht.',
-      )
     }
 
     if (generationen.get(source.id) === gen) {

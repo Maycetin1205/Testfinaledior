@@ -100,10 +100,6 @@ export const tableStyle = css`
         display: grid;
       }
 
-      .koerper > .leer--tafel {
-        flex: 1 1 auto;
-        align-content: center;
-      }
       .zeile {
         border-bottom: 1px solid var(--se-line-soft);
         background: var(--se-panel);

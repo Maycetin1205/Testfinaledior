@@ -5,7 +5,7 @@ import {
   chooseSelection,
   setSelection,
 } from './selection'
-import { reportChainsError, runEvent } from './events'
+import { runEvent } from './events'
 import { rowsIndexOf, rowsTraitOf } from './sourceRows'
 
 export const ROW_ACTIVATED_EVENT = 'ff-zeile-aktiviert'
@@ -150,7 +150,7 @@ export function activateRow(
   }
   sendRowActivated(el, { rawRow, rawIndex, viewIndex })
   runEvent(el, ROW_CHOSEN, { PINDEX: rowsIndexOf(el, rawRow) })
-    .catch(reportChainsError)
+    .catch(() => {})
 }
 
 export function rowDouble(
@@ -162,7 +162,7 @@ export function rowDouble(
   const rawRow = rawRows[rawIndex]
   if (rawRow === undefined) return
   runEvent(el, ROW_DOUBLE, { PINDEX: rowsIndexOf(el, rawRow) })
-    .catch(reportChainsError)
+    .catch(() => {})
 }
 
 export interface ActionRowElement extends HTMLElement {
@@ -190,5 +190,5 @@ export function actionKeyAtRow(
   if (row === undefined) return
   setSelection(giverIdOf(el), row, true, rowsTraitOf(el, row))
   const record = rowsIndexOf(el, row)
-  runEvent(el, KEY_F4, { PINDEX: record, DROP_PINDEX: record }).catch(reportChainsError)
+  runEvent(el, KEY_F4, { PINDEX: record, DROP_PINDEX: record }).catch(() => {})
 }

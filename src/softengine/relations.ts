@@ -13,18 +13,13 @@ import {
   rowsFromDelivery,
   type RuntimeQuery,
 } from './data'
-import { reportError } from './report'
 
 export interface RelationAnswer {
   value: string
 
   raw: unknown
 
-  error?: string
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
+  failed?: boolean
 }
 
 export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter'>
@@ -185,7 +180,6 @@ function newSeMessageResult(
 }
 
 export interface RelationOptions {
-  silent?: boolean
   recordAnswer?: boolean
 }
 
@@ -240,21 +234,16 @@ function nextCall(): void {
   let poll: ReturnType<typeof setInterval> | null = null
   let timeout: ReturnType<typeof setTimeout> | null = null
 
-  const finish = (value: string, raw: unknown, error?: string): void => {
+  const finish = (value: string, raw: unknown, failed = false): void => {
     if (settled) return
     settled = true
     unsubscribe?.()
     if (poll !== null) clearInterval(poll)
     if (timeout !== null) clearTimeout(timeout)
     callInFlight = false
-    job.resolve(error === undefined ? { value, raw } : { value, raw, error })
+    job.resolve(failed ? { value, raw, failed } : { value, raw })
 
     queueMicrotask(nextCall)
-  }
-
-  const failed = (text: string): void => {
-    if (!job.options.silent) reportError(text)
-    finish('', undefined, text)
   }
 
   try {
@@ -297,19 +286,19 @@ function nextCall(): void {
         expiresReread = true
         expiredTo = Date.now() + EXPIRY_MS
       }
-      failed(`Daten laden: SoftEngine hat nicht geantwortet (Relation Nr. ${job.template.nr}).`)
+      finish('', undefined, true)
     }, GET_TIMEOUT_MS)
 
     if (typeof g.basisHTML_SND_MSG !== 'function') {
-      failed('Daten laden nicht möglich: keine Verbindung zu SoftEngine.')
+      finish('', undefined, true)
       return
     }
     g.basisHTML_SND_MSG('GET_RELATION', {
       NR: job.template.nr,
       PARAMS: job.params,
     })
-  } catch (error) {
-    failed(`Daten laden fehlgeschlagen (Relation Nr. ${job.template.nr}): ${errorText(error)}`)
+  } catch {
+    finish('', undefined, true)
   }
 }
 
@@ -322,16 +311,12 @@ export function relationRun(
   const g = seWindow()
   if (template.verb !== 'GET_RELATION') {
     if (typeof g.basisHTML_SND_MSG !== 'function') {
-      const text = 'Speichern nicht möglich: keine Verbindung zu SoftEngine. Die Eingabe wurde NICHT übernommen.'
-      reportError(text)
-      return Promise.resolve({ value: '', raw: undefined, error: text })
+      return Promise.resolve({ value: '', raw: undefined, failed: true })
     }
     try {
       g.basisHTML_SND_MSG(template.verb, { NR: template.nr, PARAMS: [...params] })
-    } catch (error) {
-      const text = `Speichern fehlgeschlagen (Relation Nr. ${template.nr}): ${errorText(error)}`
-      reportError(text)
-      return Promise.resolve({ value: '', raw: undefined, error: text })
+    } catch {
+      return Promise.resolve({ value: '', raw: undefined, failed: true })
     }
 
     return Promise.resolve({ value: '', raw: undefined })
@@ -365,10 +350,6 @@ function spotQuery(job: QueryJob): void {
     job.resolve(rows === undefined ? {} : { rows })
     queueMicrotask(nextCall)
   }
-  const failed = (text: string): void => {
-    reportError(text)
-    done()
-  }
 
   try {
     const g = seWindow()
@@ -378,10 +359,10 @@ function spotQuery(job: QueryJob): void {
       done(rows)
     })
     clock = setTimeout(() => {
-      failed(`„${job.name}“ laden: SoftEngine hat nicht geantwortet (${job.query.id}).`)
+      done()
     }, GET_TIMEOUT_MS)
     if (typeof g.basisHTML_SND_MSG !== 'function') {
-      failed(`„${job.name}“ laden nicht möglich: keine Verbindung zu SoftEngine.`)
+      done()
       return
     }
     g.basisHTML_SND_MSG('ERPAPICALL', {
@@ -389,8 +370,8 @@ function spotQuery(job: QueryJob): void {
       ALIAS: job.name,
       FELDER: job.query.fields,
     })
-  } catch (error) {
-    failed(`„${job.name}“ laden fehlgeschlagen (${job.query.id}): ${errorText(error)}`)
+  } catch {
+    done()
   }
 }
 

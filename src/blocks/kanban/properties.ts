@@ -5,7 +5,6 @@ import {
   textProperty,
   type ValuesOf,
 } from '../../core/block/property'
-import { emptyTextProperty } from '../behavior/emptyState'
 import { dayFieldProperty } from '../behavior/source'
 import { toneProperty } from '../behavior/tone'
 import { COLUMN_TITLE_STANDARD } from './places'
@@ -23,7 +22,6 @@ export const kanbanProperties = {
     attribute: 'columnsfield',
   }),
   dayField: dayFieldProperty(),
-  emptyText: emptyTextProperty(),
 }
 
 export type KanbanValues = ValuesOf<typeof kanbanProperties>

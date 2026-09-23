@@ -153,7 +153,7 @@ export interface WrittenRow {
 
 export interface RunReportElement {
   rowWrites: (kind: PendingKind, key: string) => void
-  rowFailed: (kind: PendingKind, key: string, message: string) => void
+  rowFailed: (kind: PendingKind, key: string) => void
   runDone: (kind: PendingKind, written: readonly WrittenRow[]) => void
 }
 

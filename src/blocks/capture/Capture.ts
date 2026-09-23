@@ -7,7 +7,6 @@ import {
   calculationsFrom,
   type Calculation,
 } from '../../core/data/calculation'
-import { emptyStyle } from '../behavior/emptyState'
 import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
 import { RecordList } from '../behavior/recordList'
 import { tableStyle } from '../behavior/tableStyle'
@@ -41,7 +40,6 @@ export class Capture extends BlockElement {
 
   static override styles: CSSResultGroup = [
     BlockElement.styles,
-    emptyStyle,
     tableStyle,
     suggestionStyle,
     cellsInputStyle,
@@ -96,8 +94,8 @@ export class Capture extends BlockElement {
     this._ledger.writes(kind, key)
   }
 
-  rowFailed(kind: PendingKind, key: string, message: string): void {
-    this._ledger.failed(kind, key, message)
+  rowFailed(kind: PendingKind, key: string): void {
+    this._ledger.failed(kind, key)
   }
 
   runDone(kind: PendingKind, written: readonly WrittenRow[]): void {

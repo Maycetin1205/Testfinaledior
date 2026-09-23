@@ -2,33 +2,26 @@ import { bindingAttr, capability } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
 import { recordIndexOf } from '../../softengine/data'
 import { chooseSelection, giverIdOf, selectionRefind, traitOf } from '../behavior/selection'
-import { holeDataPreamble, makeDataLink, sourceIdOf } from '../behavior/source'
-import { reportChainsError, runEvent } from '../behavior/events'
+import { holeDataPreamble, makeDataLink } from '../behavior/source'
+import { runEvent } from '../behavior/events'
 import {
   CARD_TYPE,
   TARGET_ATTR,
   boardPlan,
   cardsOf,
-  columnTitle,
   columnValue,
-  fallbackColumn,
   isCard,
   isColumn,
   placementOf,
   type ColumnPlace,
 } from './places'
-import { WITHOUT_COLUMN, cardsReason, misplacedNotice } from './reasons'
 
 const DRAGS_ATTR = 'data-ff-dragging'
 
 // What the board writes on its element; the kanban only shows it.
 export interface BoardElement extends HTMLElement {
   columnsField: string
-  emptyText: string
 
-  moveMessage: string
-  readMessage: string
-  boardHint: string
   busy: boolean
 }
 
@@ -67,14 +60,10 @@ class Board {
     const preamble = holeDataPreamble(el)
     const plan = boardPlan(el, el.columnsField)
     const template = this.cardTemplate()
-    const reason = cardsReason(sourceIdOf(el), preamble, template !== null)
-
-    el.boardHint = plan.columns.length === 0 ? WITHOUT_COLUMN : ''
 
     if (!preamble || template === null || plan.columns.length === 0) {
       this.takeCards(new Map())
-      el.readMessage = ''
-      this.showPlaces(plan.columns, reason)
+      this.showPlaces(plan.columns)
       return
     }
 
@@ -84,8 +73,6 @@ class Board {
     const order = new Map<ColumnPlace, HTMLElement[]>()
     const occurrences = new Map<string, number>()
     const recordCount = new Map<string, number>()
-    let withoutValue = 0
-    let withoutColumn = 0
 
     for (const row of preamble.rows) {
       const record = recordIndexOf(preamble.source, row)
@@ -115,8 +102,6 @@ class Board {
       }
 
       const placement = placementOf(plan, row)
-      if (placement.trouble === 'withoutValue') withoutValue += 1
-      if (placement.trouble === 'withoutColumn') withoutColumn += 1
       const lying = order.get(placement.column) ?? []
       lying.push(card)
       order.set(placement.column, lying)
@@ -134,8 +119,7 @@ class Board {
       }
     }
 
-    this.showPlaces(plan.columns, reason)
-    el.readMessage = misplacedNotice(withoutValue, withoutColumn, columnTitle(fallbackColumn(plan)))
+    this.showPlaces(plan.columns)
     this.refreshSelection()
   }
 
@@ -218,12 +202,8 @@ class Board {
     this.cards = next
   }
 
-  private showPlaces(columns: readonly ColumnPlace[], reason: string): void {
-    for (const column of columns) {
-      const count = cardsOf(column).length
-      column.cardCount = count
-      column.emptyHint = count === 0 ? (reason !== '' ? reason : this.el.emptyText) : ''
-    }
+  private showPlaces(columns: readonly ColumnPlace[]): void {
+    for (const column of columns) column.cardCount = cardsOf(column).length
   }
 
   private refreshSelection(): void {
@@ -244,7 +224,7 @@ class Board {
     const data = this.cards.get(card)
     if (!data) return
     chooseSelection(giverIdOf(this.el), data.row, data.key)
-    runEvent(this.el, 'onCardClick', { PINDEX: data.record }).catch(reportChainsError)
+    runEvent(this.el, 'onCardClick', { PINDEX: data.record }).catch(() => {})
   }
 
   private columnFrom(event: Event): ColumnPlace | null {
@@ -282,17 +262,14 @@ class Board {
   }
 
   private recount(): void {
-    this.showPlaces(boardPlan(this.el, this.el.columnsField).columns, '')
+    this.showPlaces(boardPlan(this.el, this.el.columnsField).columns)
   }
 
   // The card lies in its new column at once. Fails the action, it lies again
   // where it came from; the next delivery sorts by the data anyway.
   private async move(card: HTMLElement, column: ColumnPlace): Promise<void> {
     const el = this.el
-    if (this.writes) {
-      el.moveMessage = 'Eine Verschiebung wird bereits gesendet. Bitte kurz warten.'
-      return
-    }
+    if (this.writes) return
     const data = this.cards.get(card)
     const from = card.parentElement
     if (!data || from === column || !isColumn(from ?? el)) return
@@ -300,33 +277,22 @@ class Board {
     column.append(card)
     this.recount()
     this.showWriteState(true)
-    el.moveMessage = ''
-    let back = ''
+    let back: boolean
     try {
       const result = await runEvent(el, 'onCardDrop', {
         PINDEX: data.record,
         VALUE: columnValue(column),
       })
-      if (result.cancelled) {
-        back = 'Die Aktion ist fehlgeschlagen. Die Karte liegt wieder, wo sie war.'
-      } else if (!result.ran) {
-        back = result.busy
-          ? 'Die Aktion läuft bereits.'
-          : 'Für „Karte verschoben“ ist noch keine Aktion eingerichtet.'
-      } else if (!result.written) {
-        back = 'Aktion ausgeführt. Sie hat keine Daten geschrieben.'
-      }
-    } catch (error) {
-      back = 'Verschiebung fehlgeschlagen. Bitte die Fehlermeldung beachten.'
-      reportChainsError(error)
+      back = result.cancelled || !result.ran || !result.written
+    } catch {
+      back = true
     } finally {
       this.showWriteState(false)
     }
-    if (back !== '' && card.parentElement === column && from !== null) {
+    if (back && card.parentElement === column && from !== null) {
       from.append(card)
       this.recount()
     }
-    el.moveMessage = back
   }
 }
 

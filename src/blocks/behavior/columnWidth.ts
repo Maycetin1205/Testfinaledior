@@ -94,7 +94,6 @@ export function widthsHandles(
     class="breite-griff"
     role="presentation"
     style="grid-row: 1; grid-column: ${i + 1}"
-    title="Linie ziehen: links breiter, rechts schmaler"
     @pointerdown=${(e: PointerEvent) => startDrag(e, i, host)}
     @click=${(e: MouseEvent) => e.stopPropagation()}
     @dblclick=${(e: MouseEvent) => e.stopPropagation()}

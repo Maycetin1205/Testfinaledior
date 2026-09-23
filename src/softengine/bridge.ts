@@ -1,7 +1,5 @@
 import { isObjekt, messagesContent, dataFromContent, type Objekt } from './data'
 
-import { reportError } from './report'
-
 /* eslint-disable @typescript-eslint/no-explicit-any -- SEDATA/selib sind
    fremde, untypisierte SoftEngine-Globals (Formen siehe Referenzmaske). */
 export function seWindow(): any {
@@ -177,21 +175,11 @@ function registerSe(tries = 0): void {
     try {
       g.basisHTML_REGISTER((data: unknown) => { seConsume(data) }, document.title, '1.0')
       return
-    } catch (error) {
-      if (tries >= 400) {
-        reportError(
-          'SoftEngine-Anmeldung fehlgeschlagen: '
-          + (error instanceof Error ? error.message : String(error)),
-        )
-        return
-      }
+    } catch {
+      if (tries >= 400) return
     }
   }
-  if (tries < 400) {
-    setTimeout(() => { registerSe(tries + 1) }, 25)
-  } else {
-    reportError('SoftEngine-Anschluss nicht gefunden — die Maske bleibt ohne Daten.')
-  }
+  if (tries < 400) setTimeout(() => { registerSe(tries + 1) }, 25)
 }
 
 function focusBridgeBuild(): void {
@@ -228,7 +216,6 @@ export function startSe(): void {
       ring(dataAreNeu())
     } else if (tries > 100) {
       clearInterval(poll)
-      reportError('Keine Daten von SoftEngine empfangen — die Maske zeigt nichts an.')
     }
   }, 300)
 }

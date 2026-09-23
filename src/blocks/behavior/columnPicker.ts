@@ -50,7 +50,6 @@ export function columnsChoiceTpl(
           role="menuitemcheckbox"
           aria-checked=${on ? 'true' : 'false'}
           ?disabled=${last}
-          title=${last ? 'Die letzte Spalte bleibt stehen.' : ''}
           @click=${() => tun.toggle(s.key)}
         ><span class="sw-haken">${on ? '✓' : ''}</span>${s.title}</button>`
       })}

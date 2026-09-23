@@ -1,7 +1,6 @@
 import type { TemplateResult } from 'lit'
 import { openLookup } from '../behavior/lookup'
 import { keyOf } from '../behavior/suggestionState'
-import { reportError } from '../../softengine/report'
 import type { ColumnView } from '../behavior/columns'
 import type { CaptureLedger } from './ledger'
 import { captureRowTpl } from './row'
@@ -25,11 +24,6 @@ export interface CaptureRowPlacement {
 }
 
 function openWindow(placement: CaptureRowPlacement, index: number): void {
-  const problem = placement.ledger.lookupProblemAt(index)
-  if (problem !== '') {
-    reportError(problem)
-    return
-  }
   const spot = placement.ledger.lookupAt(index)
   if (spot === null) return
   openLookup({
@@ -102,7 +96,6 @@ export function captureRowFor(
     suggestions: ledger.suggestions,
     mark: ledger.mark,
     listToTop,
-    hints: ledger.hints,
   }, {
     typing: (i, text) => ledger.type(i, text),
     key: (i, e) => key(placement, i, e),

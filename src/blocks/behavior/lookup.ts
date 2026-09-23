@@ -3,7 +3,6 @@ import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import type { ListBinding } from '../../core/block/listBinding'
 import { fieldRead } from '../../softengine/data'
 import { runtimeSource, rowsTheSource } from '../../softengine/runtimeSources'
-import { reportError } from '../../softengine/report'
 import { rowsToSelection } from './selection'
 import {
   DIALOG_SIZE_EVENT,
@@ -185,7 +184,7 @@ function windowEntries(
 
 export type EntriesResult =
   | { ok: true; entries: Entry[] }
-  | { ok: false; base: 'incomplete' | 'sourceMissing' }
+  | { ok: false }
 
 export function sourcesRows(sourceId: string): unknown[] | null {
   const source = runtimeSource(sourceId)
@@ -194,11 +193,9 @@ export function sourcesRows(sourceId: string): unknown[] | null {
 }
 
 export function holeEntries(e: LookupSetting): EntriesResult {
-  if (e.sourceId === '' || e.storageField === '') {
-    return { ok: false, base: 'incomplete' }
-  }
+  if (e.sourceId === '' || e.storageField === '') return { ok: false }
   const rows = sourcesRows(e.sourceId)
-  if (rows === null) return { ok: false, base: 'sourceMissing' }
+  if (rows === null) return { ok: false }
   const displayField = displayFieldOf(coerceLookupColumns([...e.columns]), e.storageField)
   return { ok: true, entries: windowEntries(e.el, rows, displayField, e.storageField) }
 }
@@ -287,7 +284,6 @@ function runtimeTableTpl(args: LookupArgs, entries: readonly Entry[]): TemplateR
     style="--se-r-lg:0px"
     .rowsFrom=${'handed'}
     .columns=${columns}
-    .emptyText=${'Diese Quelle hat keine Sätze.'}
     .handedRows=${entries.map((e) => ({
       rawRow: e.record,
       cells: own.length > 0
@@ -315,12 +311,7 @@ export function openLookup(args: LookupArgs): void {
 
   if (entries === undefined && args.inEditor !== true) {
     const result = holeEntries(args)
-    if (!result.ok) {
-      reportError(result.base === 'incomplete'
-        ? 'Nachschlagen braucht an diesem Feld eine Quelle und „Gespeichert wird".'
-        : 'Die Nachschlage-Quelle dieses Feldes ist in der Maske nicht vorhanden.')
-      return
-    }
+    if (!result.ok) return
     entries = result.entries
   }
 

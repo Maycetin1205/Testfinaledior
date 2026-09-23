@@ -2,7 +2,7 @@ import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { sectionsOf, chainsRead } from '../../core/data/actions'
-import { reportChainsError, runEvent, searchCarrier } from '../behavior/events'
+import { runEvent, searchCarrier } from '../behavior/events'
 import { PENDING_EVENT, pendingRows } from '../behavior/pendingState'
 import { startSe } from '../../softengine/bridge'
 import { buttonStyle } from './buttonStyle'
@@ -71,7 +71,7 @@ export class Button extends BlockElement {
 
     if (Object.values(chains).some((chain) => chain.some((s) => s.kind === 'RELATION'))) startSe()
     this.addEventListener('click', () => {
-      runEvent(this, CLICK, {}).catch(reportChainsError)
+      runEvent(this, CLICK, {}).catch(() => {})
     })
   }
 }

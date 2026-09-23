@@ -2,7 +2,6 @@ import type { Delivery, PendingKind, WrittenRow } from '../../core/block/capabil
 import { splitBinding } from '../../core/block/binding'
 import {
   addRow,
-  allFactors,
   calculationFlaws,
   computeRow,
   resultSlots,
@@ -21,16 +20,11 @@ import { asNumber } from '../behavior/sorting'
 import { rowsIndexOf } from '../behavior/sourceRows'
 import { SuggestionState, type KeysFollow } from '../behavior/suggestionState'
 import { fieldRead } from '../../softengine/data'
-import { reportError } from '../../softengine/report'
 import {
   arrivalCheck,
   changeArrived,
   deletionArrived,
-  missingMessage,
-  notChangedMessage,
-  notDeletedMessage,
   valueEquals,
-  type MissingRow,
 } from './arrival'
 import { cellsFields, walkInCell } from './cells'
 import type { CaptureColumn } from './column'
@@ -58,35 +52,6 @@ export type RowsStatus =
 
 export interface RowsIcon {
   status: RowsStatus
-
-  title: string
-}
-
-const TITLE: Record<RowsStatus, string> = {
-  booked: '',
-  captured: 'Neu',
-  changed: 'Geändert',
-  deletion: 'Wird gelöscht',
-  writes: 'Wird geschrieben …',
-  written: 'Hinausgeschickt',
-  error: 'Nicht geschrieben',
-}
-
-const NOT_ARRIVED = 'Nicht im Beleg angekommen.'
-
-const NOT_CHANGED = 'Im Beleg unverändert geblieben.'
-
-const NOT_DELETED = 'Steht noch im Beleg.'
-
-const WITHOUT_ANSWER = 'Auf die Übergabe kam keine Antwort; ob die Positionen im Beleg stehen, '
-  + 'ist ungeprüft.'
-
-const WITHOUT_RECORD = 'Diese Zeile hat keine Satznummer; eine Änderung daran lässt sich nicht '
-  + 'schreiben.'
-
-function helperSourceHint(title: string, reason: string): string {
-  const name = title.trim() === '' ? 'dieser Spalte' : `der Spalte „${title}“`
-  return `Die Hilfsquelle ${name} ${reason}; hier lässt sich nichts nachschlagen.`
 }
 
 const BOOKED_ROWS = '.koerper > .zeile:not(.erfassung)'
@@ -206,10 +171,6 @@ export class CaptureLedger {
 
   private computed = new Map<number, string>()
 
-  private calculationHints: string[] = []
-
-  private lookupHint = ''
-
   private penColumn = -1
 
   private listColumn = -1
@@ -232,7 +193,7 @@ export class CaptureLedger {
 
   private readonly writing = new Map<PendingKind, Set<string>>()
 
-  private readonly errors = new Map<PendingKind, Map<string, string>>()
+  private readonly errors = new Map<PendingKind, Set<string>>()
 
   constructor(host: CaptureHost) {
     this.host = host
@@ -259,12 +220,6 @@ export class CaptureLedger {
 
   get suggestions(): readonly Entry[] {
     return this.list.hit
-  }
-
-  get hints(): readonly string[] {
-    return this.lookupHint === ''
-      ? this.calculationHints
-      : [...this.calculationHints, this.lookupHint]
   }
 
   // What the capture row shows: one pass over the columns instead of one
@@ -383,12 +338,13 @@ export class CaptureLedger {
   }
 
   // What the lookup window of a cell shows. Nothing when the column names no
-  // field of a helper source.
+  // field of a helper source, or that source holds no rows.
   lookupAt(index: number): LookupSpot | null {
     const context = this.context()
     const column = context.columns[index]
     const target = targetIn(context, index)
     if (column === undefined || target.sourceId === '' || target.code === '') return null
+    if (target.kind === 'linked' && (sourcesRows(target.sourceId)?.length ?? 0) === 0) return null
     return {
       spot: column.key,
       sourceId: target.sourceId,
@@ -436,31 +392,11 @@ export class CaptureLedger {
     return lookupEntries(records, displayColumnIn(context, index)?.code ?? '', target.code)
   }
 
-  // Why nothing can be looked up in this cell. Without it the operator faces an
-  // empty list and no reason.
-  lookupProblemAt(index: number): string {
-    return this.lookupProblemIn(this.context(), index)
-  }
-
-  private lookupProblemIn(context: CaptureContext, index: number): string {
-    const target = targetIn(context, index)
-    if (target.kind !== 'linked') return ''
-    const rows = sourcesRows(target.sourceId)
-    if (rows === null) {
-      return helperSourceHint(context.columns[index]?.title ?? '', 'gibt es in dieser Maske nicht')
-    }
-    if (rows.length === 0) {
-      return helperSourceHint(context.columns[index]?.title ?? '', 'hat keine Daten geliefert')
-    }
-    return ''
-  }
-
   // Before every drawing: the calculations run again and the suggestion list
   // holds what fits the typed text.
   refresh(): void {
     const context = this.context()
     this.compute(context)
-    this.lookupHint = this.penColumn === -1 ? '' : this.lookupProblemIn(context, this.penColumn)
     this.list.show(this.suggestionsFor(context))
   }
 
@@ -489,22 +425,6 @@ export class CaptureLedger {
       (key) => titleOf(key) ?? '',
     )
     this.computed = new Map([...row.values].map(([slot, value]) => [slot, value.text]))
-    this.calculationHints = []
-    for (const calculation of context.calculations) {
-      const placement = row.placements.get(calculation.key)
-      if (placement === undefined || (placement.kind !== 'widerspruch' && placement.kind !== 'incomplete')) continue
-
-      if (!this.groupTouched(context, calculation)) continue
-      if (!this.calculationHints.includes(placement.text)) this.calculationHints.push(placement.text)
-    }
-  }
-
-  private groupTouched(context: CaptureContext, calculation: Calculation): boolean {
-    return allFactors(calculation).some((f) => {
-      if (f.kind !== 'column') return false
-      const slot = columnWithKey(context.columns, f.column)
-      return slot !== -1 && (this.typed.get(slot) ?? '') !== ''
-    })
   }
 
   private factorState(context: CaptureContext, factor: Factor): FactorState {
@@ -643,8 +563,6 @@ export class CaptureLedger {
     this.chosen.clear()
     this.ofHand.clear()
     this.computed.clear()
-    this.calculationHints = []
-    this.lookupHint = ''
     this.penColumn = -1
     this.listColumn = -1
     this.list.idle()
@@ -823,16 +741,9 @@ export class CaptureLedger {
     return rawRow === undefined ? '' : rowsIndexOf(this.host.block, rawRow)
   }
 
-  private itemOf(rawIndex: number | undefined): string {
-    if (rawIndex === undefined) return ''
-    return this.host.columns()
-      .map((_, column) => this.cellValue(rawIndex, column))
-      .find((value) => value.trim() !== '') ?? ''
-  }
-
   statusOf(rawIndex: number): RowsIcon {
     const record = this.recordOf(rawIndex)
-    if (record === '') return { status: 'booked', title: '' }
+    if (record === '') return { status: 'booked' }
     if (this.deleted.has(record)) return this.shows('deleted', record, 'deletion')
     if (this.sentDeletion.has(record)) return this.shows('deleted', record, 'written')
     const columns = this.host.columns()
@@ -894,10 +805,7 @@ export class CaptureLedger {
 
   typeCell(rawIndex: number, columnsIndex: number, text: string): void {
     const record = this.recordOf(rawIndex)
-    if (record === '') {
-      reportError(WITHOUT_RECORD)
-      return
-    }
+    if (record === '') return
     if (setCell(this.changes, record, columnsIndex, text)) this.host.report()
   }
 
@@ -1000,10 +908,10 @@ export class CaptureLedger {
     this.host.report()
   }
 
-  failed(kind: PendingKind, key: string, message: string): void {
+  failed(kind: PendingKind, key: string): void {
     this.writing.get(kind)?.delete(key)
-    const list = this.errors.get(kind) ?? new Map<string, string>()
-    list.set(key, message)
+    const list = this.errors.get(kind) ?? new Set<string>()
+    list.add(key)
     this.errors.set(kind, list)
     this.host.report()
   }
@@ -1024,12 +932,9 @@ export class CaptureLedger {
   }
 
   private shows(kind: PendingKind, key: string, base: RowsStatus): RowsIcon {
-    const message = this.errors.get(kind)?.get(key)
-    if (message !== undefined) return { status: 'error', title: TITLE.error + ': ' + message }
-    if (this.writing.get(kind)?.has(key) === true) {
-      return { status: 'writes', title: TITLE.writes }
-    }
-    return { status: base, title: TITLE[base] }
+    if (this.errors.get(kind)?.has(key) === true) return { status: 'error' }
+    if (this.writing.get(kind)?.has(key) === true) return { status: 'writes' }
+    return { status: base }
   }
 
   // A written row leaves the pending marks and waits for the document to show
@@ -1074,18 +979,15 @@ export class CaptureLedger {
       this.sent.clear()
       this.previous.clear()
       this.sentDeletion.clear()
-      reportError(WITHOUT_ANSWER)
       this.host.report()
       return
     }
     const captured = this.capturedArrival(delivery)
     const booked = this.bookedArrival(delivery)
-    for (const key of captured.missing) this.failed('captured', key, NOT_ARRIVED)
-    for (const record of booked.changeMissing) this.failed('changed', record, NOT_CHANGED)
-    for (const record of booked.deletionMissing) this.failed('deleted', record, NOT_DELETED)
+    for (const key of captured.missing) this.failed('captured', key)
+    for (const record of booked.changeMissing) this.failed('changed', record)
+    for (const record of booked.deletionMissing) this.failed('deleted', record)
 
-    const message = [captured.message, booked.message].filter((text) => text !== '').join(' ')
-    if (message !== '') reportError(message)
     if (captured.moved || booked.moved) this.host.report()
   }
 
@@ -1096,7 +998,6 @@ export class CaptureLedger {
   }
 
   private capturedArrival(delivery: Delivery): {
-    message: string
     missing: string[]
     moved: boolean
   } {
@@ -1105,23 +1006,18 @@ export class CaptureLedger {
       const mark = row.written
       if (mark !== undefined) sent.push({ slot, record: mark.record, values: row.values })
     })
-    if (sent.length === 0) return { message: '', missing: [], moved: false }
+    if (sent.length === 0) return { missing: [], moved: false }
 
     const arrived = arrivalCheck(sent, this.host.columns(), delivery)
 
     const away = new Set<number>()
     const missing: string[] = []
-    const reported: MissingRow[] = []
     sent.forEach((row, i) => {
       if (arrived[i] === true) {
         away.add(row.slot)
         return
       }
       missing.push(this.rows[row.slot]?.key ?? '')
-      reported.push({
-        nr: row.record === '' ? String(row.slot + 1) : row.record,
-        item: row.values.find((w) => w.trim() !== '') ?? '',
-      })
     })
     this.rows = this.rows
       .filter((_, slot) => !away.has(slot))
@@ -1130,7 +1026,7 @@ export class CaptureLedger {
         : row))
 
     this.slideCorrection(away)
-    return { message: missingMessage(reported), missing, moved: true }
+    return { missing, moved: true }
   }
 
   // Rows left the list: the row under correction keeps its place among those
@@ -1145,26 +1041,21 @@ export class CaptureLedger {
   private bookedArrival(delivery: Delivery): {
     changeMissing: string[]
     deletionMissing: string[]
-    message: string
     moved: boolean
   } {
     if (this.sent.size === 0 && this.sentDeletion.size === 0) {
-      return { changeMissing: [], deletionMissing: [], message: '', moved: false }
+      return { changeMissing: [], deletionMissing: [], moved: false }
     }
-    const slots = this.recordSlots()
 
     const deletionMissing: string[] = []
-    const deletedReported: MissingRow[] = []
     for (const record of this.sentDeletion) {
       if (deletionArrived(record, delivery)) continue
       deletionMissing.push(record)
-      deletedReported.push({ nr: record, item: this.itemOf(slots.get(record)) })
     }
     this.sentDeletion.clear()
     for (const record of deletionMissing) this.deleted.add(record)
 
     const changeMissing: string[] = []
-    const changedReported: MissingRow[] = []
     for (const record of recordsIn(this.sent)) {
       if (this.deleted.has(record)) {
         this.forgetWaiting(record)
@@ -1175,7 +1066,6 @@ export class CaptureLedger {
         continue
       }
       changeMissing.push(record)
-      changedReported.push({ nr: record, item: this.itemOf(slots.get(record)) })
     }
 
     for (const record of changeMissing) {
@@ -1188,11 +1078,7 @@ export class CaptureLedger {
       this.forgetWaiting(record)
     }
 
-    const message = [
-      notChangedMessage(changedReported),
-      notDeletedMessage(deletedReported),
-    ].filter((text) => text !== '').join(' ')
-    return { changeMissing, deletionMissing, message, moved: true }
+    return { changeMissing, deletionMissing, moved: true }
   }
 
   private sentCells(record: string): { field: string; before: string }[] {

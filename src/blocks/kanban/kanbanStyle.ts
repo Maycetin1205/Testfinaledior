@@ -3,14 +3,6 @@ import { css } from 'lit'
 export const kanbanStyle = css`
   :host { min-width: 0; height: 100%; display: flex; flex-direction: column; }
 
-  .meldung:empty { display: none; }
-  .meldung {
-    flex: none;
-    margin: 0 0 8px;
-    font-size: var(--se-fs-sm);
-    color: var(--se-muted);
-  }
-
   .tafel {
     display: flex;
     flex-direction: row;
@@ -23,6 +15,4 @@ export const kanbanStyle = css`
   }
 
   .tafel slot { display: contents; }
-
-  .tafel .leer { flex: 1; align-self: center; }
 `

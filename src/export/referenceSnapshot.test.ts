@@ -86,7 +86,7 @@ test('eine geänderte Eigenschaft erreicht den Export als Attribut', () => {
       && !pagesProps.has(k))?.[0]
     if (key !== undefined) checkable.set(def.type, key)
   }
-  expect(checkable.size, 'kaum ein Baustein hat eine pruefbare Text-Eigenschaft').toBeGreaterThan(7)
+  expect(checkable.size, 'kaum ein Baustein hat eine pruefbare Text-Eigenschaft').toBeGreaterThan(6)
 
   const html = exportMask(
     allBlocksTree((type) => {

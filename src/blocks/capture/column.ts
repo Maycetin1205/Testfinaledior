@@ -7,9 +7,6 @@ import {
   structuredProperty,
   type Property,
 } from '../../core/block/property'
-import { reportError } from '../../softengine/report'
-
-const UNREADABLE = 'Die Spaltenliste dieser Erfassung ist unlesbar; sie zeigt eine leere Spalte.'
 
 export type CaptureColumn = Column & {
   editable?: boolean
@@ -44,7 +41,6 @@ export function tryCoerceCaptureColumns(v: string): CaptureColumn[] {
   try {
     return coerceCaptureColumns(JSON.parse(v))
   } catch {
-    reportError(UNREADABLE)
     return standardColumns()
   }
 }

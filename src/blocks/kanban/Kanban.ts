@@ -1,7 +1,6 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { emptyState, emptyStyle } from '../behavior/emptyState'
 import { boardRegister, boardUnregister } from './board'
 import { CARD_TYPE } from './places'
 import { KanbanColumn } from './KanbanColumn'
@@ -14,20 +13,14 @@ export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, emptyStyle, kanbanStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, kanbanStyle]
 
-  @property({ attribute: false }) moveMessage = ''
-  @property({ attribute: false }) readMessage = ''
-  @property({ attribute: false }) boardHint = ''
   @property({ attribute: false }) busy = false
 
   override render(): TemplateResult {
     return html`
-      <p class="meldung" role="status" aria-live="polite">${this.moveMessage}</p>
-      <p class="meldung">${this.readMessage}</p>
       <div class="tafel">
         <slot></slot>
-        ${emptyState(this.boardHint, true)}
       </div>`
   }
 

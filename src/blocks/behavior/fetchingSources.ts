@@ -8,7 +8,6 @@ import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import { holeQuerySource } from '../../softengine/queryLoader'
 import { hasSeData, onSeData } from '../../softengine/bridge'
 import { runtimeSources } from '../../softengine/runtimeSources'
-import { reportError } from '../../softengine/report'
 import { loadRowsPerRelation } from '../../softengine/relationLoader'
 import { holeValueSource } from '../../softengine/valueLoader'
 import {
@@ -23,7 +22,6 @@ const lastPrint = new Map<string, string>()
 
 const silentLoaded = new Map<string, Set<string>>()
 
-const withoutGiverReported = new Set<string>()
 let wired = false
 
 export function defsWithRecordChoice(): Map<string, BlockType> {
@@ -92,17 +90,7 @@ function checkFetchingSources(byControls: boolean): void {
     if (!source.loadRelation) continue
     const { row, giver } = chosenRowTheSource(source.id, defsPerTag)
 
-    if (!giver) {
-      if (!withoutGiverReported.has(source.id)) {
-        withoutGiverReported.add(source.id)
-        reportError(
-          `„${source.name}" holt ihre Zeilen erst auf einen Klick hin, aber an keinem `
-          + 'Baustein mit dieser Quelle steht, wessen Auswahl er folgt. '
-          + 'Im Editor am Baustein unter „Auswahl folgen" die Belegliste wählen.',
-        )
-      }
-      continue
-    }
+    if (!giver) continue
     if (!mayLoad(source.id, traitOf(row), byControls)) continue
     loadRowsPerRelation(source, source.loadRelation, row)
   }

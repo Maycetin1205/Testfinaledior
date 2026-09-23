@@ -106,13 +106,7 @@ export class RecordList {
     const cells = cellsForHandedRows(rows, el.listColumns(), el.listCalculations())
     el.rawRows = cells.rawRows
     el.dataRows = cells.dataRows
-    el.rowsReport = {
-      ...WITHOUT_ROWS,
-      delivered: true,
-      inSource: rows.length,
-      afterDay: rows.length,
-      afterSelection: rows.length,
-    }
+    el.rowsReport = WITHOUT_ROWS
     this._rowsChoice.forget()
     this._view.toPush()
     el.requestUpdate()
@@ -200,8 +194,6 @@ export class RecordList {
       sourceId: el.source,
       columns,
       rowCount: el.dataRows.length,
-      report: el.rowsReport,
-      emptyText: el.emptyText,
     })
 
     const view = tableRenderModel({
@@ -250,7 +242,6 @@ export class RecordList {
         showsRows: view.showsRows,
         selectionIndex: this._rowsChoice.slotIn(el.rawRows),
         empty: view.empty,
-        emptyText: shows.text,
         decoration,
         bottom: bottom === null
           ? nothing

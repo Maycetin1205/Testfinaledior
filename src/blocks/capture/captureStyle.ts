@@ -46,31 +46,10 @@ export const captureStyle = css`
         background: var(--se-faint);
         pointer-events: none;
       }
-      /* Der Rechen-Hinweis steht UEBER der Zeile, damit er in der Gitterzeile
-         keine Zelle beansprucht und mit der klebenden Zeile mitwandert. */
-      .rechen-hinweis {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 100%;
-        padding: 2px var(--se-zell-x);
-        background: var(--se-amber-soft, var(--se-panel-2));
-        color: var(--se-amber, var(--se-muted));
-        border-top: var(--se-border) solid var(--se-line);
-        font-size: var(--se-fs-sm);
-        pointer-events: none;
-      }
-
-      .fehltext {
-        margin-left: 8px;
-        font-size: var(--se-fs-sm);
-        color: var(--se-red);
-      }
 
       .zeile.geloescht > div { text-decoration: line-through; color: var(--se-muted); }
 
-      /* Der Zeilen-Status ist der Punkt vor der ersten Zelle; der Klartext
-         haengt im title. */
+      /* Der Zeilen-Status ist der Punkt vor der ersten Zelle. */
       .zeile[data-status="erfasst"] { background: var(--se-accent-soft); }
       .zeile[data-status="erfasst"]::before,
       .zeile[data-status="schreibt"]::before { background: var(--se-accent); }

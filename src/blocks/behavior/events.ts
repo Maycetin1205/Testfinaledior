@@ -21,7 +21,6 @@ import {
 } from '../../core/data/relations'
 import { sendBwLink, sendStartTool } from '../../softengine/commands'
 import { freshDataRequest } from '../../softengine/bridge'
-import { reportError } from '../../softengine/report'
 import { relationRun, runtimeRelation, parameterResolve } from '../../softengine/relations'
 
 export function applyPopupStep(root: ParentNode, name: string, open: boolean): void {
@@ -32,14 +31,7 @@ export function applyPopupStep(root: ParentNode, name: string, open: boolean): v
   const hit = all.filter(
     (el) => (el.getAttribute('name') ?? windowKind?.properties.name?.default) === name,
   )
-  if (hit.length === 0) {
-    reportError('Fenster „' + name + '“ gibt es in dieser Maske nicht.')
-    return
-  }
-  if (hit.length > 1) {
-    reportError('Fenster „' + name + '“ gibt es mehrfach — keines ist gemeint.')
-    return
-  }
+  if (hit.length !== 1) return
   const target = hit[0]
   if (!open) {
     target.removeAttribute('open')
@@ -52,11 +44,6 @@ export function applyPopupStep(root: ParentNode, name: string, open: boolean): v
 }
 
 const running = new WeakMap<HTMLElement, Set<string>>()
-
-export function reportChainsError(error: unknown): void {
-  const text = error instanceof Error ? error.message : String(error)
-  reportError('Aktionskette fehlgeschlagen: ' + text)
-}
 
 type RowsCarrier = HTMLElement
 
@@ -80,7 +67,7 @@ interface RunRow {
 export interface RunResult {
   written: boolean
 
-  error: string
+  failed: boolean
 
   transcript: Transcript
 }
@@ -156,24 +143,13 @@ export async function runSteps(
     if (only && !only.has(slot)) continue
     if (step.kind === 'START_TOOL') {
       if (!sendStartTool(step.toolNr, placeholderInsert({ parameter: step.toolParameter }, values))) {
-        const text = step.toolNr.trim() === ''
-          ? `Schritt ${slot + 1} der Kette: START_TOOL ohne Werkzeug-Nummer.`
-          : `Schritt ${slot + 1} der Kette: START_TOOL ${step.toolNr} ging nicht hinaus `
-            + '— keine Verbindung zu SoftEngine.'
-        reportError(text)
-        return { written, error: text, transcript: transcript() }
+        return { written, failed: true, transcript: transcript() }
       }
       continue
     }
     if (step.kind === 'BW_LINK') {
       const command = placeholderInsert({ parameter: [step.command] }, values)[0] ?? ''
-      if (!sendBwLink(command)) {
-        const text = command.trim() === ''
-          ? `Schritt ${slot + 1} der Kette: BW_LINK ohne Befehl.`
-          : `Schritt ${slot + 1} der Kette: BW_LINK ging nicht hinaus — keine Verbindung zu SoftEngine.`
-        reportError(text)
-        return { written, error: text, transcript: transcript() }
-      }
+      if (!sendBwLink(command)) return { written, failed: true, transcript: transcript() }
       continue
     }
     if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') {
@@ -182,25 +158,14 @@ export async function runSteps(
     }
     const relation = runtimeRelation(step.relationId)
 
-    if (!relation) {
-      const text = `Schritt ${slot + 1} der Kette: seine Relation fehlt in dieser Maske.`
-      reportError(text)
-      return { written, error: text, transcript: transcript() }
-    }
+    if (!relation) return { written, failed: true, transcript: transcript() }
 
     const bindings = [...step.parameter, ...step.extraParameter]
 
     const missingRecord = RECORD_PLACEHOLDER.find((name) =>
       bindings.some((b) => b.source === 'context' && b.value === name)
       && (values[name] ?? '') === '')
-    if (missingRecord !== undefined) {
-      const isDeletion = missingRecord === 'DROP_PINDEX'
-      const text = `Schritt ${slot + 1} der Kette braucht die Satznummer der `
-        + `${isDeletion ? 'zu löschenden Zeile' : 'Zeile'} — sie fehlt `
-        + `(Relation Nr. ${relation.nr}). ${isDeletion ? 'Nichts gelöscht.' : 'Nichts geschrieben.'}`
-      reportError(text)
-      return { written, error: text, transcript: transcript() }
-    }
+    if (missingRecord !== undefined) return { written, failed: true, transcript: transcript() }
 
     const runtimeValues = {
       context: values,
@@ -219,12 +184,10 @@ export async function runSteps(
     if (relation.verb === 'GET_RELATION') previousResult = result
     else written = true
 
-    if (answer.error !== undefined && answer.error !== '') {
-      return { written, error: answer.error, transcript: transcript() }
-    }
+    if (answer.failed === true) return { written, failed: true, transcript: transcript() }
     if (step.resultName !== '') values[step.resultName] = result
   }
-  return { written, error: '', transcript: transcript() }
+  return { written, failed: false, transcript: transcript() }
 }
 
 export interface ActionResult {
@@ -259,9 +222,6 @@ export async function runEvent(
     let written = false
     let cancelled = false
 
-    let rowsSections = 0
-    let pendingRows = 0
-
     let transcript: Transcript | undefined
     for (const section of sections) {
       if (section.kind === 'once') {
@@ -270,24 +230,20 @@ export async function runEvent(
         )
         transcript = result.transcript
         if (result.written) written = true
-        if (result.error !== '') { cancelled = true; break }
+        if (result.failed) { cancelled = true; break }
         continue
       }
       if (section.blockId === '') {
-        reportError('Ein Schritt liest Zellen aus zwei verschiedenen Listen — das geht nicht.')
         cancelled = true
         break
       }
       const carrier = searchCarrier(el.ownerDocument ?? document, section.blockId)
       const rows = carrier && rowsTheList(carrier, section.kind)
       if (!carrier || !rows) {
-        reportError('Den Baustein, dessen Zellen die Kette liest, gibt es in dieser Maske nicht.')
         cancelled = true
         break
       }
-      rowsSections += 1
       if (rows.length === 0) continue
-      pendingRows += rows.length
       const report = { carrier, kind: section.kind, finished: [] as WrittenRow[] }
       reports.push(report)
       for (const row of rows) {
@@ -299,8 +255,8 @@ export async function runEvent(
           section.slots, transcript)
         if (result.written) written = true
 
-        if (result.error !== '') {
-          reportOn(carrier, section.kind).rowFailed(section.kind, row.key, result.error)
+        if (result.failed) {
+          reportOn(carrier, section.kind).rowFailed(section.kind, row.key)
           cancelled = true
           break
         }
@@ -310,10 +266,6 @@ export async function runEvent(
         })
       }
       if (cancelled) break
-    }
-
-    if (!cancelled && rowsSections > 0 && pendingRows === 0) {
-      reportError('Nichts zum Speichern vorgemerkt.')
     }
 
     for (const { carrier, kind, finished } of reports) reportOn(carrier, kind).runDone(kind, finished)

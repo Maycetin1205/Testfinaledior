@@ -275,13 +275,11 @@ export class DialogFrame extends LitElement {
           ${this.movable ? html`
             <div
               class="anfasser breit"
-              title="Breite ziehen · Doppelklick: Standard"
               @pointerdown=${(e: PointerEvent) => this.drag(e, 'width')}
               @dblclick=${(e: Event) => this.onStandard(e, 'width')}
             ></div>
             <div
               class="anfasser hoch"
-              title="Höhe ziehen · Doppelklick: Standard"
               @pointerdown=${(e: PointerEvent) => this.drag(e, 'height')}
               @dblclick=${(e: Event) => this.onStandard(e, 'height')}
             ></div>

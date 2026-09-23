@@ -57,10 +57,7 @@ export function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateRe
 }
 
 export function crossDisplayTpl(): TemplateResult {
-  return html`<span
-    class="zeile-weg zeile-weg-anzeige"
-    title="Zeilen l\u00F6schbar \u2014 in der Maske per Kreuz oder Entf-Taste"
-  >&#x2715;</span>`
+  return html`<span class="zeile-weg zeile-weg-anzeige">&#x2715;</span>`
 }
 
 export interface CapturedPlacement {
@@ -95,23 +92,17 @@ export function capturedRowsTpl(placement: CapturedPlacement, tun: CapturedAct):
       class="zeile erfasst"
       role="row"
       data-status=${icon.status}
-      title=${placement.inEditor || fixed ? icon.title : `${icon.title} — zum Korrigieren anklicken`}
       style=${styleMap(placement.cols)}
       @click=${placement.inEditor || fixed ? nothing : () => tun.holeCapturedRow(rowsIndex)}
     >
       ${placement.columns.map((_s, i) => {
         const value = values[placement.slots[i]] ?? ''
-        const missingText = i === 0 && icon.status === 'error'
-          ? html`<span class="fehltext">${icon.title}</span>`
-          : nothing
-        return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell">${value}${missingText}</div>`
+        return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell">${value}</div>`
       })}
       ${placement.inEditor ? nothing : html`<button
           class="zeile-weg"
           type="button"
-          title=${fixed
-            ? 'Aus der Ansicht nehmen — geschrieben ist sie schon'
-            : 'Diese erfasste Zeile wieder wegnehmen'}
+          title=${fixed ? 'Aus der Ansicht nehmen' : 'Diese erfasste Zeile wieder wegnehmen'}
           aria-label="Erfasste Zeile wegnehmen"
           @click=${(e: MouseEvent) => {
             e.stopPropagation()
@@ -147,9 +138,7 @@ export function captureDecoration(placement: DecorationPlacement): (rawIndex: nu
     const deleted = placement.ledger.isDeleted(rawIndex)
     return {
       status: icon.status === 'booked' ? '' : icon.status,
-      title: icon.title,
       klasse: deleted ? 'deleted' : '',
-      missingText: icon.status === 'error' ? icon.title : '',
       cell: (slot, column) => (placement.typable && columnEditable(column)
         ? typingCellTpl(placement.ledger, rawIndex, slot, column)
         : null),

@@ -1,4 +1,4 @@
-import { html, nothing, type TemplateResult } from 'lit'
+import { html, type TemplateResult } from 'lit'
 import { giverIdOf, plainSelection, setSelection } from '../behavior/selection'
 import {
   automaticColumns,
@@ -15,21 +15,6 @@ import {
 import type { Column } from '../behavior/columns'
 import { keyOf, SuggestionState } from '../behavior/suggestionState'
 import { inputSpotTpl } from '../behavior/inputSpot'
-
-const WITHOUT_SETTING = 'Nachschlagen braucht hier eine Quelle und ein gespeichertes Feld.'
-
-const WITHOUT_SOURCE = 'Die Nachschlage-Quelle dieses Feldes gibt es in dieser Maske nicht.'
-
-const WITHOUT_RECORDS = 'Die Nachschlage-Quelle hat keine Sätze.'
-
-// What one look into the source found: the rows to offer, or why there are
-// none. The operator never faces a list that simply stays shut.
-interface LookedUp {
-  entries: Entry[]
-  reason: string
-}
-
-const QUIET: LookedUp = { entries: [], reason: '' }
 
 export interface LookupControlHost {
   block: HTMLElement
@@ -57,8 +42,6 @@ export class LookupControl {
 
   private record: unknown = undefined
 
-  private reason = ''
-
   private readonly list = new SuggestionState<Entry>()
 
   private readonly host: LookupControlHost
@@ -71,16 +54,14 @@ export class LookupControl {
     return this.typed ?? this.display
   }
 
-  // Suggestions and reason hang out of the field box; the block needs to know
-  // so it can lift itself above the next one.
+  // Suggestions hang out of the field box; the block needs to know so it can
+  // lift itself above the next one.
   get hangsBelow(): boolean {
-    return this.list.open || this.reason !== ''
+    return this.list.open
   }
 
   dragTo(): void {
-    const found = this.lookAt()
-    this.list.show(found.entries)
-    this.reason = found.reason
+    this.list.show(this.lookAt())
   }
 
   render(klasse: string, title: string): TemplateResult {
@@ -113,9 +94,7 @@ export class LookupControl {
         this.list.setMark(i)
         this.host.report()
       },
-    })}${this.reason === ''
-      ? nothing
-      : html`<div class="grund-liste" role="status">${this.reason}</div>`}`
+    })}`
   }
 
   private openWindow(searchText = ''): void {
@@ -137,31 +116,23 @@ export class LookupControl {
     })
   }
 
-  private lookAt(): LookedUp {
-    if (this.list.closed || this.host.inEditor()) return QUIET
-    if (this.typed === null && !this.list.opened) return QUIET
+  private lookAt(): Entry[] {
+    if (this.list.closed || this.host.inEditor()) return []
+    if (this.typed === null && !this.list.opened) return []
     const typed = this.typed ?? ''
 
-    if (typed === '' && !this.list.opened) return QUIET
+    if (typed === '' && !this.list.opened) return []
 
     const result = this.entries()
-    if (!result.ok) {
-      return {
-        entries: [],
-        reason: result.base === 'incomplete' ? WITHOUT_SETTING : WITHOUT_SOURCE,
-      }
-    }
-    if (result.entries.length === 0) return { entries: [], reason: WITHOUT_RECORDS }
+    if (!result.ok) return []
 
     const own = this.host.columns()
-    const hit = suggestionsInWindowState(
+    return suggestionsInWindowState(
       result.entries,
       typed,
       own.length > 0 ? own : this.automatic(),
       this.host.block,
     )
-    if (hit.length > 0) return { entries: hit, reason: '' }
-    return { entries: [], reason: `Kein Satz passt zu „${typed.trim()}“.` }
   }
 
   private entries(): ReturnType<typeof holeEntries> {

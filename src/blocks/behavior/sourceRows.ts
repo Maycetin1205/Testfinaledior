@@ -20,23 +20,12 @@ export interface HandedRow {
   cells: readonly string[]
 }
 
-// What the last fill found. The list reads this to say why it shows no rows
-// instead of leaving an empty box.
+// What the last fill found.
 export interface RowsReport {
-  delivered: boolean
-
-  inSource: number
-  afterDay: number
-  afterSelection: number
-
   bySelection: boolean
 }
 
 export const WITHOUT_ROWS: RowsReport = {
-  delivered: false,
-  inSource: 0,
-  afterDay: 0,
-  afterSelection: 0,
   bySelection: false,
 }
 
@@ -121,13 +110,7 @@ function fillRows(el: RowsElement, delivery: boolean): void {
       return field === '' ? '' : read(row, field)
     },
   ))
-  el.rowsReport = {
-    delivered: true,
-    inSource: preamble.inSource,
-    afterDay: preamble.rows.length,
-    afterSelection: rows.length,
-    bySelection: filtered,
-  }
+  el.rowsReport = { bySelection: filtered }
 }
 
 const link = makeDataLink<RowsElement>({ hydrate: fillRows })

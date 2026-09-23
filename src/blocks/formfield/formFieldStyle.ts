@@ -87,8 +87,6 @@ export const fieldStyle = css`
      sie sonst fast ganz verdecken. */
   .ph-lookup { right: 34px; }
 
-  .ph.grund { color: var(--se-muted); }
-
   .huelle.leer input[type="date"]:not(:focus)::-webkit-datetime-edit,
   .huelle.leer input[type="time"]:not(:focus)::-webkit-datetime-edit { opacity: 0; }
   .huelle.leer.tippt .ph-nativ { display: none; }
@@ -110,26 +108,6 @@ export const fieldStyle = css`
 
   .lookup { position: relative; }
   .lookup .ctrl { padding-right: 34px; border-style: dashed; }
-
-  /* Steht statt der Vorschlagsliste: warum das Nachschlagen nichts anbietet.
-     Sie haengt im selben Kasten unter dem Feld. */
-  .grund-liste {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 3;
-    box-sizing: border-box;
-    margin-top: 2px;
-    padding: 4px 10px;
-    background: var(--se-panel);
-    border: var(--se-border) solid var(--se-line);
-    border-radius: var(--se-r-md);
-    color: var(--se-muted);
-    font-size: var(--se-fs-sm);
-    line-height: 1.4;
-    pointer-events: none;
-  }
 
   /* Die offene Vorschlagsliste haengt unten aus dem Feld heraus; Raster-Kinder
      stapeln in DOM-Reihenfolge, ohne diesen Vorrang laege sie unter dem

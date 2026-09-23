@@ -34,8 +34,6 @@ export interface CapturePlacement {
   mark: number
 
   listToTop: boolean
-
-  hints: readonly string[]
 }
 
 export interface CaptureAct {
@@ -52,7 +50,6 @@ export function captureRowTpl(
   tun: CaptureAct,
 ): TemplateResult {
   return html`<div class="zeile erfassung" role="row" style=${styleMap(placement.cols)}>
-    ${placement.inEditor || placement.hints.length === 0 ? nothing : html`<div class="rechen-hinweis" role="status">${placement.hints.join(' ')}</div>`}
     ${placement.columns.map((column, i) => {
       if (placement.inEditor) {
         return html`<div

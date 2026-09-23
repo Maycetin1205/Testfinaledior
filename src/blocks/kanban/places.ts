@@ -25,7 +25,6 @@ export const placeStyle = css`
 
 // A column is where cards lie. The board fills it and tells it what to show.
 export interface ColumnPlace extends HTMLElement {
-  emptyHint: string
   cardCount: number
 }
 
@@ -91,21 +90,12 @@ export function fallbackColumn(plan: BoardPlan): ColumnPlace {
   return plan.columns[plan.catchAll >= 0 ? plan.catchAll : 0]
 }
 
-// Why a card lies somewhere its record does not name.
-export type PlacementTrouble = 'none' | 'withoutValue' | 'withoutColumn'
-
 export interface Placement {
   column: ColumnPlace
-
-  trouble: PlacementTrouble
 }
 
 export function placementOf(plan: BoardPlan, row: unknown): Placement {
   const value = plan.field === '' ? '' : fieldRead(row, plan.field)
   const slot = slotWithValue(value, plan.values)
-  const fitting = slot >= 0 || plan.field === '' || plan.catchAll >= 0
-  return {
-    column: slot >= 0 ? plan.columns[slot] : fallbackColumn(plan),
-    trouble: fitting ? 'none' : value === '' ? 'withoutValue' : 'withoutColumn',
-  }
+  return { column: slot >= 0 ? plan.columns[slot] : fallbackColumn(plan) }
 }

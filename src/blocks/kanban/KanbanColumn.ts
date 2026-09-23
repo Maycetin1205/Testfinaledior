@@ -2,7 +2,6 @@ import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { toneStyle, toneValue } from '../behavior/tone'
-import { emptyState, emptyStyle } from '../behavior/emptyState'
 import { COLUMN_TAG, TARGET_CLASS, placeStyle } from './places'
 import { columnStyle } from './columnStyle'
 import { kanbanColumnProperties, type KanbanColumnValues } from './properties'
@@ -15,13 +14,10 @@ export class KanbanColumn extends BlockElement {
 
   static override styles: CSSResultGroup = [
     BlockElement.styles,
-    emptyStyle,
     placeStyle,
     toneStyle,
     columnStyle,
   ]
-
-  @property({ attribute: false }) emptyHint = ''
 
   @property({ attribute: false }) cardCount = 0
 
@@ -38,7 +34,6 @@ export class KanbanColumn extends BlockElement {
       </div>
       <div class="rumpf">
         <slot></slot>
-        ${emptyState(this.emptyHint)}
       </div>
     </div>`
   }

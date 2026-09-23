@@ -1,6 +1,5 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import { emptyState } from './emptyState'
 import { columnsChoiceTpl, type ColumnsChoiceAct, type ColumnsChoicePlacement } from './columnPicker'
 import { markHit } from './textSearch'
 import { asNumber } from './sorting'
@@ -17,11 +16,7 @@ import { recordText } from './tableModel'
 export interface RowDecoration {
   status: string
 
-  title: string
-
   klasse: string
-
-  missingText: string
 
   cell: (slot: number, column: Column, value: string) => TemplateResult | null
 
@@ -32,9 +27,7 @@ export interface RowDecoration {
 
 export const WITHOUT_DECORATION: RowDecoration = {
   status: '',
-  title: '',
   klasse: '',
-  missingText: '',
   cell: () => null,
   right: nothing,
   key: () => false,
@@ -84,7 +77,6 @@ export interface BodyPlacement {
   selectionIndex: number
 
   empty: boolean
-  emptyText: string
 
   decoration: (rawIndex: number | null) => RowDecoration
 
@@ -135,7 +127,6 @@ function rowTpl(
       decoration.klasse === '' ? '' : ' ' + decoration.klasse}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}
-    title=${decoration.title === '' ? nothing : decoration.title}
     data-ff-raw=${rawIndex ?? nothing}
     tabindex=${activatable ? '0' : nothing}
     aria-selected=${placement.selectionSemantics && rawIndex !== null
@@ -177,15 +168,12 @@ function rowTpl(
         s.hidden === true ? 'hidden' : '',
         rawIndex !== null && asNumber(value) !== null ? 'number' : '',
       ].filter((k) => k !== '').join(' ')
-      const missingText = i === 0 && decoration.missingText !== ''
-        ? html`<span class="fehltext">${decoration.missingText}</span>`
-        : nothing
       return html`<div
         class=${classes === '' ? nothing : classes}
         role="cell"
         data-ff-editable=${headHandle ? '' : nothing}
         data-ff-entry=${headHandle && viewIndex === 0 ? slot : nothing}
-      >${markHit(value, placement.searchText)}${missingText}</div>`
+      >${markHit(value, placement.searchText)}</div>`
     })}
     ${decoration.right}
   </div>`
@@ -228,7 +216,7 @@ export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResul
         )}
         ${widthsHandles(placement.columns.length, tun.widths)}
       </div>` : nothing}
-        ${placement.empty ? emptyState(placement.emptyText, true) : html`
+        ${placement.empty ? nothing : html`
         ${placement.rows.map((rawIndex, viewIndex) => html`${
           viewIndex === firstEmpty ? placement.bottom : nothing
         }${rowTpl(placement, tun, rawIndex, viewIndex)}`)}
