@@ -7,7 +7,7 @@ import {
   openLookup,
 } from '../../blocks/behavior/lookup'
 import { DIALOG_FRAME_TAG, WINDOW_HEIGHT, type DialogFrame } from '../../blocks/behavior/DialogFrame'
-import type { Column } from '../../blocks/behavior/columns'
+import type { Column } from '../../blocks/list/columns'
 import type { BlockNode } from '../../core/block/tree'
 import { splitBinding } from '../../core/block/blockType'
 import { type LookupWindow } from '../../core/block/capability'

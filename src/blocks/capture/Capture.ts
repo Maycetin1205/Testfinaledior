@@ -7,16 +7,16 @@ import {
   calculationsFrom,
   type Calculation,
 } from '../../core/data/calculation'
-import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
-import { RecordList } from '../behavior/recordList'
-import { tableStyle } from '../behavior/tableStyle'
+import { LIST_GRID, listCapabilities } from '../list/listDeclaration'
+import { RecordList } from '../list/recordList'
+import { tableStyle } from '../list/tableStyle'
 import { validMetrics, closeLookupFor } from '../behavior/lookup'
 import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../behavior/DialogFrame'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { reportPendingMarks } from '../behavior/pendingState'
 import { enterCell, cellsInputStyle, cellsFields } from './cells'
-import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../behavior/sourceRows'
-import type { Sublines, RowDecoration } from '../behavior/tableBody'
+import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../list/sourceRows'
+import type { Sublines, RowDecoration } from '../list/tableBody'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
 import {
@@ -185,30 +185,22 @@ export class Capture extends BlockElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    this._list.connected()
     document.addEventListener('keydown', this.maskKey)
-  }
-
-  protected override firstUpdated(): void {
-    this._list.observe()
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    this._list.disconnected()
     document.removeEventListener('keydown', this.maskKey)
     closeLookupFor(this)
   }
 
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed)
-    if (changed.has('columns')) this._list.columnsSwitched()
     if (this.inEditor) return
     this._ledger.refresh()
   }
 
   protected override updated(): void {
-    this._list.afterRender()
     reportPendingMarks(this)
   }
 

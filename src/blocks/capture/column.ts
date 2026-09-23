@@ -1,7 +1,7 @@
 import type { EntrySwitch, ListBinding } from '../../core/block/blockType'
 import { splitBinding } from '../../core/block/blockType'
 import { listForExport } from '../../core/block/listBinding'
-import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../behavior/columns'
+import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../list/columns'
 import {
   isPropertyEntry,
   structuredProperty,

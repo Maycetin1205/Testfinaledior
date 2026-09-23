@@ -1,5 +1,5 @@
 import { isPropertyEntry } from '../../core/block/property'
-import { readDate } from './chosenDay'
+import { readDate } from '../behavior/chosenDay'
 import { makeOperatorState } from './operatorState'
 
 const EMPTY_LAST = 1

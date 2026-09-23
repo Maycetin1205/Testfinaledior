@@ -4,9 +4,9 @@ import { booleanProperty, type Property } from '../../core/block/property'
 import { inputSpotTpl } from '../behavior/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
-import { asNumber } from '../behavior/sorting'
-import type { Column } from '../behavior/columns'
-import { WITHOUT_DECORATION, type RowDecoration } from '../behavior/tableBody'
+import { asNumber } from '../list/sorting'
+import type { Column } from '../list/columns'
+import { WITHOUT_DECORATION, type RowDecoration } from '../list/tableBody'
 import type { CaptureLedger, RowState } from './ledger'
 
 function typingCellTpl(

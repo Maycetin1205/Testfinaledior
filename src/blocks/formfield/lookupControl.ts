@@ -12,7 +12,7 @@ import {
   suggestionsInWindowState,
   type Entry,
 } from '../behavior/lookup'
-import type { Column } from '../behavior/columns'
+import type { Column } from '../list/columns'
 import { keyOf, SuggestionState } from '../behavior/suggestionState'
 import { inputSpotTpl } from '../behavior/inputSpot'
 

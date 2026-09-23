@@ -1,6 +1,6 @@
 import type { Delivery } from '../../core/block/capability'
 import { numberStrict } from '../../core/data/calculation'
-import type { Column } from '../behavior/columns'
+import type { Column } from '../list/columns'
 
 export interface SentRow {
   record: string

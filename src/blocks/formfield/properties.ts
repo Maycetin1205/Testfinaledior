@@ -9,7 +9,7 @@ import {
   type Condition,
   type ValuesOf,
 } from '../../core/block/property'
-import type { Column } from '../behavior/columns'
+import type { Column } from '../list/columns'
 import { coerceLookupColumns } from '../behavior/lookup'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/DialogFrame'
 

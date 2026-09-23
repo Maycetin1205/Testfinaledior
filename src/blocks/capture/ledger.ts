@@ -9,15 +9,15 @@ import {
   type Factor,
   type FactorState,
 } from '../../core/data/calculation'
-import { columnWithKey, type Column } from '../behavior/columns'
+import { columnWithKey, type Column } from '../list/columns'
 import {
   lookupEntries,
   sourcesRows,
   suggestionsInWindowState,
   type Entry,
 } from '../behavior/lookup'
-import { asNumber } from '../behavior/sorting'
-import { rowsIndexOf } from '../behavior/sourceRows'
+import { asNumber } from '../list/sorting'
+import { rowsIndexOf } from '../list/sourceRows'
 import { SuggestionState, type KeyAction } from '../behavior/suggestionState'
 import { fieldRead } from '../../softengine/data'
 import {

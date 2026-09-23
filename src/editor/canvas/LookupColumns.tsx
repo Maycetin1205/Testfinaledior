@@ -10,7 +10,7 @@ import {
   COLUMNS_MAX,
   DEFAULT_TITLE,
   type Column,
-} from '../../blocks/behavior/columns'
+} from '../../blocks/list/columns'
 import { sourcesKey } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'

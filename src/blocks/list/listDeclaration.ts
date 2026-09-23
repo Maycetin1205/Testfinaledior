@@ -1,7 +1,7 @@
 import { booleanProperty, sourceProperty, type ValuesOf } from '../../core/block/property'
 import type { Capability } from '../../core/block/capability'
 import type { ListBinding } from '../../core/block/listBinding'
-import { dayFieldProperty } from './source'
+import { dayFieldProperty } from '../behavior/source'
 import { columnsProperty } from './columns'
 import { KEY_F4, ROW_DOUBLE, ROW_CHOSEN } from './rowActivation'
 

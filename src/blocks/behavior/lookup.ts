@@ -12,15 +12,15 @@ import {
   type DialogSizeDetail,
   type DialogFrame,
 } from './DialogFrame'
-import { rememberedSorting, sortIndices } from './sorting'
-import { LOOKUP_KEY_PART } from './operatorState'
-import { coerceColumns, DEFAULT_TITLE, FIELD_KEY_PREFIX, type Column } from './columns'
+import { rememberedSorting, sortIndices } from '../list/sorting'
+import { LOOKUP_KEY_PART } from '../list/operatorState'
+import { coerceColumns, DEFAULT_TITLE, FIELD_KEY_PREFIX, type Column } from '../list/columns'
 import { fittingSuggestions, SUGGESTIONS_MAX, type Suggestion } from './suggestionList'
 import {
   ROW_ACTIVATED_EVENT,
   type RowActivatedDetail,
-} from './rowActivation'
-import type { HandedRow, RowsFrom } from './sourceRows'
+} from '../list/rowActivation'
+import type { HandedRow, RowsFrom } from '../list/sourceRows'
 
 // The block that opens a lookup brings the table block along.
 const WINDOW_TABLE_TYPE = 'table'

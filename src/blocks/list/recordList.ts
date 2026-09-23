@@ -1,13 +1,18 @@
-import { html, nothing, type TemplateResult } from 'lit'
+import {
+  html,
+  nothing,
+  type ReactiveController,
+  type ReactiveControllerHost,
+  type TemplateResult,
+} from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { ViewChoices } from './viewChoices'
-import { giverIdOf } from './selection'
+import { giverIdOf } from '../behavior/selection'
 import type { MeasureTarget } from './pageSize'
-import { columnsView, sendColumnsChange } from './columns'
+import { columnsView, sendColumnsChange, type Column } from './columns'
 import { WidthsState } from './columnWidth'
 import { ColumnsChoiceState } from './columnPicker'
 import { tableRenderModel } from './tableModel'
-import { listEmptyState } from './listEmptyState'
 import type { ListSettings } from './listDeclaration'
 import {
   WITHOUT_DECORATION,
@@ -34,10 +39,13 @@ import {
 
 // The element a record list drives: it holds the rows, carries the settings the
 // list declares and reads its own columns and calculations.
-export interface ListElement extends RowsElement, ListSettings, MeasureTarget {
+export interface ListElement
+  extends RowsElement, ListSettings, MeasureTarget, ReactiveControllerHost {
+  // Only compared: new columns void the widths dragged for the old ones.
+  readonly columns: readonly Column[]
   inEditor: boolean
   editable: boolean
-  requestUpdate: () => void
+  hasUpdated: boolean
 }
 
 // What a block adds on top of a plain list. The capture fills all three, the
@@ -50,7 +58,38 @@ export interface ListHooks {
   bottom: () => Sublines | null
 }
 
-export class RecordList {
+interface ListShowQuestion {
+  inEditor: boolean
+
+  rowsFrom: RowsFrom
+
+  sourceId: string
+
+  columns: readonly Column[]
+
+  rowCount: number
+}
+
+interface ListShows {
+  // False in the editor: there the list draws placeholder rows, not data.
+  rows: boolean
+
+  empty: boolean
+}
+
+// Rows of blanks are as empty as no rows at all.
+function listEmptyState(question: ListShowQuestion): ListShows {
+  const sourceId = question.sourceId.trim()
+  const rows = !question.inEditor && (question.rowsFrom === 'handed' || sourceId !== '')
+  if (!rows) return { rows: false, empty: false }
+
+  const anyColumnBound = question.columns.some((column) => column.field.trim() !== '')
+  const empty = question.rowCount === 0
+    || (question.rowsFrom === 'source' && !anyColumnBound)
+  return { rows: true, empty }
+}
+
+export class RecordList implements ReactiveController {
   private readonly el: ListElement
 
   private readonly hooks: ListHooks | null
@@ -64,6 +103,8 @@ export class RecordList {
   private readonly _choice: ColumnsChoiceState
 
   private readonly _rowsChoice: RowsChoice
+
+  private _columns: readonly Column[] | null = null
 
   constructor(el: ListElement, hooks: ListHooks | null = null) {
     this.el = el
@@ -84,6 +125,7 @@ export class RecordList {
       forgetWidths: () => this._widths.forget(),
     })
     this._rowsChoice = new RowsChoice(el)
+    el.addController(this)
   }
 
   get rowsFrom(): RowsFrom {
@@ -130,10 +172,6 @@ export class RecordList {
     this.el.requestUpdate()
   }
 
-  columnsSwitched(): void {
-    this._widths.forget()
-  }
-
   private get columnPickerOn(): boolean {
     return this.el.columnPicker && this.el.headerRow && !this.el.inEditor
   }
@@ -151,7 +189,7 @@ export class RecordList {
     if (!this.el.inEditor && e.key === 'F5' && !e.ctrlKey && !e.metaKey) e.preventDefault()
   }
 
-  connected(): void {
+  hostConnected(): void {
     const el = this.el
     el.addEventListener('keydown', this.actionKey)
     el.addEventListener('keydown', this.locksReload)
@@ -159,15 +197,18 @@ export class RecordList {
     this._view.observe()
   }
 
-  observe(): void {
-    this._view.observe()
+  hostUpdate(): void {
+    if (this.el.columns === this._columns) return
+    this._columns = this.el.columns
+    this._widths.forget()
   }
 
-  afterRender(): void {
+  hostUpdated(): void {
+    if (!this.el.hasUpdated) this._view.observe()
     this._view.afterRender()
   }
 
-  disconnected(): void {
+  hostDisconnected(): void {
     const el = this.el
     el.removeEventListener('keydown', this.actionKey)
     el.removeEventListener('keydown', this.locksReload)

@@ -1,17 +1,17 @@
-import { type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
+import { type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import type { Calculation } from '../../core/data/calculation'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
-import { RecordList } from '../behavior/recordList'
-import { COLUMNS_BINDING, coerceColumns, type Column } from '../behavior/columns'
-import { tableStyle } from '../behavior/tableStyle'
+import { LIST_GRID, listCapabilities } from '../list/listDeclaration'
+import { RecordList } from '../list/recordList'
+import { COLUMNS_BINDING, coerceColumns, type Column } from '../list/columns'
+import { tableStyle } from '../list/tableStyle'
 import {
   WITHOUT_ROWS,
   type HandedRow,
   type RowsFrom,
   type RowsReport,
-} from '../behavior/sourceRows'
+} from '../list/sourceRows'
 import { tableProperties, type TableValues } from './properties'
 
 export interface Table extends TableValues {}
@@ -56,29 +56,6 @@ export class Table extends BlockElement {
 
   setSearchText(text: string): void {
     this._list.setSearchText(text)
-  }
-
-  override connectedCallback(): void {
-    super.connectedCallback()
-    this._list.connected()
-  }
-
-  protected override firstUpdated(): void {
-    this._list.observe()
-  }
-
-  protected override willUpdate(changed: PropertyValues): void {
-    super.willUpdate(changed)
-    if (changed.has('columns')) this._list.columnsSwitched()
-  }
-
-  protected override updated(): void {
-    this._list.afterRender()
-  }
-
-  override disconnectedCallback(): void {
-    super.disconnectedCallback()
-    this._list.disconnected()
   }
 
   override render(): TemplateResult {

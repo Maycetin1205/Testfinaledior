@@ -1,7 +1,7 @@
 import type { TemplateResult } from 'lit'
 import { openLookup } from '../behavior/lookup'
 import { keyOf } from '../behavior/suggestionState'
-import type { ColumnView } from '../behavior/columns'
+import type { ColumnView } from '../list/columns'
 import type { CaptureLedger } from './ledger'
 import { captureRowTpl } from './row'
 

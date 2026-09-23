@@ -1,6 +1,6 @@
 import { css, html, nothing, type TemplateResult } from 'lit'
 import { ref } from 'lit/directives/ref.js'
-import { plainText, rowFits } from './textSearch'
+import { plainText, rowFits } from '../list/textSearch'
 
 export const SUGGESTIONS_MAX = 8
 
