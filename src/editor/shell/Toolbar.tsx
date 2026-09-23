@@ -19,7 +19,6 @@ import {
 } from '../../core/block/documentFrame'
 import { ROOT_ID } from '../../core/block/tree'
 import { MASK_NAME_PROP, MASK_NAME_DEFAULT, maskNameOf } from '../../core/block/maskName'
-import { exportMask } from '../../export/exportMask'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
 import { downloadFile } from '../state/downloadFile'
 import { loadMaskFromFile, saveMaskAsFile } from '../state/maskFile'
@@ -46,7 +45,9 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
   const frameRaw = String(ed.tree[ROOT_ID]?.values[DOCUMENT_FRAME_PROP] ?? '')
   const frame = frameNumberOf(ed.tree)
 
-  const handleExport = (names: { html: string; sevariablen: string }) => {
+  const handleExport = async (names: { html: string; sevariablen: string }) => {
+    // The export carries the whole mask runtime; the editor loads it on the first export only.
+    const { exportMask } = await import('../../export/exportMask')
     const sources = ed.dataSources.list
     const relation = ed.relation.list
     const { html, sevariablen } = exportMask(
@@ -101,7 +102,7 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
 
       <Button
         aria-label="Als Belegerfassungs-Layoutrahmen exportieren"
-        onClick={() => handleExport(documentFileNames(frame))}
+        onClick={() => void handleExport(documentFileNames(frame))}
         disabled={ed.blockCount === 0 || frame === ''}
       >
         <FileText size={14} /> Beleg-Export
@@ -110,7 +111,7 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
       <Button
         kind="primary"
         aria-label="Als SoftEngine-Maske exportieren"
-        onClick={() => handleExport(MASK_NAMES)}
+        onClick={() => void handleExport(MASK_NAMES)}
         disabled={ed.blockCount === 0}
       >
         <Download size={14} /> Exportieren

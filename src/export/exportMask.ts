@@ -46,7 +46,7 @@ import { collectRelation } from './usedRelations'
 import { buildSevariablen } from './sevariablen'
 import { previewRaw, previewSpotsOf } from './bindingPreview'
 import { styleAttr } from './nodeStyle'
-import { runtimeScriptFor } from './runtimeParts'
+import runtimeRaw from './generated/runtime.js?raw'
 import {
   escapeHtmlAttr,
   escapeHtmlText,
@@ -206,7 +206,7 @@ export function exportMask(
 
   const tokensCss = stripCssComments(tokensCssRaw)
 
-  const runtimeJs = guardScriptContent(escapeNonAsciiJs(runtimeScriptFor(usedTypes(tree))))
+  const runtimeJs = guardScriptContent(escapeNonAsciiJs(runtimeRaw))
 
   const sourcesJs = guardJsonScript(escapeNonAsciiJs(
     'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => {
@@ -285,16 +285,4 @@ export function exportMask(
   const sevariablen = buildSevariablen(used, usedFields, getKey)
 
   return { html, sevariablen }
-}
-
-function usedTypes(tree: MaskTree): Set<string> {
-  const types = new Set<string>()
-  const walk = (id: string): void => {
-    const node = tree[id]
-    if (!node) return
-    if (id !== ROOT_ID) types.add(node.type)
-    for (const childId of node.childIds) walk(childId)
-  }
-  walk(ROOT_ID)
-  return types
 }
