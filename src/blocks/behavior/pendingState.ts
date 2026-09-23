@@ -5,7 +5,7 @@ import type {
   PendingKind,
 } from '../../core/block/capability'
 
-export const PENDING_EVENT = 'ff-vormerkungen'
+export const PENDING_EVENT = 'ff-pending-change'
 
 export type PendingCarrier = HTMLElement
   & Partial<CaptureCarrierElement>

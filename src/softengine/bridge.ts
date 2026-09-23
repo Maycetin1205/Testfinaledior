@@ -1,7 +1,7 @@
-import { isObjekt, messagesContent, dataFromContent, type Objekt } from './data'
+import { isObject, messagesContent, dataFromContent, type JsonObject } from './data'
 
-/* eslint-disable @typescript-eslint/no-explicit-any -- SEDATA/selib sind
-   fremde, untypisierte SoftEngine-Globals (Formen siehe Referenzmaske). */
+/* eslint-disable @typescript-eslint/no-explicit-any -- SEDATA and selib are
+   untyped globals of the SoftEngine host. */
 export function seWindow(): any {
   return globalThis as any
 }
@@ -18,7 +18,7 @@ export function hostCall(call: () => void): boolean {
 
 export function hasSeData(): boolean {
   const g = seWindow()
-  return isObjekt(g.SEDATA) && isObjekt(g.SEDATA.Daten)
+  return isObject(g.SEDATA) && isObject(g.SEDATA.Daten)
 }
 
 function tryInitSe(): void {
@@ -61,7 +61,7 @@ function afterRunStart(): void {
   if (afterRun !== null) return
   afterRun = setInterval(() => {
     if (focusOnUs()) return
-    afterRunBeenden()
+    afterRunStop()
     if (!pending) return
     pending = false
     const ran = pendingDelivery
@@ -70,7 +70,7 @@ function afterRunStart(): void {
   }, AFTER_RUN_MS)
 }
 
-function afterRunBeenden(): void {
+function afterRunStop(): void {
   if (afterRun === null) return
   clearInterval(afterRun)
   afterRun = null
@@ -122,10 +122,10 @@ export function freshDataRequest(): void {
   ring(false)
 }
 
-function dataAreNeu(): boolean {
+function dataAreNew(): boolean {
   const g = seWindow()
-  const raw = isObjekt(g.SEDATA) ? g.SEDATA.Daten : undefined
-  if (!isObjekt(raw)) return false
+  const raw = isObject(g.SEDATA) ? g.SEDATA.Daten : undefined
+  if (!isObject(raw)) return false
   const signature = signatureOf(raw)
   if (signature !== '' && signature === lastSignature) return false
   openSignature = signature
@@ -143,7 +143,7 @@ const SIGNATURE_LIMIT = 2_000_000
 let lastSignature = ''
 let openSignature: string | null = null
 
-function signatureOf(data: Objekt): string {
+function signatureOf(data: JsonObject): string {
   try {
     const raw = JSON.stringify(data)
     return raw.length > SIGNATURE_LIMIT ? '' : raw
@@ -159,7 +159,7 @@ function seConsume(raw: unknown): void {
     return
   }
   const g = seWindow()
-  if (!isObjekt(g.SEDATA)) g.SEDATA = {}
+  if (!isObject(g.SEDATA)) g.SEDATA = {}
   g.SEDATA.Daten = data
   refreshDataBase()
 
@@ -182,7 +182,7 @@ function registerSe(tries = 0): void {
   if (tries < 400) setTimeout(() => { registerSe(tries + 1) }, 25)
 }
 
-function focusBridgeBuild(): void {
+function buildFocusBridge(): void {
   seWindow().basisHTML_DoSetFocusToHTML = (): boolean => focusOnUs()
 }
 
@@ -196,10 +196,10 @@ export function startSe(): void {
 
   g.enableCustomFind = false
 
-  g.Erstellen = () => { refreshDataBase(); ring(dataAreNeu()) }
+  g.Erstellen = () => { refreshDataBase(); ring(dataAreNew()) }
   g.initData = g.Erstellen
-  g.ReloadData = () => { ring(dataAreNeu()) }
-  focusBridgeBuild()
+  g.ReloadData = () => { ring(dataAreNew()) }
+  buildFocusBridge()
   registerSe()
 
   window.addEventListener('message', (evt) => {
@@ -213,7 +213,7 @@ export function startSe(): void {
     if (hasSeData()) {
       clearInterval(poll)
       refreshDataBase()
-      ring(dataAreNeu())
+      ring(dataAreNew())
     } else if (tries > 100) {
       clearInterval(poll)
     }

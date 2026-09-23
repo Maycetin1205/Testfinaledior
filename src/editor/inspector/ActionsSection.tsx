@@ -14,7 +14,7 @@ export function ActionsSection({
 }) {
   const ed = useEditor()
 
-  const [openEreignis, setOpenEreignis] = useState<EventDef | null>(null)
+  const [openEvent, setOpenEvent] = useState<EventDef | null>(null)
 
   const chain = (eventKey: string) => ed.tree[block.id]?.chains?.[eventKey] ?? []
 
@@ -31,18 +31,18 @@ export function ActionsSection({
               )}
             </span>
 
-            <Button onClick={() => setOpenEreignis(ev)}>
+            <Button onClick={() => setOpenEvent(ev)}>
               {steps.length === 0 ? 'Schritt anlegen' : 'Kette bearbeiten'}
             </Button>
           </div>
         )
       })}
-      {openEreignis && (
+      {openEvent && (
         <ChainsWindow
           block={block}
-          eventKey={openEreignis.key}
-          eventName={openEreignis.name}
-          onClose={() => setOpenEreignis(null)}
+          eventKey={openEvent.key}
+          eventName={openEvent.name}
+          onClose={() => setOpenEvent(null)}
         />
       )}
     </div>

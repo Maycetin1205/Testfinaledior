@@ -62,7 +62,7 @@ export function packLibraryFrom(text: string): LibraryResult {
   }
 }
 
-function stabil(value: unknown): string {
+function stable(value: unknown): string {
   return JSON.stringify(value, (_key, w: unknown) => {
     if (!w || typeof w !== 'object' || Array.isArray(w)) return w
     const o = w as Record<string, unknown>
@@ -73,22 +73,22 @@ function stabil(value: unknown): string {
 export function addOn<T extends { id: string }>(
   old: readonly T[],
   fromFile: readonly T[],
-): { list: readonly T[]; next: number; replaced: number } {
+): { list: readonly T[]; added: number; replaced: number } {
   const list = [...old]
-  let next = 0
+  let added = 0
   let replaced = 0
   for (const entry of fromFile) {
     const at = list.findIndex((e) => e.id === entry.id)
     if (at < 0) {
       list.push(entry)
-      next++
+      added++
       continue
     }
-    if (stabil(list[at]) === stabil(entry)) continue
+    if (stable(list[at]) === stable(entry)) continue
     list[at] = entry
     replaced++
   }
-  return { list: next + replaced === 0 ? old : list, next, replaced }
+  return { list: added + replaced === 0 ? old : list, added, replaced }
 }
 
 export async function loadLibraryFromFile(editor: EditorStore, file: File): Promise<void> {

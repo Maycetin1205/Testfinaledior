@@ -7,7 +7,7 @@ import {
 } from '../../core/block/property'
 import { dayFieldProperty } from '../behavior/source'
 import { toneProperty } from '../behavior/tone'
-import { COLUMN_TITLE_STANDARD } from './places'
+import { COLUMN_TITLE_DEFAULT } from './places'
 
 export const kanbanProperties = {
   source: sourceProperty({
@@ -29,7 +29,7 @@ export type KanbanValues = ValuesOf<typeof kanbanProperties>
 export const kanbanColumnProperties = {
   tone: toneProperty(),
   heading: textProperty({
-    default: COLUMN_TITLE_STANDARD,
+    default: COLUMN_TITLE_DEFAULT,
     label: 'Titel',
     place: 'block',
     attribute: 'heading',

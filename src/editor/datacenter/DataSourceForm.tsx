@@ -65,7 +65,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   )
 
   const load = source?.loadRelation
-  const [rowsAway, setRowsAway] = useState<'geschoben' | 'fetch'>(load ? 'fetch' : 'geschoben')
+  const [rowsOrigin, setRowsOrigin] = useState<'pushed' | 'fetch'>(load ? 'fetch' : 'pushed')
   const [relationNr, setRelationNr] = useState(load?.nr ?? '')
   const fieldMapping = {
     documentKindField: load?.documentKindField ?? '',
@@ -97,18 +97,18 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
   const kindFacts = sourceKind(kind)
   const wording = sourcesWording(kind)
-  const keyEnter = tableKeyNeeded(kindFacts)
+  const asksKey = tableKeyNeeded(kindFacts)
 
-  const headerKeyEnter = kindFacts.headerKeyPossible
+  const asksHeaderKey = kindFacts.headerKeyPossible
 
-  const areaEnter = kindFacts.areaNeeded
+  const asksArea = kindFacts.areaNeeded
 
   const fetchPossible = kindFacts.relationLoadPossible
 
   const prefix = fieldPrefixFromInput(prefixInput)
 
-  const prefixEnter = kindFacts.fieldPrefixPossible || prefix !== ''
-  const fetchesRows = fetchPossible && rowsAway === 'fetch'
+  const asksPrefix = kindFacts.fieldPrefixPossible || prefix !== ''
+  const fetchesRows = fetchPossible && rowsOrigin === 'fetch'
 
   const deliverySelectable = kindFacts.varPossible && !fetchesRows
   const openRecord = deliverySelectable && delivery === 'openRecord'
@@ -161,16 +161,16 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   if (name.trim() === '') nameError = 'Anzeigename fehlt.'
   else if (nameDouble) nameError = 'Diesen Namen trägt schon eine andere Quelle.'
   const keyError =
-    keyEnter && keyFromInput(keyInput, kindFacts.idbShortForm) === ''
+    asksKey && keyFromInput(keyInput, kindFacts.idbShortForm) === ''
       ? `${wording.keyLabel} fehlt.`
       : ''
 
   const headerKeyError =
-    headerKeyEnter && headerKeyInput.trim() !== '' && headerKeyFromInput(headerKeyInput) === ''
+    asksHeaderKey && headerKeyInput.trim() !== '' && headerKeyFromInput(headerKeyInput) === ''
       ? 'Ungültig.'
       : ''
 
-  const areaError = areaEnter && areaInput.trim() === ''
+  const areaError = asksArea && areaInput.trim() === ''
     ? 'Bereich fehlt.'
     : ''
 
@@ -229,15 +229,15 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     const data: Omit<DataSource, 'id'> = {
       name: name.trim(),
       kind: kind,
-      ...(keyEnter ? { idbId: keyFromInput(keyInput, kindFacts.idbShortForm) } : {}),
+      ...(asksKey ? { idbId: keyFromInput(keyInput, kindFacts.idbShortForm) } : {}),
 
-      ...(headerKeyEnter && headerKeyFromInput(headerKeyInput) !== ''
+      ...(asksHeaderKey && headerKeyFromInput(headerKeyInput) !== ''
         ? { headerKeyIndex: headerKeyFromInput(headerKeyInput) }
         : {}),
 
       ...(prefix !== '' ? { fieldPrefix: prefix } : {}),
 
-      ...(areaEnter ? { area: areaInput.trim().toUpperCase() } : {}),
+      ...(asksArea ? { area: areaInput.trim().toUpperCase() } : {}),
 
       ...(openRecord ? { delivery: 'openRecord' as const } : {}),
 
@@ -291,7 +291,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           onChange={(v) => chooseKind(v as SourceKindId)}
         />
 
-        {keyEnter && (
+        {asksKey && (
           <Row label={wording.keyLabel} error={showError ? keyError : undefined}>
             {(f) => (
               <Field
@@ -304,7 +304,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           </Row>
         )}
 
-        {areaEnter && (
+        {asksArea && (
           <Row label="Bereich" error={showError ? areaError : undefined}>
             {(f) => (
               <Field
@@ -317,7 +317,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           </Row>
         )}
 
-        {areaEnter && (
+        {asksArea && (
           <Row label="Felder einlesen">
             {() => (
               <div className="flex flex-col gap-1">
@@ -337,7 +337,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           </Row>
         )}
 
-        {prefixEnter && (
+        {asksPrefix && (
           <Row label="Feld-Vorsatz">
             {(f) => (
               <Field
@@ -365,12 +365,12 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         {fetchPossible && !openRecord && (
           <SelectControl
             label="Woher kommen die Zeilen?"
-            value={rowsAway}
+            value={rowsOrigin}
             options={[
-              { value: 'geschoben', name: 'SoftEngine schickt sie beim Laden' },
+              { value: 'pushed', name: 'SoftEngine schickt sie beim Laden' },
               { value: 'fetch', name: 'Die Maske holt sie, sobald ein Beleg angeklickt ist' },
             ]}
-            onChange={(v) => setRowsAway(v as 'geschoben' | 'fetch')}
+            onChange={(v) => setRowsOrigin(v as 'pushed' | 'fetch')}
           />
         )}
         {fetchesRows && (
@@ -391,7 +391,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           </>
         )}
 
-        {headerKeyEnter && !fetchesRows && (
+        {asksHeaderKey && !fetchesRows && (
           <Row
             label="Gehört zu"
             error={showError ? headerKeyError : undefined}

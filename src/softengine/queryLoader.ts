@@ -11,7 +11,7 @@ export interface QuerySource {
 const fetched = new Set<string>()
 const inFlight = new Set<string>()
 
-export function holeQuerySource(source: QuerySource, query: RuntimeQuery): void {
+export function fetchQuerySource(source: QuerySource, query: RuntimeQuery): void {
   if (fetched.has(source.id) || inFlight.has(source.id)) return
   inFlight.add(source.id)
   void (async () => {

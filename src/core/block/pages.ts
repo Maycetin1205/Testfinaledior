@@ -36,7 +36,7 @@ export function pageOf(tree: MaskTree, id: string): string {
   return ROOT_ID
 }
 
-export function pagesTheMask(tree: MaskTree): PagesEntry[] {
+export function pagesOfMask(tree: MaskTree): PagesEntry[] {
   const pages = (tree[ROOT_ID]?.childIds ?? [])
     .map((id) => tree[id])
     .filter((n): n is BlockNode => Boolean(n) && isPagesBlock(n))
@@ -50,16 +50,16 @@ export function pagesTheMask(tree: MaskTree): PagesEntry[] {
   return [{ id: ROOT_ID, name: 'Hauptseite', isMainPage: true }, ...pages]
 }
 
-function uniquePagesName(
+function uniquePageName(
   pages: readonly PagesEntry[],
   ownId: string,
-  wish: string,
+  wanted: string,
 ): string {
   const key = (s: string): string => s.trim().toLocaleLowerCase('de-DE')
   const taken = new Set(
     pages.filter((s) => s.id !== ownId).map((s) => key(s.name)),
   )
-  const base = wish.trim()
+  const base = wanted.trim()
   let name = base
   for (let n = 2; taken.has(key(name)); n++) name = `${base} ${n}`
   return name
@@ -70,10 +70,10 @@ export function writeValue(
   pages: readonly PagesEntry[],
   id: string,
   attr: string,
-  wish: unknown,
+  value: unknown,
 ): unknown {
-  if (attr !== 'name' || def?.page !== true) return wish
-  const name = uniquePagesName(pages, id, typeof wish === 'string' ? wish : '')
+  if (attr !== 'name' || def?.page !== true) return value
+  const name = uniquePageName(pages, id, typeof value === 'string' ? value : '')
   return name === '' ? null : name
 }
 

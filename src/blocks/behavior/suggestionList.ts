@@ -24,9 +24,9 @@ function orderSuggestions<T extends Suggestion>(
   typed: string,
 ): T[] {
   return [...hit].sort((a, b) => {
-    const va = beginsWith(a, typed)
-    const vb = beginsWith(b, typed)
-    if (va !== vb) return va ? -1 : 1
+    const aBegins = beginsWith(a, typed)
+    const bBegins = beginsWith(b, typed)
+    if (aBegins !== bBegins) return aBegins ? -1 : 1
     return textCompare.compare(a.display.trim(), b.display.trim())
   })
 }

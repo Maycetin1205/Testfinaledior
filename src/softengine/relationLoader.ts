@@ -3,7 +3,7 @@ import { fieldRead, type RuntimeLoadRelation } from './data'
 import { fetchedRowsFor, setFetchedRows } from './fetchedRows'
 import { relationRun, type RelationAnswer } from './relations'
 
-const MAX_POSITIONEN = 999
+const MAX_POSITIONS = 999
 
 const CUT_POS = '0'
 const CUT_LEN = '255'
@@ -13,7 +13,7 @@ export interface GetSource {
   name: string
 }
 
-const generationen = new Map<string, number>()
+const generations = new Map<string, number>()
 
 function emptySource(name: string): void {
   const before = fetchedRowsFor(name)
@@ -24,12 +24,12 @@ function emptySource(name: string): void {
 async function question(
   load: RuntimeLoadRelation,
   key: { documentKind: string; documentNumber: string; year: string; archive: string },
-  posNr: number,
+  position: number,
   pos: string,
   len: string,
 ): Promise<RelationAnswer> {
   return relationRun(
-    { id: 'relation-lader', verb: 'GET_RELATION', nr: load.nr, parameter: [] },
+    { id: 'relation-loader', verb: 'GET_RELATION', nr: load.nr, parameter: [] },
     [
       key.documentKind,
       pos,
@@ -38,7 +38,7 @@ async function question(
       key.year,
       key.archive,
       '',
-      String(posNr),
+      String(position),
       '',
       '',
       '',
@@ -51,22 +51,22 @@ async function question(
 export function loadRowsPerRelation(
   source: GetSource,
   load: RuntimeLoadRelation,
-  geberRow: unknown,
+  giverRow: unknown,
 ): void {
-  const gen = (generationen.get(source.id) ?? 0) + 1
-  generationen.set(source.id, gen)
+  const gen = (generations.get(source.id) ?? 0) + 1
+  generations.set(source.id, gen)
 
-  if (geberRow === undefined) {
+  if (giverRow === undefined) {
     emptySource(source.name)
     return
   }
 
   const key = {
-    documentKind: fieldRead(geberRow, load.documentKindField),
-    documentNumber: fieldRead(geberRow, load.documentNumberField),
+    documentKind: fieldRead(giverRow, load.documentKindField),
+    documentNumber: fieldRead(giverRow, load.documentNumberField),
 
-    year: load.yearField === '' ? '' : fieldRead(geberRow, load.yearField),
-    archive: load.archiveField === '' ? '' : fieldRead(geberRow, load.archiveField),
+    year: load.yearField === '' ? '' : fieldRead(giverRow, load.yearField),
+    archive: load.archiveField === '' ? '' : fieldRead(giverRow, load.archiveField),
   }
 
   if (key.documentKind === '' || key.documentNumber === '') {
@@ -79,9 +79,9 @@ export function loadRowsPerRelation(
   void (async () => {
     const rows: Record<string, string>[] = []
 
-    for (let posNr = 1; posNr <= MAX_POSITIONEN; posNr += 1) {
-      const answer = await question(load, key, posNr, CUT_POS, CUT_LEN)
-      if (generationen.get(source.id) !== gen) return
+    for (let position = 1; position <= MAX_POSITIONS; position += 1) {
+      const answer = await question(load, key, position, CUT_POS, CUT_LEN)
+      if (generations.get(source.id) !== gen) return
 
       if (answer.failed === true) return
       const record = answer.value
@@ -94,18 +94,18 @@ export function loadRowsPerRelation(
         const extra = await question(
           load,
           key,
-          posNr,
+          position,
           field.slice(0, divider),
           field.slice(divider + 1),
         )
-        if (generationen.get(source.id) !== gen) return
+        if (generations.get(source.id) !== gen) return
         if (extra.failed === true) return
         row[field] = extra.value
       }
       rows.push(row)
     }
 
-    if (generationen.get(source.id) === gen) {
+    if (generations.get(source.id) === gen) {
       setFetchedRows(source.name, rows)
       reportTrigger()
     }

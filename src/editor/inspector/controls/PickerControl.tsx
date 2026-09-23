@@ -5,7 +5,7 @@ import { INPUT_EDGE } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/PushButton'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
-import { Row, type RowKind } from '@/editor/widgets/Row'
+import { Row, type RowControl } from '@/editor/widgets/Row'
 
 export interface PickerControlProps {
   label?: string
@@ -41,12 +41,12 @@ export function PickerControl({
 
   const shown = unknown ? 'missing' : (hit?.name ?? emptyText ?? placeholder)
 
-  const button = (kind?: RowKind) => (
+  const button = (control?: RowControl) => (
     <Button
       ref={buttonRef}
-      id={kind?.id}
-      aria-describedby={kind?.['aria-describedby']}
-      aria-invalid={kind?.['aria-invalid']}
+      id={control?.id}
+      aria-describedby={control?.['aria-describedby']}
+      aria-invalid={control?.['aria-invalid']}
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-label={label === undefined ? `${name}: ${shown}` : undefined}
@@ -70,7 +70,7 @@ export function PickerControl({
     <>
       {label === undefined && error === undefined
         ? button()
-        : <Row label={label} error={error}>{(kind) => button(kind)}</Row>}
+        : <Row label={label} error={error}>{(control) => button(control)}</Row>}
 
       {open && (
         <Popover

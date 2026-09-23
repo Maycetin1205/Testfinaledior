@@ -55,4 +55,4 @@ export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
     )
   },
 )
-Choice.displayName = 'Wahl'
+Choice.displayName = 'Choice'

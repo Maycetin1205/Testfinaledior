@@ -23,7 +23,7 @@ export function cellsFields(
   return found === undefined ? [] : Array.from(found)
 }
 
-export function walkInCell(field: HTMLInputElement | null | undefined): boolean {
+export function enterCell(field: HTMLInputElement | null | undefined): boolean {
   if (!field) return false
   field.focus()
   field.select()

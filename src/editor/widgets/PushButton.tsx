@@ -40,4 +40,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     />
   ),
 )
-Button.displayName = 'Knopf'
+Button.displayName = 'Button'

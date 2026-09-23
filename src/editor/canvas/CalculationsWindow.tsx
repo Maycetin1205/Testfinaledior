@@ -42,9 +42,9 @@ function Window({ blockId }: { blockId: string }) {
     ed.updateProperty(block.id, prop, list)
   }
   const make = (): void => {
-    const next = newCalculation(calculations)
-    set([...calculations, next])
-    setChosen(next.key)
+    const created = newCalculation(calculations)
+    set([...calculations, created])
+    setChosen(created.key)
   }
   const close = (): void => ed.openCalculations(null)
 
@@ -73,8 +73,8 @@ function Window({ blockId }: { blockId: string }) {
       list={{
         calculations,
         onChoose: setChosen,
-        onNeu: make,
-        onAway: () => {
+        onAdd: make,
+        onRemove: () => {
           set(calculations.filter((b) => b.key !== current.key))
           setChosen(null)
         },

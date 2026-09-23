@@ -28,10 +28,10 @@ import {
 } from '../core/data/dataSources'
 import type { RelationTemplate } from '../core/data/relations'
 import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
-import { pagesTheMask } from '../core/block/pages'
+import { pagesOfMask } from '../core/block/pages'
 import { isGridArea } from '../core/block/gridArea'
 import {
-  directionTheChildren,
+  directionOfChildren,
   ROOT_FLOW,
   type Direction,
 } from '../core/block/flow'
@@ -126,14 +126,14 @@ function nodeToHtml(
       if (OWN_SOURCE_PROPS.has(key) && !carriesOwnSource(node)) return ''
       if (silentBindings.has(key)) return ''
 
-      const standard = declared.default
-      const held = node.values[key] ?? standard
+      const fallback = declared.default
+      const held = node.values[key] ?? fallback
 
       const raw = previewSpots.has(key)
-        ? previewRaw(node, previewSpots.get(key)!, sources, standard)
+        ? previewRaw(node, previewSpots.get(key)!, sources, fallback)
         : declared.type.toAttribute(held)
 
-      if (raw === declared.type.toAttribute(standard)) return ''
+      if (raw === declared.type.toAttribute(fallback)) return ''
       return ` ${declared.attribute}="${escapeHtmlAttr(raw)}"`
     })
     .join('')
@@ -156,7 +156,7 @@ function nodeToHtml(
     return `${open}</${def.tag}>`
   }
 
-  const childDirection = directionTheChildren(def, node.values)
+  const childDirection = directionOfChildren(def, node.values)
 
   const childCtx: TemplateCtx | undefined = def.templateKind
     ? {
@@ -187,7 +187,7 @@ export function exportMask(
 ): MaskExport {
   const root = tree[ROOT_ID]
 
-  const pagesNameById = new Map(pagesTheMask(tree).map((s) => [s.id, s.name]))
+  const pagesNameById = new Map(pagesOfMask(tree).map((s) => [s.id, s.name]))
   const popupName = (id: string): string => pagesNameById.get(id) ?? ''
   const columnsIndex = columnsIndexFor(tree)
 
@@ -293,7 +293,7 @@ function usedTypes(tree: MaskTree): Set<string> {
     const node = tree[id]
     if (!node) return
     if (id !== ROOT_ID) types.add(node.type)
-    for (const kindId of node.childIds) walk(kindId)
+    for (const childId of node.childIds) walk(childId)
   }
   walk(ROOT_ID)
   return types

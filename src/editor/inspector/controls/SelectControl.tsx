@@ -14,9 +14,9 @@ interface SelectControlProps {
 export function SelectControl({ label, value, options, onChange }: SelectControlProps) {
   return (
     <Row label={label}>
-      {(kind) => (
+      {(control) => (
         <Choice
-          {...kind}
+          {...control}
           value={value ?? ''}
           options={options.map((o) => ({ value: o.value, name: o.name, badge: o.detail }))}
           onChoose={onChange}

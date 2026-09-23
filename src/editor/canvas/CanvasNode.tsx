@@ -6,7 +6,7 @@ import {
   flowWidthStyle,
   flowHeightRead,
   flowWidthRead,
-  directionTheChildren,
+  directionOfChildren,
   type Direction,
 } from '../../core/block/flow'
 import { gridSlotRead, gridSlotStyle, type GridSlot } from '../../core/block/grid'
@@ -20,7 +20,7 @@ import { dragPosition } from './gridMove'
 
 const CONTAINER_EDGE = 12
 
-function RasterGhost({ slot }: { slot: GridSlot }) {
+function GridGhost({ slot }: { slot: GridSlot }) {
   return (
     <div
       aria-hidden
@@ -60,7 +60,7 @@ export function NodeList(
   const templateChild = blockType(ed.getNode(parentId)?.type ?? '')?.templateKind
   const own = templateChild ? all.find((n) => n.type === templateChild.type) : undefined
   const nodes = own ? all.filter((n) => n.id !== own.id) : all
-  const further = template ?? own
+  const templateNode = template ?? own
 
   const lineAt = (i: number) =>
     !grid
@@ -68,8 +68,8 @@ export function NodeList(
     && dnd.dropTarget.parentId === parentId
     && dnd.dropTarget.index === i
 
-  const templateHere = further !== undefined && nodes.length === 0 ? further : undefined
-  const templateFurther = further !== undefined && nodes.length > 0 ? further : undefined
+  const templateHere = templateNode !== undefined && nodes.length === 0 ? templateNode : undefined
+  const templateWithFirst = templateNode !== undefined && nodes.length > 0 ? templateNode : undefined
 
   const ghost = grid && dnd.dropTarget?.kind === 'grid' && dnd.dropTarget.parentId === parentId
     ? dnd.dropTarget
@@ -86,13 +86,13 @@ export function NodeList(
             parentId={parentId}
             listDirection={direction}
             grid={grid}
-            template={i === 0 ? templateFurther : undefined}
+            template={i === 0 ? templateWithFirst : undefined}
           />
         </Fragment>
       ))}
       {lineAt(nodes.length) && <InsertionLine direction={direction} />}
       {templateHere && <TemplateNode template={templateHere} fallbackParent={parentId} direction={direction} />}
-      {ghost && <RasterGhost slot={ghost} />}
+      {ghost && <GridGhost slot={ghost} />}
     </>
   )
 }
@@ -130,7 +130,7 @@ function CanvasNode({ node, index, parentId, listDirection, grid = false, templa
   const dnd = useDnd()
   const def = blockType(node.type)
   const isContainer = def?.takesChildren ?? false
-  const childDirection = directionTheChildren(def, node.values)
+  const childDirection = directionOfChildren(def, node.values)
 
   const invalidTarget = (targetParentId: string) =>
     dnd.dragId !== null && ed.isInSubtree(dnd.dragId, targetParentId)

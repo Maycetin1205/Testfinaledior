@@ -33,7 +33,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
       ? 'read'
       : 'write')
   const [selectionId, setSelectionId] = useState<string | null>(store.list[0]?.id ?? null)
-  const [mode, setMode] = useState<'read' | 'edit' | 'next'>('read')
+  const [mode, setMode] = useState<'read' | 'edit' | 'new'>('read')
 
   const hitAll = store.list.filter((relation) => relationFitsToSearch(relation, search))
   const numerator: Record<RelationGroup, number> = {
@@ -66,7 +66,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
         areas={areas}
         listHead={(
           <>
-          <Button className="w-full" onClick={() => setMode('next')}>
+          <Button className="w-full" onClick={() => setMode('new')}>
             <Plus size={14} /> Neue Relation
           </Button>
           <div className="relative">
@@ -93,7 +93,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
         list={(
           <>
           {visibleRelation.map((r) => {
-            const active = mode !== 'next' && selection?.id === r.id
+            const active = mode !== 'new' && selection?.id === r.id
             return (
               <Entry
                 key={r.id}
@@ -113,7 +113,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
         )}
         detail={(
           <>
-        {mode === 'next' && <RelationForm onClose={() => setMode('read')} />}
+        {mode === 'new' && <RelationForm onClose={() => setMode('read')} />}
         {mode === 'edit' && selection && (
           <RelationForm relation={selection} onClose={() => setMode('read')} />
         )}

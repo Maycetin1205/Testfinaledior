@@ -1,7 +1,7 @@
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../../core/data/selectionFollow'
-import { fieldRead, isObjekt } from '../../softengine/data'
-import { pairListFromAttribut } from './pairList'
+import { fieldRead, isObject } from '../../softengine/data'
+import { pairListFromAttribute } from './pairList'
 
 // Two deliveries of the same record may list their fields in a different order,
 // so the trait sorts them before it compares.
@@ -9,7 +9,7 @@ export function traitOf(row: unknown): string {
   if (row == null) return ''
   try {
     return JSON.stringify(row, (_key, value: unknown) => {
-      if (!isObjekt(value) || Array.isArray(value)) return value
+      if (!isObject(value) || Array.isArray(value)) return value
       return Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]]))
     }) ?? ''
   } catch {
@@ -20,7 +20,7 @@ export function traitOf(row: unknown): string {
 const state = new Map<string, { row: unknown; trait: string; number: number }>()
 const listener = new Set<(byControls: boolean) => void>()
 
-let choiceNumerator = 0
+let selectionCounter = 0
 
 let messageRuns = false
 let lateReport = false
@@ -66,7 +66,7 @@ export function giverIdOf(el: Element): string {
   return el.getAttribute(BLOCK_ID_ATTR) ?? ''
 }
 
-export function selectionRefind<T>(
+export function relocateSelection<T>(
   giverId: string,
   candidates: readonly T[],
   rowOf: (candidate: T) => unknown,
@@ -79,7 +79,7 @@ export function selectionRefind<T>(
   candidates.forEach((candidate, i) => {
     if ((keyFor?.(candidate) || traitOf(rowOf(candidate))) === trait) hit.push(i)
   })
-  if (hit.length === 0) plainSelection(giverId)
+  if (hit.length === 0) clearSelection(giverId)
   else {
     const old = state.get(giverId)
     const row = rowOf(candidates[hit[0]])
@@ -97,7 +97,7 @@ export function chooseSelection(giverId: string, row: unknown, key = ''): void {
   if (trait === '') return
   const old = state.get(giverId)
   if (old && old.trait === trait) state.delete(giverId)
-  else state.set(giverId, { row, trait, number: ++choiceNumerator })
+  else state.set(giverId, { row, trait, number: ++selectionCounter })
   report(true)
 }
 
@@ -106,11 +106,11 @@ export function setSelection(giverId: string, row: unknown, byControls = false, 
   const trait = key || traitOf(row)
   if (trait === '') return
   if (state.get(giverId)?.trait === trait) return
-  state.set(giverId, { row, trait, number: ++choiceNumerator })
+  state.set(giverId, { row, trait, number: ++selectionCounter })
   report(byControls)
 }
 
-export function plainSelection(giverId: string): void {
+export function clearSelection(giverId: string): void {
   if (!state.has(giverId)) return
   state.delete(giverId)
   report(false)
@@ -118,13 +118,13 @@ export function plainSelection(giverId: string): void {
 
 const SELECTION_FOLLOW_ATTR = SELECTION_FOLLOW_PROP.toLowerCase()
 
-function followsFromAttribut(el: HTMLElement): SelectionFollow[] {
-  return pairListFromAttribut(el, SELECTION_FOLLOW_ATTR, 'giverId')
+function followsFromAttribute(el: HTMLElement): SelectionFollow[] {
+  return pairListFromAttribute(el, SELECTION_FOLLOW_ATTR, 'giverId')
     .map((e) => ({ giverId: e.id, pairs: e.pairs }))
 }
 
 export function selectionGiverOf(el: HTMLElement): string[] {
-  return followsFromAttribut(el).map((f) => f.giverId).filter((id) => id !== '')
+  return followsFromAttribute(el).map((f) => f.giverId).filter((id) => id !== '')
 }
 
 export function rowsToSelection(
@@ -133,26 +133,26 @@ export function rowsToSelection(
 ): { rows: unknown[]; filtered: boolean } {
   let out = rows
   let filtered = false
-  for (const follow of followsFromAttribut(el)) {
+  for (const follow of followsFromAttribute(el)) {
     const selection = selectionFor(follow.giverId)
     if (selection === undefined) continue
 
     const activePairs = follow.pairs
-      .map((p) => ({ should: fieldRead(selection, p.ofField), toField: p.toField }))
-      .filter((p) => p.should !== '')
+      .map((p) => ({ expected: fieldRead(selection, p.ofField), toField: p.toField }))
+      .filter((p) => p.expected !== '')
 
     if (activePairs.length === 0) continue
 
     filtered = true
     out = out.filter((row) =>
-      activePairs.every((p) => p.should === fieldRead(row, p.toField)),
+      activePairs.every((p) => p.expected === fieldRead(row, p.toField)),
     )
   }
   return { rows: out, filtered }
 }
 
 export function firstRowToSelection(el: HTMLElement, rows: unknown[]): unknown {
-  if (followsFromAttribut(el).length === 0) return rows[0]
+  if (followsFromAttribute(el).length === 0) return rows[0]
   const { rows: fitting, filtered } = rowsToSelection(el, rows)
   return filtered ? fitting[0] : undefined
 }

@@ -6,7 +6,7 @@ export const COLUMN_TAG = 'ff-kanban-column'
 const CARD_TAG = Card.tag
 export const CARD_TYPE = Card.type
 
-export const COLUMN_TITLE_STANDARD = 'Neue Spalte'
+export const COLUMN_TITLE_DEFAULT = 'Neue Spalte'
 
 export const TARGET_CLASS = 'target'
 export const TARGET_ATTR = 'data-ff-target'
@@ -46,7 +46,7 @@ export function cardsOf(column: ColumnPlace): HTMLElement[] {
 }
 
 function columnTitle(column: HTMLElement): string {
-  return column.getAttribute('heading') ?? COLUMN_TITLE_STANDARD
+  return column.getAttribute('heading') ?? COLUMN_TITLE_DEFAULT
 }
 
 // What the ERP holds for a column: its own value, or its title when it has none.

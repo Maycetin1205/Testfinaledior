@@ -1,13 +1,13 @@
 import { html, type TemplateResult } from 'lit'
-import { giverIdOf, plainSelection, setSelection } from '../behavior/selection'
+import { giverIdOf, clearSelection, setSelection } from '../behavior/selection'
 import {
   automaticColumns,
-  onlyHitFind,
-  followOnLeave,
-  holeEntries,
+  findOnlyHit,
+  actionOnLeave,
+  fetchEntries,
   magnifierIcon,
   openLookup,
-  recordFitsToSelection,
+  recordFitsSelection,
   closeLookupFor,
   suggestionsInWindowState,
   type Entry,
@@ -63,17 +63,17 @@ export class LookupControl {
     return this.list.open
   }
 
-  dragTo(): void {
-    this.list.show(this.lookAt())
+  refresh(): void {
+    this.list.show(this.currentSuggestions())
   }
 
-  render(klasse: string, title: string): TemplateResult {
+  render(inputClass: string, title: string): TemplateResult {
     return html`${inputSpotTpl({
       value: this.inField,
       title,
 
       placeholder: '',
-      klasse,
+      inputClass,
       holderClass: 'lookup',
       suggestions: this.list.hit,
       mark: this.list.mark,
@@ -87,7 +87,7 @@ export class LookupControl {
     }, {
       typing: (value) => {
         this.typed = value
-        this.list.ofFront()
+        this.list.restart()
         this.host.report()
       },
       key: (e) => this.key(e),
@@ -119,7 +119,7 @@ export class LookupControl {
     })
   }
 
-  private lookAt(): Entry[] {
+  private currentSuggestions(): Entry[] {
     if (this.list.closed || this.host.inEditor()) return []
     if (this.typed === null && !this.list.opened) return []
     const typed = this.typed ?? ''
@@ -138,8 +138,8 @@ export class LookupControl {
     )
   }
 
-  private entries(): ReturnType<typeof holeEntries> {
-    return holeEntries({
+  private entries(): ReturnType<typeof fetchEntries> {
+    return fetchEntries({
       el: this.host.block,
       sourceId: this.host.source(),
       storageField: this.host.storageField(),
@@ -157,7 +157,7 @@ export class LookupControl {
   private key(e: KeyboardEvent): void {
     if (this.host.inEditor()) return
     if (e.key === 'F5') e.preventDefault()
-    const follow = this.list.followFor(keyOf(e), {
+    const action = this.list.actionFor(keyOf(e), {
       listOpen: this.list.open,
       fieldEmpty: this.inField === '',
       typed: this.typed !== null,
@@ -167,16 +167,16 @@ export class LookupControl {
 
       jumps: false,
     })
-    if (follow === 'nothing') {
+    if (action === 'nothing') {
       if (e.key === 'Enter') e.preventDefault()
       return
     }
 
     if (e.key !== 'Tab') e.preventDefault()
-    if (follow === 'adopt') this.adoptSuggestion(this.list.mark)
-    else if (follow === 'window') this.openWindow(this.typed ?? '')
-    else if (follow === 'liste-auf') this.list.openList()
-    else if (follow === 'clear') {
+    if (action === 'adopt') this.adoptSuggestion(this.list.mark)
+    else if (action === 'window') this.openWindow(this.typed ?? '')
+    else if (action === 'openList') this.list.openList()
+    else if (action === 'clear') {
       this.typed = null
       this.empty()
       this.host.changed()
@@ -186,10 +186,10 @@ export class LookupControl {
 
   private leave(): void {
     if (this.host.inEditor()) return
-    const follow = followOnLeave(this.inField, this.display, this.host.value())
+    const action = actionOnLeave(this.inField, this.display, this.host.value())
     this.typed = null
     this.list.idle()
-    if (follow !== 'clear') return
+    if (action !== 'clear') return
     this.empty()
     this.host.changed()
   }
@@ -220,18 +220,18 @@ export class LookupControl {
     this.display = ''
     this.host.setValue('')
     this.list.idle()
-    plainSelection(giverIdOf(this.host.block))
+    clearSelection(giverIdOf(this.host.block))
   }
 
   checkValue(): void {
     if (this.typed !== null) this.host.report()
-    if (this.record !== undefined && !recordFitsToSelection(this.host.block, this.record)) {
+    if (this.record !== undefined && !recordFitsSelection(this.host.block, this.record)) {
       this.empty()
     }
     if (!this.host.onlyHit()) return
     const result = this.entries()
     if (!result.ok) return
-    const hit = onlyHitFind(result.entries, this.record === undefined)
+    const hit = findOnlyHit(result.entries, this.record === undefined)
     if (hit) this.take(hit.display, hit.value, hit.record)
   }
 

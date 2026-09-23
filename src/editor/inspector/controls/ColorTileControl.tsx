@@ -12,8 +12,8 @@ interface ColorTileControlProps {
 export function ColorTileControl({ label, value, options, onChange }: ColorTileControlProps) {
   return (
     <Row wide label={label}>
-      {(kind) => (
-        <div {...kind} className="flex flex-wrap items-center gap-1.5">
+      {(control) => (
+        <div {...control} className="flex flex-wrap items-center gap-1.5">
           {options.map((o) => (
             <ColorSwatch
               key={o.value}

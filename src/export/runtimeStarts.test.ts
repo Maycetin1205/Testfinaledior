@@ -6,7 +6,7 @@ import '../blocks/register'
 import { exportMask } from './exportMask'
 import { referenceTree, REFERENCE_SOURCES, REFERENCE_RELATION } from './reference/referenceMask'
 
-const STORE = path.resolve('node_modules/.tmp/laufzeit-start')
+const STORE = path.resolve('node_modules/.tmp/runtime-start')
 
 async function browserStart(): Promise<Browser> {
   try {
@@ -24,7 +24,7 @@ test('die exportierte Referenzmaske startet im Browser ohne Fehler', async () =>
   const tree = referenceTree()
   const { html } = exportMask(tree, 'Referenzmaske', REFERENCE_SOURCES, REFERENCE_RELATION)
   mkdirSync(STORE, { recursive: true })
-  const file = path.join(STORE, 'referenz.start.html')
+  const file = path.join(STORE, 'reference.start.html')
   writeFileSync(file, html)
 
   const tags = [...new Set(Object.values(tree).map((b) => b.type))]

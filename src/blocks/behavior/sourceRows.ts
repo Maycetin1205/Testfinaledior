@@ -2,8 +2,8 @@ import { hasCapability, contractOf } from '../../core/block/capability'
 import { blockTypeForTag } from '../../core/block/registry'
 import { recordIndexOf } from '../../softengine/data'
 import { runtimeSource } from '../../softengine/runtimeSources'
-import { selectionRefind, giverIdOf, traitOf, rowsToSelection } from './selection'
-import { holeDataPreamble, makeDataLink, sourceIdOf, type DataPreamble } from './source'
+import { relocateSelection, giverIdOf, traitOf, rowsToSelection } from './selection'
+import { readDataPreamble, makeDataLink, sourceIdOf, type DataPreamble } from './source'
 import { addRow, type Calculation } from '../../core/data/calculation'
 import { asNumber } from './sorting'
 import { columnWithKey, type Column } from './columns'
@@ -83,7 +83,7 @@ export function hasRecordNumber(el: HTMLElement): boolean {
 }
 
 function fillRows(el: RowsElement, delivery: boolean): void {
-  const preamble = holeDataPreamble(el)
+  const preamble = readDataPreamble(el)
 
   if (delivery) checkArrival(el, preamble)
   if (!preamble) {
@@ -97,7 +97,7 @@ function fillRows(el: RowsElement, delivery: boolean): void {
 
   const { rows, filtered } = rowsToSelection(el, preamble.rows)
 
-  selectionRefind(giverIdOf(el), rows, (r) => r, (r) => rowsTraitOf(el, r))
+  relocateSelection(giverIdOf(el), rows, (r) => r, (r) => rowsTraitOf(el, r))
 
   const read = preamble.read
 

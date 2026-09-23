@@ -3,26 +3,26 @@ import type { PropertyValue } from '../../core/block/property'
 import { type Parameter, type Step, type ActionChains } from '../../core/data/actions'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { deepClone } from '../../core/deepClone'
-import { freePagesName, isPagesBlock, pagesTheMask } from '../../core/block/pages'
+import { freePagesName, isPagesBlock, pagesOfMask } from '../../core/block/pages'
 import { freePositionForCopy } from '../../core/block/gridArea'
 
 export type NewIdFor = (oldId: string) => string | undefined
 
-function writeBlockReferenzenTo(node: BlockNode, newIdFor: NewIdFor): BlockNode {
+function writeBlockReferencesTo(node: BlockNode, newIdFor: NewIdFor): BlockNode {
   const follows = rewrittenFollows(node.values[SELECTION_FOLLOW_PROP], newIdFor)
   const events = node.chains === undefined
     ? undefined
-    : rewrittenEreignisse(node.chains, newIdFor)
+    : rewrittenEvents(node.chains, newIdFor)
 
-  const propsNeu = follows !== node.values[SELECTION_FOLLOW_PROP]
-  const eventsNeu = events !== undefined && events !== node.chains
-  if (!propsNeu && !eventsNeu) return node
+  const newProps = follows !== node.values[SELECTION_FOLLOW_PROP]
+  const newEvents = events !== undefined && events !== node.chains
+  if (!newProps && !newEvents) return node
   return {
     ...node,
-    ...(propsNeu
+    ...(newProps
       ? { values: { ...node.values, [SELECTION_FOLLOW_PROP]: follows as PropertyValue } }
       : {}),
-    ...(eventsNeu ? { chains: events } : {}),
+    ...(newEvents ? { chains: events } : {}),
   }
 }
 
@@ -66,7 +66,7 @@ function rewrittenStep(step: Step, newIdFor: NewIdFor): Step {
   return changed ? { ...step, parameter: params, extraParameter: extraParams } : step
 }
 
-function rewrittenEreignisse(
+function rewrittenEvents(
   events: ActionChains,
   newIdFor: NewIdFor,
 ): ActionChains {
@@ -104,13 +104,13 @@ function cloneSubtree(
   }
   const copyId = copy(id, tree[id].parentId)
   for (const newId of newIds.values()) {
-    nodes[newId] = writeBlockReferenzenTo(nodes[newId], (old) => newIds.get(old))
+    nodes[newId] = writeBlockReferencesTo(nodes[newId], (old) => newIds.get(old))
   }
   return { nodes, copyId }
 }
 
 function withFreePagesNames(tree: MaskTree, id: string, copy: BlockNode): BlockNode {
-  const pages = pagesTheMask(tree)
+  const pages = pagesOfMask(tree)
   const base = pages.find((s) => s.id === id)?.name
   if (base === undefined) return copy
   const name = freePagesName(pages.map((s) => s.name), base)

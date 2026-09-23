@@ -13,7 +13,7 @@ export interface ValueSource {
   name: string
 }
 
-const generationen = new Map<string, number>()
+const generations = new Map<string, number>()
 
 function rowFromAnswer(
   value: string,
@@ -28,9 +28,9 @@ function rowFromAnswer(
   return row
 }
 
-export function holeValueSource(source: ValueSource, get: RuntimeGetValue): void {
-  const gen = (generationen.get(source.id) ?? 0) + 1
-  generationen.set(source.id, gen)
+export function fetchValueSource(source: ValueSource, get: RuntimeGetValue): void {
+  const gen = (generations.get(source.id) ?? 0) + 1
+  generations.set(source.id, gen)
 
   const relation = relationFromList(seWindow().FF_RELATIONS, get.relationId)
 
@@ -41,7 +41,7 @@ export function holeValueSource(source: ValueSource, get: RuntimeGetValue): void
 
   void (async () => {
     const answer = await relationRun(relation, params)
-    if (generationen.get(source.id) !== gen) return
+    if (generations.get(source.id) !== gen) return
 
     if (answer.failed === true) return
     setFetchedRows(source.name, [rowFromAnswer(answer.value, answer.raw, get.fields)])

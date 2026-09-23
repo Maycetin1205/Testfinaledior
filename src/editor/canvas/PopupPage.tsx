@@ -6,7 +6,7 @@ import { BlockHost } from './BlockHost'
 import { NodeList } from './CanvasNode'
 import { isNewBlockDrag } from './dnd'
 import { commitDrop, useDnd } from './dndState'
-import { rasterTarget } from './gridDnd'
+import { gridTarget } from './gridDnd'
 import { areaUnderPointer } from './gridArea'
 import { dragSize } from './dragSize'
 
@@ -80,7 +80,7 @@ export function PopupPage({ popupId }: { popupId: string }) {
           return
         }
         e.preventDefault()
-        dnd.setDropTarget(rasterTarget(e, ed, dnd, target.parentId, target.area))
+        dnd.setDropTarget(gridTarget(e, ed, dnd, target.parentId, target.area))
       }}
       onDragLeave={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {

@@ -26,22 +26,22 @@ type Kind = 'number' | 'date' | 'text'
 function detectKind(values: readonly string[]): Kind {
   let filled = 0
   let numbers = 0
-  let data = 0
+  let dates = 0
   for (const w of values) {
     if (w.trim() === '') continue
     filled++
     if (asNumber(w) !== null) numbers++
-    if (asDate(w) !== null) data++
+    if (asDate(w) !== null) dates++
   }
   if (filled === 0) return 'text'
-  if (data === filled) return 'date'
+  if (dates === filled) return 'date'
   if (numbers === filled) return 'number'
   return 'text'
 }
 
 const textCompare = new Intl.Collator('de', { numeric: true, sensitivity: 'base' })
 
-export function sortIndizes(
+export function sortIndices(
   rows: readonly (readonly string[])[],
   column: number,
   ascending: boolean,
@@ -55,17 +55,17 @@ export function sortIndizes(
   return rows
     .map((_, i) => i)
     .sort((a, b) => {
-      const wa = cell(a).trim()
-      const wb = cell(b).trim()
+      const textA = cell(a).trim()
+      const textB = cell(b).trim()
 
-      if (wa === '' && wb === '') return a - b
-      if (wa === '') return EMPTY_LAST
-      if (wb === '') return -EMPTY_LAST
+      if (textA === '' && textB === '') return a - b
+      if (textA === '') return EMPTY_LAST
+      if (textB === '') return -EMPTY_LAST
 
       const d =
-        kind === 'number' ? (asNumber(wa) ?? 0) - (asNumber(wb) ?? 0)
-        : kind === 'date' ? (asDate(wa) ?? 0) - (asDate(wb) ?? 0)
-        : textCompare.compare(wa, wb)
+        kind === 'number' ? (asNumber(textA) ?? 0) - (asNumber(textB) ?? 0)
+        : kind === 'date' ? (asDate(textA) ?? 0) - (asDate(textB) ?? 0)
+        : textCompare.compare(textA, textB)
 
       return d !== 0 ? d * direction : a - b
     })
@@ -101,4 +101,4 @@ export function totalText(values: readonly string[], min: number, max: number): 
   })
 }
 
-export const TOTAL_NACHKOMMA = { min: 0, max: 3 } as const
+export const TOTAL_DECIMALS = { min: 0, max: 3 } as const

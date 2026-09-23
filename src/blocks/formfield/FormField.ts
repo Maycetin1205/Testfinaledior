@@ -3,10 +3,10 @@ import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable } from '../../core/block/capability'
 import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../behavior/lookup'
-import { readDate, tagKey } from '../behavior/chosenDay'
+import { readDate, dayKey } from '../behavior/chosenDay'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { LookupControl } from './lookupControl'
-import { valueDisconnected, valueRegistered } from './valueBinding'
+import { disconnectValue, connectValue } from './valueBinding'
 import { fieldStyle } from './formFieldStyle'
 import {
   FIELD_TYPES,
@@ -33,7 +33,7 @@ const PH_CLASS: Partial<Record<FieldType, string>> = {
 }
 
 function dateForInput(value: string): string {
-  return tagKey(value) || value
+  return dayKey(value) || value
 }
 
 function dateFromInput(value: string): string {
@@ -150,7 +150,7 @@ export class FormField extends BlockElement {
 
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed)
-    this._lookup.dragTo()
+    this._lookup.refresh()
   }
 
   protected override updated(changed: PropertyValues): void {
@@ -196,12 +196,12 @@ export class FormField extends BlockElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    valueRegistered(this)
+    connectValue(this)
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    valueDisconnected(this)
+    disconnectValue(this)
     this._lookup.cleanUp()
   }
 }

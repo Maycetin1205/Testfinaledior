@@ -71,7 +71,7 @@ function originText(
   binding: Parameter | undefined,
   tree: MaskTree,
   sources: readonly DataSource[],
-  stepNr: (id: string) => number,
+  stepNumber: (id: string) => number,
 ): string {
   if (!binding) return ''
   switch (binding.source) {
@@ -86,8 +86,8 @@ function originText(
     case 'from':
       return 'empty'
     case 'step_result': {
-      const nr = stepNr(binding.value)
-      return nr > 0 ? `Ergebnis von Schritt ${nr}` : 'Ergebnis von Schritt'
+      const number = stepNumber(binding.value)
+      return number > 0 ? `Ergebnis von Schritt ${number}` : 'Ergebnis von Schritt'
     }
     case 'data_field': {
       const source = sources.find((q) => q.id === binding.sourceId)
@@ -140,7 +140,7 @@ export function stepSummary(
   tree: MaskTree,
   sources: readonly DataSource[],
 
-  stepNr: (id: string) => number,
+  stepNumber: (id: string) => number,
 ): StepSummary {
   const empty: StepSummary = { what, target: '', origin: '', table: '' }
   if (step.kind !== 'RELATION' || !relation) return empty
@@ -152,7 +152,7 @@ export function stepSummary(
     target: plainNameForCode(code, source, sources)
 
       || (code !== '' && fieldCodeSplit(code) ? code : ''),
-    origin: originText(valueBinding(relation, step.parameter), tree, sources, stepNr),
+    origin: originText(valueBinding(relation, step.parameter), tree, sources, stepNumber),
     table: source ? `${source.name} · ${sourcesKey(source)}` : '',
   }
 }

@@ -1,6 +1,6 @@
 export function startRename(
   target: HTMLElement,
-  adopt: (next: string, original: string) => boolean,
+  adopt: (text: string, original: string) => boolean,
 ): void {
   const original = target.textContent ?? ''
 
@@ -31,13 +31,13 @@ export function startRename(
     if (!spot.collapsed) spot.deleteContents()
     const node = spot.startContainer
     if (node instanceof Text) {
-      const wo = spot.startOffset
-      node.insertData(wo, ' ')
-      marker.collapse(node, wo + 1)
+      const offset = spot.startOffset
+      node.insertData(offset, ' ')
+      marker.collapse(node, offset + 1)
     } else {
-      const next = document.createTextNode(' ')
-      spot.insertNode(next)
-      marker.collapse(next, 1)
+      const space = document.createTextNode(' ')
+      spot.insertNode(space)
+      marker.collapse(space, 1)
     }
   }
 

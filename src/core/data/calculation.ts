@@ -1,13 +1,13 @@
 import {
   fromBase,
-  pictureAsText,
-  picturesEquals,
-  pictureWith,
-  UNIT_STANDARD,
+  dimensionsText,
+  dimensionsEqual,
+  dimensionsWith,
+  UNIT_DEFAULT,
   unitShort,
-  SIZE_IMAGE_EMPTY,
+  NO_DIMENSIONS,
   inBase,
-  type SizeImage,
+  type Dimensions,
 } from './units'
 
 export type RoundingDirection = 'on' | 'off' | 'kfm'
@@ -17,7 +17,7 @@ export interface Rounding {
   direction: RoundingDirection
 }
 
-const ROUND_STANDARD: Rounding = { spots: 3, direction: 'kfm' }
+const ROUND_DEFAULT: Rounding = { spots: 3, direction: 'kfm' }
 
 export const SPOTS_MAX = 6
 
@@ -49,15 +49,15 @@ export function numberText(value: number, spots: number): string {
 }
 
 function asRounding(raw: unknown): Rounding {
-  if (!raw || typeof raw !== 'object') return { ...ROUND_STANDARD }
+  if (!raw || typeof raw !== 'object') return { ...ROUND_DEFAULT }
   const o = raw as Record<string, unknown>
   const spots = typeof o.spots === 'number' && Number.isInteger(o.spots)
     && o.spots >= 0 && o.spots <= SPOTS_MAX
     ? o.spots
-    : ROUND_STANDARD.spots
+    : ROUND_DEFAULT.spots
   const direction = o.direction === 'on' || o.direction === 'off' || o.direction === 'kfm'
     ? o.direction
-    : ROUND_STANDARD.direction
+    : ROUND_DEFAULT.direction
   return { spots, direction }
 }
 
@@ -108,7 +108,7 @@ export function allFactors(b: Calculation): Factor[] {
   return [b.lead, ...b.numerator, ...b.denominator]
 }
 
-function pages(b: Calculation): { left: Factor[]; right: Factor[] } {
+function sides(b: Calculation): { left: Factor[]; right: Factor[] } {
   return { left: [b.lead, ...b.denominator], right: [...b.numerator] }
 }
 
@@ -129,7 +129,7 @@ export function directionAsText(
   key: string,
   columnsTitle: (key: string) => string,
 ): string {
-  const { left, right } = pages(b)
+  const { left, right } = sides(b)
   const target = allFactors(b).find((f) => f.key === key)
   if (target === undefined) return ''
   const own = left.some((f) => f.key === key) ? left : right
@@ -144,7 +144,7 @@ export function directionAsText(
 export type FactorState =
   | { kind: 'number'; number: number }
   | { kind: 'empty' }
-  | { kind: 'ungueltig'; text: string }
+  | { kind: 'invalid'; text: string }
 
   | { kind: 'withoutRecord' }
 
@@ -156,55 +156,55 @@ export type CalculationPlacement =
 
   | { kind: 'open' }
 
-  | { kind: 'stimmt' }
+  | { kind: 'consistent' }
 
-  | { kind: 'widerspruch'; text: string }
+  | { kind: 'contradiction'; text: string }
 
   | { kind: 'incomplete'; text: string }
 
-const FAST_NULL = 1e-12
+const NEAR_ZERO = 1e-12
 
 function product(values: readonly number[]): number {
   return values.reduce((a, b) => a * b, 1)
 }
 
 function unitsProbe(b: Calculation): string {
-  const { left, right } = pages(b)
-  const pictureOf = (factors: readonly Factor[]): SizeImage | null => {
-    let picture: SizeImage | null = SIZE_IMAGE_EMPTY
+  const { left, right } = sides(b)
+  const dimensionsOf = (factors: readonly Factor[]): Dimensions | null => {
+    let dimensions: Dimensions | null = NO_DIMENSIONS
     for (const f of factors) {
-      if (picture === null) return null
-      picture = pictureWith(picture, f.unit, 1)
+      if (dimensions === null) return null
+      dimensions = dimensionsWith(dimensions, f.unit, 1)
     }
-    return picture
+    return dimensions
   }
-  const l = pictureOf(left)
-  const r = pictureOf(right)
+  const l = dimensionsOf(left)
+  const r = dimensionsOf(right)
   if (l === null || r === null) return 'Eine Einheit ist unbekannt.'
-  if (picturesEquals(l, r)) return ''
-  return `Die Einheiten passen nicht zusammen: links ${pictureAsText(l)}, rechts ${pictureAsText(r)}.`
+  if (dimensionsEqual(l, r)) return ''
+  return `Die Einheiten passen nicht zusammen: links ${dimensionsText(l)}, rechts ${dimensionsText(r)}.`
 }
 
 interface Weighted {
   factor: Factor
-  page: 'left' | 'right'
+  side: 'left' | 'right'
   state: FactorState
 
   base: number | null
 }
 
 function weigh(b: Calculation, stateOf: (f: Factor) => FactorState): Weighted[] | string {
-  const { left, right } = pages(b)
+  const { left, right } = sides(b)
   const out: Weighted[] = []
-  for (const [page, factors] of [['left', left], ['right', right]] as const) {
+  for (const [side, factors] of [['left', left], ['right', right]] as const) {
     for (const factor of factors) {
       const state = stateOf(factor)
       if (state.kind === 'number') {
         const base = inBase(state.number, factor.unit)
         if (base === null) return `Die Einheit von „${factor.key}" ist unbekannt.`
-        out.push({ factor, page, state, base })
+        out.push({ factor, side, state, base })
       } else {
-        out.push({ factor, page, state, base: null })
+        out.push({ factor, side, state, base: null })
       }
     }
   }
@@ -212,7 +212,7 @@ function weigh(b: Calculation, stateOf: (f: Factor) => FactorState): Weighted[] 
 }
 
 function fault(g: Weighted, name: (f: Factor) => string): string {
-  if (g.state.kind === 'ungueltig') {
+  if (g.state.kind === 'invalid') {
     return `„${name(g.factor)}" ist keine Zahl: ${g.state.text}`
   }
   if (g.state.kind === 'withoutRecord') {
@@ -224,13 +224,13 @@ function fault(g: Weighted, name: (f: Factor) => string): string {
   return ''
 }
 
-function resolve(all: readonly Weighted[], target: Weighted): number | 'null' | null {
+function resolve(all: readonly Weighted[], target: Weighted): number | 'divisionByZero' | null {
   const withoutTarget = all.filter((g) => g !== target)
   if (withoutTarget.some((g) => g.base === null)) return null
-  const own = withoutTarget.filter((g) => g.page === target.page).map((g) => g.base as number)
-  const other = withoutTarget.filter((g) => g.page !== target.page).map((g) => g.base as number)
+  const own = withoutTarget.filter((g) => g.side === target.side).map((g) => g.base as number)
+  const other = withoutTarget.filter((g) => g.side !== target.side).map((g) => g.base as number)
   const divider = product(own)
-  if (Math.abs(divider) < FAST_NULL) return 'null'
+  if (Math.abs(divider) < NEAR_ZERO) return 'divisionByZero'
   const value = product(other) / divider
   return Number.isFinite(value) ? value : null
 }
@@ -262,7 +262,7 @@ export function computeCalculation(
     const f = target.factor
     if (f.kind !== 'column' || !f.result) return { kind: 'open' }
     const base = resolve(weighted, target)
-    if (base === 'null') {
+    if (base === 'divisionByZero') {
       return { kind: 'incomplete', text: `„${name(f)}" ließe sich nur durch Teilen durch null berechnen.` }
     }
     if (base === null) return { kind: 'open' }
@@ -281,24 +281,24 @@ export function computeCalculation(
   }
 
   const checkable = weighted.filter((g) => g.factor.kind === 'column' && g.factor.result)
-  if (checkable.length === 0) return { kind: 'stimmt' }
+  if (checkable.length === 0) return { kind: 'consistent' }
   const deviations: string[] = []
   for (const g of checkable) {
     const f = g.factor as ColumnsFactor
     const base = resolve(weighted, g)
-    if (base === 'null' || base === null) continue
-    const should = fromBase(base, f.unit)
-    if (should === null || !Number.isFinite(should)) continue
-    const is = fromBase(g.base as number, f.unit) as number
+    if (base === 'divisionByZero' || base === null) continue
+    const expected = fromBase(base, f.unit)
+    if (expected === null || !Number.isFinite(expected)) continue
+    const actual = fromBase(g.base as number, f.unit) as number
     const step = Math.pow(10, -Math.max(0, f.round.spots))
-    if (Math.abs(should - is) <= step / 2 + 1e-9) return { kind: 'stimmt' }
+    if (Math.abs(expected - actual) <= step / 2 + 1e-9) return { kind: 'consistent' }
     deviations.push(
-      `${name(f)} ${numberText(is, f.round.spots)} statt ${numberText(roundValue(should, f.round), f.round.spots)} ${unitShort(f.unit)}`.trim(),
+      `${name(f)} ${numberText(actual, f.round.spots)} statt ${numberText(roundValue(expected, f.round), f.round.spots)} ${unitShort(f.unit)}`.trim(),
     )
   }
-  if (deviations.length === 0) return { kind: 'stimmt' }
+  if (deviations.length === 0) return { kind: 'consistent' }
   return {
-    kind: 'widerspruch',
+    kind: 'contradiction',
     text: `Die Werte passen nicht zusammen (${b.name}): ${deviations.join('; ')}.`,
   }
 }
@@ -366,7 +366,7 @@ export function addRow(
       const text = slot === -1 ? '' : given(slot).trim()
       if (text === '') return { kind: 'empty' }
       const number = numberOf(text)
-      return number === null ? { kind: 'ungueltig', text } : { kind: 'number', number }
+      return number === null ? { kind: 'invalid', text } : { kind: 'number', number }
     },
     () => [],
     () => '',
@@ -391,11 +391,11 @@ function text(v: unknown): string {
   return typeof v === 'string' ? v.trim() : ''
 }
 
-function asFactor(raw: unknown, nr: number): Factor | null {
+function asFactor(raw: unknown, index: number): Factor | null {
   if (!raw || typeof raw !== 'object') return null
   const o = raw as Record<string, unknown>
-  const key = text(o.key) === '' ? `f${nr}` : text(o.key)
-  const unit = text(o.unit) === '' ? UNIT_STANDARD : text(o.unit)
+  const key = text(o.key) === '' ? `f${index}` : text(o.key)
+  const unit = text(o.unit) === '' ? UNIT_DEFAULT : text(o.unit)
   if (o.kind === 'dataField') {
     return { kind: 'dataField', key, name: text(o.name), field: text(o.field), unit }
   }
@@ -413,39 +413,39 @@ function asFactor(raw: unknown, nr: number): Factor | null {
   }
 }
 
-function asLead(raw: unknown, nr: number): ColumnsFactor {
-  const factor = asFactor(raw, nr)
+function asLead(raw: unknown, index: number): ColumnsFactor {
+  const factor = asFactor(raw, index)
 
   if (factor === null || factor.kind !== 'column') {
     return {
       kind: 'column',
-      key: `f${nr}`,
+      key: `f${index}`,
       column: '',
-      unit: UNIT_STANDARD,
+      unit: UNIT_DEFAULT,
       result: true,
-      round: { ...ROUND_STANDARD },
+      round: { ...ROUND_DEFAULT },
     }
   }
   return { ...factor, result: true }
 }
 
-function asList(raw: unknown, off: number): Factor[] {
+function asList(raw: unknown, offset: number): Factor[] {
   if (!Array.isArray(raw)) return []
   const out: Factor[] = []
   raw.forEach((entry, i) => {
-    const factor = asFactor(entry, off + i)
+    const factor = asFactor(entry, offset + i)
     if (factor !== null) out.push(factor)
   })
   return out
 }
 
 function withUniqueKeys(b: Calculation): Calculation {
-  const assign = new Set<string>()
-  let nr = 0
+  const taken = new Set<string>()
+  let counter = 0
   const unique = <T extends Factor>(f: T): T => {
     let key = f.key
-    while (key === '' || assign.has(key)) key = `f${++nr}`
-    assign.add(key)
+    while (key === '' || taken.has(key)) key = `f${++counter}`
+    taken.add(key)
     return key === f.key ? f : { ...f, key }
   }
   return {
@@ -486,17 +486,17 @@ export function newFactor(key: string): ColumnsFactor {
     kind: 'column',
     key,
     column: '',
-    unit: UNIT_STANDARD,
+    unit: UNIT_DEFAULT,
     result: true,
-    round: { ...ROUND_STANDARD },
+    round: { ...ROUND_DEFAULT },
   }
 }
 
 function freeCalculationKey(present: readonly Calculation[]): string {
-  let nr = present.length + 1
-  const assign = new Set(present.map((b) => b.key))
-  while (assign.has(`b${nr}`)) nr++
-  return `b${nr}`
+  let n = present.length + 1
+  const taken = new Set(present.map((b) => b.key))
+  while (taken.has(`b${n}`)) n++
+  return `b${n}`
 }
 
 export function newCalculation(present: readonly Calculation[]): Calculation {
@@ -511,10 +511,10 @@ export function newCalculation(present: readonly Calculation[]): Calculation {
 }
 
 export function freeFactorKey(b: Calculation): string {
-  const assign = new Set(allFactors(b).map((f) => f.key))
-  let nr = 1
-  while (assign.has(`f${nr}`)) nr++
-  return `f${nr}`
+  const taken = new Set(allFactors(b).map((f) => f.key))
+  let n = 1
+  while (taken.has(`f${n}`)) n++
+  return `f${n}`
 }
 
 export function calculationFlaws(

@@ -1,10 +1,10 @@
-const EREIGNIS = 'ff-datencenter-oeffnen'
+const EVENT = 'ff-datacenter-open'
 
 export function openDataCenter(): void {
-  document.dispatchEvent(new CustomEvent(EREIGNIS))
+  document.dispatchEvent(new CustomEvent(EVENT))
 }
 
-export function onDataCenterWish(fn: () => void): () => void {
-  document.addEventListener(EREIGNIS, fn)
-  return () => document.removeEventListener(EREIGNIS, fn)
+export function onDataCenterRequest(fn: () => void): () => void {
+  document.addEventListener(EVENT, fn)
+  return () => document.removeEventListener(EVENT, fn)
 }

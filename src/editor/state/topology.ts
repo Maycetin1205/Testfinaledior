@@ -6,8 +6,8 @@ export function treeFromRoot(tree: MaskTree): MaskTree {
   const take = (id: string): void => {
     const node = tree[id]
     const childIds = [...new Set(node.childIds)].filter((child) => {
-      const kid = tree[child]
-      return kid !== undefined && kid.parentId === id && mayContain(node.type, kid.type)
+      const childNode = tree[child]
+      return childNode !== undefined && childNode.parentId === id && mayContain(node.type, childNode.type)
     })
     out[id] = { ...node, childIds }
     for (const child of childIds) take(child)

@@ -14,7 +14,7 @@ import { validMetrics, closeLookupFor } from '../behavior/lookup'
 import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../behavior/DialogFrame'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { reportPendingMarks } from '../behavior/pendingState'
-import { walkInCell, cellsInputStyle, cellsFields } from './cells'
+import { enterCell, cellsInputStyle, cellsFields } from './cells'
 import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../behavior/sourceRows'
 import type { Sublines, RowDecoration } from '../behavior/tableBody'
 import { captureRowFor } from './controls'
@@ -112,7 +112,7 @@ export class Capture extends BlockElement {
 
   private focusCaptureCell(index: number): void {
     void this.updateComplete.then(() => {
-      walkInCell(cellsFields(this.shadowRoot, '.row.capture', index)[0])
+      enterCell(cellsFields(this.shadowRoot, '.row.capture', index)[0])
     })
   }
 
@@ -167,7 +167,7 @@ export class Capture extends BlockElement {
           ),
         }, {
           takeCapturedRow: (index) => this._ledger.removeCaptured(index),
-          holeCapturedRow: (index) => this._ledger.bringBackCaptured(index),
+          bringBackCapturedRow: (index) => this._ledger.bringBackCaptured(index),
         })
       },
     }
@@ -185,7 +185,7 @@ export class Capture extends BlockElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    this._list.registered()
+    this._list.connected()
     document.addEventListener('keydown', this.maskKey)
   }
 
@@ -208,7 +208,7 @@ export class Capture extends BlockElement {
   }
 
   protected override updated(): void {
-    this._list.toRender()
+    this._list.afterRender()
     reportPendingMarks(this)
   }
 

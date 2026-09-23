@@ -22,9 +22,9 @@ export function TextControl({
   const session = useInputSession(onBeginEditing, onEndEditing)
   return (
     <Row label={property.label}>
-      {(kind) => (
+      {(control) => (
         <Field
-          {...kind}
+          {...control}
           value={value}
           maxLength={property.maxLength || undefined}
           onChange={(e) => {

@@ -52,9 +52,9 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
     <FormCard title={relation ? 'Relation bearbeiten' : 'Neue Relation'} onClose={onClose}>
       <div className="flex flex-col gap-2">
         <Row label="Anzeigename" error={showError ? nameError : undefined}>
-          {(kind) => (
+          {(control) => (
             <Field
-              {...kind}
+              {...control}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -68,9 +68,9 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
             showError || (syntaxInput.trim() !== '' && !syntax) ? syntaxError : undefined
           }
         >
-          {(kind) => (
+          {(control) => (
             <Field
-              {...kind}
+              {...control}
               value={syntaxInput}
               className="font-mono text-dense"
               onChange={(e) => setSyntaxInput(e.target.value)}

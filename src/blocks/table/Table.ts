@@ -42,8 +42,8 @@ export class Table extends BlockElement {
     return this._list.rowsFrom
   }
 
-  set rowsFrom(next: RowsFrom) {
-    this._list.rowsFrom = next
+  set rowsFrom(value: RowsFrom) {
+    this._list.rowsFrom = value
   }
 
   set handedRows(rows: readonly HandedRow[]) {
@@ -60,7 +60,7 @@ export class Table extends BlockElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    this._list.registered()
+    this._list.connected()
   }
 
   protected override firstUpdated(): void {
@@ -73,7 +73,7 @@ export class Table extends BlockElement {
   }
 
   protected override updated(): void {
-    this._list.toRender()
+    this._list.afterRender()
   }
 
   override disconnectedCallback(): void {

@@ -10,7 +10,7 @@ import {
   NEUTRAL_COLORS,
   SIZE_MAX,
   SIZE_MIN,
-  SIZE_STANDARD,
+  SIZE_DEFAULT,
   textProperties,
   type TextValues,
 } from './properties'
@@ -26,7 +26,7 @@ const COLORS: Record<string, string> = {
 const TEXT_BINDING = bindingAttr('text')
 
 function sizeOf(value: number): number {
-  if (!Number.isFinite(value)) return SIZE_STANDARD
+  if (!Number.isFinite(value)) return SIZE_DEFAULT
   return Math.min(SIZE_MAX, Math.max(SIZE_MIN, value))
 }
 
@@ -70,7 +70,7 @@ export class Text extends BlockElement {
 const link = makeDataLink<Text>({
   hydrate: (el) => {
     const spot = readBoundSpot(el, TEXT_BINDING)
-    if (spot.kind === 'ungebunden') return
+    if (spot.kind === 'unbound') return
     el.text = spot.kind === 'value' ? spot.value : ''
   },
   wire: (el) => {

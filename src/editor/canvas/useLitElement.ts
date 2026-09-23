@@ -14,7 +14,7 @@ interface PropChangeDetail {
   attr: string
   value: unknown
 
-  gesture?: 'beginn' | 'end'
+  gesture?: 'start' | 'end'
 
   rejected?: boolean
 }
@@ -68,7 +68,7 @@ export function useLitElement({
       const ce = e as CustomEvent<PropChangeDetail>
       const detail = ce.detail
       if (!detail || typeof detail.attr !== 'string') return
-      if (detail.gesture === 'beginn' && !bracket.current) {
+      if (detail.gesture === 'start' && !bracket.current) {
         bracket.current = editor.openGesture()
       }
       bracket.current?.open()

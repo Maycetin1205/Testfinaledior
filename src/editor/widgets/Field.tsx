@@ -20,4 +20,4 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(
     />
   ),
 )
-Field.displayName = 'Feld'
+Field.displayName = 'Field'

@@ -15,9 +15,9 @@ export class Card extends BlockElement {
 
   static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, cardsStyle]
 
-  private spot(prop: TextSpot | 'chip', klasse: string): TemplateResult {
+  private spot(prop: TextSpot | 'chip', className: string): TemplateResult {
     return html`<span
-      class=${klasse}
+      class=${className}
       data-ff-editable
       data-ff-spot=${prop}
       ?data-ff-bound=${this[`${prop}Field` satisfies BindingProp<TextSpot | 'chip'>] !== ''}
@@ -26,7 +26,7 @@ export class Card extends BlockElement {
   }
 
   override render(): TemplateResult {
-    const world = toneValue(this.chipTone)
+    const tone = toneValue(this.chipTone)
 
     const inEditor = this.inEditor
     const shows = (value: string): boolean => inEditor || value.trim() !== ''
@@ -41,7 +41,7 @@ export class Card extends BlockElement {
             ${shows(this.heading2) ? this.spot('heading2', 'foot-title') : nothing}
             ${shows(this.date) ? this.spot('date', 'date') : nothing}
             ${shows(this.time) ? this.spot('time', 'time') : nothing}
-            ${shows(this.chip) ? this.spot('chip', `chip tone-${world}`) : nothing}
+            ${shows(this.chip) ? this.spot('chip', `chip tone-${tone}`) : nothing}
           </div>`
         : nothing}
     </div>`

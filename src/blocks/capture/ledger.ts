@@ -18,7 +18,7 @@ import {
 } from '../behavior/lookup'
 import { asNumber } from '../behavior/sorting'
 import { rowsIndexOf } from '../behavior/sourceRows'
-import { SuggestionState, type KeysFollow } from '../behavior/suggestionState'
+import { SuggestionState, type KeyAction } from '../behavior/suggestionState'
 import { fieldRead } from '../../softengine/data'
 import {
   arrivalCheck,
@@ -26,7 +26,7 @@ import {
   deletionArrived,
   valueEquals,
 } from './arrival'
-import { cellsFields, walkInCell } from './cells'
+import { cellsFields, enterCell } from './cells'
 import type { CaptureColumn } from './column'
 import {
   captureContext,
@@ -50,7 +50,7 @@ export type RowsStatus =
   | 'written'
   | 'error'
 
-export interface RowsIcon {
+export interface RowState {
   status: RowsStatus
 }
 
@@ -99,7 +99,7 @@ function textState(raw: string): FactorState {
   const t = raw.trim()
   if (t === '') return { kind: 'empty' }
   const number = asNumber(t)
-  return number === null ? { kind: 'ungueltig', text: t } : { kind: 'number', number }
+  return number === null ? { kind: 'invalid', text: t } : { kind: 'number', number }
 }
 
 interface CapturedRow {
@@ -155,7 +155,7 @@ export interface CaptureHost {
   captured: () => void
 }
 
-// Everything the capture holds: the row under the pen, the rows captured but
+// Everything the capture holds: the capture row, the rows captured but
 // not yet booked, the changed cells and deletion marks of the booked rows and
 // what is out with the document waiting for an answer.
 export class CaptureLedger {
@@ -165,13 +165,13 @@ export class CaptureLedger {
 
   private readonly chosen = new Map<string, unknown>()
 
-  private readonly ofHand = new Set<string>()
+  private readonly byHand = new Set<string>()
 
   private readonly list = new SuggestionState<Entry>()
 
   private computed = new Map<number, string>()
 
-  private penColumn = -1
+  private cursorColumn = -1
 
   private listColumn = -1
 
@@ -208,10 +208,10 @@ export class CaptureLedger {
     )
   }
 
-  // ----- the row under the pen -----
+  // ----- the capture row -----
 
   get typingColumn(): number {
-    return this.penColumn
+    return this.cursorColumn
   }
 
   get mark(): number {
@@ -248,14 +248,14 @@ export class CaptureLedger {
 
   type(index: number, text: string): void {
     this.typed.set(index, text)
-    this.penColumn = index
-    this.list.ofFront()
+    this.cursorColumn = index
+    this.list.restart()
     this.host.report()
   }
 
   leave(index: number): void {
-    if (this.penColumn === index) {
-      this.penColumn = -1
+    if (this.cursorColumn === index) {
+      this.cursorColumn = -1
       this.listColumn = -1
       this.list.idle()
     }
@@ -269,7 +269,7 @@ export class CaptureLedger {
     if (target.sourceId !== '' && this.chosen.has(target.sourceId)) {
       this.choose(context, target.sourceId, undefined)
     }
-    this.list.ofFront()
+    this.list.restart()
     this.host.report()
   }
 
@@ -279,48 +279,48 @@ export class CaptureLedger {
   }
 
   openList(index: number): void {
-    this.penColumn = index
+    this.cursorColumn = index
     this.listColumn = index
     this.list.openList()
     this.host.report()
   }
 
-  decideKey(index: number, key: string): KeysFollow {
+  decideKey(index: number, key: string): KeyAction {
     const context = this.context()
     const target = targetIn(context, index)
-    const follow = this.list.followFor(key, {
-      listOpen: this.penColumn === index && this.list.open,
+    const action = this.list.actionFor(key, {
+      listOpen: this.cursorColumn === index && this.list.open,
       fieldEmpty: this.valueIn(context, index) === '',
       typed: this.typed.get(index) !== undefined,
       lookupable: target.kind === 'linked',
       hasRecords: () => this.entriesIn(context, index).length > 0,
       jumps: true,
     })
-    if (follow === 'liste-zu') this.listColumn = -1
+    if (action === 'closeList') this.listColumn = -1
     // The key moved the mark or closed the list: what the operator sees is a
     // step further than the drawing.
-    if (follow !== 'nothing') this.host.report()
-    return follow
+    if (action !== 'nothing') this.host.report()
+    return action
   }
 
-  nextEmpty(off: number): number {
+  nextEmpty(from: number): number {
     const context = this.context()
-    for (let i = off + 1; i < context.columns.length; i++) {
+    for (let i = from + 1; i < context.columns.length; i++) {
       if (context.columns[i]?.hidden === true) continue
       if (this.valueIn(context, i) === '') return i
     }
     return -1
   }
 
-  neighbour(off: number, direction: 1 | -1): number {
-    return neighbourSlot(this.host.columns(), off, direction)
+  neighbour(from: number, direction: 1 | -1): number {
+    return neighbourSlot(this.host.columns(), from, direction)
   }
 
   focusCell(index: number): void {
     this.host.focusCell(index)
   }
 
-  // Where the pen goes next: Tab walks to the neighbour column, the other keys
+  // Where the cursor goes next: Tab walks to the neighbour column, the other keys
   // look for the next empty cell and capture the row when none is left.
   jumpFrom(index: number, key: string): boolean {
     if (key === 'Tab') {
@@ -367,14 +367,14 @@ export class CaptureLedger {
     const target = targetIn(context, index)
     if (target.sourceId === '') return
     this.choose(context, target.sourceId, record)
-    this.ofHand.add(target.sourceId)
+    this.byHand.add(target.sourceId)
     if (target.kind === 'own') {
       for (const id of [...this.chosen.keys()]) {
         if (id !== target.sourceId) this.choose(context, id, undefined)
       }
     }
-    this.sameOff(context)
-    this.penColumn = -1
+    this.syncChosen(context)
+    this.cursorColumn = -1
     this.list.idle()
     this.host.report()
   }
@@ -401,7 +401,7 @@ export class CaptureLedger {
   }
 
   private suggestionsFor(context: CaptureContext): Entry[] {
-    const index = this.penColumn
+    const index = this.cursorColumn
     if (this.list.closed || targetIn(context, index).kind === 'free') return []
     const typed = this.typed.get(index) ?? ''
     if (typed === '') {
@@ -455,7 +455,7 @@ export class CaptureLedger {
   private choose(context: CaptureContext, sourceId: string, record: unknown): void {
     if (record === undefined) {
       this.chosen.delete(sourceId)
-      this.ofHand.delete(sourceId)
+      this.byHand.delete(sourceId)
     } else this.chosen.set(sourceId, record)
     for (let i = 0; i < context.columns.length; i++) {
       if (cellTargetOf(context.columns[i], context.sourceId).sourceId === sourceId) {
@@ -477,7 +477,7 @@ export class CaptureLedger {
     const base = this.chosen.get(context.sourceId)
     if (base !== undefined) return fieldRead(base, field)
     for (const sourceId of linkedSourcesIn(context)) {
-      if (sourceId === except || !this.ofHand.has(sourceId)) continue
+      if (sourceId === except || !this.byHand.has(sourceId)) continue
 
       const partner = context.partnerOf(sourceId)
       if (partner !== '' && partner !== context.sourceId) continue
@@ -501,7 +501,7 @@ export class CaptureLedger {
     )
   }
 
-  private sameOff(context: CaptureContext): void {
+  private syncChosen(context: CaptureContext): void {
     const sources = linkedSourcesIn(context)
     for (let round = 0; round <= sources.length; round++) {
       let moved = false
@@ -512,8 +512,8 @@ export class CaptureLedger {
         const record = this.chosen.get(sourceId)
         if (record !== undefined) {
           const fits = pairs.every((p) => {
-            const should = this.keyValue(context, partnerId, p.ofField, sourceId)
-            return should === undefined || (should !== '' && should === fieldRead(record, p.toField))
+            const expected = this.keyValue(context, partnerId, p.ofField, sourceId)
+            return expected === undefined || (expected !== '' && expected === fieldRead(record, p.toField))
           })
           if (!fits) {
             this.choose(context, sourceId, undefined)
@@ -527,7 +527,7 @@ export class CaptureLedger {
         const fitting = this.possible(context, sourceId, rows)
         if (fitting.length === 1) {
           this.choose(context, sourceId, fitting[0])
-          this.ofHand.delete(sourceId)
+          this.byHand.delete(sourceId)
           moved = true
         }
       }
@@ -536,15 +536,15 @@ export class CaptureLedger {
   }
 
   private adoptValues(context: CaptureContext, values: readonly string[]): void {
-    this.emptyPen()
+    this.clearCaptureRow()
     values.forEach((value, index) => {
       if (value !== '') this.typed.set(index, value)
     })
-    this.giveTheComputedTheirGap(context)
+    this.yieldToComputed(context)
     this.compute(context)
   }
 
-  private giveTheComputedTheirGap(context: CaptureContext): void {
+  private yieldToComputed(context: CaptureContext): void {
     const slots = resultSlots(
       context.calculations,
       (key) => columnWithKey(context.columns, key),
@@ -558,12 +558,12 @@ export class CaptureLedger {
     }
   }
 
-  private emptyPen(): void {
+  private clearCaptureRow(): void {
     this.typed.clear()
     this.chosen.clear()
-    this.ofHand.clear()
+    this.byHand.clear()
     this.computed.clear()
-    this.penColumn = -1
+    this.cursorColumn = -1
     this.listColumn = -1
     this.list.idle()
   }
@@ -601,7 +601,7 @@ export class CaptureLedger {
     ]
   }
 
-  capturedStatus(index: number): RowsIcon {
+  capturedStatus(index: number): RowState {
     const row = this.rows[index]
     return this.shows(
       'captured',
@@ -625,7 +625,7 @@ export class CaptureLedger {
     if (values.every((w) => w === '')) {
       if (!back) return false
       this.correction = null
-      this.emptyPen()
+      this.clearCaptureRow()
       return true
     }
     if (back) {
@@ -639,11 +639,11 @@ export class CaptureLedger {
       this.rows = [...this.rows, { key: this.topKey, values }]
       this.nextKey += 1
     }
-    this.emptyPen()
+    this.clearCaptureRow()
     return true
   }
 
-  // A captured row goes back under the pen. What stands there is captured
+  // A captured row goes back into the capture row. What stands there is captured
   // first, so nothing is lost.
   bringBackCaptured(index: number): void {
     const context = this.context()
@@ -690,13 +690,13 @@ export class CaptureLedger {
         ...this.rows.slice(back.slot),
       ]
       this.correction = null
-      this.emptyPen()
+      this.clearCaptureRow()
       return true
     }
     if (values.every((w) => w === '')) return changed
     this.rows = [...this.rows, { key: this.topKey, values, written: topMark }]
     this.nextKey += 1
-    this.emptyPen()
+    this.clearCaptureRow()
     return true
   }
 
@@ -741,7 +741,7 @@ export class CaptureLedger {
     return rawRow === undefined ? '' : rowsIndexOf(this.host.block, rawRow)
   }
 
-  statusOf(rawIndex: number): RowsIcon {
+  statusOf(rawIndex: number): RowState {
     const record = this.recordOf(rawIndex)
     if (record === '') return { status: 'booked' }
     if (this.deleted.has(record)) return this.shows('deleted', record, 'deletion')
@@ -875,7 +875,7 @@ export class CaptureLedger {
     if (target < 0) target = 0
     const field = fields[target]
     if (field === of) return
-    walkInCell(field)
+    enterCell(field)
   }
 
   toggleDeletion(rawIndex: number): void {
@@ -931,7 +931,7 @@ export class CaptureLedger {
     this.takeOut(kind, keys)
   }
 
-  private shows(kind: PendingKind, key: string, base: RowsStatus): RowsIcon {
+  private shows(kind: PendingKind, key: string, base: RowsStatus): RowState {
     if (this.errors.get(kind)?.has(key) === true) return { status: 'error' }
     if (this.writing.get(kind)?.has(key) === true) return { status: 'writes' }
     return { status: base }

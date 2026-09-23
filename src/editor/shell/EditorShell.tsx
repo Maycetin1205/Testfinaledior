@@ -8,7 +8,7 @@ import { PagesBar } from '../canvas/PageBar'
 import { Inspector } from '../inspector/Inspector'
 import { Sidebar } from '../sidebar/Sidebar'
 import { DataCenter } from '../datacenter/DataCenter'
-import { onDataCenterWish } from '../datacenter/openDataCenter'
+import { onDataCenterRequest } from '../datacenter/openDataCenter'
 import {
   clampWidth,
   WIDTHS_STEP,
@@ -27,7 +27,7 @@ export function EditorShell() {
   const [dataCenterOpen, setDataCenterOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(true)
 
-  useEffect(() => onDataCenterWish(() => setDataCenterOpen(true)), [])
+  useEffect(() => onDataCenterRequest(() => setDataCenterOpen(true)), [])
 
   const [inspectorWidth, setInspectorWidth] = useState(readWidth)
 

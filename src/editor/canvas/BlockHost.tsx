@@ -107,11 +107,11 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     return null
   }
 
-  const { startRasterResize } = useBlockResize(editor, blockRef, rootRef)
+  const { startGridResize } = useBlockResize(editor, blockRef, rootRef)
 
-  const rasterSpec = gridMetricsOf(def)
+  const gridSpec = gridMetricsOf(def)
 
-  const rasterDraggable = grid
+  const gridDraggable = grid
 
   return (
     <div
@@ -183,20 +183,20 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         />
       )}
 
-      {selected && rasterDraggable && rasterSpec.widthDraggable && (
+      {selected && gridDraggable && gridSpec.widthDraggable && (
         <Handle
           axis="x"
-          onStart={(e) => startRasterResize(e, 'x')}
+          onStart={(e) => startGridResize(e, 'x')}
           onReset={() => {
             const node = blockRef.current
             editor.updateProperty(node.id, 'gridW', gridMetricsOf(blockType(node.type)).startWidth)
           }}
         />
       )}
-      {selected && rasterDraggable && (
+      {selected && gridDraggable && (
         <Handle
           axis="y"
-          onStart={(e) => startRasterResize(e, 'y')}
+          onStart={(e) => startGridResize(e, 'y')}
           onReset={() => {
             const node = blockRef.current
             editor.updateProperty(node.id, 'gridH', gridMetricsOf(blockType(node.type)).startHeight)

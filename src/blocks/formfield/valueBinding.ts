@@ -1,6 +1,6 @@
 import { bindingAttr } from '../../core/block/capability'
 import { recordIndexOf, fieldWrite } from '../../softengine/data'
-import { giverIdOf, plainSelection, setSelection } from '../behavior/selection'
+import { giverIdOf, clearSelection, setSelection } from '../behavior/selection'
 import { makeDataLink } from '../behavior/source'
 import { readBoundSpot } from '../behavior/boundSpot'
 import { runEvent } from '../behavior/events'
@@ -37,7 +37,7 @@ function hydrate(el: ValueElement): void {
   if (spot.kind !== 'value') {
     data.delete(el)
 
-    plainSelection(giverIdOf(el))
+    clearSelection(giverIdOf(el))
     if (spot.kind === 'withoutRow') el.value = ''
     return
   }
@@ -72,5 +72,5 @@ function wire(el: ValueElement): void {
 
 const link = makeDataLink<ValueElement>({ hydrate, wire })
 
-export const valueRegistered = link.connect
-export const valueDisconnected = link.disconnect
+export const connectValue = link.connect
+export const disconnectValue = link.disconnect

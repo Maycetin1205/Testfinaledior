@@ -10,7 +10,7 @@ import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
 import type { KeyPair } from '../../core/data/extraSources'
-import { leftOf } from '../behavior/foreignSources'
+import { extraSourcesOf } from '../behavior/foreignSources'
 import { fieldRead } from '../../softengine/data'
 
 export interface CapturePlacement {
@@ -47,7 +47,7 @@ export interface CaptureAct {
 
 export function captureRowTpl(
   placement: CapturePlacement,
-  tun: CaptureAct,
+  act: CaptureAct,
 ): TemplateResult {
   return html`<div class="row capture" role="row" style=${styleMap(placement.cols)}>
     ${placement.columns.map((column, i) => {
@@ -72,18 +72,18 @@ export function captureRowTpl(
         value,
         title: column.title,
         placeholder: placement.titleInCell ? column.title : '',
-        klasse: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
+        inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
         holderClass: 'cell-holder',
         slot,
         suggestions: list ? placement.suggestions : [],
         mark: placement.mark,
         listToTop: placement.listToTop,
       }, {
-        typing: (text) => tun.typing(slot, text),
-        key: (e) => tun.key(slot, e),
-        leave: () => tun.leave(slot),
-        chooseSuggestion: (i2) => tun.chooseSuggestion(i2),
-        setMark: (i2) => tun.setMark(i2),
+        typing: (text) => act.typing(slot, text),
+        key: (e) => act.key(slot, e),
+        leave: () => act.leave(slot),
+        chooseSuggestion: (i2) => act.chooseSuggestion(i2),
+        setMark: (i2) => act.setMark(i2),
       })}</div>`
     })}
   </div>`
@@ -132,7 +132,7 @@ export function captureContext(
   sourceId: string,
   calculations: readonly Calculation[],
 ): CaptureContext {
-  const left = leftOf(block)
+  const left = extraSourcesOf(block)
   return {
     block,
     columns,
@@ -151,10 +151,10 @@ export function targetIn(context: CaptureContext, index: number): CellTarget {
 // stepped over.
 export function neighbourSlot(
   columns: readonly CaptureColumn[],
-  off: number,
+  from: number,
   direction: 1 | -1,
 ): number {
-  for (let i = off + direction; i >= 0 && i < columns.length; i += direction) {
+  for (let i = from + direction; i >= 0 && i < columns.length; i += direction) {
     if (columns[i]?.hidden !== true) return i
   }
   return -1
@@ -206,10 +206,10 @@ export function fittingRecords(
   candidates: readonly unknown[],
 ): unknown[] {
   const known = pairs
-    .map((p) => ({ toField: p.toField, should: keyValue(p.ofField) }))
-    .filter((b): b is { toField: string; should: string } => b.should !== undefined)
+    .map((p) => ({ toField: p.toField, expected: keyValue(p.ofField) }))
+    .filter((b): b is { toField: string; expected: string } => b.expected !== undefined)
   if (known.length === 0) return [...candidates]
   return candidates.filter((record) => known.every(
-    (b) => b.should !== '' && b.should === fieldRead(record, b.toField),
+    (b) => b.expected !== '' && b.expected === fieldRead(record, b.toField),
   ))
 }

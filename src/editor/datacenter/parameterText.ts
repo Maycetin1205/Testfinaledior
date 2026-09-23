@@ -15,7 +15,7 @@ const KIND_ICONS: Partial<Record<SourceKindId, typeof Database>> = {
   document: FileText,
 }
 
-export function ikonFor(kind: SourceKindId): typeof Database {
+export function iconForKind(kind: SourceKindId): typeof Database {
   return KIND_ICONS[kind] ?? Database
 }
 
@@ -86,7 +86,7 @@ export function captureOptions(
           const title = e[binding.titleKey]
           return [{
             key,
-            title: typeof title === 'string' && title !== '' ? title : binding.standardTitle,
+            title: typeof title === 'string' && title !== '' ? title : binding.defaultTitle,
           }]
         })
       : []

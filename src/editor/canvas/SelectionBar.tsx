@@ -94,12 +94,12 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
         editor.sourcesFor(block.id).map((q) => q.source),
       )) || kind.name
   const list = capability(def, 'list')?.binding
-  const next = list?.entryNeu
-  const away = list?.entryAway
-  const entryName = list?.standardTitle.replace(/\s*\{n\}/, '') ?? 'Eintrag'
-  const neuPossible = next !== undefined && Object.keys(next(block.values)).length > 0
+  const addEntry = list?.entryAdd
+  const removeEntry = list?.entryRemove
+  const entryName = list?.defaultTitle.replace(/\s*\{n\}/, '') ?? 'Eintrag'
+  const addPossible = addEntry !== undefined && Object.keys(addEntry(block.values)).length > 0
   const entries = list ? listRead(block.values[list.prop], list) : []
-  const awayPossible = away !== undefined && entries.length > 1
+  const removePossible = removeEntry !== undefined && entries.length > 1
 
   return (
     <div
@@ -155,23 +155,23 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
           <Plus size={12} /> {kindName}
         </Button>
       )}
-      {next && (
+      {addEntry && (
         <Button
           className="h-6 px-1.5 text-dense"
-          disabled={!neuPossible}
-          onClick={() => applyProps(editor, block.id, next(block.values))}
+          disabled={!addPossible}
+          onClick={() => applyProps(editor, block.id, addEntry(block.values))}
         >
           <Plus size={12} /> {entryName}
         </Button>
       )}
-      {away && (
+      {removeEntry && (
         <Button
           className="h-6 px-1.5 text-dense"
-          disabled={!awayPossible}
+          disabled={!removePossible}
           onClick={() => {
             const index = entries.length - 1
             if (index >= 0) {
-              applyProps(editor, block.id, away(block.values, index))
+              applyProps(editor, block.id, removeEntry(block.values, index))
             }
           }}
         >

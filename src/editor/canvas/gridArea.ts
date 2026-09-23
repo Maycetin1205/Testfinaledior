@@ -28,40 +28,40 @@ function areaOfBlock(node: BlockNode): HTMLElement | null {
   return areaIn(host?.querySelector(tag))
 }
 
-function areaThePage(tree: MaskTree, pagesId: string): HTMLElement | null {
-  const page = tree[pagesId]
-  if (page && pagesId !== ROOT_ID) return areaOfBlock(page)
+function areaOfPage(tree: MaskTree, pageId: string): HTMLElement | null {
+  const page = tree[pageId]
+  if (page && pageId !== ROOT_ID) return areaOfBlock(page)
   const root = document.querySelector(`[${ROOT_AREA_ATTR}]`)
   return root instanceof HTMLElement ? root : null
 }
 
-function trifft(el: HTMLElement, x: number, y: number): boolean {
+function contains(el: HTMLElement, x: number, y: number): boolean {
   const r = el.getBoundingClientRect()
   return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom
 }
 
 export function areaUnderPointer(
   tree: MaskTree,
-  pagesId: string,
+  pageId: string,
   x: number,
   y: number,
 ): AreasHit | null {
-  const pagesArea = areaThePage(tree, pagesId)
-  let hit: AreasHit | null = pagesArea && trifft(pagesArea, x, y)
-    ? { parentId: pagesId, area: pagesArea }
+  const pageArea = areaOfPage(tree, pageId)
+  let hit: AreasHit | null = pageArea && contains(pageArea, x, y)
+    ? { parentId: pageId, area: pageArea }
     : null
   const search = (id: string): void => {
-    for (const kindId of tree[id]?.childIds ?? []) {
-      const kind = tree[kindId]
-      if (!kind) continue
-      if (isGridArea(kind)) {
-        const area = areaOfBlock(kind)
-        if (area && trifft(area, x, y)) hit = { parentId: kind.id, area }
+    for (const childId of tree[id]?.childIds ?? []) {
+      const child = tree[childId]
+      if (!child) continue
+      if (isGridArea(child)) {
+        const area = areaOfBlock(child)
+        if (area && contains(area, x, y)) hit = { parentId: child.id, area }
       }
-      search(kindId)
+      search(childId)
     }
   }
-  search(pagesId)
+  search(pageId)
   return hit
 }
 

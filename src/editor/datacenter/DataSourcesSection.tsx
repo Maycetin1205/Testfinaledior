@@ -18,13 +18,13 @@ import { useEditor } from '../state/useEditor'
 import { DataSourceForm } from './DataSourceForm'
 import { DtkImportForm } from './DtkImportForm'
 import { blockName } from '../../core/block/blockName'
-import { ikonFor } from './parameterText'
+import { iconForKind } from './parameterText'
 
-function copyName(name: string, assign: readonly string[]): string {
+function copyName(name: string, taken: readonly string[]): string {
   const base = `${name} (Kopie)`
-  if (!assign.includes(base)) return base
+  if (!taken.includes(base)) return base
   let n = 2
-  while (assign.includes(`${name} (Kopie ${n})`)) n += 1
+  while (taken.includes(`${name} (Kopie ${n})`)) n += 1
   return `${name} (Kopie ${n})`
 }
 
@@ -33,7 +33,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
   const ed = useEditor()
   const [selectionId, setSelectionId] = useState<string | null>(store.list[0]?.id ?? null)
 
-  const [mode, setMode] = useState<'read' | 'edit' | 'next' | 'import'>('read')
+  const [mode, setMode] = useState<'read' | 'edit' | 'new' | 'import'>('read')
 
   const [importState, setImportState] = useState<{
     fileName: string
@@ -82,7 +82,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
         areas={areas}
         listHead={(
           <>
-          <Button className="w-full" onClick={() => setMode('next')}>
+          <Button className="w-full" onClick={() => setMode('new')}>
             <Plus size={14} /> Neue Datenquelle
           </Button>
           <Button className="w-full" onClick={() => fileRef.current?.click()}>
@@ -111,7 +111,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
             const used = usageOf(s.id).length
             const active =
               (mode === 'read' || mode === 'edit') && selection?.id === s.id
-            const Icon = ikonFor(s.kind)
+            const Icon = iconForKind(s.kind)
             return (
               <Entry
                 key={s.id}
@@ -142,7 +142,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
         )}
         detail={(
           <>
-        {mode === 'next' && (
+        {mode === 'new' && (
           <DataSourceForm onClose={() => setMode('read')} />
         )}
         {mode === 'import' && importState && (

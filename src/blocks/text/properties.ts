@@ -11,7 +11,7 @@ import { toneOptions } from '../../core/block/tones'
 
 export const SIZE_MIN = 6
 export const SIZE_MAX = 96
-export const SIZE_STANDARD = 14
+export const SIZE_DEFAULT = 14
 
 export const NEUTRAL_COLORS: readonly { value: string; name: string; token: string }[] = [
   { value: 'standard', name: 'Standard', token: '--se-ink' },
@@ -21,7 +21,7 @@ export const NEUTRAL_COLORS: readonly { value: string; name: string; token: stri
 
 export const textProperties = {
   size: numberProperty({
-    default: SIZE_STANDARD,
+    default: SIZE_DEFAULT,
     label: 'Größe',
     attribute: 'size',
     unit: 'px',

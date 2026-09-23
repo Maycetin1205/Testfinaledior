@@ -7,8 +7,8 @@ import {
   ROWS_HEIGHT,
   type RowMetrics,
 } from './pageSize'
-import { sortIndizes, TOTAL_NACHKOMMA, totalText } from './sorting'
-import { columnsRaster, type Column, type ColumnsRaster } from './columns'
+import { sortIndices, TOTAL_DECIMALS, totalText } from './sorting'
+import { columnsTemplate, type Column, type ColumnsGrid } from './columns'
 import { rowFits } from './textSearch'
 
 export interface ViewQuestion {
@@ -28,9 +28,9 @@ export interface ViewQuestion {
   searchText: string
 
   sortColumn: number
-  sortOn: boolean
+  sortAscending: boolean
 
-  wishPage: number
+  wantedPage: number
 
   measured: RowMetrics | null
 
@@ -42,7 +42,7 @@ export interface ViewQuestion {
 }
 
 export interface TableRenderModel {
-  cols: ColumnsRaster
+  cols: ColumnsGrid
 
   tick: number
 
@@ -70,8 +70,8 @@ function totalsOf(
     if (column.total !== true) return
     const text = totalText(
       visible.map((row) => question.valueAt(row, i)),
-      TOTAL_NACHKOMMA.min,
-      TOTAL_NACHKOMMA.max,
+      TOTAL_DECIMALS.min,
+      TOTAL_DECIMALS.max,
     )
     if (text !== '') out.push({ title: column.title, text })
   })
@@ -82,19 +82,19 @@ function viewRows(question: ViewQuestion): string[][] {
   return question.dataRows.map((_, row) => question.columns.map((__, s) => question.valueAt(row, s)))
 }
 
-function visibleIndizes(question: ViewQuestion): number[] {
+function visibleIndices(question: ViewQuestion): number[] {
   const rows = viewRows(question)
-  const filtered = fittingIndizes(rows, question.searchText)
+  const filtered = fittingIndices(rows, question.searchText)
   if (question.sortColumn < 0) return filtered
   const sortRows = filtered.map((i) => rows[i])
-  return sortIndizes(sortRows, question.sortColumn, question.sortOn).map((k) => filtered[k])
+  return sortIndices(sortRows, question.sortColumn, question.sortAscending).map((k) => filtered[k])
 }
 
 export function tableRenderModel(question: ViewQuestion): TableRenderModel {
   const rendered = question.rendered ?? question.columns
   const slots = question.slots ?? rendered.map((_, i) => i)
-  const cols: ColumnsRaster = {
-    gridTemplateColumns: columnsRaster(rendered, (j) => question.widthOf?.(slots[j] ?? j)),
+  const cols: ColumnsGrid = {
+    gridTemplateColumns: columnsTemplate(rendered, (j) => question.widthOf?.(slots[j] ?? j)),
   }
 
   const tick = ROWS_HEIGHT
@@ -104,7 +104,7 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
 
   const empty = question.takenRows > 0 ? false : question.empty
 
-  const allVisible = visibleIndizes(question)
+  const allVisible = visibleIndices(question)
 
   const taken = question.takenRows
   const measuredFit = question.measured === null
@@ -117,7 +117,7 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
     visible: allVisible,
     showsRows,
     perPage,
-    wishPage: question.wishPage,
+    wantedPage: question.wantedPage,
     placeholderRows: placeholderRows(free),
   }
   const { pages, page, rows } = question.paging
@@ -140,7 +140,7 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
   }
 }
 
-function fittingIndizes(
+function fittingIndices(
   rows: readonly (readonly string[])[],
   searchText: string,
 ): number[] {

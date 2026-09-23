@@ -36,14 +36,14 @@ export interface ColumnHead {
   title: string
 }
 
-function Step({ nr, title, children }: {
-  nr: number
+function Step({ number, title, children }: {
+  number: number
   title: string
   children: ReactNode
 }) {
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-ui font-semibold text-ink">{nr}. {title}</h3>
+      <h3 className="text-ui font-semibold text-ink">{number}. {title}</h3>
       {children}
     </section>
   )
@@ -53,14 +53,14 @@ function previewState(text: string | undefined): FactorState {
   const t = (text ?? '').trim()
   if (t === '') return { kind: 'empty' }
   const number = numberStrict(t)
-  return number === null ? { kind: 'ungueltig', text: t } : { kind: 'number', number }
+  return number === null ? { kind: 'invalid', text: t } : { kind: 'number', number }
 }
 
 export interface CalculationList {
   calculations: readonly Calculation[]
   onChoose: (key: string) => void
-  onNeu: () => void
-  onAway: () => void
+  onAdd: () => void
+  onRemove: () => void
 }
 
 export interface CalculationDialogProps {
@@ -83,7 +83,7 @@ export function CalculationDialog({
   const [probes, setProbes] = useState<Record<string, string>>({})
 
   const titleOf = (key: string): string | null => {
-    const s = columns.find((sp) => sp.key === key)
+    const s = columns.find((column) => column.key === key)
     return s === undefined ? null : (s.title === '' ? s.key : s.title)
   }
   const name = (f: Factor): string => factorName(f, (k) => titleOf(k) ?? '')
@@ -108,17 +108,17 @@ export function CalculationDialog({
     })
   }
 
-  const factorAway = (away: Factor): void => {
+  const removeFactor = (factor: Factor): void => {
     onCalculation({
       ...calculation,
-      numerator: calculation.numerator.filter((f) => f.key !== away.key),
-      denominator: calculation.denominator.filter((f) => f.key !== away.key),
+      numerator: calculation.numerator.filter((f) => f.key !== factor.key),
+      denominator: calculation.denominator.filter((f) => f.key !== factor.key),
     })
   }
 
-  const factorAdd = (page: 'numerator' | 'denominator'): void => {
-    const next = newFactor(freeFactorKey(calculation))
-    onCalculation({ ...calculation, [page]: [...calculation[page], next] })
+  const addFactor = (part: 'numerator' | 'denominator'): void => {
+    const factor = newFactor(freeFactorKey(calculation))
+    onCalculation({ ...calculation, [part]: [...calculation[part], factor] })
   }
 
   const setResult = (f: ColumnsFactor, result: boolean): void => {
@@ -155,12 +155,12 @@ export function CalculationDialog({
               value={calculation.key}
               onChoose={list.onChoose}
             />
-            <Button onClick={list.onNeu}>+ Berechnung</Button>
-            <Button kind="risk" onClick={list.onAway}>Diese entfernen</Button>
+            <Button onClick={list.onAdd}>+ Berechnung</Button>
+            <Button kind="risk" onClick={list.onRemove}>Diese entfernen</Button>
           </div>
         )}
 
-        <Step nr={1} title="Name und Formel">
+        <Step number={1} title="Name und Formel">
           <Field
             placeholder="Name der Berechnung"
             defaultValue={calculation.name}
@@ -184,10 +184,10 @@ export function CalculationDialog({
               columns={columns}
               sources={sources}
               onFactor={(next) => setFactor(f, next)}
-              onAway={() => factorAway(f)}
+              onRemove={() => removeFactor(f)}
             />
           ))}
-          <Button onClick={() => factorAdd('numerator')}>+ Faktor</Button>
+          <Button onClick={() => addFactor('numerator')}>+ Faktor</Button>
 
           <span className="text-dense text-muted">geteilt durch (Nenner)</span>
           {calculation.denominator.map((f) => (
@@ -197,13 +197,13 @@ export function CalculationDialog({
               columns={columns}
               sources={sources}
               onFactor={(next) => setFactor(f, next)}
-              onAway={() => factorAway(f)}
+              onRemove={() => removeFactor(f)}
             />
           ))}
-          <Button onClick={() => factorAdd('denominator')}>+ Teiler</Button>
+          <Button onClick={() => addFactor('denominator')}>+ Teiler</Button>
         </Step>
 
-        <Step nr={2} title="Rechenrichtungen und Rundung">
+        <Step number={2} title="Rechenrichtungen und Rundung">
           {columnsFactors.map((f) => (
             <div key={f.key} className="flex flex-col gap-1 rounded border border-line p-2">
               <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export function CalculationDialog({
           ))}
         </Step>
 
-        <Step nr={3} title="Vorschau">
+        <Step number={3} title="Vorschau">
           {allFactors(calculation).filter((f) => f.kind !== 'number').map((f) => (
             <div key={f.key} className="flex items-center gap-2">
               <span className="min-w-0 flex-1 truncate text-ui">{name(f)}</span>

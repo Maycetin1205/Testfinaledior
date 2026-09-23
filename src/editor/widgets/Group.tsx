@@ -8,7 +8,7 @@ export interface GroupProps {
   actions?: ReactNode
 
   open?: boolean
-  standardOpen?: boolean
+  defaultOpen?: boolean
   onToggle?: (open: boolean) => void
   className?: string
   children: ReactNode
@@ -18,13 +18,13 @@ export function Group({
   title,
   actions,
   open,
-  standardOpen = true,
+  defaultOpen = true,
   onToggle,
   className,
   children,
 }: GroupProps) {
   const id = useId()
-  const [own, setOwn] = useState(standardOpen)
+  const [own, setOwn] = useState(defaultOpen)
   const on = open ?? own
 
   const toggle = () => {

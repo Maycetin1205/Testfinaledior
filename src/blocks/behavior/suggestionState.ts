@@ -10,12 +10,12 @@ function validMark(mark: number, count: number): number {
   return mark < 0 || mark >= count ? 0 : mark
 }
 
-export type KeysFollow =
-  | 'marke-hoch'
-  | 'marke-runter'
+export type KeyAction =
+  | 'markUp'
+  | 'markDown'
   | 'adopt'
-  | 'liste-zu'
-  | 'liste-auf'
+  | 'closeList'
+  | 'openList'
   | 'window'
   | 'further'
   | 'clear'
@@ -39,12 +39,12 @@ export interface KeysPlacement {
   jumps: boolean
 }
 
-function keysFollow(key: string, l: KeysPlacement & {
+function keyAction(key: string, l: KeysPlacement & {
   hit: number
 
-  markOfHand: boolean
-}): KeysFollow {
-  const unique = l.markOfHand || l.hit === 1
+  markByHand: boolean
+}): KeyAction {
+  const unique = l.markByHand || l.hit === 1
 
   if (key === 'Tab') {
     if (l.listOpen && unique) return 'adopt'
@@ -54,14 +54,14 @@ function keysFollow(key: string, l: KeysPlacement & {
     return l.lookupable ? 'window' : 'nothing'
   }
   if (key === 'Escape') {
-    if (l.listOpen) return 'liste-zu'
+    if (l.listOpen) return 'closeList'
     return l.fieldEmpty ? 'nothing' : 'clear'
   }
   if (key === 'ArrowDown') {
-    if (l.listOpen) return 'marke-runter'
-    return l.lookupable && l.hasRecords() ? 'liste-auf' : 'nothing'
+    if (l.listOpen) return 'markDown'
+    return l.lookupable && l.hasRecords() ? 'openList' : 'nothing'
   }
-  if (key === 'ArrowUp') return l.listOpen ? 'marke-hoch' : 'nothing'
+  if (key === 'ArrowUp') return l.listOpen ? 'markUp' : 'nothing'
   if (key !== 'Enter') return 'nothing'
 
   if (l.listOpen) return unique ? 'adopt' : 'window'
@@ -80,11 +80,11 @@ export class SuggestionState<T extends Suggestion = Suggestion> {
 
   private _mark = 0
 
-  private _ofHand = false
+  private _markByHand = false
 
-  private _to = false
+  private _closed = false
 
-  private _on = false
+  private _opened = false
 
   get hit(): readonly T[] {
     return this._hit
@@ -99,11 +99,11 @@ export class SuggestionState<T extends Suggestion = Suggestion> {
   }
 
   get closed(): boolean {
-    return this._to
+    return this._closed
   }
 
   get opened(): boolean {
-    return this._on
+    return this._opened
   }
 
   show(hit: readonly T[]): void {
@@ -111,42 +111,42 @@ export class SuggestionState<T extends Suggestion = Suggestion> {
     this._mark = validMark(this._mark, hit.length)
   }
 
-  ofFront(): void {
+  restart(): void {
     this._mark = 0
-    this._ofHand = false
-    this._to = false
-    this._on = false
+    this._markByHand = false
+    this._closed = false
+    this._opened = false
   }
 
   openList(): void {
     this._mark = 0
-    this._ofHand = true
-    this._to = false
-    this._on = true
+    this._markByHand = true
+    this._closed = false
+    this._opened = true
   }
 
   idle(): void {
     this._hit = []
     this._mark = 0
-    this._ofHand = false
-    this._to = false
-    this._on = false
+    this._markByHand = false
+    this._closed = false
+    this._opened = false
   }
 
   setMark(mark: number): void {
     this._mark = mark
   }
 
-  followFor(key: string, placement: KeysPlacement): KeysFollow {
-    const follow = keysFollow(key, {
+  actionFor(key: string, placement: KeysPlacement): KeyAction {
+    const action = keyAction(key, {
       ...placement,
       hit: this._hit.length,
-      markOfHand: this._ofHand,
+      markByHand: this._markByHand,
     })
-    if (follow === 'marke-hoch' || follow === 'marke-runter') {
-      this._mark = movedMark(this._mark, this._hit.length, follow === 'marke-hoch' ? -1 : 1)
-      this._ofHand = true
-    } else if (follow === 'liste-zu') this._to = true
-    return follow
+    if (action === 'markUp' || action === 'markDown') {
+      this._mark = movedMark(this._mark, this._hit.length, action === 'markUp' ? -1 : 1)
+      this._markByHand = true
+    } else if (action === 'closeList') this._closed = true
+    return action
   }
 }

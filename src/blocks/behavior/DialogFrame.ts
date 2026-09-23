@@ -4,14 +4,14 @@ import { property } from 'lit/decorators.js'
 export const DIALOG_FRAME_TAG = 'ff-dialog'
 export const DIALOG_CLOSE_EVENT = 'ff-dialog-close'
 
-export const DIALOG_SIZE_EVENT = 'ff-dialog-groesse'
+export const DIALOG_SIZE_EVENT = 'ff-dialog-resize'
 
 export interface DialogSizeDetail {
   axis: 'width' | 'height'
 
   value: number
 
-  gesture: 'beginn' | 'runs' | 'end' | 'standard'
+  gesture: 'start' | 'move' | 'end' | 'reset'
 }
 
 export const DIALOG_EDGE = 24
@@ -170,10 +170,10 @@ export class DialogFrame extends LitElement {
   private escapeRegistered = false
 
   private refreshEscape(): void {
-    const shouldRegistered = this.isConnected && this.escapeCloses
-    if (shouldRegistered === this.escapeRegistered) return
-    this.escapeRegistered = shouldRegistered
-    catchesEscape(this, shouldRegistered)
+    const shouldRegister = this.isConnected && this.escapeCloses
+    if (shouldRegister === this.escapeRegistered) return
+    this.escapeRegistered = shouldRegister
+    catchesEscape(this, shouldRegister)
   }
 
   private drag(event: PointerEvent, axis: 'width' | 'height'): void {
@@ -203,7 +203,7 @@ export class DialogFrame extends LitElement {
       const next = Math.max(min, Math.round(start + (pos - startPos) * 2))
       if (next === last) return
       last = next
-      report(next, reported ? 'runs' : 'beginn')
+      report(next, reported ? 'move' : 'start')
       reported = true
     }
 
@@ -221,11 +221,11 @@ export class DialogFrame extends LitElement {
     window.addEventListener('blur', finish)
   }
 
-  private onStandard(event: Event, axis: 'width' | 'height'): void {
+  private onReset(event: Event, axis: 'width' | 'height'): void {
     if (!this.movable) return
     event.stopPropagation()
     this.dispatchEvent(new CustomEvent<DialogSizeDetail>(DIALOG_SIZE_EVENT, {
-      detail: { axis, value: 0, gesture: 'standard' },
+      detail: { axis, value: 0, gesture: 'reset' },
       bubbles: true,
       composed: true,
     }))
@@ -282,12 +282,12 @@ export class DialogFrame extends LitElement {
             <div
               class="handle width"
               @pointerdown=${(e: PointerEvent) => this.drag(e, 'width')}
-              @dblclick=${(e: Event) => this.onStandard(e, 'width')}
+              @dblclick=${(e: Event) => this.onReset(e, 'width')}
             ></div>
             <div
               class="handle height"
               @pointerdown=${(e: PointerEvent) => this.drag(e, 'height')}
-              @dblclick=${(e: Event) => this.onStandard(e, 'height')}
+              @dblclick=${(e: Event) => this.onReset(e, 'height')}
             ></div>
           ` : nothing}
         </section>

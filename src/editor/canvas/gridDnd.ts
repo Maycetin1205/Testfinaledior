@@ -26,10 +26,10 @@ export function cellFromPointer(
     .map((t) => parseFloat(t))
     .filter((n) => Number.isFinite(n))
   let x = 0
-  let xkante = 0
+  let edgeX = 0
   while (x < columns.length) {
-    if (lx < xkante + columns[x]) break
-    xkante += columns[x] + columnsGap
+    if (lx < edgeX + columns[x]) break
+    edgeX += columns[x] + columnsGap
     x++
   }
   x = Math.max(0, Math.min(GRID.columns - 1, x))
@@ -73,7 +73,7 @@ function draggedSize(
   return { w: spec.startWidth, h: spec.startHeight }
 }
 
-export function rasterTarget(
+export function gridTarget(
   e: DragEvent,
   ed: ReturnType<typeof useEditor>,
   dnd: DndState,

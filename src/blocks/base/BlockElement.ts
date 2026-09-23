@@ -105,9 +105,9 @@ export abstract class BlockElement extends LitElement {
     if (target.hasAttribute('data-ff-bound')) return
     event.stopPropagation()
     event.preventDefault()
-    startRename(target, (next, original) => {
-      if (next === original) return true
-      const detail: { attr: string; value: string; rejected?: boolean } = { attr, value: next }
+    startRename(target, (text, original) => {
+      if (text === original) return true
+      const detail: { attr: string; value: string; rejected?: boolean } = { attr, value: text }
       this.dispatchEvent(new CustomEvent('ff-prop-change', {
         detail,
         bubbles: true,

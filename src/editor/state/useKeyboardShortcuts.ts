@@ -21,9 +21,9 @@ export type KeyEffect =
   | 'nothing'
   | 'save'
   | 'delete'
-  | 'abwaehlen'
+  | 'deselect'
   | 'back'
-  | 'vor'
+  | 'forward'
   | 'duplicate'
 
 export interface KeyPlacement {
@@ -51,12 +51,12 @@ function keyEffect(placement: KeyPlacement): KeyEffect {
     if (placement.key === 'Delete' || placement.key === 'Backspace') {
       return placement.somethingChosen ? 'delete' : 'nothing'
     }
-    if (placement.key === 'Escape') return placement.somethingChosen ? 'abwaehlen' : 'nothing'
+    if (placement.key === 'Escape') return placement.somethingChosen ? 'deselect' : 'nothing'
     return 'nothing'
   }
 
-  if (letter === 'z') return placement.shift ? 'vor' : 'back'
-  if (letter === 'y') return 'vor'
+  if (letter === 'z') return placement.shift ? 'forward' : 'back'
+  if (letter === 'y') return 'forward'
   if (letter === 'd') return placement.somethingChosen ? 'duplicate' : 'nothing'
   return 'nothing'
 }
@@ -76,7 +76,7 @@ export function useKeyboardShortcuts() {
       })
       if (effect === 'nothing') return
 
-      if (effect !== 'abwaehlen') e.preventDefault()
+      if (effect !== 'deselect') e.preventDefault()
 
       switch (effect) {
         case 'save':
@@ -85,13 +85,13 @@ export function useKeyboardShortcuts() {
         case 'delete':
           if (chosen) editor.removeBlock(chosen)
           break
-        case 'abwaehlen':
+        case 'deselect':
           editor.selectBlock(null)
           break
         case 'back':
           editor.undo()
           break
-        case 'vor':
+        case 'forward':
           editor.redo()
           break
         case 'duplicate':

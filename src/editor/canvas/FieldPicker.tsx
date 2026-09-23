@@ -24,7 +24,7 @@ export interface PickerGroup {
 export interface PickerTitle {
   value: string
 
-  standard: string
+  fallback: string
   onChange: (title: string) => void
 
   session: EditSession
@@ -35,7 +35,7 @@ export interface PickerFlag {
   label: string
 
   short?: string
-  standard?: boolean
+  onByDefault?: boolean
   on: boolean
   onToggle: (on: boolean) => void
 }
@@ -72,7 +72,7 @@ interface FieldPickerProps {
   onRemove?: () => void
   removeLabel?: string
 
-  further?: readonly {
+  moreActions?: readonly {
     label: string
     onOpen: () => void
   }[]
@@ -172,7 +172,7 @@ export function FieldPicker({
   onClose,
   onRemove,
   removeLabel,
-  further,
+  moreActions,
 }: FieldPickerProps) {
   const titleSession = title?.session
   useEffect(() => () => {
@@ -198,7 +198,7 @@ export function FieldPicker({
     ? groups.filter((g) => g.sourceId !== '')
     : groups
 
-  const hasDoes = (flag?.length ?? 0) > 0
+  const hasFlags = (flag?.length ?? 0) > 0
 
   const fieldRow = (target: PickerField) => (
     <FieldRow
@@ -251,7 +251,7 @@ export function FieldPicker({
         {title && (
           <Field
             value={title.value}
-            placeholder={title.standard}
+            placeholder={title.fallback}
             aria-label="Spaltenname"
             onChange={(e) => {
               title.session.begin()
@@ -259,7 +259,7 @@ export function FieldPicker({
             }}
             onBlur={() => {
               title.session.finish()
-              if (title.value.trim() === '') title.onChange(title.standard)
+              if (title.value.trim() === '') title.onChange(title.fallback)
             }}
             className="font-medium"
           />
@@ -269,7 +269,7 @@ export function FieldPicker({
 
         {extraTargets.map(fieldRow)}
 
-        {hasDoes && (
+        {hasFlags && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-1.5">
             {(flag ?? []).map((s) => (
               <Flag
@@ -309,10 +309,10 @@ export function FieldPicker({
         />
           </>
         )}
-        {((further?.length ?? 0) > 0 || onRemove !== undefined) && (
+        {((moreActions?.length ?? 0) > 0 || onRemove !== undefined) && (
           <div className="sticky bottom-0 -mb-1 flex items-center justify-between gap-2 border-t border-line bg-panel px-1.5 py-1.5">
             <div className="flex items-center gap-1.5">
-              {(further ?? []).map((w) => (
+              {(moreActions ?? []).map((w) => (
                 <Button key={w.label} onClick={w.onOpen}>{w.label}</Button>
               ))}
             </div>

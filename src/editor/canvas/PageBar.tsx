@@ -12,7 +12,7 @@ export function PagesBar() {
   const active = ed.activePageId
 
   const [rename, setRename] = useState<{ id: string; text: string } | null>(null)
-  const pagesKinds = allBlockTypes().filter((def) => def.page)
+  const pageTypes = allBlockTypes().filter((def) => def.page)
 
   const adopt = () => {
     if (!rename) return
@@ -66,7 +66,7 @@ export function PagesBar() {
           </Fragment>
         )
       ))}
-      {pagesKinds.map((def) => (
+      {pageTypes.map((def) => (
         <Tabs
           key={def.type}
           onClick={() => ed.addPage(def.type)}

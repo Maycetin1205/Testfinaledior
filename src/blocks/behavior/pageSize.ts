@@ -58,7 +58,7 @@ export interface SplitQuestion {
   showsRows: boolean
   perPage: number
 
-  wishPage: number
+  wantedPage: number
 
   placeholderRows: number
 }
@@ -78,12 +78,12 @@ export function pagesSplit({
   visible,
   showsRows,
   perPage,
-  wishPage,
+  wantedPage,
   placeholderRows,
 }: SplitQuestion): Split {
   const pages = showsRows ? Math.max(1, Math.ceil(visible.length / perPage)) : 1
 
-  const page = Math.min(Math.max(wishPage, 0), pages - 1)
+  const page = Math.min(Math.max(wantedPage, 0), pages - 1)
   if (!showsRows) {
     return { pages, page, rows: Array.from({ length: placeholderRows }, () => null) }
   }
@@ -92,7 +92,7 @@ export function pagesSplit({
 
 export const WITHOUT_BODY = -1
 
-export interface MessTarget {
+export interface MeasureTarget {
   hasAttribute(name: string): boolean
   renderRoot: { querySelector(selection: string): Element | null }
 }
@@ -105,25 +105,25 @@ export interface BodyMeasure {
   head: number
 }
 
-export function bodyHeight(target: MessTarget): number {
+export function bodyHeight(target: MeasureTarget): number {
   if (!target.hasAttribute('fills')) return WITHOUT_BODY
   const body = target.renderRoot.querySelector('.body')
   return body instanceof HTMLElement ? body.clientHeight : WITHOUT_BODY
 }
 
-export function headHeight(target: MessTarget): number {
+export function headHeight(target: MeasureTarget): number {
   const head = target.renderRoot.querySelector('.head')
   return head instanceof HTMLElement ? head.offsetHeight : 0
 }
 
-export function measuredMetrics(target: MessTarget, tick: number): BodyMeasure {
+export function measuredMetrics(target: MeasureTarget, tick: number): BodyMeasure {
   const height = bodyHeight(target)
   if (height === WITHOUT_BODY) return { metrics: null, height, head: 0 }
   const head = headHeight(target)
   return { metrics: rowMetrics(height, head, tick), height, head }
 }
 
-export function observeBody(target: MessTarget, onChange: () => void): ResizeObserver | null {
+export function observeBody(target: MeasureTarget, onChange: () => void): ResizeObserver | null {
   if (typeof ResizeObserver === 'undefined') return null
   const body = target.renderRoot.querySelector('.body')
   if (!body) return null

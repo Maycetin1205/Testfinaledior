@@ -18,7 +18,7 @@ export interface GridMetrics {
   widthDraggable: boolean
 }
 
-const RASTER_FALLBACK: GridMetrics = {
+const GRID_FALLBACK: GridMetrics = {
   startWidth: 12,
   startHeight: 3,
   minWidth: 2,
@@ -39,7 +39,7 @@ export const GRID_PROPERTIES = {
   gridH: cell('Zeilen hoch', 1),
 }
 
-function parseRasterCell(value: unknown, fallback: number): number {
+function parseGridCell(value: unknown, fallback: number): number {
   if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
     return Math.floor(value)
   }
@@ -48,17 +48,17 @@ function parseRasterCell(value: unknown, fallback: number): number {
 
 export function gridSlotRead(props: Record<string, unknown>): GridSlot {
   return {
-    x: parseRasterCell(props.gridX, 0),
-    y: parseRasterCell(props.gridY, 0),
-    w: Math.max(1, parseRasterCell(props.gridW, GRID.columns)),
-    h: Math.max(1, parseRasterCell(props.gridH, 1)),
+    x: parseGridCell(props.gridX, 0),
+    y: parseGridCell(props.gridY, 0),
+    w: Math.max(1, parseGridCell(props.gridW, GRID.columns)),
+    h: Math.max(1, parseGridCell(props.gridH, 1)),
   }
 }
 
 export function gridMetricsOf(
   def: { grid?: Partial<GridMetrics> } | undefined,
 ): GridMetrics {
-  return { ...RASTER_FALLBACK, ...(def?.grid ?? {}) }
+  return { ...GRID_FALLBACK, ...(def?.grid ?? {}) }
 }
 
 export function gridAreaStyle(): Record<string, string | number> {

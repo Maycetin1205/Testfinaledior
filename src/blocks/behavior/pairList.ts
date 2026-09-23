@@ -9,17 +9,17 @@ export interface PairEntry {
   pairs: KeyPair[]
 }
 
-export interface PairListChoice {
-  withoutPairsKeep?: boolean
+export interface PairListOptions {
+  keepWithoutPairs?: boolean
 }
 
-export function pairListFromAttribut(
+export function pairListFromAttribute(
   el: HTMLElement,
-  attributName: string,
+  attributeName: string,
   idField: string,
-  choice: PairListChoice = {},
+  options: PairListOptions = {},
 ): PairEntry[] {
-  const raw = el.getAttribute(attributName) ?? ''
+  const raw = el.getAttribute(attributeName) ?? ''
   if (raw === '') return []
   try {
     const parsed: unknown = JSON.parse(raw)
@@ -36,7 +36,7 @@ export function pairListFromAttribut(
         if (pair.ofField.trim() === '' || pair.toField.trim() === '') continue
         pairs.push({ ofField: pair.ofField, toField: pair.toField })
       }
-      if (pairs.length === 0 && choice.withoutPairsKeep !== true) continue
+      if (pairs.length === 0 && options.keepWithoutPairs !== true) continue
       const partnerId = typeof entry.partnerId === 'string' && entry.partnerId !== id
         ? entry.partnerId
         : ''

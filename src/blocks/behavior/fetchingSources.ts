@@ -5,11 +5,11 @@ import { allBlockTypes } from '../../core/block/registry'
 import { propertyVisible } from '../../core/block/property'
 import { SOURCE_PROP } from '../../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
-import { holeQuerySource } from '../../softengine/queryLoader'
+import { fetchQuerySource } from '../../softengine/queryLoader'
 import { hasSeData, onSeData } from '../../softengine/bridge'
 import { runtimeSources } from '../../softengine/runtimeSources'
 import { loadRowsPerRelation } from '../../softengine/relationLoader'
-import { holeValueSource } from '../../softengine/valueLoader'
+import { fetchValueSource } from '../../softengine/valueLoader'
 import {
   onSelectionList,
   selectionFor,
@@ -46,7 +46,7 @@ function sourcesAttrFor(el: Element, def: BlockType): string {
   return (active ? choice.sourceProp ?? SOURCE_PROP : SOURCE_PROP).toLowerCase()
 }
 
-function chosenRowTheSource(
+function chosenRowOfSource(
   sourceId: string,
   defsPerTag: Map<string, BlockType>,
   root: ParentNode | undefined = typeof document === 'undefined' ? undefined : document,
@@ -88,7 +88,7 @@ function checkFetchingSources(byControls: boolean): void {
   const defsPerTag = defsWithRecordChoice()
   for (const source of runtimeSources()) {
     if (!source.loadRelation) continue
-    const { row, giver } = chosenRowTheSource(source.id, defsPerTag)
+    const { row, giver } = chosenRowOfSource(source.id, defsPerTag)
 
     if (!giver) continue
     if (!mayLoad(source.id, traitOf(row), byControls)) continue
@@ -96,17 +96,17 @@ function checkFetchingSources(byControls: boolean): void {
   }
 }
 
-function holeValueSources(): void {
+function fetchValueSources(): void {
   for (const source of runtimeSources()) {
     if (!source.getValue) continue
-    holeValueSource(source, source.getValue)
+    fetchValueSource(source, source.getValue)
   }
 }
 
-function holeQuerySources(): void {
+function fetchQuerySources(): void {
   for (const source of runtimeSources()) {
     if (!source.query) continue
-    holeQuerySource(source, source.query)
+    fetchQuerySource(source, source.query)
   }
 }
 
@@ -117,12 +117,12 @@ export function wireFetchingSources(): void {
 
   onSeData((delivery) => {
     if (!delivery) return
-    holeValueSources()
-    holeQuerySources()
+    fetchValueSources()
+    fetchQuerySources()
   })
 
   if (hasSeData()) {
-    holeValueSources()
-    holeQuerySources()
+    fetchValueSources()
+    fetchQuerySources()
   }
 }

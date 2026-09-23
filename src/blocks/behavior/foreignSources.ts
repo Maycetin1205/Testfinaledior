@@ -1,8 +1,8 @@
 import { fieldRead } from '../../softengine/data'
-import { runtimeSource, rowsTheSource } from '../../softengine/runtimeSources'
+import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
 import { EXTRA_SOURCES_PROP, type KeyPair } from '../../core/data/extraSources'
 import { splitBinding } from '../../core/block/blockType'
-import { pairListFromAttribut } from './pairList'
+import { pairListFromAttribute } from './pairList'
 
 const EXTRA_SOURCES_ATTR = EXTRA_SOURCES_PROP.toLowerCase()
 
@@ -29,15 +29,15 @@ function keyFrom(values: readonly string[]): string {
   return parts.join(KEY_DIVIDER)
 }
 
-export function leftOf(
+export function extraSourcesOf(
   el: HTMLElement,
 ): { sourceId: string; partnerId: string; pairs: KeyPair[] }[] {
-  return pairListFromAttribut(el, EXTRA_SOURCES_ATTR, 'sourceId', { withoutPairsKeep: true })
+  return pairListFromAttribute(el, EXTRA_SOURCES_ATTR, 'sourceId', { keepWithoutPairs: true })
     .map((e) => ({ sourceId: e.id, partnerId: e.partnerId, pairs: e.pairs }))
 }
 
 export function makeFieldReader(el: HTMLElement): FieldReader {
-  const extra = leftOf(el)
+  const extra = extraSourcesOf(el)
   if (extra.length === 0) return (row, value) => fieldRead(row, splitBinding(value).code)
 
   const lookup = new Map<string, Lookup>()
@@ -46,7 +46,7 @@ export function makeFieldReader(el: HTMLElement): FieldReader {
     if (q.pairs.length === 0) continue
     const source = runtimeSource(q.sourceId)
     if (!source) continue
-    const rows = rowsTheSource(source)
+    const rows = rowsOfSource(source)
     const toKey = new Map<string, unknown>()
     for (const row of rows) {
       const key = keyFrom(q.pairs.map((p) => fieldRead(row, p.toField)))

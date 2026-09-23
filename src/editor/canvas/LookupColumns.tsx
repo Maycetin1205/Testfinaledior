@@ -8,7 +8,7 @@ import type { Table } from '../../blocks/table/Table'
 import {
   newColumn,
   COLUMNS_MAX,
-  STANDARD_TITLE,
+  DEFAULT_TITLE,
   type Column,
 } from '../../blocks/behavior/columns'
 import { sourcesKey } from '../../core/data/dataSources'
@@ -53,7 +53,7 @@ function tableIn(frame: DialogFrame): Table | null {
 function measure(frame: DialogFrame): Measurement {
   const row = tableIn(frame)?.shadowRoot?.querySelector('.head')
   if (row == null) return NOTHING
-  const zr = row.getBoundingClientRect()
+  const rowRect = row.getBoundingClientRect()
   return {
     heads: Array.from(row.querySelectorAll<HTMLElement>(':scope > [data-ff-entry]')).map(
       (el, i) => {
@@ -68,7 +68,7 @@ function measure(frame: DialogFrame): Measurement {
         }
       },
     ),
-    row: { right: zr.right, top: zr.top, height: zr.height },
+    row: { right: rowRect.right, top: rowRect.top, height: rowRect.height },
   }
 }
 
@@ -170,7 +170,7 @@ function Heads({ open }: { open: OpenLookup }) {
     ? undefined
     : metrics.heads.find((k) => k.slot === chosen)
   const columnOfPickers = chosen === null ? undefined : state.columns[chosen]
-  const standardTitle = STANDARD_TITLE.replace('{n}', String((chosen ?? 0) + 1))
+  const defaultTitle = DEFAULT_TITLE.replace('{n}', String((chosen ?? 0) + 1))
 
   const plus = state.columns.length < COLUMNS_MAX ? metrics.row : null
 
@@ -238,11 +238,11 @@ function Heads({ open }: { open: OpenLookup }) {
         <FieldPicker
           key={chosen}
           level={LEVEL_OVER_MASK_WINDOW}
-          spotLabel={columnOfPickers.title === '' ? standardTitle : columnOfPickers.title}
+          spotLabel={columnOfPickers.title === '' ? defaultTitle : columnOfPickers.title}
           groups={groups}
           title={{
             value: columnOfPickers.title,
-            standard: standardTitle,
+            fallback: defaultTitle,
             onChange: (next) => {
               typingSession.begin()
               change(chosen, { title: next })
@@ -260,7 +260,7 @@ function Heads({ open }: { open: OpenLookup }) {
             const width = widthFromIcon(field?.icon)
             change(chosen, {
               field: value,
-              title: value === '' ? standardTitle : (plainName !== '' ? plainName : value),
+              title: value === '' ? defaultTitle : (plainName !== '' ? plainName : value),
               ...(width === undefined ? {} : { width }),
             })
           }}

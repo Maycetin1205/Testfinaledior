@@ -53,7 +53,7 @@ export function ColumnsControls({
 }: ColumnsControlsProps) {
   const editor = useEditorInstance()
   const [spots, setSpots] = useState<Spot[]>([])
-  const [drag, setDrag] = useState<{ of: number; slot: number } | null>(null)
+  const [drag, setDrag] = useState<{ from: number; slot: number } | null>(null)
 
   useEffect(() => {
     const el = element
@@ -83,7 +83,7 @@ export function ColumnsControls({
     const s = spots[index]
     if (!target || !frame || !s) return
     const reference = frame.getBoundingClientRect()
-    target.dispatchEvent(new CustomEvent('ff-listen-bind', {
+    target.dispatchEvent(new CustomEvent('ff-list-bind', {
       detail: {
         prop: binding.prop,
         index: s.slot,
@@ -99,7 +99,7 @@ export function ColumnsControls({
     const frame = host.current
     if (!frame) return
 
-    const whatChosen = editor.selectedId === block.id
+    const wasSelected = editor.selectedId === block.id
     const startX = e.clientX
     const referenceLeft = frame.getBoundingClientRect().left
     const midway = spots.map((s) => referenceLeft + s.left + s.width / 2)
@@ -126,14 +126,14 @@ export function ColumnsControls({
       }
       ev.preventDefault()
       slot = slotOf(ev.clientX)
-      setDrag({ of: index, slot })
+      setDrag({ from: index, slot })
     }
     function onEnd(): void {
       const what = drags
       const s = slot
       cleanUp()
       if (!what) {
-        if (whatChosen) openPicker(index)
+        if (wasSelected) openPicker(index)
         else onSelect?.()
         return
       }
@@ -173,7 +173,7 @@ export function ColumnsControls({
           key={i}
           className={cn(
             'pointer-events-auto absolute cursor-pointer hover:bg-[hsl(var(--wb-selection)/0.10)]',
-            drag?.of === i && 'bg-[hsl(var(--wb-selection)/0.10)]',
+            drag?.from === i && 'bg-[hsl(var(--wb-selection)/0.10)]',
           )}
           style={{
             left: s.left + HANDLE_EDGE,

@@ -84,7 +84,7 @@ export function contentText(copy: CopyState): string {
   return numbersRecord(copy.blocks, copy.dataSources, copy.relation)
 }
 
-export function spotCopyAgainFrom(editor: EditorStore, key: string): void {
+export function restoreCopy(editor: EditorStore, key: string): void {
   const copy = allCopies(STORAGE_KEY).find((k) => k.key === key)
   if (copy === undefined) return
   const state = readState(copy.raw, STORAGE_KEY)

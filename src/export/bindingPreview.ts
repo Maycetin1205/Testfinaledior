@@ -13,11 +13,11 @@ export function previewRaw(
   node: BlockNode,
   spot: BindableSpot,
   sources: readonly DataSource[],
-  standard: unknown,
+  fallback: unknown,
 ): string {
   const binding = String(node.values[bindingProp(spot.prop)] ?? '')
   if (binding === '') {
-    return String(node.values[spot.previewProp ?? spot.prop] ?? standard ?? '')
+    return String(node.values[spot.previewProp ?? spot.prop] ?? fallback ?? '')
   }
   return fieldPlainName(binding, String(node.values[SOURCE_PROP] ?? ''), sources)
 }

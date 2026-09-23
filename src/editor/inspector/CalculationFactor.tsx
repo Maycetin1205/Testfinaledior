@@ -47,7 +47,7 @@ export interface FactorRowProps {
 
   lead?: boolean
   onFactor: (factor: Factor) => void
-  onAway?: () => void
+  onRemove?: () => void
 }
 
 export function FactorRow({
@@ -56,7 +56,7 @@ export function FactorRow({
   sources,
   lead = false,
   onFactor,
-  onAway,
+  onRemove,
 }: FactorRowProps) {
   const target = factor.kind === 'dataField' ? splitBinding(factor.field) : { sourceId: '', code: '' }
   const source = sources.find((q) => q.source.id === target.sourceId)
@@ -97,8 +97,8 @@ export function FactorRow({
           onChoose={(unit) => onFactor({ ...factor, unit })}
         />
 
-        {onAway !== undefined && (
-          <Button onlyIcon aria-label="Faktor entfernen" onClick={onAway}>
+        {onRemove !== undefined && (
+          <Button onlyIcon aria-label="Faktor entfernen" onClick={onRemove}>
             <X className="size-3.5" />
           </Button>
         )}

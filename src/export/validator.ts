@@ -37,11 +37,11 @@ export function validateMaskHtml(html: string): CheckResult[] {
     'ohne die Laufzeit bleibt jeder Baustein stumm',
   )
 
-  const skripte = [...html.matchAll(/<script[^>]*\ssrc="([^"]*)"/g)].map((hit) => hit[1])
-  const bridge = skripte.filter((src) => src === BRIDGE_PATH).length
+  const scripts = [...html.matchAll(/<script[^>]*\ssrc="([^"]*)"/g)].map((hit) => hit[1])
+  const bridge = scripts.filter((src) => src === BRIDGE_PATH).length
   check('Bruecke eingebunden', bridge === 1, `gefunden: ${bridge}`)
 
-  const foreign = skripte.filter((src) => src !== BRIDGE_PATH)
+  const foreign = scripts.filter((src) => src !== BRIDGE_PATH)
   check('kein fremdes Skript', foreign.length === 0, foreign.join(', '))
 
   check('DOCTYPE vorhanden', html.includes('<!DOCTYPE html>'))

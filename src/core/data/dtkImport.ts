@@ -10,7 +10,7 @@ export interface DtkTable {
 
   fields: DtkField[]
 
-  should: number
+  expectedCount: number
 }
 
 const PAGE = 2048
@@ -127,7 +127,7 @@ function harvestPosRecords(text: string): Map<string, Map<number, RawField>> {
 
 const POS_NUMBER = /3,POS,(ID\d{4}), {5,9}(\d{1,4})/g
 
-function shouldNumbers(text: string): Map<string, number> {
+function expectedCounts(text: string): Map<string, number> {
   const numbers = new Map<string, Set<number>>()
   for (const m of text.matchAll(POS_NUMBER)) {
     let s = numbers.get(m[1])
@@ -157,19 +157,19 @@ function tablesNames(text: string): Map<string, string> {
 function addTogether(
   a: Map<string, RawField> | undefined,
   b: Map<number, RawField> | undefined,
-  should: number,
+  expected: number,
 ): RawField[] {
   const aFields = [...(a?.values() ?? [])]
   const bFields = [...(b?.values() ?? [])]
   const aCodes = new Set(aFields.map(codeOf))
   const bCodes = new Set(bFields.map(codeOf))
 
-  const vereinigt = new Map<string, RawField>()
+  const merged = new Map<string, RawField>()
   for (const f of [...aFields, ...bFields]) {
-    if (!vereinigt.has(codeOf(f))) vereinigt.set(codeOf(f), f)
+    if (!merged.has(codeOf(f))) merged.set(codeOf(f), f)
   }
 
-  if (should > 0 && vereinigt.size > should) {
+  if (expected > 0 && merged.size > expected) {
     const confirmed = [...bCodes].filter((c) => aCodes.has(c)).length
     if (confirmed * 2 >= bCodes.size) {
       return aFields
@@ -177,29 +177,29 @@ function addTogether(
 
     return bFields
   }
-  return [...vereinigt.values()]
+  return [...merged.values()]
 }
 
 function parseDtk(text: string): DtkTable[] {
   const a = harvestRecord(text)
   const b = harvestPosRecords(text)
-  const should = shouldNumbers(text)
+  const expected = expectedCounts(text)
   const names = tablesNames(text)
 
-  const ids = new Set([...a.keys(), ...b.keys(), ...should.keys()])
+  const ids = new Set([...a.keys(), ...b.keys(), ...expected.keys()])
   const out: DtkTable[] = []
   for (const id of [...ids].sort()) {
-    const shouldNumber = should.get(id) ?? 0
-    const fields = addTogether(a.get(id), b.get(id), shouldNumber).sort(
+    const expectedCount = expected.get(id) ?? 0
+    const fields = addTogether(a.get(id), b.get(id), expectedCount).sort(
       (x, y) => x.pos - y.pos || x.len - y.len,
     )
 
-    if (fields.length === 0 && shouldNumber === 0) continue
+    if (fields.length === 0 && expectedCount === 0) continue
     out.push({
       key: `IDB${id}`,
       name: names.get(id) ?? '',
       fields: fields.map((f) => ({ code: codeOf(f), name: f.label })),
-      should: shouldNumber,
+      expectedCount: expectedCount,
     })
   }
   return out

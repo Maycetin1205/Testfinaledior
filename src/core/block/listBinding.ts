@@ -9,7 +9,7 @@ export interface ListBinding {
 
   keyProperty?: string
 
-  standardTitle: string
+  defaultTitle: string
 
   sourceProp?: string
 
@@ -17,11 +17,11 @@ export interface ListBinding {
 
   entryFieldChoice?: readonly EntryFieldChoice[]
 
-  entryNeu?: (props: Readonly<Record<string, unknown>>) => Record<string, unknown>
-  entryAway?: (props: Readonly<Record<string, unknown>>, index: number) => Record<string, unknown>
+  entryAdd?: (props: Readonly<Record<string, unknown>>) => Record<string, unknown>
+  entryRemove?: (props: Readonly<Record<string, unknown>>, index: number) => Record<string, unknown>
   entryMove?: (
     props: Readonly<Record<string, unknown>>,
-    of: number,
+    from: number,
     to: number,
   ) => Record<string, unknown>
 
@@ -41,7 +41,7 @@ export interface EntrySwitch {
 
   name: string
 
-  standard?: boolean
+  onByDefault?: boolean
 
   onlyOwnSource?: boolean
 
@@ -53,7 +53,7 @@ export function flagOn(
   entry: Record<string, unknown>,
 ): boolean {
   const value = entry[flag.key]
-  return typeof value === 'boolean' ? value : flag.standard === true
+  return typeof value === 'boolean' ? value : flag.onByDefault === true
 }
 
 export function flagFor(
@@ -77,16 +77,16 @@ export function fieldChoicesRead(
   })
 }
 
-export function listStandardTitle(b: ListBinding, index: number): string {
-  return b.standardTitle.replace('{n}', String(index + 1))
+export function listDefaultTitle(b: ListBinding, index: number): string {
+  return b.defaultTitle.replace('{n}', String(index + 1))
 }
 
-const TITLE_OF_HAND = 'titleByHand'
+const TITLE_BY_HAND = 'titleByHand'
 
 export function typedTitle(b: ListBinding, title: string): Record<string, unknown> {
   return {
     [b.titleKey]: title,
-    [TITLE_OF_HAND]: title.trim() === '' ? undefined : true,
+    [TITLE_BY_HAND]: title.trim() === '' ? undefined : true,
   }
 }
 
@@ -94,7 +94,7 @@ export function titleToFieldChoice(
   entry: Record<string, unknown>,
   fromField: string,
 ): string | undefined {
-  return entry[TITLE_OF_HAND] === true ? undefined : fromField
+  return entry[TITLE_BY_HAND] === true ? undefined : fromField
 }
 
 export function listRead(raw: unknown, b: ListBinding): Record<string, unknown>[] {
@@ -102,7 +102,7 @@ export function listRead(raw: unknown, b: ListBinding): Record<string, unknown>[
   return raw.map((x, i) => {
     if (x && typeof x === 'object') return { ...(x as Record<string, unknown>) }
     return {
-      [b.titleKey]: typeof x === 'string' ? x : listStandardTitle(b, i),
+      [b.titleKey]: typeof x === 'string' ? x : listDefaultTitle(b, i),
       [b.fieldKey]: '',
     }
   })
@@ -119,20 +119,20 @@ function conditionalKey(b: ListBinding): ConditionalKey[] {
     rules.push({
       key: flag.key,
       allowed: (e) => flagFor(b, e).includes(flag)
-        && flagOn(flag, e) !== (flag.standard === true),
+        && flagOn(flag, e) !== (flag.onByDefault === true),
     })
   }
   return rules
 }
 
 export function assignKeys(present: readonly string[]): string[] {
-  const assign = new Set<string>()
+  const taken = new Set<string>()
   for (const raw of present) {
     const k = raw.trim()
-    if (k !== '') assign.add(k)
+    if (k !== '') taken.add(k)
   }
   let nextNumber = 1
-  for (const k of assign) {
+  for (const k of taken) {
     const hit = /^s(\d+)$/.exec(k)
     if (hit) nextNumber = Math.max(nextNumber, Number(hit[1]) + 1)
   }
@@ -143,11 +143,11 @@ export function assignKeys(present: readonly string[]): string[] {
       keep.add(k)
       return k
     }
-    while (assign.has(`s${nextNumber}`)) nextNumber += 1
-    const next = `s${nextNumber}`
-    assign.add(next)
-    keep.add(next)
-    return next
+    while (taken.has(`s${nextNumber}`)) nextNumber += 1
+    const fresh = `s${nextNumber}`
+    taken.add(fresh)
+    keep.add(fresh)
+    return fresh
   })
 }
 
@@ -161,7 +161,7 @@ export function listForExport(raw: unknown, b: ListBinding): unknown {
       .filter((r) => r.key in entry && !r.allowed(entry))
       .map((r) => r.key)
 
-    if (TITLE_OF_HAND in entry) away.push(TITLE_OF_HAND)
+    if (TITLE_BY_HAND in entry) away.push(TITLE_BY_HAND)
     if (away.length === 0) return x
     const copy = { ...entry }
     for (const k of away) delete copy[k]

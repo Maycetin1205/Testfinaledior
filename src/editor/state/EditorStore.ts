@@ -41,7 +41,7 @@ import {
   childrenInFlow,
   writeValue,
   pageOf,
-  pagesTheMask,
+  pagesOfMask,
   type PagesEntry,
 } from '../../core/block/pages'
 import {
@@ -90,7 +90,7 @@ export class EditorStore extends Subject<EditorStore> {
   private _planner = new SavePlanner(() => this.persist(), SAVE_DEBOUNCE_MS)
   private _hydrated = false
 
-  private _placesAgainFrom = false
+  private _restoring = false
 
   constructor() {
     super()
@@ -108,10 +108,10 @@ export class EditorStore extends Subject<EditorStore> {
 
     for (const store of [this.dataSources, this.relation]) {
       store.observeBeforeChange(() => {
-        if (!this._placesAgainFrom) this.pushHistory()
+        if (!this._restoring) this.pushHistory()
       })
       store.subscribe(() => {
-        if (!this._placesAgainFrom) this.notify(this)
+        if (!this._restoring) this.notify(this)
       })
     }
   }
@@ -125,7 +125,7 @@ export class EditorStore extends Subject<EditorStore> {
   get activePageId(): string { return this.rootId }
 
   get pages(): PagesEntry[] {
-    return pagesTheMask(this._tree)
+    return pagesOfMask(this._tree)
   }
 
   private selectionOnActivePage(id: string | null): string | null {
@@ -193,12 +193,12 @@ export class EditorStore extends Subject<EditorStore> {
   }
 
   private setLibraries(state: Pick<EditorSnapshot, 'dataSources' | 'relation'>): void {
-    this._placesAgainFrom = true
+    this._restoring = true
     try {
       if (this.dataSources.list !== state.dataSources) this.dataSources.replaceAll(state.dataSources)
       if (this.relation.list !== state.relation) this.relation.replaceAll(state.relation)
     } finally {
-      this._placesAgainFrom = false
+      this._restoring = false
     }
   }
 
@@ -214,8 +214,8 @@ export class EditorStore extends Subject<EditorStore> {
     this._history.end()
   }
 
-  transaction<T>(tun: () => T): T {
-    return this._history.transaction(() => this.snapshot(), tun)
+  transaction<T>(run: () => T): T {
+    return this._history.transaction(() => this.snapshot(), run)
   }
 
   openGesture(): GestureBracket {
@@ -225,16 +225,16 @@ export class EditorStore extends Subject<EditorStore> {
   undo(): void {
     const prev = this._history.undo(() => this.snapshot())
     if (!prev) return
-    this.spotFrom(prev)
+    this.restoreFrom(prev)
   }
 
   redo(): void {
     const next = this._history.redo(() => this.snapshot())
     if (!next) return
-    this.spotFrom(next)
+    this.restoreFrom(next)
   }
 
-  private spotFrom(state: EditorSnapshot): void {
+  private restoreFrom(state: EditorSnapshot): void {
     this.setLibraries(state)
     this._tree = state.tree
     this._activePageId = state.activePageId ?? ROOT_ID

@@ -95,12 +95,12 @@ export function StepList({
         const what = s.kind === 'RELATION' && stepRelation && !isUnnamedTemplate(stepRelation)
           ? stepRelation.name
           : stepName(s.kind)
-        const zus = stepSummary(
+        const summary = stepSummary(
           s, what, stepRelation, ed.tree, dataSources.list,
           (id) => steps.findIndex((x) => x.id === id) + 1,
         )
 
-        const closer = [zus.target !== '' ? zus.target : zus.table, zus.origin]
+        const closer = [summary.target !== '' ? summary.target : summary.table, summary.origin]
           .filter((t) => t !== '')
           .join('  ←  ')
         const noteOpen = onChange !== undefined && s.id === activeId
@@ -131,7 +131,7 @@ export function StepList({
                 className="h-auto min-w-0 flex-[3] flex-col items-start justify-start py-1 text-left"
               >
                 <span className="block w-full truncate text-dense">
-                  {zus.what}
+                  {summary.what}
                   {s.kind === 'START_TOOL' && s.toolNr.trim() !== '' ? ` — Nr. ${s.toolNr}` : ''}
                   {s.kind === 'BW_LINK' && s.command.trim() !== '' ? ` — ${s.command}` : ''}
                   {popupName ? ` — ${popupName}` : ''}

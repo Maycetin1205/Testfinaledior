@@ -176,8 +176,8 @@ function wireWidths(
   window: LookupWindow,
   slot: number,
 ): void {
-  frame.querySelector('ff-table')?.addEventListener('ff-prop-change', (ereignis) => {
-    const detail = (ereignis as CustomEvent<{ attr?: string; value?: unknown }>).detail
+  frame.querySelector('ff-table')?.addEventListener('ff-prop-change', (event) => {
+    const detail = (event as CustomEvent<{ attr?: string; value?: unknown }>).detail
     if (detail?.attr !== 'columns') return
     const dragged = coerceLookupColumns(detail.value)
 

@@ -24,7 +24,7 @@ export function ChainsWindow({ block, eventKey, eventName, onClose }: ChainsWind
 
   const [openId, setOpenId] = useState<string | null>(null)
 
-  const [next, setNeu] = useState(false)
+  const [adding, setAdding] = useState(false)
 
   const chain = ed.tree[block.id]?.chains?.[eventKey] ?? []
   const open = openId === null ? undefined : chain.find((s) => s.id === openId)
@@ -37,12 +37,12 @@ export function ChainsWindow({ block, eventKey, eventName, onClose }: ChainsWind
 
   const save = (step: Step): void => {
     setChain(open ? chain.map((s) => (s.id === step.id ? step : s)) : [...chain, step])
-    setNeu(false)
+    setAdding(false)
     setOpenId(step.id)
   }
 
-  const detail = next
-    ? <StepForm key="next" chain={chain} onClose={() => setNeu(false)} onSave={save} />
+  const detail = adding
+    ? <StepForm key="new" chain={chain} onClose={() => setAdding(false)} onSave={save} />
     : open && (
         <StepForm
           key={open.id}
@@ -66,7 +66,7 @@ export function ChainsWindow({ block, eventKey, eventName, onClose }: ChainsWind
             className="w-full"
             onClick={() => {
               setOpenId(null)
-              setNeu(true)
+              setAdding(true)
             }}
           >
             <Plus size={13} /> Schritt
@@ -78,7 +78,7 @@ export function ChainsWindow({ block, eventKey, eventName, onClose }: ChainsWind
             steps={chain}
             activeId={openId ?? undefined}
             onChoose={(s) => {
-              setNeu(false)
+              setAdding(false)
               setOpenId(s.id)
             }}
             onChange={setChain}

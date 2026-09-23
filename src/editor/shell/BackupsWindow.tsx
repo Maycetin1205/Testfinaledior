@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Dialog } from '@/editor/widgets/Dialog'
 import { Button } from '@/editor/widgets/PushButton'
 import { List } from '@/editor/widgets/List'
-import { contentText, copiesToChoice, spotCopyAgainFrom, timeText } from '../state/backupPick'
+import { contentText, copiesToChoice, restoreCopy, timeText } from '../state/backupPick'
 import { useEditor } from '../state/useEditor'
 
 export function BackupsWindow({ onClose }: { onClose: () => void }) {
@@ -23,7 +23,7 @@ export function BackupsWindow({ onClose }: { onClose: () => void }) {
             kind="primary"
             disabled={chosen === ''}
             onClick={() => {
-              spotCopyAgainFrom(ed, chosen)
+              restoreCopy(ed, chosen)
               onClose()
             }}
           >

@@ -3,7 +3,7 @@ import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import type { ListBinding } from '../../core/block/listBinding'
 import { blockType } from '../../core/block/registry'
 import { fieldRead } from '../../softengine/data'
-import { runtimeSource, rowsTheSource } from '../../softengine/runtimeSources'
+import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
 import { rowsToSelection } from './selection'
 import {
   DIALOG_SIZE_EVENT,
@@ -12,8 +12,8 @@ import {
   type DialogSizeDetail,
   type DialogFrame,
 } from './DialogFrame'
-import { rememberedSorting, sortIndizes } from './sorting'
-import { coerceColumns, STANDARD_TITLE, type Column } from './columns'
+import { rememberedSorting, sortIndices } from './sorting'
+import { coerceColumns, DEFAULT_TITLE, type Column } from './columns'
 import { fittingSuggestions, SUGGESTIONS_MAX, type Suggestion } from './suggestionList'
 import {
   ROW_ACTIVATED_EVENT,
@@ -60,7 +60,7 @@ export function suggestionsInWindowState<T extends Suggestion & { record: unknow
 
   if (column !== undefined && state !== null) {
     const values = hit.map((e) => [fieldRead(e.record, column.field)])
-    return sortIndizes(values, 0, state.on).slice(0, SUGGESTIONS_MAX).map((i) => hit[i])
+    return sortIndices(values, 0, state.on).slice(0, SUGGESTIONS_MAX).map((i) => hit[i])
   }
   return hit.slice(0, SUGGESTIONS_MAX)
 }
@@ -68,10 +68,10 @@ export function suggestionsInWindowState<T extends Suggestion & { record: unknow
 const WINDOW_MIN = 120
 const WINDOW_MAX = 2000
 
-export function validMetrics(v: unknown, standard: number): number {
-  if (v === undefined || v === null || v === '') return standard
+export function validMetrics(v: unknown, fallback: number): number {
+  if (v === undefined || v === null || v === '') return fallback
   const number = typeof v === 'number' ? v : Number(v)
-  if (!Number.isFinite(number)) return standard
+  if (!Number.isFinite(number)) return fallback
   return Math.min(WINDOW_MAX, Math.max(WINDOW_MIN, Math.round(number)))
 }
 
@@ -83,7 +83,7 @@ export const LOOKUP_COLUMNS_BINDING: ListBinding = {
   prop: 'lookupColumns',
   titleKey: 'title',
   fieldKey: 'field',
-  standardTitle: STANDARD_TITLE,
+  defaultTitle: DEFAULT_TITLE,
   sourceProp: 'lookupSource',
 }
 
@@ -191,10 +191,10 @@ export type EntriesResult =
 export function sourcesRows(sourceId: string): unknown[] | null {
   const source = runtimeSource(sourceId)
   if (!source) return null
-  return rowsTheSource(source)
+  return rowsOfSource(source)
 }
 
-export function holeEntries(e: LookupSetting): EntriesResult {
+export function fetchEntries(e: LookupSetting): EntriesResult {
   if (e.sourceId === '' || e.storageField === '') return { ok: false }
   const rows = sourcesRows(e.sourceId)
   if (rows === null) return { ok: false }
@@ -202,26 +202,26 @@ export function holeEntries(e: LookupSetting): EntriesResult {
   return { ok: true, entries: windowEntries(e.el, rows, displayField, e.storageField) }
 }
 
-export function onlyHitFind(
+export function findOnlyHit(
   entries: readonly Entry[],
   fieldEmpty: boolean,
 ): Entry | null {
   return fieldEmpty && entries.length === 1 ? entries[0] : null
 }
 
-export function recordFitsToSelection(el: HTMLElement, record: unknown): boolean {
+export function recordFitsSelection(el: HTMLElement, record: unknown): boolean {
   const { rows, filtered } = rowsToSelection(el, [record])
   return !filtered || rows.length > 0
 }
 
-export type LeaveFollow = 'nothing' | 'clear' | 'back'
+export type LeaveAction = 'nothing' | 'clear' | 'back'
 
-export function followOnLeave(
+export function actionOnLeave(
   typed: string,
 
   confirmedDisplay: string,
   confirmedValue: string,
-): LeaveFollow {
+): LeaveAction {
   if (typed === '') {
     return confirmedDisplay === '' && confirmedValue === '' ? 'nothing' : 'clear'
   }
@@ -288,7 +288,7 @@ function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): 
 function wireDrag(dialog: DialogFrame, args: LookupArgs): void {
   dialog.addEventListener(DIALOG_SIZE_EVENT, (event) => {
     const detail = (event as CustomEvent<DialogSizeDetail>).detail
-    if (detail.gesture === 'standard') {
+    if (detail.gesture === 'reset') {
       args.setMetrics?.(detail.axis, undefined)
       return
     }
@@ -305,7 +305,7 @@ export function openLookup(args: LookupArgs): void {
   let entries = args.entries
 
   if (entries === undefined && args.inEditor !== true) {
-    const result = holeEntries(args)
+    const result = fetchEntries(args)
     if (!result.ok) return
     entries = result.entries
   }

@@ -2,16 +2,16 @@ import { fieldProperty, type Property } from '../../core/block/property'
 import { SOURCE_PROP } from '../../core/block/sourceProperty'
 import { fieldRead, type RuntimeSource } from '../../softengine/data'
 import { startSe, hasSeData, onSeData } from '../../softengine/bridge'
-import { runtimeSource, rowsTheSource } from '../../softengine/runtimeSources'
+import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
 import { onSelectionList } from './selection'
 import { makeFieldReader, type FieldReader } from './foreignSources'
-import { onChosenDay, chosenDay, tagKey } from './chosenDay'
+import { onChosenDay, chosenDay, dayKey } from './chosenDay'
 import { wireFetchingSources } from './fetchingSources'
 
 const SOURCE_ATTR = SOURCE_PROP.toLowerCase()
 
-const TAG_FIELD_PROP = 'dayField'
-const TAG_FIELD_ATTR = TAG_FIELD_PROP.toLowerCase()
+const DAY_FIELD_PROP = 'dayField'
+const DAY_FIELD_ATTR = DAY_FIELD_PROP.toLowerCase()
 
 export function sourceIdOf(el: Element): string {
   return el.getAttribute(SOURCE_ATTR) ?? ''
@@ -25,13 +25,13 @@ export function dayFieldProperty(): Property<string> {
   })
 }
 
-function rowsAtTag(
+function rowsAtDay(
   rows: readonly unknown[],
-  tagCode: string,
-  tag: string,
+  dayCode: string,
+  day: string,
 ): unknown[] {
-  if (tagCode === '' || tag === '') return [...rows]
-  return rows.filter((row) => tagKey(fieldRead(row, tagCode)) === tag)
+  if (dayCode === '' || day === '') return [...rows]
+  return rows.filter((row) => dayKey(fieldRead(row, dayCode)) === day)
 }
 
 export interface DataPreamble {
@@ -42,14 +42,14 @@ export interface DataPreamble {
   read: FieldReader
 }
 
-export function holeDataPreamble(el: HTMLElement): DataPreamble | null {
+export function readDataPreamble(el: HTMLElement): DataPreamble | null {
   const sourceId = sourceIdOf(el)
   if (sourceId === '') return null
   const source = runtimeSource(sourceId)
   if (!source) return null
-  const rows = rowsAtTag(
-    rowsTheSource(source),
-    el.getAttribute(TAG_FIELD_ATTR) ?? '',
+  const rows = rowsAtDay(
+    rowsOfSource(source),
+    el.getAttribute(DAY_FIELD_ATTR) ?? '',
     chosenDay(),
   )
   return { source, rows, read: makeFieldReader(el) }

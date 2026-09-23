@@ -26,10 +26,10 @@ import { relationRun, runtimeRelation, parameterResolve } from '../../softengine
 function applyPopupStep(root: ParentNode, name: string, open: boolean): void {
   if (name.trim() === '') return
 
-  const windowKind = blockType('popup')
-  const all = windowKind === undefined ? [] : Array.from(root.querySelectorAll(windowKind.tag))
+  const popupType = blockType('popup')
+  const all = popupType === undefined ? [] : Array.from(root.querySelectorAll(popupType.tag))
   const hit = all.filter(
-    (el) => (el.getAttribute('name') ?? windowKind?.properties.name?.default) === name,
+    (el) => (el.getAttribute('name') ?? popupType?.properties.name?.default) === name,
   )
   if (hit.length !== 1) return
   const target = hit[0]
@@ -82,7 +82,7 @@ export interface Transcript {
   previousResult: string
 }
 
-function rowsTheList(carrier: RowsCarrier, kind: PendingKind): RunRow[] | undefined {
+function rowsOfList(carrier: RowsCarrier, kind: PendingKind): RunRow[] | undefined {
   if (!hasCapability(blockTypeForTag(carrier.tagName), CAPABILITY_PER_LIST[kind])) return undefined
   if (kind === 'captured') {
     const v = contractOf(carrier, 'capture')
@@ -238,7 +238,7 @@ export async function runEvent(
         break
       }
       const carrier = searchCarrier(el.ownerDocument ?? document, section.blockId)
-      const rows = carrier && rowsTheList(carrier, section.kind)
+      const rows = carrier && rowsOfList(carrier, section.kind)
       if (!carrier || !rows) {
         cancelled = true
         break

@@ -23,28 +23,28 @@ export function readDate(value: unknown): Date | null {
   return real ? date : null
 }
 
-export function tagOf(moment: Date): string {
+export function dayOf(moment: Date): string {
   const month = String(moment.getMonth() + 1).padStart(2, '0')
-  const tag = String(moment.getDate()).padStart(2, '0')
-  return `${moment.getFullYear()}-${month}-${tag}`
+  const day = String(moment.getDate()).padStart(2, '0')
+  return `${moment.getFullYear()}-${month}-${day}`
 }
 
-export function tagKey(value: unknown): string {
+export function dayKey(value: unknown): string {
   const date = readDate(value)
-  return date ? tagOf(date) : ''
+  return date ? dayOf(date) : ''
 }
 
-let tag = ''
+let day = ''
 const listeners = new Set<() => void>()
 
 export function chosenDay(): string {
-  return tag
+  return day
 }
 
 export function setChosenDay(value: unknown): void {
-  const next = tagKey(value)
-  if (next === tag) return
-  tag = next
+  const next = dayKey(value)
+  if (next === day) return
+  day = next
   listeners.forEach((cb) => cb())
 }
 

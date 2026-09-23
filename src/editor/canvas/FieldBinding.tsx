@@ -7,7 +7,7 @@ import {
   typedTitle,
   flagOn,
   flagFor,
-  listStandardTitle,
+  listDefaultTitle,
   listRead,
   titleToFieldChoice,
   type ListBinding,
@@ -143,8 +143,8 @@ export function useFieldBinding({
         left: Math.max(8, Math.min(detail.left ?? 0, window.innerWidth - 248)),
       }))
     }
-    el.addEventListener('ff-listen-bind', handler)
-    return () => el.removeEventListener('ff-listen-bind', handler)
+    el.addEventListener('ff-list-bind', handler)
+    return () => el.removeEventListener('ff-list-bind', handler)
   }, [containerRef, listBinding])
 
   const ownWindow = searchWindow?.entriesProp !== undefined
@@ -215,42 +215,42 @@ export function useFieldBinding({
             }]
           : groups
         const titleNow = String(entry[listBinding.titleKey] ?? '')
-        const standardTitle = listStandardTitle(listBinding, listPicker.index)
+        const defaultTitle = listDefaultTitle(listBinding, listPicker.index)
         return (
           <FieldPicker
 
             key={listPicker.index}
-            spotLabel={titleNow === '' ? standardTitle : titleNow}
+            spotLabel={titleNow === '' ? defaultTitle : titleNow}
             groups={listGroups}
             title={{
               value: titleNow,
-              standard: standardTitle,
+              fallback: defaultTitle,
               onChange: (next) => {
                 typingSession.begin()
                 writeInEntry(listPicker.index, typedTitle(listBinding, next))
               },
               session: typingSession,
             }}
-            extraFields={fieldChoicesRead(listBinding, entry).map(({ choice: fw, value }) => ({
-              key: fw.key,
-              label: fw.name,
+            extraFields={fieldChoicesRead(listBinding, entry).map(({ choice, value }) => ({
+              key: choice.key,
+              label: choice.name,
               current: value,
-              onlyForeignSources: fw.onlyForeignSources,
+              onlyForeignSources: choice.onlyForeignSources,
               onChoose: (next) => writeInEntry(
                 listPicker.index,
-                { [fw.key]: next === '' ? undefined : next },
+                { [choice.key]: next === '' ? undefined : next },
               ),
             }))}
             flag={flagFor(listBinding, entry).map((s) => ({
               key: s.key,
               label: s.name,
               short: s.short,
-              standard: s.standard,
+              onByDefault: s.onByDefault,
               on: flagOn(s, entry),
               onToggle: (on) => writeInEntry(listPicker.index, { [s.key]: on }),
             }))}
             current={String(entry[listBinding.fieldKey] ?? '')}
-            further={[
+            moreActions={[
               ...(!ownWindow || searchWindow === undefined ? [] : [{
                 label: 'Suchfenster…',
                 onOpen: () => {
@@ -267,9 +267,9 @@ export function useFieldBinding({
                 },
               }]),
             ]}
-            removeLabel={`${listBinding.standardTitle.replace(/\s*\{n\}/, '')} entfernen`}
-            onRemove={listBinding.entryAway === undefined ? undefined : () => {
-              const away = listBinding.entryAway
+            removeLabel={`${listBinding.defaultTitle.replace(/\s*\{n\}/, '')} entfernen`}
+            onRemove={listBinding.entryRemove === undefined ? undefined : () => {
+              const away = listBinding.entryRemove
               if (!away) return
               if (!applyProps(editor, block.id, away(block.values, listPicker.index))) return
               setListPicker(null)
@@ -296,7 +296,7 @@ export function useFieldBinding({
 
                 const title = titleToFieldChoice(
                   target,
-                  value === '' ? standardTitle : plainName(value),
+                  value === '' ? defaultTitle : plainName(value),
                 )
                 if (title !== undefined) target[listBinding.titleKey] = title
                 target[listBinding.fieldKey] = value

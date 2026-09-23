@@ -1,13 +1,13 @@
 import { sourceIdOf } from './source'
 import { splitBinding } from '../../core/block/blockType'
 import { fieldRead, type RuntimeSource } from '../../softengine/data'
-import { runtimeSource, rowsTheSource } from '../../softengine/runtimeSources'
+import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
 import { firstRowToSelection } from './selection'
 import { makeFieldReader } from './foreignSources'
 
 export type BoundSpot =
 
-  | { kind: 'ungebunden' }
+  | { kind: 'unbound' }
 
   | { kind: 'withoutSource' }
 
@@ -25,12 +25,12 @@ export type BoundSpot =
 export function readBoundSpot(el: HTMLElement, bindingAttr: string): BoundSpot {
   const ownSource = sourceIdOf(el)
   const code = el.getAttribute(bindingAttr) ?? ''
-  if (ownSource === '' || code === '') return { kind: 'ungebunden' }
+  if (ownSource === '' || code === '') return { kind: 'unbound' }
 
   const source = runtimeSource(ownSource)
   if (!source) return { kind: 'withoutSource' }
 
-  const row = firstRowToSelection(el, rowsTheSource(source))
+  const row = firstRowToSelection(el, rowsOfSource(source))
   if (row === undefined) return { kind: 'withoutRow' }
 
   const { sourceId, code: cleanCode } = splitBinding(code)

@@ -2,7 +2,7 @@ import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { ViewChoices } from './viewChoices'
 import { giverIdOf } from './selection'
-import type { MessTarget } from './pageSize'
+import type { MeasureTarget } from './pageSize'
 import { columnsView, sendColumnsChange } from './columns'
 import { WidthsState } from './columnWidth'
 import { ColumnsChoiceState } from './columnPicker'
@@ -34,7 +34,7 @@ import {
 
 // The element a record list drives: it holds the rows, carries the settings the
 // list declares and reads its own columns and calculations.
-export interface ListElement extends RowsElement, ListSettings, MessTarget {
+export interface ListElement extends RowsElement, ListSettings, MeasureTarget {
   inEditor: boolean
   editable: boolean
   requestUpdate: () => void
@@ -81,7 +81,7 @@ export class RecordList {
       block: el,
       on: () => this.columnPickerOn,
       report: () => el.requestUpdate(),
-      widthsForget: () => this._widths.forget(),
+      forgetWidths: () => this._widths.forget(),
     })
     this._rowsChoice = new RowsChoice(el)
   }
@@ -90,12 +90,12 @@ export class RecordList {
     return this._rowsFrom
   }
 
-  set rowsFrom(next: RowsFrom) {
-    if (next === this._rowsFrom) return
-    this._rowsFrom = next
+  set rowsFrom(value: RowsFrom) {
+    if (value === this._rowsFrom) return
+    this._rowsFrom = value
     this.reset()
     if (this.el.isConnected) {
-      if (next === 'handed') unfollowSource(this.el)
+      if (value === 'handed') unfollowSource(this.el)
       else followSource(this.el)
     }
     this.el.requestUpdate()
@@ -108,7 +108,7 @@ export class RecordList {
     el.dataRows = cells.dataRows
     el.rowsReport = WITHOUT_ROWS
     this._rowsChoice.forget()
-    this._view.toPush()
+    this._view.invalidate()
     el.requestUpdate()
   }
 
@@ -151,7 +151,7 @@ export class RecordList {
     if (!this.el.inEditor && e.key === 'F5' && !e.ctrlKey && !e.metaKey) e.preventDefault()
   }
 
-  registered(): void {
+  connected(): void {
     const el = this.el
     el.addEventListener('keydown', this.actionKey)
     el.addEventListener('keydown', this.locksReload)
@@ -163,16 +163,16 @@ export class RecordList {
     this._view.observe()
   }
 
-  toRender(): void {
-    this._view.toRender()
+  afterRender(): void {
+    this._view.afterRender()
   }
 
   disconnected(): void {
     const el = this.el
     el.removeEventListener('keydown', this.actionKey)
     el.removeEventListener('keydown', this.locksReload)
-    this._choice.resolve()
-    this._view.resolve()
+    this._choice.detach()
+    this._view.detach()
     unfollowSource(el)
   }
 
@@ -206,8 +206,8 @@ export class RecordList {
       dataRows: el.dataRows,
       searchText: this._view.searchText,
       sortColumn: this._view.sortColumn,
-      sortOn: this._view.sortOn,
-      wishPage: this._view.page,
+      sortAscending: this._view.sortAscending,
+      wantedPage: this._view.page,
       measured: this._view.metrics,
       takenRows: bottom?.count ?? 0,
       valueAt: (row, column) => this.cellValue(row, column),
@@ -226,7 +226,7 @@ export class RecordList {
         showHead: el.headerRow,
         columnPickerOn: this.columnPickerOn,
         columnPicker: this._choice.open === null ? null : {
-          selectable: columns.filter((sp) => sp.hidden !== true),
+          selectable: columns.filter((column) => column.hidden !== true),
           away: this._choice.away(),
           left: this._choice.open.left,
           top: this._choice.open.top,
@@ -235,7 +235,7 @@ export class RecordList {
         showSearch: el.search,
         searchText: this._view.searchText,
         sortColumn: this._view.sortColumn,
-        sortOn: this._view.sortOn,
+        sortAscending: this._view.sortAscending,
         rows: view.rows,
         valueAt: (row, column) => this.cellValue(row, column),
         rulerTicks: view.rulerTicks,
@@ -251,7 +251,7 @@ export class RecordList {
         openColumnPicker: (e) => this.openColumnPicker(e),
         columnPicker: {
           toggle: (key) => this._choice.toggle(key),
-          allShow: () => this._choice.allShow(),
+          showAll: () => this._choice.showAll(),
           close: () => this._choice.close(),
         },
         widths: this._widths.hostForDrag(),

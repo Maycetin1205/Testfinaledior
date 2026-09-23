@@ -18,7 +18,7 @@ import {
   frameNumberOf,
 } from '../../core/block/documentFrame'
 import { ROOT_ID } from '../../core/block/tree'
-import { MASK_NAME_PROP, MASK_NAME_STANDARD, maskNameOf } from '../../core/block/maskName'
+import { MASK_NAME_PROP, MASK_NAME_DEFAULT, maskNameOf } from '../../core/block/maskName'
 import { exportMask } from '../../export/exportMask'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
 import { downloadFile } from '../state/fileDownload'
@@ -71,7 +71,7 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
 
       <Field
         value={maskName}
-        placeholder={MASK_NAME_STANDARD}
+        placeholder={MASK_NAME_DEFAULT}
         aria-label="Name der Maske"
         className="w-40"
         onChange={(e) => {

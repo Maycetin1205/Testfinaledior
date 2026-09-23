@@ -2,9 +2,9 @@ import { checkGetValue, type GetValue } from '../core/data/getValue'
 import { POS_LEN, checkLoadRelation, type LoadRelation } from '../core/data/fetchRelation'
 import { fetchedRowsFor } from './fetchedRows'
 
-export type Objekt = Record<string, unknown>
+export type JsonObject = Record<string, unknown>
 
-export function isObjekt(v: unknown): v is Objekt {
+export function isObject(v: unknown): v is JsonObject {
   return typeof v === 'object' && v !== null
 }
 
@@ -32,22 +32,22 @@ export interface RuntimeSource {
 export function sourceFromList(list: unknown, id: string): RuntimeSource | undefined {
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {
-    if (!isObjekt(entry) || entry.id !== id) continue
+    if (!isObject(entry) || entry.id !== id) continue
     if (typeof entry.name !== 'string' || typeof entry.tableId !== 'string') continue
 
     let loadRelation: RuntimeLoadRelation | undefined
     const checked = checkLoadRelation(entry.loadRelation)
-    if (checked && isObjekt(entry.loadRelation)) {
-      const zf = entry.loadRelation.extraFields
-      const extraFields = Array.isArray(zf)
-        ? zf.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
+    if (checked && isObject(entry.loadRelation)) {
+      const raw = entry.loadRelation.extraFields
+      const extraFields = Array.isArray(raw)
+        ? raw.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
         : []
       loadRelation = { ...checked, extraFields }
     }
 
     let getValue: RuntimeGetValue | undefined
     const checkedValue = checkGetValue(entry.getValue)
-    if (checkedValue && isObjekt(entry.getValue)) {
+    if (checkedValue && isObject(entry.getValue)) {
       const raw = entry.getValue.fields
       const fields = Array.isArray(raw)
         ? raw.filter((f): f is string => typeof f === 'string' && f !== '')
@@ -56,7 +56,7 @@ export function sourceFromList(list: unknown, id: string): RuntimeSource | undef
     }
 
     const rawQuery = entry.query
-    const query = isObjekt(rawQuery) && typeof rawQuery.id === 'string'
+    const query = isObject(rawQuery) && typeof rawQuery.id === 'string'
       && rawQuery.id !== '' && typeof rawQuery.fields === 'string'
       ? { id: rawQuery.id, fields: rawQuery.fields }
       : undefined
@@ -81,13 +81,13 @@ export function rowsFromQueryAnswer(raw: unknown): unknown[] | undefined {
   if (typeof answer === 'string') {
     try { answer = JSON.parse(answer) } catch { return undefined }
   }
-  if (!isObjekt(answer) || Array.isArray(answer)) return undefined
+  if (!isObject(answer) || Array.isArray(answer)) return undefined
 
   const listName = answer.LISTENNAME
   const elementName = answer.ELEMENTNAME
   if (typeof listName === 'string' && typeof elementName === 'string') {
     const named = answer[listName]
-    if (isObjekt(named)) {
+    if (isObject(named)) {
       const rows = named[elementName]
       if (Array.isArray(rows)) return rows
     }
@@ -97,13 +97,13 @@ export function rowsFromQueryAnswer(raw: unknown): unknown[] | undefined {
   if (key === undefined) return undefined
   const list = answer[key]
   if (Array.isArray(list)) return list
-  if (!isObjekt(list)) return []
+  if (!isObject(list)) return []
   const contents = Object.entries(list)
     .filter(([k]) => k !== 'SAT' && k !== 'TFELD')
     .map(([, v]) => v)
   const row = contents.find((v): v is unknown[] => Array.isArray(v))
   if (row) return row
-  const single = contents.find(isObjekt)
+  const single = contents.find(isObject)
   return single === undefined ? [] : [single]
 }
 
@@ -117,7 +117,7 @@ function asTrimmedString(v: unknown): string {
 }
 
 export function fieldRead(row: unknown, code: string): string {
-  if (!isObjekt(row) || code === '') return ''
+  if (!isObject(row) || code === '') return ''
   const key = code.trim()
   const direct = asTrimmedString(row[key])
   if (direct !== '') return direct
@@ -144,7 +144,7 @@ export function recordIndexOf(source: { recordField: string }, row: unknown): st
 }
 
 export function fieldWrite(row: unknown, code: string, value: string): boolean {
-  if (!isObjekt(row) || code === '') return false
+  if (!isObject(row) || code === '') return false
   const key = code.trim()
   let written = false
 
@@ -183,7 +183,7 @@ function jsonOrNothing(text: string): unknown {
 }
 
 function rowsOfEntry(entry: unknown): unknown[] {
-  if (!isObjekt(entry)) return Array.isArray(entry) ? entry : []
+  if (!isObject(entry)) return Array.isArray(entry) ? entry : []
   const candidates = [
     entry.Zeilen, entry.zeilen, entry.Saetze, entry.saetze,
     entry.Rows, entry.rows, entry.Daten, entry.daten,
@@ -202,31 +202,31 @@ function sameAlias(a: unknown, alias: string): boolean {
   return asTrimmedString(a).toLowerCase() === alias.trim().toLowerCase()
 }
 
-function varBlockOf(data: Objekt): Objekt | undefined {
+function varBlockOf(data: JsonObject): JsonObject | undefined {
   for (const key of ['Var', 'VAR', 'var']) {
     const block = data[key]
-    if (isObjekt(block)) return block
+    if (isObject(block)) return block
   }
   return undefined
 }
 
 function openRecordRows(seData: unknown, tableId: string): unknown[] {
-  if (!isObjekt(seData) || !isObjekt(seData.Daten)) return []
+  if (!isObject(seData) || !isObject(seData.Daten)) return []
   const id = tableId.trim()
   if (id === '') return []
   const varBlock = varBlockOf(seData.Daten)
   if (!varBlock) return []
 
-  const record: Objekt = {}
+  const record: JsonObject = {}
   const window = varBlock.WINDOW_VARIABLE ?? varBlock.Window_Variable
-  if (isObjekt(window)) {
+  if (isObject(window)) {
     const prefix = id.toUpperCase() + '_'
     for (const key of Object.keys(window)) {
       if (key.toUpperCase().startsWith(prefix)) record[key] = window[key]
     }
   }
   const own = varBlock[id] ?? varBlock[id.toUpperCase()]
-  if (isObjekt(own)) {
+  if (isObject(own)) {
     for (const key of Object.keys(own)) {
       if (asTrimmedString(own[key]) !== '' || !(key in record)) record[key] = own[key]
     }
@@ -241,23 +241,23 @@ export function rowsFromDelivery(
 
   openRecord = false,
 ): unknown[] {
-  if (!isObjekt(seData) || !isObjekt(seData.Daten)) return []
+  if (!isObject(seData) || !isObject(seData.Daten)) return []
   if (openRecord) return openRecordRows(seData, idbId)
   const data = seData.Daten
 
   const sfl = data.SEFileLoop
   if (Array.isArray(sfl)) {
     for (const entry of sfl) {
-      if (isObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias))) {
+      if (isObject(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias))) {
         const rows = rowsOfEntry(entry)
         if (rows.length > 0) return rows
       }
     }
-  } else if (isObjekt(sfl)) {
+  } else if (isObject(sfl)) {
     for (const key of Object.keys(sfl)) {
       const entry = sfl[key]
       if (sameAlias(key, alias)
-        || (isObjekt(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias)))) {
+        || (isObject(entry) && (sameAlias(entry.ALIAS, alias) || sameAlias(entry.alias, alias)))) {
         const rows = rowsOfEntry(entry)
         if (rows.length > 0) return rows
       }
@@ -266,7 +266,7 @@ export function rowsFromDelivery(
 
   for (const key of ['ErpApiCall', 'ERPAPICALL', 'erpapicall']) {
     const api = data[key]
-    if (!isObjekt(api)) continue
+    if (!isObject(api)) continue
     for (const entry of Object.keys(api)) {
       if (!sameAlias(entry, alias)) continue
       const rows = rowsOfEntry(api[entry])
@@ -275,7 +275,7 @@ export function rowsFromDelivery(
   }
 
   const tab = data.Tabellen
-  if (isObjekt(tab)) {
+  if (isObject(tab)) {
     const keys = [alias, alias.toUpperCase(), alias.toLowerCase(), idbId]
     for (const key of keys) {
       if (key !== '' && key in tab) {
@@ -294,12 +294,12 @@ export function rowsFromDelivery(
   return fetchedRowsFor(alias) ?? []
 }
 
-export function dataFromContent(raw: unknown): Objekt | undefined {
+export function dataFromContent(raw: unknown): JsonObject | undefined {
   let data = raw
   if (typeof data === 'string') {
     try { data = JSON.parse(data) } catch { return undefined }
   }
-  if (!isObjekt(data) || !isObjekt(data.Daten)) return undefined
+  if (!isObject(data) || !isObject(data.Daten)) return undefined
   const block = data.Daten
   if (!block.SEFileLoop && !block.Tabellen && !block.ErpApiCall && !varBlockOf(block)) {
     return undefined
@@ -312,6 +312,6 @@ export function messagesContent(eventData: unknown): unknown {
   if (typeof d === 'string') {
     try { d = JSON.parse(d) } catch { return undefined }
   }
-  if (!isObjekt(d) || !isObjekt(d.MSG)) return undefined
+  if (!isObject(d) || !isObject(d.MSG)) return undefined
   return d.MSG.DATA
 }

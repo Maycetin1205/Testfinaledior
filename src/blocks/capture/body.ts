@@ -7,7 +7,7 @@ import { columnEditable } from './column'
 import { asNumber } from '../behavior/sorting'
 import type { Column } from '../behavior/columns'
 import { WITHOUT_DECORATION, type RowDecoration } from '../behavior/tableBody'
-import type { CaptureLedger, RowsIcon } from './ledger'
+import type { CaptureLedger, RowState } from './ledger'
 
 function typingCellTpl(
   ledger: CaptureLedger,
@@ -23,7 +23,7 @@ function typingCellTpl(
     value,
     title: column.title,
     placeholder: '',
-    klasse: cellsClass(ledger.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
+    inputClass: cellsClass(ledger.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
     holderClass: 'cell-holder',
     slot,
     suggestions: [],
@@ -70,7 +70,7 @@ export interface CapturedPlacement {
 
   captured: readonly (readonly string[])[]
 
-  capturedState: (index: number) => RowsIcon
+  capturedState: (index: number) => RowState
 
   correctionSlot: number | null
 
@@ -80,20 +80,20 @@ export interface CapturedPlacement {
 export interface CapturedAct {
   takeCapturedRow: (index: number) => void
 
-  holeCapturedRow: (index: number) => void
+  bringBackCapturedRow: (index: number) => void
 }
 
-export function capturedRowsTpl(placement: CapturedPlacement, tun: CapturedAct): TemplateResult {
+export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct): TemplateResult {
   return html`${placement.captured.map((values, rowsIndex) => {
-    const icon = placement.capturedState(rowsIndex)
+    const state = placement.capturedState(rowsIndex)
 
-    const fixed = icon.status === 'written'
+    const fixed = state.status === 'written'
     return html`${rowsIndex === placement.correctionSlot ? placement.capture : nothing}<div
       class="row captured"
       role="row"
-      data-status=${icon.status}
+      data-status=${state.status}
       style=${styleMap(placement.cols)}
-      @click=${placement.inEditor || fixed ? nothing : () => tun.holeCapturedRow(rowsIndex)}
+      @click=${placement.inEditor || fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
     >
       ${placement.columns.map((_s, i) => {
         const value = values[placement.slots[i]] ?? ''
@@ -106,7 +106,7 @@ export function capturedRowsTpl(placement: CapturedPlacement, tun: CapturedAct):
           aria-label="Erfasste Zeile wegnehmen"
           @click=${(e: MouseEvent) => {
             e.stopPropagation()
-            tun.takeCapturedRow(rowsIndex)
+            act.takeCapturedRow(rowsIndex)
           }}
         >&#x2715;</button>`}
     </div>`
@@ -134,11 +134,11 @@ export function captureDecoration(placement: DecorationPlacement): (rawIndex: nu
         right: placement.deletable && placement.inEditor ? crossDisplayTpl() : nothing,
       }
     }
-    const icon = placement.ledger.statusOf(rawIndex)
+    const state = placement.ledger.statusOf(rawIndex)
     const deleted = placement.ledger.isDeleted(rawIndex)
     return {
-      status: icon.status === 'booked' ? '' : icon.status,
-      klasse: deleted ? 'deleted' : '',
+      status: state.status === 'booked' ? '' : state.status,
+      className: deleted ? 'deleted' : '',
       cell: (slot, column) => (placement.typable && columnEditable(column)
         ? typingCellTpl(placement.ledger, rawIndex, slot, column)
         : null),

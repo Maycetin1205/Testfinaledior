@@ -6,7 +6,7 @@ export type FlowWidth = 'auto' | 'fill' | number
 
 export type FlowHeight = 'auto' | 'fill' | number
 
-export function directionTheChildren(
+export function directionOfChildren(
   def: Pick<BlockType, 'childDirection'> | undefined,
   props: Record<string, unknown>,
 ): Direction {

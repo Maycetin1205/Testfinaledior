@@ -105,11 +105,11 @@ export function aliasOf(name: string): string {
 }
 
 export function withUniqueNames(sources: readonly DataSource[]): DataSource[] {
-  const assign = new Set<string>()
+  const taken = new Set<string>()
   return sources.map((s) => {
     let name = s.name
-    for (let nr = 2; assign.has(aliasOf(name)); nr++) name = `${s.name.trim()} ${nr}`
-    assign.add(aliasOf(name))
+    for (let n = 2; taken.has(aliasOf(name)); n++) name = `${s.name.trim()} ${n}`
+    taken.add(aliasOf(name))
     return name === s.name ? s : { ...s, name }
   })
 }

@@ -37,10 +37,10 @@ export class History {
     if (this._txDepth > 0) this._txDepth--
   }
 
-  transaction<T>(makeSnapshot: () => EditorSnapshot, tun: () => T): T {
+  transaction<T>(makeSnapshot: () => EditorSnapshot, run: () => T): T {
     this.begin(makeSnapshot)
     try {
-      return tun()
+      return run()
     } finally {
       this.end()
     }

@@ -1,14 +1,14 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { onChosenDay, chosenDay, setChosenDay, readDate, tagOf } from '../behavior/chosenDay'
+import { onChosenDay, chosenDay, setChosenDay, readDate, dayOf } from '../behavior/chosenDay'
 import { dateStyle } from './datePickerStyle'
 
-function tagPlus(key: string, days: number): string {
+function dayPlus(key: string, days: number): string {
   const moment = readDate(key)
   if (!moment) return ''
   moment.setDate(moment.getDate() + days)
-  return tagOf(moment)
+  return dayOf(moment)
 }
 
 export class DatePicker extends BlockElement {
@@ -17,40 +17,40 @@ export class DatePicker extends BlockElement {
 
   static override styles: CSSResultGroup = [BlockElement.styles, dateStyle]
 
-  @state() private tag = ''
+  @state() private day = ''
 
   private unlistenDay: (() => void) | null = null
 
-  private setTag(next: string): void {
-    setChosenDay(next)
-    this.tag = chosenDay()
+  private setDay(value: string): void {
+    setChosenDay(value)
+    this.day = chosenDay()
   }
 
   override render(): TemplateResult {
     return html`<div class="picker">
       <div class="stepper">
-        <button class="arrow" title="Vortag" @click=${() => this.setTag(tagPlus(this.tag, -1))}>‹</button>
+        <button class="arrow" title="Vortag" @click=${() => this.setDay(dayPlus(this.day, -1))}>‹</button>
         <input
           class="field"
           type="date"
-          .value=${this.tag}
-          @change=${(e: Event) => this.setTag((e.target as HTMLInputElement).value)}
+          .value=${this.day}
+          @change=${(e: Event) => this.setDay((e.target as HTMLInputElement).value)}
         />
-        <button class="arrow" title="Folgetag" @click=${() => this.setTag(tagPlus(this.tag, 1))}>›</button>
+        <button class="arrow" title="Folgetag" @click=${() => this.setDay(dayPlus(this.day, 1))}>›</button>
       </div>
-      <button class="today" @click=${() => this.setTag(tagOf(new Date()))}>Heute</button>
+      <button class="today" @click=${() => this.setDay(dayOf(new Date()))}>Heute</button>
     </div>`
   }
 
   override connectedCallback(): void {
     super.connectedCallback()
 
-    this.tag = chosenDay() || tagOf(new Date())
+    this.day = chosenDay() || dayOf(new Date())
     if (this.inEditor) return
-    this.setTag(this.tag)
+    this.setDay(this.day)
 
     this.unlistenDay?.()
-    this.unlistenDay = onChosenDay(() => { this.tag = chosenDay() })
+    this.unlistenDay = onChosenDay(() => { this.day = chosenDay() })
   }
 
   override disconnectedCallback(): void {

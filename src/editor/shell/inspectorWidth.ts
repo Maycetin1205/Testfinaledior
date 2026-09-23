@@ -4,20 +4,20 @@ const KEY = 'aufbau_editor_inspector_breite'
 
 export const INSPECTOR_MIN = 300
 export const INSPECTOR_MAX = 600
-const INSPECTOR_STANDARD = 400
+const INSPECTOR_DEFAULT = 400
 
 export function clampWidth(n: number): number {
-  if (!Number.isFinite(n)) return INSPECTOR_STANDARD
+  if (!Number.isFinite(n)) return INSPECTOR_DEFAULT
   return Math.min(INSPECTOR_MAX, Math.max(INSPECTOR_MIN, Math.round(n)))
 }
 
 export function readWidth(): number {
   try {
-    if (typeof localStorage === 'undefined') return INSPECTOR_STANDARD
+    if (typeof localStorage === 'undefined') return INSPECTOR_DEFAULT
     const raw = localStorage.getItem(KEY)
-    return raw === null ? INSPECTOR_STANDARD : clampWidth(Number(raw))
+    return raw === null ? INSPECTOR_DEFAULT : clampWidth(Number(raw))
   } catch {
-    return INSPECTOR_STANDARD
+    return INSPECTOR_DEFAULT
   }
 }
 

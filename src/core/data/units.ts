@@ -1,4 +1,4 @@
-export type UnitKind = 'sizes' | 'volumen' | 'zaehlend'
+export type UnitKind = 'sizes' | 'volume' | 'counting'
 
 export interface Unit {
   code: string
@@ -14,13 +14,13 @@ export const UNITS: readonly Unit[] = [
   { code: 'kg', name: 'Kilogramm', short: 'kg', kind: 'sizes', factor: 1000 },
   { code: 'g', name: 'Gramm', short: 'g', kind: 'sizes', factor: 1 },
   { code: 'mg', name: 'Milligramm', short: 'mg', kind: 'sizes', factor: 0.001 },
-  { code: 'l', name: 'Liter', short: 'l', kind: 'volumen', factor: 1000 },
-  { code: 'ml', name: 'Milliliter', short: 'ml', kind: 'volumen', factor: 1 },
-  { code: 'count', name: 'Anzahl', short: '', kind: 'zaehlend', factor: 1 },
-  { code: 'tag', name: 'Tage', short: 'Tage', kind: 'zaehlend', factor: 1 },
+  { code: 'l', name: 'Liter', short: 'l', kind: 'volume', factor: 1000 },
+  { code: 'ml', name: 'Milliliter', short: 'ml', kind: 'volume', factor: 1 },
+  { code: 'count', name: 'Anzahl', short: '', kind: 'counting', factor: 1 },
+  { code: 'tag', name: 'Tage', short: 'Tage', kind: 'counting', factor: 1 },
 ]
 
-export const UNIT_STANDARD = 'count'
+export const UNIT_DEFAULT = 'count'
 
 function unitOf(code: string): Unit | undefined {
   return UNITS.find((e) => e.code === code)
@@ -42,27 +42,27 @@ export function fromBase(value: number, code: string): number | null {
   return unit === undefined ? null : value / unit.factor
 }
 
-export type SizeImage = Readonly<Record<'sizes' | 'volumen', number>>
+export type Dimensions = Readonly<Record<'sizes' | 'volume', number>>
 
-export const SIZE_IMAGE_EMPTY: SizeImage = { sizes: 0, volumen: 0 }
+export const NO_DIMENSIONS: Dimensions = { sizes: 0, volume: 0 }
 
-export function pictureWith(picture: SizeImage, code: string, times: 1 | -1): SizeImage | null {
+export function dimensionsWith(dimensions: Dimensions, code: string, times: 1 | -1): Dimensions | null {
   const unit = unitOf(code)
   if (unit === undefined) return null
-  if (unit.kind === 'zaehlend') return picture
-  return { ...picture, [unit.kind]: picture[unit.kind] + times }
+  if (unit.kind === 'counting') return dimensions
+  return { ...dimensions, [unit.kind]: dimensions[unit.kind] + times }
 }
 
-export function picturesEquals(a: SizeImage, b: SizeImage): boolean {
-  return a.sizes === b.sizes && a.volumen === b.volumen
+export function dimensionsEqual(a: Dimensions, b: Dimensions): boolean {
+  return a.sizes === b.sizes && a.volume === b.volume
 }
 
-const KIND_NAME: Record<'sizes' | 'volumen', string> = { sizes: 'Masse', volumen: 'Volumen' }
+const KIND_NAME: Record<'sizes' | 'volume', string> = { sizes: 'Masse', volume: 'Volumen' }
 
-export function pictureAsText(picture: SizeImage): string {
+export function dimensionsText(dimensions: Dimensions): string {
   const parts: string[] = []
-  for (const kind of ['sizes', 'volumen'] as const) {
-    const n = picture[kind]
+  for (const kind of ['sizes', 'volume'] as const) {
+    const n = dimensions[kind]
     if (n === 0) continue
     parts.push(n === 1 ? KIND_NAME[kind] : `${KIND_NAME[kind]}^${n}`)
   }

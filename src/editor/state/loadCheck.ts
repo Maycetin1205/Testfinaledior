@@ -21,7 +21,7 @@ export function checkTreeState(raw: {
   for (const [id, node] of Object.entries(raw.tree)) {
     if (!isPlainObject(node) || node.id !== id || typeof node.type !== 'string'
       || !isPlainObject(node.values) || !Array.isArray(node.childIds)
-      || !node.childIds.every((kind): kind is string => typeof kind === 'string')
+      || !node.childIds.every((childId): childId is string => typeof childId === 'string')
       || !(node.parentId === null || typeof node.parentId === 'string')) {
       continue
     }

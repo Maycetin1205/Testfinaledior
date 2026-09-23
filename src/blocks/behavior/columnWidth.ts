@@ -17,11 +17,11 @@ export interface WidthsHost {
 function spreadDrag(
   leftStart: number,
   rightStart: number,
-  wishDx: number,
+  wantedDx: number,
 ): { left: number; right: number } {
   const bottomDx = COLUMNS_MIN_WIDTH - leftStart
   const topDx = rightStart - COLUMNS_MIN_WIDTH
-  const dx = bottomDx > topDx ? 0 : Math.min(topDx, Math.max(bottomDx, Math.round(wishDx)))
+  const dx = bottomDx > topDx ? 0 : Math.min(topDx, Math.max(bottomDx, Math.round(wantedDx)))
   return { left: Math.round(leftStart + dx), right: Math.round(rightStart - dx) }
 }
 

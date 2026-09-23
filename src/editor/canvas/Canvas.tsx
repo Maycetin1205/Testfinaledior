@@ -5,7 +5,7 @@ import { useEditor } from '../state/useEditor'
 import { NodeList } from './CanvasNode'
 import { isNewBlockDrag } from './dnd'
 import { commitDrop, DndContext, sameTarget, type DndState, type DropTarget } from './dndState'
-import { rasterTarget } from './gridDnd'
+import { gridTarget } from './gridDnd'
 import { areaUnderPointer } from './gridArea'
 import { PopupPage } from './PopupPage'
 
@@ -36,7 +36,7 @@ export function Canvas() {
     const target = areaUnderPointer(ed.tree, ed.rootId, e.clientX, e.clientY)
     if (!target) return setDropTarget(null)
     e.preventDefault()
-    setDropTarget(rasterTarget(e, ed, dnd, target.parentId, target.area))
+    setDropTarget(gridTarget(e, ed, dnd, target.parentId, target.area))
   }
 
   return (

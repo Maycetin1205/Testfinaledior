@@ -21,17 +21,17 @@ export interface ColumnsChoicePlacement {
 
 export interface ColumnsChoiceAct {
   toggle: (key: string) => void
-  allShow: () => void
+  showAll: () => void
   close: () => void
 }
 
 export function columnsChoiceTpl(
   placement: ColumnsChoicePlacement | null,
-  tun: ColumnsChoiceAct,
+  act: ColumnsChoiceAct,
 ): TemplateResult | typeof nothing {
   if (placement === null) return nothing
   const visible = placement.selectable.filter((s) => !placement.away.has(s.key)).length
-  return html`<div class="picker-backdrop" @pointerdown=${tun.close}></div>
+  return html`<div class="picker-backdrop" @pointerdown=${act.close}></div>
     <div
       class="column-picker"
       role="dialog"
@@ -50,13 +50,13 @@ export function columnsChoiceTpl(
           role="menuitemcheckbox"
           aria-checked=${on ? 'true' : 'false'}
           ?disabled=${last}
-          @click=${() => tun.toggle(s.key)}
+          @click=${() => act.toggle(s.key)}
         ><span class="picker-check">${on ? '✓' : ''}</span>${s.title}</button>`
       })}
       ${placement.away.size === 0 ? nothing : html`<button
         class="picker-all"
         type="button"
-        @click=${tun.allShow}
+        @click=${act.showAll}
       >Alle zeigen</button>`}
     </div>`
 }
@@ -69,7 +69,7 @@ export interface ColumnsChoiceHost {
   on: () => boolean
 
   report: () => void
-  widthsForget: () => void
+  forgetWidths: () => void
 }
 
 export class ColumnsChoiceState {
@@ -95,7 +95,7 @@ export class ColumnsChoiceState {
     return this._away
   }
 
-  private readonly takeKey = (e: KeyboardEvent): void => {
+  private readonly onKey = (e: KeyboardEvent): void => {
     if (e.key !== 'Escape') return
     this.close()
   }
@@ -107,14 +107,14 @@ export class ColumnsChoiceState {
       left: Math.max(4, Math.min(e.clientX - frame.left, Math.max(4, frame.width - 170))),
       top: Math.max(4, Math.min(e.clientY - frame.top, Math.max(4, frame.height - 60))),
     }
-    window.addEventListener('keydown', this.takeKey)
+    window.addEventListener('keydown', this.onKey)
     this.host.report()
   }
 
   close(): void {
     if (this._open === null) return
     this._open = null
-    window.removeEventListener('keydown', this.takeKey)
+    window.removeEventListener('keydown', this.onKey)
     this.host.report()
   }
 
@@ -125,19 +125,19 @@ export class ColumnsChoiceState {
     this.remember(away)
   }
 
-  allShow(): void {
+  showAll(): void {
     this.remember(new Set())
   }
 
   private remember(away: Set<string>): void {
     this._away = away
     rememberedColumnsChoice.remember(this.host.block, away.size === 0 ? null : [...away])
-    this.host.widthsForget()
+    this.host.forgetWidths()
     this.host.report()
   }
 
-  resolve(): void {
-    window.removeEventListener('keydown', this.takeKey)
+  detach(): void {
+    window.removeEventListener('keydown', this.onKey)
     this._open = null
   }
 }

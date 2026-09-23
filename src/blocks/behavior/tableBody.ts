@@ -7,7 +7,7 @@ import {
   CELL_PLACEHOLDER,
   type Column,
   type ColumnView,
-  type ColumnsRaster,
+  type ColumnsGrid,
 } from './columns'
 import { widthsHandles, type WidthsHost } from './columnWidth'
 import { moveRowsFocus, focusFirstRow, focusSearchRow } from './rowActivation'
@@ -16,7 +16,7 @@ import { recordText } from './tableModel'
 export interface RowDecoration {
   status: string
 
-  klasse: string
+  className: string
 
   cell: (slot: number, column: Column, value: string) => TemplateResult | null
 
@@ -27,7 +27,7 @@ export interface RowDecoration {
 
 export const WITHOUT_DECORATION: RowDecoration = {
   status: '',
-  klasse: '',
+  className: '',
   cell: () => null,
   right: nothing,
   key: () => false,
@@ -38,7 +38,7 @@ export interface Sublines {
 
   render: (placement: {
     view: ColumnView
-    cols: ColumnsRaster
+    cols: ColumnsGrid
     rulerTicks: number | null
   }) => TemplateResult
 }
@@ -48,7 +48,7 @@ export interface BodyPlacement {
 
   slots: readonly number[]
 
-  cols: ColumnsRaster
+  cols: ColumnsGrid
 
   editable: boolean
 
@@ -65,7 +65,7 @@ export interface BodyPlacement {
   searchText: string
 
   sortColumn: number
-  sortOn: boolean
+  sortAscending: boolean
 
   rows: readonly (number | null)[]
 
@@ -114,7 +114,7 @@ function ruler(placement: BodyPlacement): TemplateResult | typeof nothing {
 
 function rowTpl(
   placement: BodyPlacement,
-  tun: BodyAct,
+  act: BodyAct,
   rawIndex: number | null,
   viewIndex: number,
 ): TemplateResult {
@@ -124,7 +124,7 @@ function rowTpl(
     class="row${viewIndex % 2 === 1 ? ' zebra' : ''}${
       rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
-      decoration.klasse === '' ? '' : ' ' + decoration.klasse}"
+      decoration.className === '' ? '' : ' ' + decoration.className}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}
     data-ff-raw=${rawIndex ?? nothing}
@@ -134,11 +134,11 @@ function rowTpl(
       : nothing}
     style=${styleMap(placement.cols)}
     @click=${() => {
-      tun.activateRow(rawIndex, viewIndex)
+      act.activateRow(rawIndex, viewIndex)
     }}
     @dblclick=${(e: MouseEvent) => {
       if ((e.target as HTMLElement).closest('.cell-input')) return
-      tun.rowDouble(rawIndex)
+      act.rowDouble(rawIndex)
     }}
     @keydown=${(e: KeyboardEvent) => {
       if ((e.target as HTMLElement).closest('.cell-input, button')) return
@@ -154,7 +154,7 @@ function rowTpl(
       }
       if (e.key !== 'Enter') return
       e.preventDefault()
-      tun.activateRow(rawIndex, viewIndex)
+      act.activateRow(rawIndex, viewIndex)
     }}
   >
     ${placement.columns.map((s, i) => {
@@ -179,7 +179,7 @@ function rowTpl(
   </div>`
 }
 
-export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResult {
+export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResult {
   const firstEmpty = placement.rows.indexOf(null)
   return html`
       ${placement.showSearch ? html`<div class="search-row">
@@ -188,7 +188,7 @@ export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResul
           placeholder="Tabelle durchsuchen…"
           aria-label="Tabelle durchsuchen"
           .value=${placement.searchText}
-          @input=${(e: Event) => tun.setSearchText((e.target as HTMLInputElement).value)}
+          @input=${(e: Event) => act.setSearchText((e.target as HTMLInputElement).value)}
           @keydown=${(e: KeyboardEvent) => {
             if (e.key !== 'ArrowDown') return
             if (focusFirstRow(e.target)) e.preventDefault()
@@ -206,24 +206,24 @@ export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResul
             data-ff-editable
             data-ff-entry=${placement.inEditor ? placement.slots[i] : nothing}
             style="grid-row: 1; grid-column: ${i + 1}"
-            @click=${() => tun.clickHead(placement.slots[i])}
+            @click=${() => act.clickHead(placement.slots[i])}
             @contextmenu=${placement.columnPickerOn
-              ? (e: MouseEvent) => tun.openColumnPicker(e)
+              ? (e: MouseEvent) => act.openColumnPicker(e)
               : nothing}
           ><span class="head-text">${s.title}</span>${!placement.editable && placement.sortColumn === placement.slots[i]
-            ? html`<span class="sort-arrow">${placement.sortOn ? ' ▲' : ' ▼'}</span>`
+            ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
             : ''}</div>`,
         )}
-        ${widthsHandles(placement.columns.length, tun.widths)}
+        ${widthsHandles(placement.columns.length, act.widths)}
       </div>` : nothing}
         ${placement.empty ? nothing : html`
         ${placement.rows.map((rawIndex, viewIndex) => html`${
           viewIndex === firstEmpty ? placement.bottom : nothing
-        }${rowTpl(placement, tun, rawIndex, viewIndex)}`)}
+        }${rowTpl(placement, act, rawIndex, viewIndex)}`)}
         ${firstEmpty === -1 ? placement.bottom : nothing}
         ${ruler(placement)}`}
       </div>
-      ${columnsChoiceTpl(placement.columnPicker, tun.columnPicker)}
+      ${columnsChoiceTpl(placement.columnPicker, act.columnPicker)}
     `
 }
 
@@ -250,7 +250,7 @@ export interface FootAct {
 
 export function tableFoot(
   placement: FootPlacement,
-  tun: FootAct,
+  act: FootAct,
 ): TemplateResult | typeof nothing {
   if (placement.empty) return nothing
 
@@ -275,13 +275,13 @@ export function tableFoot(
         <button
           aria-label="Seite zurück"
           ?disabled=${placement.page <= 0}
-          @click=${() => tun.page(placement.page - 1)}
+          @click=${() => act.page(placement.page - 1)}
         >‹</button>
         <span>Seite ${placement.page + 1} von ${placement.pageCount}</span>
         <button
           aria-label="Seite vor"
           ?disabled=${placement.page >= placement.pageCount - 1}
-          @click=${() => tun.page(placement.page + 1)}
+          @click=${() => act.page(placement.page + 1)}
         >›</button>
       </div>`}
     </div>

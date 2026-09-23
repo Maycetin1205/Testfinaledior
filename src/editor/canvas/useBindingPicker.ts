@@ -63,12 +63,12 @@ export function useBindingPicker({
   }
 
   function onClick(e: ReactMouseEvent<HTMLDivElement>) {
-    const whatChosen = editor.selectedId === blockRef.current.id
+    const wasSelected = editor.selectedId === blockRef.current.id
     e.stopPropagation()
     onSelect?.()
     clearPickerTimer()
 
-    if (!hasOffer || !whatChosen) return
+    if (!hasOffer || !wasSelected) return
     if (e.detail > 1) return
     const hit = spotAt(e)
     if (!hit) return

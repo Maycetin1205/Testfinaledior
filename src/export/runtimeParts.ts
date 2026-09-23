@@ -29,7 +29,7 @@ function runtimePartsFor(types: ReadonlySet<string>): { name: string; bytes: num
   const add = (name: string): void => {
     if (used.has(name)) return
     used.add(name)
-    for (const further of byName.get(name)?.needs ?? []) add(further)
+    for (const need of byName.get(name)?.needs ?? []) add(need)
   }
   for (const part of manifest.parts) {
     if (part.blockTypes.some((type) => types.has(type))) add(part.name)

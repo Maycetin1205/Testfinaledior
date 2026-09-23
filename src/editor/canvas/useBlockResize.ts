@@ -12,7 +12,7 @@ export function useBlockResize(
   blockRef: RefObject<BlockNode>,
   rootRef: RefObject<HTMLElement | null>,
 ) {
-  function startRasterResize(e: ReactPointerEvent<HTMLDivElement>, axis: 'x' | 'y') {
+  function startGridResize(e: ReactPointerEvent<HTMLDivElement>, axis: 'x' | 'y') {
     const el = rootRef.current
     if (!el) return
     const node = blockRef.current
@@ -52,5 +52,5 @@ export function useBlockResize(
     }
   }
 
-  return { startRasterResize }
+  return { startGridResize }
 }

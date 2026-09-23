@@ -11,7 +11,7 @@ interface SegmentControlProps {
   onChange: (value: string) => void
 }
 
-function Segmente({ name, value, options, onChange, id }: SegmentControlProps & { id?: string }) {
+function SegmentField({ name, value, options, onChange, id }: SegmentControlProps & { id?: string }) {
   return (
     <Segment
       id={id}
@@ -28,11 +28,11 @@ function Segmente({ name, value, options, onChange, id }: SegmentControlProps & 
 }
 
 export function SegmentControl({ label, ...rest }: SegmentControlProps) {
-  if (!label) return <Segmente {...rest} />
+  if (!label) return <SegmentField {...rest} />
 
   return (
     <Row label={label}>
-      {(kind) => <Segmente {...rest} id={kind.id} />}
+      {(control) => <SegmentField {...rest} id={control.id} />}
     </Row>
   )
 }

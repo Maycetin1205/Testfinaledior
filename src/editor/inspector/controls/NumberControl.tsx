@@ -80,7 +80,7 @@ export function NumberControl({ label, ...rest }: NumberControlProps) {
   if (!label) return <NumberField {...rest} />
   return (
     <Row label={label}>
-      {(kind) => <NumberField {...rest} id={kind.id} />}
+      {(control) => <NumberField {...rest} id={control.id} />}
     </Row>
   )
 }

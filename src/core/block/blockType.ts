@@ -6,7 +6,7 @@ import type { PropertyMap, PropertyValue } from './property'
 export {
   fieldChoicesRead,
   typedTitle,
-  listStandardTitle,
+  listDefaultTitle,
   listRead,
   flagOn,
   flagFor,

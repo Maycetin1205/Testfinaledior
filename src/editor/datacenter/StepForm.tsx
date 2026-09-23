@@ -31,7 +31,7 @@ import {
   type FieldAdoptTarget,
 } from './fieldAdopt'
 import { blockName } from '../../core/block/blockName'
-import { isWindowPage, pagesTheMask } from '../../core/block/pages'
+import { isWindowPage, pagesOfMask } from '../../core/block/pages'
 import {
   selectionGiverOptions,
   blockValueKey,
@@ -89,7 +89,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
       }
     })
     const giver = selectionGiverOptions(selectionGiverInTree(tree), sources)
-    const popupPages = pagesTheMask(tree).filter(isWindowPage)
+    const popupPages = pagesOfMask(tree).filter(isWindowPage)
     return {
       blockValues,
       actionValueRefs: blockValues.map(({ blockId, prop }) => ({ blockId, prop })),
@@ -232,9 +232,9 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
 
       {draft.type === 'START_TOOL' && (
         <Row label="Nummer" error={errorText}>
-          {(kind) => (
+          {(control) => (
             <Field
-              {...kind}
+              {...control}
               value={draft.toolNr}
               className="w-28"
               onChange={(e) => dispatch({ kind: 'toolNr', value: e.currentTarget.value })}
@@ -245,9 +245,9 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
 
       {draft.type === 'BW_LINK' && (
         <Row label="Befehl" error={errorText}>
-          {(kind) => (
+          {(control) => (
             <Field
-              {...kind}
+              {...control}
               value={draft.command}
               onChange={(e) => dispatch({ kind: 'command', value: e.currentTarget.value })}
             />

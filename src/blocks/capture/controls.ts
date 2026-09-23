@@ -61,19 +61,19 @@ function key(placement: CaptureRowPlacement, index: number, e: KeyboardEvent): v
     ledger.focusCell(previous)
     return
   }
-  const follow = ledger.decideKey(index, keyOf(e))
-  if (follow === 'nothing') {
+  const action = ledger.decideKey(index, keyOf(e))
+  if (action === 'nothing') {
     if (e.key === 'Enter') e.preventDefault()
     return
   }
   let keep = true
-  if (follow === 'adopt') {
+  if (action === 'adopt') {
     ledger.adoptSuggestion(index, ledger.mark)
     keep = ledger.jumpFrom(index, e.key)
-  } else if (follow === 'window') openWindow(placement, index)
-  else if (follow === 'liste-auf') ledger.openList(index)
-  else if (follow === 'further') keep = ledger.jumpFrom(index, e.key)
-  else if (follow === 'clear') ledger.empty(index)
+  } else if (action === 'window') openWindow(placement, index)
+  else if (action === 'openList') ledger.openList(index)
+  else if (action === 'further') keep = ledger.jumpFrom(index, e.key)
+  else if (action === 'clear') ledger.empty(index)
   if (keep) e.preventDefault()
 }
 

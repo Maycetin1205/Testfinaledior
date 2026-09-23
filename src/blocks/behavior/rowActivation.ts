@@ -8,7 +8,7 @@ import {
 import { runEvent } from './events'
 import { rowsIndexOf, rowsTraitOf } from './sourceRows'
 
-export const ROW_ACTIVATED_EVENT = 'ff-zeile-aktiviert'
+export const ROW_ACTIVATED_EVENT = 'ff-row-activate'
 
 export const ROW_CHOSEN = 'rowChosen'
 export const ROW_DOUBLE = 'rowDouble'
@@ -90,9 +90,9 @@ export function focusedRawIndex(root: ShadowRoot | null): number | null | undefi
   return raw === null || raw === '' ? null : Number(raw)
 }
 
-export function moveRowsFocus(of: EventTarget | null, direction: number): boolean {
-  if (!(of instanceof HTMLElement)) return false
-  const row = of.closest<HTMLElement>('.row')
+export function moveRowsFocus(from: EventTarget | null, direction: number): boolean {
+  if (!(from instanceof HTMLElement)) return false
+  const row = from.closest<HTMLElement>('.row')
   const body = row?.parentElement
   if (!row || !body) return false
   const rows = [...body.querySelectorAll<HTMLElement>(`.row[${RAW_ATTR}]`)]
@@ -104,25 +104,25 @@ export function moveRowsFocus(of: EventTarget | null, direction: number): boolea
   return true
 }
 
-export function focusFirstRow(of: EventTarget | null): boolean {
-  if (!(of instanceof HTMLElement)) return false
-  const first = of.closest<HTMLElement>('.table')
+export function focusFirstRow(from: EventTarget | null): boolean {
+  if (!(from instanceof HTMLElement)) return false
+  const first = from.closest<HTMLElement>('.table')
     ?.querySelector<HTMLElement>(`.row[${RAW_ATTR}]`)
   if (!first) return false
   first.focus()
   return true
 }
 
-export function focusSearchRow(of: EventTarget | null): boolean {
-  if (!(of instanceof HTMLElement)) return false
-  const field = of.closest<HTMLElement>('.table')
+export function focusSearchRow(from: EventTarget | null): boolean {
+  if (!(from instanceof HTMLElement)) return false
+  const field = from.closest<HTMLElement>('.table')
     ?.querySelector<HTMLInputElement>('.search-row input')
   if (!field) return false
   field.focus()
   return true
 }
 
-export function spotRowsFocusFrom(root: ShadowRoot | null, rawIndex: number | null): void {
+export function restoreRowsFocus(root: ShadowRoot | null, rawIndex: number | null): void {
   if (!root) return
   const wanted = rawIndex === null
     ? null

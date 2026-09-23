@@ -8,7 +8,7 @@ import { startSe, onSeAnswer, seWindow } from './bridge'
 import {
   sourceFromList,
   fieldRead,
-  isObjekt,
+  isObject,
   rowsFromQueryAnswer,
   rowsFromDelivery,
   type RuntimeQuery,
@@ -31,7 +31,7 @@ export function runtimeRelation(id: string): RuntimeRelation | undefined {
 export function relationFromList(list: unknown, id: string): RuntimeRelation | undefined {
   if (!Array.isArray(list) || id === '') return undefined
   for (const entry of list) {
-    if (!isObjekt(entry) || entry.id !== id) continue
+    if (!isObject(entry) || entry.id !== id) continue
     if (typeof entry.verb !== 'string' || !RELATION_VERBS.includes(entry.verb as RelationVerb)) continue
     if (typeof entry.nr !== 'string' || entry.nr === '') continue
     if (!Array.isArray(entry.parameter) || entry.parameter.some((p) => typeof p !== 'string')) continue
@@ -72,7 +72,7 @@ function firstScalar(value: unknown, depth: number): string | undefined {
     }
     return undefined
   }
-  if (!isObjekt(value)) return undefined
+  if (!isObject(value)) return undefined
   for (const key of RESULT_KEYS) {
     if (!(key in value)) continue
     const found = firstScalar(value[key], depth + 1)
@@ -87,7 +87,7 @@ function firstScalar(value: unknown, depth: number): string | undefined {
 
 function resultFromAnswer(raw: unknown): string | undefined {
   const value = parsed(raw)
-  if (!isObjekt(value)) return undefined
+  if (!isObject(value)) return undefined
   for (const key of RESULT_KEYS) {
     if (!(key in value)) continue
     const found = firstScalar(value[key], 0)
@@ -103,7 +103,7 @@ function resultFromAnswer(raw: unknown): string | undefined {
         const found = resultFromAnswer(item)
         if (found !== undefined) return found
       }
-    } else if (isObjekt(entry)) {
+    } else if (isObject(entry)) {
       const found = resultFromAnswer(entry)
       if (found !== undefined) return found
     }
@@ -121,7 +121,7 @@ function extractRecordAnswer(raw: unknown, depth = 0): string | undefined {
     }
     return undefined
   }
-  if (!isObjekt(value)) return undefined
+  if (!isObject(value)) return undefined
   for (const key of RECORD_KEY) {
     const found = value[key]
     if (typeof found === 'string') return found
@@ -144,9 +144,9 @@ export function fieldFromAnswer(raw: unknown, code: string, depth = 0): string {
     }
     return ''
   }
-  if (!isObjekt(value)) return ''
-  const direkt = fieldRead(value, code)
-  if (direkt !== '') return direkt
+  if (!isObject(value)) return ''
+  const direct = fieldRead(value, code)
+  if (direct !== '') return direct
   for (const entry of Object.values(value)) {
     const found = fieldFromAnswer(entry, code, depth + 1)
     if (found !== '') return found
@@ -155,7 +155,7 @@ export function fieldFromAnswer(raw: unknown, code: string, depth = 0): string {
 }
 
 function seMessageKeys(seData: unknown): string[] {
-  if (!isObjekt(seData)) return []
+  if (!isObject(seData)) return []
   return Object.keys(seData).filter((key) => /^Message\d+$/.test(key))
 }
 
@@ -168,7 +168,7 @@ function newSeMessageResult(
   before: ReadonlySet<string>,
   recordAnswer = false,
 ): NewMessage | undefined {
-  if (!isObjekt(seData)) return undefined
+  if (!isObject(seData)) return undefined
   const keys = seMessageKeys(seData)
     .filter((key) => !before.has(key))
     .sort((a, b) => Number(b.slice(7)) - Number(a.slice(7)))
@@ -206,12 +206,12 @@ const GET_TIMEOUT_MS = 20_000
 const GET_POLL_MS = 100
 
 const EXPIRY_MS = GET_TIMEOUT_MS
-let expiredTo = 0
+let expiryUntil = 0
 let expiresCallback = false
 let expiresReread = false
 
-function markApplies(): boolean {
-  return Date.now() < expiredTo
+function expiryApplies(): boolean {
+  return Date.now() < expiryUntil
 }
 
 function nextCall(): void {
@@ -219,11 +219,11 @@ function nextCall(): void {
   callInFlight = true
   const job = queue.shift()!
   if ('query' in job) {
-    spotQuery(job)
+    sendQuery(job)
     return
   }
   let settled = false
-  let expiredGenutzt = false
+  let expiryUsed = false
   let unsubscribe: (() => void) | null = null
   let poll: ReturnType<typeof setInterval> | null = null
   let timeout: ReturnType<typeof setTimeout> | null = null
@@ -249,9 +249,9 @@ function nextCall(): void {
       if (rowsFromQueryAnswer(raw) !== undefined) return
       const result = recordAnswer ? extractRecordAnswer(raw) : resultFromAnswer(raw)
       if (result === undefined) return
-      if (expiresCallback && markApplies()) {
+      if (expiresCallback && expiryApplies()) {
         expiresCallback = false
-        expiredGenutzt = true
+        expiryUsed = true
         return
       }
       finish(result, raw)
@@ -264,9 +264,9 @@ function nextCall(): void {
         before.add(message.key)
         return
       }
-      if (expiresReread && markApplies()) {
+      if (expiresReread && expiryApplies()) {
         expiresReread = false
-        expiredGenutzt = true
+        expiryUsed = true
 
         before.add(message.key)
         return
@@ -275,10 +275,10 @@ function nextCall(): void {
     }, GET_POLL_MS)
 
     timeout = setTimeout(() => {
-      if (!expiredGenutzt) {
+      if (!expiryUsed) {
         expiresCallback = true
         expiresReread = true
-        expiredTo = Date.now() + EXPIRY_MS
+        expiryUntil = Date.now() + EXPIRY_MS
       }
       finish('', undefined, true)
     }, GET_TIMEOUT_MS)
@@ -324,13 +324,13 @@ export function relationRun(
 function fitsToQuery(rows: readonly unknown[], fields: string): boolean {
   const first = rows[0]
   if (first === undefined || fields.trim() === '*') return true
-  if (!isObjekt(first)) return false
+  if (!isObject(first)) return false
   const key = Object.keys(first)
   return fields.split(',').map((f) => f.trim()).filter((f) => f !== '')
     .some((f) => key.some((k) => k === f || k.endsWith(`_${f}`)))
 }
 
-function spotQuery(job: QueryJob): void {
+function sendQuery(job: QueryJob): void {
   let settled = false
   let unregister: (() => void) | null = null
   let clock: ReturnType<typeof setTimeout> | null = null
@@ -385,13 +385,13 @@ export interface RuntimeValues {
 
   stepRawResults?: readonly unknown[]
 
-  chosenRow?: (geberId: string) => unknown
+  chosenRow?: (giverId: string) => unknown
 
   rowsCell?: (blockId: string, columnsIndex: number) => string
 }
 
 function resolveBlockValue(binding: Parameter, runtime: unknown): string {
-  if (!isObjekt(runtime)) return ''
+  if (!isObject(runtime)) return ''
   const doc = runtime.document as ParentNode | undefined
   if (!doc || typeof doc.querySelectorAll !== 'function') return ''
   const element = Array.from(doc.querySelectorAll<HTMLElement>(`[${BLOCK_ID_ATTR}]`))
@@ -430,11 +430,11 @@ export function parameterResolve(
     const row = values.chosenRow?.(binding.blockId ?? '')
     return row === undefined ? '' : fieldRead(row, binding.value)
   }
-  if (!isObjekt(runtime)) return ''
+  if (!isObject(runtime)) return ''
 
   if (binding.source === 'seVariable') {
     const seData = runtime.SEDATA
-    if (!isObjekt(seData) || !isObjekt(seData.Daten) || !isObjekt(seData.Daten.VARArrays)) return ''
+    if (!isObject(seData) || !isObject(seData.Daten) || !isObject(seData.Daten.VARArrays)) return ''
     const value = seData.Daten.VARArrays[binding.value]
     return value == null ? '' : String(value)
   }

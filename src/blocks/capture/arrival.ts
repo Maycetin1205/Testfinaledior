@@ -12,8 +12,8 @@ export function valueEquals(a: string, b: string): boolean {
   const x = a.trim()
   const y = b.trim()
   if (x === y) return true
-  const zx = numberStrict(x)
-  return zx !== null && zx === numberStrict(y)
+  const number = numberStrict(x)
+  return number !== null && number === numberStrict(y)
 }
 
 export function arrivalCheck(

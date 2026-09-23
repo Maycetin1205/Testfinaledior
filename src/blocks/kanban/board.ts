@@ -1,8 +1,8 @@
 import { bindingAttr, capability } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
 import { recordIndexOf } from '../../softengine/data'
-import { chooseSelection, giverIdOf, selectionRefind, traitOf } from '../behavior/selection'
-import { holeDataPreamble, makeDataLink } from '../behavior/source'
+import { chooseSelection, giverIdOf, relocateSelection, traitOf } from '../behavior/selection'
+import { readDataPreamble, makeDataLink } from '../behavior/source'
 import { runEvent } from '../behavior/events'
 import {
   CARD_TYPE,
@@ -57,19 +57,19 @@ class Board {
 
   hydrate(): void {
     const el = this.el
-    const preamble = holeDataPreamble(el)
+    const preamble = readDataPreamble(el)
     const plan = boardPlan(el, el.columnsField)
     const template = this.cardTemplate()
 
     if (!preamble || template === null || plan.columns.length === 0) {
-      this.takeCards(new Map())
-      this.showPlaces(plan.columns)
+      this.replaceCards(new Map())
+      this.showCounts(plan.columns)
       return
     }
 
     const byKey = new Map([...this.cards].map(([card, data]) => [data.key, card]))
     const spots = capability(blockType(CARD_TYPE), 'bindable')?.spots ?? []
-    const next = new Map<HTMLElement, CardData>()
+    const fresh = new Map<HTMLElement, CardData>()
     const order = new Map<ColumnPlace, HTMLElement[]>()
     const occurrences = new Map<string, number>()
     const recordCount = new Map<string, number>()
@@ -92,7 +92,7 @@ class Board {
       const key = `${base}:${number}`
 
       const card = byKey.get(key) ?? template.cloneNode(true) as HTMLElement
-      next.set(card, { row, record, key })
+      fresh.set(card, { row, record, key })
       card.draggable = !this.writes
       card.tabIndex = 0
       card.setAttribute('role', 'button')
@@ -102,12 +102,12 @@ class Board {
       }
 
       const placement = placementOf(plan, row)
-      const lying = order.get(placement.column) ?? []
-      lying.push(card)
-      order.set(placement.column, lying)
+      const placed = order.get(placement.column) ?? []
+      placed.push(card)
+      order.set(placement.column, placed)
     }
 
-    this.takeCards(next)
+    this.replaceCards(fresh)
     for (const [column, cards] of order) {
       let anchor: Element | null = cardsOf(column)[0] ?? null
       for (const card of cards) {
@@ -119,7 +119,7 @@ class Board {
       }
     }
 
-    this.showPlaces(plan.columns)
+    this.showCounts(plan.columns)
     this.refreshSelection()
   }
 
@@ -177,7 +177,7 @@ class Board {
     })
   }
 
-  stopped(): void {
+  stop(): void {
     for (const off of this.unwire) off()
     this.unwire = []
     this.endDrag()
@@ -193,22 +193,22 @@ class Board {
   }
 
   // Cards no record asks for any more leave the board.
-  private takeCards(next: Map<HTMLElement, CardData>): void {
+  private replaceCards(fresh: Map<HTMLElement, CardData>): void {
     for (const card of this.cards.keys()) {
-      if (next.has(card)) continue
+      if (fresh.has(card)) continue
       if (this.dragging === card) this.endDrag()
       card.remove()
     }
-    this.cards = next
+    this.cards = fresh
   }
 
-  private showPlaces(columns: readonly ColumnPlace[]): void {
+  private showCounts(columns: readonly ColumnPlace[]): void {
     for (const column of columns) column.cardCount = cardsOf(column).length
   }
 
   private refreshSelection(): void {
     const cards = [...this.cards.keys()]
-    const hit = new Set(selectionRefind(
+    const hit = new Set(relocateSelection(
       giverIdOf(this.el),
       cards,
       (card) => this.cards.get(card)?.row,
@@ -262,7 +262,7 @@ class Board {
   }
 
   private recount(): void {
-    this.showPlaces(boardPlan(this.el, this.el.columnsField).columns)
+    this.showCounts(boardPlan(this.el, this.el.columnsField).columns)
   }
 
   // The card lies in its new column at once. Fails the action, it lies again
@@ -320,5 +320,5 @@ export function boardRegister(el: BoardElement): void {
 
 export function boardUnregister(el: BoardElement): void {
   link.disconnect(el)
-  boards.get(el)?.stopped()
+  boards.get(el)?.stop()
 }
