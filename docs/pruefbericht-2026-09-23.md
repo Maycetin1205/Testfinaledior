@@ -847,3 +847,22 @@ Kanban als Muster (Token, Linter-Verbot, ein Baustein, Sichtprobe) →
 Erfassung bis ins ERP mit Echttest → Datenmodell (ERPAPICALL mit Satznummer
 und Schreiben, Adapter, Kundendatei-Version) → Technik → übrige Bausteine →
 Bedienung. Jeder Schritt lässt den Editor benutzbar.
+
+Entscheidungen des Nutzers vom 23.09. abends, damit sind die Fragen 8.1 und
+8.2 beantwortet:
+
+- **Berechnung bleibt, wird aber neu gemacht.** Kein Vollbild, kein Dialog
+  mit vier Schritten. Der Bauer wählt am Spaltenkopf die beteiligten Spalten
+  und sieht die Rechnung als einen Satz in Klartext, etwa „Anzahl = Abgabemenge
+  geteilt durch Dosis mal Tage“. Die Regeln aus der alten Übergabe gelten:
+  genau die eine Lücke wird gerechnet, leeres Körpergewicht heißt Faktor 1,
+  Einheit aus der Zeile, keine Warnungen, gebuchte Zeilen rechnen nie. Der
+  Rechenkern in `calculation.ts` darf bleiben, sein Modell mit Einheiten,
+  Ergebnis-Flags und drei Faktorarten wird auf das Nötige zurückgeschnitten.
+- **Datencenter nicht als Vollbild** und in Klartext, der Nutzer versteht das
+  heutige nicht. Gehört zu Schritt „Bedienung“ (Abschnitt 9), die
+  Vollbild-Dialoge fallen aber schon dort weg, wo ein Schritt sie anfasst.
+- **Abgelehntes Schreiben bleibt unsichtbar**, vorerst kein Bau dazu. F6
+  wird nicht angezeigt; die Ankunftsprüfung arbeitet still.
+- Offen bleiben 8.3 bis 8.9: Zimmer und Avatar im Kanban, Probedaten,
+  Navigation, Sprache im Code (Vorschlag Englisch), Register statt Vorrat.
