@@ -1,7 +1,7 @@
 import {
   fieldCode,
   columnsNameFromInput,
-  ICON_MAX,
+  LENGTH_MAX,
   type DataField,
 } from '../../core/data/dataSources'
 
@@ -13,18 +13,18 @@ export interface FieldRow {
   len: string
   rawCode: string
 
-  icon: string
+  length: string
 }
 
 export const EMPTY_ROW: FieldRow = {
-  label: '', pos: '', len: '', rawCode: '', icon: '',
+  label: '', pos: '', len: '', rawCode: '', length: '',
 }
 
 export function rowFromField(
   f: DataField, prefix = '', columnsNames = false,
 ): FieldRow {
-  const icon = f.icon === undefined ? '' : String(f.icon)
-  if (columnsNames) return { label: f.name, pos: '', len: '', rawCode: f.code, icon }
+  const length = f.length === undefined ? '' : String(f.length)
+  if (columnsNames) return { label: f.name, pos: '', len: '', rawCode: f.code, length }
   const withoutPrefix = prefix !== '' && f.code.startsWith(prefix)
     ? f.code.slice(prefix.length)
     : f.code
@@ -34,7 +34,7 @@ export function rowFromField(
     pos: pl?.pos ?? '',
     len: pl?.len ?? '',
     rawCode: pl ? '' : f.code,
-    icon,
+    length,
   }
 }
 
@@ -44,8 +44,8 @@ export function rowsCode(z: FieldRow, prefix = '', columnsNames = false): string
   return fieldCode(z.pos, z.len, prefix)
 }
 
-export function rowsIcon(z: FieldRow): number | undefined {
-  const raw = Number(z.icon.trim())
-  if (z.icon.trim() === '' || !Number.isFinite(raw) || raw < 1) return undefined
-  return Math.min(ICON_MAX, Math.round(raw))
+export function rowsLength(z: FieldRow): number | undefined {
+  const raw = Number(z.length.trim())
+  if (z.length.trim() === '' || !Number.isFinite(raw) || raw < 1) return undefined
+  return Math.min(LENGTH_MAX, Math.round(raw))
 }

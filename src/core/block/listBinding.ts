@@ -81,12 +81,12 @@ export function listDefaultTitle(b: ListBinding, index: number): string {
   return b.defaultTitle.replace('{n}', String(index + 1))
 }
 
-const TITLE_BY_HAND = 'titleByHand'
+const TITLE_TYPED = 'titleTyped'
 
 export function typedTitle(b: ListBinding, title: string): Record<string, unknown> {
   return {
     [b.titleKey]: title,
-    [TITLE_BY_HAND]: title.trim() === '' ? undefined : true,
+    [TITLE_TYPED]: title.trim() === '' ? undefined : true,
   }
 }
 
@@ -94,7 +94,7 @@ export function titleToFieldChoice(
   entry: Record<string, unknown>,
   fromField: string,
 ): string | undefined {
-  return entry[TITLE_BY_HAND] === true ? undefined : fromField
+  return entry[TITLE_TYPED] === true ? undefined : fromField
 }
 
 export function listRead(raw: unknown, b: ListBinding): Record<string, unknown>[] {
@@ -161,7 +161,7 @@ export function listForExport(raw: unknown, b: ListBinding): unknown {
       .filter((r) => r.key in entry && !r.allowed(entry))
       .map((r) => r.key)
 
-    if (TITLE_BY_HAND in entry) away.push(TITLE_BY_HAND)
+    if (TITLE_TYPED in entry) away.push(TITLE_TYPED)
     if (away.length === 0) return x
     const copy = { ...entry }
     for (const k of away) delete copy[k]

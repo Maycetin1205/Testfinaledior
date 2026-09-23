@@ -1,4 +1,4 @@
-import { ICON_MAX, type DataField } from './dataSources'
+import { LENGTH_MAX, type DataField } from './dataSources'
 
 export interface MaskImport {
   prefix: string
@@ -28,10 +28,10 @@ function asList(raw: unknown): RawField[] | null {
   return null
 }
 
-function iconFrom(len: unknown): number | undefined {
+function lengthFrom(len: unknown): number | undefined {
   const number = Number(len)
   if (!Number.isFinite(number) || number < 1) return undefined
-  return Math.min(ICON_MAX, Math.round(number))
+  return Math.min(LENGTH_MAX, Math.round(number))
 }
 
 export function readMaskFields(raw: string): MaskImport | null {
@@ -60,12 +60,12 @@ export function readMaskFields(raw: string): MaskImport | null {
     const description = typeof entry.Description === 'string'
       ? entry.Description.trim()
       : ''
-    const icon = iconFrom(entry.Len)
+    const length = lengthFrom(entry.Len)
     if (entry.Status === 'A') onlyDisplay++
     fields.push({
       name: description === '' ? code : description,
       code,
-      ...(icon === undefined ? {} : { icon }),
+      ...(length === undefined ? {} : { length }),
     })
   }
   if (fields.length === 0) return null

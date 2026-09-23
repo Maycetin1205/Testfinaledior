@@ -484,7 +484,7 @@ export class CaptureLedger {
       const record = this.chosen.get(sourceId)
       if (record === undefined) continue
       for (const pair of context.pairsTo(sourceId)) {
-        if (pair.ofField !== field) continue
+        if (pair.fromField !== field) continue
         const value = fieldRead(record, pair.toField)
         if (value !== '') return value
       }
@@ -512,7 +512,7 @@ export class CaptureLedger {
         const record = this.chosen.get(sourceId)
         if (record !== undefined) {
           const fits = pairs.every((p) => {
-            const expected = this.keyValue(context, partnerId, p.ofField, sourceId)
+            const expected = this.keyValue(context, partnerId, p.fromField, sourceId)
             return expected === undefined || (expected !== '' && expected === fieldRead(record, p.toField))
           })
           if (!fits) {
@@ -521,7 +521,7 @@ export class CaptureLedger {
           }
           continue
         }
-        if (!pairs.some((p) => this.keyValue(context, partnerId, p.ofField, sourceId) !== undefined)) continue
+        if (!pairs.some((p) => this.keyValue(context, partnerId, p.fromField, sourceId) !== undefined)) continue
         const rows = sourcesRows(sourceId)
         if (rows === null) continue
         const fitting = this.possible(context, sourceId, rows)

@@ -132,7 +132,7 @@ export function StepList({
               >
                 <span className="block w-full truncate text-dense">
                   {summary.what}
-                  {s.kind === 'START_TOOL' && s.toolNr.trim() !== '' ? ` — Nr. ${s.toolNr}` : ''}
+                  {s.kind === 'START_TOOL' && s.toolNumber.trim() !== '' ? ` — Nr. ${s.toolNumber}` : ''}
                   {s.kind === 'BW_LINK' && s.command.trim() !== '' ? ` — ${s.command}` : ''}
                   {popupName ? ` — ${popupName}` : ''}
                 </span>

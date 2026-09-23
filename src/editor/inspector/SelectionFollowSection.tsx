@@ -58,7 +58,7 @@ export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
     const keyPairs = follow && follow.pairs.length > 0 ? follow.pairs : []
     set([{
       giverId: v,
-      pairs: fetchesRows || keyPairs.length > 0 ? keyPairs : [{ ofField: '', toField: '' }],
+      pairs: fetchesRows || keyPairs.length > 0 ? keyPairs : [{ fromField: '', toField: '' }],
     }])
   }
   return (

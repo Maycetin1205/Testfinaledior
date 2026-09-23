@@ -31,14 +31,14 @@ export {
   columnsNameFromInput,
 } from './sourceInput'
 
-export const ICON_MAX = 200
+export const LENGTH_MAX = 200
 
 export interface DataField {
   code: string
 
   name: string
 
-  icon?: number
+  length?: number
 }
 
 export interface DataSource {
@@ -215,14 +215,14 @@ export function checkDataSources(raw: unknown): DataSource[] {
       if (ff.code.includes(SOURCES_DIVIDER)) continue
       if (typeof ff.name !== 'string' || ff.name === '') continue
 
-      const icon = typeof ff.icon === 'number' && Number.isFinite(ff.icon)
-        && ff.icon >= 1
-        ? Math.min(ICON_MAX, Math.round(ff.icon))
+      const length = typeof ff.length === 'number' && Number.isFinite(ff.length)
+        && ff.length >= 1
+        ? Math.min(LENGTH_MAX, Math.round(ff.length))
         : undefined
       fields.push({
         code: ff.code,
         name: ff.name,
-        ...(icon === undefined ? {} : { icon }),
+        ...(length === undefined ? {} : { length }),
       })
     }
 

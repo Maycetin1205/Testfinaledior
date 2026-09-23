@@ -22,7 +22,7 @@ import {
   windowStateOf,
   type WindowState,
 } from './lookupWindowState'
-import { widthFromIcon } from './fieldWidth'
+import { widthFromLength } from './fieldWidth'
 import { FieldPicker, type PickerGroup } from './FieldPicker'
 
 const HANDLE_EDGE = 6
@@ -257,7 +257,7 @@ function Heads({ open }: { open: OpenLookup }) {
           onPick={(value) => {
             const field = source?.fields.find((f) => f.code === value)
             const plainName = field?.name ?? ''
-            const width = widthFromIcon(field?.icon)
+            const width = widthFromLength(field?.length)
             change(chosen, {
               field: value,
               title: value === '' ? defaultTitle : (plainName !== '' ? plainName : value),

@@ -1,11 +1,11 @@
 // Lifts a saved mask to the format this editor reads. Version 16 renamed every
 // stored name from German to English, version 17 the names that rename missed;
 // a file below them first runs the older steps.
-export const CURRENT_SCHEMA_VERSION = 18
+export const CURRENT_SCHEMA_VERSION = 19
 
 const ENGLISH_NAMES = 16
 
-const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17]
+const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -410,6 +410,7 @@ export function liftState(raw: unknown): unknown {
   }
   if (raw.schemaVersion < 17) liftMissedNames(lifted.tree)
   if (raw.schemaVersion < 18) liftWithoutRooms(lifted.tree)
+  if (raw.schemaVersion < 19) liftTo19(lifted)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
@@ -442,4 +443,106 @@ function liftWithoutRooms(x: unknown): void {
       }
     }
   }
+}
+
+const COLUMN_KEYS_19: Record<string, string> = { titleByHand: 'titleTyped' }
+
+const PAIR_KEYS_19: Record<string, string> = { ofField: 'fromField' }
+
+const STEP_KEYS_19: Record<string, string> = { toolNr: 'toolNumber', notiz: 'note' }
+
+const PARAMETER_SOURCES_19: Record<string, string> = {
+  from: 'omitted', previous_result: 'previousResult', step_result: 'stepResult',
+  block_value: 'blockValue', data_field: 'dataField',
+}
+
+const FACTOR_KINDS_19: Record<string, string> = { spalte: 'column', datenfeld: 'dataField', zahl: 'number' }
+
+const FACTOR_KEYS_19: Record<string, string> = { feld: 'field' }
+
+const UNITS_19: Record<string, string> = { anzahl: 'count', tag: 'day' }
+
+const ROUNDING_KEYS_19: Record<string, string> = { spots: 'decimals' }
+
+const ROUNDING_DIRECTIONS_19: Record<string, string> = {
+  on: 'up', off: 'down', kfm: 'nearest', auf: 'up', ab: 'down',
+}
+
+const FIELD_KEYS_19: Record<string, string> = { icon: 'length' }
+
+function word(o: Record<string, unknown>, key: string, table: Record<string, string>): void {
+  const held = o[key]
+  if (typeof held === 'string' && Object.hasOwn(table, held)) o[key] = table[held]
+}
+
+function liftFactor(factor: unknown): void {
+  if (!isPlainObject(factor)) return
+  to(factor, FACTOR_KEYS_19)
+  word(factor, 'kind', FACTOR_KINDS_19)
+  word(factor, 'unit', UNITS_19)
+  if (!isPlainObject(factor.round)) return
+  to(factor.round, ROUNDING_KEYS_19)
+  word(factor.round, 'direction', ROUNDING_DIRECTIONS_19)
+}
+
+function liftCalculations(calculations: unknown): void {
+  if (!Array.isArray(calculations)) return
+  for (const calculation of calculations) {
+    if (!isPlainObject(calculation)) continue
+    liftFactor(calculation.lead)
+    for (const side of ['numerator', 'denominator']) {
+      const factors = calculation[side]
+      if (Array.isArray(factors)) factors.forEach(liftFactor)
+    }
+  }
+}
+
+function liftParameterNames(params: unknown): void {
+  if (!Array.isArray(params)) return
+  for (const p of params) {
+    if (isPlainObject(p)) word(p, 'source', PARAMETER_SOURCES_19)
+  }
+}
+
+function liftChains(chains: Record<string, unknown>): void {
+  for (const steps of Object.values(chains)) {
+    if (!Array.isArray(steps)) continue
+    for (const step of steps) {
+      if (!isPlainObject(step)) continue
+      to(step, STEP_KEYS_19)
+      liftParameterNames(step.parameter)
+      liftParameterNames(step.extraParameter)
+    }
+  }
+}
+
+export function liftSourceNames(state: Record<string, unknown>): void {
+  const sources = state.dataSources
+  if (!Array.isArray(sources)) return
+  for (const source of sources) {
+    if (!isPlainObject(source)) continue
+    if (Array.isArray(source.fields)) renameDeep(source.fields, FIELD_KEYS_19)
+    if (isPlainObject(source.getValue)) liftParameterNames(source.getValue.parameter)
+  }
+}
+
+function liftTo19(state: Record<string, unknown>): void {
+  const tree = state.tree
+  if (isPlainObject(tree)) {
+    for (const node of Object.values(tree)) {
+      if (!isPlainObject(node)) continue
+      const values = node.values
+      if (isPlainObject(values)) {
+        for (const key of ['columns', 'lookupColumns']) {
+          if (Array.isArray(values[key])) renameDeep(values[key], COLUMN_KEYS_19)
+        }
+        for (const key of ['extraSources', 'followsSelection']) {
+          if (Array.isArray(values[key])) renameDeep(values[key], PAIR_KEYS_19)
+        }
+        liftCalculations(values.calculations)
+      }
+      if (isPlainObject(node.chains)) liftChains(node.chains)
+    }
+  }
+  liftSourceNames(state)
 }

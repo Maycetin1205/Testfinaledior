@@ -1,7 +1,7 @@
 import { Plus, X } from '@/editor/icons/icon'
 import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
-import { ICON_MAX } from '../../core/data/dataSources'
+import { LENGTH_MAX } from '../../core/data/dataSources'
 import { EMPTY_ROW, type FieldRow } from './fieldRow'
 
 const COLUMNS = 'grid grid-cols-[minmax(0,1fr)_72px_72px_64px_auto] items-center gap-x-2'
@@ -76,12 +76,12 @@ export function FieldList({
             <Field
               type="number"
               min={1}
-              max={ICON_MAX}
+              max={LENGTH_MAX}
               step={1}
               aria-label={`Feld ${i + 1}: Spaltenbreite in Zeichen`}
-              value={z.icon}
+              value={z.length}
               placeholder="—"
-              onChange={(e) => setRow(i, { icon: e.target.value })}
+              onChange={(e) => setRow(i, { length: e.target.value })}
             />
             <Button
               onlyIcon

@@ -2,14 +2,14 @@ import type { DataSource } from './dataSources'
 import { structuredProperty, type Property } from '../block/property'
 
 export interface KeyPair {
-  ofField: string
+  fromField: string
   toField: string
 }
 
 export const MAX_KEY_PAIRS = 3
 
 export function completePairs(carrier: { pairs: readonly KeyPair[] }): KeyPair[] {
-  return carrier.pairs.filter((p) => p.ofField.trim() !== '' && p.toField.trim() !== '')
+  return carrier.pairs.filter((p) => p.fromField.trim() !== '' && p.toField.trim() !== '')
 }
 
 export interface ExtraSource {
@@ -60,8 +60,8 @@ export function extraSourcesFrom(raw: unknown): ExtraSource[] {
     for (const p of Array.isArray(e.pairs) ? e.pairs : []) {
       if (!p || typeof p !== 'object') continue
       const pp = p as Record<string, unknown>
-      if (typeof pp.ofField !== 'string' || typeof pp.toField !== 'string') continue
-      pairs.push({ ofField: pp.ofField, toField: pp.toField })
+      if (typeof pp.fromField !== 'string' || typeof pp.toField !== 'string') continue
+      pairs.push({ fromField: pp.fromField, toField: pp.toField })
     }
     acc.push({
       sourceId: e.sourceId,

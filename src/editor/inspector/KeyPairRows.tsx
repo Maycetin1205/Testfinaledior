@@ -68,8 +68,8 @@ export function KeyPairRows({
               </Button>
             )}
           </div>
-          {fieldPicker(leftName(at), leftFields, pair.ofField,
-            (code) => setPair(at, { ofField: code }))}
+          {fieldPicker(leftName(at), leftFields, pair.fromField,
+            (code) => setPair(at, { fromField: code }))}
           <span className="text-dense text-muted">{rightName(at)}</span>
           {fieldPicker(rightName(at), rightFields, pair.toField,
             (code) => setPair(at, { toField: code }))}
@@ -78,7 +78,7 @@ export function KeyPairRows({
       {pairs.length < MAX_KEY_PAIRS && (
         <Button
           className="self-start"
-          onClick={() => onChange([...pairs, { ofField: '', toField: '' }])}
+          onClick={() => onChange([...pairs, { fromField: '', toField: '' }])}
         >
           <Plus size={13} /> Feld dazu
         </Button>

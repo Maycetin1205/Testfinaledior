@@ -5,10 +5,10 @@ import {
 } from './actions'
 import { sourceKind, type SourceKindId } from './sourceKinds'
 
-export const GET_VALUE_SOURCES = ['fixed', 'data_field', 'seVariable'] as const
+export const GET_VALUE_SOURCES = ['fixed', 'dataField', 'seVariable'] as const
 
 export function getValueSourceAllowed(source: ParameterSource): boolean {
-  return source === 'from' || (GET_VALUE_SOURCES as readonly string[]).includes(source)
+  return source === 'omitted' || (GET_VALUE_SOURCES as readonly string[]).includes(source)
 }
 
 export interface GetValue {
@@ -45,7 +45,7 @@ export function sourcesFromGetValue(
 ): { sourceId: string; code: string }[] {
   const out: { sourceId: string; code: string }[] = []
   for (const binding of getValueOf(source)?.parameter ?? []) {
-    if (binding.source !== 'data_field') continue
+    if (binding.source !== 'dataField') continue
     const sourceId = binding.sourceId ?? ''
     if (sourceId !== '') out.push({ sourceId, code: binding.value })
   }

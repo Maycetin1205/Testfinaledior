@@ -11,7 +11,7 @@ export interface StepDraft {
   id: string
 
   type: StepKind
-  toolNr: string
+  toolNumber: string
   command: string
   popupId: string
   relationId: string
@@ -41,7 +41,7 @@ export function draftFrom(
   return {
     id: step?.id ?? crypto.randomUUID(),
     type: step?.kind ?? 'START_TOOL',
-    toolNr: step?.kind === 'START_TOOL' ? step.toolNr : '',
+    toolNumber: step?.kind === 'START_TOOL' ? step.toolNumber : '',
     command: step?.kind === 'BW_LINK' ? step.command : '',
     popupId: step?.kind === 'POPUP_OPEN' || step?.kind === 'POPUP_CLOSE' ? step.popupId : '',
     relationId: relationStep?.relationId ?? '',
@@ -85,7 +85,7 @@ function onLength(
 
 export type StepAction =
   | { kind: 'type'; type: StepKind }
-  | { kind: 'toolNr'; value: string }
+  | { kind: 'toolNumber'; value: string }
   | { kind: 'command'; value: string }
   | { kind: 'popup'; id: string }
   | { kind: 'search'; value: string }
@@ -105,8 +105,8 @@ export function stepReducer(relations: readonly RelationTemplate[]) {
     switch (action.kind) {
       case 'type':
         return { ...draft, type: action.type, pickerTarget: null }
-      case 'toolNr':
-        return { ...draft, toolNr: action.value }
+      case 'toolNumber':
+        return { ...draft, toolNumber: action.value }
       case 'command':
         return { ...draft, command: action.value }
       case 'popup':
@@ -137,7 +137,7 @@ export function stepReducer(relations: readonly RelationTemplate[]) {
         return {
           ...draft,
           relationParams: draft.relationParams.map((binding, index) =>
-            binding.source === 'from'
+            binding.source === 'omitted'
               ? defaults[index] ?? { source: 'fixed', value: '' }
               : binding),
         }
@@ -197,7 +197,7 @@ export function candidateFrom(
       id,
       kind: 'START_TOOL',
       resultName: old?.resultName ?? '',
-      toolNr: draft.toolNr.trim(),
+      toolNumber: draft.toolNumber.trim(),
       toolParameter: old ? [...old.toolParameter] : [],
     }
   }

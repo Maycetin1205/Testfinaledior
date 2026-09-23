@@ -1,4 +1,4 @@
-export type UnitKind = 'sizes' | 'volume' | 'counting'
+export type UnitKind = 'mass' | 'volume' | 'counting'
 
 export interface Unit {
   code: string
@@ -11,13 +11,13 @@ export interface Unit {
 }
 
 export const UNITS: readonly Unit[] = [
-  { code: 'kg', name: 'Kilogramm', short: 'kg', kind: 'sizes', factor: 1000 },
-  { code: 'g', name: 'Gramm', short: 'g', kind: 'sizes', factor: 1 },
-  { code: 'mg', name: 'Milligramm', short: 'mg', kind: 'sizes', factor: 0.001 },
+  { code: 'kg', name: 'Kilogramm', short: 'kg', kind: 'mass', factor: 1000 },
+  { code: 'g', name: 'Gramm', short: 'g', kind: 'mass', factor: 1 },
+  { code: 'mg', name: 'Milligramm', short: 'mg', kind: 'mass', factor: 0.001 },
   { code: 'l', name: 'Liter', short: 'l', kind: 'volume', factor: 1000 },
   { code: 'ml', name: 'Milliliter', short: 'ml', kind: 'volume', factor: 1 },
   { code: 'count', name: 'Anzahl', short: '', kind: 'counting', factor: 1 },
-  { code: 'tag', name: 'Tage', short: 'Tage', kind: 'counting', factor: 1 },
+  { code: 'day', name: 'Tage', short: 'Tage', kind: 'counting', factor: 1 },
 ]
 
 export const UNIT_DEFAULT = 'count'
@@ -42,9 +42,9 @@ export function fromBase(value: number, code: string): number | null {
   return unit === undefined ? null : value / unit.factor
 }
 
-export type Dimensions = Readonly<Record<'sizes' | 'volume', number>>
+export type Dimensions = Readonly<Record<'mass' | 'volume', number>>
 
-export const NO_DIMENSIONS: Dimensions = { sizes: 0, volume: 0 }
+export const NO_DIMENSIONS: Dimensions = { mass: 0, volume: 0 }
 
 export function dimensionsWith(dimensions: Dimensions, code: string, times: 1 | -1): Dimensions | null {
   const unit = unitOf(code)
@@ -54,14 +54,14 @@ export function dimensionsWith(dimensions: Dimensions, code: string, times: 1 | 
 }
 
 export function dimensionsEqual(a: Dimensions, b: Dimensions): boolean {
-  return a.sizes === b.sizes && a.volume === b.volume
+  return a.mass === b.mass && a.volume === b.volume
 }
 
-const KIND_NAME: Record<'sizes' | 'volume', string> = { sizes: 'Masse', volume: 'Volumen' }
+const KIND_NAME: Record<'mass' | 'volume', string> = { mass: 'Masse', volume: 'Volumen' }
 
 export function dimensionsText(dimensions: Dimensions): string {
   const parts: string[] = []
-  for (const kind of ['sizes', 'volume'] as const) {
+  for (const kind of ['mass', 'volume'] as const) {
     const n = dimensions[kind]
     if (n === 0) continue
     parts.push(n === 1 ? KIND_NAME[kind] : `${KIND_NAME[kind]}^${n}`)

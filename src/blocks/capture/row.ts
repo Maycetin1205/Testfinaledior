@@ -206,7 +206,7 @@ export function fittingRecords(
   candidates: readonly unknown[],
 ): unknown[] {
   const known = pairs
-    .map((p) => ({ toField: p.toField, expected: keyValue(p.ofField) }))
+    .map((p) => ({ toField: p.toField, expected: keyValue(p.fromField) }))
     .filter((b): b is { toField: string; expected: string } => b.expected !== undefined)
   if (known.length === 0) return [...candidates]
   return candidates.filter((record) => known.every(

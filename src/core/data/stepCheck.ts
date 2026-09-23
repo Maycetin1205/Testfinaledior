@@ -11,16 +11,16 @@ import {
 function bindingProblem(binding: Parameter | undefined): boolean {
   if (!binding) return true
 
-  if (binding.source === 'fixed' || binding.source === 'previous_result') return false
-  if (binding.source === 'from') return false
-  if (binding.source === 'data_field') {
+  if (binding.source === 'fixed' || binding.source === 'previousResult') return false
+  if (binding.source === 'omitted') return false
+  if (binding.source === 'dataField') {
     return !binding.sourceId?.trim() || binding.value.trim() === ''
   }
 
-  if (binding.source === 'block_value' || binding.source === 'chosenRow') {
+  if (binding.source === 'blockValue' || binding.source === 'chosenRow') {
     return !binding.blockId?.trim() || binding.value.trim() === ''
   }
-  if (binding.source === 'step_result') {
+  if (binding.source === 'stepResult') {
     if (binding.resultField !== undefined && binding.resultField.trim() === '') return true
     return binding.value.trim() === ''
   }
@@ -43,7 +43,7 @@ export function stepProblem(
   before?: readonly Step[],
 ): string | null {
   const resultBroken = (binding: Parameter | undefined): boolean =>
-    binding?.source === 'step_result'
+    binding?.source === 'stepResult'
     && resultIds !== undefined
     && !resultIds.includes(binding.value)
   if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') {
@@ -60,7 +60,7 @@ export function stepProblem(
     return null
   }
   if (step.kind === 'START_TOOL') {
-    if (step.toolNr.trim() === '') {
+    if (step.toolNumber.trim() === '') {
       return 'Schritt "START_TOOL" hat keine Nummer.'
     }
     if (step.toolParameter.some((param) => param.trim() === '')) {
@@ -92,13 +92,13 @@ export function stepProblem(
     ...step.extraParameter,
   ]
   const missingSource = allBindings.find((binding) =>
-    binding?.source === 'data_field'
+    binding?.source === 'dataField'
     && dataSources
     && !dataSources.some((source) => source.id === binding.sourceId),
   )
   if (missingSource) return 'Schritt "Relation" verweist auf eine gelöschte Datenquelle.'
   const missingBlock = allBindings.find((binding) =>
-    binding?.source === 'block_value'
+    binding?.source === 'blockValue'
     && actionValues
     && !actionValues.some((target) =>
       target.blockId === binding.blockId && target.prop === binding.value),

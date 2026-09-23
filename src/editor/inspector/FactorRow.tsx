@@ -4,7 +4,7 @@ import { Choice, type ChoiceOption } from '@/editor/widgets/Choice'
 import { NumberInput } from '@/editor/widgets/NumberInput'
 import { X } from '@/editor/icons/icon'
 import { bindingWithSource, splitBinding } from '../../core/block/binding'
-import { newFactor, numberStrict, numberText, SPOTS_MAX, type Factor } from '../../core/data/calculation'
+import { newFactor, numberStrict, numberText, DECIMALS_MAX, type Factor } from '../../core/data/calculation'
 import { UNITS } from '../../core/data/units'
 import type { SourceInReach } from '../../core/data/extraSources'
 
@@ -123,12 +123,12 @@ export function FactorRow({
 
       {factor.kind === 'number' && (
         <NumberInput
-          key={numberText(factor.number, SPOTS_MAX)}
+          key={numberText(factor.number, DECIMALS_MAX)}
           className="w-32"
-          defaultValue={numberText(factor.number, SPOTS_MAX)}
+          defaultValue={numberText(factor.number, DECIMALS_MAX)}
           onBlur={(e) => {
             const number = numberStrict(e.currentTarget.value)
-            if (number === null) e.currentTarget.value = numberText(factor.number, SPOTS_MAX)
+            if (number === null) e.currentTarget.value = numberText(factor.number, DECIMALS_MAX)
             else if (number !== factor.number) onFactor({ ...factor, number })
           }}
         />

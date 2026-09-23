@@ -142,7 +142,7 @@ async function runSteps(
   for (const [slot, step] of steps.entries()) {
     if (only && !only.has(slot)) continue
     if (step.kind === 'START_TOOL') {
-      if (!sendStartTool(step.toolNr, placeholderInsert({ parameter: step.toolParameter }, values))) {
+      if (!sendStartTool(step.toolNumber, placeholderInsert({ parameter: step.toolParameter }, values))) {
         return { written, failed: true, transcript: transcript() }
       }
       continue

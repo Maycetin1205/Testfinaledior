@@ -10,16 +10,16 @@ import {
   type Dimensions,
 } from './units'
 
-export type RoundingDirection = 'on' | 'off' | 'kfm'
+export type RoundingDirection = 'up' | 'down' | 'nearest'
 
 export interface Rounding {
-  spots: number
+  decimals: number
   direction: RoundingDirection
 }
 
-const ROUND_DEFAULT: Rounding = { spots: 3, direction: 'kfm' }
+const ROUND_DEFAULT: Rounding = { decimals: 3, direction: 'nearest' }
 
-export const SPOTS_MAX = 6
+export const DECIMALS_MAX = 6
 
 const STRICT = /^-?\d+(,\d+)?$|^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/
 
@@ -31,34 +31,34 @@ export function numberStrict(text: string): number | null {
 }
 
 function roundValue(value: number, round: Rounding): number {
-  const f = Math.pow(10, Math.max(0, round.spots))
+  const f = Math.pow(10, Math.max(0, round.decimals))
   const x = value * f
 
-  const coarse = round.direction === 'on'
+  const coarse = round.direction === 'up'
     ? Math.ceil(x - 1e-9)
-    : round.direction === 'off' ? Math.floor(x + 1e-9) : Math.round(x)
+    : round.direction === 'down' ? Math.floor(x + 1e-9) : Math.round(x)
   return coarse / f
 }
 
-export function numberText(value: number, spots: number): string {
+export function numberText(value: number, decimals: number): string {
   return value.toLocaleString('de-DE', {
     useGrouping: false,
     minimumFractionDigits: 0,
-    maximumFractionDigits: Math.max(0, spots),
+    maximumFractionDigits: Math.max(0, decimals),
   })
 }
 
 function asRounding(raw: unknown): Rounding {
   if (!raw || typeof raw !== 'object') return { ...ROUND_DEFAULT }
   const o = raw as Record<string, unknown>
-  const spots = typeof o.spots === 'number' && Number.isInteger(o.spots)
-    && o.spots >= 0 && o.spots <= SPOTS_MAX
-    ? o.spots
-    : ROUND_DEFAULT.spots
-  const direction = o.direction === 'on' || o.direction === 'off' || o.direction === 'kfm'
+  const decimals = typeof o.decimals === 'number' && Number.isInteger(o.decimals)
+    && o.decimals >= 0 && o.decimals <= DECIMALS_MAX
+    ? o.decimals
+    : ROUND_DEFAULT.decimals
+  const direction = o.direction === 'up' || o.direction === 'down' || o.direction === 'nearest'
     ? o.direction
     : ROUND_DEFAULT.direction
-  return { spots, direction }
+  return { decimals, direction }
 }
 
 export interface ColumnsFactor {
@@ -276,7 +276,7 @@ export function computeCalculation(
       key: f.key,
       column: f.column,
       number: rounded,
-      text: numberText(rounded, f.round.spots),
+      text: numberText(rounded, f.round.decimals),
     }
   }
 
@@ -290,10 +290,10 @@ export function computeCalculation(
     const expected = fromBase(base, f.unit)
     if (expected === null || !Number.isFinite(expected)) continue
     const actual = fromBase(g.base as number, f.unit) as number
-    const step = Math.pow(10, -Math.max(0, f.round.spots))
+    const step = Math.pow(10, -Math.max(0, f.round.decimals))
     if (Math.abs(expected - actual) <= step / 2 + 1e-9) return { kind: 'consistent' }
     deviations.push(
-      `${name(f)} ${numberText(actual, f.round.spots)} statt ${numberText(roundValue(expected, f.round), f.round.spots)} ${unitShort(f.unit)}`.trim(),
+      `${name(f)} ${numberText(actual, f.round.decimals)} statt ${numberText(roundValue(expected, f.round), f.round.decimals)} ${unitShort(f.unit)}`.trim(),
     )
   }
   if (deviations.length === 0) return { kind: 'consistent' }

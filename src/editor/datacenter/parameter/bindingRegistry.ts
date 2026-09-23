@@ -62,7 +62,7 @@ export const PARAM_SOURCES: Record<ParameterSource, SourcesEntry> = {
       PLACEHOLDER_PLAIN_TEXT[b.value]?.name ?? chosen(b.value),
     ),
   },
-  data_field: {
+  dataField: {
     name: 'Datenfeld',
     Control: DataFieldBinding,
     empty: (w) => w.dataSources.length === 0,
@@ -73,7 +73,7 @@ export const PARAM_SOURCES: Record<ParameterSource, SourcesEntry> = {
       chosen(w.dataSources.find((q) => q.id === b.sourceId)?.name),
     ),
   },
-  block_value: {
+  blockValue: {
     name: 'Baustein',
     Control: BlockBinding,
     empty: (w) => w.blockValues.length === 0,
@@ -121,12 +121,12 @@ export const PARAM_SOURCES: Record<ParameterSource, SourcesEntry> = {
     start: (w) => only(w.deletions),
     text: (b, w) => bracketed('Gelöschte Zeile', columnsTitle(w.deletions, b)),
   },
-  previous_result: {
+  previousResult: {
     name: 'Vorheriger Schritt',
     Control: PreviousResultBinding,
     text: () => bracketed('Ergebnis des vorigen Schritts'),
   },
-  step_result: {
+  stepResult: {
     name: 'Ergebnis von Schritt',
     Control: StepResultBinding,
     empty: (w) => w.steps.length === 0,
@@ -146,7 +146,7 @@ export const PARAM_SOURCES: Record<ParameterSource, SourcesEntry> = {
     Control: TextBinding,
     text: (b) => bracketed('VAR', chosen(b.value)),
   },
-  from: {
+  omitted: {
     name: 'Weggelassen',
     Control: EmptyBinding,
 
@@ -172,8 +172,8 @@ export function originEntries(
       name: PARAM_SOURCES[source].name,
       disabled: PARAM_SOURCES[source].empty?.(choices) ?? false,
     }))
-  if (binding.source === 'from') {
-    entries.push({ value: 'from', name: PARAM_SOURCES.from.name, disabled: true })
+  if (binding.source === 'omitted') {
+    entries.push({ value: 'omitted', name: PARAM_SOURCES.omitted.name, disabled: true })
   }
   return entries
 }

@@ -49,8 +49,8 @@ export function selectionFollowsFrom(raw: unknown): SelectionFollow[] {
     for (const p of Array.isArray(e.pairs) ? e.pairs : []) {
       if (!p || typeof p !== 'object') continue
       const pp = p as Record<string, unknown>
-      if (typeof pp.ofField !== 'string' || typeof pp.toField !== 'string') continue
-      pairs.push({ ofField: pp.ofField, toField: pp.toField })
+      if (typeof pp.fromField !== 'string' || typeof pp.toField !== 'string') continue
+      pairs.push({ fromField: pp.fromField, toField: pp.toField })
     }
     acc.push({ giverId: e.giverId, pairs: pairs.slice(0, MAX_KEY_PAIRS) })
   }

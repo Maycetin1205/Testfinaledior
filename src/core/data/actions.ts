@@ -22,8 +22,8 @@ export const BLOCK_ID_ATTR = 'data-ff-block-id'
 export const PARAMETER_SOURCES = [
   'fixed',
   'context',
-  'data_field',
-  'block_value',
+  'dataField',
+  'blockValue',
   'chosenRow',
 
   'captureCell',
@@ -31,12 +31,12 @@ export const PARAMETER_SOURCES = [
   'changeCell',
 
   'deleteCell',
-  'previous_result',
-  'step_result',
+  'previousResult',
+  'stepResult',
   'seVariable',
 ] as const
 
-const SAVED_PARAM_SOURCES = [...PARAMETER_SOURCES, 'from'] as const
+const SAVED_PARAM_SOURCES = [...PARAMETER_SOURCES, 'omitted'] as const
 
 export const CELLS_PARAM_SOURCES: Record<string, PendingKind> = {
   captureCell: 'captured',
@@ -87,7 +87,7 @@ export function resultStepsBefore(
     const rel = relation?.find((r) => r.id === s.relationId)
     if (!rel || rel.verb !== 'GET_RELATION') continue
     const sourceId = [...s.parameter, ...s.extraParameter]
-      .find((b) => b.source === 'data_field' && (b.sourceId ?? '') !== '')
+      .find((b) => b.source === 'dataField' && (b.sourceId ?? '') !== '')
       ?.sourceId
     out.push({
       id: s.id, nr: i + 1, name: rel.name,
@@ -108,7 +108,7 @@ interface ActionStepBase {
 
 export interface StartToolStep extends ActionStepBase {
   kind: 'START_TOOL'
-  toolNr: string
+  toolNumber: string
   toolParameter: string[]
 }
 
@@ -194,7 +194,7 @@ export function checkParameterBinding(raw: unknown): Parameter | null {
     ...(typeof raw.sourceId === 'string' ? { sourceId: raw.sourceId } : {}),
     ...(typeof raw.blockId === 'string' ? { blockId: raw.blockId } : {}),
 
-    ...(raw.source === 'step_result' && typeof raw.resultField === 'string'
+    ...(raw.source === 'stepResult' && typeof raw.resultField === 'string'
       ? { resultField: raw.resultField }
       : {}),
   }
@@ -205,12 +205,12 @@ function stepFields(raw: unknown): RuntimeStep | null {
     return null
   }
   if (raw.kind === 'START_TOOL') {
-    if (typeof raw.toolNr !== 'string') return null
+    if (typeof raw.toolNumber !== 'string') return null
     if (!Array.isArray(raw.toolParameter) || raw.toolParameter.some((p) => typeof p !== 'string')) return null
     return {
       kind: 'START_TOOL',
       resultName: raw.resultName,
-      toolNr: raw.toolNr,
+      toolNumber: raw.toolNumber,
       toolParameter: [...raw.toolParameter] as string[],
     }
   }
@@ -296,7 +296,7 @@ function withoutEditorId(
   columnsIndex: (blockId: string, key: string) => string,
 ): RuntimeStep {
   const binding = (b: Parameter): Parameter => {
-    if (b.source === 'step_result') return { ...b, value: stepPosition(b.value) }
+    if (b.source === 'stepResult') return { ...b, value: stepPosition(b.value) }
 
     if (CELLS_PARAM_SOURCES[b.source] !== undefined) {
       return { ...b, value: columnsIndex(b.blockId ?? '', b.value) }
@@ -307,7 +307,7 @@ function withoutEditorId(
     return {
       kind: step.kind,
       resultName: step.resultName,
-      toolNr: step.toolNr,
+      toolNumber: step.toolNumber,
       toolParameter: [...step.toolParameter],
     }
   }

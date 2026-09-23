@@ -66,7 +66,7 @@ export function SourceList({ block }: SourceListProps) {
     change(index, {
       partnerId: value === first ? '' : value,
       pairs: (own?.pairs.length ?? 0) === 0
-        ? [{ ofField: '', toField: '' }]
+        ? [{ fromField: '', toField: '' }]
         : (own?.pairs ?? []),
     })
   }

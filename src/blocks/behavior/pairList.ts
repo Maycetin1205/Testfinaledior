@@ -32,9 +32,9 @@ export function pairListFromAttribute(
       const pairs: KeyPair[] = []
       for (const pair of Array.isArray(entry.pairs) ? entry.pairs : []) {
         if (!isPropertyEntry(pair)) continue
-        if (typeof pair.ofField !== 'string' || typeof pair.toField !== 'string') continue
-        if (pair.ofField.trim() === '' || pair.toField.trim() === '') continue
-        pairs.push({ ofField: pair.ofField, toField: pair.toField })
+        if (typeof pair.fromField !== 'string' || typeof pair.toField !== 'string') continue
+        if (pair.fromField.trim() === '' || pair.toField.trim() === '') continue
+        pairs.push({ fromField: pair.fromField, toField: pair.toField })
       }
       if (pairs.length === 0 && options.keepWithoutPairs !== true) continue
       const partnerId = typeof entry.partnerId === 'string' && entry.partnerId !== id

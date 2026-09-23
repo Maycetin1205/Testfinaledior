@@ -138,7 +138,7 @@ export function rowsToSelection(
     if (selection === undefined) continue
 
     const activePairs = follow.pairs
-      .map((p) => ({ expected: fieldRead(selection, p.ofField), toField: p.toField }))
+      .map((p) => ({ expected: fieldRead(selection, p.fromField), toField: p.toField }))
       .filter((p) => p.expected !== '')
 
     if (activePairs.length === 0) continue

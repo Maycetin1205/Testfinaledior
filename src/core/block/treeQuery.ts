@@ -34,7 +34,7 @@ export function sourcesIdsInChainsOf(node: BlockNode): string[] {
     for (const step of node.chains?.[event.key] ?? []) {
       if (step.kind !== 'RELATION') continue
       for (const binding of [...step.parameter, ...step.extraParameter]) {
-        if (binding.source !== 'data_field') continue
+        if (binding.source !== 'dataField') continue
         const id = binding.sourceId ?? ''
         if (id !== '') ids.push(id)
       }

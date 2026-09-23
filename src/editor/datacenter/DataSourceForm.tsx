@@ -36,7 +36,7 @@ import {
   EMPTY_ROW,
   rowFromField,
   rowsCode,
-  rowsIcon,
+  rowsLength,
   type FieldRow,
 } from './fieldRow'
 import { FormCard } from './FormCard'
@@ -258,11 +258,11 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         ? { getValue: { relationId: getRelationId, parameter: getParams } }
         : {}),
       fields: rows.map((z) => {
-        const icon = rowsIcon(z)
+        const length = rowsLength(z)
         return {
           code: rowsCode(z, prefix, kindFacts.columnsNames),
           name: z.label.trim(),
-          ...(icon === undefined ? {} : { icon }),
+          ...(length === undefined ? {} : { length }),
         }
       }),
     }

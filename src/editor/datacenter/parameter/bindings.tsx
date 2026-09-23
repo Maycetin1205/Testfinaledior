@@ -180,8 +180,8 @@ export function BlockBinding({ binding, choices, onChange }: BindingProps) {
       onChoose={(key) => {
         const chosen = choices.blockValues.find((option) => option.key === key)
         onChange(chosen
-          ? { source: 'block_value', blockId: chosen.blockId, value: chosen.prop }
-          : { source: 'block_value', blockId: '', value: '' })
+          ? { source: 'blockValue', blockId: chosen.blockId, value: chosen.prop }
+          : { source: 'blockValue', blockId: '', value: '' })
       }}
     />
   )

@@ -122,7 +122,7 @@ export function usedFieldsPerSource(
 
         const partner = q.partnerId === '' ? first : q.partnerId
         for (const pair of completePairs(q)) {
-          remember(partner, pair.ofField)
+          remember(partner, pair.fromField)
           remember(q.sourceId, pair.toField)
         }
       }
@@ -134,7 +134,7 @@ export function usedFieldsPerSource(
         if (!followUsable(follow)) continue
         const giver = selectionSourceIdOf(tree[follow.giverId])
         for (const pair of completePairs(follow)) {
-          remember(giver, pair.ofField)
+          remember(giver, pair.fromField)
           remember(own, pair.toField)
         }
       }
@@ -144,7 +144,7 @@ export function usedFieldsPerSource(
       for (const step of node.chains?.[event.key] ?? []) {
         if (step.kind !== 'RELATION') continue
         for (const binding of [...step.parameter, ...step.extraParameter]) {
-          if (binding.source === 'data_field') {
+          if (binding.source === 'dataField') {
             remember(binding.sourceId ?? '', binding.value)
           } else if (binding.source === 'chosenRow') {
             remember(selectionSourceIdOf(tree[binding.blockId ?? '']), binding.value)

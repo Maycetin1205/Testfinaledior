@@ -14,7 +14,7 @@ import {
   computeCalculation,
   directionAsText,
   numberStrict,
-  SPOTS_MAX,
+  DECIMALS_MAX,
   type Calculation,
   type Factor,
   type FactorState,
@@ -26,9 +26,9 @@ import type { SourceInReach } from '../../core/data/extraSources'
 import { FactorRow } from './FactorRow'
 
 const DIRECTIONS: ChoiceOption[] = [
-  { value: 'on', name: 'aufrunden' },
-  { value: 'off', name: 'abrunden' },
-  { value: 'kfm', name: 'kaufmännisch' },
+  { value: 'up', name: 'aufrunden' },
+  { value: 'down', name: 'abrunden' },
+  { value: 'nearest', name: 'kaufmännisch' },
 ]
 
 export interface ColumnHead {
@@ -219,12 +219,12 @@ export function CalculationDialog({
                   unit="NK"
                   className="w-16"
                   min={0}
-                  max={SPOTS_MAX}
-                  value={f.round.spots}
+                  max={DECIMALS_MAX}
+                  value={f.round.decimals}
                   onChange={(e) => {
-                    const spots = Number.parseInt(e.target.value, 10)
-                    if (Number.isInteger(spots) && spots >= 0 && spots <= SPOTS_MAX) {
-                      setFactor(f, { ...f, round: { ...f.round, spots } })
+                    const decimals = Number.parseInt(e.target.value, 10)
+                    if (Number.isInteger(decimals) && decimals >= 0 && decimals <= DECIMALS_MAX) {
+                      setFactor(f, { ...f, round: { ...f.round, decimals } })
                     }
                   }}
                 />

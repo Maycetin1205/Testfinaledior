@@ -81,15 +81,15 @@ function originText(
       return binding.value === '' ? '' : binding.value
     case 'seVariable':
       return binding.value === '' ? '' : `SE VAR ${binding.value}`
-    case 'previous_result':
+    case 'previousResult':
       return 'Vorheriger Schritt'
-    case 'from':
+    case 'omitted':
       return 'leer'
-    case 'step_result': {
+    case 'stepResult': {
       const number = stepNumber(binding.value)
       return number > 0 ? `Ergebnis von Schritt ${number}` : 'Ergebnis von Schritt'
     }
-    case 'data_field': {
+    case 'dataField': {
       const source = sources.find((q) => q.id === binding.sourceId)
       const field = source?.fields.find((f) => f.code === binding.value)?.name ?? ''
       if (!source) return ''
@@ -101,7 +101,7 @@ function originText(
       const who = node ? blockName(node, sources) : 'Gewählte Zeile'
       return field === '' ? `Gewählte Zeile · ${who}` : `${who} · ${field}`
     }
-    case 'block_value': {
+    case 'blockValue': {
       const node = binding.blockId ? tree[binding.blockId] : undefined
       return node ? `Baustein „${blockName(node, sources)}“` : ''
     }
@@ -160,7 +160,7 @@ export function stepSummary(
 export function anchorStepId(step: Step): string {
   if (step.kind !== 'RELATION') return ''
   for (const b of [...step.parameter, ...step.extraParameter]) {
-    if (b.source === 'step_result' && b.value !== '') return b.value
+    if (b.source === 'stepResult' && b.value !== '') return b.value
   }
   return ''
 }

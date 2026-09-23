@@ -156,7 +156,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
   const errorText = draft.showError ? problem ?? undefined : undefined
 
   const skipped = relation
-    ? relation.parameter.map((_, index) => index).filter((i) => binding(i).source === 'from')
+    ? relation.parameter.map((_, index) => index).filter((i) => binding(i).source === 'omitted')
     : []
 
   const fieldTriggerActive = relation
@@ -235,9 +235,9 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
           {(control) => (
             <Field
               {...control}
-              value={draft.toolNr}
+              value={draft.toolNumber}
               className="w-28"
-              onChange={(e) => dispatch({ kind: 'toolNr', value: e.currentTarget.value })}
+              onChange={(e) => dispatch({ kind: 'toolNumber', value: e.currentTarget.value })}
             />
           )}
         </Row>
@@ -271,7 +271,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
 
               <Group title="Parameter">
                 {relation.parameter.map((raw, index) => {
-                  if (binding(index).source === 'from') return null
+                  if (binding(index).source === 'omitted') return null
                   const parameterKind = fieldAdoptKind(raw)
                   const trigger = parameterKind === 'relid'
                     ? 'idb'
@@ -289,7 +289,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
                       remove={{
                         label: `Parameter ${index + 1} für diese Aktion weglassen`,
                         onClick: () =>
-                          dispatch({ kind: 'binding', index, binding: { source: 'from', value: '' } }),
+                          dispatch({ kind: 'binding', index, binding: { source: 'omitted', value: '' } }),
                       }}
                       trigger={trigger}
                       onChange={(next) => dispatch({ kind: 'binding', index, binding: next })}

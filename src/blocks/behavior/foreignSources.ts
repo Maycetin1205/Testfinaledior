@@ -55,7 +55,7 @@ export function makeFieldReader(el: HTMLElement): FieldReader {
     lookup.set(q.sourceId, {
       toKey,
       partnerId: q.partnerId,
-      hereFields: q.pairs.map((p) => p.ofField),
+      hereFields: q.pairs.map((p) => p.fromField),
     })
   }
 

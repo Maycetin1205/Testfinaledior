@@ -39,7 +39,7 @@ function stepWithoutPointer(
       if (!shows) return b
       hit++
 
-      return { source: 'from' as const, value: '' }
+      return { source: 'omitted' as const, value: '' }
     })
   const params = clear(step.parameter)
   const extraParams = clear(step.extraParameter)

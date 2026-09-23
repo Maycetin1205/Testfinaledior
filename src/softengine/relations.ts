@@ -406,11 +406,11 @@ export function parameterResolve(
   values: RuntimeValues,
   runtime: unknown = seWindow(),
 ): string {
-  if (binding.source === 'from') return ''
+  if (binding.source === 'omitted') return ''
   if (binding.source === 'fixed') return binding.value
   if (binding.source === 'context') return values.context[binding.value] ?? ''
-  if (binding.source === 'previous_result') return values.previousResult
-  if (binding.source === 'step_result') {
+  if (binding.source === 'previousResult') return values.previousResult
+  if (binding.source === 'stepResult') {
     const idx = Number(binding.value)
     if (!Number.isInteger(idx) || idx < 0) return ''
 
@@ -418,7 +418,7 @@ export function parameterResolve(
     if (field === '') return values.stepResults?.[idx] ?? ''
     return fieldFromAnswer(values.stepRawResults?.[idx], field)
   }
-  if (binding.source === 'block_value') return resolveBlockValue(binding, runtime)
+  if (binding.source === 'blockValue') return resolveBlockValue(binding, runtime)
   if (binding.source === 'captureCell'
     || binding.source === 'changeCell'
     || binding.source === 'deleteCell') {

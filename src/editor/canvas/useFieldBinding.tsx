@@ -21,7 +21,7 @@ import type { EditorStore } from '../state/EditorStore'
 import { applyProps } from '../state/applyProps'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
-import { widthFromIcon, iconOf } from './fieldWidth'
+import { widthFromLength, lengthOf } from './fieldWidth'
 import { openLookupInEditor } from './lookupWindowState'
 import { useInputSession } from '../inspector/controls/useInputSession'
 import { openDataCenter } from '../datacenter/openDataCenter'
@@ -289,10 +289,10 @@ export function useFieldBinding({
                   ? (sourceFromProp.fields.find((f) => f.code === fieldValue)?.name ?? '')
                   : plainNameOf(fieldValue, sources)) || fieldValue
 
-                const icon = perSource
-                  ? sourceFromProp.fields.find((f) => f.code === value)?.icon
-                  : iconOf(value, sources)
-                const width = widthFromIcon(icon)
+                const length = perSource
+                  ? sourceFromProp.fields.find((f) => f.code === value)?.length
+                  : lengthOf(value, sources)
+                const width = widthFromLength(length)
 
                 const title = titleToFieldChoice(
                   target,
