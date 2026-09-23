@@ -43,6 +43,9 @@ import { tafelStil } from './tafelStil'
 
 const STRICH = '—'
 const PLATZ_LEER = 'frei · hierher ziehen'
+// Blass und gestrichelt zeigt der Editor, was die Maske nicht zeigt; der Satz
+// dazu steht im Tooltip, damit er in der schmalen Spalte den Namen nicht verdraengt.
+const NICHT_GEZEIGT = 'In der Maske nicht gezeigt'
 
 interface Karte {
   schluessel: string
@@ -405,8 +408,7 @@ export class Tafel extends Grundbaustein {
       ? html`${this.kartenIn(spalten, ablage(gezeigt[0]))}
           ${leer(ablage(gezeigt[0])) ? leerZustand(this.leerText) : nothing}`
       : html`${gezeigt.map((pi) => this.ablage(ablage(pi), `platz${blass(ablage(pi))}`, html`
-          <div class="platzkopf"><span>${spalte.plaetze[pi].name}</span>
-            ${istSichtbar(spalten, ablage(pi)) ? nothing : html`<span class="hinweis">in der Maske nicht gezeigt</span>`}
+          <div class="platzkopf" title=${istSichtbar(spalten, ablage(pi)) ? nothing : NICHT_GEZEIGT}><span>${spalte.plaetze[pi].name}</span>
             <span class="platzzahl">${zeigtZahl ? this.belegt(ablage(pi)) : STRICH}</span></div>
           <div class="platzrumpf">
             ${this.kartenIn(spalten, ablage(pi))}
@@ -415,10 +417,9 @@ export class Tafel extends Grundbaustein {
     const anzahl = gezeigt.reduce((summe, pi) => summe + this.belegt(ablage(pi)), 0)
     const einzigerVersteckt = gezeigt.length === 1 && !istSichtbar(spalten, ablage(gezeigt[0]))
     return this.ablage(ablage(gezeigt[0]), `spalte v-${farbweltWert(spalte.farbwelt)}${einzigerVersteckt ? ' versteckt' : ''}`, html`
-      <div class="spaltenkopf">
+      <div class="spaltenkopf" title=${einzigerVersteckt ? NICHT_GEZEIGT : nothing}>
         <span class="punkt"></span>
         <span class="titel">${spalte.titel}</span>
-        ${einzigerVersteckt ? html`<span class="hinweis">in der Maske nicht gezeigt</span>` : nothing}
         <span class="anzahl">${zeigtZahl ? anzahl : STRICH}</span>
       </div>
       <div class="rumpf">${rumpf}</div>`)

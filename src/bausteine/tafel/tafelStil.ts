@@ -38,6 +38,7 @@ export const tafelStil = css`
     flex: 1;
     min-height: 0;
     overflow-x: auto;
+    scrollbar-width: thin;
   }
 
   .spalte {
@@ -45,7 +46,7 @@ export const tafelStil = css`
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
-    min-width: 232px;
+    min-width: 150px;
     min-height: 0;
     overflow: hidden;
     background: var(--fw-schale);
@@ -53,13 +54,18 @@ export const tafelStil = css`
     border-radius: var(--se-r-lg);
   }
   .spalte.versteckt, .platz.versteckt { opacity: 0.5; border-style: dashed; }
+  /* Nur der Editor zeigt die ausgeblendete Spalte; sie soll den anderen den
+     Platz nicht wegnehmen, sonst faellt die letzte sichtbare aus dem Rahmen. */
+  .spalte.versteckt { flex: 0 0 150px; }
 
   .spaltenkopf {
     flex: none;
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding: 13px 15px;
+    gap: 8px;
+    box-sizing: border-box;
+    min-height: 56px;
+    padding: 11px 12px;
     background: var(--fw-sanft);
     border-bottom: var(--se-border) solid var(--fw-rand);
   }
@@ -72,19 +78,24 @@ export const tafelStil = css`
     background: var(--fw-stark);
   }
 
+  /* Zwei Zeilen statt „Termine he…“: in einer schmalen Spalte muss die
+     Ueberschrift lesbar bleiben. */
   .titel {
+    min-width: 0;
     color: var(--fw-schrift);
     font-size: 13px;
     font-weight: 600;
-    white-space: nowrap;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
   }
-
-  .hinweis { font-size: var(--se-fs-xs); color: var(--se-muted); white-space: nowrap; }
 
   .anzahl,
   .platzzahl {
+    flex: none;
     margin-left: auto;
     min-width: 22px;
     padding: 1px 8px;
