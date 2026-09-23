@@ -91,7 +91,7 @@ function node(
 export function referenceTree(): MaskTree {
   const tree: MaskTree = {
     [ROOT_ID]: node(ROOT_ID, ROOT_TYPE, null, {}, [
-      't1', 't2', 'f1', 'b1', 'k1', 'tx1', 'd1', 'tr1', 'p1',
+      't1', 't2', 'f1', 'b1', 'k1', 'tx1', 'd1', 'p1',
     ]),
     t1: node('t1', 'capture', ROOT_ID, {
       gridX: 0, gridY: 3, gridW: 16, gridH: 22,
@@ -144,10 +144,6 @@ export function referenceTree(): MaskTree {
     }),
     tx1: node('tx1', 'text', ROOT_ID, { gridX: 34, gridY: 0, gridW: 14, gridH: 3 }),
     d1: node('d1', 'date', ROOT_ID, { gridX: 0, gridY: 0, gridW: 10, gridH: 3 }),
-    tr1: node('tr1', 'divider', ROOT_ID, {
-      gridX: 18, gridY: 25, gridW: 2, gridH: 12,
-      direction: 'vertical', lineStyle: 'dashed', thickness: 2, color: 'accent',
-    }),
     p1: node('p1', 'popup', ROOT_ID, { name: 'Hinweis' }, ['tx2']),
     tx2: node('tx2', 'text', 'p1', {}),
   }

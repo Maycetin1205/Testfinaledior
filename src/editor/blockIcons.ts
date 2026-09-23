@@ -12,7 +12,6 @@ import {
   IconButton,
   IconTable,
   IconText,
-  IconDivider,
 } from './icons/blockIcon'
 import { Area } from '../blocks/area/Area'
 import { Button } from '../blocks/button/Button'
@@ -24,7 +23,6 @@ import { KanbanColumn } from '../blocks/kanban/KanbanColumn'
 import { Popup } from '../blocks/popup/Popup'
 import { Table } from '../blocks/table/Table'
 import { Text } from '../blocks/text/Text'
-import { Divider } from '../blocks/divider/Divider'
 
 // The sign in the palette is the editor's business, not the block's: it is
 // drawn with react and never travels into a mask.
@@ -41,5 +39,4 @@ export const BLOCK_ICONS: Record<string, BlockIcon> = {
   [Popup.type]: IconPopup,
   [Table.type]: IconTable,
   [Text.type]: IconText,
-  [Divider.type]: IconDivider,
 }

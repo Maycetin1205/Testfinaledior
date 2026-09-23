@@ -106,21 +106,6 @@ function liftCardsTemplate(x: unknown): void {
   }
 }
 
-const OLD_LINE_STYLES: Record<string, string> = {
-  solid: 'durchgezogen',
-  dashed: 'gestrichelt',
-  dotted: 'gepunktet',
-}
-
-function liftLineStyle(x: unknown): void {
-  if (!isPlainObject(x)) return
-  for (const node of Object.values(x)) {
-    if (!isPlainObject(node) || node.typ !== 'trenner' || !isPlainObject(node.werte)) continue
-    const old = node.werte.stil
-    if (typeof old === 'string' && old in OLD_LINE_STYLES) node.werte.stil = OLD_LINE_STYLES[old]
-  }
-}
-
 function liftAreaTitle(x: unknown): void {
   if (!isPlainObject(x)) return
   for (const node of Object.values(x)) {
@@ -147,7 +132,6 @@ const BLOCK_TYPES: Record<string, string> = {
   tabelle: 'table',
   erfassung: 'capture',
   karte: 'card',
-  trenner: 'divider',
   datum: 'date',
   bereich: 'area',
   formfeld: 'formfield',
@@ -182,7 +166,6 @@ const PER_TYPE: Record<string, Record<string, string>> = {
   },
   button: { beschriftung: 'label' },
   text: { groesse: 'size', gewicht: 'weight', ausrichtung: 'align', farbe: 'color' },
-  divider: { richtung: 'direction', stil: 'lineStyle', staerke: 'thickness', farbe: 'color' },
   card: {
     chipFarbwelt: 'chipTone', titel: 'heading', titel2: 'heading2', zeit: 'time',
     datum: 'date', unterzeile: 'subline', titelField: 'headingField',
@@ -206,11 +189,6 @@ const BOOLEANS: Record<string, readonly string[]> = {
 }
 
 const VALUE_WORDS: Record<string, Record<string, Record<string, string>>> = {
-  divider: {
-    direction: { waagerecht: 'horizontal', senkrecht: 'vertical' },
-    lineStyle: { durchgezogen: 'solid', gestrichelt: 'dashed', gepunktet: 'dotted' },
-    color: { linie: 'line', dezent: 'quiet', dunkel: 'dark', akzent: 'accent' },
-  },
   text: {
     weight: { duenn: 'thin', fett: 'bold' },
     align: { links: 'left', mitte: 'center', rechts: 'right' },
@@ -425,7 +403,6 @@ export function liftState(raw: unknown): unknown {
     : (JSON.parse(JSON.stringify(raw)) as Record<string, unknown>)
   if (raw.schemaVersion < ENGLISH_NAMES) {
     liftBlockNames(lifted.tree)
-    liftLineStyle(lifted.tree)
     liftCardsTemplate(lifted.tree)
     liftAreaTitle(lifted.tree)
     liftLegacy(lifted.tree)

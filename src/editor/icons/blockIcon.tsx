@@ -22,13 +22,6 @@ function frame(children: ReactElement[], { size = 16, className }: Props): React
   )
 }
 
-export function IconDivider(p: Props): ReactElement {
-  return frame([
-    <line key="line" x1="3" y1="12" x2="21" y2="12" {...U} />,
-    <path key="gap" d="M8 6h8M8 18h8" stroke={ESPRESSO_FAINT} strokeWidth="1" />,
-  ], p)
-}
-
 export function IconPopup(p: Props): ReactElement {
   return frame([
     <rect key="h" x="2.6" y="4.6" width="13" height="11" rx="2" fill={SAND} stroke="none" />,
