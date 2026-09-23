@@ -12,8 +12,10 @@ und in der Maske; was der Editor zeigt, ist der Export.
 - Berichte kurz, auf Deutsch, in Klartext: was geaendert, was nicht, was
   nicht geprueft werden konnte. Dazu eine Klickanleitung, wenn er etwas
   testen soll.
-- Keine neuen Markdown-Dateien, keine Plaene oder Protokolle als Datei oder
-  Kommentar. Kein Bericht endet mit einem Prompt fuer den naechsten Chat.
+- `docs/bestandsaufnahme.md` sammelt die Befunde der Code-Durchsicht. Wer
+  einen behebt, streicht ihn dort im selben Commit. Sonst keine neuen
+  Markdown-Dateien, keine Plaene oder Protokolle als Datei oder Kommentar.
+  Kein Bericht endet mit einem Prompt fuer den naechsten Chat.
 - Keine erfundenen Daten in Masken oder Tests: Striche statt Beispielwerte.
 - Keine Extras, keine Schalter "zur Sicherheit", keine Tests ausser den zwei
   unten. Was heute keine Maske braucht, wird nicht gebaut.
