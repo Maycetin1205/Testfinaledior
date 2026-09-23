@@ -1,6 +1,7 @@
 {
   "kind": "aufbau-editor-bibliothek",
   "fileVersion": 2,
+  "schemaVersion": 1,
   "dataSources": [
     {
       "id": "3f1c7a20-8c4e-4d36-9a71-2b5e0d6f1a01",

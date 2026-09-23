@@ -8,6 +8,8 @@ const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
 const LIBRARY_FILE_VERSION = 2
 
+const LIBRARY_SCHEMA_VERSION = 1
+
 export interface LibraryContent {
   dataSources: DataSource[]
   relation: RelationTemplate[]
@@ -22,6 +24,7 @@ export function packLibrary(content: LibraryContent): string {
     {
       kind: LIBRARY_FILE_KIND,
       fileVersion: LIBRARY_FILE_VERSION,
+      schemaVersion: LIBRARY_SCHEMA_VERSION,
       dataSources: content.dataSources,
       relation: content.relation,
     },
@@ -50,9 +53,7 @@ export function packLibraryFrom(text: string): LibraryResult {
     return { ok: false }
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false }
-  const o = liftKey(raw) as Record<string, unknown>
-  liftLibraries(o)
-  liftSourceNames(o)
+  const o = liftLibrary(raw as Record<string, unknown>)
 
   return {
     ok: true,
@@ -61,6 +62,14 @@ export function packLibraryFrom(text: string): LibraryResult {
       relation: checkRelationTemplates(o.relation),
     },
   }
+}
+
+function liftLibrary(raw: Record<string, unknown>): Record<string, unknown> {
+  if (raw.schemaVersion === LIBRARY_SCHEMA_VERSION) return raw
+  const o = liftKey(raw)
+  liftLibraries(o)
+  liftSourceNames(o)
+  return o
 }
 
 function stable(value: unknown): string {
