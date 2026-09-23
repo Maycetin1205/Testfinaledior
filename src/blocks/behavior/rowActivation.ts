@@ -84,7 +84,7 @@ export class RowsChoice {
 export function focusedRawIndex(root: ShadowRoot | null): number | null | undefined {
   const active = root?.activeElement
   if (!(active instanceof HTMLElement)) return undefined
-  const row = active.closest<HTMLElement>('.zeile')
+  const row = active.closest<HTMLElement>('.row')
   if (!row) return undefined
   const raw = row.getAttribute(RAW_ATTR)
   return raw === null || raw === '' ? null : Number(raw)
@@ -92,10 +92,10 @@ export function focusedRawIndex(root: ShadowRoot | null): number | null | undefi
 
 export function moveRowsFocus(of: EventTarget | null, direction: number): boolean {
   if (!(of instanceof HTMLElement)) return false
-  const row = of.closest<HTMLElement>('.zeile')
+  const row = of.closest<HTMLElement>('.row')
   const body = row?.parentElement
   if (!row || !body) return false
-  const rows = [...body.querySelectorAll<HTMLElement>(`.zeile[${RAW_ATTR}]`)]
+  const rows = [...body.querySelectorAll<HTMLElement>(`.row[${RAW_ATTR}]`)]
   const at = rows.indexOf(row)
   const target = at === -1 ? undefined : rows[at + direction]
   if (!target) return false
@@ -106,8 +106,8 @@ export function moveRowsFocus(of: EventTarget | null, direction: number): boolea
 
 export function focusFirstRow(of: EventTarget | null): boolean {
   if (!(of instanceof HTMLElement)) return false
-  const first = of.closest<HTMLElement>('.tabelle')
-    ?.querySelector<HTMLElement>(`.zeile[${RAW_ATTR}]`)
+  const first = of.closest<HTMLElement>('.table')
+    ?.querySelector<HTMLElement>(`.row[${RAW_ATTR}]`)
   if (!first) return false
   first.focus()
   return true
@@ -115,8 +115,8 @@ export function focusFirstRow(of: EventTarget | null): boolean {
 
 export function focusSearchRow(of: EventTarget | null): boolean {
   if (!(of instanceof HTMLElement)) return false
-  const field = of.closest<HTMLElement>('.tabelle')
-    ?.querySelector<HTMLInputElement>('.suchzeile input')
+  const field = of.closest<HTMLElement>('.table')
+    ?.querySelector<HTMLInputElement>('.search-row input')
   if (!field) return false
   field.focus()
   return true
@@ -126,10 +126,10 @@ export function spotRowsFocusFrom(root: ShadowRoot | null, rawIndex: number | nu
   if (!root) return
   const wanted = rawIndex === null
     ? null
-    : root.querySelector<HTMLElement>(`.zeile[${RAW_ATTR}="${rawIndex}"]`)
+    : root.querySelector<HTMLElement>(`.row[${RAW_ATTR}="${rawIndex}"]`)
   const target = wanted
-    ?? root.querySelector<HTMLElement>(`.zeile[${RAW_ATTR}]`)
-    ?? root.querySelector<HTMLElement>('.koerper')
+    ?? root.querySelector<HTMLElement>(`.row[${RAW_ATTR}]`)
+    ?? root.querySelector<HTMLElement>('.body')
   target?.focus()
 }
 

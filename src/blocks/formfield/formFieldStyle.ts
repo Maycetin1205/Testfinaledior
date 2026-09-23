@@ -1,7 +1,7 @@
 import { css } from 'lit'
 
 export const fieldStyle = css`
-  .feld {
+  .field {
     font-family: var(--se-font);
 
     --feld-pad-y: 7px;
@@ -9,7 +9,7 @@ export const fieldStyle = css`
     --feld-rand: var(--se-border);
   }
 
-  .huelle { position: relative; }
+  .wrap { position: relative; }
 
   .ctrl {
     box-sizing: border-box;
@@ -36,10 +36,10 @@ export const fieldStyle = css`
   }
   select.ctrl { padding: calc(var(--feld-pad-y) - 1px) calc(var(--feld-pad-x) - 2px); }
 
-  .feld.linie .ctrl,
-  :host([data-ff-editor]) .feld.linie .ctrl,
-  :host([data-ff-editor]) .feld.linie .huelle[data-ff-bound] .ctrl,
-  :host([data-ff-editor]) .feld.linie .lookup .ctrl {
+  .field.line .ctrl,
+  :host([data-ff-editor]) .field.line .ctrl,
+  :host([data-ff-editor]) .field.line .wrap[data-ff-bound] .ctrl,
+  :host([data-ff-editor]) .field.line .lookup .ctrl {
     border: none !important;
     border-bottom: 1.5px solid var(--se-line) !important;
     border-radius: 0 !important;
@@ -49,15 +49,15 @@ export const fieldStyle = css`
     box-shadow: none !important;
     outline: none !important;
   }
-  .feld.linie .ctrl:focus {
+  .field.line .ctrl:focus {
     outline: none !important;
     border-bottom-color: var(--se-accent) !important;
     box-shadow: none !important;
   }
-  .feld.linie [data-ff-bound] {
+  .field.line [data-ff-bound] {
     text-decoration: none !important;
   }
-  .feld.linie .ph {
+  .field.line .ph {
     left: 2px;
     right: 2px;
   }
@@ -87,11 +87,11 @@ export const fieldStyle = css`
      sie sonst fast ganz verdecken. */
   .ph-lookup { right: 34px; }
 
-  .huelle.leer input[type="date"]:not(:focus)::-webkit-datetime-edit,
-  .huelle.leer input[type="time"]:not(:focus)::-webkit-datetime-edit { opacity: 0; }
-  .huelle.leer.tippt .ph-nativ { display: none; }
+  .wrap.empty input[type="date"]:not(:focus)::-webkit-datetime-edit,
+  .wrap.empty input[type="time"]:not(:focus)::-webkit-datetime-edit { opacity: 0; }
+  .wrap.empty.typing .ph-native { display: none; }
 
-  .zeile {
+  .row {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -114,7 +114,7 @@ export const fieldStyle = css`
      naechsten Baustein. */
   :host([data-ff-list]) { position: relative; z-index: 5; }
 
-  .lupe {
+  .magnifier {
     position: absolute;
     top: var(--feld-rand);
     bottom: var(--feld-rand);
@@ -129,23 +129,23 @@ export const fieldStyle = css`
     cursor: pointer;
     transition: background var(--se-move);
   }
-  .lupe:hover { background: var(--se-accent-soft); color: var(--se-ink); }
-  .lupe:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
+  .magnifier:hover { background: var(--se-accent-soft); color: var(--se-ink); }
+  .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
 
   :host([data-ff-editor]) .ctrl { pointer-events: none; }
   /* Die Lupe bleibt im Editor bedienbar: ihr Klick macht das Suchfenster auf
      und im Inspector den Abschnitt „Suchfenster". */
   :host([data-ff-editor]) .ph { pointer-events: auto; cursor: text; }
-  :host([data-ff-editor]) .feld:not(.linie) .huelle[data-ff-bound] .ctrl {
+  :host([data-ff-editor]) .field:not(.line) .wrap[data-ff-bound] .ctrl {
     border-style: dotted;
     border-color: var(--se-accent);
   }
 
   :host([data-ff-editor]) [data-ff-editable]:empty::before { content: 'Text …'; opacity: 0.6; }
 
-  :host(:not([data-ff-editor])) .zeile .text { cursor: pointer; user-select: none; }
+  :host(:not([data-ff-editor])) .row .text { cursor: pointer; user-select: none; }
 
-  :host([fills]) .feld,
-  :host([fills]) .huelle { height: 100%; }
-  :host([fills]) .huelle .ctrl { height: 100%; }
+  :host([fills]) .field,
+  :host([fills]) .wrap { height: 100%; }
+  :host([fills]) .wrap .ctrl { height: 100%; }
 `

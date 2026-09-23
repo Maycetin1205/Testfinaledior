@@ -12,7 +12,7 @@ export const popupStyle = css`
     font-family: var(--se-font);
   }
 
-  .titel {
+  .title {
     display: block;
     min-height: 1.4em;
     white-space: nowrap;
@@ -20,7 +20,7 @@ export const popupStyle = css`
     text-overflow: ellipsis;
   }
 
-  .rumpf {
+  .body {
     box-sizing: border-box;
     height: 100%;
     overflow: auto;
@@ -28,5 +28,5 @@ export const popupStyle = css`
     ${unsafeCSS(gridAreaCss())};
   }
 
-  .rumpf slot { display: contents; }
+  .body slot { display: contents; }
 `

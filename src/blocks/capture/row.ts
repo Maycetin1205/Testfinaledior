@@ -49,13 +49,13 @@ export function captureRowTpl(
   placement: CapturePlacement,
   tun: CaptureAct,
 ): TemplateResult {
-  return html`<div class="zeile erfassung" role="row" style=${styleMap(placement.cols)}>
+  return html`<div class="row capture" role="row" style=${styleMap(placement.cols)}>
     ${placement.columns.map((column, i) => {
       if (placement.inEditor) {
         return html`<div
           class=${column.hidden === true ? 'hidden' : nothing}
           role="cell"
-        ><span class="zell-beschriftung">${
+        ><span class="cell-label">${
           placement.titleInCell ? column.title || CELL_PLACEHOLDER : ''
         }</span></div>`
       }
@@ -73,7 +73,7 @@ export function captureRowTpl(
         title: column.title,
         placeholder: placement.titleInCell ? column.title : '',
         klasse: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
-        holderClass: 'zell-halter',
+        holderClass: 'cell-holder',
         slot,
         suggestions: list ? placement.suggestions : [],
         mark: placement.mark,

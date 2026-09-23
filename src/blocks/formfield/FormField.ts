@@ -27,8 +27,8 @@ const WITH_PLACEHOLDER: readonly FieldType[] = [
 
 const PH_CLASS: Partial<Record<FieldType, string>> = {
   select: 'ph-select',
-  date: 'ph-nativ',
-  time: 'ph-nativ',
+  date: 'ph-native',
+  time: 'ph-native',
   lookup: 'ph-lookup',
 }
 
@@ -162,8 +162,8 @@ export class FormField extends BlockElement {
   override render(): TemplateResult {
     const kind = fieldTypeOf(this.fieldType)
     if (kind === 'checkbox') {
-      return html`<div class="feld">
-        <div class="zeile">
+      return html`<div class="field">
+        <div class="row">
           <input
             class="ctrl"
             type="checkbox"
@@ -178,11 +178,11 @@ export class FormField extends BlockElement {
     const valueBindable = kind !== 'lookup'
     const inField = valueBindable ? this.value : this._lookup.inField
     const empty = inField === ''
-    const huelleClasses = `huelle${empty ? ' leer' : ''}${this.inControl ? ' tippt' : ''}`
-    const fieldClasses = `feld${this.appearance === 'line' ? ' linie' : ''}`
+    const wrapClasses = `wrap${empty ? ' empty' : ''}${this.inControl ? ' typing' : ''}`
+    const fieldClasses = `field${this.appearance === 'line' ? ' line' : ''}`
     return html`<div class=${fieldClasses}>
       <div
-        class=${huelleClasses}
+        class=${wrapClasses}
         data-ff-spot=${valueBindable ? 'value' : nothing}
         ?data-ff-bound=${valueBindable && this.valueField !== ''}
       >
@@ -224,7 +224,7 @@ defineBlock(FormField, {
         sourceProp: 'lookupSource',
         storageFieldProp: 'storageField',
         storageTitleProp: 'storageTitle',
-        spot: '.lupe',
+        spot: '.magnifier',
         when: ONLY_LOOKUP,
       },
     },

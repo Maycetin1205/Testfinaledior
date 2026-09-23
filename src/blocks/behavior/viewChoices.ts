@@ -134,7 +134,7 @@ export class ViewChoices {
   }
 
   focusSearch(): boolean {
-    const field = this.el.shadowRoot?.querySelector<HTMLInputElement>('.suchzeile input')
+    const field = this.el.shadowRoot?.querySelector<HTMLInputElement>('.search-row input')
     if (!field) return false
     field.focus()
     return true

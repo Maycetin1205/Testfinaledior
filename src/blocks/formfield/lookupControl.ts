@@ -78,7 +78,7 @@ export class LookupControl {
       suggestions: this.list.hit,
       mark: this.list.mark,
       beside: html`<button
-        class="lupe"
+        class="magnifier"
         type="button"
         aria-label="Nachschlagen"
         title="Nachschlagen"

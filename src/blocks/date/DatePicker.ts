@@ -27,18 +27,18 @@ export class DatePicker extends BlockElement {
   }
 
   override render(): TemplateResult {
-    return html`<div class="waehler">
-      <div class="riegel">
-        <button class="pfeil" title="Vortag" @click=${() => this.setTag(tagPlus(this.tag, -1))}>‹</button>
+    return html`<div class="picker">
+      <div class="stepper">
+        <button class="arrow" title="Vortag" @click=${() => this.setTag(tagPlus(this.tag, -1))}>‹</button>
         <input
-          class="feld"
+          class="field"
           type="date"
           .value=${this.tag}
           @change=${(e: Event) => this.setTag((e.target as HTMLInputElement).value)}
         />
-        <button class="pfeil" title="Folgetag" @click=${() => this.setTag(tagPlus(this.tag, 1))}>›</button>
+        <button class="arrow" title="Folgetag" @click=${() => this.setTag(tagPlus(this.tag, 1))}>›</button>
       </div>
-      <button class="heute" @click=${() => this.setTag(tagOf(new Date()))}>Heute</button>
+      <button class="today" @click=${() => this.setTag(tagOf(new Date()))}>Heute</button>
     </div>`
   }
 

@@ -54,7 +54,7 @@ export interface RowsIcon {
   status: RowsStatus
 }
 
-const BOOKED_ROWS = '.koerper > .zeile:not(.erfassung)'
+const BOOKED_ROWS = '.body > .row:not(.capture)'
 
 // The cells of the booked rows: per record what stands in which column. A
 // record without a cell is taken out, so the size answers "is anything here".

@@ -40,12 +40,12 @@ export function inputSpotTpl(
   tun: InputSpotAct,
 ): TemplateResult {
   return html`<div
-    class=${placement.listToTop === true ? `${placement.holderClass} nach-oben` : placement.holderClass}
+    class=${placement.listToTop === true ? `${placement.holderClass} upward` : placement.holderClass}
   >
     <input
       class=${placement.klasse}
       type="text"
-      data-spalte=${placement.slot ?? nothing}
+      data-column=${placement.slot ?? nothing}
       aria-label=${placement.title !== '' ? placement.title : nothing}
       placeholder=${placement.placeholder !== '' ? placement.placeholder : nothing}
       .value=${placement.value}

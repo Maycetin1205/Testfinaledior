@@ -51,7 +51,7 @@ function tableIn(frame: DialogFrame): Table | null {
 }
 
 function measure(frame: DialogFrame): Measurement {
-  const row = tableIn(frame)?.shadowRoot?.querySelector('.kopf')
+  const row = tableIn(frame)?.shadowRoot?.querySelector('.head')
   if (row == null) return NOTHING
   const zr = row.getBoundingClientRect()
   return {

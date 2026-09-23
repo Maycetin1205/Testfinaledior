@@ -112,13 +112,13 @@ export class Capture extends BlockElement {
 
   private focusCaptureCell(index: number): void {
     void this.updateComplete.then(() => {
-      walkInCell(cellsFields(this.shadowRoot, '.zeile.erfassung', index)[0])
+      walkInCell(cellsFields(this.shadowRoot, '.row.capture', index)[0])
     })
   }
 
   private showLastCaptured(): void {
     void this.updateComplete.then(() => {
-      const body = this.shadowRoot?.querySelector<HTMLElement>('.koerper')
+      const body = this.shadowRoot?.querySelector<HTMLElement>('.body')
       if (body) body.scrollTop = body.scrollHeight
     })
   }

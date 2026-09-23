@@ -31,30 +31,30 @@ export function columnsChoiceTpl(
 ): TemplateResult | typeof nothing {
   if (placement === null) return nothing
   const visible = placement.selectable.filter((s) => !placement.away.has(s.key)).length
-  return html`<div class="sw-schirm" @pointerdown=${tun.close}></div>
+  return html`<div class="picker-backdrop" @pointerdown=${tun.close}></div>
     <div
-      class="spaltenwahl"
+      class="column-picker"
       role="dialog"
       aria-label="Spalten zeigen oder verbergen"
       style="left: ${placement.left}px; top: ${placement.top}px"
       @pointerdown=${(e: Event) => e.stopPropagation()}
       @contextmenu=${(e: Event) => e.preventDefault()}
     >
-      <p class="sw-titel">Spalten</p>
+      <p class="picker-title">Spalten</p>
       ${placement.selectable.map((s) => {
         const on = !placement.away.has(s.key)
         const last = on && visible <= 1
         return html`<button
-          class=${on ? 'sw-zeile an' : 'sw-zeile'}
+          class=${on ? 'picker-row checked' : 'picker-row'}
           type="button"
           role="menuitemcheckbox"
           aria-checked=${on ? 'true' : 'false'}
           ?disabled=${last}
           @click=${() => tun.toggle(s.key)}
-        ><span class="sw-haken">${on ? '✓' : ''}</span>${s.title}</button>`
+        ><span class="picker-check">${on ? '✓' : ''}</span>${s.title}</button>`
       })}
       ${placement.away.size === 0 ? nothing : html`<button
-        class="sw-alle"
+        class="picker-all"
         type="button"
         @click=${tun.allShow}
       >Alle zeigen</button>`}

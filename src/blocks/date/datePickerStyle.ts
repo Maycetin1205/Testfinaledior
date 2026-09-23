@@ -1,7 +1,7 @@
 import { css } from 'lit'
 
 export const dateStyle = css`
-  .waehler {
+  .picker {
     --tag-h: 34px;
 
     --tag-feld-min: 112px;
@@ -12,7 +12,7 @@ export const dateStyle = css`
     font-family: var(--se-font);
   }
 
-  .riegel {
+  .stepper {
     box-sizing: border-box;
     display: flex;
     align-items: stretch;
@@ -25,7 +25,7 @@ export const dateStyle = css`
     background: var(--se-panel);
   }
 
-  .pfeil {
+  .arrow {
     flex: none;
     display: flex;
     align-items: center;
@@ -41,9 +41,9 @@ export const dateStyle = css`
     line-height: 1;
     cursor: pointer;
   }
-  .pfeil:hover { background: var(--se-panel-2); color: var(--se-ink); }
+  .arrow:hover { background: var(--se-panel-2); color: var(--se-ink); }
 
-  .feld {
+  .field {
     box-sizing: border-box;
 
     flex: 1;
@@ -57,9 +57,9 @@ export const dateStyle = css`
     color: var(--se-ink);
     text-align: center;
   }
-  .feld:focus { outline: none; }
+  .field:focus { outline: none; }
 
-  .heute {
+  .today {
     box-sizing: border-box;
     flex: none;
     height: 100%;
@@ -74,19 +74,19 @@ export const dateStyle = css`
     white-space: nowrap;
     cursor: pointer;
   }
-  .heute:hover { border-color: var(--se-accent); color: var(--se-accent); }
+  .today:hover { border-color: var(--se-accent); color: var(--se-accent); }
 
   :host { container-type: inline-size; }
   @container (max-width: 210px) {
-    .heute { display: none; }
+    .today { display: none; }
   }
   @container (max-width: 160px) {
-    .waehler { --tag-feld-min: 80px; }
+    .picker { --tag-feld-min: 80px; }
   }
 
-  :host([data-ff-editor]) .feld,
-  :host([data-ff-editor]) .pfeil,
-  :host([data-ff-editor]) .heute { pointer-events: none; }
+  :host([data-ff-editor]) .field,
+  :host([data-ff-editor]) .arrow,
+  :host([data-ff-editor]) .today { pointer-events: none; }
 
-  :host([fills]) .waehler { height: 100%; }
+  :host([fills]) .picker { height: 100%; }
 `

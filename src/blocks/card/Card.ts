@@ -32,16 +32,16 @@ export class Card extends BlockElement {
     const shows = (value: string): boolean => inEditor || value.trim() !== ''
 
     const foot = shows(this.heading2) || shows(this.date) || shows(this.time) || shows(this.chip)
-    return html`<div class="karte">
+    return html`<div class="card">
       ${shows(this.heading) ? this.spot('heading', 'name') : nothing}
       ${shows(this.subline) ? this.spot('subline', 'extra') : nothing}
-      ${shows(this.text) ? this.spot('text', 'base') : nothing}
+      ${shows(this.text) ? this.spot('text', 'text') : nothing}
       ${foot
-        ? html`<div class="fuss">
-            ${shows(this.heading2) ? this.spot('heading2', 'fussl') : nothing}
+        ? html`<div class="foot">
+            ${shows(this.heading2) ? this.spot('heading2', 'foot-title') : nothing}
             ${shows(this.date) ? this.spot('date', 'date') : nothing}
             ${shows(this.time) ? this.spot('time', 'time') : nothing}
-            ${shows(this.chip) ? this.spot('chip', `chip v-${world}`) : nothing}
+            ${shows(this.chip) ? this.spot('chip', `chip tone-${world}`) : nothing}
           </div>`
         : nothing}
     </div>`

@@ -177,7 +177,7 @@ export class RecordList {
   }
 
   private openColumnPicker(e: MouseEvent): void {
-    const frame = this.el.shadowRoot?.querySelector('.tabelle')?.getBoundingClientRect()
+    const frame = this.el.shadowRoot?.querySelector('.table')?.getBoundingClientRect()
     if (!frame) return
     this._choice.openAt(e, frame)
   }
@@ -213,7 +213,7 @@ export class RecordList {
       valueAt: (row, column) => this.cellValue(row, column),
       paging: el.paging,
     })
-    return html`<div class="tabelle" style=${styleMap({
+    return html`<div class="table" style=${styleMap({
       '--takt': `${view.tick}px`,
       '--zeilen-hoehe': `${view.rowsHeight}px`,
     })}>

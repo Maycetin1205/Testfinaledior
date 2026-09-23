@@ -107,7 +107,7 @@ function ruler(placement: BodyPlacement): TemplateResult | typeof nothing {
         flex: '0 1 auto',
         height: `calc(var(--zeilen-hoehe) * ${placement.rulerTicks})`,
       }
-  return html`<div class="lineal" role="presentation" style=${styleMap(style)}>
+  return html`<div class="ruler" role="presentation" style=${styleMap(style)}>
           ${placement.columns.map(() => html`<div></div>`)}
         </div>`
 }
@@ -121,9 +121,9 @@ function rowTpl(
   const activatable = rawIndex !== null && !placement.inEditor
   const decoration = placement.decoration(rawIndex)
   return html`<div
-    class="zeile${viewIndex % 2 === 1 ? ' zebra' : ''}${
-      rawIndex !== null && placement.showsRows ? ' waehlbar' : ''}${
-      rawIndex !== null && rawIndex === placement.selectionIndex ? ' gewaehlt' : ''}${
+    class="row${viewIndex % 2 === 1 ? ' zebra' : ''}${
+      rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
+      rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
       decoration.klasse === '' ? '' : ' ' + decoration.klasse}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}
@@ -137,11 +137,11 @@ function rowTpl(
       tun.activateRow(rawIndex, viewIndex)
     }}
     @dblclick=${(e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('.zell-eingabe')) return
+      if ((e.target as HTMLElement).closest('.cell-input')) return
       tun.rowDouble(rawIndex)
     }}
     @keydown=${(e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).closest('.zell-eingabe, button')) return
+      if ((e.target as HTMLElement).closest('.cell-input, button')) return
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         const up = e.key === 'ArrowUp'
         const moved = moveRowsFocus(e.target, up ? -1 : 1)
@@ -182,7 +182,7 @@ function rowTpl(
 export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResult {
   const firstEmpty = placement.rows.indexOf(null)
   return html`
-      ${placement.showSearch ? html`<div class="suchzeile">
+      ${placement.showSearch ? html`<div class="search-row">
         <input
           type="search"
           placeholder="Tabelle durchsuchen…"
@@ -195,12 +195,12 @@ export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResul
           }}
         />
       </div>` : ''}
-      <div class="koerper" role=${placement.empty ? nothing : 'table'} tabindex="-1">
-      ${placement.showHead ? html`<div class="kopf" role="row" style=${styleMap(placement.cols)}>
+      <div class="body" role=${placement.empty ? nothing : 'table'} tabindex="-1">
+      ${placement.showHead ? html`<div class="head" role="row" style=${styleMap(placement.cols)}>
         ${
           placement.columns.map(
           (s, i) => html`<div
-            class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'z' : '']
+            class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'number' : '']
               .filter((k) => k !== '').join(' ') || nothing}
             role="columnheader"
             data-ff-editable
@@ -210,8 +210,8 @@ export function tableBody(placement: BodyPlacement, tun: BodyAct): TemplateResul
             @contextmenu=${placement.columnPickerOn
               ? (e: MouseEvent) => tun.openColumnPicker(e)
               : nothing}
-          ><span class="kopf-text">${s.title}</span>${!placement.editable && placement.sortColumn === placement.slots[i]
-            ? html`<span class="sort-pfeil">${placement.sortOn ? ' ▲' : ' ▼'}</span>`
+          ><span class="head-text">${s.title}</span>${!placement.editable && placement.sortColumn === placement.slots[i]
+            ? html`<span class="sort-arrow">${placement.sortOn ? ' ▲' : ' ▼'}</span>`
             : ''}</div>`,
         )}
         ${widthsHandles(placement.columns.length, tun.widths)}
@@ -255,23 +255,23 @@ export function tableFoot(
   if (placement.empty) return nothing
 
   const saysSomething = placement.pageCount > 1 || placement.searchesActive || placement.selectionActive || placement.totals.length > 0
-  if (!saysSomething) return html`<div class="fusszeile fusszeile--still"></div>`
-  return html`<div class="fusszeile">
-    <div class="seiten-info">${recordText({
+  if (!saysSomething) return html`<div class="foot foot--quiet"></div>`
+  return html`<div class="foot">
+    <div class="page-info">${recordText({
       showsRows: placement.showsRows,
       visible: placement.visible,
       total: placement.total,
       searchesActive: placement.searchesActive,
       selectionActive: placement.selectionActive,
     })}</div>
-    ${placement.totals.length === 0 ? nothing : html`<div class="summen">
-      ${placement.totals.map((s) => html`<span class="summe">
-        <span class="summe-titel">${s.title}</span>
+    ${placement.totals.length === 0 ? nothing : html`<div class="totals">
+      ${placement.totals.map((s) => html`<span class="total">
+        <span class="total-title">${s.title}</span>
         <b>${s.text}</b>
       </span>`)}
     </div>`}
-    <div class="fuss-rechts">
-      ${!placement.paging ? nothing : html`<div class="seiten-nav">
+    <div class="foot-right">
+      ${!placement.paging ? nothing : html`<div class="page-nav">
         <button
           aria-label="Seite zurück"
           ?disabled=${placement.page <= 0}

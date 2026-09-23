@@ -19,7 +19,7 @@ export class Kanban extends BlockElement {
 
   override render(): TemplateResult {
     return html`
-      <div class="tafel">
+      <div class="board">
         <slot></slot>
       </div>`
   }

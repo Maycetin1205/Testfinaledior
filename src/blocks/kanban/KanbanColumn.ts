@@ -22,17 +22,17 @@ export class KanbanColumn extends BlockElement {
   @property({ attribute: false }) cardCount = 0
 
   override render(): TemplateResult {
-    return html`<div class="spalte ${TARGET_CLASS} v-${toneValue(this.tone)}">
-      <div class="kopf">
-        <span class="punkt"></span>
+    return html`<div class="column ${TARGET_CLASS} tone-${toneValue(this.tone)}">
+      <div class="head">
+        <span class="dot"></span>
         <span
-          class="titel"
+          class="title"
           data-ff-editable
           @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'heading')}
         >${this.heading}</span>
-        <span class="anzahl">${this.cardCount}</span>
+        <span class="count">${this.cardCount}</span>
       </div>
-      <div class="rumpf">
+      <div class="body">
         <slot></slot>
       </div>
     </div>`

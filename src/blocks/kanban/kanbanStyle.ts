@@ -3,7 +3,7 @@ import { css } from 'lit'
 export const kanbanStyle = css`
   :host { min-width: 0; height: 100%; display: flex; flex-direction: column; }
 
-  .tafel {
+  .board {
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -14,5 +14,5 @@ export const kanbanStyle = css`
     box-sizing: border-box;
   }
 
-  .tafel slot { display: contents; }
+  .board slot { display: contents; }
 `

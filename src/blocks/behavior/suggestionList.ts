@@ -54,7 +54,7 @@ function areaLimits(el: HTMLElement): { left: number; right: number } {
         ? document.documentElement.clientWidth
         : 10000)
 
-  const table = el.closest?.('.tabelle')
+  const table = el.closest?.('.table')
   if (table instanceof (globalThis.HTMLElement ?? Object) && typeof table.getBoundingClientRect === 'function') {
     const tRect = table.getBoundingClientRect()
     if (tRect.width > 0) {
@@ -100,7 +100,7 @@ function alignSuggestionsFrom(el: HTMLElement): void {
   const wouldRight = holderLeft + need
 
   const toLeft = wouldRight > limits.right
-  el.classList.toggle('nach-links', toLeft)
+  el.classList.toggle('leftward', toLeft)
 
   const maxWidth = toLeft
     ? Math.max(holderWidth, holderRight - limits.left)
@@ -121,7 +121,7 @@ export function suggestionListTpl(args: {
   onMark: (index: number) => void
 }): TemplateResult {
   return html`<ul
-    class="vorschlaege"
+    class="suggestions"
     ${ref((el) => {
       if (el && 'classList' in el && 'style' in el) {
         alignSuggestionsFrom(el as HTMLElement)
@@ -134,18 +134,18 @@ export function suggestionListTpl(args: {
     })}
     @mousedown=${(e: MouseEvent) => e.preventDefault()}
   >${args.entries.map((entry, i) => html`<li
-      class=${i === args.mark ? 'vorschlag marke' : 'suggestion'}
+      class=${i === args.mark ? 'suggestion marked' : 'suggestion'}
       @click=${() => args.onChoose(i)}
       @mouseenter=${() => args.onMark(i)}
-    ><span class="vorschlag-anzeige">${entry.display !== '' ? entry.display : entry.value}</span>${
+    ><span class="suggestion-display">${entry.display !== '' ? entry.display : entry.value}</span>${
       entry.value !== '' && entry.value !== entry.display
-        ? html`<span class="vorschlag-wert">${entry.value}</span>`
+        ? html`<span class="suggestion-value">${entry.value}</span>`
         : nothing
     }</li>`)}</ul>`
 }
 
 export const suggestionStyle = css`
-  .vorschlaege {
+  .suggestions {
     position: absolute;
     top: 100%;
     left: 0;
@@ -166,12 +166,12 @@ export const suggestionStyle = css`
     color: var(--se-ink);
   }
 
-  .vorschlaege.nach-links {
+  .suggestions.leftward {
     left: auto;
     right: 0;
   }
 
-  .vorschlag {
+  .suggestion {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -180,15 +180,15 @@ export const suggestionStyle = css`
     white-space: nowrap;
     cursor: pointer;
   }
-  .vorschlag + .vorschlag { border-top: 1px solid var(--se-line-soft); }
+  .suggestion + .suggestion { border-top: 1px solid var(--se-line-soft); }
 
-  .vorschlag-anzeige { overflow: hidden; text-overflow: ellipsis; }
+  .suggestion-display { overflow: hidden; text-overflow: ellipsis; }
 
-  .vorschlag-wert {
+  .suggestion-value {
     flex: none;
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
   }
 
-  .vorschlag.marke { background: var(--se-accent-soft); }
+  .suggestion.marked { background: var(--se-accent-soft); }
 `

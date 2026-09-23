@@ -107,12 +107,12 @@ export interface BodyMeasure {
 
 export function bodyHeight(target: MessTarget): number {
   if (!target.hasAttribute('fills')) return WITHOUT_BODY
-  const body = target.renderRoot.querySelector('.koerper')
+  const body = target.renderRoot.querySelector('.body')
   return body instanceof HTMLElement ? body.clientHeight : WITHOUT_BODY
 }
 
 export function headHeight(target: MessTarget): number {
-  const head = target.renderRoot.querySelector('.kopf')
+  const head = target.renderRoot.querySelector('.head')
   return head instanceof HTMLElement ? head.offsetHeight : 0
 }
 
@@ -125,7 +125,7 @@ export function measuredMetrics(target: MessTarget, tick: number): BodyMeasure {
 
 export function observeBody(target: MessTarget, onChange: () => void): ResizeObserver | null {
   if (typeof ResizeObserver === 'undefined') return null
-  const body = target.renderRoot.querySelector('.koerper')
+  const body = target.renderRoot.querySelector('.body')
   if (!body) return null
   const observers = new ResizeObserver(onChange)
   observers.observe(body)

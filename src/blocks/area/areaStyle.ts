@@ -4,7 +4,7 @@ import { gridAreaCss } from '../../core/block/grid'
 export const areaStyle = css`
   :host { display: block; height: 100%; }
 
-  .rumpf {
+  .body {
     box-sizing: border-box;
     height: 100%;
     min-height: 0;
@@ -21,5 +21,5 @@ export const areaStyle = css`
     ${unsafeCSS(gridAreaCss())};
   }
 
-  .rumpf slot { display: contents; }
+  .body slot { display: contents; }
 `

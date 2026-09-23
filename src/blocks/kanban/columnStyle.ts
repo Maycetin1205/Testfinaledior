@@ -7,7 +7,7 @@ export const columnStyle = css`
     min-height: 100%;
   }
 
-  .spalte {
+  .column {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -19,7 +19,7 @@ export const columnStyle = css`
     font-family: var(--se-font);
   }
 
-  .kopf {
+  .head {
     flex: none;
     display: flex;
     align-items: center;
@@ -27,14 +27,14 @@ export const columnStyle = css`
     padding: 10px 12px;
   }
 
-  .punkt {
+  .dot {
     flex: none;
     width: 8px;
     height: 8px;
     background: var(--fw-stark);
   }
 
-  .titel {
+  .title {
     color: var(--se-ink);
     font-size: var(--se-fs);
     font-weight: 600;
@@ -44,7 +44,7 @@ export const columnStyle = css`
     text-overflow: ellipsis;
   }
 
-  .anzahl {
+  .count {
     margin-left: auto;
     min-width: 22px;
     padding: 1px 8px;
@@ -59,7 +59,7 @@ export const columnStyle = css`
     color: var(--se-ink);
   }
 
-  .rumpf {
+  .body {
     padding: 0 10px 12px;
     display: flex;
     flex-direction: column;

@@ -65,18 +65,18 @@ export class DialogFrame extends LitElement {
       position: fixed;
       z-index: 2147483646;
     }
-    .abdunklung,
-    .buehne {
+    .scrim,
+    .stage {
       position: absolute;
       top: 0; right: 0; bottom: 0; left: 0;
     }
-    .abdunklung { background: var(--se-scrim); }
-    .buehne {
+    .scrim { background: var(--se-scrim); }
+    .stage {
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .fenster {
+    .window {
       position: relative;
       display: flex;
       flex-direction: column;
@@ -88,7 +88,7 @@ export class DialogFrame extends LitElement {
       border: var(--se-border) solid var(--se-line);
       border-radius: var(--se-r-lg);
     }
-    .kopf {
+    .head {
       flex: none;
       display: flex;
       align-items: center;
@@ -97,7 +97,7 @@ export class DialogFrame extends LitElement {
       background: var(--se-panel-2);
       border-bottom: var(--se-border) solid var(--se-line-soft);
     }
-    .titel {
+    .title {
       flex: 1;
       min-width: 0;
       overflow: hidden;
@@ -108,7 +108,7 @@ export class DialogFrame extends LitElement {
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .schliessen {
+    .close {
       flex: none;
       display: grid;
       place-items: center;
@@ -124,24 +124,24 @@ export class DialogFrame extends LitElement {
       line-height: 1;
       cursor: pointer;
     }
-    .schliessen:hover {
+    .close:hover {
       background: var(--se-line-soft);
       color: var(--se-ink);
     }
-    .inhalt {
+    .content {
       flex: 1 1 auto;
       min-height: 0;
       overflow: hidden;
     }
 
-    .anfasser {
+    .handle {
       position: absolute;
       border-radius: 4px;
       background: var(--se-accent);
       touch-action: none;
       z-index: 2;
     }
-    .anfasser.breit {
+    .handle.width {
       top: 50%;
       right: -3px;
       width: 7px;
@@ -149,7 +149,7 @@ export class DialogFrame extends LitElement {
       transform: translateY(-50%);
       cursor: ew-resize;
     }
-    .anfasser.hoch {
+    .handle.height {
       left: 50%;
       bottom: -3px;
       width: 26px;
@@ -259,33 +259,33 @@ export class DialogFrame extends LitElement {
     const width = pixel(this.width, WINDOW_WIDTH)
     const height = pixel(this.height, WINDOW_HEIGHT)
     return html`
-      <div class="abdunklung"></div>
-      <div class="buehne">
+      <div class="scrim"></div>
+      <div class="stage">
         <section
-          class="fenster"
+          class="window"
           role="dialog"
-          aria-labelledby="dialog-titel"
+          aria-labelledby="dialog-title"
           style="width:${width}px;height:${height}px"
         >
-          <header class="kopf">
-            <div class="titel" id="dialog-titel"><slot name="title">${this.heading}</slot></div>
+          <header class="head">
+            <div class="title" id="dialog-title"><slot name="title">${this.heading}</slot></div>
             <button
-              class="schliessen"
+              class="close"
               type="button"
               aria-label="Schließen"
               title="Schließen"
               @click=${this.close}
             >✕</button>
           </header>
-          <div class="inhalt"><slot></slot></div>
+          <div class="content"><slot></slot></div>
           ${this.movable ? html`
             <div
-              class="anfasser breit"
+              class="handle width"
               @pointerdown=${(e: PointerEvent) => this.drag(e, 'width')}
               @dblclick=${(e: Event) => this.onStandard(e, 'width')}
             ></div>
             <div
-              class="anfasser hoch"
+              class="handle height"
               @pointerdown=${(e: PointerEvent) => this.drag(e, 'height')}
               @dblclick=${(e: Event) => this.onStandard(e, 'height')}
             ></div>

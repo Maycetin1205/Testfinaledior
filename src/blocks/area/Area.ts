@@ -9,7 +9,7 @@ export class Area extends BlockElement {
   static override styles: CSSResultGroup = [BlockElement.styles, areaStyle]
 
   override render(): TemplateResult {
-    return html`<div class="rumpf"><slot></slot></div>`
+    return html`<div class="body"><slot></slot></div>`
   }
 }
 

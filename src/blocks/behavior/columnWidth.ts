@@ -91,7 +91,7 @@ export function widthsHandles(
   host: WidthsHost,
 ): TemplateResult[] {
   return Array.from({ length: Math.max(0, columnsCount - 1) }, (_, i) => html`<span
-    class="breite-griff"
+    class="width-handle"
     role="presentation"
     style="grid-row: 1; grid-column: ${i + 1}"
     @pointerdown=${(e: PointerEvent) => startDrag(e, i, host)}

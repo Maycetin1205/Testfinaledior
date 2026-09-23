@@ -233,7 +233,7 @@ let openFor: HTMLElement | null = null
 let backFocus: HTMLElement | (() => void) | null = null
 
 function magnifierOf(el: HTMLElement): HTMLElement | null {
-  return el.shadowRoot?.querySelector<HTMLElement>('.lupe') ?? null
+  return el.shadowRoot?.querySelector<HTMLElement>('.magnifier') ?? null
 }
 
 function close(withFocus = true): void {

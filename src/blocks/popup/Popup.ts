@@ -54,11 +54,11 @@ export class Popup extends BlockElement {
       >
         <span
           slot="title"
-          class="titel"
+          class="title"
           data-ff-editable
           @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'name')}
         >${this.name}</span>
-        <div class="rumpf"><slot></slot></div>
+        <div class="body"><slot></slot></div>
       </ff-dialog>`
   }
 }

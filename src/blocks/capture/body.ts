@@ -17,14 +17,14 @@ function typingCellTpl(
 ): TemplateResult {
   const value = ledger.cellValue(rawIndex, slot)
   return html`<div
-    class=${asNumber(value) !== null ? 'tippbar zahl' : 'typable'}
+    class=${asNumber(value) !== null ? 'typable number' : 'typable'}
     role="cell"
   >${inputSpotTpl({
     value,
     title: column.title,
     placeholder: '',
     klasse: cellsClass(ledger.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
-    holderClass: 'zell-halter',
+    holderClass: 'cell-holder',
     slot,
     suggestions: [],
     mark: 0,
@@ -48,7 +48,7 @@ export function deletableProperty(): Property<boolean> {
 
 function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateResult {
   return html`<button
-    class="zeile-weg"
+    class="row-remove"
     type="button"
     title=${deleted ? 'Löschen zurücknehmen' : 'Diese Position zum Löschen vormerken'}
     aria-label=${deleted ? 'Löschen zurücknehmen' : 'Position zum Löschen vormerken'}
@@ -57,7 +57,7 @@ function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateResult {
 }
 
 function crossDisplayTpl(): TemplateResult {
-  return html`<span class="zeile-weg zeile-weg-anzeige">&#x2715;</span>`
+  return html`<span class="row-remove row-remove-static">&#x2715;</span>`
 }
 
 export interface CapturedPlacement {
@@ -89,7 +89,7 @@ export function capturedRowsTpl(placement: CapturedPlacement, tun: CapturedAct):
 
     const fixed = icon.status === 'written'
     return html`${rowsIndex === placement.correctionSlot ? placement.capture : nothing}<div
-      class="zeile erfasst"
+      class="row captured"
       role="row"
       data-status=${icon.status}
       style=${styleMap(placement.cols)}
@@ -100,7 +100,7 @@ export function capturedRowsTpl(placement: CapturedPlacement, tun: CapturedAct):
         return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell">${value}</div>`
       })}
       ${placement.inEditor ? nothing : html`<button
-          class="zeile-weg"
+          class="row-remove"
           type="button"
           title=${fixed ? 'Aus der Ansicht nehmen' : 'Diese erfasste Zeile wieder wegnehmen'}
           aria-label="Erfasste Zeile wegnehmen"

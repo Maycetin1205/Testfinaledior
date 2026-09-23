@@ -1,7 +1,7 @@
 import { css } from 'lit'
 
 export const cardsStyle = css`
-  .karte {
+  .card {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -13,14 +13,14 @@ export const cardsStyle = css`
     transition: border-color var(--se-move);
   }
 
-  .karte:hover { border-color: var(--se-faint); }
+  .card:hover { border-color: var(--se-faint); }
 
-  :host([data-ff-selection]) .karte {
+  :host([data-ff-selection]) .card {
     border-color: var(--se-accent);
     background: var(--se-accent-soft);
   }
 
-  :host([data-ff-dragging]) .karte {
+  :host([data-ff-dragging]) .card {
     opacity: 0.45;
   }
 
@@ -42,7 +42,7 @@ export const cardsStyle = css`
     font-size: var(--se-fs-sm);
   }
 
-  .base {
+  .text {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -53,13 +53,13 @@ export const cardsStyle = css`
     line-height: 1.45;
   }
 
-  .fuss {
+  .foot {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: 10px;
   }
-  .fussl {
+  .foot-title {
     min-width: 0;
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
