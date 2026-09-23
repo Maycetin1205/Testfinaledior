@@ -258,17 +258,6 @@ function stepFields(raw: unknown): RuntimeStep | null {
   return null
 }
 
-export function withoutOldParameterKey(raw: unknown): unknown {
-  if (Array.isArray(raw)) return raw.map(withoutOldParameterKey)
-  if (!isSeObject(raw)) return raw
-  const out: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(raw)) {
-    if (key === 'value' && 'value' in raw) continue
-    out[key] = withoutOldParameterKey(value)
-  }
-  return out
-}
-
 export function chainsClean(
   raw: unknown,
   allowedEvents: readonly string[],

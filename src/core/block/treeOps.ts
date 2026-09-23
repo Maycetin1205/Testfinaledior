@@ -5,7 +5,7 @@ import {
   type MaskTree,
 } from './tree'
 import { blockType } from './registry'
-import { readValues, type PropertyValue, type ValueProblem } from './property'
+import { readValues, type PropertyValue } from './property'
 
 function createRootNode(): BlockNode {
   return { id: ROOT_ID, type: ROOT_TYPE, values: {}, parentId: null, childIds: [] }
@@ -16,13 +16,13 @@ export function emptyTree(): MaskTree {
 }
 
 // Reads a stored bag of values against the block's declaration. What does not
-// fit falls back to the default and is reported, so nothing fails silently.
+// fit falls back to the default.
 export function valuesClean(
   type: string,
   rawProps: Readonly<Record<string, unknown>>,
-): { values: Record<string, PropertyValue>; problems: ValueProblem[] } {
+): Record<string, PropertyValue> {
   const def = blockType(type)
-  if (!def) return { values: {}, problems: [] }
+  if (!def) return {}
   return readValues(def.properties, rawProps)
 }
 

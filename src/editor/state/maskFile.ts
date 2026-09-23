@@ -1,18 +1,9 @@
-import { ROOT_ID, type MaskTree } from '../../core/block/tree'
+import type { MaskTree } from '../../core/block/tree'
 import { checkDataSources, type DataSource } from '../../core/data/dataSources'
-import {
-  AREA_SOURCES,
-  AREA_RELATION,
-  type LoadProblem,
-} from '../../core/data/loadProblem'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { collectDataSources } from '../../export/usedSources'
 import { collectRelation } from '../../export/usedRelations'
 import { writeFile } from './fileOnDisk'
-import {
-  LIBRARY_FILE_KIND,
-  libraryCheck,
-} from './libraryFile'
 import type { EditorStore } from './EditorStore'
 import { checkTreeState } from './loadCheck'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
@@ -22,8 +13,6 @@ const MASK_FILE_KIND = 'aufbau-editor-maske'
 // Version 3 keeps only the keys of the data sources and relations the mask
 // uses; the sources themselves live in the customer file.
 const MASK_FILE_VERSION = 3
-
-const READABLE_FILE_VERSIONS = [2, 3]
 
 export interface MaskContent {
   tree: MaskTree
@@ -38,13 +27,7 @@ export interface MaskContent {
 
 export type UnpackResult =
   | { ok: true; content: MaskContent }
-  | { ok: false; base: string; problems: readonly LoadProblem[] }
-
-function damagedRecord(problems: readonly LoadProblem[]): string {
-  const first = problems[0]?.base ?? 'der Masken-Aufbau ist unlesbar'
-  return `Die Datei ist beschädigt: ${first}. Sie wird nicht geladen, damit `
-    + 'nicht unbemerkt Teile deiner Maske verlorengehen.'
-}
+  | { ok: false }
 
 export function usedSourceIds(
   tree: MaskTree,
@@ -101,12 +84,8 @@ export function packMaskFrom(text: string): UnpackResult {
   try {
     return unpack(text)
   } catch {
-    return rejected('Die Datei konnte nicht verarbeitet werden — sie ist vermutlich beschädigt.')
+    return { ok: false }
   }
-}
-
-function rejected(base: string): UnpackResult {
-  return { ok: false, base, problems: [] }
 }
 
 function keysOf(raw: unknown): string[] {
@@ -119,88 +98,28 @@ function unpack(text: string): UnpackResult {
   try {
     raw = JSON.parse(text)
   } catch {
-    return rejected('Die Datei ist keine gültige JSON-Datei und konnte nicht gelesen werden.')
+    return { ok: false }
   }
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    return rejected('Die Datei enthält keine Maske.')
-  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false }
   const o = liftState(raw) as Record<string, unknown>
 
-  if (o.kind === LIBRARY_FILE_KIND) {
-    return rejected(
-      'Das ist eine Kundendatei (nur Datenquellen und Relationen, ohne '
-      + 'Bausteine). Sie wird im Datencenter über „Bibliothek laden…" geladen.',
-    )
-  }
-  if (o.kind !== MASK_FILE_KIND) {
-    return rejected(
-      'Das ist keine Maskendatei des Aufbau-Editors. (Die exportierten '
-      + 'SoftEngine-Dateien lassen sich nicht wieder laden — dafür ist die '
-      + 'gespeicherte Maskendatei da.)',
-    )
-  }
-
-  const fileVersion = typeof o.fileVersion === 'number' ? o.fileVersion : 0
-  if (fileVersion > MASK_FILE_VERSION) {
-    return rejected(
-      'Diese Datei stammt aus einer neueren Version des Editors und kann hier '
-      + 'nicht geladen werden.',
-    )
-  }
-  if (!READABLE_FILE_VERSIONS.includes(fileVersion)) {
-    return rejected('Dieses Maskendateiformat wird nicht unterstützt.')
-  }
-
-  if (typeof o.schemaVersion !== 'number') {
-    return rejected('Die Datei ist beschädigt: die Versionsangabe des Aufbaus fehlt.')
-  }
-  const schemaVersion = o.schemaVersion
-
-  if (!o.tree || typeof o.tree !== 'object' || Array.isArray(o.tree)) {
-    return rejected('Die Datei enthält keinen lesbaren Masken-Aufbau.')
-  }
-  const root = (o.tree as Record<string, unknown>)[ROOT_ID]
-  if (!root || typeof root !== 'object' || Array.isArray(root)
-    || !Array.isArray((root as Record<string, unknown>).childIds)) {
-    return rejected('Die Datei enthält keinen lesbaren Masken-Aufbau.')
-  }
-
-  const state = checkTreeState({ schemaVersion, tree: o.tree })
-  if (state.kind === 'rejected') {
-    if (state.cause === 'version') {
-      return {
-        ok: false,
-        base: 'Dieses Maskenformat wird nicht unterstützt. Die Datei wurde nicht verändert.',
-        problems: state.problems,
-      }
-    }
-    if (state.cause === 'unreadable') {
-      return rejected('Die Datei enthält keinen lesbaren Masken-Aufbau.')
-    }
-
-    return { ok: false, base: damagedRecord(state.problems), problems: state.problems }
-  }
-  const tree = state.tree
+  const state = checkTreeState({ tree: o.tree })
+  if (state === null) return { ok: false }
 
   // Only an older file carries its sources; they move into the customer file.
+  const fileVersion = typeof o.fileVersion === 'number' ? o.fileVersion : 0
   const embedded = fileVersion < MASK_FILE_VERSION
-  const sources = embedded
-    ? libraryCheck(o.dataSources, checkDataSources, AREA_SOURCES)
-    : { ok: true as const, list: [] }
-  if (!sources.ok) return { ok: false, base: sources.base, problems: sources.problems }
-  const relation = embedded
-    ? libraryCheck(o.relation, checkRelationTemplates, AREA_RELATION)
-    : { ok: true as const, list: [] }
-  if (!relation.ok) return { ok: false, base: relation.base, problems: relation.problems }
+  const sources = embedded ? checkDataSources(o.dataSources) : []
+  const relation = embedded ? checkRelationTemplates(o.relation) : []
 
   return {
     ok: true,
     content: {
-      tree: tree.tree,
-      dataSources: sources.list,
-      relation: relation.list,
-      sourceIds: embedded ? sources.list.map((s) => s.id) : keysOf(o.sourceIds),
-      relationIds: embedded ? relation.list.map((r) => r.id) : keysOf(o.relationIds),
+      tree: state.tree,
+      dataSources: sources,
+      relation,
+      sourceIds: embedded ? sources.map((s) => s.id) : keysOf(o.sourceIds),
+      relationIds: embedded ? relation.map((r) => r.id) : keysOf(o.relationIds),
     },
   }
 }

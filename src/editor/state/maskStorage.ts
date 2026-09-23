@@ -4,7 +4,7 @@ import type { DataSource } from '../../core/data/dataSources'
 import type { RelationTemplate } from '../../core/data/relations'
 import { packLibrary, packLibraryFrom } from './libraryFile'
 import { checkTreeState } from './loadCheck'
-import { CURRENT_SCHEMA_VERSION, liftState, schemaReadable } from './maskSchema'
+import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
 import { makeCopyOn } from './backup'
 
 // One key for the mask, one for the customer file. Nothing is matched up
@@ -83,8 +83,6 @@ export function libraryInMask(raw: string): StoredLibrary {
   const state = liftState(parsed) as Record<string, unknown>
   if (!Array.isArray(state.dataSources) && !Array.isArray(state.relation)) return empty
   const packed = packLibraryFrom(JSON.stringify({
-    kind: 'aufbau-editor-bibliothek',
-    fileVersion: 2,
     dataSources: state.dataSources ?? [],
     relation: state.relation ?? [],
   }))
@@ -102,17 +100,13 @@ export function readState(raw: string, storageKey: string): StoredMask | null {
   }
   try {
     const state = liftState(parsed) as Record<string, unknown>
-    if (!schemaReadable(state.schemaVersion)) {
-      makeCopyOn(storageKey, raw)
-      return null
-    }
-    const tree = checkTreeState({ schemaVersion: state.schemaVersion, tree: state.tree, selectedId: state.selectedId })
-    if (tree.kind === 'rejected') {
+    const tree = checkTreeState({ tree: state.tree, selectedId: state.selectedId })
+    if (tree === null) {
       makeCopyOn(storageKey, raw)
       return null
     }
     return {
-      ...tree.tree,
+      ...tree,
       activePageId: typeof state.activePageId === 'string' ? state.activePageId : ROOT_ID,
       sourceIds: keysOf(state.sourceIds),
       relationIds: keysOf(state.relationIds),

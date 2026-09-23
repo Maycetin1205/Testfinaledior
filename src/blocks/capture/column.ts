@@ -86,7 +86,7 @@ export function captureColumnsProperty(): Property<CaptureColumn[]> {
   return structuredProperty<CaptureColumn[]>({
     read: (raw) => (raw === undefined || Array.isArray(raw)
       ? { ok: true, value: coerceCaptureColumns(raw) }
-      : { ok: false, reason: 'Spaltenliste erwartet' }),
+      : { ok: false }),
     toAttribute: (value) => JSON.stringify(listForExport(value, CAPTURE_COLUMNS_BINDING)),
     fromAttribute: (raw) => (raw === null ? standardColumns() : tryCoerceCaptureColumns(raw)),
   }, {

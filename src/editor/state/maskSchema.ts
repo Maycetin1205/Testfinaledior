@@ -7,10 +7,6 @@ const ENGLISH_NAMES = 16
 
 const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17]
 
-export function schemaReadable(version: unknown): version is number {
-  return version === CURRENT_SCHEMA_VERSION
-}
-
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
@@ -469,38 +465,4 @@ function liftWithoutRooms(x: unknown): void {
       }
     }
   }
-}
-
-export const DROPPED_TYPES: readonly string[] = [
-  'navi', 'navi-eintrag', 'ansicht', 'view', 'kanban-room',
-]
-
-export function withoutDropped(
-  tree: Record<string, unknown>,
-): { tree: Record<string, unknown>; dropped: string[] } {
-  const away = new Set<string>()
-  const remember = (id: string): void => {
-    const node = tree[id]
-    if (!isPlainObject(node) || away.has(id)) return
-    away.add(id)
-    for (const child of Array.isArray(node.childIds) ? node.childIds : []) {
-      if (typeof child === 'string') remember(child)
-    }
-  }
-  const dropped: string[] = []
-  for (const [id, node] of Object.entries(tree)) {
-    if (isPlainObject(node) && typeof node.type === 'string' && DROPPED_TYPES.includes(node.type)) {
-      dropped.push(node.type)
-      remember(id)
-    }
-  }
-  if (away.size === 0) return { tree, dropped }
-  const out: Record<string, unknown> = {}
-  for (const [id, node] of Object.entries(tree)) {
-    if (away.has(id) || !isPlainObject(node)) continue
-    out[id] = Array.isArray(node.childIds)
-      ? { ...node, childIds: node.childIds.filter((k) => typeof k !== 'string' || !away.has(k)) }
-      : node
-  }
-  return { tree: out, dropped }
 }

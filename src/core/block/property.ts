@@ -3,7 +3,7 @@
 
 export type ReadResult<V> =
   | { ok: true; value: V }
-  | { ok: false; reason: string }
+  | { ok: false }
 
 export type ControlKind =
   | 'text'
@@ -144,7 +144,7 @@ const textType = (control: ControlKind, options?: readonly ChoiceOption[]): Prop
   control,
   read: (raw) => (typeof raw === 'string'
     ? { ok: true, value: raw }
-    : { ok: false, reason: `Text erwartet, ${typeof raw} gelesen` }),
+    : { ok: false }),
   toAttribute: (value) => value,
   fromAttribute: (raw, fallback) => (raw === null ? fallback : raw),
   ...(options ? { options } : {}),
@@ -197,7 +197,7 @@ export function numberProperty(
     control: 'number',
     read: (raw) => (typeof raw === 'number' && Number.isFinite(raw)
       ? { ok: true, value: raw }
-      : { ok: false, reason: `Zahl erwartet, ${JSON.stringify(raw)} gelesen` }),
+      : { ok: false }),
     toAttribute: (value) => String(value),
     fromAttribute: (raw, fallback) => {
       if (raw === null) return fallback
@@ -219,7 +219,7 @@ export function booleanProperty(init: Init<boolean>): Property<boolean> {
     control: 'boolean',
     read: (raw) => (typeof raw === 'boolean'
       ? { ok: true, value: raw }
-      : { ok: false, reason: `Ja/Nein erwartet, ${JSON.stringify(raw)} gelesen` }),
+      : { ok: false }),
     toAttribute: (value) => (value ? 'true' : 'false'),
     fromAttribute: (raw, fallback) => (raw === null ? fallback : raw === 'true'),
   }
@@ -242,33 +242,22 @@ export function defaultsOf(properties: PropertyMap): Record<string, PropertyValu
   return out
 }
 
-export interface ValueProblem {
-  property: string
-  reason: string
-}
-
 // Reads a stored bag of values against the declaration. Unknown names fall
-// away, wrong shapes fall back to the default and are reported.
+// away, wrong shapes fall back to the default.
 export function readValues(
   properties: PropertyMap,
   raw: Readonly<Record<string, unknown>>,
-): { values: Record<string, PropertyValue>; problems: ValueProblem[] } {
+): Record<string, PropertyValue> {
   const values: Record<string, PropertyValue> = {}
-  const problems: ValueProblem[] = []
   for (const [name, property] of Object.entries(properties)) {
     if (!Object.prototype.hasOwnProperty.call(raw, name)) {
       values[name] = property.default as PropertyValue
       continue
     }
     const result = property.type.read(raw[name])
-    if (result.ok) {
-      values[name] = result.value as PropertyValue
-    } else {
-      values[name] = property.default as PropertyValue
-      problems.push({ property: name, reason: result.reason })
-    }
+    values[name] = result.ok ? (result.value as PropertyValue) : (property.default as PropertyValue)
   }
-  return { values, problems }
+  return values
 }
 
 // The typed view a block folder has on its own values.

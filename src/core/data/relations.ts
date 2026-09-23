@@ -1,5 +1,3 @@
-import type { EntryProblem } from './loadProblem'
-
 export type RelationVerb = 'GET_RELATION' | 'PUT_RELATION' | 'PUTADD_RELATION'
 
 export const RELATION_VERBS: readonly RelationVerb[] = [
@@ -121,51 +119,19 @@ export function unknownPlaceholder(
   return acc
 }
 
-export function checkRelationTemplates(
-  raw: unknown,
-): { list: RelationTemplate[]; problems: EntryProblem[] } {
-  const problems: EntryProblem[] = []
-  if (!Array.isArray(raw)) return { list: [], problems }
+export function checkRelationTemplates(raw: unknown): RelationTemplate[] {
+  if (!Array.isArray(raw)) return []
   const acc: RelationTemplate[] = []
   const seen = new Set<string>()
-  let nr = 0
   for (const entry of raw) {
-    nr++
-    const spot = entry && typeof entry === 'object'
-      && typeof (entry as Record<string, unknown>).id === 'string'
-      && (entry as Record<string, unknown>).id !== ''
-      ? (entry as Record<string, unknown>).id as string
-      : `Eintrag ${nr}`
-    const away = (base: string): void => { problems.push({ spot, base }) }
-    if (!entry || typeof entry !== 'object') {
-      away('die Relations-Vorlage ist unlesbar')
-      continue
-    }
+    if (!entry || typeof entry !== 'object') continue
     const e = entry as Record<string, unknown>
-    if (typeof e.id !== 'string' || e.id === '') {
-      away('der Vorlage fehlt ihre Kennung')
-      continue
-    }
-    if (seen.has(e.id)) {
-      away('diese Kennung kommt zweimal vor')
-      continue
-    }
-    if (typeof e.name !== 'string' || e.name.trim() === '') {
-      away('der Klarname fehlt')
-      continue
-    }
-    if (typeof e.verb !== 'string' || !RELATION_VERBS.includes(e.verb as RelationVerb)) {
-      away('die Art des Aufrufs (GET/PUT/PUTADD) fehlt oder ist unbekannt')
-      continue
-    }
-    if (typeof e.nr !== 'string' || e.nr.trim() === '') {
-      away('die Relations-Nummer fehlt')
-      continue
-    }
-    if (!Array.isArray(e.parameter) || e.parameter.some((p) => typeof p !== 'string')) {
-      away('die Parameter-Syntax ist unbrauchbar')
-      continue
-    }
+    if (typeof e.id !== 'string' || e.id === '') continue
+    if (seen.has(e.id)) continue
+    if (typeof e.name !== 'string' || e.name.trim() === '') continue
+    if (typeof e.verb !== 'string' || !RELATION_VERBS.includes(e.verb as RelationVerb)) continue
+    if (typeof e.nr !== 'string' || e.nr.trim() === '') continue
+    if (!Array.isArray(e.parameter) || e.parameter.some((p) => typeof p !== 'string')) continue
     seen.add(e.id)
     acc.push({
       id: e.id,
@@ -176,5 +142,5 @@ export function checkRelationTemplates(
       extraParameterAllowed: e.extraParameterAllowed === true,
     })
   }
-  return { list: acc, problems }
+  return acc
 }

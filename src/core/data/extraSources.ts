@@ -27,7 +27,7 @@ export const EXTRA_SOURCES_PROP = 'extraSources'
 export const extraSourcesProperty: Property<ExtraSource[]> = structuredProperty<ExtraSource[]>({
   read: (raw) => (raw === undefined || Array.isArray(raw)
     ? { ok: true, value: extraSourcesFrom(raw) }
-    : { ok: false, reason: 'Liste weiterer Quellen erwartet' }),
+    : { ok: false }),
   toAttribute: (value) => JSON.stringify(value),
   fromAttribute: (raw, fallback) => (raw === null ? fallback : extraSourcesFrom(safeParse(raw))),
 }, {

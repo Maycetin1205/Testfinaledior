@@ -99,7 +99,7 @@ export const formFieldProperties = {
   lookupColumns: structuredProperty<Column[]>({
     read: (raw) => (raw === undefined || Array.isArray(raw)
       ? { ok: true, value: coerceLookupColumns(raw) }
-      : { ok: false, reason: 'Spaltenliste erwartet' }),
+      : { ok: false }),
     toAttribute: (value) => JSON.stringify(value),
     fromAttribute: (raw) => coerceLookupColumns(raw ?? ''),
   }, {

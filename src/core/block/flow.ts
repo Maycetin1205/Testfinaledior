@@ -22,7 +22,7 @@ export const ROOT_FLOW = { gap: 12, padding: 16 } as const
 export const widthProperty: Property<FlowWidth> = structuredProperty<FlowWidth>({
   read: (raw) => (typeof raw === 'string' || typeof raw === 'number'
     ? { ok: true, value: flowWidthRead(raw) }
-    : { ok: false, reason: 'Breite erwartet' }),
+    : { ok: false }),
   toAttribute: (value) => String(value),
   fromAttribute: (raw, fallback) => (raw === null ? fallback : flowWidthRead(raw)),
 }, { default: 'auto', label: 'Breite', help: 'Wie breit der Baustein im Fluss liegt.', place: 'none' })

@@ -231,7 +231,7 @@ export function columnsProperty(): Property<Column[]> {
   return structuredProperty<Column[]>({
     read: (raw) => (raw === undefined || Array.isArray(raw)
       ? { ok: true, value: coerceColumns(raw) }
-      : { ok: false, reason: 'Spaltenliste erwartet' }),
+      : { ok: false }),
     toAttribute: (value) => JSON.stringify(listForExport(value, COLUMNS_BINDING)),
     fromAttribute: (raw) => (raw === null ? standardColumns() : tryCoerceColumns(raw)),
   }, {

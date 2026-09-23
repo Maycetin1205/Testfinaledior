@@ -1,6 +1,5 @@
 import { SOURCES_DIVIDER, splitBinding } from '../block/blockType'
 import { getValueOf, checkGetValue, type GetValue } from './getValue'
-import type { EntryProblem } from './loadProblem'
 import { loadRelationOf, POS_LEN, checkLoadRelation, type LoadRelation } from './fetchRelation'
 import {
   sourceKind,
@@ -194,86 +193,29 @@ export function varFromHeaderKeys(
   return [...perId].map(([ID, fields]) => ({ ID, FELDER: fields.join(',') }))
 }
 
-export function checkDataSources(
-  raw: unknown,
-): { list: DataSource[]; problems: EntryProblem[] } {
-  const problems: EntryProblem[] = []
-  if (!Array.isArray(raw)) return { list: [], problems }
+export function checkDataSources(raw: unknown): DataSource[] {
+  if (!Array.isArray(raw)) return []
   const acc: DataSource[] = []
   const seen = new Set<string>()
-  let nr = 0
   for (const entry of raw) {
-    nr++
-
-    const spot = entry && typeof entry === 'object'
-      && typeof (entry as Record<string, unknown>).id === 'string'
-      && (entry as Record<string, unknown>).id !== ''
-      ? (entry as Record<string, unknown>).id as string
-      : `Eintrag ${nr}`
-    const away = (base: string): void => { problems.push({ spot, base }) }
-    if (!entry || typeof entry !== 'object') {
-      away('die Datenquelle ist unlesbar')
-      continue
-    }
+    if (!entry || typeof entry !== 'object') continue
     const e = entry as Record<string, unknown>
-    if (typeof e.id !== 'string' || e.id === '') {
-      away('der Datenquelle fehlt ihre Kennung')
-      continue
-    }
-    if (seen.has(e.id)) {
-      away('diese Kennung kommt zweimal vor')
-      continue
-    }
-
-    if (e.id.includes(SOURCES_DIVIDER)) {
-      away(`die Kennung enthält „${SOURCES_DIVIDER}" und wäre damit mehrdeutig`)
-      continue
-    }
-    if (typeof e.name !== 'string' || e.name.trim() === '') {
-      away('der Klarname fehlt')
-      continue
-    }
-    if (typeof e.kind !== 'string' || !SOURCE_KIND_IDS.includes(e.kind as SourceKindId)) {
-      away('die Art der Datenquelle fehlt oder ist unbekannt')
-      continue
-    }
-
+    if (typeof e.id !== 'string' || e.id === '') continue
+    if (seen.has(e.id)) continue
+    if (e.id.includes(SOURCES_DIVIDER)) continue
+    if (typeof e.name !== 'string' || e.name.trim() === '') continue
+    if (typeof e.kind !== 'string' || !SOURCE_KIND_IDS.includes(e.kind as SourceKindId)) continue
     if (tableKeyNeeded(sourceKind(e.kind as SourceKindId))
-      && (typeof e.idbId !== 'string' || e.idbId.trim() === '')) {
-      away('die Tabellen-Kennung fehlt (z. B. IDB0001)')
-      continue
-    }
-
+      && (typeof e.idbId !== 'string' || e.idbId.trim() === '')) continue
     if (sourceKind(e.kind as SourceKindId).areaNeeded
-      && (typeof e.area !== 'string' || e.area.trim() === '')) {
-      away('der Bereich der ERP-Maske fehlt (z. B. BEL)')
-      continue
-    }
+      && (typeof e.area !== 'string' || e.area.trim() === '')) continue
     const fields: DataField[] = []
-    let fieldNr = 0
     for (const f of Array.isArray(e.fields) ? e.fields : []) {
-      fieldNr++
-      const fieldAway = (base: string): void => {
-        problems.push({ spot: `${spot} · Feld ${fieldNr}`, base })
-      }
-      if (!f || typeof f !== 'object') {
-        fieldAway('das Feld ist unlesbar')
-        continue
-      }
+      if (!f || typeof f !== 'object') continue
       const ff = f as Record<string, unknown>
-      if (typeof ff.code !== 'string' || ff.code === '') {
-        fieldAway('dem Feld fehlt sein Feldcode')
-        continue
-      }
-
-      if (ff.code.includes(SOURCES_DIVIDER)) {
-        fieldAway(`der Feldcode enthält „${SOURCES_DIVIDER}" und wäre damit mehrdeutig`)
-        continue
-      }
-      if (typeof ff.name !== 'string' || ff.name === '') {
-        fieldAway('dem Feld fehlt sein Klarname')
-        continue
-      }
+      if (typeof ff.code !== 'string' || ff.code === '') continue
+      if (ff.code.includes(SOURCES_DIVIDER)) continue
+      if (typeof ff.name !== 'string' || ff.name === '') continue
 
       const icon = typeof ff.icon === 'number' && Number.isFinite(ff.icon)
         && ff.icon >= 1
@@ -287,13 +229,7 @@ export function checkDataSources(
     }
 
     const loadRelation = e.loadRelation === undefined ? null : checkLoadRelation(e.loadRelation)
-    if (e.loadRelation !== undefined && loadRelation === null) {
-      problems.push({ spot, base: 'die Hol-Relation ist unvollständig und wurde verworfen' })
-    }
     const getValue = e.getValue === undefined ? null : checkGetValue(e.getValue)
-    if (e.getValue !== undefined && getValue === null) {
-      problems.push({ spot, base: 'die Wert-Relation ist unvollständig und wurde verworfen' })
-    }
     seen.add(e.id)
     acc.push({
       id: e.id,
@@ -316,5 +252,5 @@ export function checkDataSources(
       fields: fields,
     })
   }
-  return { list: acc, problems }
+  return acc
 }

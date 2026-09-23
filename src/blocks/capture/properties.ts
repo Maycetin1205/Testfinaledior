@@ -19,7 +19,7 @@ export const captureProperties = {
   calculations: structuredProperty<Calculation[]>({
     read: (raw) => (raw === undefined || Array.isArray(raw)
       ? { ok: true, value: calculationsFrom(raw) }
-      : { ok: false, reason: 'Liste von Berechnungen erwartet' }),
+      : { ok: false }),
     toAttribute: (value) => JSON.stringify(calculationsForExport(value)),
     fromAttribute: (raw) => {
       if (raw === null) return []

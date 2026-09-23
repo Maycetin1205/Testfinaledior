@@ -1,15 +1,7 @@
 import { checkDataSources, type DataSource } from '../../core/data/dataSources'
-import {
-  AREA_SOURCES,
-  AREA_RELATION,
-  withArea,
-  type EntryProblem,
-  type LoadProblem,
-} from '../../core/data/loadProblem'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
-import { firstDeviation, noLoss } from './loadCheck'
 import { liftKey, liftLibraries } from './maskSchema'
 
 export const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
@@ -23,34 +15,7 @@ export interface LibraryContent {
 
 export type LibraryResult =
   | { ok: true; content: LibraryContent }
-  | { ok: false; base: string; problems: readonly LoadProblem[] }
-
-export function libraryCheck<T>(
-  raw: unknown,
-  check: (raw: unknown) => { list: T[]; problems: EntryProblem[] },
-  plainName: string,
-): { ok: true; list: T[] } | { ok: false; base: string; problems: LoadProblem[] } {
-  if (!Array.isArray(raw)) {
-    return {
-      ok: false,
-      base: `Die Datei ist beschädigt: der Abschnitt „${plainName}" fehlt oder ist unlesbar.`,
-      problems: [{ area: plainName, spot: '', base: 'der Abschnitt fehlt oder ist unlesbar' }],
-    }
-  }
-  const { list, problems } = check(raw)
-  if (!noLoss(raw, list)) {
-    const spot = firstDeviation(raw, list)
-    return {
-      ok: false,
-      base: `Die Datei ist beschädigt: im Abschnitt „${plainName}" stimmt eine Angabe nicht: `
-        + `${spot}. Sie wird nicht geladen, damit nicht unbemerkt Teile deiner Maske verlorengehen.`,
-      problems: problems.length > 0
-        ? withArea(plainName, problems)
-        : [{ area: plainName, spot: '', base: spot }],
-    }
-  }
-  return { ok: true, list }
-}
+  | { ok: false }
 
 export function packLibrary(content: LibraryContent): string {
   return JSON.stringify(
@@ -77,49 +42,24 @@ export function saveLibraryAsFile(editor: EditorStore): void {
   )
 }
 
-function rejected(base: string): LibraryResult {
-  return { ok: false, base, problems: [] }
-}
-
 export function packLibraryFrom(text: string): LibraryResult {
   let raw: unknown
   try {
     raw = JSON.parse(text)
   } catch {
-    return rejected('Die Datei ist keine gültige JSON-Datei und konnte nicht gelesen werden.')
+    return { ok: false }
   }
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    return rejected('Die Datei enthält keine Bibliothek.')
-  }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false }
   const o = liftKey(raw) as Record<string, unknown>
   liftLibraries(o)
 
-  if (o.kind !== LIBRARY_FILE_KIND) {
-    return rejected(
-      'Das ist keine Bibliotheksdatei des Aufbau-Editors. Eine ganze Maske lädt '
-      + '„Maske laden…" in den weiteren Aktionen.',
-    )
+  return {
+    ok: true,
+    content: {
+      dataSources: checkDataSources(o.dataSources),
+      relation: checkRelationTemplates(o.relation),
+    },
   }
-
-  const fileVersion = typeof o.fileVersion === 'number' ? o.fileVersion : 0
-  if (fileVersion > LIBRARY_FILE_VERSION) {
-    return rejected(
-      'Diese Datei stammt aus einer neueren Version des Editors und kann hier '
-      + 'nicht geladen werden.',
-    )
-  }
-  if (fileVersion < 1) {
-    return rejected('Die Datei ist beschädigt: die Formatangabe fehlt.')
-  }
-
-  const sources = libraryCheck(
-    o.dataSources, checkDataSources, AREA_SOURCES,
-  )
-  if (!sources.ok) return { ok: false, base: sources.base, problems: sources.problems }
-  const relation = libraryCheck(o.relation, checkRelationTemplates, AREA_RELATION)
-  if (!relation.ok) return { ok: false, base: relation.base, problems: relation.problems }
-
-  return { ok: true, content: { dataSources: sources.list, relation: relation.list } }
 }
 
 function stabil(value: unknown): string {

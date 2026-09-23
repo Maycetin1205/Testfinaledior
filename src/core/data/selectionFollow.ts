@@ -16,7 +16,7 @@ export const SELECTION_FOLLOW_PROP = 'followsSelection'
 export const followsSelectionProperty: Property<SelectionFollow[]> = structuredProperty<SelectionFollow[]>({
   read: (raw) => (raw === undefined || Array.isArray(raw)
     ? { ok: true, value: selectionFollowsFrom(raw) }
-    : { ok: false, reason: 'Liste von Auswahl-Folgen erwartet' }),
+    : { ok: false }),
   toAttribute: (value) => JSON.stringify(value),
   fromAttribute: (raw, fallback) => (raw === null ? fallback : selectionFollowsFrom(parseOrEmpty(raw))),
 }, {
