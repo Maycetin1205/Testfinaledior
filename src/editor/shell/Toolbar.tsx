@@ -21,15 +21,15 @@ import { ROOT_ID } from '../../core/block/tree'
 import { MASK_NAME_PROP, MASK_NAME_DEFAULT, maskNameOf } from '../../core/block/maskName'
 import { exportMask } from '../../export/exportMask'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
-import { downloadFile } from '../state/fileDownload'
+import { downloadFile } from '../state/downloadFile'
 import { loadMaskFromFile, saveMaskAsFile } from '../state/maskFile'
 import { useEditor } from '../state/useEditor'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { MenuRow } from '@/editor/widgets/MenuRow'
 import { Popover } from '@/editor/widgets/Popover'
-import { Divider } from '@/editor/widgets/Separator'
-import { useInputSession } from '../inspector/controls/editSession'
+import { Separator } from '@/editor/widgets/Separator'
+import { useInputSession } from '../inspector/controls/useInputSession'
 import { BackupsWindow } from './BackupsWindow'
 
 const MASK_NAMES = {
@@ -67,7 +67,7 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
         onFile={(file) => void loadMaskFromFile(ed, file)}
       />
 
-      <Divider vertical className="mx-1" />
+      <Separator vertical className="mx-1" />
 
       <Field
         value={maskName}

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Field } from '@/editor/widgets/Field'
 import { Group } from '@/editor/widgets/Group'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { Row } from '@/editor/widgets/Row'
 import {
   relationParameterDefault,
@@ -25,10 +25,10 @@ import {
 import { readMaskFields } from '../../core/data/maskFields'
 import { relationFitsToSearch } from '../../core/data/relations'
 import { useDataSources } from '../state/useDataSources'
-import { useRelation } from '../state/useRelations'
+import { useRelations } from '../state/useRelations'
 import { ParameterRow } from './ParameterRow'
 import type { ParameterChoices } from './parameter/choices'
-import { RelationSelection } from './RelationPicker'
+import { RelationPicker } from './RelationPicker'
 import { SelectControl } from '../inspector/controls/SelectControl'
 import { FieldList } from './FieldList'
 import { sourcesWording } from './wording'
@@ -87,7 +87,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
   const [showError, setShowError] = useState(false)
 
-  const relation = useRelation()
+  const relation = useRelations()
   const getTemplates = relation.list
   const [getRelationId, setGetRelationId] = useState(source?.getValue?.relationId ?? '')
   const [getParams, setGetParams] = useState<Parameter[]>(
@@ -409,7 +409,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
         {fetchesValue && (
           <>
-            <RelationSelection
+            <RelationPicker
               label="Relation"
               entries={visibleRelation}
               relationId={getRelationId}

@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { Row } from '@/editor/widgets/Row'
 import {
   relationSyntaxAsText,
   relationSyntaxRead,
   type RelationTemplate,
 } from '../../core/data/relations'
-import { useRelation } from '../state/useRelations'
+import { useRelations } from '../state/useRelations'
 import { FormCard } from './FormCard'
 
 interface RelationFormProps {
@@ -16,7 +16,7 @@ interface RelationFormProps {
 }
 
 export function RelationForm({ relation, onClose }: RelationFormProps) {
-  const store = useRelation()
+  const store = useRelations()
   const [name, setName] = useState(relation?.name ?? '')
   const [syntaxInput, setSyntaxInput] = useState(
     relation ? relationSyntaxAsText(relation) : '',

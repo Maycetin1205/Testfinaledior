@@ -1,6 +1,6 @@
 import { Link2, X } from '@/editor/icons/icon'
-import { Button } from '@/editor/widgets/PushButton'
-import { Mark } from '@/editor/widgets/Badge'
+import { Button } from '@/editor/widgets/Button'
+import { Badge } from '@/editor/widgets/Badge'
 import { PickerControl } from '../inspector/controls/PickerControl'
 import type { Parameter, ParameterSource } from '../../core/data/actions'
 import type { FieldAdoptTarget } from './fieldAdopt'
@@ -50,7 +50,7 @@ export function ParameterRow({
           )}
       {template === ''
         ? <span className="w-20 shrink-0" aria-hidden />
-        : <Mark className="w-20">{template}</Mark>}
+        : <Badge className="w-20">{template}</Badge>}
 
       <div className="min-w-0 flex-1">
         <PickerControl

@@ -11,7 +11,7 @@ import { loadRelationOf, sourcesKey } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { blockName } from '../../core/block/blockName'
-import { useSection } from './sectionState'
+import { useSection } from './useSection'
 import { PickerControl } from './controls/PickerControl'
 import { KeyPairRows } from './KeyPairRows'
 

@@ -5,7 +5,7 @@ import { collectDataSources } from '../../export/usedSources'
 import { collectRelation } from '../../export/usedRelations'
 import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
-import { checkTreeState } from './loadCheck'
+import { checkTreeState } from './checkTreeState'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
 
 const MASK_FILE_KIND = 'aufbau-editor-maske'

@@ -3,7 +3,7 @@ import { emptyTree } from '../../core/block/treeOps'
 import type { DataSource } from '../../core/data/dataSources'
 import type { RelationTemplate } from '../../core/data/relations'
 import { packLibrary, packLibraryFrom } from './libraryFile'
-import { checkTreeState } from './loadCheck'
+import { checkTreeState } from './checkTreeState'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
 import { makeCopyOn } from './backup'
 

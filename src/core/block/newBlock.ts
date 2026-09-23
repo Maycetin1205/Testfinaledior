@@ -7,7 +7,7 @@ import { deepClone } from '../deepClone'
 function createBlockNode(type: string, id?: string): BlockNode {
   const def = blockType(type)
   if (!def) {
-    throw new Error(`Unbekannter Block-Typ: "${type}". Vorher mit meldeBausteinArt anmelden.`)
+    throw new Error(`Unbekannter Block-Typ: "${type}". Vorher mit registerBlockType anmelden.`)
   }
   return {
     id: id ?? crypto.randomUUID(),

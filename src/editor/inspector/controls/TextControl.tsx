@@ -1,5 +1,5 @@
 import type { Property } from '../../../core/block/property'
-import { useInputSession } from './editSession'
+import { useInputSession } from './useInputSession'
 import { Field } from '@/editor/widgets/Field'
 import { Row } from '@/editor/widgets/Row'
 

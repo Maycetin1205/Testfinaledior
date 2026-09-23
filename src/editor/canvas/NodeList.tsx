@@ -16,7 +16,7 @@ import { BlockHost } from './BlockHost'
 import { isNewBlockDrag, newBlockDragType } from './dnd'
 import { commitDrop, useDnd } from './dndState'
 import { cn } from '@/editor/widgets/cn'
-import { dragPosition } from './gridMove'
+import { dragPosition } from './dragPosition'
 
 const CONTAINER_EDGE = 12
 

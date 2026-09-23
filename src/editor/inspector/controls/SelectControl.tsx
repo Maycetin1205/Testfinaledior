@@ -1,5 +1,5 @@
 import type { ChoiceOption } from '../../../core/block/property'
-import { Choice } from '@/editor/widgets/Select'
+import { Choice } from '@/editor/widgets/Choice'
 import { Row } from '@/editor/widgets/Row'
 
 type SelectOption = ChoiceOption & { detail?: string }

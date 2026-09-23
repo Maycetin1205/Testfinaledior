@@ -32,9 +32,9 @@ import { RelationStore } from './RelationStore'
 import { droppedKeys, withoutColumnsPointer } from './columnCleanup'
 import { SavePlanner } from './savePlanner'
 import { Subject } from './Subject'
-import { duplicateSubtree } from './duplicate'
+import { duplicateSubtree } from './duplicateSubtree'
 import { subtreeIds, emptyTree } from '../../core/block/treeOps'
-import { isRemoveProtected as isTemplateProtected } from './templateRules'
+import { isRemoveProtected as isTemplateProtected } from './isRemoveProtected'
 import {
   activePagesRoot,
   freePagesName,

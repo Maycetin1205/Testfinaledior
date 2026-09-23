@@ -2,7 +2,7 @@ import { useRef, useState, type ReactNode } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { INPUT_EDGE } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
 import { Row, type RowControl } from '@/editor/widgets/Row'
@@ -39,7 +39,7 @@ export function PickerControl({
 
   const unknown = value !== '' && hit === undefined
 
-  const shown = unknown ? 'missing' : (hit?.name ?? emptyText ?? placeholder)
+  const shown = unknown ? 'fehlt' : (hit?.name ?? emptyText ?? placeholder)
 
   const button = (control?: RowControl) => (
     <Button

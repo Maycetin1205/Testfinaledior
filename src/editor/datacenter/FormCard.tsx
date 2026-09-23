@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { X } from '@/editor/icons/icon'
-import { useCloseOnEscape } from '@/editor/widgets/closeOnEscape'
-import { Button } from '@/editor/widgets/PushButton'
+import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
+import { Button } from '@/editor/widgets/Button'
 
 interface FormCardProps {
   title: string

@@ -1,10 +1,10 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { FileUp, Plus, TriangleAlert } from '@/editor/icons/icon'
 import { Group } from '@/editor/widgets/Group'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { ListDetail } from '@/editor/widgets/ListDetail'
 import { Entry } from '@/editor/widgets/Entry'
-import { Mark } from '@/editor/widgets/Badge'
+import { Badge } from '@/editor/widgets/Badge'
 import {
   sourceKind,
   sourcesKey,
@@ -124,7 +124,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
                     {incomplete(s) && (
                       <TriangleAlert size={12} className="shrink-0 text-error" />
                     )}
-                    <Mark technical={false}>{sourcesWording(s.kind).name}</Mark>
+                    <Badge technical={false}>{sourcesWording(s.kind).name}</Badge>
                   </>
                 )}
                 bottom={(

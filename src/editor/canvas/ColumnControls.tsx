@@ -3,7 +3,7 @@ import { cn } from '@/editor/widgets/cn'
 import type { BlockNode } from '../../core/block/tree'
 import type { ListBinding } from '../../core/block/blockType'
 import { useEditorInstance } from '../state/EditorContext'
-import { applyProps } from '../state/valuesPatch'
+import { applyProps } from '../state/applyProps'
 
 interface Spot {
   left: number
@@ -14,7 +14,7 @@ interface Spot {
   slot: number
 }
 
-interface ColumnsControlsProps {
+interface ColumnControlsProps {
   block: BlockNode
   binding: ListBinding
   selector: string
@@ -48,9 +48,9 @@ function measure(element: HTMLElement, host: HTMLElement, selector: string): Spo
   })
 }
 
-export function ColumnsControls({
+export function ColumnControls({
   block, binding, selector, element, host, container, onSelect,
-}: ColumnsControlsProps) {
+}: ColumnControlsProps) {
   const editor = useEditorInstance()
   const [spots, setSpots] = useState<Spot[]>([])
   const [drag, setDrag] = useState<{ from: number; slot: number } | null>(null)

@@ -1,4 +1,4 @@
-import { downloadFile } from './fileDownload'
+import { downloadFile } from './downloadFile'
 
 interface PickerOptions {
   suggestedName?: string

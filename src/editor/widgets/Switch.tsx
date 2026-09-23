@@ -1,6 +1,6 @@
 import { cn } from '@/editor/widgets/cn'
 
-export interface FlagProps {
+export interface SwitchProps {
   on: boolean
 
   label?: string
@@ -10,14 +10,14 @@ export interface FlagProps {
   onToggle: (on: boolean) => void
 }
 
-export function Flag({
+export function Switch({
   on,
   label,
   name,
   id,
   disabled = false,
   onToggle,
-}: FlagProps) {
+}: SwitchProps) {
   return (
     <span className="inline-flex min-w-0 items-center gap-2">
       <button

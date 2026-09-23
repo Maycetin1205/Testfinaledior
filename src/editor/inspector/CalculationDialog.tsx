@@ -2,8 +2,8 @@ import { useState, type ReactNode } from 'react'
 import { Checkbox } from '@/editor/widgets/Checkbox'
 import { Dialog } from '@/editor/widgets/Dialog'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
-import { Choice, type ChoiceOption } from '@/editor/widgets/Select'
+import { Button } from '@/editor/widgets/Button'
+import { Choice, type ChoiceOption } from '@/editor/widgets/Choice'
 import { NumberInput } from '@/editor/widgets/NumberInput'
 import {
   allFactors,
@@ -23,7 +23,7 @@ import {
 } from '../../core/data/calculation'
 import { unitShort } from '../../core/data/units'
 import type { SourceInReach } from '../../core/data/extraSources'
-import { FactorRow } from './CalculationFactor'
+import { FactorRow } from './FactorRow'
 
 const DIRECTIONS: ChoiceOption[] = [
   { value: 'on', name: 'aufrunden' },

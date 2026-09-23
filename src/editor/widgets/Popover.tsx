@@ -11,7 +11,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/editor/widgets/cn'
-import { useCloseOnEscape } from './closeOnEscape'
+import { useCloseOnEscape } from './useCloseOnEscape'
 
 const EDGE = 8
 const Family = createContext<readonly string[]>([])

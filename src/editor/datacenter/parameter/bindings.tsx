@@ -53,7 +53,7 @@ function Note({ text }: { text: string }) {
 }
 
 export function EmptyBinding() {
-  return <Note text="empty" />
+  return <Note text="leer" />
 }
 
 export function PreviousResultBinding() {

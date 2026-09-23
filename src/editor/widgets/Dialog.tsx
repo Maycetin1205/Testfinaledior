@@ -2,8 +2,8 @@ import { useId, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
-import { useCloseOnEscape } from './closeOnEscape'
-import { Button } from './PushButton'
+import { useCloseOnEscape } from './useCloseOnEscape'
+import { Button } from './Button'
 
 export interface DialogProps {
   title: ReactNode

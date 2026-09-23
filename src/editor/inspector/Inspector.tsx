@@ -8,16 +8,16 @@ import { maySelectionFollows, carriesOwnSource } from '../../core/block/treeQuer
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { Group } from '@/editor/widgets/Group'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { Row } from '@/editor/widgets/Row'
 import { blockName } from '../../core/block/blockName'
 import { capacityOf } from '../canvas/gridArea'
-import { useSection } from './sectionState'
+import { useSection } from './useSection'
 import { ActionsSection } from './ActionsSection'
 import { SelectionFollowSection } from './SelectionFollowSection'
 import { PropControl } from './PropControl'
-import { SourcesList } from './SourceList'
-import { LookupWindowSection } from './LookupSection'
+import { SourceList } from './SourceList'
+import { LookupWindowSection } from './LookupWindowSection'
 
 interface InspectorRow {
   row?: string
@@ -142,7 +142,7 @@ export function Inspector() {
 
         {showDataSection && (
           <div className="flex flex-col gap-4">
-            {carriesOwnSource(block) && <SourcesList block={block} />}
+            {carriesOwnSource(block) && <SourceList block={block} />}
 
             {dataProps.length > 0 && (
               <Group title="Felder" open={fieldsOpen} onToggle={toggleFields}>

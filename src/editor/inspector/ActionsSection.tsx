@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
 import type { EventDef } from '../../core/block/capability'
 import { useEditor } from '../state/useEditor'
-import { ChainsWindow } from '../datacenter/ChainWindow'
+import { ChainWindow } from '../datacenter/ChainWindow'
 
 export function ActionsSection({
   block,
@@ -38,7 +38,7 @@ export function ActionsSection({
         )
       })}
       {openEvent && (
-        <ChainsWindow
+        <ChainWindow
           block={block}
           eventKey={openEvent.key}
           eventName={openEvent.name}

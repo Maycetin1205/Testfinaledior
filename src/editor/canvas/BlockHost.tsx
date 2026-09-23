@@ -22,8 +22,8 @@ import { useEditorInstance } from '../state/EditorContext'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { SelectionBar } from './SelectionBar'
-import { ColumnsControls } from './ColumnControls'
-import { useFieldBinding } from './FieldBinding'
+import { ColumnControls } from './ColumnControls'
+import { useFieldBinding } from './useFieldBinding'
 import { openLookupInEditor } from './lookupWindowState'
 import { useBlockResize } from './useBlockResize'
 import { useLitElement } from './useLitElement'
@@ -164,7 +164,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       </div>
       {pickers}
       {list?.entrySpots !== undefined && (
-        <ColumnsControls
+        <ColumnControls
           block={block}
           binding={list}
           selector={list.entrySpots}

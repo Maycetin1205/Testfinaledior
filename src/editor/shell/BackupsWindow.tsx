@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Dialog } from '@/editor/widgets/Dialog'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { List } from '@/editor/widgets/List'
 import { contentText, copiesToChoice, restoreCopy, timeText } from '../state/backupPick'
 import { useEditor } from '../state/useEditor'

@@ -1,12 +1,12 @@
 import { Trash } from '@/editor/icons/icon'
 import { Fragment, useState } from 'react'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { Tabs } from '@/editor/widgets/Tabs'
 import { allBlockTypes } from '../../core/block/registry'
 import { useEditor } from '../state/useEditor'
 
-export function PagesBar() {
+export function PageBar() {
   const ed = useEditor()
   const pages = ed.pages
   const active = ed.activePageId

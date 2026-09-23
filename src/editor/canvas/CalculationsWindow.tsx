@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Dialog } from '@/editor/widgets/Dialog'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { coerceColumns } from '../../blocks/behavior/columns'
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'

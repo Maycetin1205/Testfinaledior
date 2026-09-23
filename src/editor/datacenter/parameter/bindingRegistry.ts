@@ -69,7 +69,7 @@ export const PARAM_SOURCES: Record<ParameterSource, SourcesEntry> = {
     text: (b, w) => bracketed(
       'Feld',
       chosen(b.value),
-      'from',
+      'aus',
       chosen(w.dataSources.find((q) => q.id === b.sourceId)?.name),
     ),
   },

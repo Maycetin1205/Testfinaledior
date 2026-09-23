@@ -3,7 +3,7 @@ import { DIALOG_EDGE, DIALOG_CLOSE_EVENT } from '../../blocks/behavior/DialogFra
 import { blockType } from '../../core/block/registry'
 import { useEditor } from '../state/useEditor'
 import { BlockHost } from './BlockHost'
-import { NodeList } from './CanvasNode'
+import { NodeList } from './NodeList'
 import { isNewBlockDrag } from './dnd'
 import { commitDrop, useDnd } from './dndState'
 import { gridTarget } from './gridDnd'

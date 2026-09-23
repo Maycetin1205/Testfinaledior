@@ -16,7 +16,7 @@ import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useView } from '../state/useView'
 import type { OpenLookup } from '../state/EditorStore'
-import { useInputSession } from '../inspector/controls/editSession'
+import { useInputSession } from '../inspector/controls/useInputSession'
 import {
   windowFrameInEditor,
   windowStateOf,
@@ -88,7 +88,7 @@ function carryTo(frame: DialogFrame, state: WindowState, before: Metrics | null)
   if (before === null || before.height !== state.height) frame.height = state.height
 }
 
-export function WindowColumns() {
+export function LookupColumns() {
   const open = useView().lookupWindow
   if (open === null) return null
 

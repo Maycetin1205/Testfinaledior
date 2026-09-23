@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export interface MarkProps {
+export interface BadgeProps {
   children: ReactNode
 
   technical?: boolean
   className?: string
 }
 
-export function Mark({ children, technical = true, className }: MarkProps) {
+export function Badge({ children, technical = true, className }: BadgeProps) {
   return (
     <span
       className={cn(

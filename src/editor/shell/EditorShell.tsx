@@ -1,10 +1,10 @@
 import { useEffect, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
-import { Divider } from '@/editor/widgets/Separator'
+import { Separator } from '@/editor/widgets/Separator'
 import { useKeyboardShortcuts } from '../state/useKeyboardShortcuts'
 import { Canvas } from '../canvas/Canvas'
 import { CalculationsWindow } from '../canvas/CalculationsWindow'
-import { WindowColumns } from '../canvas/LookupColumns'
-import { PagesBar } from '../canvas/PageBar'
+import { LookupColumns } from '../canvas/LookupColumns'
+import { PageBar } from '../canvas/PageBar'
 import { Inspector } from '../inspector/Inspector'
 import { Sidebar } from '../sidebar/Sidebar'
 import { DataCenter } from '../datacenter/DataCenter'
@@ -48,13 +48,13 @@ export function EditorShell() {
       <header className="flex shrink-0 flex-col border-b border-line bg-panel">
         <div className="flex min-h-11 items-center gap-3 overflow-x-auto px-3 py-1">
           <span className="shrink-0 text-ui font-semibold">Aufbau-Editor</span>
-          <Divider vertical />
+          <Separator vertical />
           <HistoryButtons />
           <div className="flex-1" />
           <Toolbar onDataCenter={() => setDataCenterOpen(true)} />
         </div>
         <div className="flex min-h-9 items-center gap-4 border-t border-line px-3">
-          <PagesBar />
+          <PageBar />
         </div>
       </header>
 
@@ -93,7 +93,7 @@ export function EditorShell() {
 
       <StatusBar />
 
-      <WindowColumns />
+      <LookupColumns />
       <CalculationsWindow />
     </div>
   )

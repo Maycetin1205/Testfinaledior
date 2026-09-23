@@ -1,7 +1,7 @@
 import { SOURCE_PROP } from '../../core/block/sourceProperty'
 import { Plus, X } from '@/editor/icons/icon'
 import { Group } from '@/editor/widgets/Group'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
 import { sourcesKey } from '../../core/data/dataSources'
 import {
@@ -12,15 +12,15 @@ import {
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { openDataCenter } from '../datacenter/openDataCenter'
-import { useSection } from './sectionState'
+import { useSection } from './useSection'
 import { PickerControl } from './controls/PickerControl'
 import { KeyPairRows } from './KeyPairRows'
 
-interface SourcesListProps {
+interface SourceListProps {
   block: BlockNode
 }
 
-export function SourcesList({ block }: SourcesListProps) {
+export function SourceList({ block }: SourceListProps) {
   const [open, toggle] = useSection('dataSources')
   const ed = useEditor()
   const library = useDataSources().list

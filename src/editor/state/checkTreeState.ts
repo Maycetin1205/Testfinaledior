@@ -5,7 +5,7 @@ import { capability } from '../../core/block/capability'
 import { DOCUMENT_FRAME_PROP } from '../../core/block/documentFrame'
 import { MASK_NAME_PROP } from '../../core/block/maskName'
 import { chainsClean } from '../../core/data/actions'
-import { treeFromRoot } from './topology'
+import { treeFromRoot } from './treeFromRoot'
 import { valuesClean } from '../../core/block/treeOps'
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

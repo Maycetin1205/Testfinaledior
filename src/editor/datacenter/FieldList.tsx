@@ -1,6 +1,6 @@
 import { Plus, X } from '@/editor/icons/icon'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { ICON_MAX } from '../../core/data/dataSources'
 import { EMPTY_ROW, type FieldRow } from './fieldRow'
 

@@ -2,13 +2,13 @@ import { useRef, useState } from 'react'
 import { Database, FolderOpen, Link2, Save } from '@/editor/icons/icon'
 import { Dialog } from '@/editor/widgets/Dialog'
 import { Entry } from '@/editor/widgets/Entry'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { loadLibraryFromFile, saveLibraryAsFile } from '../state/libraryFile'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { useRelation } from '../state/useRelations'
-import { DataSourcesArea } from './DataSourcesSection'
-import { RelationArea } from './RelationsSection'
+import { useRelations } from '../state/useRelations'
+import { DataSourcesArea } from './DataSourcesArea'
+import { RelationArea } from './RelationArea'
 
 type Area = 'dataSources' | 'relation'
 
@@ -20,7 +20,7 @@ const AREAS: ReadonlyArray<{ key: Area; name: string; icon: typeof Database }> =
 export function DataCenter({ onClose }: { onClose: () => void }) {
   const [area, setArea] = useState<Area>('dataSources')
   const sources = useDataSources()
-  const relation = useRelation()
+  const relation = useRelations()
 
   const navNumber: Record<Area, string> = {
     dataSources: String(sources.list.length),

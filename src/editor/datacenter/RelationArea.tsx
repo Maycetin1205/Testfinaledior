@@ -2,10 +2,10 @@ import { useState, type ReactNode } from 'react'
 import { Plus, Search, Share2 } from '@/editor/icons/icon'
 import { Field } from '@/editor/widgets/Field'
 import { Group } from '@/editor/widgets/Group'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { ListDetail } from '@/editor/widgets/ListDetail'
 import { Entry } from '@/editor/widgets/Entry'
-import { Mark } from '@/editor/widgets/Badge'
+import { Badge } from '@/editor/widgets/Badge'
 import { relationIdsOf } from '../../core/block/treeQuery'
 import {
   relationSyntaxAsText,
@@ -16,14 +16,14 @@ import {
 } from '../../core/data/relations'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { useRelation } from '../state/useRelations'
+import { useRelations } from '../state/useRelations'
 import { SegmentControl } from '../inspector/controls/SegmentControl'
 import { RelationForm } from './RelationForm'
 import { blockName } from '../../core/block/blockName'
 import { RELATION_GROUPS, VERB_SHORT } from './parameterText'
 
 export function RelationArea({ areas }: { areas?: ReactNode }) {
-  const store = useRelation()
+  const store = useRelations()
   const ed = useEditor()
   const sources = useDataSources().list
   const [search, setSearch] = useState('')
@@ -102,9 +102,9 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
                 active={active}
                 onClick={() => { setSelectionId(r.id); setMode('read') }}
                 right={(
-                  <Mark>
+                  <Badge>
                     {VERB_SHORT[r.verb]} {r.nr}
-                  </Mark>
+                  </Badge>
                 )}
               />
             )

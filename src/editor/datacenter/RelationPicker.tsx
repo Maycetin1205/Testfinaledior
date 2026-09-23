@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Search, Share2 } from '@/editor/icons/icon'
 import { Entry } from '@/editor/widgets/Entry'
 import { Field } from '@/editor/widgets/Field'
-import { Mark } from '@/editor/widgets/Badge'
+import { Badge } from '@/editor/widgets/Badge'
 import {
   relationGroup,
   type RelationGroup,
@@ -12,7 +12,7 @@ import { SegmentControl } from '../inspector/controls/SegmentControl'
 import { isUnnamedTemplate, relationDisplay } from './relationLabel'
 import { RELATION_GROUPS, VERB_SHORT } from './parameterText'
 
-export function RelationSelection({
+export function RelationPicker({
   label,
   entries,
   relationId,
@@ -76,9 +76,9 @@ export function RelationSelection({
               active={entry.id === relationId}
               onClick={() => onSelect(entry.id)}
               right={unnamed ? undefined : (
-                <Mark>
+                <Badge>
                   {VERB_SHORT[entry.verb]} {entry.nr}
-                </Mark>
+                </Badge>
               )}
             />
           )

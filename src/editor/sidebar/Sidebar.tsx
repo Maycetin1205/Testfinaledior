@@ -1,5 +1,5 @@
 import { ChevronDown } from '@/editor/icons/icon'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { BlockPalette } from './BlockPalette'
 
 interface SidebarProps {

@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, Copy, X } from '@/editor/icons/icon'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
-import { Mark } from '@/editor/widgets/Badge'
+import { Button } from '@/editor/widgets/Button'
+import { Badge } from '@/editor/widgets/Badge'
 import { valueSpotsInTree, selectionGiverInTree } from '../../core/block/treeQuery'
 import { resultStepsBefore, type Step } from '../../core/data/actions'
 import { stepProblem } from '../../core/data/stepCheck'
@@ -9,7 +9,7 @@ import { stepName } from './wording'
 import { isWindowPage } from '../../core/block/pages'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { useRelation } from '../state/useRelations'
+import { useRelations } from '../state/useRelations'
 import { VERB_SHORT } from './parameterText'
 import { isUnnamedTemplate } from './relationLabel'
 import { anchorStepId, stepSummary } from './stepSummary'
@@ -28,7 +28,7 @@ export function StepList({
   steps, activeId, onChoose, onChange,
 }: StepListProps) {
   const ed = useEditor()
-  const relation = useRelation()
+  const relation = useRelations()
   const dataSources = useDataSources()
 
   const popupPages = ed.pages.filter(isWindowPage)
@@ -144,9 +144,9 @@ export function StepList({
               </Button>
 
               {stepRelation && (
-                <Mark>
+                <Badge>
                   {VERB_SHORT[stepRelation.verb]} {stepRelation.nr}
-                </Mark>
+                </Badge>
               )}
 
               {noteOpen ? (

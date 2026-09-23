@@ -2,7 +2,7 @@ import { useMemo, useReducer, useRef } from 'react'
 import { Plus } from '@/editor/icons/icon'
 import { Field } from '@/editor/widgets/Field'
 import { Group } from '@/editor/widgets/Group'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { Row } from '@/editor/widgets/Row'
 import {
   STEP_KINDS,
@@ -47,9 +47,9 @@ import {
 } from './stepDraft'
 import { ParameterRow } from './ParameterRow'
 import type { ParameterChoices } from './parameter/choices'
-import { relationPreview } from './parameter/preview'
-import { RelationSelection } from './RelationPicker'
-import { useRelation } from '../state/useRelations'
+import { relationPreview } from './parameter/relationPreview'
+import { RelationPicker } from './RelationPicker'
+import { useRelations } from '../state/useRelations'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { PickerControl } from '../inspector/controls/PickerControl'
@@ -64,7 +64,7 @@ interface StepFormProps {
 }
 
 export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
-  const relationStore = useRelation()
+  const relationStore = useRelations()
   const dataSources = useDataSources()
   const ed = useEditor()
 
@@ -257,7 +257,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
 
       {draft.type === 'RELATION' && (
         <>
-          <RelationSelection
+          <RelationPicker
             label="Relation"
             entries={visibleRelation}
             relationId={draft.relationId}

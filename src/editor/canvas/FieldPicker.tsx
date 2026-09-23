@@ -1,16 +1,16 @@
 import { useEffect, useState, type RefObject } from 'react'
 import { Popover } from '@/editor/widgets/Popover'
 import { cn } from '@/editor/widgets/cn'
-import { Mark } from '@/editor/widgets/Badge'
+import { Badge } from '@/editor/widgets/Badge'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { MenuRow } from '@/editor/widgets/MenuRow'
-import { Flag } from '@/editor/widgets/Switch'
-import { Divider } from '@/editor/widgets/Separator'
+import { Switch } from '@/editor/widgets/Switch'
+import { Separator } from '@/editor/widgets/Separator'
 import { bindingWithSource } from '../../core/block/blockType'
 import type { DataField } from '../../core/data/dataSources'
-import type { EditSession } from '../inspector/controls/editSession'
+import type { EditSession } from '../inspector/controls/useInputSession'
 
 export interface PickerGroup {
   sourceId: string
@@ -150,7 +150,7 @@ function FieldRow({ label, display, active, onActive }: FieldRowProps) {
         {display.name}
       </span>
       {display.key !== undefined && display.key !== '' && (
-        <Mark className="max-w-[45%]">{display.key}</Mark>
+        <Badge className="max-w-[45%]">{display.key}</Badge>
       )}
     </MenuRow>
   )
@@ -236,7 +236,7 @@ export function FieldPicker({
             </div>
           ) : (
             <>
-              <Divider />
+              <Separator />
               <List
                 searchable={sourcesChoice.entries.length > 8}
                 groups={[{ key: 'sources', entries: sourcesChoice.entries }]}
@@ -272,7 +272,7 @@ export function FieldPicker({
         {hasFlags && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-1.5">
             {(flag ?? []).map((s) => (
-              <Flag
+              <Switch
                 key={s.key}
                 on={s.on}
                 label={s.short ?? s.label}
@@ -282,7 +282,7 @@ export function FieldPicker({
           </div>
         )}
 
-        <Divider />
+        <Separator />
 
         <p className="flex items-baseline gap-2 px-1.5 text-dense font-semibold uppercase tracking-wide text-muted">
           <span className="min-w-0 truncate">

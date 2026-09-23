@@ -1,6 +1,6 @@
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/PushButton'
-import { Choice, type ChoiceOption } from '@/editor/widgets/Select'
+import { Button } from '@/editor/widgets/Button'
+import { Choice, type ChoiceOption } from '@/editor/widgets/Choice'
 import { NumberInput } from '@/editor/widgets/NumberInput'
 import { X } from '@/editor/icons/icon'
 import { bindingWithSource, splitBinding } from '../../core/block/binding'

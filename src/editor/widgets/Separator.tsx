@@ -1,6 +1,6 @@
 import { cn } from '@/editor/widgets/cn'
 
-export function Divider({
+export function Separator({
   vertical = false,
   className,
 }: {

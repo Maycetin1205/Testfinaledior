@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Search } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
-import { Mark } from './Badge'
+import { Badge } from './Badge'
 
 export interface ListEntry {
   value: string
@@ -94,7 +94,7 @@ export function List({
             <p className="flex items-baseline gap-2 px-2 pb-0.5 pt-1.5 text-dense font-semibold uppercase tracking-wide text-muted">
               <span className="min-w-0 truncate">{g.name}</span>
               {g.badge !== undefined && g.badge !== '' && (
-                <Mark className="font-normal normal-case tracking-normal">{g.badge}</Mark>
+                <Badge className="font-normal normal-case tracking-normal">{g.badge}</Badge>
               )}
             </p>
           )}
@@ -119,7 +119,7 @@ export function List({
                 </span>
                 <span className="min-w-0 flex-1 truncate">{e.name}</span>
                 {e.badge !== undefined && e.badge !== '' && (
-                  <Mark className="max-w-[50%]">{e.badge}</Mark>
+                  <Badge className="max-w-[50%]">{e.badge}</Badge>
                 )}
               </button>
             )

@@ -84,7 +84,7 @@ function originText(
     case 'previous_result':
       return 'Vorheriger Schritt'
     case 'from':
-      return 'empty'
+      return 'leer'
     case 'step_result': {
       const number = stepNumber(binding.value)
       return number > 0 ? `Ergebnis von Schritt ${number}` : 'Ergebnis von Schritt'

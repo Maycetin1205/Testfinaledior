@@ -1,4 +1,4 @@
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { Group } from '@/editor/widgets/Group'
 import type { BlockNode } from '../../core/block/tree'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../blocks/behavior/DialogFrame'
@@ -12,7 +12,7 @@ import {
   type WindowState,
 } from '../canvas/lookupWindowState'
 import { useEditor } from '../state/useEditor'
-import { useSection } from './sectionState'
+import { useSection } from './useSection'
 import { NumberControl } from './controls/NumberControl'
 
 const WIDTH = numberProperty({

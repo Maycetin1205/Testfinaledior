@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus } from '@/editor/icons/icon'
 import { Dialog } from '@/editor/widgets/Dialog'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { ListDetail } from '@/editor/widgets/ListDetail'
 import type { BlockNode } from '../../core/block/tree'
 import type { Step } from '../../core/data/actions'
@@ -11,14 +11,14 @@ import { useEditor } from '../state/useEditor'
 import { StepList } from './StepList'
 import { StepForm } from './StepForm'
 
-interface ChainsWindowProps {
+interface ChainWindowProps {
   block: BlockNode
   eventKey: string
   eventName: string
   onClose: () => void
 }
 
-export function ChainsWindow({ block, eventKey, eventName, onClose }: ChainsWindowProps) {
+export function ChainWindow({ block, eventKey, eventName, onClose }: ChainWindowProps) {
   const ed = useEditor()
   const sources = useDataSources()
 

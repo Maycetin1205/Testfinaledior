@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { cn } from '@/editor/widgets/cn'
 import { Checkbox } from '@/editor/widgets/Checkbox'
-import { Button } from '@/editor/widgets/PushButton'
+import { Button } from '@/editor/widgets/Button'
 import { Field } from '@/editor/widgets/Field'
 import { Row } from '@/editor/widgets/Row'
 import { keyDisplay } from '../../core/data/dataSources'
