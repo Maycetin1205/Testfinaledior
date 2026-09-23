@@ -10,9 +10,10 @@ export interface MaskImport {
   skipped: number
 }
 
+// SoftEngine's own keys: the field list arrives as MASKE, the plain name as Beschreibung.
 interface RawField {
   Name?: unknown
-  Description?: unknown
+  Beschreibung?: unknown
   Len?: unknown
   Status?: unknown
 }
@@ -22,7 +23,7 @@ const NAME_TEMPLATE = /^(.*_)?(\d+_\d+)$/
 function asList(raw: unknown): RawField[] | null {
   if (Array.isArray(raw)) return raw as RawField[]
   if (raw && typeof raw === 'object') {
-    const mask = (raw as { MASK?: unknown }).MASK
+    const mask = (raw as { MASKE?: unknown }).MASKE
     if (Array.isArray(mask)) return mask as RawField[]
   }
   return null
@@ -57,8 +58,8 @@ export function readMaskFields(raw: string): MaskImport | null {
     }
     const code = hit[2] ?? ''
     prefixes.add(hit[1] ?? '')
-    const description = typeof entry.Description === 'string'
-      ? entry.Description.trim()
+    const description = typeof entry.Beschreibung === 'string'
+      ? entry.Beschreibung.trim()
       : ''
     const length = lengthFrom(entry.Len)
     if (entry.Status === 'A') onlyDisplay++
