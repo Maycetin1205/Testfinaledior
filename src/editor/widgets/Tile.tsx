@@ -4,19 +4,17 @@ import { cn } from '@/editor/widgets/cn'
 export interface TileProps {
   label: string
   on: boolean
-  hint?: string
   id?: string
   onToggle: (on: boolean) => void
 }
 
-export function Tile({ label, on, hint, id, onToggle }: TileProps) {
+export function Tile({ label, on, id, onToggle }: TileProps) {
   return (
     <button
       id={id}
       type="button"
       role="switch"
       aria-checked={on}
-      title={hint}
       onClick={() => onToggle(!on)}
       className={cn(
         'flex h-steuer min-w-0 max-w-full shrink-0 items-center gap-1.5 rounded border px-2',

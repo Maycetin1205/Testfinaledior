@@ -84,7 +84,7 @@ export function FactorRow({
 
         {factor.kind !== 'column' && (
           <Field
-            placeholder="Name, z. B. Behandlungsmenge"
+            placeholder="Name"
             defaultValue={factor.name}
             onBlur={(e) => onFactor({ ...factor, name: e.currentTarget.value.trim() })}
           />
@@ -125,7 +125,6 @@ export function FactorRow({
         <NumberInput
           key={numberText(factor.number, SPOTS_MAX)}
           className="w-32"
-          title="Feste Zahl, deutsch geschrieben"
           defaultValue={numberText(factor.number, SPOTS_MAX)}
           onBlur={(e) => {
             const number = numberStrict(e.currentTarget.value)

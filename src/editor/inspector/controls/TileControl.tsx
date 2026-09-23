@@ -11,7 +11,6 @@ export function TileControl({ property, value, onChange }: TileControlProps) {
   return (
     <Tile
       label={property.label}
-      hint={property.help}
       on={value === true}
       onToggle={onChange}
     />

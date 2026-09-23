@@ -2,7 +2,6 @@ import { useMemo, type RefObject } from 'react'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
 import type { DataSource } from '../../core/data/dataSources'
-import { sourcesWording } from './wording'
 import {
   adoptFields,
   adoptTables,
@@ -21,19 +20,6 @@ interface FieldAdoptPickerProps {
 }
 
 const DIVIDER = '::'
-
-function emptyHintFor(
-  sources: readonly DataSource[],
-  target: FieldAdoptTarget,
-): string {
-  if (sources.length === 0) return 'Es ist keine Datenquelle angelegt.'
-  const seen = sources
-    .map((q) => `${q.name} (${sourcesWording(q.kind).name}, ${q.fields.length} Felder)`)
-    .join(' · ')
-  return target === 'idb'
-    ? `Keine Quelle mit Tabellen-Kennung. Angesehen: ${seen}`
-    : `Kein Feld mit Position + Länge. Angesehen: ${seen}`
-}
 
 export function FieldAdoptPicker({
   sources,
@@ -83,7 +69,6 @@ export function FieldAdoptPicker({
         searchable
         groups={groups}
         value={chosen}
-        emptyHint={emptyHintFor(sources, target)}
         onChoose={(value) => {
           const at = value.indexOf(DIVIDER)
           if (at < 0) onPick(value, '')

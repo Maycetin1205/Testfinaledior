@@ -10,7 +10,6 @@ export interface RowKind {
 export interface RowProps {
   label?: ReactNode
 
-  hint?: string
   error?: ReactNode
 
   wide?: boolean
@@ -18,7 +17,7 @@ export interface RowProps {
   children: (kind: RowKind) => ReactNode
 }
 
-export function Row({ label, hint, error, wide = false, className, children }: RowProps) {
+export function Row({ label, error, wide = false, className, children }: RowProps) {
   const id = useId()
   const errorId = error ? `${id}-fehler` : undefined
   const kind: RowKind = {
@@ -30,14 +29,7 @@ export function Row({ label, hint, error, wide = false, className, children }: R
   return (
     <div className={cn('flex min-w-0 flex-col gap-0.5', wide && 'col-span-full', className)}>
       {label !== undefined && (
-        <label
-          htmlFor={id}
-          title={hint}
-          className={cn(
-            'text-ui leading-tight text-matt',
-            hint !== undefined && hint !== '' && 'cursor-help',
-          )}
-        >
+        <label htmlFor={id} className="text-ui leading-tight text-matt">
           {label}
         </label>
       )}

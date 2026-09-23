@@ -15,7 +15,6 @@ export const dividerProperties = {
   ], {
     default: 'horizontal',
     label: 'Richtung',
-    help: 'Die Linie waagerecht oder senkrecht ausrichten.',
     attribute: 'direction',
   }),
   lineStyle: choiceProperty([
@@ -25,13 +24,11 @@ export const dividerProperties = {
   ], {
     default: 'solid',
     label: 'Linienstil',
-    help: 'Durchgezogen, gestrichelt oder gepunktet.',
     attribute: 'linestyle',
   }),
   thickness: numberProperty({
     default: 1,
     label: 'Stärke',
-    help: 'Dicke der Linie in Pixeln.',
     attribute: 'thickness',
     unit: 'px',
     min: THICKNESS_MIN,
@@ -45,7 +42,6 @@ export const dividerProperties = {
   ], {
     default: 'line',
     label: 'Farbe',
-    help: 'Farbe der Linie aus den Farben der Maske.',
     attribute: 'color',
   }),
 }

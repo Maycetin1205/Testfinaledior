@@ -121,7 +121,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       )}
 
       {canCompute(block) && (
-        <Button className="h-6 px-1.5 text-dicht" title="Berechnungen dieser Erfassung: drei Werte ergeben den vierten"
+        <Button className="h-6 px-1.5 text-dicht"
           onClick={() => editor.openCalculations(block.id)}>
           <Link2 size={12} /> Berechnungen
         </Button>
@@ -150,7 +150,6 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       {kind && (
         <Button
           className="h-6 px-1.5 text-dicht"
-          title={`${kindName} anlegen`}
           onClick={() => editor.addBlock(kind.childType, block.id)}
         >
           <Plus size={12} /> {kindName}
@@ -159,7 +158,6 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       {next && (
         <Button
           className="h-6 px-1.5 text-dicht"
-          title={`${entryName} anfügen`}
           disabled={!neuPossible}
           onClick={() => applyProps(editor, block.id, next(block.values))}
         >
@@ -169,7 +167,6 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       {away && (
         <Button
           className="h-6 px-1.5 text-dicht"
-          title={`${entryName} entfernen`}
           disabled={!awayPossible}
           onClick={() => {
             const index = entries.length - 1

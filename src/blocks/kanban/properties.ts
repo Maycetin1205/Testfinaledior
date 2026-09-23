@@ -14,14 +14,12 @@ export const kanbanProperties = {
   source: sourceProperty({
     default: '',
     label: 'Datenquelle',
-    help: 'Die Quelle, deren Zeilen als Karten liegen.',
     place: 'none',
     attribute: 'source',
   }),
   columnsField: fieldProperty({
     default: '',
     label: 'Einsortieren nach',
-    help: 'Feld, das die Spalte bestimmt. Leer: alle in die Auffang-Spalte.',
     attribute: 'columnsfield',
   }),
   dayField: dayFieldProperty(),
@@ -31,26 +29,21 @@ export const kanbanProperties = {
 export type KanbanValues = ValuesOf<typeof kanbanProperties>
 
 export const kanbanColumnProperties = {
-  tone: toneProperty(
-    'Bedeutung der Spalte — bestimmt ihre Farbwelt (Kopf, Fläche, Rahmen).',
-  ),
+  tone: toneProperty(),
   heading: textProperty({
     default: COLUMN_TITLE_STANDARD,
     label: 'Titel',
-    help: 'Die Überschrift der Spalte.',
     place: 'block',
     attribute: 'heading',
   }),
   value: textProperty({
     default: '',
     label: 'Wert im ERP',
-    help: 'Steht im Statusfeld, wenn eine Karte hier liegt. Leer: der Titel.',
     attribute: 'value',
   }),
   catchAll: booleanProperty({
     default: false,
     label: 'Auffangspalte',
-    help: 'Einträge ohne passenden Wert landen hier.',
     attribute: 'catchall',
     needsSource: true,
     onlyUnderSiblings: true,

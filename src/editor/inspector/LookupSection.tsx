@@ -17,7 +17,6 @@ import { NumberControl } from './controls/NumberControl'
 const WIDTH = numberProperty({
   default: 520,
   label: 'Breite',
-  help: 'Breite des Suchfensters in Pixeln.',
   place: 'none',
   unit: 'px',
   min: 240,
@@ -27,7 +26,6 @@ const WIDTH = numberProperty({
 const HEIGHT = numberProperty({
   default: 380,
   label: 'Höhe',
-  help: 'Höhe des Suchfensters in Pixeln.',
   place: 'none',
   unit: 'px',
   min: 160,
@@ -67,11 +65,6 @@ export function LookupWindowSection({ block, window }: LookupWindowSectionProps)
 
   return (
     <Group title="Suchfenster" open={open} onToggle={toggle}>
-      {states.length === 0 && (
-        <p className="text-dicht text-matt">
-          Noch kein Fenster: erst eine Quelle für das Nachschlagen wählen.
-        </p>
-      )}
       {states.map(({ slot, state }) => (
         <div key={slot} className="flex min-w-0 flex-col gap-1">
           {window.entriesProp !== undefined && (
@@ -81,7 +74,6 @@ export function LookupWindowSection({ block, window }: LookupWindowSectionProps)
             {state.provided ? 'Spalten: ' : 'Automatisch: '}
             {state.columns.map((s) => (s.title === '' ? s.field : s.title)).join(', ')}
           </p>
-          {!state.provided && <p className="text-dicht text-matt">{window.automatic}</p>}
           <div className="flex flex-wrap items-end gap-2">
             <NumberControl
               label="Breite"

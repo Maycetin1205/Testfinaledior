@@ -15,7 +15,6 @@ export interface ListGroup {
   key: string
   name?: string
   badge?: string
-  hint?: string
   entries: readonly ListEntry[]
 }
 
@@ -24,7 +23,6 @@ export interface ListProps {
   value: string
 
   emptyText?: string
-  emptyHint?: string
 
   searchable?: boolean
   onChoose: (value: string) => void
@@ -40,7 +38,6 @@ export function List({
   groups,
   value,
   emptyText,
-  emptyHint,
   searchable = false,
   onChoose,
 }: ListProps) {
@@ -62,8 +59,6 @@ export function List({
       }))
       .filter((g) => g.entries.length > 0)
   }, [groups, wanted])
-
-  const empty = filtered.every((g) => g.entries.length === 0)
 
   return (
     <div className="flex flex-col">
@@ -103,9 +98,6 @@ export function List({
               )}
             </p>
           )}
-          {g.hint !== undefined && g.hint !== '' && (
-            <p className="px-2 pb-1 text-dicht text-matt">{g.hint}</p>
-          )}
           {g.entries.map((e) => {
             const chosen = e.value === value
             return (
@@ -113,10 +105,6 @@ export function List({
                 key={`${g.key}::${e.value}`}
                 type="button"
                 disabled={e.disabled}
-
-                title={e.badge === undefined || e.badge === ''
-                  ? e.name
-                  : `${e.name} — ${e.badge}`}
                 onClick={() => onChoose(e.value)}
                 className={cn(
                   ROW,
@@ -138,12 +126,6 @@ export function List({
           })}
         </div>
       ))}
-
-      {empty && (emptyText === undefined || wanted !== '') && (
-        <p className="px-2 py-2 text-ui text-matt">
-          {wanted === '' ? (emptyHint ?? 'Nichts zur Auswahl.') : 'Kein Treffer.'}
-        </p>
-      )}
     </div>
   )
 }

@@ -12,12 +12,10 @@ import { FormCard } from './FormCard'
 interface DtkImportFormProps {
   fileName: string
   tables: DtkTable[]
-
-  failuresBase?: string
   onClose: () => void
 }
 
-export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkImportFormProps) {
+export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps) {
   const store = useDataSources()
 
   const present = new Set(
@@ -34,9 +32,7 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
   )
 
   const [recordField, setRecordField] = useState('')
-  const recordFieldError = recordField.trim() === ''
-    ? 'Das Satzfeld fehlt — ohne es weiß der Editor nicht, wo die Satznummer steht.'
-    : ''
+  const recordFieldMissing = recordField.trim() === ''
 
   function toggle(key: string) {
     setTicked((old) => {
@@ -48,7 +44,7 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
   }
 
   function adopt() {
-    if (recordFieldError !== '') return
+    if (recordFieldMissing) return
     for (const t of tables) {
       if (!ticked.has(t.key) || present.has(t.key)) continue
       store.add({
@@ -63,75 +59,48 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
     onClose()
   }
 
-  function hint(t: DtkTable): string {
-    if (present.has(t.key)) return 'schon in der Bibliothek — wird übersprungen'
-    if (t.fields.length === 0) return 'keine Felder lesbar — nach dem Import von Hand eintragen'
-    if (t.should > t.fields.length) {
-      return `nur ${t.fields.length} von ${t.should} Feldern lesbar — Rest von Hand ergänzen`
-    }
-    if (t.should > 0 && t.fields.length > t.should) {
-      return `${t.fields.length} Felder gelesen, die Zählung nennt ${t.should} — in SoftEngine gegenprüfen`
-    }
-    return ''
-  }
-
   const count = [...ticked].filter((k) => !present.has(k)).length
 
   return (
     <FormCard title={`Import aus ${fileName}`} onClose={onClose}>
       <div className="flex flex-col gap-3 text-ui">
-        {tables.length === 0 ? (
-          <p className="rounded border border-fehler/40 bg-fehler/10 px-2.5 py-2 text-fehler">
-            Keine IDB-Tabellen gefunden. Ist das ein SoftEngine-IDB-Export
-            (in SoftEngine: „IDB exportieren“, Dateiendung .DTK)?
-            {failuresBase && <><br />Die Datei liess sich nicht lesen: {failuresBase}</>}
-          </p>
-        ) : (
-          <>
-            <p className="text-matt">
-              {tables.length} Tabellen gefunden. Angehakte werden als
-              IDB-Datenquellen angelegt — Felder samt Klarnamen inklusive.
-            </p>
-            <div className="overflow-hidden rounded border border-linie">
-              {tables.map((t) => {
-                const locked = present.has(t.key)
-                const row = hint(t)
-                return (
-                  <Checkbox
-                    key={t.key}
-                    checked={!locked && ticked.has(t.key)}
-                    disabled={locked}
-                    onChange={() => toggle(t.key)}
-                    className={cn(
-                      'border-b border-linie px-2.5 py-1.5 last:border-b-0',
-                      !locked && 'hover:bg-control',
-                    )}
-                  >
-                    <span className="flex items-baseline gap-1.5">
-                      <span className="truncate font-medium text-tinte">
-                        {t.name !== '' ? t.name : keyDisplay(t.key)}
-                      </span>
-                      <span className="shrink-0 font-mono text-dicht text-matt">
-                        {keyDisplay(t.key)}
-                      </span>
+        {tables.length > 0 && (
+          <div className="overflow-hidden rounded border border-linie">
+            {tables.map((t) => {
+              const locked = present.has(t.key)
+              return (
+                <Checkbox
+                  key={t.key}
+                  checked={!locked && ticked.has(t.key)}
+                  disabled={locked}
+                  onChange={() => toggle(t.key)}
+                  className={cn(
+                    'border-b border-linie px-2.5 py-1.5 last:border-b-0',
+                    !locked && 'hover:bg-control',
+                  )}
+                >
+                  <span className="flex items-baseline gap-1.5">
+                    <span className="truncate font-medium text-tinte">
+                      {t.name !== '' ? t.name : keyDisplay(t.key)}
                     </span>
-                    <span className="block text-dicht text-matt">
-                      {t.fields.length} Felder
-                      {row !== '' ? ` · ${row}` : ''}
+                    <span className="shrink-0 font-mono text-dicht text-matt">
+                      {keyDisplay(t.key)}
                     </span>
-                  </Checkbox>
-                )
-              })}
-            </div>
-          </>
+                  </span>
+                  <span className="block text-dicht text-matt">
+                    {t.fields.length} Felder
+                  </span>
+                </Checkbox>
+              )
+            })}
+          </div>
         )}
         {tables.length > 0 && (
-          <Row label="Satzfeld" error={recordFieldError}>
+          <Row label="Satzfeld">
             {(f) => (
               <Field
                 {...f}
                 value={recordField}
-                placeholder="Position_Länge, z. B. 0_10"
                 onChange={(e) => setRecordField(e.target.value)}
               />
             )}
@@ -140,7 +109,7 @@ export function DtkImportForm({ fileName, tables, failuresBase, onClose }: DtkIm
         <div className="flex justify-end gap-2 border-t border-linie pt-3">
           <Button onClick={onClose}>Abbrechen</Button>
           {tables.length > 0 && (
-            <Button kind="primary" disabled={count === 0 || recordFieldError !== ''} onClick={adopt}>
+            <Button kind="primary" disabled={count === 0 || recordFieldMissing} onClick={adopt}>
               {count === 1 ? '1 Tabelle übernehmen' : `${count} Tabellen übernehmen`}
             </Button>
           )}

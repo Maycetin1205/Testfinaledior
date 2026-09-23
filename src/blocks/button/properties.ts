@@ -4,7 +4,6 @@ export const buttonProperties = {
   label: textProperty({
     default: 'Schaltfläche',
     label: 'Beschriftung',
-    help: 'Was auf der Schaltfläche steht.',
     place: 'block',
     attribute: 'label',
   }),

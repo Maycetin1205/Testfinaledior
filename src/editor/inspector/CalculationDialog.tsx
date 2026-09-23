@@ -8,8 +8,6 @@ import { NumberInput } from '@/editor/widgets/NumberInput'
 import {
   allFactors,
   calculationFlaws,
-  unitsProbe,
-  resultFactors,
   factorName,
   freeFactorKey,
   newFactor,
@@ -38,16 +36,14 @@ export interface ColumnHead {
   title: string
 }
 
-function Step({ nr, title, hint, children }: {
+function Step({ nr, title, children }: {
   nr: number
   title: string
-  hint?: string
   children: ReactNode
 }) {
   return (
     <section className="flex flex-col gap-2">
       <h3 className="text-ui font-semibold text-tinte">{nr}. {title}</h3>
-      {hint !== undefined && <p className="text-dicht text-matt">{hint}</p>}
       {children}
     </section>
   )
@@ -97,7 +93,6 @@ export function CalculationDialog({
     titleOf,
     (field) => (field === '' ? null : field),
   ))]
-  const probe = unitsProbe(calculation)
 
   const setFactor = (old: Factor, next: Factor): void => {
     const replace = (list: readonly Factor[]): Factor[] =>
@@ -132,7 +127,6 @@ export function CalculationDialog({
 
   const columnsFactors = allFactors(calculation)
     .filter((f): f is ColumnsFactor => f.kind === 'column')
-  const dataFactors = allFactors(calculation).filter((f) => f.kind === 'dataField')
 
   const preview = computeCalculation(
     calculation,
@@ -166,19 +160,7 @@ export function CalculationDialog({
           </div>
         )}
 
-        {flaws.length > 0 && (
-          <ul className="flex flex-col gap-0.5 rounded border border-fehler/60 p-2 text-dicht text-fehler">
-            {flaws.map((m) => <li key={m}>{m}</li>)}
-          </ul>
-        )}
-
-        <Step
-          nr={1}
-          title="Name und Formel"
-          hint={'Links steht die Größe, die sich zuerst ergibt; rechts ihre Faktoren und '
-            + 'Teiler. Einheit und Datenfeld stehen direkt beim Operanden, nicht in einer '
-            + 'eigenen Liste: sonst stellte man sie weit weg von dem ein, wofür sie gelten.'}
-        >
+        <Step nr={1} title="Name und Formel">
           <Field
             placeholder="Name der Berechnung"
             defaultValue={calculation.name}
@@ -219,20 +201,9 @@ export function CalculationDialog({
             />
           ))}
           <Button onClick={() => factorAdd('denominator')}>+ Teiler</Button>
-
-          <p className={probe === '' ? 'text-dicht text-matt' : 'text-dicht text-fehler'}>
-            {probe === ''
-              ? 'Die Einheiten beider Seiten passen zusammen.'
-              : probe}
-          </p>
         </Step>
 
-        <Step
-          nr={2}
-          title="Rechenrichtungen und Rundung"
-          hint={'Jede angekreuzte Größe kann aus den übrigen entstehen. Gerundet wird erst '
-            + 'das fertige Ergebnis, darum steht die Rundung bei der Größe und nicht bei der Formel.'}
-        >
+        <Step nr={2} title="Rechenrichtungen und Rundung">
           {columnsFactors.map((f) => (
             <div key={f.key} className="flex flex-col gap-1 rounded border border-linie p-2">
               <div className="flex items-center gap-2">
@@ -246,7 +217,6 @@ export function CalculationDialog({
                 </Checkbox>
                 <NumberInput
                   unit="NK"
-                  title="Nachkommastellen dieses Ergebnisses"
                   className="w-16"
                   min={0}
                   max={SPOTS_MAX}
@@ -277,42 +247,7 @@ export function CalculationDialog({
           ))}
         </Step>
 
-        <Step
-          nr={3}
-          title="Datensatzzuordnung"
-          hint={'Ein Datenfeld liefert den Wert des Satzes, der FÜR DIESE ZEILE gewählt ist — '
-            + 'über die Schlüsselpaare unter „Weitere Quellen". Ist keiner eindeutig zugeordnet, '
-            + 'rechnet die Zeile nicht; der erste Satz einer Quelle wäre geraten.'}
-        >
-          {dataFactors.length === 0
-            ? <p className="text-dicht text-matt">Diese Berechnung liest kein Datenfeld.</p>
-            : dataFactors.map((f) => {
-              const source = sources.find(
-                (q) => f.kind === 'dataField' && f.field.startsWith(`${q.source.id}::`),
-              )
-              const pairs = source?.pairs ?? []
-              return (
-                <div key={f.key} className="rounded border border-linie p-2 text-dicht">
-                  <span className="text-ui">{name(f)}</span>
-                  <div className="text-matt">
-                    {source === undefined
-                      ? 'Noch keine Datenquelle gewählt.'
-                      : pairs.length === 0
-                        ? `Quelle „${source.source.name}" ist über kein Schlüsselpaar verbunden — `
-                          + 'die Zeile kann keinen Satz zuordnen.'
-                        : `Quelle „${source.source.name}", verbunden über `
-                          + pairs.map((p) => `${p.ofField} → ${p.toField}`).join(', ')}
-                  </div>
-                </div>
-              )
-            })}
-        </Step>
-
-        <Step
-          nr={4}
-          title="Vorschau"
-          hint="Lass genau ein Feld leer — es wird berechnet."
-        >
+        <Step nr={3} title="Vorschau">
           {allFactors(calculation).filter((f) => f.kind !== 'number').map((f) => (
             <div key={f.key} className="flex items-center gap-2">
               <span className="min-w-0 flex-1 truncate text-ui">{name(f)}</span>
@@ -324,22 +259,12 @@ export function CalculationDialog({
               />
             </div>
           ))}
-          <p className={preview.kind === 'result' || preview.kind === 'stimmt'
-            ? 'text-dicht text-matt'
-            : 'text-dicht text-fehler'}
-          >
-            {preview.kind === 'result'
-              ? `${name(allFactors(calculation).find((f) => f.key === preview.key) ?? calculation.lead)} = ${preview.text} ${unitShort(
+          {preview.kind === 'result' && (
+            <p className="text-dicht text-matt">
+              {`${name(allFactors(calculation).find((f) => f.key === preview.key) ?? calculation.lead)} = ${preview.text} ${unitShort(
                 allFactors(calculation).find((f) => f.key === preview.key)?.unit ?? '',
-              )}`.trim()
-              : preview.kind === 'stimmt'
-                ? 'Alle Werte gefüllt und stimmig.'
-                : preview.kind === 'open'
-                  ? 'Es fehlt mehr als ein Wert — es wird nicht geraten.'
-                  : preview.text}
-          </p>
-          {resultFactors(calculation).length === 0 && (
-            <p className="text-dicht text-fehler">Keine Größe darf Ergebnis sein.</p>
+              )}`.trim()}
+            </p>
           )}
         </Step>
       </div>

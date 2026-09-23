@@ -43,21 +43,15 @@ export function ChainsWindow({ block, eventKey, eventName, onClose }: ChainsWind
 
   const detail = next
     ? <StepForm key="next" chain={chain} onClose={() => setNeu(false)} onSave={save} />
-    : open
-      ? (
-          <StepForm
-            key={open.id}
-            step={open}
-            chain={chain}
-            onClose={() => setOpenId(null)}
-            onSave={save}
-          />
-        )
-      : (
-          <p className="text-ui text-matt">
-            {chain.length === 0 ? 'Noch kein Schritt. Lege links einen an.' : 'Schritt links wählen.'}
-          </p>
-        )
+    : open && (
+        <StepForm
+          key={open.id}
+          step={open}
+          chain={chain}
+          onClose={() => setOpenId(null)}
+          onSave={save}
+        />
+      )
 
   return (
     <Dialog
@@ -79,19 +73,17 @@ export function ChainsWindow({ block, eventKey, eventName, onClose }: ChainsWind
           </Button>
         }
         listWithoutEdge
-        list={chain.length === 0
-          ? <p className="px-3 py-3 text-ui text-matt">Noch kein Schritt.</p>
-          : (
-              <StepList
-                steps={chain}
-                activeId={openId ?? undefined}
-                onChoose={(s) => {
-                  setNeu(false)
-                  setOpenId(s.id)
-                }}
-                onChange={setChain}
-              />
-            )}
+        list={chain.length > 0 && (
+          <StepList
+            steps={chain}
+            activeId={openId ?? undefined}
+            onChoose={(s) => {
+              setNeu(false)
+              setOpenId(s.id)
+            }}
+            onChange={setChain}
+          />
+        )}
         detail={detail}
       />
     </Dialog>

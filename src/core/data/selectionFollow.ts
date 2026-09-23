@@ -22,7 +22,6 @@ export const followsSelectionProperty: Property<SelectionFollow[]> = structuredP
 }, {
   default: [],
   label: 'Folgt der Auswahl',
-  help: 'An welchem Baustein dieser haengt.',
   place: 'none',
   attribute: 'followsselection',
 })

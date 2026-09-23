@@ -9,7 +9,6 @@ import { Row, type RowKind } from '@/editor/widgets/Row'
 
 export interface PickerControlProps {
   label?: string
-  hint?: string
   error?: ReactNode
 
   name: string
@@ -24,7 +23,6 @@ export interface PickerControlProps {
 
 export function PickerControl({
   label,
-  hint,
   error,
   name,
   groups,
@@ -42,9 +40,6 @@ export function PickerControl({
   const unknown = value !== '' && hit === undefined
 
   const shown = unknown ? 'missing' : (hit?.name ?? emptyText ?? placeholder)
-  const tooltip = unknown
-    ? `Nicht mehr vorhanden: ${value}`
-    : [hit?.name, hit?.badge].filter((t) => t !== undefined && t !== '').join(' — ')
 
   const button = (kind?: RowKind) => (
     <Button
@@ -55,7 +50,6 @@ export function PickerControl({
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-label={label === undefined ? `${name}: ${shown}` : undefined}
-      title={tooltip === '' ? (label === undefined ? name : undefined) : tooltip}
       onClick={() => setOpen(!open)}
       className={cn(INPUT_EDGE, 'flex h-steuer items-center gap-2 px-2 text-left', className)}
     >
@@ -76,7 +70,7 @@ export function PickerControl({
     <>
       {label === undefined && error === undefined
         ? button()
-        : <Row label={label} hint={hint} error={error}>{(kind) => button(kind)}</Row>}
+        : <Row label={label} error={error}>{(kind) => button(kind)}</Row>}
 
       {open && (
         <Popover

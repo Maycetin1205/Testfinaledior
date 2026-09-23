@@ -16,7 +16,7 @@ import { bindingProp, type BindableSpot, type LookupWindow } from '../../core/bl
 import { splitBinding } from '../../core/block/blockType'
 import { canCompute } from '../../core/block/treeQuery'
 import { sourcesKey } from '../../core/data/dataSources'
-import { pairPlainText, type SourceInReach } from '../../core/data/extraSources'
+import type { SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
 import { applyProps } from '../state/valuesPatch'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
@@ -48,7 +48,6 @@ interface FieldBindingArgs {
 }
 
 function pickerGroups(sources: readonly SourceInReach[]): PickerGroup[] {
-  const first = sources[0]?.source
   return sources.map((q, i) => (i === 0
     ? {
         sourceId: '',
@@ -60,11 +59,6 @@ function pickerGroups(sources: readonly SourceInReach[]): PickerGroup[] {
         sourceId: q.source.id,
         name: q.source.name,
         key: sourcesKey(q.source),
-
-        hint: pairPlainText(
-          q.pairs ?? [],
-          q.partnerId ? sources.find((x) => x.source.id === q.partnerId)?.source : first,
-        ),
         fields: q.source.fields,
       }))
 }
@@ -168,7 +162,6 @@ export function useFieldBinding({
   const groups = pickerGroups(sources)
 
   const sourcesChoice = !libraryOffer ? undefined : {
-    hint: 'Erst die Hauptquelle wählen.',
     entries: library.map((s) => ({ value: s.id, name: s.name, key: sourcesKey(s) })),
     onDataCenter: openDataCenter,
     onChoose: (sourceId: string) => {
@@ -250,7 +243,6 @@ export function useFieldBinding({
             extraFields={fieldChoicesRead(listBinding, entry).map(({ choice: fw, value }) => ({
               key: fw.key,
               label: fw.name,
-              hint: fw.hint,
               current: value,
               onlyForeignSources: fw.onlyForeignSources,
               onChoose: (next) => writeInEntry(
@@ -278,7 +270,6 @@ export function useFieldBinding({
               }]),
               ...(!canCompute(block) ? [] : [{
                 label: 'Berechnung…',
-                hint: 'Eine Gleichung über mehrere Spalten: drei Werte ergeben den vierten.',
                 onOpen: () => {
                   editor.openCalculations(block.id)
                   setListPicker(null)

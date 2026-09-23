@@ -20,7 +20,7 @@ import { useRelation } from '../state/useRelations'
 import { SegmentControl } from '../inspector/controls/SegmentControl'
 import { RelationForm } from './RelationForm'
 import { blockName } from '../../core/block/blockName'
-import { parameterMeaning, RELATION_GROUPS, VERB_SHORT } from './parameterText'
+import { RELATION_GROUPS, VERB_SHORT } from './parameterText'
 
 export function RelationArea({ areas }: { areas?: ReactNode }) {
   const store = useRelation()
@@ -102,21 +102,13 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
                 active={active}
                 onClick={() => { setSelectionId(r.id); setMode('read') }}
                 right={(
-                  <Mark hint={relationSyntaxAsText(r)}>
+                  <Mark>
                     {VERB_SHORT[r.verb]} {r.nr}
                   </Mark>
                 )}
               />
             )
           })}
-          {store.list.length === 0 && (
-            <p className="px-1 py-2 text-dicht text-matt">
-              Noch keine Relationen.
-            </p>
-          )}
-          {store.list.length > 0 && visibleRelation.length === 0 && (
-            <p className="px-1 py-2 text-dicht text-matt">Keine Treffer.</p>
-          )}
           </>
         )}
         detail={(
@@ -125,18 +117,13 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
         {mode === 'edit' && selection && (
           <RelationForm relation={selection} onClose={() => setMode('read')} />
         )}
-        {mode === 'read' && !selection && (
-          <p className="text-dicht text-matt">
-            Keine Relation gewählt.
-          </p>
-        )}
         {mode === 'read' && selection && (
           <div className="flex flex-col gap-4 text-ui">
             <div>
               <h3 className="text-ui font-semibold text-tinte">{selection.name}</h3>
             </div>
 
-            <Group title="Parameter — in genau dieser Reihenfolge">
+            <Group title="Parameter">
               <div className="overflow-hidden rounded border border-linie">
                 <table className="w-full">
                   <tbody>
@@ -145,15 +132,9 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
                         <td className="w-6 px-2 py-1 text-right font-mono text-dicht text-matt">
                           {i + 1}
                         </td>
-                        <td className="px-2 py-1 font-mono text-dicht">
-                          {p === '' ? <span className="text-matt">(leer)</span> : p}
-                        </td>
-                        <td className="px-2 py-1 text-matt">{parameterMeaning(p)}</td>
+                        <td className="px-2 py-1 font-mono text-dicht">{p}</td>
                       </tr>
                     ))}
-                    {selection.parameter.length === 0 && (
-                      <tr><td className="px-2.5 py-1 text-matt">Keine Parameter.</td></tr>
-                    )}
                   </tbody>
                 </table>
               </div>
@@ -166,9 +147,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
             </Group>
 
             <Group title="Verwendung in dieser Maske">
-              {usageOf(selection.id).length === 0 ? (
-                <p className="text-matt">Von keinem Baustein verwendet.</p>
-              ) : (
+              {usageOf(selection.id).length > 0 && (
                 <ul className="flex flex-col gap-1">
                   {usageOf(selection.id).map((name, i) => (
                     <li key={i} className="rounded border border-linie bg-control px-2.5 py-1">

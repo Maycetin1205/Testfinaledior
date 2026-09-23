@@ -27,7 +27,7 @@ const RASTER_FALLBACK: GridMetrics = {
 }
 
 const cell = (label: string, fallback: number): Property<number> => numberProperty({
-  default: fallback, label, help: 'Platz im Raster der Flaeche.', place: 'none', min: 0,
+  default: fallback, label, place: 'none', min: 0,
 })
 
 // The four grid properties every block carries. The canvas writes them; they

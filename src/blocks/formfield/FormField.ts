@@ -240,8 +240,6 @@ defineBlock(FormField, {
         sourceProp: 'lookupSource',
         storageFieldProp: 'storageField',
         storageTitleProp: 'storageTitle',
-        automatic: 'Ohne Spalten zeigt das Fenster eine: das gespeicherte Feld.'
-          + ' Die erste Spalte ist, was nach der Wahl im Feld steht.',
         spot: '.lupe',
         when: ONLY_LOOKUP,
       },

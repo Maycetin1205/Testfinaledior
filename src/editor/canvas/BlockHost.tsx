@@ -189,7 +189,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       {selected && rasterDraggable && rasterSpec.widthDraggable && (
         <Handle
           axis="x"
-          title="Breite ziehen (rastet auf Zellen) · Doppelklick: Startgröße"
           onStart={(e) => startRasterResize(e, 'x')}
           onReset={() => {
             const node = blockRef.current
@@ -200,7 +199,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       {selected && rasterDraggable && (
         <Handle
           axis="y"
-          title="Höhe ziehen (rastet auf Zellen) · Doppelklick: Startgröße"
           onStart={(e) => startRasterResize(e, 'y')}
           onReset={() => {
             const node = blockRef.current
@@ -211,7 +209,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       {selected && !grid && resizable && (
         <Handle
           axis="x"
-          title="Breite ziehen · Doppelklick: Standard"
           onStart={(e) => startResize(e, 'width', 40)}
           onReset={() => {
             const node = blockRef.current
@@ -222,7 +219,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       {selected && !grid && heightResizable && (
         <Handle
           axis="y"
-          title="Höhe ziehen · Doppelklick: Standard"
           onStart={(e) => startResize(e, 'height', 120)}
           onReset={() => {
             const node = blockRef.current
@@ -236,16 +232,14 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
 
 interface HandleProps {
   axis: 'x' | 'y'
-  title: string
   onStart: (e: ReactPointerEvent<HTMLDivElement>) => void
   onReset: () => void
 }
 
-function Handle({ axis, title, onStart, onReset }: HandleProps) {
+function Handle({ axis, onStart, onReset }: HandleProps) {
   return (
     <div
       draggable={false}
-      title={title}
       onPointerDown={onStart}
       onDragStart={(e) => e.preventDefault()}
       onDoubleClick={(e) => {

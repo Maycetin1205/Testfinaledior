@@ -43,7 +43,6 @@ import {
   draftFrom,
   candidateFrom,
   stepReducer,
-  adoptMessage,
   templateOf,
 } from './stepDraft'
 import { ParameterRow } from './ParameterRow'
@@ -196,11 +195,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
     if (target === 'field' && !field) return
     const current = relation.parameter.map((_, index) => binding(index))
     const result = fieldAdopt(current, relation, source, code, target)
-    dispatch({
-      kind: 'adopt',
-      params: result.params,
-      message: adoptMessage(result.set, field?.name ?? source.name),
-    })
+    dispatch({ kind: 'adopt', params: result.params })
   }
 
   function save() {
@@ -231,9 +226,6 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
             entries: selections.popupPages.map((page) => ({ value: page.id, name: page.name })),
           }]}
           value={draft.popupId}
-          placeholder={selections.popupPages.length === 0
-            ? '(keine Popup-Seite vorhanden)'
-            : '— wählen —'}
           onChoose={(id) => dispatch({ kind: 'popup', id })}
         />
       )}
@@ -257,7 +249,6 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
             <Field
               {...kind}
               value={draft.command}
-              placeholder="z. B. TABELLEPOS_DETAILS,{PINDEX}"
               onChange={(e) => dispatch({ kind: 'command', value: e.currentTarget.value })}
             />
           )}
@@ -291,10 +282,10 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
                     <ParameterRow
                       key={index}
                       number={index + 1}
-                      template={raw === '' ? '(leer)' : raw}
+                      template={raw}
                       binding={binding(index)}
                       choices={choices}
-                      placeholder={raw === '' ? '(leer)' : raw}
+                      placeholder={raw}
                       remove={{
                         label: `Parameter ${index + 1} für diese Aktion weglassen`,
                         onClick: () =>
@@ -308,13 +299,10 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
                     />
                   )
                 })}
-                {relation.parameter.length === 0 && (
-                  <p className="text-ui text-matt">Keine Parameter.</p>
-                )}
                 {skipped.length > 0 && (
                   <div className="flex items-center justify-between gap-2 text-dicht text-matt">
                     <span>
-                      {`Weggelassen: ${skipped.map((i) => i + 1).join(', ')} — gehen leer raus`}
+                      {`Weggelassen: ${skipped.map((i) => i + 1).join(', ')}`}
                     </span>
                     <Button onClick={() => dispatch({ kind: 'bringBack' })}>Zurückholen</Button>
                   </div>
@@ -325,9 +313,6 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
                 <p className="break-all font-mono text-dicht text-matt">
                   {relationPreview(relation, candidate.parameter, candidate.extraParameter, choices)}
                 </p>
-              )}
-              {draft.adoptConfirmation && (
-                <p className="text-ui text-matt">{draft.adoptConfirmation}</p>
               )}
               {draft.pickerTarget && (
                 <FieldAdoptPicker

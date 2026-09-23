@@ -5,7 +5,6 @@ export interface FlagProps {
 
   label?: string
   name?: string
-  hint?: string
   id?: string
   disabled?: boolean
   onToggle: (on: boolean) => void
@@ -15,7 +14,6 @@ export function Flag({
   on,
   label,
   name,
-  hint,
   id,
   disabled = false,
   onToggle,
@@ -28,7 +26,6 @@ export function Flag({
         role="switch"
         aria-checked={on}
         aria-label={label === undefined ? name : undefined}
-        title={hint}
         disabled={disabled}
         onClick={() => onToggle(!on)}
         className={cn(

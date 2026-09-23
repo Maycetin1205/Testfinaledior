@@ -4,7 +4,6 @@ import { Entry } from '@/editor/widgets/Entry'
 import { Field } from '@/editor/widgets/Field'
 import { Mark } from '@/editor/widgets/Badge'
 import {
-  relationSyntaxAsText,
   relationGroup,
   type RelationGroup,
   type RelationTemplate,
@@ -55,7 +54,6 @@ export function RelationSelection({
         <Field
           aria-label={`${label} suchen`}
           value={search}
-          placeholder="Name, Nummer oder Syntax"
           className="pl-7"
           onChange={(e) => onSearch(e.target.value)}
         />
@@ -78,16 +76,13 @@ export function RelationSelection({
               active={entry.id === relationId}
               onClick={() => onSelect(entry.id)}
               right={unnamed ? undefined : (
-                <Mark hint={relationSyntaxAsText(entry)}>
+                <Mark>
                   {VERB_SHORT[entry.verb]} {entry.nr}
                 </Mark>
               )}
             />
           )
         })}
-        {visible.length === 0 && (
-          <p className="px-2 py-1 text-dicht text-matt">Keine Treffer.</p>
-        )}
       </div>
     </div>
   )

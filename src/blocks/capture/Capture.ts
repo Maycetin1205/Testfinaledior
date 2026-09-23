@@ -243,7 +243,6 @@ defineBlock(Capture, {
         columnsKey: 'windowColumns',
         widthKey: 'windowWidth',
         heightKey: 'windowHeight',
-        automatic: 'Ohne Spalten zeigt das Fenster eine: das Feld dieser Spalte.',
       },
     },
   ],

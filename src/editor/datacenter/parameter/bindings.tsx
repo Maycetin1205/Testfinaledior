@@ -212,7 +212,6 @@ export function StepResultBinding({ binding, choices, onChange }: BindingProps) 
           })),
         }]}
         value={binding.value}
-        placeholder={choices.steps.length === 0 ? '(kein GET-Schritt davor)' : '— wählen —'}
         onChoose={(id) => {
           const next: Parameter = { ...binding, value: id }
           delete next.resultField
@@ -231,7 +230,6 @@ export function StepResultBinding({ binding, choices, onChange }: BindingProps) 
         <Field
           aria-label="Feld des Ergebnisses"
           value={field}
-          placeholder="ganzes Ergebnis"
           onChange={(e) => setField(e.currentTarget.value)}
         />
       )}

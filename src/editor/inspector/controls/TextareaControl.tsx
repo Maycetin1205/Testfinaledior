@@ -21,7 +21,7 @@ export function TextareaControl({
 }: TextareaControlProps) {
   const session = useInputSession(onBeginEditing, onEndEditing)
   return (
-    <Row wide label={property.label} hint={property.help}>
+    <Row wide label={property.label}>
       {(kind) => (
         <FieldMultiline
           {...kind}

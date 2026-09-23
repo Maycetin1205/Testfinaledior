@@ -23,7 +23,6 @@ export const textProperties = {
   size: numberProperty({
     default: SIZE_STANDARD,
     label: 'Größe',
-    help: 'Schriftgröße in Pixeln.',
     attribute: 'size',
     unit: 'px',
     min: SIZE_MIN,
@@ -37,7 +36,6 @@ export const textProperties = {
   ], {
     default: 'normal',
     label: 'Gewicht',
-    help: 'Strichstärke der Schrift.',
     attribute: 'weight',
     row: 'Text-Stil',
   }),
@@ -48,7 +46,6 @@ export const textProperties = {
   ], {
     default: 'left',
     label: 'Ausrichtung',
-    help: 'Wo der Text in seiner Breite sitzt.',
     attribute: 'align',
     row: 'Text-Stil',
   }),
@@ -58,27 +55,23 @@ export const textProperties = {
   ], {
     default: 'standard',
     label: 'Farbe',
-    help: 'Textfarbe aus den Farben der Maske.',
     attribute: 'color',
   }),
   text: textProperty({
     default: 'Text',
     label: 'Text',
-    help: 'Was der Baustein zeigt, solange kein Feld gebunden ist.',
     place: 'block',
     attribute: 'text',
   }),
   source: sourceProperty({
     default: '',
     label: 'Datenquelle',
-    help: 'Die Quelle, aus der der Text sein Feld liest.',
     place: 'none',
     attribute: 'source',
   }),
   textField: fieldProperty({
     default: '',
     label: 'Textfeld',
-    help: 'Das Feld, dessen Wert der Baustein zeigt.',
     place: 'none',
     attribute: 'textfield',
   }),

@@ -79,7 +79,6 @@ export function EditorShell() {
           aria-valuemin={INSPECTOR_MIN}
           aria-valuemax={INSPECTOR_MAX}
           tabIndex={0}
-          title="Breite ziehen"
           className="w-1.5 shrink-0 cursor-col-resize border-l border-linie bg-panel transition-colors hover:bg-akzent focus-visible:bg-akzent focus-visible:outline-none"
           onPointerDown={(e) => startWidthsDrag(e, inspectorWidth, setInspectorWidth, setAndRemember)}
           onKeyDown={onHandleKey}

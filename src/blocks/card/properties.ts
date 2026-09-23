@@ -5,7 +5,6 @@ function spot(label: string, attribute: string) {
   return textProperty({
     default: '',
     label,
-    help: 'Was an dieser Stelle der Karte steht.',
     place: 'block',
     attribute,
   })
@@ -15,17 +14,13 @@ function spotField(label: string, attribute: string) {
   return fieldProperty({
     default: '',
     label: `${label} — Feld`,
-    help: 'Das Feld, dessen Wert an dieser Stelle steht.',
     place: 'none',
     attribute,
   })
 }
 
 export const cardProperties = {
-  chipTone: toneProperty(
-    'Bedeutung des Chips auf der Karte — bestimmt die Chip-Farbe.',
-    'chiptone',
-  ),
+  chipTone: toneProperty('chiptone'),
   heading: spot('Titel', 'heading'),
   heading2: spot('Titel 2', 'heading2'),
   time: spot('Zeit', 'time'),

@@ -58,11 +58,6 @@ function Window({ blockId }: { blockId: string }) {
         onClose={close}
       >
         <div className="flex flex-col gap-3">
-          <p className="text-ui text-matt">
-            Noch keine Berechnung an dieser Erfassung. Eine Berechnung verbindet
-            mehrere Spalten zu einer Gleichung: wer drei ihrer Größen ausfüllt,
-            bekommt die vierte.
-          </p>
           <Button kind="primary" className="self-start" onClick={make}>+ Berechnung</Button>
         </div>
       </Dialog>

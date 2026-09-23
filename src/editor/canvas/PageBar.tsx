@@ -49,14 +49,13 @@ export function PagesBar() {
               onDoubleClick={() => {
                 if (!p.isMainPage) setRename({ id: p.id, text: p.name })
               }}
-              title={p.isMainPage ? undefined : 'Doppelklick: umbenennen'}
             >
               {p.name}
             </Tabs>
             {p.id === active && !p.isMainPage && (
               <Button
                 onlyIcon
-                title="Seite löschen (Strg+Z stellt sie zurück)"
+                title="Seite löschen"
                 aria-label={`Seite ${p.name} löschen`}
                 onClick={() => ed.removeBlock(p.id)}
                 className="h-6 w-auto rounded-l-none bg-akzent/15 pr-1.5 hover:bg-akzent/15 hover:text-fehler"
@@ -71,7 +70,6 @@ export function PagesBar() {
         <Tabs
           key={def.type}
           onClick={() => ed.addPage(def.type)}
-          title={`Neue Seite anlegen: ${def.name}`}
         >
           ＋ {def.name}
         </Tabs>

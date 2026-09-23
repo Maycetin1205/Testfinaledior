@@ -68,7 +68,6 @@ export const CAPTURE_COLUMNS_BINDING: ListBinding = {
       key: 'fillField',
 
       name: 'Nachschlagen',
-      hint: 'Beim Erfassen füllt der gewählte Satz der Hilfsquelle diese Zelle.',
       onlyForeignSources: true,
     },
   ],
@@ -92,7 +91,6 @@ export function captureColumnsProperty(): Property<CaptureColumn[]> {
   }, {
     default: standardColumns(),
     label: 'Spalten',
-    help: 'Welche Felder in welcher Reihenfolge erfasst werden.',
     place: 'block',
     attribute: 'columns',
   })

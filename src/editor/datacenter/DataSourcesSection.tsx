@@ -38,20 +38,17 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
   const [importState, setImportState] = useState<{
     fileName: string
     tables: DtkTable[]
-    failuresBase?: string
   } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function dtkChosen(file: File) {
     let tables: DtkTable[]
-    let failuresBase: string | undefined
     try {
       tables = dtkRead(new Uint8Array(await file.arrayBuffer()))
-    } catch (error) {
+    } catch {
       tables = []
-      failuresBase = error instanceof Error ? error.message : String(error)
     }
-    setImportState({ fileName: file.name, tables, failuresBase })
+    setImportState({ fileName: file.name, tables })
     setMode('import')
   }
 
@@ -141,11 +138,6 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
               />
             )
           })}
-          {store.list.length === 0 && (
-            <p className="px-1 py-2 text-dicht text-matt">
-              Noch keine Datenquellen.
-            </p>
-          )}
           </>
         )}
         detail={(
@@ -157,15 +149,11 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
           <DtkImportForm
             fileName={importState.fileName}
             tables={importState.tables}
-            failuresBase={importState.failuresBase}
             onClose={() => setMode('read')}
           />
         )}
         {mode === 'edit' && selection && (
           <DataSourceForm source={selection} onClose={() => setMode('read')} />
-        )}
-        {mode === 'read' && !selection && (
-          <p className="text-dicht text-matt">Keine Datenquelle gewählt.</p>
         )}
         {mode === 'read' && selection && (
           <div className="flex flex-col gap-4 text-ui">
@@ -189,18 +177,13 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
                         </td>
                       </tr>
                     ))}
-                    {selection.fields.length === 0 && (
-                      <tr><td className="px-2.5 py-1 text-matt">Keine Felder.</td></tr>
-                    )}
                   </tbody>
                 </table>
               </div>
             </Group>
 
             <Group title="Verwendung in dieser Maske">
-              {usageOf(selection.id).length === 0 ? (
-                <p className="text-matt">Von keinem Baustein verwendet.</p>
-              ) : (
+              {usageOf(selection.id).length > 0 && (
                 <ul className="flex flex-col gap-1">
                   {usageOf(selection.id).map((name, i) => (
                     <li key={i} className="rounded border border-linie bg-control px-2.5 py-1">

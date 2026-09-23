@@ -14,7 +14,6 @@ export function listProperties() {
     source: sourceProperty({
       default: '',
       label: 'Datenquelle',
-      help: 'Die Quelle, deren Zeilen die Liste zeigt.',
       place: 'none',
       attribute: 'source',
     }),
@@ -22,27 +21,22 @@ export function listProperties() {
     search: booleanProperty({
       default: true,
       label: 'Suchzeile',
-      help: 'Zeigt über der Tabelle ein Feld, mit dem der Bediener den Inhalt durchsucht.',
       attribute: 'search',
       needsSource: true,
     }),
     paging: booleanProperty({
       default: true,
       label: 'Blättern',
-      help: 'Ja: Seiten mit Blätter-Knöpfen. Nein: alles untereinander, der Rumpf rollt.',
       attribute: 'paging',
     }),
     headerRow: booleanProperty({
       default: true,
       label: 'Kopfzeile',
-      help: 'Aus: keine Titelzeile, kein Sortieren per Titelklick.',
       attribute: 'headerrow',
     }),
     columnPicker: booleanProperty({
       default: false,
       label: 'Spaltenwahl',
-      help: 'In der Maske: Rechtsklick auf eine Spaltenüberschrift nimmt Spalten weg '
-        + 'und holt sie zurück. Braucht die Kopfzeile.',
       attribute: 'columnpicker',
     }),
     dayField: dayFieldProperty(),

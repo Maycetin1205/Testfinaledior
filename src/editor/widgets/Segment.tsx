@@ -12,7 +12,6 @@ export interface SegmentProps {
   name: string
   options: readonly SegmentOption[]
   value: string
-  hint?: string
   id?: string
   onChoose: (value: string) => void
 }
@@ -21,7 +20,6 @@ export function Segment({
   name,
   options,
   value,
-  hint,
   id,
   onChoose,
 }: SegmentProps) {
@@ -30,7 +28,6 @@ export function Segment({
       id={id}
       role="radiogroup"
       aria-label={name}
-      title={hint}
       className="flex h-steuer w-fit items-center gap-px rounded border border-linie bg-control p-px"
     >
       {options.map((o) => {
@@ -42,7 +39,7 @@ export function Segment({
             role="radio"
             aria-checked={chosen}
             aria-label={o.name}
-            title={o.name}
+            title={o.icon === undefined ? undefined : o.name}
             onClick={() => onChoose(o.value)}
             className={cn(
               'flex h-full shrink-0 items-center justify-center whitespace-nowrap rounded text-dicht transition-colors',

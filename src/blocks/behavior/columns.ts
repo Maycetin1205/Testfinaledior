@@ -237,7 +237,6 @@ export function columnsProperty(): Property<Column[]> {
   }, {
     default: standardColumns(),
     label: 'Spalten',
-    help: 'Welche Felder in welcher Reihenfolge stehen.',
     place: 'block',
     attribute: 'columns',
   })

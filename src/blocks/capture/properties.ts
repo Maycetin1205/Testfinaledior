@@ -33,21 +33,18 @@ export const captureProperties = {
   }, {
     default: [],
     label: 'Berechnungen',
-    help: 'Rechnungen, die eine Zelle aus anderen Zellen füllen.',
     place: 'none',
     attribute: 'calculations',
   }),
   windowWidth: numberProperty({
     default: WINDOW_WIDTH,
     label: 'Fensterbreite',
-    help: 'Breite des Nachschlage-Fensters in Pixeln.',
     place: 'none',
     attribute: 'lookupwidth',
   }),
   windowHeight: numberProperty({
     default: WINDOW_HEIGHT,
     label: 'Fensterhöhe',
-    help: 'Höhe des Nachschlage-Fensters in Pixeln.',
     place: 'none',
     attribute: 'lookupheight',
   }),

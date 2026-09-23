@@ -73,8 +73,6 @@ export function BlockPalette() {
         />
       </label>
 
-      {filtered.length === 0 && <p className="text-ui text-matt">Keine Treffer.</p>}
-
       {CATEGORY_ORDER.filter((cat) => (grouped[cat]?.length ?? 0) > 0).map((cat) => (
         <Group key={cat} title={CATEGORY_LABEL[cat]}>
           <div className="flex flex-col gap-1">

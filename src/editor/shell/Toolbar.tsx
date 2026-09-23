@@ -37,16 +37,6 @@ const MASK_NAMES = {
   sevariablen: 'index.basis.SEvariablen.json',
 }
 
-const FRAME_TITLE = 'Nummer des Layoutrahmens — nur für den Beleg-Export.'
-  + ' Leer heißt: diese Maske ist kein Belegrahmen.'
-
-const FRAME_MISSING = 'Beleg-Export — braucht die Nummer des Layoutrahmens im Feld davor'
-
-function documentTitle(number: string): string {
-  const names = documentFileNames(number)
-  return `Beleg-Export — ${names.html} und ${names.sevariablen}`
-}
-
 export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
   const ed = useEditor()
 
@@ -83,7 +73,6 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
         value={maskName}
         placeholder={MASK_NAME_STANDARD}
         aria-label="Name der Maske"
-        title="Name der Maske — wird der Titel der exportierten Maske und ihr Anmeldename in SoftEngine"
         className="w-40"
         onChange={(e) => {
           nameSession.begin()
@@ -98,7 +87,6 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
         inputMode="numeric"
         maxLength={FRAME_SPOTS}
         aria-label="Nummer des Belegerfassungs-Layoutrahmens"
-        title={FRAME_TITLE}
         className="w-16"
         onChange={(e) => {
           frameSession.begin()
@@ -107,16 +95,12 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
         onBlur={frameSession.finish}
       />
 
-      <Button
-        onClick={onDataCenter}
-        title="Datencenter — Datenquellen und Relationen der Maske"
-      >
+      <Button onClick={onDataCenter}>
         <SlidersHorizontal size={14} /> Datencenter
       </Button>
 
       <Button
         aria-label="Als Belegerfassungs-Layoutrahmen exportieren"
-        title={frame === '' ? FRAME_MISSING : documentTitle(frame)}
         onClick={() => handleExport(documentFileNames(frame))}
         disabled={ed.blockCount === 0 || frame === ''}
       >
@@ -126,7 +110,6 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
       <Button
         kind="primary"
         aria-label="Als SoftEngine-Maske exportieren"
-        title="Export — Maskendatei und SEvariablen, beide in denselben Ordner"
         onClick={() => handleExport(MASK_NAMES)}
         disabled={ed.blockCount === 0}
       >
@@ -180,10 +163,10 @@ function ExtraActions({
 
   return (
     <>
-      <Button onClick={onSave} title="Maskendatei speichern (Strg+S)">
+      <Button onClick={onSave}>
         <Save size={14} /> Speichern
       </Button>
-      <Button onClick={() => fileRef.current?.click()} title="Gespeicherte Maske laden">
+      <Button onClick={() => fileRef.current?.click()}>
         <FolderOpen size={14} /> Laden
       </Button>
       <Button

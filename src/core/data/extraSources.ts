@@ -33,7 +33,6 @@ export const extraSourcesProperty: Property<ExtraSource[]> = structuredProperty<
 }, {
   default: [],
   label: 'Weitere Quellen',
-  help: 'Quellen, die der Baustein zusaetzlich liest.',
   place: 'none',
   attribute: 'extrasources',
 })
@@ -103,14 +102,4 @@ export function sourcesResolve(
     acc.push({ source: source, pairs: completePairs(q), partnerId })
   }
   return acc
-}
-
-export function pairPlainText(
-  pairs: readonly KeyPair[],
-  first: DataSource | undefined,
-): string {
-  return pairs
-    .map((p) => first?.fields.find((f) => f.code === p.ofField)?.name ?? '')
-    .filter((n) => n !== '')
-    .join(' + ')
 }

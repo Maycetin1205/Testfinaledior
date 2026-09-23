@@ -59,7 +59,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const [areaInput, setAreaInput] = useState(source?.area ?? '')
 
   const [maskText, setMaskText] = useState('')
-  const [maskHint, setMaskHint] = useState('')
 
   const [delivery, setDelivery] = useState<'list' | 'openRecord'>(
     source?.delivery ?? 'list',
@@ -163,30 +162,23 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   else if (nameDouble) nameError = 'Diesen Namen trägt schon eine andere Quelle.'
   const keyError =
     keyEnter && keyFromInput(keyInput, kindFacts.idbShortForm) === ''
-      ? `${wording.keyLabel} fehlt (z. B. ${wording.keyExample}).`
+      ? `${wording.keyLabel} fehlt.`
       : ''
 
   const headerKeyError =
     headerKeyEnter && headerKeyInput.trim() !== '' && headerKeyFromInput(headerKeyInput) === ''
-      ? 'Ungültig — Beispiel: BEL_0_11.'
+      ? 'Ungültig.'
       : ''
 
   const areaError = areaEnter && areaInput.trim() === ''
-    ? 'Bereich fehlt (z. B. BEL).'
+    ? 'Bereich fehlt.'
     : ''
 
   function maskFieldsAdopt() {
     const read = readMaskFields(maskText)
-    if (read === null) {
-      setMaskHint('Daraus wird keine Feldbeschreibung. Erwartet wird, was SEDATA.Daten.Masken.<Name> liefert.')
-      return
-    }
+    if (read === null) return
     setRows(read.fields.map((f) => rowFromField(f, read.prefix, false)))
     if (read.prefix !== '') setPrefixInput(read.prefix)
-    const parts = [`${read.fields.length} Felder übernommen`]
-    if (read.onlyDisplay > 0) parts.push(`${read.onlyDisplay} davon nur Anzeige`)
-    if (read.skipped > 0) parts.push(`${read.skipped} ohne Feldcode übersprungen`)
-    setMaskHint(`${parts.join(', ')}.`)
     setMaskText('')
   }
   const rowsError = rows.map((z) => {
@@ -217,9 +209,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   ]
 
   if (recordNumber !== '' && !recordNumberOptions.some((o) => o.value === recordNumber)) {
-    recordNumberOptions.push({
-      value: recordNumber, name: recordNumber, detail: 'kein Feld dieser Quelle',
-    })
+    recordNumberOptions.push({ value: recordNumber, name: recordNumber })
   }
 
   const relationNrError = fetchesRows && relationNrFromInput(relationNr) === ''
@@ -289,7 +279,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
             <Field
               {...f}
               value={name}
-              placeholder="z. B. Terminplaner"
               onChange={(e) => setName(e.target.value)}
             />
           )}
@@ -308,7 +297,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
               <Field
                 {...f}
                 value={keyInput}
-                placeholder={`z. B. ${wording.keyExample}`}
                 className="w-32"
                 onChange={(e) => setKeyInput(e.target.value)}
               />
@@ -322,7 +310,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
               <Field
                 {...f}
                 value={areaInput}
-                placeholder="z. B. BEL"
                 className="w-32"
                 onChange={(e) => setAreaInput(e.target.value)}
               />
@@ -338,16 +325,12 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                   value={maskText}
                   onChange={(e) => setMaskText(e.target.value)}
                   rows={3}
-                  placeholder="In SoftEngine F12, SEDATA.Daten.Masken.NAME kopieren und hier einfügen"
                   className="w-full rounded border border-linie bg-panel p-1.5 font-mono text-dicht"
                 />
                 <div className="flex items-center gap-2">
                   <Button onClick={maskFieldsAdopt} disabled={maskText.trim() === ''}>
                     Felder übernehmen
                   </Button>
-                  {maskHint !== '' && (
-                    <span className="text-dicht text-matt">{maskHint}</span>
-                  )}
                 </div>
               </div>
             )}
@@ -360,7 +343,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
               <Field
                 {...f}
                 value={prefixInput}
-                placeholder="z. B. LFA_"
                 className="w-32"
                 onChange={(e) => setPrefixInput(e.target.value)}
               />
@@ -406,10 +388,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                 />
               )}
             </Row>
-            <p className="text-dicht text-matt">
-              Welche Zeile gemeint ist, stellst du am Baustein ein:
-              „Auswahl folgen“ → die Tabelle mit den Belegen.
-            </p>
           </>
         )}
 
@@ -422,7 +400,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
               <Field
                 {...f}
                 value={headerKeyInput}
-                placeholder="z. B. BEL_0_11"
                 className="w-32"
                 onChange={(e) => setHeaderKeyInput(e.target.value)}
               />
@@ -449,10 +426,10 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                   <ParameterRow
                     key={index}
                     number={index + 1}
-                    template={raw === '' ? '(leer)' : raw}
+                    template={raw}
                     binding={getParams[index] ?? { source: 'fixed', value: '' }}
                     choices={getChoices}
-                    placeholder={raw === '' ? '(leer)' : raw}
+                    placeholder={raw}
                     onChange={(value) => setGetParams((old) => {
                       const next = [...old]
                       next[index] = value
@@ -460,9 +437,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                     })}
                   />
                 ))}
-                {getRelation.parameter.length === 0 && (
-                  <p className="text-ui text-matt">Keine Parameter.</p>
-                )}
               </Group>
             )}
           </>
@@ -471,7 +445,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         <FieldList
           columnsNames={kindFacts.columnsNames}
           columnsLabel={wording.columnsLabel}
-          columnsExample={wording.columnsExample}
           rows={rows}
           setRows={setRows}
           rowsError={rowsError}
@@ -482,7 +455,6 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         {kindFacts.recordNumberPossible && (
           <SelectControl
             label="Satznummer"
-            description="Macht eine Zeile eindeutig. Ohne sie kann die Maske neue Zeilen anlegen, aber keine bestehende ändern oder löschen."
             value={recordNumber}
             options={recordNumberOptions}
             onChange={setRecordNumber}

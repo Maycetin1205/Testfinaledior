@@ -21,7 +21,7 @@ export function TextControl({
 }: TextControlProps) {
   const session = useInputSession(onBeginEditing, onEndEditing)
   return (
-    <Row label={property.label} hint={property.help}>
+    <Row label={property.label}>
       {(kind) => (
         <Field
           {...kind}

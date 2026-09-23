@@ -72,16 +72,10 @@ function LibraryActions() {
           }
         }}
       />
-      <Button
-        title="Datenquellen und Relationen als eigene Datei speichern — ohne die Bausteine"
-        onClick={() => saveLibraryAsFile(ed)}
-      >
+      <Button onClick={() => saveLibraryAsFile(ed)}>
         <Save size={14} /> Bibliothek speichern
       </Button>
-      <Button
-        title="Datenquellen und Relationen aus einer Bibliotheksdatei ergänzen — nichts wird gelöscht"
-        onClick={() => fileRef.current?.click()}
-      >
+      <Button onClick={() => fileRef.current?.click()}>
         <FolderOpen size={14} /> Bibliothek laden…
       </Button>
     </>

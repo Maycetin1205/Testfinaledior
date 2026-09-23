@@ -6,15 +6,14 @@ type SelectOption = ChoiceOption & { detail?: string }
 
 interface SelectControlProps {
   label: string
-  description?: string
   value: string
   options: readonly SelectOption[]
   onChange: (value: string) => void
 }
 
-export function SelectControl({ label, description, value, options, onChange }: SelectControlProps) {
+export function SelectControl({ label, value, options, onChange }: SelectControlProps) {
   return (
-    <Row label={label} hint={description}>
+    <Row label={label}>
       {(kind) => (
         <Choice
           {...kind}

@@ -25,7 +25,7 @@ export const widthProperty: Property<FlowWidth> = structuredProperty<FlowWidth>(
     : { ok: false }),
   toAttribute: (value) => String(value),
   fromAttribute: (raw, fallback) => (raw === null ? fallback : flowWidthRead(raw)),
-}, { default: 'auto', label: 'Breite', help: 'Wie breit der Baustein im Fluss liegt.', place: 'none' })
+}, { default: 'auto', label: 'Breite', place: 'none' })
 
 export function flowWidthRead(value: unknown): FlowWidth {
   if (value === 'fill') return 'fill'

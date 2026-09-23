@@ -34,11 +34,6 @@ export function BackupsWindow({ onClose }: { onClose: () => void }) {
       onClose={onClose}
     >
       <div className="flex flex-col gap-2">
-        <p className="text-ui text-matt">
-          Die gewählte Kopie ersetzt Bausteine, Datenquellen und Relationen.
-          Strg+Z nimmt das in einem Schritt zurück.
-        </p>
-
         <div className="max-h-[50vh] overflow-y-auto">
           <List
             groups={[{
@@ -51,7 +46,6 @@ export function BackupsWindow({ onClose }: { onClose: () => void }) {
               })),
             }]}
             value={chosen}
-            emptyHint="Es liegt keine Notfallkopie im Browser-Speicher."
             onChoose={setChosen}
           />
         </div>

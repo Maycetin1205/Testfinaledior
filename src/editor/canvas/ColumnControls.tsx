@@ -181,7 +181,6 @@ export function ColumnsControls({
             width: Math.max(0, s.width - 2 * HANDLE_EDGE),
             height: s.height,
           }}
-          title="Klick: Feld und Einstellungen der Spalte · Ziehen: Spalte verschieben"
           onPointerDown={(e) => onPress(i, e)}
           onClick={(e) => e.stopPropagation()}
           onDoubleClick={(e) => e.stopPropagation()}

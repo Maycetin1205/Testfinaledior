@@ -199,7 +199,6 @@ function Heads({ open }: { open: OpenLookup }) {
                 width: Math.max(0, right - left),
                 height: head.height,
               }}
-              title="Feld und Titel dieser Spalte im Suchfenster"
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation()

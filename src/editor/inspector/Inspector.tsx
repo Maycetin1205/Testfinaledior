@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from 'react'
-import { Copy, MousePointer2 } from '@/editor/icons/icon'
+import { Copy } from '@/editor/icons/icon'
 import { propertiesFor } from '../../core/block/propertyPlace'
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
@@ -63,30 +63,10 @@ export function Inspector() {
     onEndEditing: () => ed.endTransaction(),
   }), [ed])
   const block = ed.selectedNode
-
-  if (!block) {
-    return (
-      <Panel title="Inspector">
-        <div className="flex flex-col items-center gap-1.5 rounded border border-dashed border-linie px-6 py-6 text-center">
-          <MousePointer2 size={18} aria-hidden className="text-matt" />
-          <p className="text-ui text-tinte">Kein Baustein gewählt.</p>
-          <p className="text-dicht text-matt">Wähle einen Baustein auf der Fläche.</p>
-        </div>
-      </Panel>
-    )
-  }
+  if (!block) return null
 
   const def = blockType(block.type)
-
-  if (!def) {
-    return (
-      <Panel title="Inspector">
-        <p className="text-dicht text-fehler">
-          Keine Definition für Block-Typ &quot;{block.type}&quot; gefunden.
-        </p>
-      </Panel>
-    )
-  }
+  if (!def) return null
 
   const shownName = blockName(block, sources.list)
 
@@ -184,12 +164,6 @@ export function Inspector() {
             <ActionsSection block={block} events={events} />
           </Group>
         )}
-
-        {generalProps.length === 0 && !showDataSection && !hasActions
-          && !maySelectionFollows(block) && searchWindow === undefined && (
-          <p className="text-ui text-matt">Gestaltung direkt am Baustein. Hier sind keine weiteren Daten- oder Verhaltenseinstellungen nötig.</p>
-        )}
-
       </div>
     </Panel>
   )

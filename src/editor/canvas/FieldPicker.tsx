@@ -18,8 +18,6 @@ export interface PickerGroup {
   name: string
 
   badge?: string
-
-  hint?: string
   fields: readonly DataField[]
 }
 
@@ -45,7 +43,6 @@ export interface PickerFlag {
 export interface PickerField {
   key: string
   label: string
-  hint?: string
 
   current: string
 
@@ -64,7 +61,6 @@ interface FieldPickerProps {
   extraFields?: readonly PickerField[]
 
   sourcesChoice?: {
-    hint: string
     entries: readonly { value: string; name: string; key?: string }[]
     onChoose: (sourceId: string) => void
 
@@ -78,7 +74,6 @@ interface FieldPickerProps {
 
   further?: readonly {
     label: string
-    hint?: string
     onOpen: () => void
   }[]
 
@@ -120,7 +115,6 @@ function listGroups(groups: readonly PickerGroup[]): ListGroup[] {
     key: g.sourceId === '' ? '__erste__' : g.sourceId,
     name: g.name,
     badge: g.badge,
-    hint: g.hint === undefined || g.hint === '' ? undefined : `über ${g.hint}`,
     entries: g.fields.map((f) => ({
       value: bindingWithSource(g.sourceId, f.code),
       name: f.name,
@@ -131,18 +125,16 @@ function listGroups(groups: readonly PickerGroup[]): ListGroup[] {
 
 interface FieldRowProps {
   label: string
-  hint?: string
   display: Display
   active: boolean
   onActive: () => void
 }
 
-function FieldRow({ label, hint, display, active, onActive }: FieldRowProps) {
+function FieldRow({ label, display, active, onActive }: FieldRowProps) {
   return (
     <MenuRow
       active={active}
       aria-pressed={active}
-      title={hint}
       onClick={onActive}
       className="px-1.5"
     >
@@ -212,7 +204,6 @@ export function FieldPicker({
     <FieldRow
       key={target.key}
       label={target.label}
-      hint={target.hint}
       display={displayOf(target.current, groups)}
       active={target.key === active.key}
       onActive={() => setTargetKey(target.key)}
@@ -239,9 +230,6 @@ export function FieldPicker({
         {sourcesChoice ? (
           sourcesChoice.entries.length === 0 ? (
             <div className="flex flex-col gap-2 px-1.5 pb-1">
-              <p className="text-ui text-matt">
-                Noch keine Datenquelle. Lege im Datencenter an, woher die Daten kommen.
-              </p>
               {sourcesChoice.onDataCenter && (
                 <Button kind="primary" className="self-start" onClick={sourcesChoice.onDataCenter}>
                   Datencenter öffnen
@@ -250,7 +238,6 @@ export function FieldPicker({
             </div>
           ) : (
             <>
-              <p className="px-1.5 text-ui text-matt">{sourcesChoice.hint}</p>
               <Divider />
               <List
                 searchable={sourcesChoice.entries.length > 8}
@@ -291,7 +278,6 @@ export function FieldPicker({
                 key={s.key}
                 on={s.on}
                 label={s.short ?? s.label}
-                hint={s.label}
                 onToggle={s.onToggle}
               />
             ))}
@@ -321,11 +307,6 @@ export function FieldPicker({
           )}
           value={active.current}
           emptyText={NOT_BOUND}
-          emptyHint={
-            active.onlyForeignSources === true
-              ? 'Keine Hilfsquelle am Baustein.'
-              : undefined
-          }
           onChoose={active.onChoose}
         />
           </>
@@ -334,7 +315,7 @@ export function FieldPicker({
           <div className="sticky bottom-0 -mb-1 flex items-center justify-between gap-2 border-t border-linie bg-panel px-1.5 py-1.5">
             <div className="flex items-center gap-1.5">
               {(further ?? []).map((w) => (
-                <Button key={w.label} title={w.hint} onClick={w.onOpen}>{w.label}</Button>
+                <Button key={w.label} onClick={w.onOpen}>{w.label}</Button>
               ))}
             </div>
             {onRemove !== undefined && (

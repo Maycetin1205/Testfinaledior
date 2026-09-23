@@ -3,7 +3,6 @@ import { cn } from '@/editor/widgets/cn'
 
 export interface TabsProps {
   active?: boolean
-  title?: string
   onClick: () => void
   onDoubleClick?: () => void
   className?: string
@@ -12,7 +11,6 @@ export interface TabsProps {
 
 export function Tabs({
   active = false,
-  title,
   onClick,
   onDoubleClick,
   className,
@@ -21,7 +19,6 @@ export function Tabs({
   return (
     <button
       type="button"
-      title={title}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       className={cn(

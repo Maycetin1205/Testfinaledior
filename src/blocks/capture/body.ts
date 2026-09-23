@@ -41,7 +41,6 @@ export function deletableProperty(): Property<boolean> {
   return booleanProperty({
     default: false,
     label: 'Zeilen löschbar',
-    help: 'Kreuz an jeder Zeile: merkt sie zum Löschen vor.',
     attribute: 'deletable',
     needsSource: true,
   })

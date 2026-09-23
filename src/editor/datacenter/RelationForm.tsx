@@ -56,7 +56,6 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
             <Field
               {...kind}
               value={name}
-              placeholder="z. B. Termin verschieben"
               onChange={(e) => setName(e.target.value)}
             />
           )}
@@ -73,7 +72,6 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
             <Field
               {...kind}
               value={syntaxInput}
-              placeholder="z. B. GET_RELATION[640!{IDBID}!{DATUM}]"
               className="font-mono text-dicht"
               onChange={(e) => setSyntaxInput(e.target.value)}
             />
@@ -90,10 +88,9 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
               {syntax.parameter.map((param, i) => (
                 <div key={i} className="flex gap-2">
                   <span className="w-5 shrink-0 text-right">{i + 1}.</span>
-                  <span>{param === '' ? '(leer)' : param}</span>
+                  <span>{param}</span>
                 </div>
               ))}
-              {syntax.parameter.length === 0 && <div>Keine Parameter.</div>}
             </div>
           </div>
         )}

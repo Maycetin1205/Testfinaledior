@@ -71,7 +71,6 @@ export function PropControl({
       return (
         <SegmentControl
           name={property.label}
-          description={property.help}
           options={property.type.options ?? []}
           value={String(value ?? '')}
           onChange={set}
@@ -81,9 +80,7 @@ export function PropControl({
   }
 
   if (property.needsSource && !sourceInReach) return null
-  if (kind === 'field' && !fieldSource) {
-    return <p className="text-dicht text-matt">{property.label}: zuerst eine passende Datenquelle verbinden.</p>
-  }
+  if (kind === 'field' && !fieldSource) return null
 
   if (kind === 'boolean') {
     return <TileControl property={property} value={value} onChange={set} />
@@ -204,7 +201,6 @@ export function PropControl({
     return (
       <PickerControl
         label={property.label}
-        hint={property.help}
         name={`${denominator} für ${property.label}`}
         {...rest}
       />
@@ -224,7 +220,6 @@ export function PropControl({
         <SegmentControl
           label={property.label}
           name={property.label}
-          description={property.help}
           options={property.type.options ?? []}
           value={String(value ?? '')}
           onChange={set}
@@ -234,7 +229,6 @@ export function PropControl({
       const opts = property.type.options ?? []
       const shared = {
         label: property.label,
-        description: property.help,
         options: opts,
         value: String(value ?? ''),
         onChange: set,

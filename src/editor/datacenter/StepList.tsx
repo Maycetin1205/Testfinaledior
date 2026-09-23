@@ -4,7 +4,6 @@ import { Button } from '@/editor/widgets/PushButton'
 import { Mark } from '@/editor/widgets/Badge'
 import { valueSpotsInTree, selectionGiverInTree } from '../../core/block/treeQuery'
 import { resultStepsBefore, type Step } from '../../core/data/actions'
-import { relationSyntaxAsText } from '../../core/data/relations'
 import { stepProblem } from '../../core/data/stepCheck'
 import { stepName } from './wording'
 import { isWindowPage } from '../../core/block/pages'
@@ -129,7 +128,6 @@ export function StepList({
               <Button
                 disabled={!onChoose}
                 onClick={() => onChoose?.(s)}
-                title={problem ?? undefined}
                 className="h-auto min-w-0 flex-[3] flex-col items-start justify-start py-1 text-left"
               >
                 <span className="block w-full truncate text-dicht">
@@ -137,7 +135,6 @@ export function StepList({
                   {s.kind === 'START_TOOL' && s.toolNr.trim() !== '' ? ` — Nr. ${s.toolNr}` : ''}
                   {s.kind === 'BW_LINK' && s.command.trim() !== '' ? ` — ${s.command}` : ''}
                   {popupName ? ` — ${popupName}` : ''}
-                  {problem !== null ? ' — unvollständig' : ''}
                 </span>
                 {closer !== '' && (
                   <span className="block w-full truncate text-dicht text-matt">
@@ -147,7 +144,7 @@ export function StepList({
               </Button>
 
               {stepRelation && (
-                <Mark hint={relationSyntaxAsText(stepRelation)}>
+                <Mark>
                   {VERB_SHORT[stepRelation.verb]} {stepRelation.nr}
                 </Mark>
               )}
@@ -163,7 +160,6 @@ export function StepList({
               ) : (
                 s.note !== undefined && s.note !== '' && (
                   <span
-                    title={s.note}
                     className="min-w-0 flex-[2] truncate text-dicht italic text-matt"
                   >
                     {s.note}

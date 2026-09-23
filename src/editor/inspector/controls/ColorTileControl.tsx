@@ -4,15 +4,14 @@ import { Row } from '@/editor/widgets/Row'
 
 interface ColorTileControlProps {
   label: string
-  description?: string
   value: string
   options: readonly ChoiceOption[]
   onChange: (value: string) => void
 }
 
-export function ColorTileControl({ label, description, value, options, onChange }: ColorTileControlProps) {
+export function ColorTileControl({ label, value, options, onChange }: ColorTileControlProps) {
   return (
-    <Row wide label={label} hint={description}>
+    <Row wide label={label}>
       {(kind) => (
         <div {...kind} className="flex flex-wrap items-center gap-1.5">
           {options.map((o) => (

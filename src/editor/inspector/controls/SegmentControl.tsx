@@ -6,18 +6,16 @@ import { segmentIcon } from '../segmentIcons'
 interface SegmentControlProps {
   name: string
   label?: string
-  description?: string
   value: string
   options: readonly ChoiceOption[]
   onChange: (value: string) => void
 }
 
-function Segmente({ name, description, value, options, onChange, id }: SegmentControlProps & { id?: string }) {
+function Segmente({ name, value, options, onChange, id }: SegmentControlProps & { id?: string }) {
   return (
     <Segment
       id={id}
       name={name}
-      hint={description}
       value={value}
       options={options.map((o) => ({
         value: o.value,
@@ -33,8 +31,8 @@ export function SegmentControl({ label, ...rest }: SegmentControlProps) {
   if (!label) return <Segmente {...rest} />
 
   return (
-    <Row label={label} hint={rest.description}>
-      {(kind) => <Segmente {...rest} description={undefined} id={kind.id} />}
+    <Row label={label}>
+      {(kind) => <Segmente {...rest} id={kind.id} />}
     </Row>
   )
 }

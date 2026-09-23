@@ -5,7 +5,7 @@ import {
   type StepKind,
 } from '../../core/data/actions'
 import type { RelationTemplate } from '../../core/data/relations'
-import type { FieldAdoptTarget, AdoptHit } from './fieldAdopt'
+import type { FieldAdoptTarget } from './fieldAdopt'
 
 export interface StepDraft {
   id: string
@@ -23,7 +23,6 @@ export interface StepDraft {
   showError: boolean
 
   pickerTarget: FieldAdoptTarget | null
-  adoptConfirmation: string
 }
 
 export function templateOf(
@@ -51,7 +50,6 @@ export function draftFrom(
     search: '',
     showError: false,
     pickerTarget: null,
-    adoptConfirmation: '',
   }
 }
 
@@ -85,17 +83,6 @@ function onLength(
   return next
 }
 
-export function adoptMessage(
-  set: readonly AdoptHit[],
-  name: string,
-): string {
-  const details = set.map((hit) => {
-    const kind = hit.kind === 'pos' ? 'Position' : hit.kind === 'len' ? 'Länge' : 'Tabelle'
-    return `${kind} ${hit.value}`
-  })
-  return name + ' übernommen' + (details.length > 0 ? ' - ' + details.join(' - ') : '')
-}
-
 export type StepAction =
   | { kind: 'type'; type: StepKind }
   | { kind: 'toolNr'; value: string }
@@ -109,7 +96,7 @@ export type StepAction =
   | { kind: 'extraChange'; index: number; binding: Parameter }
   | { kind: 'extraRemove'; index: number }
   | { kind: 'picker'; target: FieldAdoptTarget | null }
-  | { kind: 'adopt'; params: Parameter[]; message: string }
+  | { kind: 'adopt'; params: Parameter[] }
   | { kind: 'showError' }
 
 export function stepReducer(relations: readonly RelationTemplate[]) {
@@ -117,7 +104,7 @@ export function stepReducer(relations: readonly RelationTemplate[]) {
     const relation = templateOf(relations, draft.relationId)
     switch (action.kind) {
       case 'type':
-        return { ...draft, type: action.type, pickerTarget: null, adoptConfirmation: '' }
+        return { ...draft, type: action.type, pickerTarget: null }
       case 'toolNr':
         return { ...draft, toolNr: action.value }
       case 'command':
@@ -132,7 +119,6 @@ export function stepReducer(relations: readonly RelationTemplate[]) {
           ...draft,
           relationId: action.id,
           pickerTarget: null,
-          adoptConfirmation: '',
         }
         if (!chosen) return body
         return {
@@ -144,7 +130,7 @@ export function stepReducer(relations: readonly RelationTemplate[]) {
       case 'binding': {
         const params = onLength(draft.relationParams, relation)
         params[action.index] = action.binding
-        return { ...draft, relationParams: params, adoptConfirmation: '' }
+        return { ...draft, relationParams: params }
       }
       case 'bringBack': {
         const defaults = relation ? relationParameterDefault(relation) : []
@@ -175,7 +161,6 @@ export function stepReducer(relations: readonly RelationTemplate[]) {
           ...draft,
           relationParams: action.params,
           pickerTarget: null,
-          adoptConfirmation: action.message,
         }
       case 'showError':
         return { ...draft, showError: true }

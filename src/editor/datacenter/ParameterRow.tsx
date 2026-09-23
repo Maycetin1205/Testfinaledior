@@ -44,13 +44,13 @@ export function ParameterRow({
       {plainName === ''
         ? <span className="w-24 shrink-0" aria-hidden />
         : (
-            <span className="w-24 shrink-0 truncate text-ui text-tinte" title={plainName}>
+            <span className="w-24 shrink-0 truncate text-ui text-tinte">
               {plainName}
             </span>
           )}
       {template === ''
         ? <span className="w-20 shrink-0" aria-hidden />
-        : <Mark className="w-20" hint={template}>{template}</Mark>}
+        : <Mark className="w-20">{template}</Mark>}
 
       <div className="min-w-0 flex-1">
         <PickerControl

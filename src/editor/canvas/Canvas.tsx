@@ -3,7 +3,6 @@ import { ROOT_FLOW } from '../../core/block/flow'
 import { gridAreaStyle } from '../../core/block/grid'
 import { useEditor } from '../state/useEditor'
 import { NodeList } from './CanvasNode'
-import { EmptyHint } from './EmptyHint'
 import { isNewBlockDrag } from './dnd'
 import { commitDrop, DndContext, sameTarget, type DndState, type DropTarget } from './dndState'
 import { rasterTarget } from './gridDnd'
@@ -81,11 +80,6 @@ export function Canvas() {
             {mainPage && <NodeList parentId={ed.rootId} direction="column" grid />}
           </div>
 
-          {mainPage && ed.childNodesOf(ed.rootId).length === 0 && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <EmptyHint title="Leere Maske" />
-            </div>
-          )}
           {!mainPage && <PopupPage popupId={ed.activePageId} />}
         </div>
       </div>

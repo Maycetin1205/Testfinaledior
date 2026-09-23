@@ -30,8 +30,6 @@ export interface LookupWindow {
   storageTitleProp?: string
   titleKey?: string
 
-  automatic: string
-
   spot?: string
   when?: Condition
 }

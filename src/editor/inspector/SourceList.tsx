@@ -28,7 +28,6 @@ export function SourcesList({ block }: SourcesListProps) {
   const first = typeof block.values[SOURCE_PROP] === 'string' ? block.values[SOURCE_PROP] : ''
   const extra = extraSourcesFrom(block.values[EXTRA_SOURCES_PROP])
 
-  const missing = (id: string) => id !== '' && !library.some((s) => s.id === id)
   const fieldsOf = (id: string) => library.find((s) => s.id === id)?.fields ?? []
 
   function setExtra(next: ExtraSource[]) {
@@ -118,7 +117,6 @@ export function SourcesList({ block }: SourcesListProps) {
   if (library.length === 0) {
     return (
       <Group title="Datenquellen" open={open} onToggle={toggle}>
-        <p className="text-ui text-matt">Noch keine Datenquelle in der Bibliothek.</p>
         <Button className="self-start" onClick={openDataCenter}>Datencenter öffnen</Button>
       </Group>
     )
@@ -127,9 +125,6 @@ export function SourcesList({ block }: SourcesListProps) {
   return (
     <Group title="Datenquellen" open={open} onToggle={toggle}>
       {sourcesSelection(first, 'Datenquelle 1', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
-      {missing(first) && (
-        <p className="text-dicht text-fehler">Diese Datenquelle fehlt in der Bibliothek.</p>
-      )}
 
       {extra.map((q, i) => (
         <div key={i} className="flex flex-col gap-1.5 rounded border border-linie p-2">

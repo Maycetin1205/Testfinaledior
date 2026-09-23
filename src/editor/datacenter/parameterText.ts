@@ -30,54 +30,21 @@ export const RELATION_GROUPS: ChoiceOption[] = [
   { value: 'write', name: 'Schreiben' },
 ]
 
-export const PLACEHOLDER_PLAIN_TEXT: Record<string, { name: string; hint: string }> = {
-  FELD_POS: {
-    name: 'Position',
-    hint: 'Feld-Position (aus dem gebundenen Feld)',
-  },
-  FELD_LEN: {
-    name: 'Länge',
-    hint: 'Feld-Länge (aus dem gebundenen Feld)',
-  },
-  PINDEX: {
-    name: 'Satznummer',
-    hint: 'Nummer des Datensatzes',
-  },
-  SELKEY: {
-    name: 'Schlüssel',
-    hint: 'Schlüssel der gewählten Zeile',
-  },
-  DROP_PINDEX: {
-    name: 'Satznummer der Löschung',
-    hint: 'Satznummer der Löschzeile (automatisch)',
-  },
-  RELID: {
-    name: 'Tabelle',
-    hint: 'Tabellen-ID der Datenquelle (ohne IDB-Präfix)',
-  },
-  VALUE: {
-    name: 'Wert',
-    hint: 'Neuer Wert (z. B. Titel der Zielspalte)',
-  },
+export const PLACEHOLDER_PLAIN_TEXT: Record<string, { name: string }> = {
+  FELD_POS: { name: 'Position' },
+  FELD_LEN: { name: 'Länge' },
+  PINDEX: { name: 'Satznummer' },
+  SELKEY: { name: 'Schlüssel' },
+  DROP_PINDEX: { name: 'Satznummer der Löschung' },
+  RELID: { name: 'Tabelle' },
+  VALUE: { name: 'Wert' },
 
-  NOW_DATE: {
-    name: 'Heutiges Datum',
-    hint: 'Heutiges Datum',
-  },
+  NOW_DATE: { name: 'Heutiges Datum' },
 }
 
 export function placeholderName(raw: string): string {
   const name = /^\{([A-Za-z0-9_]+)\}$/.exec(raw.trim())?.[1]
   return name === undefined ? '' : PLACEHOLDER_PLAIN_TEXT[name]?.name ?? name
-}
-
-export function parameterMeaning(param: string): string {
-  if (param === '') return 'Leerer Parameter (Position bleibt erhalten)'
-  const found = [...param.matchAll(/\{([^}]+)\}/g)].map((m) => m[1])
-  if (found.length === 0) return 'Fester Wert'
-  return found
-    .map((name) => PLACEHOLDER_PLAIN_TEXT[name]?.hint ?? `Eigener Platzhalter {${name}}`)
-    .join(' · ')
 }
 
 export interface BlockValueOption {

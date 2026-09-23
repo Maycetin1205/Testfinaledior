@@ -5,7 +5,6 @@ import { selectionSourceIdOf, isSelectionGiver } from '../../core/block/treeQuer
 import {
   SELECTION_FOLLOW_PROP,
   selectionFollowsFrom,
-  followUsable,
   type SelectionFollow,
 } from '../../core/data/selectionFollow'
 import { loadRelationOf, sourcesKey } from '../../core/data/dataSources'
@@ -75,12 +74,6 @@ export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
       />
       {follow && (
         <>
-          {fetchesRows && (
-            <p className="text-dicht text-matt">
-              Diese Quelle holt ihre Zeilen zum hier gewählten Satz. Verbindende
-              Felder sind kein Muss — gesetzt, filtern sie das Geholte zusätzlich.
-            </p>
-          )}
           <KeyPairRows
             question="Verbindende Felder"
             pairs={follow.pairs}
@@ -91,13 +84,6 @@ export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
             removeName={(at) => `Feldpaar ${at + 1} entfernen`}
             onChange={(keyPairs) => set([{ ...follow, pairs: keyPairs }])}
           />
-
-          {(!giverSource || !ownSource) && (
-            <p className="text-dicht text-matt">Beide Bausteine brauchen eine Datenquelle.</p>
-          )}
-          {giverSource && ownSource && !fetchesRows && !followUsable(follow) && (
-            <p className="text-dicht text-matt">Ein Feldpaar ist noch halb leer.</p>
-          )}
         </>
       )}
     </Group>

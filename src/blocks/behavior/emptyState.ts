@@ -7,7 +7,6 @@ export function emptyTextProperty(): Property<string> {
   return textProperty({
     default: EMPTY_TEXT_STANDARD,
     label: 'Text ohne Datensätze',
-    help: 'Text, wenn die Quelle keine Zeilen liefert. Leer: gar nichts.',
     attribute: 'emptytext',
     needsSource: true,
   })

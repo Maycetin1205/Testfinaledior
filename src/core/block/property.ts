@@ -65,9 +65,8 @@ export interface Property<V> {
   type: PropertyType<V>
   default: V
 
-  // German: the builder reads these.
+  // German: the builder reads it.
   label: string
-  help: string
 
   place: PropertyPlace
 
@@ -111,7 +110,6 @@ export function propertyVisible(
 interface Init<V> {
   default: V
   label: string
-  help: string
   place?: PropertyPlace
   attribute?: string
   when?: Condition
@@ -127,7 +125,6 @@ function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V
     type,
     default: init.default,
     label: init.label,
-    help: init.help,
     place: init.place ?? 'inspector',
     attribute: init.attribute ?? '',
     ...(init.when ? { when: init.when } : {}),

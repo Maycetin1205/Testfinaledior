@@ -56,7 +56,6 @@ function NumberField({
       max={property.max}
       step={0.5}
       aria-label={property.label}
-      title={property.help}
       value={draft}
       className="w-16"
       onChange={(e) => adopt(e.currentTarget.value)}
@@ -80,7 +79,7 @@ function NumberField({
 export function NumberControl({ label, ...rest }: NumberControlProps) {
   if (!label) return <NumberField {...rest} />
   return (
-    <Row label={label} hint={rest.property.help}>
+    <Row label={label}>
       {(kind) => <NumberField {...rest} id={kind.id} />}
     </Row>
   )

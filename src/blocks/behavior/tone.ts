@@ -5,11 +5,10 @@ import { TONES, toneOptions } from '../../core/block/tones'
 export { toneValue } from '../../core/block/tones'
 export type { Tone, ToneValue } from '../../core/block/tones'
 
-export function toneProperty(help: string, attribute = 'tone'): Property<string> {
+export function toneProperty(attribute = 'tone'): Property<string> {
   return choiceProperty(toneOptions(), {
     default: 'info',
     label: 'Bedeutung',
-    help,
     attribute,
   })
 }

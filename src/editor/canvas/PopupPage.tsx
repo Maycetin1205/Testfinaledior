@@ -4,7 +4,6 @@ import { blockType } from '../../core/block/registry'
 import { useEditor } from '../state/useEditor'
 import { BlockHost } from './BlockHost'
 import { NodeList } from './CanvasNode'
-import { EmptyHint } from './EmptyHint'
 import { isNewBlockDrag } from './dnd'
 import { commitDrop, useDnd } from './dndState'
 import { rasterTarget } from './gridDnd'
@@ -101,13 +100,6 @@ export function PopupPage({ popupId }: { popupId: string }) {
         <NodeList parentId={node.id} direction="column" grid />
       </BlockHost>
 
-      {ed.childNodesOf(node.id).length === 0 && (
-        <div
-          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
-        >
-          <EmptyHint title={`Leeres Fenster „${String(node.values.name ?? '')}“`} />
-        </div>
-      )}
       {selected && (
         <>
           <div
@@ -119,7 +111,6 @@ export function PopupPage({ popupId }: { popupId: string }) {
               e.stopPropagation()
               ed.updateProperty(node.id, 'popupWidth', declared.popupWidth?.default ?? 520)
             }}
-            title="Breite ziehen · Doppelklick: Standard"
             style={{
               position: 'absolute',
               left: `calc(50% + ${visibleWidth / 2}px - 3px)`,
@@ -142,7 +133,6 @@ export function PopupPage({ popupId }: { popupId: string }) {
               e.stopPropagation()
               ed.updateProperty(node.id, 'popupHeight', declared.popupHeight?.default ?? 380)
             }}
-            title="Höhe ziehen · Doppelklick: Standard"
             style={{
               position: 'absolute',
               left: '50%',

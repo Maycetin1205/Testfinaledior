@@ -16,12 +16,11 @@ interface FieldListProps {
 
   columnsNames?: boolean
   columnsLabel?: string
-  columnsExample?: string
 }
 
 export function FieldList({
   rows, setRows, rowsError, doubleError, showError, columnsNames = false,
-  columnsLabel = 'Spalte im DataSet', columnsExample = 'z. B. Chargennummer',
+  columnsLabel = 'Spalte im DataSet',
 }: FieldListProps) {
   const grid = columnsNames ? COLUMNS_NAMES : COLUMNS
   const setRow = (at: number, patch: Partial<FieldRow>) =>
@@ -41,7 +40,7 @@ export function FieldList({
         {columnsNames
           ? <span>{columnsLabel}</span>
           : <><span>Position</span><span>Länge</span></>}
-        <span title="Wie breit eine Spalte auf dieses Feld beim Anlegen wird. Leer: wie bisher.">Zeichen</span>
+        <span>Zeichen</span>
         <span />
       </div>
       {rows.map((z, i) => (
@@ -50,14 +49,12 @@ export function FieldList({
             <Field
               aria-label={`Feld ${i + 1}: Klarname`}
               value={z.label}
-              placeholder="z. B. Vorname"
               onChange={(e) => setRow(i, { label: e.target.value })}
             />
             {columnsNames ? (
               <Field
                 aria-label={`Feld ${i + 1}: ${columnsLabel}`}
                 value={z.rawCode}
-                placeholder={columnsExample}
                 onChange={(e) => setRow(i, { rawCode: e.target.value })}
               />
             ) : (
@@ -65,13 +62,13 @@ export function FieldList({
                 <Field
                   aria-label={`Feld ${i + 1}: Position`}
                   value={z.pos}
-                  placeholder={z.rawCode !== '' ? '—' : '193'}
+                  placeholder={z.rawCode !== '' ? '—' : undefined}
                   onChange={(e) => setRow(i, { pos: e.target.value })}
                 />
                 <Field
                   aria-label={`Feld ${i + 1}: Länge`}
                   value={z.len}
-                  placeholder={z.rawCode !== '' ? '—' : '30'}
+                  placeholder={z.rawCode !== '' ? '—' : undefined}
                   onChange={(e) => setRow(i, { len: e.target.value })}
                 />
               </>
@@ -82,7 +79,6 @@ export function FieldList({
               max={ICON_MAX}
               step={1}
               aria-label={`Feld ${i + 1}: Spaltenbreite in Zeichen`}
-              title="Nur der Startwert einer neuen Spalte. Ziehen geht danach wie immer."
               value={z.icon}
               placeholder="—"
               onChange={(e) => setRow(i, { icon: e.target.value })}
