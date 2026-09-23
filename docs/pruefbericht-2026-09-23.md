@@ -799,3 +799,51 @@ keine Übersetzungsfehler.
 
 Abschnitt 5 (Tests): stimmt. Abschnitt 6 (Doku): stimmt, der Schalter heißt
 `REFERENCE_REFRESH=1`. Abschnitt 7 (Zweige): stimmt.
+
+---
+
+## Nachtrag 23.09. abends: Übergabe an den Bau
+
+Neu vom Nutzer: Lesen und Schreiben laufen in SoftEngine; ERPAPICALL als
+Nachricht aus der HTML ist deutlich schneller als die Bestellung im Zettel.
+Das bestätigt kontrakte.md §10 und ist die Bauweise: schlank bestellen,
+Listen nachladen, aus ihnen schreiben. Das Datenmodell muss das erlauben
+(heute verbietet es Satznummer und Schreiben an `erpQuery`, Abschnitt 4.2).
+
+Regeln für jeden Bau-Chat, welches Modell auch immer baut:
+
+1. Erst diesen Bericht lesen: Abschnitt 1, 8, 9 und diesen Nachtrag.
+2. Ein Schritt je Chat, kein Plan, keine Umbenennung, keine neuen Regeln.
+3. Keine Meldungen, Hilfetexte, Warnungen, Platzhaltersätze. Fehlt etwas,
+   bleibt die Stelle leer.
+4. Farben, Schrift, Abstände, Radien und Bauteile nur aus der Empfangsmaske
+   (`docs/chef-maske/empfang/`, Token-Fassung im Zweig
+   `claude/neuer-kanban-b3gnka`, Commit ec7624e). Kein Baustein hat eigene
+   Werte; ein Linter-Verbot für rohe Farben und Maße in Bausteinstilen
+   erzwingt das.
+5. Bedienen statt eintippen: Text direkt auf der Fläche, Größe an allen vier
+   Kanten ziehen, wenige Wahlmöglichkeiten in einem kleinen Pop-up am
+   Baustein, Feld binden durch Klick auf die Stelle, Rollen statt Pixel.
+6. Ein Schritt ist fertig, wenn der Nutzer das Ergebnis gesehen oder in
+   SoftEngine getestet hat. Gespeicherte Dateien laden danach weiter.
+
+Bausteine:
+
+- Weg: Trennlinie; Karte als eigener Baustein (wird Teil des Kanban);
+  Bereich in heutiger Form (wird Kachel).
+- Umbauen: Kanban neu nach dem Zweigmodell (ein Baustein, Spalten mit
+  Plätzen, Karten mit Avatar, im Editor in Maskenform sichtbar); Erfassung
+  reparieren und teilen (Abschnitt 3.5), Berechnung nach Antwort auf 8.1;
+  Tabelle (Stil); Formularfeld (Beschriftung darüber, Ankreuzfeld, kein
+  Platzhaltersatz); Schaltfläche (Arten, Symbol); Text (Rollen); Datum wird
+  Tageswahl; Popup bleibt, dazu Seitenleiste rechts.
+- Neu, aus der Empfangsmaske: Kopfzeile (Marke, Suche, Tageswahl, Uhr,
+  Hauptknopf); Kachel mit Titel; Datenliste Beschriftung/Wert; Zähler-Zeile;
+  Knopfleiste; Bild/Avatar; Status-Chip; Seitenleiste rechts; Navigation mit
+  Ansichten, falls gewünscht (8.5).
+
+Reihenfolge: Schritt 0 (Datenverlust stoppen, Abschnitt 9) → Guss und
+Kanban als Muster (Token, Linter-Verbot, ein Baustein, Sichtprobe) →
+Erfassung bis ins ERP mit Echttest → Datenmodell (ERPAPICALL mit Satznummer
+und Schreiben, Adapter, Kundendatei-Version) → Technik → übrige Bausteine →
+Bedienung. Jeder Schritt lässt den Editor benutzbar.
