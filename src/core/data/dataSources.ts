@@ -9,19 +9,17 @@ import {
   type SourceKindId,
 } from './sourceKinds'
 
-export { sourceKind, SOURCE_KIND_IDS, SOURCE_KINDS, tableKeyNeeded, type SourceKindId }
+export { sourceKind, SOURCE_KINDS, tableKeyNeeded, type SourceKindId }
 export {
   getValueOf,
   GET_VALUE_SOURCES,
   getValueSourceAllowed,
   sourcesFromGetValue,
-  type GetValue,
 } from './getValue'
 export {
   fieldsBehindCut,
   loadRelationOf,
   relationNrFromInput,
-  type LoadRelation,
 } from './fetchRelation'
 export {
   fieldPrefixFromInput,

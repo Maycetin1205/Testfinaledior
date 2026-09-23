@@ -86,6 +86,3 @@ export function Canvas() {
     </DndContext.Provider>
   )
 }
-
-export type { DropTarget }
-export { DndContext }

@@ -107,10 +107,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     return null
   }
 
-  const { startResize, startRasterResize } = useBlockResize(editor, blockRef, elementRef, rootRef)
-
-  const resizable = def?.widthEditable ?? true
-  const heightResizable = def?.heightEditable === true
+  const { startRasterResize } = useBlockResize(editor, blockRef, rootRef)
 
   const rasterSpec = gridMetricsOf(def)
 
@@ -203,26 +200,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           onReset={() => {
             const node = blockRef.current
             editor.updateProperty(node.id, 'gridH', gridMetricsOf(blockType(node.type)).startHeight)
-          }}
-        />
-      )}
-      {selected && !grid && resizable && (
-        <Handle
-          axis="x"
-          onStart={(e) => startResize(e, 'width', 40)}
-          onReset={() => {
-            const node = blockRef.current
-            editor.updateProperty(node.id, 'width', blockType(node.type)?.properties.width?.default ?? 'auto')
-          }}
-        />
-      )}
-      {selected && !grid && heightResizable && (
-        <Handle
-          axis="y"
-          onStart={(e) => startResize(e, 'height', 120)}
-          onReset={() => {
-            const node = blockRef.current
-            editor.updateProperty(node.id, 'height', blockType(node.type)?.properties.height?.default ?? 'auto')
           }}
         />
       )}

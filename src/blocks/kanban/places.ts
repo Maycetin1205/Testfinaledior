@@ -3,7 +3,7 @@ import { fieldRead } from '../../softengine/data'
 import { Card } from '../card/Card'
 
 export const COLUMN_TAG = 'ff-kanban-column'
-export const CARD_TAG = Card.tag
+const CARD_TAG = Card.tag
 export const CARD_TYPE = Card.type
 
 export const COLUMN_TITLE_STANDARD = 'Neue Spalte'
@@ -36,7 +36,7 @@ export function isCard(el: EventTarget): el is HTMLElement {
   return el instanceof HTMLElement && el.tagName.toLowerCase() === CARD_TAG
 }
 
-export function columnsOf(board: HTMLElement): ColumnPlace[] {
+function columnsOf(board: HTMLElement): ColumnPlace[] {
   return Array.from(board.children).filter(isColumn)
 }
 
@@ -44,7 +44,7 @@ export function cardsOf(column: ColumnPlace): HTMLElement[] {
   return Array.from(column.children).filter(isCard)
 }
 
-export function columnTitle(column: HTMLElement): string {
+function columnTitle(column: HTMLElement): string {
   return column.getAttribute('heading') ?? COLUMN_TITLE_STANDARD
 }
 
@@ -86,7 +86,7 @@ export function boardPlan(board: HTMLElement, columnsField: string): BoardPlan {
 }
 
 // Where a card lands whose record names no column: the catch-all, or the first.
-export function fallbackColumn(plan: BoardPlan): ColumnPlace {
+function fallbackColumn(plan: BoardPlan): ColumnPlace {
   return plan.columns[plan.catchAll >= 0 ? plan.catchAll : 0]
 }
 

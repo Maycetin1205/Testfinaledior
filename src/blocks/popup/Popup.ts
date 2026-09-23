@@ -71,6 +71,5 @@ defineBlock(Popup, {
   inPalette: false,
   allowedParent: [ROOT_TYPE],
   page: true,
-  widthEditable: false,
   containerFrame: false,
 })

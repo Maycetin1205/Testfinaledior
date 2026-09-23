@@ -4,7 +4,7 @@ import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
 import { liftKey, liftLibraries } from './maskSchema'
 
-export const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
+const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
 const LIBRARY_FILE_VERSION = 2
 

@@ -34,7 +34,6 @@ export const PLACEHOLDER_PLAIN_TEXT: Record<string, { name: string }> = {
   FELD_POS: { name: 'Position' },
   FELD_LEN: { name: 'Länge' },
   PINDEX: { name: 'Satznummer' },
-  SELKEY: { name: 'Schlüssel' },
   DROP_PINDEX: { name: 'Satznummer der Löschung' },
   RELID: { name: 'Tabelle' },
   VALUE: { name: 'Wert' },

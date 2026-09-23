@@ -85,7 +85,7 @@ function firstScalar(value: unknown, depth: number): string | undefined {
   return undefined
 }
 
-export function resultFromAnswer(raw: unknown): string | undefined {
+function resultFromAnswer(raw: unknown): string | undefined {
   const value = parsed(raw)
   if (!isObjekt(value)) return undefined
   for (const key of RESULT_KEYS) {
@@ -212,12 +212,6 @@ let expiresReread = false
 
 function markApplies(): boolean {
   return Date.now() < expiredTo
-}
-
-export function setExpiryBack(): void {
-  expiresCallback = false
-  expiresReread = false
-  expiredTo = 0
 }
 
 function nextCall(): void {

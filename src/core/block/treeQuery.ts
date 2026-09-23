@@ -40,14 +40,8 @@ export function sourcesIdsInChainsOf(node: BlockNode): string[] {
 }
 
 export function relationIdsOf(node: BlockNode): string[] {
-  const def = blockType(node.type)
   const ids: string[] = []
-  for (const [key, prop] of Object.entries(def?.properties ?? {})) {
-    if (prop.type.control !== 'relation') continue
-    const value = node.values[key]
-    if (typeof value === 'string' && value !== '') ids.push(value)
-  }
-  for (const event of capability(def, 'events')?.list ?? []) {
+  for (const event of capability(blockType(node.type), 'events')?.list ?? []) {
     for (const step of node.chains?.[event.key] ?? []) {
       if (step.kind === 'RELATION' && step.relationId !== '') ids.push(step.relationId)
     }

@@ -23,7 +23,7 @@ function contentOf(file: string): string {
   return found.trim()
 }
 
-export function runtimePartsFor(types: ReadonlySet<string>): { name: string; bytes: number }[] {
+function runtimePartsFor(types: ReadonlySet<string>): { name: string; bytes: number }[] {
   const byName = new Map(manifest.parts.map((part) => [part.name, part]))
   const used = new Set<string>()
   const add = (name: string): void => {

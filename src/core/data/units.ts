@@ -22,12 +22,8 @@ export const UNITS: readonly Unit[] = [
 
 export const UNIT_STANDARD = 'count'
 
-export function unitOf(code: string): Unit | undefined {
+function unitOf(code: string): Unit | undefined {
   return UNITS.find((e) => e.code === code)
-}
-
-export function unitName(code: string): string {
-  return unitOf(code)?.name ?? code
 }
 
 export function unitShort(code: string): string {

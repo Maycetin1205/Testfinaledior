@@ -37,7 +37,7 @@ export function coerceCaptureColumns(v: unknown): CaptureColumn[] {
   return coerceColumns(v).map((column, i) => ({ ...column, ...capturePart(raw[i]) }))
 }
 
-export function tryCoerceCaptureColumns(v: string): CaptureColumn[] {
+function tryCoerceCaptureColumns(v: string): CaptureColumn[] {
   try {
     return coerceCaptureColumns(JSON.parse(v))
   } catch {

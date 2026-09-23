@@ -10,25 +10,8 @@ import { dragSize } from './dragSize'
 export function useBlockResize(
   editor: EditorStore,
   blockRef: RefObject<BlockNode>,
-  elementRef: RefObject<HTMLElement | null>,
   rootRef: RefObject<HTMLElement | null>,
 ) {
-  function startResize(
-    e: ReactPointerEvent<HTMLDivElement>,
-    prop: 'width' | 'height',
-    min: number,
-  ) {
-    const host = elementRef.current
-    if (!host) return
-    dragSize(editor, e, {
-      axis: prop === 'width' ? 'x' : 'y',
-      prop,
-      getId: () => blockRef.current.id,
-      start: host.getBoundingClientRect()[prop],
-      min,
-    })
-  }
-
   function startRasterResize(e: ReactPointerEvent<HTMLDivElement>, axis: 'x' | 'y') {
     const el = rootRef.current
     if (!el) return
@@ -69,5 +52,5 @@ export function useBlockResize(
     }
   }
 
-  return { startResize, startRasterResize }
+  return { startRasterResize }
 }

@@ -116,13 +116,6 @@ function nodeToHtml(
 
   const previewSpots = previewSpotsOf(node)
 
-  const pagesPlainName = new Map<string, string>()
-  for (const [key, declared] of Object.entries(def.properties)) {
-    if (declared.type.control === 'page' && declared.plainNameProp) {
-      pagesPlainName.set(declared.plainNameProp, key)
-    }
-  }
-
   // One attribute per declared property, written the way the declaration
   // writes it and left out when the value is the declared default.
   const attrs = Object.entries(def.properties)
@@ -136,12 +129,9 @@ function nodeToHtml(
       const standard = declared.default
       const held = node.values[key] ?? standard
 
-      const pagesIdProp = pagesPlainName.get(key)
       const raw = previewSpots.has(key)
         ? previewRaw(node, previewSpots.get(key)!, sources, standard)
-        : pagesIdProp !== undefined
-          ? popupName(String(node.values[pagesIdProp] ?? ''))
-          : declared.type.toAttribute(held)
+        : declared.type.toAttribute(held)
 
       if (raw === declared.type.toAttribute(standard)) return ''
       return ` ${declared.attribute}="${escapeHtmlAttr(raw)}"`

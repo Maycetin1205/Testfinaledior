@@ -22,7 +22,7 @@ export interface RowActivatedDetail {
   viewIndex: number
 }
 
-export const RAW_ATTR = 'data-ff-raw'
+const RAW_ATTR = 'data-ff-raw'
 
 function sendRowActivated(el: HTMLElement, detail: RowActivatedDetail): void {
   el.dispatchEvent(new CustomEvent<RowActivatedDetail>(ROW_ACTIVATED_EVENT, {

@@ -1,6 +1,5 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
 import type { PropertyValue } from '../../core/block/property'
-import { blockType } from '../../core/block/registry'
 import { type Parameter, type Step, type ActionChains } from '../../core/data/actions'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { deepClone } from '../../core/deepClone'
@@ -15,14 +14,13 @@ function writeBlockReferenzenTo(node: BlockNode, newIdFor: NewIdFor): BlockNode 
     ? undefined
     : rewrittenEreignisse(node.chains, newIdFor)
 
-  const pages = rewrittenPages(node, newIdFor)
-  const propsNeu = follows !== node.values[SELECTION_FOLLOW_PROP] || pages !== null
+  const propsNeu = follows !== node.values[SELECTION_FOLLOW_PROP]
   const eventsNeu = events !== undefined && events !== node.chains
   if (!propsNeu && !eventsNeu) return node
   return {
     ...node,
     ...(propsNeu
-      ? { values: { ...node.values, ...pages, [SELECTION_FOLLOW_PROP]: follows as PropertyValue } }
+      ? { values: { ...node.values, [SELECTION_FOLLOW_PROP]: follows as PropertyValue } }
       : {}),
     ...(eventsNeu ? { chains: events } : {}),
   }
@@ -45,20 +43,6 @@ function rewrittenFollows(raw: unknown, newIdFor: NewIdFor): unknown {
     return { ...fields, giverId: target }
   })
   return changed ? next : raw
-}
-
-function rewrittenPages(
-  node: BlockNode,
-  newIdFor: NewIdFor,
-): Record<string, PropertyValue> | null {
-  let hit: Record<string, PropertyValue> | null = null
-  for (const [key, p] of Object.entries(blockType(node.type)?.properties ?? {})) {
-    if (p.type.control !== 'page') continue
-    const target = replacementId(node.values[key], newIdFor)
-    if (target === undefined) continue
-    hit = { ...(hit ?? {}), [key]: target }
-  }
-  return hit
 }
 
 function rewrittenBinding(

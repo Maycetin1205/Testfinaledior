@@ -15,7 +15,7 @@ export interface ValueSource {
 
 const generationen = new Map<string, number>()
 
-export function rowFromAnswer(
+function rowFromAnswer(
   value: string,
   raw: unknown,
   fields: readonly string[],
@@ -47,8 +47,4 @@ export function holeValueSource(source: ValueSource, get: RuntimeGetValue): void
     setFetchedRows(source.name, [rowFromAnswer(answer.value, answer.raw, get.fields)])
     reportTrigger()
   })()
-}
-
-export function setValueLoaderBack(): void {
-  generationen.clear()
 }

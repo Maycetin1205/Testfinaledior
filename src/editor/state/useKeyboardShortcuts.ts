@@ -40,7 +40,7 @@ export interface KeyPlacement {
   somethingChosen: boolean
 }
 
-export function keyEffect(placement: KeyPlacement): KeyEffect {
+function keyEffect(placement: KeyPlacement): KeyEffect {
   const letter = placement.key.toLowerCase()
 
   if (placement.mod && letter === 's') return 'save'

@@ -9,7 +9,7 @@ import type { Column } from '../behavior/columns'
 import { WITHOUT_DECORATION, type RowDecoration } from '../behavior/tableBody'
 import type { CaptureLedger, RowsIcon } from './ledger'
 
-export function typingCellTpl(
+function typingCellTpl(
   ledger: CaptureLedger,
   rawIndex: number,
   slot: number,
@@ -46,7 +46,7 @@ export function deletableProperty(): Property<boolean> {
   })
 }
 
-export function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateResult {
+function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateResult {
   return html`<button
     class="zeile-weg"
     type="button"
@@ -56,7 +56,7 @@ export function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateRe
   >${deleted ? '\u21BA' : '\u2715'}</button>`
 }
 
-export function crossDisplayTpl(): TemplateResult {
+function crossDisplayTpl(): TemplateResult {
   return html`<span class="zeile-weg zeile-weg-anzeige">&#x2715;</span>`
 }
 

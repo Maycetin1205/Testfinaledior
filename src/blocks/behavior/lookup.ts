@@ -35,11 +35,11 @@ export function magnifierIcon(): TemplateResult {
     </svg>`
 }
 
-export function lookupKey(el: HTMLElement, spot = 'field'): string {
+function lookupKey(el: HTMLElement, spot = 'field'): string {
   return `${el.getAttribute(BLOCK_ID_ATTR) ?? ''}/nachschlagen/${spot}`
 }
 
-export function lookupColumns(columns: readonly Column[]): Column[] {
+function lookupColumns(columns: readonly Column[]): Column[] {
   return coerceColumns(columns.map((s) => ({ ...s, key: s.key || `feld:${s.field}` })))
 }
 

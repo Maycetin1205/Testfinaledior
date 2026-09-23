@@ -112,8 +112,6 @@ export function useFieldBinding({
     index: number
     top: number
     left: number
-
-    list?: unknown
   } | null>(null)
   const closeListPicker = useCallback(() => setListPicker(null), [])
   if (!selected && listPicker !== null) setListPicker(null)
@@ -134,7 +132,6 @@ export function useFieldBinding({
         index?: number
         top?: number
         left?: number
-        list?: unknown
       }
 
       if (detail?.prop !== listBinding.prop || typeof detail.index !== 'number') return
@@ -144,7 +141,6 @@ export function useFieldBinding({
         index,
         top: Math.max(8, detail.top ?? 0),
         left: Math.max(8, Math.min(detail.left ?? 0, window.innerWidth - 248)),
-        ...(Array.isArray(detail.list) ? { list: detail.list } : {}),
       }))
     }
     el.addEventListener('ff-listen-bind', handler)
@@ -171,18 +167,14 @@ export function useFieldBinding({
     },
   }
 
-  type PickerState = { index: number; list?: unknown }
+  const entriesOf = (): Record<string, unknown>[] => (
+    listBinding ? listRead(block.values[listBinding.prop], listBinding) : []
+  )
 
-  const entriesOf = (picker: PickerState): Record<string, unknown>[] => {
-    if (!listBinding) return []
-    const fromProps = listRead(block.values[listBinding.prop], listBinding)
-    return fromProps.length > 0 ? fromProps : listRead(picker.list, listBinding)
-  }
-
-  const writeInEntry = (picker: PickerState, part: Record<string, unknown>): void => {
+  const writeInEntry = (index: number, part: Record<string, unknown>): void => {
     if (!listBinding) return
-    const next = entriesOf(picker)
-    const target = next[picker.index]
+    const next = entriesOf()
+    const target = next[index]
     if (!target) return
     for (const [key, value] of Object.entries(part)) {
       if (value === undefined) delete target[key]
@@ -209,8 +201,7 @@ export function useFieldBinding({
         />
       )}
       {selected && listPicker && listBinding && listPickerHasFields && (() => {
-        const listNow = (): Record<string, unknown>[] => entriesOf(listPicker)
-        const list = listNow()
+        const list = entriesOf()
         const entry = list[listPicker.index]
         if (!entry) return null
 
@@ -236,7 +227,7 @@ export function useFieldBinding({
               standard: standardTitle,
               onChange: (next) => {
                 typingSession.begin()
-                writeInEntry(listPicker, typedTitle(listBinding, next))
+                writeInEntry(listPicker.index, typedTitle(listBinding, next))
               },
               session: typingSession,
             }}
@@ -246,7 +237,7 @@ export function useFieldBinding({
               current: value,
               onlyForeignSources: fw.onlyForeignSources,
               onChoose: (next) => writeInEntry(
-                listPicker,
+                listPicker.index,
                 { [fw.key]: next === '' ? undefined : next },
               ),
             }))}
@@ -256,7 +247,7 @@ export function useFieldBinding({
               short: s.short,
               standard: s.standard,
               on: flagOn(s, entry),
-              onToggle: (on) => writeInEntry(listPicker, { [s.key]: on }),
+              onToggle: (on) => writeInEntry(listPicker.index, { [s.key]: on }),
             }))}
             current={String(entry[listBinding.fieldKey] ?? '')}
             further={[
@@ -290,7 +281,7 @@ export function useFieldBinding({
             onPick={(raw) => {
               editor.transaction(() => {
                 const value = raw
-                const next = listNow()
+                const next = entriesOf()
                 const target = next[listPicker.index]
                 if (!target) return
 

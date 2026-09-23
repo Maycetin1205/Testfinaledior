@@ -7,15 +7,12 @@ export type ReadResult<V> =
 
 export type ControlKind =
   | 'text'
-  | 'longText'
   | 'number'
   | 'boolean'
   | 'choice'
   | 'segment'
   | 'field'
   | 'source'
-  | 'relation'
-  | 'page'
   | 'structured'
 
 export interface ChoiceOption {
@@ -88,7 +85,7 @@ export interface Property<V> {
   // The property naming the source whose fields this one picks from.
   sourceProp?: string
 
-  // A page property keeps the fixed id; this one mirrors the readable name.
+  // A field property keeps the code; this one mirrors the readable name.
   plainNameProp?: string
 }
 
@@ -152,10 +149,6 @@ export function textProperty(init: Init<string> & { maxLength?: number }): Prope
     init.maxLength === undefined ? {} : { maxLength: init.maxLength })
 }
 
-export function longTextProperty(init: Init<string>): Property<string> {
-  return make(textType('longText'), init)
-}
-
 export function choiceProperty(
   options: readonly ChoiceOption[],
   init: Init<string>,
@@ -177,14 +170,6 @@ export function fieldProperty(init: Init<string>): Property<string> {
 
 export function sourceProperty(init: Init<string>): Property<string> {
   return make(textType('source'), init)
-}
-
-export function relationProperty(init: Init<string>): Property<string> {
-  return make(textType('relation'), init)
-}
-
-export function pageProperty(init: Init<string>): Property<string> {
-  return make(textType('page'), init)
 }
 
 export function numberProperty(
@@ -255,18 +240,4 @@ export function readValues(
     values[name] = result.ok ? (result.value as PropertyValue) : (property.default as PropertyValue)
   }
   return values
-}
-
-// The typed view a block folder has on its own values.
-export function valuesOf<P extends PropertyMap>(
-  properties: P,
-  values: Readonly<Record<string, PropertyValue>>,
-): ValuesOf<P> {
-  const out: Record<string, PropertyValue> = {}
-  for (const [name, property] of Object.entries(properties)) {
-    const held = values[name]
-    const result = property.type.read(held)
-    out[name] = result.ok ? (result.value as PropertyValue) : (property.default as PropertyValue)
-  }
-  return out as ValuesOf<P>
 }

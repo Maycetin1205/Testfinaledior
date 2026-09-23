@@ -25,7 +25,7 @@ export function dayFieldProperty(): Property<string> {
   })
 }
 
-export function rowsAtTag(
+function rowsAtTag(
   rows: readonly unknown[],
   tagCode: string,
   tag: string,

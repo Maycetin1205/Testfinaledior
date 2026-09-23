@@ -62,6 +62,5 @@ defineBlock(Divider, {
   name: 'Trennlinie',
   category: 'layout',
   properties: dividerProperties,
-  heightEditable: true,
   grid: { startWidth: 48, startHeight: 1, minWidth: 1, minHeight: 1 },
 })

@@ -66,5 +66,4 @@ defineBlock(Card, {
   allowedParent: ['kanban'],
   inPalette: false,
   fixedWidth: 'fill',
-  widthEditable: false,
 })

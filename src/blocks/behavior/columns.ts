@@ -45,7 +45,7 @@ export function columnsView(
 
 export const CELL_PLACEHOLDER = '—'
 
-export const COLUMNS_MIN = 1
+const COLUMNS_MIN = 1
 
 export const COLUMNS_MAX = 16
 
@@ -67,7 +67,7 @@ export function columnWithKey(columns: readonly Column[], key: string): number {
   return columns.findIndex((s) => s.key === t)
 }
 
-export function withKeys(columns: readonly Column[]): Column[] {
+function withKeys(columns: readonly Column[]): Column[] {
   const keys = assignKeys(columns.map((s) => s.key))
   return columns.map((s, i) => (s.key === keys[i] ? s : { ...s, key: keys[i] }))
 }
@@ -134,7 +134,7 @@ export function coerceColumns(v: unknown): Column[] {
   return withKeys(arr)
 }
 
-export function tryCoerceColumns(v: string): Column[] {
+function tryCoerceColumns(v: string): Column[] {
   try {
     return coerceColumns(JSON.parse(v))
   } catch {
@@ -166,16 +166,16 @@ export function columnsRaster(
   return own.map((w) => `minmax(0, ${w ?? middle}fr)`).join(' ')
 }
 
-export function addColumnOn(columns: readonly Column[]): Column[] {
+function addColumnOn(columns: readonly Column[]): Column[] {
   return withKeys([...columns, newColumn(columns.length)])
 }
 
-export function withoutColumn(columns: readonly Column[], index: number): readonly Column[] {
+function withoutColumn(columns: readonly Column[], index: number): readonly Column[] {
   if (columns.length <= COLUMNS_MIN || index < 0 || index >= columns.length) return columns
   return columns.filter((_, i) => i !== index)
 }
 
-export function withMovedColumn(
+function withMovedColumn(
   columns: readonly Column[],
   of: number,
   to: number,

@@ -52,5 +52,4 @@ defineBlock(KanbanColumn, {
   containerFrame: false,
   allowedParent: ['kanban'],
   fixedWidth: 'fill',
-  widthEditable: false,
 })

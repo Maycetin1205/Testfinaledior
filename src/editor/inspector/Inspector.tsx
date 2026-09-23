@@ -87,8 +87,7 @@ export function Inspector() {
   const visibleProps = propertiesFor(block, def, 'inspector')
 
   const dataProps = visibleProps.filter(({ property }) => property.type.control === 'field'
-    || property.type.control === 'source'
-    || property.type.control === 'relation')
+    || property.type.control === 'source')
   const generalProps = visibleProps.filter((p) => !dataProps.includes(p))
 
   const tileProps = generalProps.filter(({ property }) => property.type.control === 'boolean')

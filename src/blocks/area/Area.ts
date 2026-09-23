@@ -17,7 +17,6 @@ defineBlock(Area, {
   name: 'Bereich',
   category: 'layout',
   takesChildren: true,
-  heightEditable: true,
   gridArea: true,
   containerFrame: false,
   grid: { startWidth: 24, startHeight: 12, minWidth: 4, minHeight: 3 },

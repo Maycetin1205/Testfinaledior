@@ -14,7 +14,7 @@ export interface WidthsHost {
   discard: () => void
 }
 
-export function spreadDrag(
+function spreadDrag(
   leftStart: number,
   rightStart: number,
   wishDx: number,

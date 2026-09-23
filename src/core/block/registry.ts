@@ -12,8 +12,6 @@ export function registerBlockType(declared: BlockDeclaration): void {
     properties: declared.properties ?? {},
     capabilities: declared.capabilities ?? [],
     takesChildren: declared.takesChildren ?? false,
-    widthEditable: declared.widthEditable ?? true,
-    heightEditable: declared.heightEditable ?? false,
   })
 }
 

@@ -49,7 +49,7 @@ function checkArrival(el: HTMLElement, preamble: DataPreamble | null): void {
   })
 }
 
-export function rowComputed(
+function rowComputed(
   columns: readonly Column[],
   calculations: readonly Calculation[],
   given: (slot: number) => string,

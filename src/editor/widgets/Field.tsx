@@ -1,8 +1,4 @@
-import {
-  forwardRef,
-  type InputHTMLAttributes,
-  type TextareaHTMLAttributes,
-} from 'react'
+import { forwardRef, type InputHTMLAttributes } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
 export const INPUT_EDGE =
@@ -25,17 +21,3 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(
   ),
 )
 Field.displayName = 'Feld'
-
-export type FieldMultilineProps = TextareaHTMLAttributes<HTMLTextAreaElement>
-
-export const FieldMultiline = forwardRef<HTMLTextAreaElement, FieldMultilineProps>(
-  ({ rows = 3, className, ...rest }, ref) => (
-    <textarea
-      ref={ref}
-      rows={rows}
-      className={cn(INPUT_EDGE, 'px-2 py-1.5 leading-relaxed', className)}
-      {...rest}
-    />
-  ),
-)
-FieldMultiline.displayName = 'FieldMultiline'

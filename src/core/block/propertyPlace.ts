@@ -9,7 +9,7 @@ export interface DeclaredProperty {
 }
 
 // Which properties the builder edits where. A directly bound spot and the
-// plain-name mirror of a page property are not edited as properties at all.
+// plain-name mirror of a field are not edited as properties at all.
 export function propertiesFor(
   block: BlockNode,
   def: BlockType,

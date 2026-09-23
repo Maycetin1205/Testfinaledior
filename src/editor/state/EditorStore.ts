@@ -34,15 +34,11 @@ import { SavePlanner } from './savePlanner'
 import { Subject } from './Subject'
 import { duplicateSubtree } from './duplicate'
 import { subtreeIds, emptyTree } from '../../core/block/treeOps'
-import {
-  isRemoveProtected as isTemplateProtected,
-  templateMarkFor as templateMarkInTree,
-} from './templateRules'
+import { isRemoveProtected as isTemplateProtected } from './templateRules'
 import {
   activePagesRoot,
   freePagesName,
   childrenInFlow,
-  plainNamesTrail,
   writeValue,
   pageOf,
   pagesTheMask,
@@ -330,10 +326,6 @@ export class EditorStore extends Subject<EditorStore> {
     return sourcesInReach(this._tree, id, this.dataSources.list)
   }
 
-  templateMarkFor(id: string): string | undefined {
-    return templateMarkInTree(this._tree, id)
-  }
-
   isRemoveProtected(id: string): boolean {
     return isTemplateProtected(this._tree, id)
   }
@@ -369,9 +361,7 @@ export class EditorStore extends Subject<EditorStore> {
       droppedKeys(def, attr, node.values[attr], value),
     )
 
-    this._tree = typeof value === 'string' && def?.page === true && attr === 'name'
-      ? plainNamesTrail(cleaned.tree, id, value)
-      : cleaned.tree
+    this._tree = cleaned.tree
     this.notify(this)
     return true
   }

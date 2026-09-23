@@ -1,6 +1,6 @@
 const BACKUP_SUFFIX = '__notfallkopie'
 
-export function backupKeyFor(storageKey: string): string {
+function backupKeyFor(storageKey: string): string {
   return `${storageKey}${BACKUP_SUFFIX}`
 }
 

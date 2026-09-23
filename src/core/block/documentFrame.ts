@@ -4,7 +4,7 @@ export const DOCUMENT_FRAME_PROP = 'documentFrame'
 
 export const FRAME_SPOTS = 5
 
-export function frameNumber(raw: unknown): string {
+function frameNumber(raw: unknown): string {
   const text = typeof raw === 'string'
     ? raw.trim()
     : typeof raw === 'number' && Number.isFinite(raw) ? String(raw) : ''

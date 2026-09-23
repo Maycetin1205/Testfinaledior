@@ -23,7 +23,7 @@ import { sendBwLink, sendStartTool } from '../../softengine/commands'
 import { freshDataRequest } from '../../softengine/bridge'
 import { relationRun, runtimeRelation, parameterResolve } from '../../softengine/relations'
 
-export function applyPopupStep(root: ParentNode, name: string, open: boolean): void {
+function applyPopupStep(root: ParentNode, name: string, open: boolean): void {
   if (name.trim() === '') return
 
   const windowKind = blockType('popup')
@@ -115,7 +115,7 @@ function recordOfRun(transcript: Transcript, row: RunRow): string {
   return transcript.values.PINDEX ?? ''
 }
 
-export async function runSteps(
+async function runSteps(
   el: HTMLElement,
   steps: readonly RuntimeStep[],
   context: PlaceholderValues,

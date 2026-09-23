@@ -8,7 +8,3 @@ export function setFetchedRows(alias: string, rows: unknown[]): void {
 export function fetchedRowsFor(alias: string): unknown[] | undefined {
   return storage.get(alias)
 }
-
-export function setFetchedRowsBack(): void {
-  storage.clear()
-}

@@ -7,12 +7,10 @@ export {
   fieldChoicesRead,
   typedTitle,
   listStandardTitle,
-  listForExport,
   listRead,
   flagOn,
   flagFor,
   titleToFieldChoice,
-  type EntryFieldChoice,
   type EntrySwitch,
   type ListBinding,
 } from './listBinding'
@@ -21,7 +19,6 @@ export {
   bindingWithSource,
   SOURCES_DIVIDER,
   splitBinding,
-  type FieldTarget,
 } from './binding'
 
 export type Category = 'input' | 'display' | 'layout'
@@ -44,8 +41,6 @@ export interface BlockDeclaration {
   capabilities?: readonly Capability[]
 
   takesChildren?: boolean
-  widthEditable?: boolean
-  heightEditable?: boolean
 
   allowedChildren?: readonly string[]
   allowedParent?: readonly string[]
@@ -67,5 +62,5 @@ export interface BlockDeclaration {
 // The registry fills in what a block left open, so readers never test for it.
 export type BlockType = BlockDeclaration & Required<Pick<
   BlockDeclaration,
-  'properties' | 'capabilities' | 'takesChildren' | 'widthEditable' | 'heightEditable'
+  'properties' | 'capabilities' | 'takesChildren'
 >>

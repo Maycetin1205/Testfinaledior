@@ -4,7 +4,6 @@ import { capability } from '../../core/block/capability'
 import type { Property } from '../../core/block/property'
 import { sourcesKey, type DataSource } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
-import { useRelation } from '../state/useRelations'
 import { useEditor } from '../state/useEditor'
 import type { ListGroup } from '@/editor/widgets/List'
 import { TileControl } from './controls/TileControl'
@@ -13,7 +12,6 @@ import { NumberControl } from './controls/NumberControl'
 import { PickerControl } from './controls/PickerControl'
 import { SegmentControl } from './controls/SegmentControl'
 import { SelectControl } from './controls/SelectControl'
-import { TextareaControl } from './controls/TextareaControl'
 import { TextControl } from './controls/TextControl'
 
 export interface EditCallbacks {
@@ -49,8 +47,6 @@ export function PropControl({
   compact = false,
 }: PropControlProps) {
   const ed = useEditor()
-
-  const relation = useRelation()
 
   const sources = useDataSources()
   const def = blockType(block.type)
@@ -152,44 +148,6 @@ export function PropControl({
           },
         }
 
-      case 'page': {
-        const pages = ed.pages.filter((s) => s.isMainPage)
-        return {
-          denominator: 'Seite',
-          groups: [{
-            key: 'pages',
-            entries: pages.map((s) => ({ value: s.id, name: s.name })),
-          }],
-          value: typeof value === 'string' ? value : '',
-          emptyText: 'Keine',
-          onChoose: (id) => {
-            ed.transaction(() => {
-              set(id)
-              if (property.plainNameProp) {
-                ed.updateProperty(block.id, property.plainNameProp,
-                  pages.find((s) => s.id === id)?.name ?? '')
-              }
-            })
-          },
-        }
-      }
-
-      case 'relation':
-        return {
-          denominator: 'Relation',
-          groups: [{
-            key: 'relation',
-            entries: relation.list.map((r) => ({
-              value: r.id,
-              name: r.name,
-              badge: r.nr,
-            })),
-          }],
-          value: typeof value === 'string' ? value : '',
-          emptyText: 'Keine',
-          onChoose: set,
-        }
-
       default:
         return undefined
     }
@@ -210,8 +168,6 @@ export function PropControl({
   switch (kind) {
     case 'text':
       return <TextControl property={property} value={String(value ?? '')} onChange={set} {...session} />
-    case 'longText':
-      return <TextareaControl property={property} value={String(value ?? '')} onChange={set} {...session} />
 
     case 'number':
       return <NumberControl label={property.label} property={property} value={value} onChange={set} {...session} />

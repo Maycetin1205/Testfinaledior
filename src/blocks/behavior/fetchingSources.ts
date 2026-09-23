@@ -24,7 +24,7 @@ const silentLoaded = new Map<string, Set<string>>()
 
 let wired = false
 
-export function defsWithRecordChoice(): Map<string, BlockType> {
+function defsWithRecordChoice(): Map<string, BlockType> {
   const map = new Map<string, BlockType>()
   for (const def of allBlockTypes()) {
     if (hasCapability(def, 'recordPick')) map.set(def.tag.toLowerCase(), def)
@@ -46,7 +46,7 @@ function sourcesAttrFor(el: Element, def: BlockType): string {
   return (active ? choice.sourceProp ?? SOURCE_PROP : SOURCE_PROP).toLowerCase()
 }
 
-export function chosenRowTheSource(
+function chosenRowTheSource(
   sourceId: string,
   defsPerTag: Map<string, BlockType>,
   root: ParentNode | undefined = typeof document === 'undefined' ? undefined : document,
@@ -70,7 +70,7 @@ export function chosenRowTheSource(
   return { row: newest?.row, giver }
 }
 
-export function mayLoad(sourceId: string, print: string, byControls: boolean): boolean {
+function mayLoad(sourceId: string, print: string, byControls: boolean): boolean {
   if (lastPrint.get(sourceId) === print) return false
   if (byControls) {
     silentLoaded.set(sourceId, new Set([print]))

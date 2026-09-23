@@ -12,7 +12,7 @@ import { makeCopyOn } from './backup'
 // sources themselves.
 export const STORAGE_KEY = 'aufbau_editor_mvp_v1'
 
-export const LIBRARY_KEY = 'aufbau_editor_datencenter'
+const LIBRARY_KEY = 'aufbau_editor_datencenter'
 export const SAVE_DEBOUNCE_MS = 500
 
 export interface StoredMask {

@@ -20,10 +20,6 @@ function savePicker(): SaveFilePicker | undefined {
 export class FileOnDisk {
   private handle: FileSystemFileHandle | null = null
 
-  get name(): string | null {
-    return this.handle?.name ?? null
-  }
-
   remember(handle: FileSystemFileHandle): void {
     this.handle = handle
   }

@@ -4,11 +4,6 @@ export const RELATION_VERBS: readonly RelationVerb[] = [
   'GET_RELATION', 'PUT_RELATION', 'PUTADD_RELATION',
 ]
 
-const RELATION_PLACEHOLDERS = [
-  'FELD_POS', 'FELD_LEN', 'PINDEX', 'SELKEY', 'DROP_PINDEX',
-  'RELID', 'VALUE', 'NOW_DATE',
-] as const
-
 export type PlaceholderValues = Readonly<Record<string, string | undefined>>
 
 export interface RelationTemplate {
@@ -108,10 +103,7 @@ export function placeholderInsert(
   )
 }
 
-export function unknownPlaceholder(
-  param: string,
-  known: readonly string[] = RELATION_PLACEHOLDERS,
-): string[] {
+export function unknownPlaceholder(param: string, known: readonly string[]): string[] {
   const acc: string[] = []
   for (const m of param.matchAll(/\{([A-Z_]+)\}/g)) {
     if (!known.includes(m[1])) acc.push(m[1])

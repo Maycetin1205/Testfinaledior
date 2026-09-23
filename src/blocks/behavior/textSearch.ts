@@ -8,7 +8,7 @@ export function plainText(text: string): string {
     .replace(/\p{M}/gu, '')
 }
 
-export function wordsOf(text: string): string[] {
+function wordsOf(text: string): string[] {
   return text.trim().toLowerCase().split(/\s+/).filter((w) => w !== '')
 }
 

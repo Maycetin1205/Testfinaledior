@@ -74,16 +74,12 @@ test('jeder Registry-Baustein exportiert seinen Tag', () => {
 test('eine geänderte Eigenschaft erreicht den Export als Attribut', () => {
   const checkable = new Map<string, string>()
   for (const def of allBlockTypes()) {
-    const pagesProps = new Set(Object.entries(def.properties)
-      .filter(([, p]) => p.type.control === 'page')
-      .flatMap(([k, p]) => [k, p.plainNameProp ?? '']))
     const key = Object.entries(def.properties).find(([k, p]) =>
       typeof p.default === 'string'
       && p.attribute !== ''
       && k !== SOURCE_PROP
       && k !== EXTRA_SOURCES_PROP
-      && !k.toLowerCase().endsWith('field')
-      && !pagesProps.has(k))?.[0]
+      && !k.toLowerCase().endsWith('field'))?.[0]
     if (key !== undefined) checkable.set(def.type, key)
   }
   expect(checkable.size, 'kaum ein Baustein hat eine pruefbare Text-Eigenschaft').toBeGreaterThan(6)

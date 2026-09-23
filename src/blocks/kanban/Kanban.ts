@@ -54,8 +54,6 @@ defineBlock(Kanban, {
   allowedChildren: [CARD_TYPE, KanbanColumn.type],
   childDirection: 'row',
   fixedWidth: 'fill',
-  widthEditable: false,
-  heightEditable: true,
   childButton: { name: 'Spalte', childType: KanbanColumn.type },
   childDefaults: [
     { type: CARD_TYPE },

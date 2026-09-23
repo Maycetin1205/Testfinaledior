@@ -26,7 +26,7 @@ export interface RowMetrics {
   rowsHeight: number
 }
 
-export function rowMetrics(
+function rowMetrics(
   bodyHeight: number,
   headHeight: number,
   tick: number,

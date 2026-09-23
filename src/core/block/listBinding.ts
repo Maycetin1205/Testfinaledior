@@ -81,7 +81,7 @@ export function listStandardTitle(b: ListBinding, index: number): string {
   return b.standardTitle.replace('{n}', String(index + 1))
 }
 
-export const TITLE_OF_HAND = 'titleByHand'
+const TITLE_OF_HAND = 'titleByHand'
 
 export function typedTitle(b: ListBinding, title: string): Record<string, unknown> {
   return {

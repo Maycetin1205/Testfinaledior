@@ -44,7 +44,7 @@ export function usedRelationIds(
   return collectRelation(tree, relation, collectDataSources(tree, sources)).map((r) => r.id)
 }
 
-export function packMask(editor: EditorStore): string {
+function packMask(editor: EditorStore): string {
   const sources = editor.dataSources.list
   return JSON.stringify(
     {
@@ -80,7 +80,7 @@ export async function loadMaskFromFile(editor: EditorStore, file: File): Promise
   editor.replaceMask(result.content)
 }
 
-export function packMaskFrom(text: string): UnpackResult {
+function packMaskFrom(text: string): UnpackResult {
   try {
     return unpack(text)
   } catch {

@@ -44,10 +44,6 @@ export function rowsCode(z: FieldRow, prefix = '', columnsNames = false): string
   return fieldCode(z.pos, z.len, prefix)
 }
 
-export function rowFilled(z: FieldRow): boolean {
-  return z.label.trim() !== '' || rowsCode(z) !== ''
-}
-
 export function rowsIcon(z: FieldRow): number | undefined {
   const raw = Number(z.icon.trim())
   if (z.icon.trim() === '' || !Number.isFinite(raw) || raw < 1) return undefined

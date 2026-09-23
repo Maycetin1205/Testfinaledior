@@ -77,20 +77,6 @@ export function writeValue(
   return name === '' ? null : name
 }
 
-export function plainNamesTrail(tree: MaskTree, pagesId: string, name: string): MaskTree {
-  let next = tree
-  for (const nodeId of Object.keys(tree)) {
-    for (const [key, p] of Object.entries(blockType(next[nodeId].type)?.properties ?? {})) {
-      if (p.type.control !== 'page' || !p.plainNameProp) continue
-      const current = next[nodeId]
-      if (current.values[key] !== pagesId) continue
-      if (next === tree) next = { ...tree }
-      next[nodeId] = { ...current, values: { ...current.values, [p.plainNameProp]: name } }
-    }
-  }
-  return next
-}
-
 export function childrenInFlow(tree: MaskTree, parentId: string): BlockNode[] {
   const parent = tree[parentId]
   if (!parent) return []

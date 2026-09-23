@@ -17,7 +17,7 @@ export interface Rounding {
   direction: RoundingDirection
 }
 
-export const ROUND_STANDARD: Rounding = { spots: 3, direction: 'kfm' }
+const ROUND_STANDARD: Rounding = { spots: 3, direction: 'kfm' }
 
 export const SPOTS_MAX = 6
 
@@ -30,7 +30,7 @@ export function numberStrict(text: string): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-export function roundValue(value: number, round: Rounding): number {
+function roundValue(value: number, round: Rounding): number {
   const f = Math.pow(10, Math.max(0, round.spots))
   const x = value * f
 
@@ -48,7 +48,7 @@ export function numberText(value: number, spots: number): string {
   })
 }
 
-export function asRounding(raw: unknown): Rounding {
+function asRounding(raw: unknown): Rounding {
   if (!raw || typeof raw !== 'object') return { ...ROUND_STANDARD }
   const o = raw as Record<string, unknown>
   const spots = typeof o.spots === 'number' && Number.isInteger(o.spots)
@@ -112,7 +112,7 @@ function pages(b: Calculation): { left: Factor[]; right: Factor[] } {
   return { left: [b.lead, ...b.denominator], right: [...b.numerator] }
 }
 
-export function resultFactors(b: Calculation): ColumnsFactor[] {
+function resultFactors(b: Calculation): ColumnsFactor[] {
   return allFactors(b).filter(
     (f): f is ColumnsFactor => f.kind === 'column' && f.result && f.column !== '',
   )
@@ -122,13 +122,6 @@ export function factorName(f: Factor, columnsTitle: (key: string) => string): st
   if (f.kind !== 'column') return f.name === '' ? '?' : f.name
   const title = columnsTitle(f.column)
   return title === '' ? '?' : title
-}
-
-export function calculationAsText(
-  b: Calculation,
-  columnsTitle: (key: string) => string,
-): string {
-  return directionAsText(b, b.lead.key, columnsTitle)
 }
 
 export function directionAsText(
@@ -175,7 +168,7 @@ function product(values: readonly number[]): number {
   return values.reduce((a, b) => a * b, 1)
 }
 
-export function unitsProbe(b: Calculation): string {
+function unitsProbe(b: Calculation): string {
   const { left, right } = pages(b)
   const pictureOf = (factors: readonly Factor[]): SizeImage | null => {
     let picture: SizeImage | null = SIZE_IMAGE_EMPTY
@@ -499,7 +492,7 @@ export function newFactor(key: string): ColumnsFactor {
   }
 }
 
-export function freeCalculationKey(present: readonly Calculation[]): string {
+function freeCalculationKey(present: readonly Calculation[]): string {
   let nr = present.length + 1
   const assign = new Set(present.map((b) => b.key))
   while (assign.has(`b${nr}`)) nr++

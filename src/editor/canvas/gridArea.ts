@@ -4,13 +4,13 @@ import { isGridArea } from '../../core/block/gridArea'
 import { blockType } from '../../core/block/registry'
 import { isPagesBlock } from '../../core/block/pages'
 
-export const ROOT_AREA_ATTR = 'data-ff-root-area'
+const ROOT_AREA_ATTR = 'data-ff-root-area'
 
 export function areaOf(wrapper: HTMLElement): HTMLElement | null {
   return wrapper.assignedSlot?.parentElement ?? wrapper.parentElement
 }
 
-export function areaIn(host: Element | null | undefined): HTMLElement | null {
+function areaIn(host: Element | null | undefined): HTMLElement | null {
   const slot = host?.shadowRoot?.querySelector('slot:not([name])')
   const area = slot?.parentElement
   return area instanceof HTMLElement ? area : null

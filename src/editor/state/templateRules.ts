@@ -17,13 +17,6 @@ function owningTemplateBoardId(tree: MaskTree, id: string): string | undefined {
   return undefined
 }
 
-export function templateMarkFor(tree: MaskTree, id: string): string | undefined {
-  const boardId = owningTemplateBoardId(tree, id)
-  return boardId
-    ? blockType(tree[boardId].type)?.templateKind?.name
-    : undefined
-}
-
 export function isRemoveProtected(tree: MaskTree, id: string): boolean {
   const remove = new Set(subtreeIds(tree, id))
   for (const nid of remove) {
