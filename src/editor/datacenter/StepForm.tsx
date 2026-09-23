@@ -300,7 +300,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
                   )
                 })}
                 {skipped.length > 0 && (
-                  <div className="flex items-center justify-between gap-2 text-dicht text-matt">
+                  <div className="flex items-center justify-between gap-2 text-dense text-muted">
                     <span>
                       {`Weggelassen: ${skipped.map((i) => i + 1).join(', ')}`}
                     </span>
@@ -310,7 +310,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
               </Group>
 
               {candidate.kind === 'RELATION' && (
-                <p className="break-all font-mono text-dicht text-matt">
+                <p className="break-all font-mono text-dense text-muted">
                   {relationPreview(relation, candidate.parameter, candidate.extraParameter, choices)}
                 </p>
               )}
@@ -356,10 +356,10 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
       )}
 
       {draft.showError && problem && draft.type === 'RELATION' && (
-        <p className="text-ui text-fehler">{problem}</p>
+        <p className="text-ui text-error">{problem}</p>
       )}
 
-      <div className="flex justify-end gap-2 border-t border-linie pt-3">
+      <div className="flex justify-end gap-2 border-t border-line pt-3">
         <Button onClick={onClose}>Abbrechen</Button>
         <Button kind="primary" onClick={save}>Speichern</Button>
       </div>

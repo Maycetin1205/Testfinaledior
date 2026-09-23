@@ -105,7 +105,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
     <div
       ref={barRef}
       data-ff-editor-helper
-      className="absolute z-20 flex items-center gap-0.5 rounded-md border border-linie bg-panel p-0.5 shadow-overlay"
+      className="absolute z-20 flex items-center gap-0.5 rounded-md border border-line bg-panel p-0.5 shadow-overlay"
       style={STYLE.top}
       onPointerDown={hold}
       onClick={hold}
@@ -113,7 +113,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }}
     >
       {properties.length > 0 && (
-        <Button ref={anchor} className="h-6 px-1.5 text-dicht"
+        <Button ref={anchor} className="h-6 px-1.5 text-dense"
           aria-expanded={style} aria-haspopup="dialog"
           onClick={() => setStyle((open) => !open)}>
           <SlidersHorizontal size={12} /> Gestalten
@@ -121,13 +121,13 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       )}
 
       {canCompute(block) && (
-        <Button className="h-6 px-1.5 text-dicht"
+        <Button className="h-6 px-1.5 text-dense"
           onClick={() => editor.openCalculations(block.id)}>
           <Link2 size={12} /> Berechnungen
         </Button>
       )}
       {template && def?.templateKind && (
-        <Button className="h-6 px-1.5 text-dicht" onClick={() => editor.selectBlock(template)}>
+        <Button className="h-6 px-1.5 text-dense" onClick={() => editor.selectBlock(template)}>
           {def.templateKind.name}
         </Button>
       )}
@@ -149,7 +149,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       )}
       {kind && (
         <Button
-          className="h-6 px-1.5 text-dicht"
+          className="h-6 px-1.5 text-dense"
           onClick={() => editor.addBlock(kind.childType, block.id)}
         >
           <Plus size={12} /> {kindName}
@@ -157,7 +157,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       )}
       {next && (
         <Button
-          className="h-6 px-1.5 text-dicht"
+          className="h-6 px-1.5 text-dense"
           disabled={!neuPossible}
           onClick={() => applyProps(editor, block.id, next(block.values))}
         >
@@ -166,7 +166,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       )}
       {away && (
         <Button
-          className="h-6 px-1.5 text-dicht"
+          className="h-6 px-1.5 text-dense"
           disabled={!awayPossible}
           onClick={() => {
             const index = entries.length - 1

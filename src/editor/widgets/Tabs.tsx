@@ -22,9 +22,9 @@ export function Tabs({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       className={cn(
-        'h-6 shrink-0 whitespace-nowrap rounded px-2.5 text-dicht transition-colors',
-        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-akzent',
-        active ? 'bg-akzent/15 font-medium text-tinte' : 'text-matt hover:text-tinte',
+        'h-6 shrink-0 whitespace-nowrap rounded px-2.5 text-dense transition-colors',
+        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
+        active ? 'bg-accent/15 font-medium text-ink' : 'text-muted hover:text-ink',
         className,
       )}
     >

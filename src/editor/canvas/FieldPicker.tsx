@@ -139,12 +139,12 @@ function FieldRow({ label, display, active, onActive }: FieldRowProps) {
       className="px-1.5"
     >
 
-      <span className="w-24 shrink-0 truncate text-ui text-matt">{label}</span>
+      <span className="w-24 shrink-0 truncate text-ui text-muted">{label}</span>
       <span
         className={cn(
           'min-w-0 flex-1 truncate text-ui',
-          display.empty && 'text-matt',
-          display.unknown ? 'text-fehler' : 'text-tinte',
+          display.empty && 'text-muted',
+          display.unknown ? 'text-error' : 'text-ink',
         )}
       >
         {display.name}
@@ -221,7 +221,7 @@ export function FieldPicker({
       onClose={onClose}
     >
       <div className="flex flex-col gap-1.5">
-        <p className="truncate px-1.5 pt-0.5 text-dicht font-semibold uppercase tracking-wide text-matt">
+        <p className="truncate px-1.5 pt-0.5 text-dense font-semibold uppercase tracking-wide text-muted">
           {spotLabel}
         </p>
 
@@ -284,7 +284,7 @@ export function FieldPicker({
 
         <Divider />
 
-        <p className="flex items-baseline gap-2 px-1.5 text-dicht font-semibold uppercase tracking-wide text-matt">
+        <p className="flex items-baseline gap-2 px-1.5 text-dense font-semibold uppercase tracking-wide text-muted">
           <span className="min-w-0 truncate">
             {active.label} wählen
           </span>
@@ -310,7 +310,7 @@ export function FieldPicker({
           </>
         )}
         {((further?.length ?? 0) > 0 || onRemove !== undefined) && (
-          <div className="sticky bottom-0 -mb-1 flex items-center justify-between gap-2 border-t border-linie bg-panel px-1.5 py-1.5">
+          <div className="sticky bottom-0 -mb-1 flex items-center justify-between gap-2 border-t border-line bg-panel px-1.5 py-1.5">
             <div className="flex items-center gap-1.5">
               {(further ?? []).map((w) => (
                 <Button key={w.label} onClick={w.onOpen}>{w.label}</Button>

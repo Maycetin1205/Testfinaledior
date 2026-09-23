@@ -19,17 +19,17 @@ export function Entry({ icon: Icon, name, right, bottom, active = false, onClick
       type="button"
       onClick={onClick}
       className={cn(
-        'mb-1 w-full rounded border px-2.5 py-1 text-left text-dicht transition-colors',
-        active ? 'border-akzent/60 bg-akzent/15' : 'border-transparent hover:bg-control',
+        'mb-1 w-full rounded border px-2.5 py-1 text-left text-dense transition-colors',
+        active ? 'border-accent/60 bg-accent/15' : 'border-transparent hover:bg-control',
       )}
     >
       <div className="flex items-center gap-1.5">
-        <Icon size={12} className="shrink-0 text-matt" />
+        <Icon size={12} className="shrink-0 text-muted" />
         <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
         {right}
       </div>
       {bottom !== undefined && (
-        <div className="mt-0.5 pl-[1.125rem] text-dicht text-matt">{bottom}</div>
+        <div className="mt-0.5 pl-[1.125rem] text-dense text-muted">{bottom}</div>
       )}
     </button>
   )

@@ -32,8 +32,8 @@ export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
           onChange={(e) => onChoose(e.currentTarget.value)}
           className={cn(
             INPUT_EDGE,
-            'h-steuer cursor-pointer appearance-none py-0 pl-2 pr-7',
-            unknown && 'text-fehler',
+            'h-control cursor-pointer appearance-none py-0 pl-2 pr-7',
+            unknown && 'text-error',
           )}
           {...rest}
         >
@@ -49,7 +49,7 @@ export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
         <ChevronDown
           size={13}
           aria-hidden
-          className="pointer-events-none absolute right-2 text-matt"
+          className="pointer-events-none absolute right-2 text-muted"
         />
       </span>
     )

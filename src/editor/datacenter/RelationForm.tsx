@@ -72,19 +72,19 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
             <Field
               {...kind}
               value={syntaxInput}
-              className="font-mono text-dicht"
+              className="font-mono text-dense"
               onChange={(e) => setSyntaxInput(e.target.value)}
             />
           )}
         </Row>
 
         {syntax && (
-          <div className="rounded border border-linie bg-control p-2 text-dicht">
-            <div className="font-medium text-tinte">
+          <div className="rounded border border-line bg-control p-2 text-dense">
+            <div className="font-medium text-ink">
               {syntax.verb.replace('_RELATION', '')} {syntax.nr} · {syntax.parameter.length} Parameter
               {syntax.extraParameterAllowed ? ' · weitere erlaubt' : ''}
             </div>
-            <div className="mt-1 max-h-32 overflow-y-auto font-mono text-matt">
+            <div className="mt-1 max-h-32 overflow-y-auto font-mono text-muted">
               {syntax.parameter.map((param, i) => (
                 <div key={i} className="flex gap-2">
                   <span className="w-5 shrink-0 text-right">{i + 1}.</span>
@@ -95,7 +95,7 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
           </div>
         )}
 
-        <div className="flex justify-end gap-2 border-t border-linie pt-3">
+        <div className="flex justify-end gap-2 border-t border-line pt-3">
           <Button onClick={onClose}>Abbrechen</Button>
           <Button kind="primary" onClick={save}>Speichern</Button>
         </div>

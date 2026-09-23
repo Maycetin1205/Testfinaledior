@@ -1,6 +1,3 @@
-/* Die Werte der Maske: kuehl, petrol, dicht — die Optik, die in BueroWARE
-   laeuft. Alles, was die Bausteine an Farbe, Schrift und Mass brauchen, steht
-   hier; ein Baustein erfindet keinen eigenen Wert. */
 :root {
 
   --se-bg:        #f3f8fa;
@@ -20,16 +17,14 @@
   --se-accent-dark: #00647a;
   --se-accent-soft: #e8f6f9;
 
-  /* Die gewaehlte Zeile, das Zebra und der Zeilen-Hover. */
-  --se-auswahl:     #d3eef5;
+  --se-selection:   #d3eef5;
   --se-zebra:       #f7fbfc;
   --se-hover:       #eef7f9;
 
   --se-red:         #b3261e;
   --se-red-soft:    #fdecea;
 
-  /* Bernstein heisst "vorgemerkt, noch nicht geschrieben": die geaenderte
-     Zelle und die neue Zeile. */
+  /* Amber means marked, not yet written. */
   --se-amber:       #f0a53a;
   --se-amber-soft:  #fff6e1;
 
@@ -52,7 +47,7 @@
   --se-r-md:   6px;
   --se-r-lg:   10px;
 
-  --se-schatten: 0 1px 2px rgba(27, 45, 62, 0.05), 0 4px 12px rgba(27, 45, 62, 0.06);
+  --se-shadow: 0 1px 2px rgba(27, 45, 62, 0.05), 0 4px 12px rgba(27, 45, 62, 0.06);
 
   --se-font: "Segoe UI Variable Text", "Segoe UI", system-ui, Tahoma, sans-serif;
   --se-mono: "IBM Plex Mono", Consolas, monospace;
@@ -61,9 +56,8 @@
   --se-fs-xs:   10.5px;
   --se-fs-lg:   14px;
 
-  /* Spaltentitel: eine Stufe kleiner als der Inhalt, damit zwei Zeilen Titel
-     in den Kopf passen. */
-  --se-fs-kopf: 11.5px;
+  /* One step below the content, so a column title of two lines fits the head. */
+  --se-fs-head: 11.5px;
 
   --se-lh: 1.4;
 

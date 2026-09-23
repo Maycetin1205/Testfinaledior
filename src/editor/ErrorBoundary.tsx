@@ -24,8 +24,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     const { error } = this.state
     if (!error) return this.props.children
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-grund p-6">
-        <div className="flex max-w-md flex-col gap-3 rounded border border-linie bg-panel p-5">
+      <div className="flex h-screen w-screen items-center justify-center bg-ground p-6">
+        <div className="flex max-w-md flex-col gap-3 rounded border border-line bg-panel p-5">
           <Button kind="primary" className="self-start" onClick={() => { location.reload() }}>
             Neu laden
           </Button>

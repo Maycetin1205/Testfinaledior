@@ -28,8 +28,8 @@ function RasterGhost({ slot }: { slot: GridSlot }) {
       style={{
         ...gridSlotStyle(slot),
         pointerEvents: 'none',
-        background: 'hsl(var(--wb-auswahl) / 0.16)',
-        border: '2px dashed hsl(var(--wb-auswahl))',
+        background: 'hsl(var(--wb-selection) / 0.16)',
+        border: '2px dashed hsl(var(--wb-selection))',
         borderRadius: 4,
       }}
     />
@@ -41,7 +41,7 @@ function InsertionLine({ direction }: { direction: Direction }) {
     <div
       data-ff-editor-helper
       className={cn(
-        'self-stretch rounded-[2px] bg-[hsl(var(--wb-auswahl))]',
+        'self-stretch rounded-[2px] bg-[hsl(var(--wb-selection))]',
         direction === 'column' ? 'h-[2px]' : 'min-h-6 w-[2px]',
       )}
     />

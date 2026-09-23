@@ -72,7 +72,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
           <div className="relative">
             <Search
               size={13}
-              className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-matt"
+              className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted"
             />
             <Field
               aria-label="Relationen durchsuchen"
@@ -120,19 +120,19 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
         {mode === 'read' && selection && (
           <div className="flex flex-col gap-4 text-ui">
             <div>
-              <h3 className="text-ui font-semibold text-tinte">{selection.name}</h3>
+              <h3 className="text-ui font-semibold text-ink">{selection.name}</h3>
             </div>
 
             <Group title="Parameter">
-              <div className="overflow-hidden rounded border border-linie">
+              <div className="overflow-hidden rounded border border-line">
                 <table className="w-full">
                   <tbody>
                     {selection.parameter.map((p, i) => (
-                      <tr key={i} className="border-b border-linie last:border-b-0">
-                        <td className="w-6 px-2 py-1 text-right font-mono text-dicht text-matt">
+                      <tr key={i} className="border-b border-line last:border-b-0">
+                        <td className="w-6 px-2 py-1 text-right font-mono text-dense text-muted">
                           {i + 1}
                         </td>
-                        <td className="px-2 py-1 font-mono text-dicht">{p}</td>
+                        <td className="px-2 py-1 font-mono text-dense">{p}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -141,7 +141,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
             </Group>
 
             <Group title="Gespeicherte SoftEngine-Syntax">
-              <code className="block overflow-x-auto rounded bg-control px-2.5 py-1.5 font-mono text-dicht">
+              <code className="block overflow-x-auto rounded bg-control px-2.5 py-1.5 font-mono text-dense">
                 {relationSyntaxAsText(selection)}
               </code>
             </Group>
@@ -150,7 +150,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
               {usageOf(selection.id).length > 0 && (
                 <ul className="flex flex-col gap-1">
                   {usageOf(selection.id).map((name, i) => (
-                    <li key={i} className="rounded border border-linie bg-control px-2.5 py-1">
+                    <li key={i} className="rounded border border-line bg-control px-2.5 py-1">
                       {name}
                     </li>
                   ))}
@@ -158,7 +158,7 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
               )}
             </Group>
 
-            <div className="flex gap-2 border-t border-linie pt-3">
+            <div className="flex gap-2 border-t border-line pt-3">
               <Button kind="primary" onClick={() => setMode('edit')}>Bearbeiten</Button>
               <Button kind="risk" onClick={() => deleteEntry(selection)}>Löschen</Button>
             </div>

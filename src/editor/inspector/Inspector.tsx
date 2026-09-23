@@ -42,8 +42,8 @@ function Panel({ title, actions, children }: {
 }) {
   return (
     <div className="flex h-full flex-col gap-2 p-2">
-      <header className="flex h-steuer shrink-0 items-center gap-1">
-        <h2 className="min-w-0 flex-1 truncate text-ui font-semibold text-tinte">{title}</h2>
+      <header className="flex h-control shrink-0 items-center gap-1">
+        <h2 className="min-w-0 flex-1 truncate text-ui font-semibold text-ink">{title}</h2>
         {actions}
       </header>
       <div className="min-h-0 flex-1 overflow-auto">{children}</div>
@@ -123,7 +123,7 @@ export function Inspector() {
         )}
 
         {valueProps.length > 0 && (
-          <div className="inspektor-werte">
+          <div className="inspector-values">
             {inspectorRows(valueProps).map((row) =>
               row.row ? (
                 <Row key={`zeile:${row.row}`} label={row.row}>
@@ -146,7 +146,7 @@ export function Inspector() {
 
             {dataProps.length > 0 && (
               <Group title="Felder" open={fieldsOpen} onToggle={toggleFields}>
-                <div className="inspektor-werte">
+                <div className="inspector-values">
                   {dataProps.map((p) => propControl(p))}
                 </div>
               </Group>

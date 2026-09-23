@@ -9,16 +9,16 @@ export function StatusBar() {
   const page = ed.pages.find((p) => p.id === ed.activePageId)
 
   return (
-    <footer className="flex h-6 shrink-0 items-center justify-between gap-3 border-t border-linie bg-panel px-3 text-dicht text-matt">
+    <footer className="flex h-6 shrink-0 items-center justify-between gap-3 border-t border-line bg-panel px-3 text-dense text-muted">
       <div className="flex items-center gap-3">
         <span>
           Bausteine (alle Seiten){' '}
-          <strong className="font-semibold tabular-nums text-tinte">{ed.blockCount}</strong>
+          <strong className="font-semibold tabular-nums text-ink">{ed.blockCount}</strong>
         </span>
         {selected && (
           <span>
             Auswahl{' '}
-            <strong className="font-semibold text-tinte">
+            <strong className="font-semibold text-ink">
               {blockName(selected, sources)}
             </strong>
           </span>
@@ -26,7 +26,7 @@ export function StatusBar() {
       </div>
       {page && (
         <span>
-          Seite <strong className="font-semibold text-tinte">{page.name}</strong>
+          Seite <strong className="font-semibold text-ink">{page.name}</strong>
         </span>
       )}
     </footer>

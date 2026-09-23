@@ -48,9 +48,9 @@ export function RelationSelection({
   }))
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-dicht font-medium">{label}</span>
+      <span className="text-dense font-medium">{label}</span>
       <div className="relative">
-        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-matt" />
+        <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted" />
         <Field
           aria-label={`${label} suchen`}
           value={search}
@@ -65,7 +65,7 @@ export function RelationSelection({
         onChange={(value) => setTab(value as RelationGroup)}
       />
 
-      <div className="max-h-36 overflow-y-auto border-y border-linie p-1">
+      <div className="max-h-36 overflow-y-auto border-y border-line p-1">
         {visible.map((entry) => {
           const unnamed = isUnnamedTemplate(entry)
           return (

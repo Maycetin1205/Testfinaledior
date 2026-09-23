@@ -51,18 +51,18 @@ export function PickerControl({
       aria-expanded={open}
       aria-label={label === undefined ? `${name}: ${shown}` : undefined}
       onClick={() => setOpen(!open)}
-      className={cn(INPUT_EDGE, 'flex h-steuer items-center gap-2 px-2 text-left', className)}
+      className={cn(INPUT_EDGE, 'flex h-control items-center gap-2 px-2 text-left', className)}
     >
       <span
         className={cn(
           'min-w-0 flex-1 truncate',
-          value === '' && 'text-matt',
-          unknown ? 'text-fehler' : value !== '' && 'font-medium',
+          value === '' && 'text-muted',
+          unknown ? 'text-error' : value !== '' && 'font-medium',
         )}
       >
         {shown}
       </span>
-      <ChevronDown size={13} aria-hidden className="shrink-0 text-matt" />
+      <ChevronDown size={13} aria-hidden className="shrink-0 text-muted" />
     </Button>
   )
 

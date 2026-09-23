@@ -172,8 +172,8 @@ export function ColumnsControls({
         <div
           key={i}
           className={cn(
-            'pointer-events-auto absolute cursor-pointer hover:bg-[hsl(var(--wb-auswahl)/0.10)]',
-            drag?.of === i && 'bg-[hsl(var(--wb-auswahl)/0.10)]',
+            'pointer-events-auto absolute cursor-pointer hover:bg-[hsl(var(--wb-selection)/0.10)]',
+            drag?.of === i && 'bg-[hsl(var(--wb-selection)/0.10)]',
           )}
           style={{
             left: s.left + HANDLE_EDGE,
@@ -188,7 +188,7 @@ export function ColumnsControls({
       ))}
       {line !== null && (
         <div
-          className="absolute w-[3px] rounded-[1px] bg-[hsl(var(--wb-auswahl))]"
+          className="absolute w-[3px] rounded-[1px] bg-[hsl(var(--wb-selection))]"
           style={{ left: line - 1, top: first.top, height: first.height }}
         />
       )}

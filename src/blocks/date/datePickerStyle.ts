@@ -2,13 +2,13 @@ import { css } from 'lit'
 
 export const dateStyle = css`
   .picker {
-    --tag-h: 34px;
+    --picker-height: 34px;
 
-    --tag-feld-min: 112px;
+    --field-min: 112px;
     display: flex;
     align-items: stretch;
     gap: var(--se-gap-sm);
-    height: var(--tag-h);
+    height: var(--picker-height);
     font-family: var(--se-font);
   }
 
@@ -47,7 +47,7 @@ export const dateStyle = css`
     box-sizing: border-box;
 
     flex: 1;
-    min-width: var(--tag-feld-min);
+    min-width: var(--field-min);
     border: none;
     background: transparent;
     padding: 0 2px;
@@ -81,7 +81,7 @@ export const dateStyle = css`
     .today { display: none; }
   }
   @container (max-width: 160px) {
-    .picker { --tag-feld-min: 80px; }
+    .picker { --field-min: 80px; }
   }
 
   :host([data-ff-editor]) .field,

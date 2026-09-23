@@ -29,13 +29,13 @@ export function FieldList({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-dicht font-semibold uppercase tracking-wide text-matt">Felder</span>
+        <span className="text-dense font-semibold uppercase tracking-wide text-muted">Felder</span>
         <Button onClick={() => setRows([...rows, { ...EMPTY_ROW }])}>
           <Plus size={13} /> Feld
         </Button>
       </div>
 
-      <div className={`${grid} text-dicht text-matt`}>
+      <div className={`${grid} text-dense text-muted`}>
         <span>Klarname</span>
         {columnsNames
           ? <span>{columnsLabel}</span>
@@ -92,12 +92,12 @@ export function FieldList({
             </Button>
           </div>
           {showError && rowsError[i] !== '' && (
-            <p className="text-dicht text-fehler">{rowsError[i]}</p>
+            <p className="text-dense text-error">{rowsError[i]}</p>
           )}
         </div>
       ))}
       {showError && doubleError !== '' && (
-        <p className="text-dicht text-fehler">{doubleError}</p>
+        <p className="text-dense text-error">{doubleError}</p>
       )}
     </div>
   )

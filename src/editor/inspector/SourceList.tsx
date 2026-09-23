@@ -127,7 +127,7 @@ export function SourcesList({ block }: SourcesListProps) {
       {sourcesSelection(first, 'Datenquelle 1', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
 
       {extra.map((q, i) => (
-        <div key={i} className="flex flex-col gap-1.5 rounded border border-linie p-2">
+        <div key={i} className="flex flex-col gap-1.5 rounded border border-line p-2">
           <div className="flex items-end gap-1">
             <div className="min-w-0 flex-1">
               {sourcesSelection(q.sourceId, `Datenquelle ${i + 2}`, (v) => change(i, { sourceId: v }))}

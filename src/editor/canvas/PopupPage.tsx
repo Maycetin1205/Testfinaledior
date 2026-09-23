@@ -119,7 +119,7 @@ export function PopupPage({ popupId }: { popupId: string }) {
               width: 7,
               height: 26,
               borderRadius: 4,
-              background: 'hsl(var(--wb-auswahl))',
+              background: 'hsl(var(--wb-selection))',
               cursor: 'ew-resize',
               zIndex: 20,
             }}
@@ -141,7 +141,7 @@ export function PopupPage({ popupId }: { popupId: string }) {
               width: 26,
               height: 7,
               borderRadius: 4,
-              background: 'hsl(var(--wb-auswahl))',
+              background: 'hsl(var(--wb-selection))',
               cursor: 'ns-resize',
               zIndex: 20,
             }}

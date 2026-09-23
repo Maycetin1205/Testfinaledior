@@ -14,7 +14,7 @@ export const columnStyle = css`
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
-    background: var(--fw-sanft);
+    background: var(--tone-soft);
     border-radius: var(--se-r-lg);
     font-family: var(--se-font);
   }
@@ -31,7 +31,7 @@ export const columnStyle = css`
     flex: none;
     width: 8px;
     height: 8px;
-    background: var(--fw-stark);
+    background: var(--tone-strong);
   }
 
   .title {
@@ -51,7 +51,7 @@ export const columnStyle = css`
     line-height: 1;
     border-radius: var(--se-r-sm);
     background: var(--se-panel);
-    border: var(--se-border) solid var(--fw-stark);
+    border: var(--se-border) solid var(--tone-strong);
     text-align: center;
     font-family: var(--se-mono);
     font-size: var(--se-fs-sm);

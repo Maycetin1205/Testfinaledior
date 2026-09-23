@@ -23,11 +23,11 @@ export function ActionsSection({
       {events.map((ev) => {
         const steps = chain(ev.key)
         return (
-          <div key={ev.key} className="flex min-h-steuer items-center justify-between gap-2">
-            <span className="min-w-0 truncate text-ui text-tinte">
+          <div key={ev.key} className="flex min-h-control items-center justify-between gap-2">
+            <span className="min-w-0 truncate text-ui text-ink">
               {ev.name}
               {steps.length > 0 && (
-                <span className="ml-1.5 tabular-nums text-matt">{steps.length}</span>
+                <span className="ml-1.5 tabular-nums text-muted">{steps.length}</span>
               )}
             </span>
 

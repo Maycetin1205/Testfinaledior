@@ -105,7 +105,7 @@ function ruler(placement: BodyPlacement): TemplateResult | typeof nothing {
     : {
         ...placement.cols,
         flex: '0 1 auto',
-        height: `calc(var(--zeilen-hoehe) * ${placement.rulerTicks})`,
+        height: `calc(var(--row-height) * ${placement.rulerTicks})`,
       }
   return html`<div class="ruler" role="presentation" style=${styleMap(style)}>
           ${placement.columns.map(() => html`<div></div>`)}

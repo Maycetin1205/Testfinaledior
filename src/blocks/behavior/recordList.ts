@@ -214,8 +214,8 @@ export class RecordList {
       paging: el.paging,
     })
     return html`<div class="table" style=${styleMap({
-      '--takt': `${view.tick}px`,
-      '--zeilen-hoehe': `${view.rowsHeight}px`,
+      '--tick': `${view.tick}px`,
+      '--row-height': `${view.rowsHeight}px`,
     })}>
       ${tableBody({
         columns: visible.columns,

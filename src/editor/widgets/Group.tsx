@@ -35,7 +35,7 @@ export function Group({
   return (
     <section className={cn('flex min-w-0 flex-col', className)}>
 
-      <div className="flex h-steuer items-center gap-1 border-b border-linie">
+      <div className="flex h-control items-center gap-1 border-b border-line">
         <button
           type="button"
           aria-expanded={on}
@@ -43,15 +43,15 @@ export function Group({
           onClick={toggle}
           className={cn(
             'flex min-w-0 flex-1 items-center gap-1.5 rounded text-left',
-            'text-ui font-semibold text-tinte',
-            'transition-colors hover:text-akzent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-akzent',
+            'text-ui font-semibold text-ink',
+            'transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
           )}
         >
           <span className="min-w-0 flex-1 truncate">{title}</span>
           <ChevronDown
             size={12}
             aria-hidden
-            className={cn('shrink-0 text-matt transition-transform', !on && '-rotate-90')}
+            className={cn('shrink-0 text-muted transition-transform', !on && '-rotate-90')}
           />
         </button>
         {actions && <div className="flex shrink-0 items-center gap-1">{actions}</div>}

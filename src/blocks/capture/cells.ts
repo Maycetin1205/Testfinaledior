@@ -56,9 +56,9 @@ export const cellsInputStyle = css`
       .cell-input {
         box-sizing: border-box;
         width: 100%;
-        height: calc(var(--zeilen-hoehe) - 8px);
+        height: calc(var(--row-height) - 8px);
         min-width: 0;
-        padding: 0 var(--se-eingabe-x);
+        padding: 0 var(--se-input-x);
         font-family: var(--se-font);
         font-size: var(--se-fs);
         color: var(--se-ink);
@@ -67,17 +67,15 @@ export const cellsInputStyle = css`
         border-radius: var(--se-r-sm);
       }
 
-      /* Kein Kaestchen in der Zeile, auch nicht unter der Schreibmarke: die
-         Zelle bleibt Text wie jede andere. Nur ein Strich darunter sagt, wo
-         getippt wird. */
+      /* No box, not even under the cursor: the cell stays text like any other,
+         a line below says where the typing goes. */
       .cell-input:focus {
         outline: none;
         box-shadow: inset 0 -2px 0 var(--se-accent);
       }
 
-      /* Eine Zahl sitzt rechts, in der Eingabezelle wie in jeder anderen Zelle
-         der Tabelle. Nur unter dem Schreibzeiger nicht: „1," ist noch keine
-         Zahl, die Schrift spraenge beim Komma hin und her. */
+      /* Left while typing: a number typed up to its comma is no number yet,
+         and the text would jump. */
       .number > .cell-holder > .cell-input { text-align: right; }
       .number > .cell-holder > .cell-input:focus { text-align: left; }
 
@@ -85,17 +83,15 @@ export const cellsInputStyle = css`
       .row.capture .cell-input::placeholder { color: var(--se-faint); }
       .row:focus-within .cell-input::placeholder { color: var(--se-faint); }
 
-      /* Vorgemerkt, noch nicht geschrieben: fett und ein Strich in Bernstein,
-         keine Flaeche. Den Zeilenstand sagt der Punkt vor der Zeile. */
+      /* Marked, not yet written. No fill: the dot before the row tells its state. */
       .cell-input.changed {
         color: var(--se-ink);
         font-weight: 600;
         box-shadow: inset 0 -2px 0 var(--se-amber);
       }
 
-      /* Aus dem gewaehlten Satz uebernommen: steht da wie jeder andere Wert.
-         Getoente Kaestchen und Kursivschrift liessen die Zeile wie einen
-         Fremdkoerper aussehen. */
+      /* Taken from the chosen record and shown like any other value: a tint or
+         italics made the row look foreign. */
       .cell-input.auto {
         color: var(--se-ink);
       }

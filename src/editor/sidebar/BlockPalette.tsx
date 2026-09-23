@@ -63,7 +63,7 @@ export function BlockPalette() {
   return (
     <div className="flex flex-col gap-2">
       <label className="relative flex items-center">
-        <Search size={13} aria-hidden className="absolute left-2 text-matt" />
+        <Search size={13} aria-hidden className="absolute left-2 text-muted" />
         <Field
           value={query}
           onChange={(e) => setQuery(e.currentTarget.value)}
@@ -107,13 +107,13 @@ function PaletteCard({ def, onAdd }: PaletteCardProps) {
         setNewBlockDrag(e.dataTransfer, def.type)
         e.dataTransfer.effectAllowed = 'copy'
       }}
-      className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 px-2 text-left hover:border-akzent"
+      className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 px-2 text-left hover:border-accent"
     >
-      <span className="flex shrink-0 items-center text-matt group-hover:text-tinte">
+      <span className="flex shrink-0 items-center text-muted group-hover:text-ink">
         {createElement(symbolOf(def.type), { size: 15 })}
       </span>
       <span className="truncate">{def.name}</span>
-      <span className="flex shrink-0 items-center text-matt opacity-0 transition-opacity group-hover:opacity-100">
+      <span className="flex shrink-0 items-center text-muted opacity-0 transition-opacity group-hover:opacity-100">
         <Plus size={13} />
       </span>
     </Button>

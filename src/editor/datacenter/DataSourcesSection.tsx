@@ -122,7 +122,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
                 right={(
                   <>
                     {incomplete(s) && (
-                      <TriangleAlert size={12} className="shrink-0 text-fehler" />
+                      <TriangleAlert size={12} className="shrink-0 text-error" />
                     )}
                     <Mark technical={false}>{sourcesWording(s.kind).name}</Mark>
                   </>
@@ -158,21 +158,21 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
         {mode === 'read' && selection && (
           <div className="flex flex-col gap-4 text-ui">
             <div>
-              <h3 className="text-ui font-semibold text-tinte">{selection.name}</h3>
-              <p className="text-matt">
+              <h3 className="text-ui font-semibold text-ink">{selection.name}</h3>
+              <p className="text-muted">
                 {sourcesWording(selection.kind).name}
                 {key(selection) !== '' ? ` · ${key(selection)}` : ''}
               </p>
             </div>
 
             <Group title="Felder">
-              <div className="overflow-hidden rounded border border-linie">
+              <div className="overflow-hidden rounded border border-line">
                 <table className="w-full">
                   <tbody>
                     {selection.fields.map((f) => (
-                      <tr key={f.code} className="border-b border-linie last:border-b-0">
+                      <tr key={f.code} className="border-b border-line last:border-b-0">
                         <td className="px-2.5 py-1">{f.name}</td>
-                        <td className="px-2.5 py-1 text-right font-mono text-dicht text-matt">
+                        <td className="px-2.5 py-1 text-right font-mono text-dense text-muted">
                           {f.code}
                         </td>
                       </tr>
@@ -186,7 +186,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
               {usageOf(selection.id).length > 0 && (
                 <ul className="flex flex-col gap-1">
                   {usageOf(selection.id).map((name, i) => (
-                    <li key={i} className="rounded border border-linie bg-control px-2.5 py-1">
+                    <li key={i} className="rounded border border-line bg-control px-2.5 py-1">
                       {name}
                     </li>
                   ))}
@@ -194,7 +194,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
               )}
             </Group>
 
-            <div className="flex gap-2 border-t border-linie pt-3">
+            <div className="flex gap-2 border-t border-line pt-3">
               <Button kind="primary" onClick={() => setMode('edit')}>Bearbeiten</Button>
               <Button onClick={() => duplicate(selection)}>Duplizieren</Button>
               <Button kind="risk" onClick={() => deleteEntry(selection)}>Löschen</Button>

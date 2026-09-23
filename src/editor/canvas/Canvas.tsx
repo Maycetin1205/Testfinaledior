@@ -45,7 +45,7 @@ export function Canvas() {
         <div
           onClick={() => ed.selectBlock(null)}
 
-          className="relative min-h-0 w-full flex-1 overflow-hidden rounded border border-linie"
+          className="relative min-h-0 w-full flex-1 overflow-hidden rounded border border-line"
 
           style={{
             minHeight: 400,

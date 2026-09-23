@@ -1,38 +1,35 @@
 import { css } from 'lit'
 
 export const captureStyle = css`
-      /* Traeger fuer das Suchfenster-Fenster im Editor: es liegt ueber dem
-         ganzen Baustein. */
+      /* Anchor for the lookup window in the editor, which covers the whole block. */
       :host { position: relative; }
 
-      /* Die Erfassungszeile klebt bedingungslos unten, nicht nur bei
-         „Blaettern = Nein": sonst tippte der Bediener ins Unsichtbare. */
+      /* The capture row sticks to the bottom with paging too: otherwise the
+         operator would type out of sight. */
       .body > .row.capture {
         position: sticky;
         bottom: 0;
         z-index: 1;
       }
 
-      /* Eine Zeile wie jede andere: dieselbe Flaeche, dieselbe Schrift. Nur die
-         Linie darueber trennt sie vom Gerollten, wie die Linie unter dem Kopf. */
       .row.capture {
         flex: none;
         background: var(--se-panel);
         border-top: var(--se-border) solid var(--se-line);
       }
 
-      /* Im Editor stehen die Spaltentitel dort, wo in der Maske die Platzhalter
-         stehen, in derselben Farbe. */
+      /* In the editor the column titles stand where the mask shows its
+         placeholders, in their color. */
       :host([data-ff-editor]) .row.capture > div { color: var(--se-faint); }
 
       .row.captured { flex: none; }
       :host(:not([data-ff-editor])) .row.captured { cursor: pointer; }
 
-      /* Platz vor der ersten Zelle fuer den Statuspunkt. */
+      /* Room for the status dot before the first cell. */
       .head > div:first-of-type,
-      .row > div:first-of-type { padding-left: calc(var(--se-zell-x) + 14px); }
+      .row > div:first-of-type { padding-left: calc(var(--se-cell-x) + 14px); }
 
-      /* Traeger fuer Statuspunkt und Kreuz. */
+      /* Anchor for the status dot and the cross. */
       .row { position: relative; }
       .row[data-status]::before {
         position: absolute;
@@ -49,7 +46,6 @@ export const captureStyle = css`
 
       .row.deleted > div { text-decoration: line-through; color: var(--se-muted); }
 
-      /* Der Zeilen-Status ist der Punkt vor der ersten Zelle. */
       .row[data-status="captured"] { background: var(--se-accent-soft); }
       .row[data-status="captured"]::before,
       .row[data-status="writes"]::before { background: var(--se-accent); }
@@ -65,8 +61,7 @@ export const captureStyle = css`
         .row[data-status="writes"] { animation: none; }
       }
 
-      /* Das Kreuz am rechten Rand der Zeile: absolut, sonst schoebe es den
-         Wert der letzten Zelle beiseite. */
+      /* Absolute, or the cross would push the value of the last cell aside. */
       .row-remove {
         position: absolute;
         right: 2px;
@@ -90,19 +85,17 @@ export const captureStyle = css`
 
       .row-remove.row-remove-static { opacity: 1; cursor: default; }
 
-      /* Eine tippbare Zelle bleibt eine ZELLE, kein Formularfeld: sechs davon in
-         einer Zeile flackerten sonst beim Ueberfahren. Die Zelle gibt ihr
-         Polster an das Feld ab, zusammen ergeben sie wieder --se-zell-x, und
-         sie laesst die Vorschlagsliste heraushaengen. */
+      /* A typable cell hands its padding to its input, so the text keeps the
+         edge of every other cell, and lets the suggestion list hang out. */
       .row > div.typable,
       .row.capture > div {
         display: flex;
         align-items: center;
         overflow: visible;
-        padding: 0 calc(var(--se-zell-x) - var(--se-eingabe-x) - var(--se-border));
+        padding: 0 calc(var(--se-cell-x) - var(--se-input-x) - var(--se-border));
       }
       .row > div.typable:first-of-type,
       .row.capture > div:first-of-type {
-        padding-left: calc(var(--se-zell-x) + 14px - var(--se-eingabe-x) - var(--se-border));
+        padding-left: calc(var(--se-cell-x) + 14px - var(--se-input-x) - var(--se-border));
       }
 `

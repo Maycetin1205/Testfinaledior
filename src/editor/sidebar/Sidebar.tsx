@@ -25,8 +25,8 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
 
   return (
     <div className="flex h-full flex-col gap-2 p-2">
-      <header className="flex h-steuer shrink-0 items-center gap-1">
-        <h2 className="min-w-0 flex-1 truncate text-ui font-semibold text-tinte">Bausteine</h2>
+      <header className="flex h-control shrink-0 items-center gap-1">
+        <h2 className="min-w-0 flex-1 truncate text-ui font-semibold text-ink">Bausteine</h2>
         <Button
           onlyIcon
           aria-label="Bausteine einklappen"

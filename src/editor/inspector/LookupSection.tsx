@@ -69,9 +69,9 @@ export function LookupWindowSection({ block, window }: LookupWindowSectionProps)
       {states.map(({ slot, state }) => (
         <div key={slot} className="flex min-w-0 flex-col gap-1">
           {window.entriesProp !== undefined && (
-            <p className="text-ui font-medium text-tinte">{state.title}</p>
+            <p className="text-ui font-medium text-ink">{state.title}</p>
           )}
-          <p className="text-dicht text-matt">
+          <p className="text-dense text-muted">
             {state.provided ? 'Spalten: ' : 'Automatisch: '}
             {state.columns.map((s) => (s.title === '' ? s.field : s.title)).join(', ')}
           </p>

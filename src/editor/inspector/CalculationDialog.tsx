@@ -43,7 +43,7 @@ function Step({ nr, title, children }: {
 }) {
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-ui font-semibold text-tinte">{nr}. {title}</h3>
+      <h3 className="text-ui font-semibold text-ink">{nr}. {title}</h3>
       {children}
     </section>
   )
@@ -167,7 +167,7 @@ export function CalculationDialog({
             onBlur={(e) => onCalculation({ ...calculation, name: e.currentTarget.value.trim() })}
           />
 
-          <span className="text-dicht text-matt">Ergebnisgröße (links vom Gleichheitszeichen)</span>
+          <span className="text-dense text-muted">Ergebnisgröße (links vom Gleichheitszeichen)</span>
           <FactorRow
             factor={calculation.lead}
             columns={columns}
@@ -176,7 +176,7 @@ export function CalculationDialog({
             onFactor={(f) => setFactor(calculation.lead, f)}
           />
 
-          <span className="text-dicht text-matt">mal (Zähler)</span>
+          <span className="text-dense text-muted">mal (Zähler)</span>
           {calculation.numerator.map((f) => (
             <FactorRow
               key={f.key}
@@ -189,7 +189,7 @@ export function CalculationDialog({
           ))}
           <Button onClick={() => factorAdd('numerator')}>+ Faktor</Button>
 
-          <span className="text-dicht text-matt">geteilt durch (Nenner)</span>
+          <span className="text-dense text-muted">geteilt durch (Nenner)</span>
           {calculation.denominator.map((f) => (
             <FactorRow
               key={f.key}
@@ -205,7 +205,7 @@ export function CalculationDialog({
 
         <Step nr={2} title="Rechenrichtungen und Rundung">
           {columnsFactors.map((f) => (
-            <div key={f.key} className="flex flex-col gap-1 rounded border border-linie p-2">
+            <div key={f.key} className="flex flex-col gap-1 rounded border border-line p-2">
               <div className="flex items-center gap-2">
                 <Checkbox
                   className="min-w-0 flex-1"
@@ -239,7 +239,7 @@ export function CalculationDialog({
                 />
               </div>
               {f.result && (
-                <span className="text-dicht text-matt">
+                <span className="text-dense text-muted">
                   {directionAsText(calculation, f.key, (k) => titleOf(k) ?? '?')}
                 </span>
               )}
@@ -260,7 +260,7 @@ export function CalculationDialog({
             </div>
           ))}
           {preview.kind === 'result' && (
-            <p className="text-dicht text-matt">
+            <p className="text-dense text-muted">
               {`${name(allFactors(calculation).find((f) => f.key === preview.key) ?? calculation.lead)} = ${preview.text} ${unitShort(
                 allFactors(calculation).find((f) => f.key === preview.key)?.unit ?? '',
               )}`.trim()}

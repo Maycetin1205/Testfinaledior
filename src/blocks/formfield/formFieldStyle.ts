@@ -4,9 +4,9 @@ export const fieldStyle = css`
   .field {
     font-family: var(--se-font);
 
-    --feld-pad-y: 7px;
-    --feld-pad-x: 10px;
-    --feld-rand: var(--se-border);
+    --field-pad-y: 7px;
+    --field-pad-x: 10px;
+    --field-border: var(--se-border);
   }
 
   .wrap { position: relative; }
@@ -14,8 +14,8 @@ export const fieldStyle = css`
   .ctrl {
     box-sizing: border-box;
     width: 100%;
-    padding: var(--feld-pad-y) var(--feld-pad-x);
-    border: var(--feld-rand) solid var(--se-line);
+    padding: var(--field-pad-y) var(--field-pad-x);
+    border: var(--field-border) solid var(--se-line);
     background: var(--se-panel);
     border-radius: var(--se-r-md);
     font-family: var(--se-font);
@@ -34,7 +34,7 @@ export const fieldStyle = css`
     resize: vertical;
     min-height: 64px;
   }
-  select.ctrl { padding: calc(var(--feld-pad-y) - 1px) calc(var(--feld-pad-x) - 2px); }
+  select.ctrl { padding: calc(var(--field-pad-y) - 1px) calc(var(--field-pad-x) - 2px); }
 
   .field.line .ctrl,
   :host([data-ff-editor]) .field.line .ctrl,
@@ -64,9 +64,9 @@ export const fieldStyle = css`
 
   .ph {
     position: absolute;
-    top: calc(var(--feld-pad-y) + var(--feld-rand));
-    left: calc(var(--feld-pad-x) + var(--feld-rand));
-    right: calc(var(--feld-pad-x) + var(--feld-rand));
+    top: calc(var(--field-pad-y) + var(--field-border));
+    left: calc(var(--field-pad-x) + var(--field-border));
+    right: calc(var(--field-pad-x) + var(--field-border));
     color: var(--se-faint);
     font-size: var(--se-fs);
     line-height: 1.4;
@@ -78,13 +78,13 @@ export const fieldStyle = css`
   .ph[hidden] { display: none; }
 
   .ph-select {
-    top: calc(var(--feld-pad-y) - 1px + var(--feld-rand));
-    left: calc(var(--feld-pad-x) - 2px + var(--feld-rand));
+    top: calc(var(--field-pad-y) - 1px + var(--field-border));
+    left: calc(var(--field-pad-x) - 2px + var(--field-border));
     right: 25px;
   }
 
-  /* Der Platzhalter laesst die Lupe frei: im Editor ist er klickbar und wuerde
-     sie sonst fast ganz verdecken. */
+  /* The placeholder leaves the magnifier free: in the editor it takes clicks
+     and would cover it. */
   .ph-lookup { right: 34px; }
 
   .wrap.empty input[type="date"]:not(:focus)::-webkit-datetime-edit,
@@ -109,16 +109,15 @@ export const fieldStyle = css`
   .lookup { position: relative; }
   .lookup .ctrl { padding-right: 34px; border-style: dashed; }
 
-  /* Die offene Vorschlagsliste haengt unten aus dem Feld heraus; Raster-Kinder
-     stapeln in DOM-Reihenfolge, ohne diesen Vorrang laege sie unter dem
-     naechsten Baustein. */
+  /* The open suggestion list hangs out of the field. Grid children stack in
+     document order, so without this it would lie under the next block. */
   :host([data-ff-list]) { position: relative; z-index: 5; }
 
   .magnifier {
     position: absolute;
-    top: var(--feld-rand);
-    bottom: var(--feld-rand);
-    right: var(--feld-rand);
+    top: var(--field-border);
+    bottom: var(--field-border);
+    right: var(--field-border);
     width: 30px;
     display: grid;
     place-items: center;
@@ -133,8 +132,8 @@ export const fieldStyle = css`
   .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
 
   :host([data-ff-editor]) .ctrl { pointer-events: none; }
-  /* Die Lupe bleibt im Editor bedienbar: ihr Klick macht das Suchfenster auf
-     und im Inspector den Abschnitt „Suchfenster". */
+  /* The magnifier stays clickable in the editor: it opens the lookup window and
+     its inspector section. */
   :host([data-ff-editor]) .ph { pointer-events: auto; cursor: text; }
   :host([data-ff-editor]) .field:not(.line) .wrap[data-ff-bound] .ctrl {
     border-style: dotted;

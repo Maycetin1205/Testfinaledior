@@ -30,21 +30,21 @@ export function Flag({
         onClick={() => onToggle(!on)}
         className={cn(
           'relative h-4 w-7 shrink-0 rounded border transition-colors',
-          'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-akzent',
+          'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
           'disabled:pointer-events-none disabled:opacity-40',
-          on ? 'border-akzent bg-akzent' : 'border-linie bg-control',
+          on ? 'border-accent bg-accent' : 'border-line bg-control',
         )}
       >
         <span
           aria-hidden
           className={cn(
             'absolute top-0.5 h-2.5 w-2.5 rounded-[1px] transition-all',
-            on ? 'left-3.5 bg-grund' : 'left-0.5 bg-matt',
+            on ? 'left-3.5 bg-ground' : 'left-0.5 bg-muted',
           )}
         />
       </button>
       {label !== undefined && (
-        <span className="min-w-0 truncate text-ui text-tinte">{label}</span>
+        <span className="min-w-0 truncate text-ui text-ink">{label}</span>
       )}
     </span>
   )

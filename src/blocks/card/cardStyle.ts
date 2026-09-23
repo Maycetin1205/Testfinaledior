@@ -93,7 +93,7 @@ export const cardsStyle = css`
     line-height: 1.3;
     letter-spacing: 0.02em;
     color: var(--se-ink);
-    background: var(--fw-sanft);
+    background: var(--tone-soft);
     white-space: nowrap;
   }
 
@@ -102,7 +102,7 @@ export const cardsStyle = css`
     flex: none;
     width: 6px;
     height: 6px;
-    background: var(--fw-stark);
+    background: var(--tone-strong);
   }
 
   :host([data-ff-editor]) [data-ff-spot]:empty::before {

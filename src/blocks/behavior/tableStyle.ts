@@ -4,8 +4,8 @@ export const tableStyle = css`
       :host { min-width: 0; height: 100%; }
 
       .table {
-        --se-zell-x: 10px;
-        --se-eingabe-x: 4px;
+        --se-cell-x: 10px;
+        --se-input-x: 4px;
 
         position: relative;
         box-sizing: border-box;
@@ -15,7 +15,7 @@ export const tableStyle = css`
         background: var(--se-panel);
         border: var(--se-border) solid var(--se-line);
         border-radius: var(--se-r-lg);
-        box-shadow: var(--se-schatten);
+        box-shadow: var(--se-shadow);
         overflow: hidden;
         font-family: var(--se-font);
         font-size: var(--se-fs);
@@ -46,15 +46,14 @@ export const tableStyle = css`
         border-color: var(--se-accent);
       }
 
-      /* Der Kopf ist eine Zeile hoch und waechst nur, wenn ein Titel umbricht. */
       .head {
         display: grid;
-        min-height: var(--zeilen-hoehe);
+        min-height: var(--row-height);
         box-sizing: border-box;
       }
       .row {
         display: grid;
-        height: var(--zeilen-hoehe);
+        height: var(--row-height);
         box-sizing: border-box;
       }
 
@@ -65,7 +64,7 @@ export const tableStyle = css`
         flex: none;
         background: var(--se-panel-2);
         border-bottom: var(--se-border) solid var(--se-line);
-        font-size: var(--se-fs-kopf);
+        font-size: var(--se-fs-head);
         font-weight: 600;
         color: var(--se-muted);
       }
@@ -74,8 +73,8 @@ export const tableStyle = css`
         flex: 1 1 auto;
         overflow: auto;
 
-        /* Kein Gutter: reservierter Platz stuende bei kurzen Listen als Luecke
-           neben der letzten Spalte. */
+        /* No reserved gutter: in a short list it would stand as a gap beside
+           the last column. */
         scrollbar-width: thin;
         display: flex;
         flex-direction: column;
@@ -91,9 +90,9 @@ export const tableStyle = css`
           repeating-linear-gradient(
             to bottom,
             transparent 0,
-            transparent calc(var(--zeilen-hoehe) - 1px),
-            var(--se-line-soft) calc(var(--zeilen-hoehe) - 1px),
-            var(--se-line-soft) var(--zeilen-hoehe)
+            transparent calc(var(--row-height) - 1px),
+            var(--se-line-soft) calc(var(--row-height) - 1px),
+            var(--se-line-soft) var(--row-height)
           );
         background-position: 0 0;
 
@@ -106,14 +105,14 @@ export const tableStyle = css`
         transition: background-color var(--se-move);
       }
 
-      /* Getoent wird nach der Nummer in der Ansicht, nicht per nth-child: ohne
-         Kopfzeile oder mit vorangestellter Erfassungszeile kippte die Toenung. */
+      /* Striped by the index in the view, not by nth-child: without a head row
+         or with the capture row in front the stripes would flip. */
       .row.zebra {
         background: var(--se-zebra);
       }
 
-      /* Nur eine Zeile OHNE Status faerbt sich unter der Maus: die Kennfarbe
-         IST die Auskunft. */
+      /* Only a row without a status takes the hover color: the status color is
+         the message. */
       .body > .row:not([data-status]):hover {
         background: var(--se-hover);
       }
@@ -131,17 +130,15 @@ export const tableStyle = css`
       .row:focus-visible,
       .body > .row.selected:not([data-status]):hover,
       .body > .row:not([data-status]):focus-visible:hover {
-        background: var(--se-auswahl);
+        background: var(--se-selection);
         box-shadow: inset 3px 0 0 var(--se-accent);
       }
       .row.selected > div,
       .row:focus-visible > div { color: var(--se-ink); }
-      /* Die Textkante jeder Zelle; eine Zelle mit Eingabefeld gibt ihr Polster
-         an das Feld ab (.typable). */
       .head > div,
       .row > div {
-        padding: 0 var(--se-zell-x);
-        line-height: calc(var(--zeilen-hoehe) - 1px);
+        padding: 0 var(--se-cell-x);
+        line-height: calc(var(--row-height) - 1px);
         min-width: 0;
         white-space: nowrap;
         overflow: hidden;
@@ -154,12 +151,12 @@ export const tableStyle = css`
       }
       .head > div.number { justify-content: flex-end; text-align: right; }
 
-      /* Zwei Titelzeilen passen genau in einen Takt: die Seitenrechnung zaehlt
-         den Kopf als eine Zeile, jeder Pixel darueber rollte den Koerper. */
+      /* Two title lines fit exactly one tick: the page count takes the head for
+         one row, anything taller would scroll the body. */
       .head > div {
         display: flex;
         align-items: center;
-        line-height: calc((var(--takt) - var(--se-border)) / 2);
+        line-height: calc((var(--tick) - var(--se-border)) / 2);
         white-space: normal;
         cursor: pointer;
         user-select: none;
@@ -176,9 +173,8 @@ export const tableStyle = css`
         hyphens: auto;
       }
 
-      /* Der Greifstreifen ist ein eigenes Gitter-Kind in der Spur der Kopfzelle
-         und haengt ueber die Linie: eine 1px-Linie trifft die Maus nicht. In der
-         Kopfzelle schnitte deren overflow ihn ab. */
+      /* A grid child of its own that hangs over the column line, which alone is
+         too thin to grab; inside the head cell its overflow would clip it. */
       .width-handle {
         position: relative;
         z-index: 2;
@@ -187,7 +183,7 @@ export const tableStyle = css`
         margin-right: -5px;
         cursor: col-resize;
 
-        /* Sonst rollt der Finger die Tabelle, statt zu ziehen. */
+        /* Otherwise a finger scrolls the table instead of dragging. */
         touch-action: none;
       }
       .width-handle:hover {
@@ -202,10 +198,10 @@ export const tableStyle = css`
 
       .sort-arrow { font-size: 9px; color: var(--se-muted); }
 
-      /* Nur im Editor: gedaempft, aber voll bedienbar — es ist eine echte Spalte. */
+      /* Only dimmed in the editor: it is a real column the builder still edits. */
       :host([data-ff-editor]) .hidden { opacity: 0.45; }
 
-      /* Das Wahlfenster liegt IN der Tabelle: die schneidet ihren Ueberhang ab. */
+      /* The picker lies inside the table, which clips whatever hangs out. */
       .picker-backdrop {
         position: absolute;
         top: 0; right: 0; bottom: 0; left: 0;
@@ -224,7 +220,7 @@ export const tableStyle = css`
         background: var(--se-panel);
         border: var(--se-border) solid var(--se-line);
         border-radius: var(--se-r-md);
-        box-shadow: var(--se-schatten);
+        box-shadow: var(--se-shadow);
       }
       .picker-title {
         margin: 0;

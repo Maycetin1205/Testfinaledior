@@ -44,8 +44,8 @@ export function EditorShell() {
   }
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-grund text-tinte">
-      <header className="flex shrink-0 flex-col border-b border-linie bg-panel">
+    <div className="flex h-screen w-screen flex-col bg-ground text-ink">
+      <header className="flex shrink-0 flex-col border-b border-line bg-panel">
         <div className="flex min-h-11 items-center gap-3 overflow-x-auto px-3 py-1">
           <span className="shrink-0 text-ui font-semibold">Aufbau-Editor</span>
           <Divider vertical />
@@ -53,7 +53,7 @@ export function EditorShell() {
           <div className="flex-1" />
           <Toolbar onDataCenter={() => setDataCenterOpen(true)} />
         </div>
-        <div className="flex min-h-9 items-center gap-4 border-t border-linie px-3">
+        <div className="flex min-h-9 items-center gap-4 border-t border-line px-3">
           <PagesBar />
         </div>
       </header>
@@ -62,7 +62,7 @@ export function EditorShell() {
 
       <div className="flex min-h-0 flex-1">
         <aside
-          className={`${paletteOpen ? 'w-60' : 'w-9'} shrink-0 overflow-hidden border-r border-linie bg-panel`}
+          className={`${paletteOpen ? 'w-60' : 'w-9'} shrink-0 overflow-hidden border-r border-line bg-panel`}
         >
           <Sidebar open={paletteOpen} onToggle={setPaletteOpen} />
         </aside>
@@ -79,7 +79,7 @@ export function EditorShell() {
           aria-valuemin={INSPECTOR_MIN}
           aria-valuemax={INSPECTOR_MAX}
           tabIndex={0}
-          className="w-1.5 shrink-0 cursor-col-resize border-l border-linie bg-panel transition-colors hover:bg-akzent focus-visible:bg-akzent focus-visible:outline-none"
+          className="w-1.5 shrink-0 cursor-col-resize border-l border-line bg-panel transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
           onPointerDown={(e) => startWidthsDrag(e, inspectorWidth, setInspectorWidth, setAndRemember)}
           onKeyDown={onHandleKey}
         />

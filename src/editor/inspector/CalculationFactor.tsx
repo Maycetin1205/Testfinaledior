@@ -62,7 +62,7 @@ export function FactorRow({
   const source = sources.find((q) => q.source.id === target.sourceId)
 
   return (
-    <div className="flex flex-col gap-1.5 rounded border border-linie p-2">
+    <div className="flex flex-col gap-1.5 rounded border border-line p-2">
       <div className="flex items-center gap-1.5">
         {!lead && (
           <Choice

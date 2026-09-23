@@ -38,13 +38,13 @@ export function ParameterRow({
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className="w-5 shrink-0 text-right text-dicht tabular-nums text-matt">
+      <span className="w-5 shrink-0 text-right text-dense tabular-nums text-muted">
         {number}.
       </span>
       {plainName === ''
         ? <span className="w-24 shrink-0" aria-hidden />
         : (
-            <span className="w-24 shrink-0 truncate text-ui text-tinte">
+            <span className="w-24 shrink-0 truncate text-ui text-ink">
               {plainName}
             </span>
           )}

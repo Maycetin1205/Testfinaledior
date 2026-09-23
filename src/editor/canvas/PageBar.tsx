@@ -23,7 +23,7 @@ export function PagesBar() {
 
   return (
     <div
-      className="flex max-w-[44vw] items-center gap-0.5 overflow-x-auto rounded border border-linie bg-control p-0.5"
+      className="flex max-w-[44vw] items-center gap-0.5 overflow-x-auto rounded border border-line bg-control p-0.5"
       data-ff-editor-helper
     >
       {pages.map((p) => (
@@ -58,7 +58,7 @@ export function PagesBar() {
                 title="Seite löschen"
                 aria-label={`Seite ${p.name} löschen`}
                 onClick={() => ed.removeBlock(p.id)}
-                className="h-6 w-auto rounded-l-none bg-akzent/15 pr-1.5 hover:bg-akzent/15 hover:text-fehler"
+                className="h-6 w-auto rounded-l-none bg-accent/15 pr-1.5 hover:bg-accent/15 hover:text-error"
               >
                 <Trash size={12} />
               </Button>

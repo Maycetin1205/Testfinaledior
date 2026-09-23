@@ -46,7 +46,7 @@ function blockEntries(
 
 function Note({ text }: { text: string }) {
   return (
-    <div className="flex h-steuer min-w-0 items-center rounded border border-linie bg-control px-2 text-ui text-matt">
+    <div className="flex h-control min-w-0 items-center rounded border border-line bg-control px-2 text-ui text-muted">
       {text}
     </div>
   )

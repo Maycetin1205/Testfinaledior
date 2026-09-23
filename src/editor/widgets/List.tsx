@@ -63,15 +63,15 @@ export function List({
   return (
     <div className="flex flex-col">
       {searchable && (
-        <div className="flex items-center gap-1.5 border-b border-linie px-2 py-1">
-          <Search size={13} aria-hidden className="shrink-0 text-matt" />
+        <div className="flex items-center gap-1.5 border-b border-line px-2 py-1">
+          <Search size={13} aria-hidden className="shrink-0 text-muted" />
           <input
             ref={searchRef}
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
             placeholder="Suchen…"
             aria-label="Suchen"
-            className="h-steuer min-w-0 flex-1 bg-transparent text-ui text-tinte outline-none placeholder:text-matt"
+            className="h-control min-w-0 flex-1 bg-transparent text-ui text-ink outline-none placeholder:text-muted"
           />
         </div>
       )}
@@ -80,8 +80,8 @@ export function List({
         <button
           type="button"
           onClick={() => onChoose('')}
-          className={cn(ROW, 'text-matt hover:bg-control hover:text-tinte',
-            value === '' && 'font-medium text-tinte')}
+          className={cn(ROW, 'text-muted hover:bg-control hover:text-ink',
+            value === '' && 'font-medium text-ink')}
         >
           <span className="w-3 shrink-0">{value === '' && <Check size={12} />}</span>
           <span className="min-w-0 flex-1 truncate">{emptyText}</span>
@@ -91,7 +91,7 @@ export function List({
       {filtered.map((g) => (
         <div key={g.key} className="flex flex-col">
           {g.name !== undefined && g.name !== '' && (
-            <p className="flex items-baseline gap-2 px-2 pb-0.5 pt-1.5 text-dicht font-semibold uppercase tracking-wide text-matt">
+            <p className="flex items-baseline gap-2 px-2 pb-0.5 pt-1.5 text-dense font-semibold uppercase tracking-wide text-muted">
               <span className="min-w-0 truncate">{g.name}</span>
               {g.badge !== undefined && g.badge !== '' && (
                 <Mark className="font-normal normal-case tracking-normal">{g.badge}</Mark>
@@ -109,12 +109,12 @@ export function List({
                 className={cn(
                   ROW,
                   e.disabled
-                    ? 'cursor-not-allowed text-matt opacity-50'
-                    : 'text-tinte hover:bg-control',
-                  chosen && 'bg-akzent/15 font-medium',
+                    ? 'cursor-not-allowed text-muted opacity-50'
+                    : 'text-ink hover:bg-control',
+                  chosen && 'bg-accent/15 font-medium',
                 )}
               >
-                <span className="w-3 shrink-0 text-akzent">
+                <span className="w-3 shrink-0 text-accent">
                   {chosen && <Check size={12} />}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{e.name}</span>

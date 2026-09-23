@@ -190,8 +190,8 @@ function Heads({ open }: { open: OpenLookup }) {
               key={head.slot}
               className={cn(
                 'pointer-events-auto absolute cursor-pointer',
-                'hover:bg-[hsl(var(--wb-auswahl)/0.16)]',
-                chosen === head.slot && 'bg-[hsl(var(--wb-auswahl)/0.16)]',
+                'hover:bg-[hsl(var(--wb-selection)/0.16)]',
+                chosen === head.slot && 'bg-[hsl(var(--wb-selection)/0.16)]',
               )}
               style={{
                 left: left,
@@ -214,8 +214,8 @@ function Heads({ open }: { open: OpenLookup }) {
             aria-label="Spalte anfügen"
             title="Spalte anfügen"
             className={cn(
-              'pointer-events-auto absolute grid cursor-pointer place-items-center rounded border border-[hsl(var(--wb-auswahl)/0.3)] bg-panel shadow-sm',
-              'text-[hsl(var(--wb-auswahl))] hover:bg-[hsl(var(--wb-auswahl)/0.16)]',
+              'pointer-events-auto absolute grid cursor-pointer place-items-center rounded border border-[hsl(var(--wb-selection)/0.3)] bg-panel shadow-sm',
+              'text-[hsl(var(--wb-selection))] hover:bg-[hsl(var(--wb-selection)/0.16)]',
             )}
             style={{
               left: plus.right - PLUS_WIDTH,

@@ -127,7 +127,7 @@ export function Popover({
         zIndex: level,
       }}
       className={cn(
-        'overflow-y-auto rounded border border-linie bg-panel p-1 text-tinte shadow-overlay',
+        'overflow-y-auto rounded border border-line bg-panel p-1 text-ink shadow-overlay',
 
         slot === null && 'opacity-0',
       )}

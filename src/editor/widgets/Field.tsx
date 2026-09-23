@@ -2,11 +2,11 @@ import { forwardRef, type InputHTMLAttributes } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
 export const INPUT_EDGE =
-  'w-full min-w-0 rounded border border-linie bg-control text-ui text-tinte transition-colors'
-  + ' placeholder:text-matt'
-  + ' focus-visible:border-akzent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-akzent'
+  'w-full min-w-0 rounded border border-line bg-control text-ui text-ink transition-colors'
+  + ' placeholder:text-muted'
+  + ' focus-visible:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent'
   + ' disabled:cursor-not-allowed disabled:opacity-40'
-  + ' aria-[invalid=true]:border-fehler aria-[invalid=true]:focus-visible:ring-fehler'
+  + ' aria-[invalid=true]:border-error aria-[invalid=true]:focus-visible:ring-error'
 
 export type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>
 
@@ -15,7 +15,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(
     <input
       ref={ref}
       type={type}
-      className={cn(INPUT_EDGE, 'h-steuer px-2', className)}
+      className={cn(INPUT_EDGE, 'h-control px-2', className)}
       {...rest}
     />
   ),

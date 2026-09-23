@@ -8,8 +8,8 @@ export const areaStyle = css`
     box-sizing: border-box;
     height: 100%;
     min-height: 0;
-    /* clip statt hidden: der Kasten rollt auch dann nicht, wenn ein Feld ausserhalb
-       den Fokus bekommt. Er zeigt, was in ihn passt, und schneidet den Rest ab. */
+    /* clip, not hidden: the box does not scroll even when a field outside of it
+       takes the focus. */
     overflow: clip;
     padding: var(--se-gap-sm);
     background: var(--se-panel);

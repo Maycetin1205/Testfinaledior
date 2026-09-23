@@ -108,20 +108,20 @@ export function StepList({
         const indented = anchor !== '' && steps.some((x) => x.id === anchor)
 
         return (
-          <li key={s.id} className="border-b border-linie last:border-b-0">
+          <li key={s.id} className="border-b border-line last:border-b-0">
             <div
               className={`flex items-center gap-2 border-l-2 py-1.5 pr-1 transition-colors ${
                 indented ? 'pl-5' : 'pl-1'
               } ${
                 problem !== null
-                  ? 'border-vormerkung bg-vormerkung/15'
+                  ? 'border-pending bg-pending/15'
                   : s.id === activeId
-                    ? 'border-akzent bg-akzent/15'
+                    ? 'border-accent bg-accent/15'
                     : 'border-transparent hover:bg-control'
               }`}
             >
 
-              <span className="w-6 shrink-0 text-right text-dicht tabular-nums text-matt">
+              <span className="w-6 shrink-0 text-right text-dense tabular-nums text-muted">
                 {i + 1}.
               </span>
 
@@ -130,14 +130,14 @@ export function StepList({
                 onClick={() => onChoose?.(s)}
                 className="h-auto min-w-0 flex-[3] flex-col items-start justify-start py-1 text-left"
               >
-                <span className="block w-full truncate text-dicht">
+                <span className="block w-full truncate text-dense">
                   {zus.what}
                   {s.kind === 'START_TOOL' && s.toolNr.trim() !== '' ? ` — Nr. ${s.toolNr}` : ''}
                   {s.kind === 'BW_LINK' && s.command.trim() !== '' ? ` — ${s.command}` : ''}
                   {popupName ? ` — ${popupName}` : ''}
                 </span>
                 {closer !== '' && (
-                  <span className="block w-full truncate text-dicht text-matt">
+                  <span className="block w-full truncate text-dense text-muted">
                     {closer}
                   </span>
                 )}
@@ -155,12 +155,12 @@ export function StepList({
                   placeholder="Notiz"
                   value={s.note ?? ''}
                   onChange={(e) => setNote(i, e.target.value)}
-                  className="min-w-0 flex-[2] border-transparent bg-transparent text-dicht hover:border-linie"
+                  className="min-w-0 flex-[2] border-transparent bg-transparent text-dense hover:border-line"
                 />
               ) : (
                 s.note !== undefined && s.note !== '' && (
                   <span
-                    className="min-w-0 flex-[2] truncate text-dicht italic text-matt"
+                    className="min-w-0 flex-[2] truncate text-dense italic text-muted"
                   >
                     {s.note}
                   </span>

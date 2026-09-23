@@ -65,7 +65,7 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
     <FormCard title={`Import aus ${fileName}`} onClose={onClose}>
       <div className="flex flex-col gap-3 text-ui">
         {tables.length > 0 && (
-          <div className="overflow-hidden rounded border border-linie">
+          <div className="overflow-hidden rounded border border-line">
             {tables.map((t) => {
               const locked = present.has(t.key)
               return (
@@ -75,19 +75,19 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
                   disabled={locked}
                   onChange={() => toggle(t.key)}
                   className={cn(
-                    'border-b border-linie px-2.5 py-1.5 last:border-b-0',
+                    'border-b border-line px-2.5 py-1.5 last:border-b-0',
                     !locked && 'hover:bg-control',
                   )}
                 >
                   <span className="flex items-baseline gap-1.5">
-                    <span className="truncate font-medium text-tinte">
+                    <span className="truncate font-medium text-ink">
                       {t.name !== '' ? t.name : keyDisplay(t.key)}
                     </span>
-                    <span className="shrink-0 font-mono text-dicht text-matt">
+                    <span className="shrink-0 font-mono text-dense text-muted">
                       {keyDisplay(t.key)}
                     </span>
                   </span>
-                  <span className="block text-dicht text-matt">
+                  <span className="block text-dense text-muted">
                     {t.fields.length} Felder
                   </span>
                 </Checkbox>
@@ -106,7 +106,7 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
             )}
           </Row>
         )}
-        <div className="flex justify-end gap-2 border-t border-linie pt-3">
+        <div className="flex justify-end gap-2 border-t border-line pt-3">
           <Button onClick={onClose}>Abbrechen</Button>
           {tables.length > 0 && (
             <Button kind="primary" disabled={count === 0 || recordFieldMissing} onClick={adopt}>

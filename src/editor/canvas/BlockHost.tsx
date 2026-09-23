@@ -135,7 +135,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
 
         height: '100%',
         cursor: selected ? 'default' : 'pointer',
-        outline: selected ? '2px solid hsl(var(--wb-auswahl))' : '2px solid transparent',
+        outline: selected ? '2px solid hsl(var(--wb-selection))' : '2px solid transparent',
         outlineOffset: 1,
         borderRadius: 6,
         userSelect: 'none',
@@ -149,7 +149,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
 
           ...(isContainer && def?.containerFrame !== false
             ? {
-                border: '1.5px dashed hsl(var(--wb-linie))',
+                border: '1.5px dashed hsl(var(--wb-line))',
                 borderRadius: 4,
                 minHeight: 40,
               }
@@ -224,7 +224,7 @@ function Handle({ axis, onStart, onReset }: HandleProps) {
         onReset()
       }}
       className={cn(
-        'absolute rounded-[4px] bg-[hsl(var(--wb-auswahl))]',
+        'absolute rounded-[4px] bg-[hsl(var(--wb-selection))]',
         axis === 'x'
           ? '-right-1 top-1/2 h-[26px] w-[7px] -translate-y-1/2 cursor-ew-resize'
           : '-bottom-1 left-1/2 h-[7px] w-[26px] -translate-x-1/2 cursor-ns-resize',

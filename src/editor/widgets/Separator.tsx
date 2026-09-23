@@ -10,7 +10,7 @@ export function Divider({
   return (
     <span
       aria-hidden
-      className={cn('shrink-0 bg-linie', vertical ? 'h-4 w-px' : 'h-px w-full', className)}
+      className={cn('shrink-0 bg-line', vertical ? 'h-4 w-px' : 'h-px w-full', className)}
     />
   )
 }

@@ -325,7 +325,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
                   value={maskText}
                   onChange={(e) => setMaskText(e.target.value)}
                   rows={3}
-                  className="w-full rounded border border-linie bg-panel p-1.5 font-mono text-dicht"
+                  className="w-full rounded border border-line bg-panel p-1.5 font-mono text-dense"
                 />
                 <div className="flex items-center gap-2">
                   <Button onClick={maskFieldsAdopt} disabled={maskText.trim() === ''}>
@@ -418,7 +418,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
               onSelect={chooseGetRelation}
             />
             {showError && getError !== '' && (
-              <p className="break-words text-dicht text-fehler">{getError}</p>
+              <p className="break-words text-dense text-error">{getError}</p>
             )}
             {getRelation && (
               <Group title="Parameter">
@@ -461,7 +461,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           />
         )}
 
-        <div className="flex justify-end gap-2 border-t border-linie pt-3">
+        <div className="flex justify-end gap-2 border-t border-line pt-3">
           <Button onClick={onClose}>Abbrechen</Button>
           <Button kind="primary" onClick={save}>Speichern</Button>
         </div>

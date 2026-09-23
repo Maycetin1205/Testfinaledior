@@ -13,5 +13,5 @@ export function toneProperty(attribute = 'tone'): Property<string> {
 }
 
 export const toneStyle = css`${unsafeCSS(TONES
-  .map((f) => `.tone-${f.value} { --fw-stark: var(${f.strong}); --fw-sanft: var(${f.soft}); }`)
+  .map((f) => `.tone-${f.value} { --tone-strong: var(${f.strong}); --tone-soft: var(${f.soft}); }`)
   .join('\n  '))}`

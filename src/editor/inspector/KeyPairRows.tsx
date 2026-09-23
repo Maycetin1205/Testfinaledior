@@ -50,12 +50,12 @@ export function KeyPairRows({
 
   return (
     <>
-      <span className="text-dicht text-matt">{question}</span>
+      <span className="text-dense text-muted">{question}</span>
 
       {pairs.map((pair, at) => (
-        <div key={at} className="flex flex-col gap-1 rounded border border-linie p-1.5">
+        <div key={at} className="flex flex-col gap-1 rounded border border-line p-1.5">
           <div className="flex items-center gap-1.5">
-            <span className="min-w-0 flex-1 truncate text-dicht text-matt">
+            <span className="min-w-0 flex-1 truncate text-dense text-muted">
               {leftName(at)}
             </span>
             {pairs.length > 1 && (
@@ -70,7 +70,7 @@ export function KeyPairRows({
           </div>
           {fieldPicker(leftName(at), leftFields, pair.ofField,
             (code) => setPair(at, { ofField: code }))}
-          <span className="text-dicht text-matt">{rightName(at)}</span>
+          <span className="text-dense text-muted">{rightName(at)}</span>
           {fieldPicker(rightName(at), rightFields, pair.toField,
             (code) => setPair(at, { toField: code }))}
         </div>

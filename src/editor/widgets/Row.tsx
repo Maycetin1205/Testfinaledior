@@ -29,13 +29,13 @@ export function Row({ label, error, wide = false, className, children }: RowProp
   return (
     <div className={cn('flex min-w-0 flex-col gap-0.5', wide && 'col-span-full', className)}>
       {label !== undefined && (
-        <label htmlFor={id} className="text-ui leading-tight text-matt">
+        <label htmlFor={id} className="text-ui leading-tight text-muted">
           {label}
         </label>
       )}
 
       <div className="flex min-w-0 flex-col">{children(kind)}</div>
-      {error && <p id={errorId} className="break-words text-dicht text-fehler">{error}</p>}
+      {error && <p id={errorId} className="break-words text-dense text-error">{error}</p>}
     </div>
   )
 }

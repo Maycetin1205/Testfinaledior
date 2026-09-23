@@ -17,12 +17,12 @@ export function Tile({ label, on, id, onToggle }: TileProps) {
       aria-checked={on}
       onClick={() => onToggle(!on)}
       className={cn(
-        'flex h-steuer min-w-0 max-w-full shrink-0 items-center gap-1.5 rounded border px-2',
+        'flex h-control min-w-0 max-w-full shrink-0 items-center gap-1.5 rounded border px-2',
         'text-ui transition-colors',
-        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-akzent',
+        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
         on
-          ? 'border-akzent bg-akzent/15 font-medium text-tinte'
-          : 'border-linie text-matt hover:border-matt hover:text-tinte',
+          ? 'border-accent bg-accent/15 font-medium text-ink'
+          : 'border-line text-muted hover:border-muted hover:text-ink',
       )}
     >
       <Check size={12} aria-hidden className={cn('shrink-0', !on && 'invisible')} />

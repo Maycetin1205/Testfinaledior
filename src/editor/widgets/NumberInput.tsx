@@ -16,14 +16,14 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberProps>(
         inputMode="decimal"
         className={cn(
           INPUT_EDGE,
-          'h-steuer px-2 tabular-nums',
+          'h-control px-2 tabular-nums',
           unit !== undefined && unit !== '' && 'pr-6',
           className,
         )}
         {...rest}
       />
       {unit !== undefined && unit !== '' && (
-        <span aria-hidden className="pointer-events-none absolute right-2 text-dicht text-matt">
+        <span aria-hidden className="pointer-events-none absolute right-2 text-dense text-muted">
           {unit}
         </span>
       )}

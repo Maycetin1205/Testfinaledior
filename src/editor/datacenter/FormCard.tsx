@@ -15,7 +15,7 @@ export function FormCard({ title, onClose, children }: FormCardProps) {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="min-w-0 truncate text-ui font-semibold text-tinte">{title}</h3>
+        <h3 className="min-w-0 truncate text-ui font-semibold text-ink">{title}</h3>
         <Button onlyIcon aria-label="Abbrechen" title="Abbrechen (Esc)" onClick={onClose}>
           <X size={15} />
         </Button>

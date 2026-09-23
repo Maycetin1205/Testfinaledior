@@ -17,13 +17,13 @@ export function ListDetail({
   return (
     <>
       {areas !== undefined && (
-        <nav className="flex w-44 shrink-0 flex-col gap-0.5 border-r border-linie bg-panel p-2">
+        <nav className="flex w-44 shrink-0 flex-col gap-0.5 border-r border-line bg-panel p-2">
           {areas}
         </nav>
       )}
-      <div className="flex w-64 shrink-0 flex-col border-r border-linie">
+      <div className="flex w-64 shrink-0 flex-col border-r border-line">
         {listHead !== undefined && (
-          <div className="flex shrink-0 flex-col gap-1.5 border-b border-linie p-2">
+          <div className="flex shrink-0 flex-col gap-1.5 border-b border-line p-2">
             {listHead}
           </div>
         )}

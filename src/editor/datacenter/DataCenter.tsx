@@ -37,7 +37,7 @@ export function DataCenter({ onClose }: { onClose: () => void }) {
           active={area === key}
           onClick={() => setArea(key)}
           right={(
-            <span className="shrink-0 text-dicht tabular-nums text-matt">{navNumber[key]}</span>
+            <span className="shrink-0 text-dense tabular-nums text-muted">{navNumber[key]}</span>
           )}
         />
       ))}

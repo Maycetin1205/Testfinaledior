@@ -22,7 +22,7 @@ export function Checkbox({ checked, disabled = false, onChange, className, child
     >
       <input
         type="checkbox"
-        className="mt-0.5 h-[14px] w-[14px] shrink-0 accent-akzent"
+        className="mt-0.5 h-[14px] w-[14px] shrink-0 accent-accent"
         checked={checked}
         disabled={disabled}
         onChange={onChange}
