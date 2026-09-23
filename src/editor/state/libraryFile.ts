@@ -52,17 +52,6 @@ export function libraryCheck<T>(
   return { ok: true, list }
 }
 
-export function problemText(base: string, problems: readonly LoadProblem[]): string {
-  const list = problems.slice(0, 10)
-    .map((p) => `• ${p.area}${p.spot === '' ? '' : ` (${p.spot})`}: ${p.base}`)
-  const rest = problems.length - list.length
-  return [
-    base,
-    ...(list.length > 0 ? ['', ...list] : []),
-    ...(rest > 0 ? [`… und ${rest} weitere.`] : []),
-  ].join('\n')
-}
-
 export function packLibrary(content: LibraryContent): string {
   return JSON.stringify(
     {
@@ -85,7 +74,6 @@ export function saveLibraryAsFile(editor: EditorStore): void {
       dataSources: [...editor.dataSources.list],
       relation: [...editor.relation.list],
     }),
-    editor.messages,
   )
 }
 
@@ -163,44 +151,22 @@ export function addOn<T extends { id: string }>(
   return { list: next + replaced === 0 ? old : list, next, replaced }
 }
 
-function stockRecord(plainName: string, z: { next: number; replaced: number }): string {
-  if (z.next === 0 && z.replaced === 0) return `• ${plainName}: unverändert`
-  const parts: string[] = []
-  if (z.next > 0) parts.push(`${z.next} neu`)
-  if (z.replaced > 0) parts.push(`${z.replaced} aktualisiert`)
-  return `• ${plainName}: ${parts.join(', ')}`
-}
-
 export async function loadLibraryFromFile(editor: EditorStore, file: File): Promise<void> {
   let text: string
   try {
     text = await file.text()
   } catch {
-    editor.messages.report('Die Datei konnte nicht gelesen werden.')
     return
   }
   const result = packLibraryFrom(text)
-  if (!result.ok) {
-    editor.messages.report(problemText(result.base, result.problems))
-    return
-  }
+  if (!result.ok) return
 
   const sources = addOn(editor.dataSources.list, result.content.dataSources)
   const relation = addOn(editor.relation.list, result.content.relation)
-  if (sources.list === editor.dataSources.list && relation.list === editor.relation.list) {
-    editor.messages.report('Alles aus der Bibliotheksdatei war schon da — nichts geändert.', 'hint')
-    return
-  }
+  if (sources.list === editor.dataSources.list && relation.list === editor.relation.list) return
 
   editor.transaction(() => {
     if (sources.list !== editor.dataSources.list) editor.dataSources.replaceAll(sources.list)
     if (relation.list !== editor.relation.list) editor.relation.replaceAll(relation.list)
   })
-
-  editor.messages.report([
-    'Bibliothek geladen.',
-    stockRecord(AREA_SOURCES, sources),
-    stockRecord(AREA_RELATION, relation),
-    'Nichts wurde gelöscht; Strg+Z nimmt das Laden zurück.',
-  ].join('\n'), 'hint')
 }

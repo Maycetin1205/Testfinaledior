@@ -1,5 +1,4 @@
 import { downloadFile } from './fileDownload'
-import type { MessageSink } from './messages'
 
 interface PickerOptions {
   suggestedName?: string
@@ -54,7 +53,6 @@ export async function writeFile(
   file: FileOnDisk,
   suggestedName: string,
   text: string,
-  sink: MessageSink,
 ): Promise<void> {
   if (await file.writeAgain(text)) return
 
@@ -72,7 +70,5 @@ export async function writeFile(
     return
   }
   file.remember(handle)
-  if (!await file.writeAgain(text)) {
-    sink.report('Die Datei konnte nicht geschrieben werden.')
-  }
+  await file.writeAgain(text)
 }

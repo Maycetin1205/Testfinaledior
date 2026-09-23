@@ -19,7 +19,6 @@ import { capability } from '../../core/block/capability'
 import { gridMetricsOf } from '../../core/block/grid'
 import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block/treeQuery'
 import { useEditorInstance } from '../state/EditorContext'
-import { deleteBlock } from '../state/removeBlock'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { SelectionBar } from './SelectionBar'
@@ -183,7 +182,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           block={block}
           def={def}
           host={rootRef}
-          onRemove={editor.isRemoveProtected(block.id) ? undefined : () => deleteBlock(editor, blockRef.current.id)}
+          onRemove={editor.isRemoveProtected(block.id) ? undefined : () => editor.removeBlock(blockRef.current.id)}
         />
       )}
 

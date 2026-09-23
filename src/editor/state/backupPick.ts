@@ -86,11 +86,8 @@ export function contentText(copy: CopyState): string {
 
 export function spotCopyAgainFrom(editor: EditorStore, key: string): void {
   const copy = allCopies(STORAGE_KEY).find((k) => k.key === key)
-  if (copy === undefined) {
-    editor.messages.report('Diese Notfallkopie liegt nicht mehr im Browser-Speicher.')
-    return
-  }
-  const state = readState(copy.raw, STORAGE_KEY, editor.messages)
+  if (copy === undefined) return
+  const state = readState(copy.raw, STORAGE_KEY)
   if (state === null) return
   const carried = libraryInMask(copy.raw)
   editor.replaceMask({
@@ -99,14 +96,5 @@ export function spotCopyAgainFrom(editor: EditorStore, key: string): void {
     relation: [...carried.relation],
     sourceIds: state.sourceIds,
     relationIds: state.relationIds,
-    dropped: [],
   })
-
-  editor.messages.report(
-    `Notfallkopie vom ${timeText(toState(copy))} wiederhergestellt: `
-    + `${numbersRecord(
-      Object.keys(state.tree).length - 1, carried.dataSources.length, carried.relation.length,
-    )}. Strg+Z nimmt es zurück.`,
-    'hint',
-  )
 }

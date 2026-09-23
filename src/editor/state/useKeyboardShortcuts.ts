@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { capacityOf } from '../canvas/gridArea'
 import { useEditorInstance } from './EditorContext'
-import { deleteBlock } from './removeBlock'
 import { saveMaskAsFile } from './maskFile'
 
 function inInputField(e: KeyboardEvent): boolean {
@@ -84,7 +83,7 @@ export function useKeyboardShortcuts() {
           saveMaskAsFile(editor)
           break
         case 'delete':
-          if (chosen) deleteBlock(editor, chosen)
+          if (chosen) editor.removeBlock(chosen)
           break
         case 'abwaehlen':
           editor.selectBlock(null)

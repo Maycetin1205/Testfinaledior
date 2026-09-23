@@ -11,7 +11,6 @@ import { DataSourceStore } from './DataSourceStore'
 import { firstSourceInReach, sourcesInReach } from '../../core/block/sourcesInReach'
 import { gestureBracket, History, type EditorSnapshot, type GestureBracket } from './history'
 import {
-  missingRecord,
   usedRelationIds,
   usedSourceIds,
   type MaskContent,
@@ -19,7 +18,6 @@ import {
 import { addOn } from './libraryFile'
 import { FileOnDisk } from './fileOnDisk'
 import { readSections, writeSections, type SectionName } from './inspectorSections'
-import { MessageList } from './messages'
 import {
   carriedLibrary,
   emptyMask,
@@ -27,7 +25,6 @@ import {
   loadLibraryFromStorage,
   persistLibrary,
   persistMask,
-  reportDropped,
   SAVE_DEBOUNCE_MS,
   type StoredMask,
 } from './maskStorage'
@@ -80,8 +77,6 @@ export class EditorStore extends Subject<EditorStore> {
   private _version = 0
   private _history = new History()
 
-  readonly messages = new MessageList()
-
   // The two files the builder picked on disk. Until then the browser store
   // alone holds the work, as before.
   readonly maskOnDisk = new FileOnDisk()
@@ -103,8 +98,8 @@ export class EditorStore extends Subject<EditorStore> {
 
   constructor() {
     super()
-    const library = loadLibraryFromStorage(this.messages)
-    const persisted = loadFromStorage(this.messages) ?? emptyMask()
+    const library = loadLibraryFromStorage()
+    const persisted = loadFromStorage() ?? emptyMask()
     const carried = carriedLibrary()
     this.dataSources = new DataSourceStore(
       addOn(library.dataSources, carried.dataSources).list,
@@ -113,7 +108,6 @@ export class EditorStore extends Subject<EditorStore> {
     this._tree = persisted.tree
     this._activePageId = persisted.activePageId
     this._selectedId = this.selectionOnActivePage(persisted.selectedId)
-    this.reportMissing(persisted.sourceIds, persisted.relationIds)
     this._hydrated = true
 
     for (const store of [this.dataSources, this.relation]) {
@@ -374,13 +368,6 @@ export class EditorStore extends Subject<EditorStore> {
       id,
       droppedKeys(def, attr, node.values[attr], value),
     )
-    if (cleaned.parameter > 0) {
-      this.messages.report(
-        `Spalte gelöscht: ${cleaned.parameter} Ketten-Parameter auf `
-        + `${cleaned.blocks} Baustein(en) zeigten darauf und sind jetzt ausgeschaltet. `
-        + 'Strg+Z holt alles zurück.',
-      )
-    }
 
     this._tree = typeof value === 'string' && def?.page === true && attr === 'name'
       ? plainNamesTrail(cleaned.tree, id, value)
@@ -474,18 +461,6 @@ export class EditorStore extends Subject<EditorStore> {
     this._selectedId = null
     this._activePageId = ROOT_ID
     this.notify(this)
-    reportDropped(content.dropped, this.messages)
-    this.reportMissing(content.sourceIds, content.relationIds)
-  }
-
-  // A mask names the keys it uses. What the customer file does not hold gets
-  // named instead of loading as if it were there.
-  private reportMissing(sourceIds: readonly string[], relationIds: readonly string[]): void {
-    const record = [
-      missingRecord('Datenquelle(n)', sourceIds, new Set(this.dataSources.list.map((s) => s.id))),
-      missingRecord('Relation(en)', relationIds, new Set(this.relation.list.map((r) => r.id))),
-    ].filter((text) => text !== '')
-    if (record.length > 0) this.messages.report(record.join('\n'))
   }
 
   get viewVersion(): number { return this._viewVersion }
@@ -528,7 +503,7 @@ export class EditorStore extends Subject<EditorStore> {
       sourceIds: usedSourceIds(this._tree, this.dataSources.list),
       relationIds: usedRelationIds(this._tree, this.dataSources.list, this.relation.list),
     }
-    void this.maskOnDisk.writeAgain(persistMask(mask, this.messages))
+    void this.maskOnDisk.writeAgain(persistMask(mask))
     void this.libraryOnDisk.writeAgain(persistLibrary({
       dataSources: this.dataSources.list,
       relation: this.relation.list,

@@ -62,14 +62,7 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
     const { html, sevariablen } = exportMask(
       ed.tree, maskNameOf(ed.tree), sources, relation,
     )
-    const failed = failedChecks(validateMaskHtml(html))
-    if (failed.length > 0) {
-      ed.messages.report(
-        'Export abgebrochen — die Datei hätte in SoftEngine nicht geladen:\n\n'
-        + failed.map((f) => `• ${f.name}: ${f.detail}`).join('\n'),
-      )
-      return
-    }
+    if (failedChecks(validateMaskHtml(html)).length > 0) return
 
     downloadFile(names.html, html, 'text/html')
     downloadFile(names.sevariablen, sevariablen, 'application/json')

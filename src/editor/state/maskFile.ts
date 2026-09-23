@@ -12,7 +12,6 @@ import { writeFile } from './fileOnDisk'
 import {
   LIBRARY_FILE_KIND,
   libraryCheck,
-  problemText,
 } from './libraryFile'
 import type { EditorStore } from './EditorStore'
 import { checkTreeState } from './loadCheck'
@@ -35,9 +34,6 @@ export interface MaskContent {
 
   sourceIds: readonly string[]
   relationIds: readonly string[]
-
-  // Block types this editor does not know any more.
-  dropped: readonly string[]
 }
 
 export type UnpackResult =
@@ -86,7 +82,7 @@ function maskFileName(): string {
 }
 
 export function saveMaskAsFile(editor: EditorStore): void {
-  void writeFile(editor.maskOnDisk, maskFileName(), packMask(editor), editor.messages)
+  void writeFile(editor.maskOnDisk, maskFileName(), packMask(editor))
 }
 
 export async function loadMaskFromFile(editor: EditorStore, file: File): Promise<void> {
@@ -94,14 +90,10 @@ export async function loadMaskFromFile(editor: EditorStore, file: File): Promise
   try {
     text = await file.text()
   } catch {
-    editor.messages.report('Die Datei konnte nicht gelesen werden.')
     return
   }
   const result = packMaskFrom(text)
-  if (!result.ok) {
-    editor.messages.report(problemText(result.base, result.problems))
-    return
-  }
+  if (!result.ok) return
   editor.replaceMask(result.content)
 }
 
@@ -120,18 +112,6 @@ function rejected(base: string): UnpackResult {
 function keysOf(raw: unknown): string[] {
   if (!Array.isArray(raw)) return []
   return raw.filter((id): id is string => typeof id === 'string' && id !== '')
-}
-
-// Names what the mask asks for but the customer file does not hold.
-export function missingRecord(
-  plainName: string,
-  wanted: readonly string[],
-  present: ReadonlySet<string>,
-): string {
-  const missing = wanted.filter((id) => !present.has(id))
-  if (missing.length === 0) return ''
-  return `${missing.length} ${plainName} der Maske fehlen in der Kundendatei: `
-    + `${missing.join(', ')}.`
 }
 
 function unpack(text: string): UnpackResult {
@@ -219,7 +199,6 @@ function unpack(text: string): UnpackResult {
       tree: tree.tree,
       dataSources: sources.list,
       relation: relation.list,
-      dropped: state.dropped,
       sourceIds: embedded ? sources.list.map((s) => s.id) : keysOf(o.sourceIds),
       relationIds: embedded ? relation.list.map((r) => r.id) : keysOf(o.relationIds),
     },

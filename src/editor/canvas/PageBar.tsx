@@ -4,7 +4,6 @@ import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/PushButton'
 import { Tabs } from '@/editor/widgets/Tabs'
 import { allBlockTypes } from '../../core/block/registry'
-import { deleteBlock } from '../state/removeBlock'
 import { useEditor } from '../state/useEditor'
 
 export function PagesBar() {
@@ -59,7 +58,7 @@ export function PagesBar() {
                 onlyIcon
                 title="Seite löschen (Strg+Z stellt sie zurück)"
                 aria-label={`Seite ${p.name} löschen`}
-                onClick={() => deleteBlock(ed, p.id)}
+                onClick={() => ed.removeBlock(p.id)}
                 className="h-6 w-auto rounded-l-none bg-akzent/15 pr-1.5 hover:bg-akzent/15 hover:text-fehler"
               >
                 <Trash size={12} />

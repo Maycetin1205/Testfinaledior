@@ -18,7 +18,6 @@ import {
   rememberWidth,
   startWidthsDrag,
 } from './inspectorWidth'
-import { Messages } from './Messages'
 import { StatusBar } from './StatusBar'
 import { Toolbar, HistoryButtons } from './Toolbar'
 
@@ -97,8 +96,6 @@ export function EditorShell() {
 
       <WindowColumns />
       <CalculationsWindow />
-
-      <Messages />
     </div>
   )
 }

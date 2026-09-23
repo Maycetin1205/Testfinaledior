@@ -5,14 +5,7 @@ import type { RelationTemplate } from '../../core/data/relations'
 import { packLibrary, packLibraryFrom } from './libraryFile'
 import { checkTreeState } from './loadCheck'
 import { CURRENT_SCHEMA_VERSION, liftState, schemaReadable } from './maskSchema'
-import type { MessageSink } from './messages'
-import {
-  copyRecord,
-  makeCopyOn,
-  reportStorageFailure,
-  rememberStorageSuccess,
-  saveUnreadable,
-} from './backup'
+import { makeCopyOn } from './backup'
 
 // One key for the mask, one for the customer file. Nothing is matched up
 // between them: the mask names the keys it uses, the customer file holds the
@@ -44,13 +37,20 @@ function read(key: string): string | null {
   }
 }
 
-export function loadLibraryFromStorage(sink: MessageSink): StoredLibrary {
+function write(key: string, text: string): void {
+  try {
+    localStorage.setItem(key, text)
+  } catch {
+    // Browser storage can be blocked; not remembering is no reason to fail.
+  }
+}
+
+export function loadLibraryFromStorage(): StoredLibrary {
   const raw = read(LIBRARY_KEY)
   if (raw === null) return { dataSources: [], relation: [] }
   const result = packLibraryFrom(raw)
   if (result.ok) return result.content
-  sink.report('Die gespeicherte Kundendatei konnte nicht gelesen werden. '
-    + copyRecord(LIBRARY_KEY, makeCopyOn(LIBRARY_KEY, raw)))
+  makeCopyOn(LIBRARY_KEY, raw)
   return { dataSources: [], relation: [] }
 }
 
@@ -59,9 +59,9 @@ function keysOf(raw: unknown): string[] {
   return raw.filter((id): id is string => typeof id === 'string' && id !== '')
 }
 
-export function loadFromStorage(sink: MessageSink): StoredMask | null {
+export function loadFromStorage(): StoredMask | null {
   const raw = read(STORAGE_KEY)
-  return raw === null ? null : readState(raw, STORAGE_KEY, sink)
+  return raw === null ? null : readState(raw, STORAGE_KEY)
 }
 
 // A mask saved before the split still carries its sources; they belong in the
@@ -91,32 +91,26 @@ export function libraryInMask(raw: string): StoredLibrary {
   return packed.ok ? packed.content : empty
 }
 
-export function readState(raw: string, storageKey: string, sink: MessageSink): StoredMask | null {
+export function readState(raw: string, storageKey: string): StoredMask | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(raw)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Kein Maskenstand')
   } catch {
-    saveUnreadable(storageKey, raw, 'Maske', sink)
+    makeCopyOn(storageKey, raw)
     return null
   }
   try {
     const state = liftState(parsed) as Record<string, unknown>
     if (!schemaReadable(state.schemaVersion)) {
-      const direction = typeof state.schemaVersion === 'number' && state.schemaVersion > CURRENT_SCHEMA_VERSION
-        ? 'einer neueren Version' : 'einem nicht unterstützten Format'
-      sink.report(`Die gespeicherte Maske stammt aus ${direction}. Sie wurde nicht geladen. `
-        + copyRecord(storageKey, makeCopyOn(storageKey, raw)))
+      makeCopyOn(storageKey, raw)
       return null
     }
     const tree = checkTreeState({ schemaVersion: state.schemaVersion, tree: state.tree, selectedId: state.selectedId })
     if (tree.kind === 'rejected') {
-      sink.report('Die gespeicherte Maske wurde nicht geladen: '
-        + `${tree.problems[0]?.base ?? 'Aufbau unlesbar'}.`)
-      saveUnreadable(storageKey, raw, 'Maske', sink)
+      makeCopyOn(storageKey, raw)
       return null
     }
-    reportDropped(tree.dropped, sink)
     return {
       ...tree.tree,
       activePageId: typeof state.activePageId === 'string' ? state.activePageId : ROOT_ID,
@@ -124,15 +118,9 @@ export function readState(raw: string, storageKey: string, sink: MessageSink): S
       relationIds: keysOf(state.relationIds),
     }
   } catch {
-    saveUnreadable(storageKey, raw, 'Maske', sink)
+    makeCopyOn(storageKey, raw)
     return null
   }
-}
-
-export function reportDropped(dropped: readonly string[], sink: MessageSink): void {
-  if (dropped.length === 0) return
-  const kinds = [...new Set(dropped)].map((t) => `„${t}"`).join(', ')
-  sink.report(`${dropped.length} Baustein(e) vom Typ ${kinds} gibt es nicht mehr und wurden weggelassen. Alles andere ist geladen.`)
 }
 
 export function emptyMask(): StoredMask {
@@ -145,7 +133,7 @@ export function emptyMask(): StoredMask {
   }
 }
 
-export function persistMask(mask: StoredMask, sink: MessageSink): string {
+export function persistMask(mask: StoredMask): string {
   const text = JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: mask.tree,
@@ -154,10 +142,7 @@ export function persistMask(mask: StoredMask, sink: MessageSink): string {
     sourceIds: mask.sourceIds,
     relationIds: mask.relationIds,
   })
-  try {
-    localStorage.setItem(STORAGE_KEY, text)
-    rememberStorageSuccess(STORAGE_KEY)
-  } catch (error) { reportStorageFailure(STORAGE_KEY, 'Maske', error, sink) }
+  write(STORAGE_KEY, text)
   return text
 }
 
@@ -166,10 +151,6 @@ export function persistLibrary(library: StoredLibrary): string {
     dataSources: [...library.dataSources],
     relation: [...library.relation],
   })
-  try {
-    localStorage.setItem(LIBRARY_KEY, text)
-  } catch {
-    // Browser storage can be blocked; not remembering is no reason to fail.
-  }
+  write(LIBRARY_KEY, text)
   return text
 }
