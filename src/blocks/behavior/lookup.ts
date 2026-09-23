@@ -7,6 +7,7 @@ import { rowsToSelection } from './selection'
 import {
   DIALOG_SIZE_EVENT,
   DIALOG_FRAME_TAG,
+  WINDOW_WIDTH,
   type DialogSizeDetail,
   type DialogFrame,
 } from './DialogFrame'
@@ -59,9 +60,6 @@ export function suggestionsInWindowState<T extends Suggestion & { record: unknow
   }
   return hit.slice(0, SUGGESTIONS_MAX)
 }
-
-export const WINDOW_WIDTH = 520
-export const WINDOW_HEIGHT = 380
 
 const WINDOW_MIN = 120
 const WINDOW_MAX = 2000

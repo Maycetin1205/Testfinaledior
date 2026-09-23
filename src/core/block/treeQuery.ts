@@ -12,16 +12,20 @@ export interface ValueSpotsTarget {
   spot: ValueSpot
 }
 
-export function valueSpotsInTree(tree: MaskTree): ValueSpotsTarget[] {
-  const result: ValueSpotsTarget[] = []
+function nodesWhere(tree: MaskTree, fits: (node: BlockNode) => boolean): BlockNode[] {
+  const result: BlockNode[] = []
   const visit = (node: BlockNode | undefined): void => {
     if (!node) return
-    const spots = capability(blockType(node.type), 'actionValue')?.spots ?? []
-    for (const spot of spots) result.push({ node, spot })
+    if (fits(node)) result.push(node)
     for (const childId of node.childIds) visit(tree[childId])
   }
   visit(tree[ROOT_ID])
   return result
+}
+
+export function valueSpotsInTree(tree: MaskTree): ValueSpotsTarget[] {
+  return nodesWhere(tree, () => true).flatMap((node) =>
+    (capability(blockType(node.type), 'actionValue')?.spots ?? []).map((spot) => ({ node, spot })))
 }
 
 export function sourcesIdsInChainsOf(node: BlockNode): string[] {
@@ -83,36 +87,15 @@ export function maySelectionFollows(node: BlockNode | undefined): boolean {
 }
 
 export function selectionGiverInTree(tree: MaskTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
-    if (!node) return
-    if (isSelectionGiver(node)) result.push(node)
-    for (const childId of node.childIds) visit(tree[childId])
-  }
-  visit(tree[ROOT_ID])
-  return result
+  return nodesWhere(tree, isSelectionGiver)
 }
 
 export function captureCarrierInTree(tree: MaskTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
-    if (!node) return
-    if (applies(capability(blockType(node.type), 'capture'), node.values)) result.push(node)
-    for (const childId of node.childIds) visit(tree[childId])
-  }
-  visit(tree[ROOT_ID])
-  return result
+  return nodesWhere(tree, (node) => applies(capability(blockType(node.type), 'capture'), node.values))
 }
 
 export function deleteCarrierInTree(tree: MaskTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
-    if (!node) return
-    if (carriesDeletions(node)) result.push(node)
-    for (const childId of node.childIds) visit(tree[childId])
-  }
-  visit(tree[ROOT_ID])
-  return result
+  return nodesWhere(tree, carriesDeletions)
 }
 
 export function carriesDeletions(node: BlockNode): boolean {
@@ -139,14 +122,7 @@ export function carriesChanges(node: BlockNode): boolean {
 }
 
 export function changeCarrierInTree(tree: MaskTree): BlockNode[] {
-  const result: BlockNode[] = []
-  const visit = (node: BlockNode | undefined): void => {
-    if (!node) return
-    if (carriesChanges(node)) result.push(node)
-    for (const childId of node.childIds) visit(tree[childId])
-  }
-  visit(tree[ROOT_ID])
-  return result
+  return nodesWhere(tree, carriesChanges)
 }
 
 export function firstDescendantOfType(

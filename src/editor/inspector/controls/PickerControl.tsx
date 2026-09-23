@@ -76,7 +76,6 @@ export function PickerControl({
         <Popover
           name={name}
           anchor={buttonRef}
-          escapeCatch
           onClose={() => setOpen(false)}
         >
           <List

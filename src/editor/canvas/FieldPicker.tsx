@@ -1,5 +1,5 @@
 import { useEffect, useState, type RefObject } from 'react'
-import { SelectionWindow } from '@/editor/widgets/PickerDialog'
+import { Popover } from '@/editor/widgets/Popover'
 import { cn } from '@/editor/widgets/cn'
 import { Mark } from '@/editor/widgets/Badge'
 import { Field } from '@/editor/widgets/Field'
@@ -211,16 +211,14 @@ export function FieldPicker({
   )
 
   return (
-    <SelectionWindow
+    <Popover
       name={`Feld für ${spotLabel}`}
-      top={top}
-      left={left}
+      at={{ top, left }}
       anchor={anchor}
+      width={380}
+      maxHeight={405}
       level={level}
       onClose={onClose}
-      inPictureHold
-      escapeCatch
-      className="max-h-[30rem] w-[380px] border-linie bg-panel p-1.5 text-tinte shadow-overlay"
     >
       <div className="flex flex-col gap-1.5">
         <p className="truncate px-1.5 pt-0.5 text-dicht font-semibold uppercase tracking-wide text-matt">
@@ -324,6 +322,6 @@ export function FieldPicker({
           </div>
         )}
       </div>
-    </SelectionWindow>
+    </Popover>
   )
 }

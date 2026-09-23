@@ -1,7 +1,8 @@
-import { useEffect, useId, type ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
+import { useCloseOnEscape } from './closeOnEscape'
 import { Button } from './PushButton'
 
 export interface DialogProps {
@@ -15,8 +16,6 @@ export interface DialogProps {
 
   edgeless?: boolean
 
-  escapeCatch?: boolean
-
   foot?: ReactNode
   onClose: () => void
   children: ReactNode
@@ -28,30 +27,12 @@ export function Dialog({
   actions,
   narrow = false,
   edgeless = false,
-  escapeCatch = false,
   foot,
   onClose,
   children,
 }: DialogProps) {
   const titleId = useId()
-
-  useEffect(() => {
-    const key = (e: Event) => {
-      if (!(e instanceof KeyboardEvent) || e.key !== 'Escape') return
-      if (escapeCatch) {
-        e.stopImmediatePropagation()
-        e.stopPropagation()
-      }
-      onClose()
-    }
-
-    if (escapeCatch) {
-      window.addEventListener('keydown', key, true)
-      return () => window.removeEventListener('keydown', key, true)
-    }
-    document.addEventListener('keydown', key)
-    return () => document.removeEventListener('keydown', key)
-  }, [onClose, escapeCatch])
+  useCloseOnEscape(onClose)
 
   const body = (
     <div

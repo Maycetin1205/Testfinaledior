@@ -62,7 +62,6 @@ export function FieldAdoptPicker({
     <Popover
       name={target === 'field' ? 'Feld übernehmen' : 'Tabelle übernehmen'}
       anchor={anchor}
-      escapeCatch
       onClose={onClose}
     >
       <List

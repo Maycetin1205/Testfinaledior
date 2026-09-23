@@ -1,13 +1,12 @@
 import { SOURCE_PROP } from '../../core/block/sourceProperty'
 import { coerceCaptureColumns, windowColumnsIn } from '../../blocks/capture'
 import {
-  WINDOW_HEIGHT,
   automaticColumns,
   coerceLookupColumns,
   windowWidthFor,
   openLookup,
 } from '../../blocks/behavior/lookup'
-import { DIALOG_FRAME_TAG, type DialogFrame } from '../../blocks/behavior/DialogFrame'
+import { DIALOG_FRAME_TAG, WINDOW_HEIGHT, type DialogFrame } from '../../blocks/behavior/DialogFrame'
 import type { Column } from '../../blocks/behavior/columns'
 import type { BlockNode } from '../../core/block/tree'
 import { splitBinding } from '../../core/block/blockType'

@@ -1,6 +1,7 @@
 import { Button } from '@/editor/widgets/PushButton'
 import { Group } from '@/editor/widgets/Group'
 import type { BlockNode } from '../../core/block/tree'
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../blocks/behavior/DialogFrame'
 import { numberProperty, propertyVisible } from '../../core/block/property'
 import type { LookupWindow } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
@@ -15,7 +16,7 @@ import { useSection } from './sectionState'
 import { NumberControl } from './controls/NumberControl'
 
 const WIDTH = numberProperty({
-  default: 520,
+  default: WINDOW_WIDTH,
   label: 'Breite',
   place: 'none',
   unit: 'px',
@@ -24,7 +25,7 @@ const WIDTH = numberProperty({
 })
 
 const HEIGHT = numberProperty({
-  default: 380,
+  default: WINDOW_HEIGHT,
   label: 'Höhe',
   place: 'none',
   unit: 'px',

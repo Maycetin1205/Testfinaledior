@@ -1,10 +1,14 @@
 import type { BlockNode, MaskTree } from './tree'
 import { blockType } from './registry'
 import { propertyVisible } from './property'
+import { capability } from './capability'
+import { splitBinding } from './binding'
 import { SOURCE_PROP, sourcesIdsInChainsOf, carriesOwnSource } from './treeQuery'
+import { dataFieldsFrom } from '../data/calculation'
 import type { DataSource } from '../data/dataSources'
 import {
   sourcesResolve,
+  sourceUsable,
   extraSourcesFrom,
   EXTRA_SOURCES_PROP,
   type SourceInReach,
@@ -29,26 +33,33 @@ export function sourcesInReach(
   return sourcesResolve(carrier.values[SOURCE_PROP], carrier.values[EXTRA_SOURCES_PROP], library)
 }
 
-export function blocksWithSource(tree: MaskTree, sourceId: string): BlockNode[] {
-  if (sourceId === '') return []
-  return Object.values(tree).filter((n) => usesSource(n, sourceId))
-}
-
-function usesSource(n: BlockNode, sourceId: string): boolean {
-  if (carriesOwnSource(n)) {
-    if (n.values[SOURCE_PROP] === sourceId) return true
-    if (extraSourcesFrom(n.values[EXTRA_SOURCES_PROP]).some((q) => q.sourceId === sourceId)) {
-      return true
+// The data center lists and the export orders exactly these sources.
+export function sourceIdsUsedBy(node: BlockNode): string[] {
+  const ids: string[] = []
+  const add = (id: unknown): void => {
+    if (typeof id === 'string' && id !== '') ids.push(id)
+  }
+  if (carriesOwnSource(node)) {
+    add(node.values[SOURCE_PROP])
+    for (const q of extraSourcesFrom(node.values[EXTRA_SOURCES_PROP])) {
+      if (sourceUsable(q)) add(q.sourceId)
     }
   }
-  const def = blockType(n.type)
-
+  const def = blockType(node.type)
   for (const [key, prop] of Object.entries(def?.properties ?? {})) {
-    if (prop.type.control !== 'source' || !propertyVisible(prop.when, n.values)) continue
-    if (n.values[key] === sourceId) return true
+    if (prop.type.control === 'source' && propertyVisible(prop.when, node.values)) add(node.values[key])
   }
+  const compute = capability(def, 'compute')
+  if (compute) {
+    for (const field of dataFieldsFrom(node.values[compute.prop])) add(splitBinding(field).sourceId)
+  }
+  for (const id of sourcesIdsInChainsOf(node)) add(id)
+  return ids
+}
 
-  return sourcesIdsInChainsOf(n).includes(sourceId)
+export function blocksWithSource(tree: MaskTree, sourceId: string): BlockNode[] {
+  if (sourceId === '') return []
+  return Object.values(tree).filter((n) => sourceIdsUsedBy(n).includes(sourceId))
 }
 
 export function firstSourceInReach(

@@ -1,12 +1,37 @@
-export function tagKey(value: unknown): string {
-  const s = String(value ?? '').trim()
-  if (s === '') return ''
-  const german = /^(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(s)
+// d.m.yyyy, d.m.yy or yyyy-mm-dd at the start of the text, a time may follow.
+export function readDate(value: unknown): Date | null {
+  const text = String(value ?? '').trim()
+  const german = /^(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})(?!\d)/.exec(text)
+  const iso = /^(\d{4})-(\d{2})-(\d{2})(?!\d)/.exec(text)
+  let year: number
+  let month: number
+  let day: number
   if (german) {
-    return `${german[3]}-${german[2].padStart(2, '0')}-${german[1].padStart(2, '0')}`
+    const short = Number(german[3])
+    year = german[3].length === 2 ? (short <= 69 ? 2000 + short : 1900 + short) : short
+    month = Number(german[2])
+    day = Number(german[1])
+  } else if (iso) {
+    year = Number(iso[1])
+    month = Number(iso[2])
+    day = Number(iso[3])
+  } else {
+    return null
   }
-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s)
-  return iso ? `${iso[1]}-${iso[2]}-${iso[3]}` : ''
+  const date = new Date(year, month - 1, day)
+  const real = date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+  return real ? date : null
+}
+
+export function tagOf(moment: Date): string {
+  const month = String(moment.getMonth() + 1).padStart(2, '0')
+  const tag = String(moment.getDate()).padStart(2, '0')
+  return `${moment.getFullYear()}-${month}-${tag}`
+}
+
+export function tagKey(value: unknown): string {
+  const date = readDate(value)
+  return date ? tagOf(date) : ''
 }
 
 let tag = ''

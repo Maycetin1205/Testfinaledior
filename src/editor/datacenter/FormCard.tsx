@@ -1,5 +1,6 @@
-import { useEffect, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { X } from '@/editor/icons/icon'
+import { useCloseOnEscape } from '@/editor/widgets/closeOnEscape'
 import { Button } from '@/editor/widgets/PushButton'
 
 interface FormCardProps {
@@ -9,16 +10,7 @@ interface FormCardProps {
 }
 
 export function FormCard({ title, onClose, children }: FormCardProps) {
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        onClose()
-      }
-    }
-    document.addEventListener('keydown', onKeyDown, true)
-    return () => document.removeEventListener('keydown', onKeyDown, true)
-  }, [onClose])
+  useCloseOnEscape(onClose)
 
   return (
     <div className="flex min-w-0 flex-col gap-3">

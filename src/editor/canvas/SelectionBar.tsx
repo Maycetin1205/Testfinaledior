@@ -137,7 +137,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       )}
       {style && (
         <Popover name={`${def?.name ?? 'Baustein'} gestalten`} anchor={anchor}
-          width={280} maxHeight={420} escapeCatch onClose={() => setStyle(false)}>
+          width={280} maxHeight={420} onClose={() => setStyle(false)}>
           <div className="flex flex-col gap-3 p-2">
             <strong className="text-ui">{def?.name} gestalten</strong>
             {properties.map(({ key, property }) => (

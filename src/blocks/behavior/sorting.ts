@@ -1,12 +1,10 @@
 import { isPropertyEntry } from '../../core/block/property'
+import { readDate } from './chosenDay'
 import { makeOperatorState } from './operatorState'
 
 const EMPTY_LAST = 1
 
 const NUMBER = /^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$|^-?\d+(,\d+)?$|^-?\d+(\.\d+)?$/
-
-const DATE_DE = /^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})$/
-const DATE_ISO = /^(\d{4})-(\d{2})-(\d{2})$/
 
 export function asNumber(value: string): number | null {
   const t = value.trim()
@@ -20,32 +18,7 @@ export function asNumber(value: string): number | null {
 }
 
 function asDate(value: string): number | null {
-  const t = value.trim()
-  if (t === '') return null
-
-  const iso = DATE_ISO.exec(t)
-  if (iso) {
-    const [, j, m, tg] = iso
-    return timeValue(Number(j), Number(m), Number(tg))
-  }
-
-  const de = DATE_DE.exec(t)
-  if (de) {
-    const [, tg, m, jRaw] = de
-
-    const jNumber = Number(jRaw)
-    const year = jRaw.length === 2 ? (jNumber <= 69 ? 2000 + jNumber : 1900 + jNumber) : jNumber
-    return timeValue(year, Number(m), Number(tg))
-  }
-
-  return null
-}
-
-function timeValue(year: number, month: number, tag: number): number | null {
-  if (month < 1 || month > 12 || tag < 1 || tag > 31) return null
-  const d = new Date(year, month - 1, tag)
-  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== tag) return null
-  return d.getTime()
+  return readDate(value)?.getTime() ?? null
 }
 
 type Kind = 'number' | 'date' | 'text'

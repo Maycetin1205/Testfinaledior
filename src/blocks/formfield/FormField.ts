@@ -3,6 +3,7 @@ import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable } from '../../core/block/capability'
 import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../behavior/lookup'
+import { readDate, tagKey } from '../behavior/chosenDay'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { LookupControl } from './lookupControl'
 import { valueDisconnected, valueRegistered } from './valueBinding'
@@ -32,13 +33,15 @@ const PH_CLASS: Partial<Record<FieldType, string>> = {
 }
 
 function dateForInput(value: string): string {
-  const german = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value)
-  return german ? `${german[3]}-${german[2]}-${german[1]}` : value
+  return tagKey(value) || value
 }
 
 function dateFromInput(value: string): string {
-  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
-  return iso ? `${iso[3]}.${iso[2]}.${iso[1]}` : value
+  const date = readDate(value)
+  if (!date) return value
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${day}.${month}.${date.getFullYear()}`
 }
 
 export interface FormField extends FormFieldValues {}

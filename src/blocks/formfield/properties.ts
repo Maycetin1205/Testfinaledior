@@ -10,7 +10,8 @@ import {
   type ValuesOf,
 } from '../../core/block/property'
 import type { Column } from '../behavior/columns'
-import { coerceLookupColumns, WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/lookup'
+import { coerceLookupColumns } from '../behavior/lookup'
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/DialogFrame'
 
 export const FIELD_TYPES = [
   'text', 'number', 'textarea', 'select', 'date', 'time', 'checkbox', 'lookup',

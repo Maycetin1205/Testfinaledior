@@ -10,12 +10,8 @@ import {
 import { LIST_GRID, listCapabilities } from '../behavior/listDeclaration'
 import { RecordList } from '../behavior/recordList'
 import { tableStyle } from '../behavior/tableStyle'
-import {
-  WINDOW_WIDTH,
-  WINDOW_HEIGHT,
-  validMetrics,
-  closeLookupFor,
-} from '../behavior/lookup'
+import { validMetrics, closeLookupFor } from '../behavior/lookup'
+import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../behavior/DialogFrame'
 import { suggestionStyle } from '../behavior/suggestionList'
 import { reportPendingMarks } from '../behavior/pendingState'
 import { walkInCell, cellsInputStyle, cellsFields } from './cells'

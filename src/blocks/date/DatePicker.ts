@@ -1,19 +1,12 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { onChosenDay, chosenDay, setChosenDay } from '../behavior/chosenDay'
+import { onChosenDay, chosenDay, setChosenDay, readDate, tagOf } from '../behavior/chosenDay'
 import { dateStyle } from './datePickerStyle'
 
-function tagOf(moment: Date): string {
-  const month = String(moment.getMonth() + 1).padStart(2, '0')
-  const tag = String(moment.getDate()).padStart(2, '0')
-  return `${moment.getFullYear()}-${month}-${tag}`
-}
-
 function tagPlus(key: string, days: number): string {
-  const pieces = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key)
-  if (!pieces) return ''
-  const moment = new Date(Number(pieces[1]), Number(pieces[2]) - 1, Number(pieces[3]))
+  const moment = readDate(key)
+  if (!moment) return ''
   moment.setDate(moment.getDate() + days)
   return tagOf(moment)
 }

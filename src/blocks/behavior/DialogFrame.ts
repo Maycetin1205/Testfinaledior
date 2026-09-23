@@ -16,6 +16,9 @@ export interface DialogSizeDetail {
 
 export const DIALOG_EDGE = 24
 
+export const WINDOW_WIDTH = 520
+export const WINDOW_HEIGHT = 380
+
 const DIALOG_MIN_WIDTH = 240
 const DIALOG_MIN_HEIGHT = 160
 
@@ -24,23 +27,26 @@ function pixel(value: unknown, replacement: number): number {
   return Number.isFinite(number) && number > 0 ? number : replacement
 }
 
-const catchingWindow: DialogFrame[] = []
+const catchingFrames: DialogFrame[] = []
 
 function onEscape(event: KeyboardEvent): void {
   if (event.key !== 'Escape') return
-  const topmost = catchingWindow.filter((f) => f.isConnected).pop()
+  const topmost = catchingFrames.filter((f) => f.isConnected).pop()
   if (!topmost) return
   event.stopPropagation()
   topmost.close()
 }
 
-function catchesEscape(window: DialogFrame, catches: boolean): void {
-  const slot = catchingWindow.indexOf(window)
-  if (catches && slot < 0) catchingWindow.push(window)
-  if (!catches && slot >= 0) catchingWindow.splice(slot, 1)
-
-  if (catchingWindow.length === 1) window.addEventListener('keydown', onEscape, true)
-  if (catchingWindow.length === 0) window.removeEventListener('keydown', onEscape, true)
+function catchesEscape(frame: DialogFrame, catches: boolean): void {
+  const slot = catchingFrames.indexOf(frame)
+  if (catches && slot < 0) {
+    catchingFrames.push(frame)
+    if (catchingFrames.length === 1) window.addEventListener('keydown', onEscape, true)
+  }
+  if (!catches && slot >= 0) {
+    catchingFrames.splice(slot, 1)
+    if (catchingFrames.length === 0) window.removeEventListener('keydown', onEscape, true)
+  }
 }
 
 export class DialogFrame extends LitElement {
@@ -154,8 +160,8 @@ export class DialogFrame extends LitElement {
   `
 
   @property() heading = 'Dialog'
-  @property({ type: Number }) width = 520
-  @property({ type: Number }) height = 380
+  @property({ type: Number }) width = WINDOW_WIDTH
+  @property({ type: Number }) height = WINDOW_HEIGHT
   @property({ type: Boolean, reflect: true }) viewport = false
   @property({ type: Boolean, attribute: 'escape-closes' }) escapeCloses = false
 
@@ -176,8 +182,8 @@ export class DialogFrame extends LitElement {
     event.stopPropagation()
 
     const start = axis === 'width'
-      ? pixel(this.width, 520)
-      : pixel(this.height, 380)
+      ? pixel(this.width, WINDOW_WIDTH)
+      : pixel(this.height, WINDOW_HEIGHT)
     const min = axis === 'width' ? DIALOG_MIN_WIDTH : DIALOG_MIN_HEIGHT
     const startPos = axis === 'width' ? event.clientX : event.clientY
 
@@ -250,8 +256,8 @@ export class DialogFrame extends LitElement {
   }
 
   override render(): TemplateResult {
-    const width = pixel(this.width, 520)
-    const height = pixel(this.height, 380)
+    const width = pixel(this.width, WINDOW_WIDTH)
+    const height = pixel(this.height, WINDOW_HEIGHT)
     return html`
       <div class="abdunklung"></div>
       <div class="buehne">

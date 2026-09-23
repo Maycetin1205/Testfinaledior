@@ -8,7 +8,6 @@ import {
   bindableSpotsOf,
   maySelectionFollows,
   SOURCE_PROP,
-  sourcesIdsInChainsOf,
   carriesOwnSource,
 } from '../core/block/treeQuery'
 import { SELECTION_FOLLOW_PROP, selectionFollowsFrom, followUsable } from '../core/data/selectionFollow'
@@ -21,7 +20,7 @@ import {
   extraSourcesFrom,
   type SourceInReach,
 } from '../core/data/extraSources'
-import { sourcesInReach } from '../core/block/sourcesInReach'
+import { sourceIdsUsedBy, sourcesInReach } from '../core/block/sourcesInReach'
 
 export function collectDataSources(
   tree: MaskTree,
@@ -29,8 +28,8 @@ export function collectDataSources(
 ): DataSource[] {
   const seen = new Set<string>()
   const acc: DataSource[] = []
-  const add = (id: unknown): void => {
-    const src = typeof id === 'string' ? sources.find((s) => s.id === id) : undefined
+  const add = (id: string): void => {
+    const src = sources.find((s) => s.id === id)
     if (src && !seen.has(src.id)) {
       seen.add(src.id)
       acc.push(src)
@@ -38,30 +37,7 @@ export function collectDataSources(
   }
   const visit = (node: BlockNode | undefined): void => {
     if (!node) return
-
-    if (carriesOwnSource(node)) {
-      add(node.values[SOURCE_PROP])
-
-      for (const q of extraSourcesFrom(node.values[EXTRA_SOURCES_PROP])) {
-        if (sourceUsable(q)) add(q.sourceId)
-      }
-    }
-
-    const def = blockType(node.type)
-    for (const [key, prop] of Object.entries(def?.properties ?? {})) {
-      if (prop.type.control === 'source' && propertyVisible(prop.when, node.values)) {
-        add(node.values[key])
-      }
-    }
-
-    const compute = capability(def, 'compute')
-    if (compute) {
-      for (const field of dataFieldsFrom(node.values[compute.prop])) {
-        add(splitBinding(field).sourceId)
-      }
-    }
-
-    for (const id of sourcesIdsInChainsOf(node)) add(id)
+    for (const id of sourceIdsUsedBy(node)) add(id)
     node.childIds.forEach((id) => visit(tree[id]))
   }
   visit(tree[ROOT_ID])
