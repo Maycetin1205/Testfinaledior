@@ -60,7 +60,7 @@ export function Toolbar({ onDataCenter }: { onDataCenter: () => void }) {
   }
 
   return (
-    <div className="flex shrink-0 items-center gap-1.5">
+    <div className="flex shrink-0 items-center gap-[8px]">
       <ExtraActions
         onClearAll={() => ed.clear()}
         clearDisabled={ed.blockCount === 0}
@@ -201,7 +201,6 @@ function ExtraActions({
         <Popover
           name="Weitere Aktionen"
           anchor={button}
-          width={200}
           onClose={() => setOpen(false)}
         >
           <div role="menu" className="flex flex-col">

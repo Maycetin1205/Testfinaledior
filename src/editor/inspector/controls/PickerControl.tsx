@@ -51,7 +51,7 @@ export function PickerControl({
       aria-expanded={open}
       aria-label={label === undefined ? `${name}: ${shown}` : undefined}
       onClick={() => setOpen(!open)}
-      className={cn(INPUT_EDGE, 'flex h-control items-center gap-2 px-2 text-left', className)}
+      className={cn(INPUT_EDGE, 'flex h-control items-center gap-2 px-2 text-left focus-visible:ring-0', className)}
     >
       <span
         className={cn(

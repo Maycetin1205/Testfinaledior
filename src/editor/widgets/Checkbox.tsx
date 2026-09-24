@@ -16,13 +16,13 @@ export function Checkbox({ checked, disabled = false, onChange, className, child
     <label
       className={cn(
         'flex items-start gap-2 text-ui',
-        disabled ? 'opacity-50' : 'cursor-pointer',
+        disabled ? 'opacity-[.45]' : 'cursor-pointer',
         className,
       )}
     >
       <input
         type="checkbox"
-        className="mt-0.5 h-[14px] w-[14px] shrink-0 accent-accent"
+        className="mt-0.5 h-[16px] w-[16px] shrink-0 accent-accent"
         checked={checked}
         disabled={disabled}
         onChange={onChange}

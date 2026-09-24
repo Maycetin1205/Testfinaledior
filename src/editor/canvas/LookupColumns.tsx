@@ -190,8 +190,9 @@ function Heads({ open }: { open: OpenLookup }) {
               key={head.slot}
               className={cn(
                 'pointer-events-auto absolute cursor-pointer',
-                'hover:bg-[hsl(var(--wb-selection)/0.16)]',
-                chosen === head.slot && 'bg-[hsl(var(--wb-selection)/0.16)]',
+                // 8 % of the selection color, as .dropzone.is-drop-aktiv lays over a column.
+                'hover:bg-[hsl(var(--wb-selection)/0.08)]',
+                chosen === head.slot && 'bg-[hsl(var(--wb-selection)/0.08)]',
               )}
               style={{
                 left: left,
@@ -214,8 +215,9 @@ function Heads({ open }: { open: OpenLookup }) {
             aria-label="Spalte anfügen"
             title="Spalte anfügen"
             className={cn(
-              'pointer-events-auto absolute grid cursor-pointer place-items-center rounded border border-[hsl(var(--wb-selection)/0.3)] bg-panel shadow-sm',
-              'text-[hsl(var(--wb-selection))] hover:bg-[hsl(var(--wb-selection)/0.16)]',
+              // White with an edge, as .vspalte-zahl; its #D7E3F2 is nearest to --wb-line.
+              'pointer-events-auto absolute grid cursor-pointer place-items-center rounded border border-line bg-panel',
+              'text-[hsl(var(--wb-selection))] hover:bg-[hsl(var(--wb-selection)/0.08)]',
             )}
             style={{
               left: plus.right - PLUS_WIDTH,

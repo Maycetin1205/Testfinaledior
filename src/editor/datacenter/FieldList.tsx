@@ -29,7 +29,7 @@ export function FieldList({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-dense font-semibold uppercase tracking-wide text-muted">Felder</span>
+        <span className="text-label font-semibold uppercase tracking-label text-muted">Felder</span>
         <Button onClick={() => setRows([...rows, { ...EMPTY_ROW }])}>
           <Plus size={13} /> Feld
         </Button>

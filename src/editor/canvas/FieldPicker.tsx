@@ -221,7 +221,7 @@ export function FieldPicker({
       onClose={onClose}
     >
       <div className="flex flex-col gap-1.5">
-        <p className="truncate px-1.5 pt-0.5 text-dense font-semibold uppercase tracking-wide text-muted">
+        <p className="truncate px-1.5 pt-0.5 text-label font-semibold uppercase tracking-label text-muted">
           {spotLabel}
         </p>
 
@@ -284,7 +284,7 @@ export function FieldPicker({
 
         <Separator />
 
-        <p className="flex items-baseline gap-2 px-1.5 text-dense font-semibold uppercase tracking-wide text-muted">
+        <p className="flex items-baseline gap-2 px-1.5 text-label font-semibold uppercase tracking-label text-muted">
           <span className="min-w-0 truncate">
             {active.label} wählen
           </span>

@@ -19,8 +19,8 @@ export function Entry({ icon: Icon, name, right, bottom, active = false, onClick
       type="button"
       onClick={onClick}
       className={cn(
-        'mb-1 w-full rounded border px-2.5 py-1 text-left text-dense transition-colors',
-        active ? 'border-accent/60 bg-accent/15' : 'border-transparent hover:bg-control',
+        'mb-1 w-full rounded border px-[10px] py-[7px] text-left text-dense transition-colors',
+        active ? 'border-accent bg-accent-soft' : 'border-line bg-panel hover:border-accent',
       )}
     >
       <div className="flex items-center gap-1.5">

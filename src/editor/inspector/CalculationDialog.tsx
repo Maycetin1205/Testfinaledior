@@ -43,7 +43,7 @@ function Step({ number, title, children }: {
 }) {
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-ui font-semibold text-ink">{number}. {title}</h3>
+      <h3 className="text-label font-semibold uppercase tracking-label text-muted">{number}. {title}</h3>
       {children}
     </section>
   )

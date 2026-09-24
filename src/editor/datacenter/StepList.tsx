@@ -100,10 +100,10 @@ export function StepList({
                 indented ? 'pl-5' : 'pl-1'
               } ${
                 problem !== null
-                  ? 'border-pending bg-pending/15'
+                  ? 'border-pending bg-pending-soft'
                   : s.id === activeId
-                    ? 'border-accent bg-accent/15'
-                    : 'border-transparent hover:bg-control'
+                    ? 'border-accent bg-accent-soft'
+                    : 'border-transparent hover:bg-accent-soft'
               }`}
             >
 

@@ -107,7 +107,7 @@ function PaletteCard({ def, onAdd }: PaletteCardProps) {
         setNewBlockDrag(e.dataTransfer, def.type)
         e.dataTransfer.effectAllowed = 'copy'
       }}
-      className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 px-2 text-left hover:border-accent"
+      className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 px-[10px] text-left hover:border-accent hover:bg-panel"
     >
       <span className="flex shrink-0 items-center text-muted group-hover:text-ink">
         {createElement(symbolOf(def.type), { size: 15 })}

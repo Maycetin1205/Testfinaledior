@@ -24,7 +24,7 @@ export function Tabs({
       className={cn(
         'h-6 shrink-0 whitespace-nowrap rounded px-2.5 text-dense transition-colors',
         'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-        active ? 'bg-accent/15 font-medium text-ink' : 'text-muted hover:text-ink',
+        active ? 'bg-accent font-semibold text-panel' : 'text-muted hover:text-ink',
         className,
       )}
     >

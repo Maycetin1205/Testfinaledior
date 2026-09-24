@@ -77,7 +77,7 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
                   onChange={() => toggle(t.key)}
                   className={cn(
                     'border-b border-line px-2.5 py-1.5 last:border-b-0',
-                    !locked && 'hover:bg-control',
+                    !locked && 'hover:bg-accent-soft',
                   )}
                 >
                   <span className="flex items-baseline gap-1.5">

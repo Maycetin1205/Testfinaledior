@@ -43,7 +43,7 @@ export function Group({
           onClick={toggle}
           className={cn(
             'flex min-w-0 flex-1 items-center gap-1.5 rounded text-left',
-            'text-ui font-semibold text-ink',
+            'text-label font-semibold uppercase tracking-label text-muted',
             'transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
           )}
         >

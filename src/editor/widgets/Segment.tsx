@@ -28,7 +28,7 @@ export function Segment({
       id={id}
       role="radiogroup"
       aria-label={name}
-      className="flex h-control w-fit items-center gap-px rounded border border-line bg-control p-px"
+      className="flex h-control w-fit items-center gap-px rounded border border-line bg-panel p-px"
     >
       {options.map((o) => {
         const chosen = o.value === value
@@ -46,7 +46,7 @@ export function Segment({
               'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
               o.icon === undefined ? 'px-2' : 'px-1.5',
               chosen
-                ? 'bg-accent font-medium text-ground'
+                ? 'bg-accent font-semibold text-panel'
                 : 'text-muted hover:text-ink',
             )}
           >

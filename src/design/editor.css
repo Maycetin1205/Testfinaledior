@@ -1,39 +1,47 @@
-@import '@fontsource-variable/inter';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* The editor's own colors, apart from the mask's --se-* tokens. They hold hsl
-     channels, not colors, so both hsl(var(--wb-…)) and Tailwind's opacity use them. */
+  /* The editor's own colors, apart from the mask's --se-* tokens, with the
+     values of docs/chef-maske/empfang/index.basis.source.html; the comment
+     names the hex value and where it stands. They hold hsl channels, not
+     colors, so both hsl(var(--wb-…)) and Tailwind's opacity use them. */
   :root {
-    --wb-ground: 40 20% 95%;
-    --wb-panel: 40 40% 99%;
-    --wb-control: 40 16% 90%;
-    --wb-line: 38 14% 82%;
-    --wb-ink: 30 14% 13%;
-    --wb-muted: 32 10% 36%;
+    --wb-ground: 205.7 24.1% 94.3%;   /* #EDF1F4 --bg */
+    --wb-panel: 0 0% 100%;            /* #FFFFFF --surface */
+    --wb-control: 210 28.6% 97.3%;    /* #F6F8FA .vsuche-top .vinput */
+    --wb-line: 205 20.7% 88.6%;       /* #DCE3E8 --line-stark */
+    --wb-ink: 202 33% 13%;            /* #16242C --ink */
+    --wb-muted: 202 9% 53%;           /* #7C8A92 --muted */
 
-    --wb-accent: 246 52% 44%;
-    --wb-error: 4 66% 47%;
-    --wb-pending: 39 68% 54%;
+    --wb-accent: 185 81% 29%;         /* #0E7C86 --accent */
+    --wb-accent-soft: 184 37% 92%;    /* #E3F1F2 --accent-soft */
+    --wb-accent-ink: 185 81% 22%;     /* #0B5E66 --accent-ink */
+    --wb-error: 5.6 63.4% 46.1%;      /* #C0392B --rot */
+    --wb-error-soft: 5 74% 94%;       /* #FBE6E4 --rot-soft */
+    --wb-pending: 35.5 71% 42%;       /* #B7791F --amber */
+    --wb-pending-soft: 40 65.2% 95.5%; /* #FBF6EC --amber-soft */
 
-    --wb-selection: 246 60% 56%;
+    --wb-selection: 209 54% 50%;      /* #3B82C4 .vspalte-behandlung --sp */
 
     /* Pixels, not rem: the corner must not grow with the font size. */
-    --radius: 2px;
+    --radius: 4px;                    /* .vkarte */
 
-    --canvas-bg: 36 20% 82%;
+    /* The ground around the mask; the mask itself lies on --se-bg, so its
+       edge stays visible. */
+    --canvas-bg: 205 20.7% 88.6%;     /* #DCE3E8 --line-stark */
   }
 
   * {
     border-color: hsl(var(--wb-line));
   }
 
-  /* A pixel value, not a percentage, which would hang on each browser's own setting. */
+  /* A pixel value, not a percentage, which would hang on each browser's own
+     setting. Text and controls of the reception mask are 13px (.kinput, .vk). */
   html {
-    font-size: 13.5px;
+    font-size: 13px;
+    line-height: 1.45;                /* html, body */
   }
 
   body {

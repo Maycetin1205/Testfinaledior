@@ -172,8 +172,9 @@ export function ColumnControls({
         <div
           key={i}
           className={cn(
-            'pointer-events-auto absolute cursor-pointer hover:bg-[hsl(var(--wb-selection)/0.10)]',
-            drag?.from === i && 'bg-[hsl(var(--wb-selection)/0.10)]',
+            // 8 % of the selection color, as .dropzone.is-drop-aktiv lays over a column.
+            'pointer-events-auto absolute cursor-pointer hover:bg-[hsl(var(--wb-selection)/0.08)]',
+            drag?.from === i && 'bg-[hsl(var(--wb-selection)/0.08)]',
           )}
           style={{
             left: s.left + HANDLE_EDGE,
@@ -188,7 +189,7 @@ export function ColumnControls({
       ))}
       {line !== null && (
         <div
-          className="absolute w-[3px] rounded-[1px] bg-[hsl(var(--wb-selection))]"
+          className="absolute w-[3px] rounded bg-[hsl(var(--wb-selection))]"
           style={{ left: line - 1, top: first.top, height: first.height }}
         />
       )}

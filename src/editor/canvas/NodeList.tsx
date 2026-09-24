@@ -28,9 +28,10 @@ function GridGhost({ slot }: { slot: GridSlot }) {
       style={{
         ...gridSlotStyle(slot),
         pointerEvents: 'none',
-        background: 'hsl(var(--wb-selection) / 0.16)',
+        // .dropzone.is-drop-aktiv: 2px dashed, 8 % of the color underneath.
+        background: 'hsl(var(--wb-selection) / 0.08)',
         border: '2px dashed hsl(var(--wb-selection))',
-        borderRadius: 4,
+        borderRadius: 'var(--radius)',
       }}
     />
   )
@@ -41,7 +42,7 @@ function InsertionLine({ direction }: { direction: Direction }) {
     <div
       data-ff-editor-helper
       className={cn(
-        'self-stretch rounded-[2px] bg-[hsl(var(--wb-selection))]',
+        'self-stretch rounded bg-[hsl(var(--wb-selection))]',
         direction === 'column' ? 'h-[2px]' : 'min-h-6 w-[2px]',
       )}
     />

@@ -137,7 +137,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         cursor: selected ? 'default' : 'pointer',
         outline: selected ? '2px solid hsl(var(--wb-selection))' : '2px solid transparent',
         outlineOffset: 1,
-        borderRadius: 6,
+        borderRadius: 'var(--radius)',
         userSelect: 'none',
       }}
     >
@@ -147,10 +147,11 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           pointerEvents: 'auto',
           height: '100%',
 
+          // .vspalte-leer draws 1.5px dashed in #D5DEE3; --wb-line is the nearest editor color.
           ...(isContainer && def?.containerFrame !== false
             ? {
                 border: '1.5px dashed hsl(var(--wb-line))',
-                borderRadius: 4,
+                borderRadius: 'var(--radius)',
                 minHeight: 40,
               }
             : null),
@@ -224,7 +225,7 @@ function Handle({ axis, onStart, onReset }: HandleProps) {
         onReset()
       }}
       className={cn(
-        'absolute rounded-[4px] bg-[hsl(var(--wb-selection))]',
+        'absolute rounded bg-[hsl(var(--wb-selection))]',
         axis === 'x'
           ? '-right-1 top-1/2 h-[26px] w-[7px] -translate-y-1/2 cursor-ew-resize'
           : '-bottom-1 left-1/2 h-[7px] w-[26px] -translate-x-1/2 cursor-ns-resize',

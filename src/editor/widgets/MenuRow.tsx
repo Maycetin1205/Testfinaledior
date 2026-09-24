@@ -4,8 +4,8 @@ import { cn } from '@/editor/widgets/cn'
 type MenuRowKind = 'silent' | 'risk'
 
 const KIND: Record<MenuRowKind, { color: string; hover: string }> = {
-  silent: { color: 'text-ink', hover: 'hover:bg-control' },
-  risk: { color: 'text-error', hover: 'hover:bg-error/15' },
+  silent: { color: 'text-ink', hover: 'hover:bg-accent-soft' },
+  risk: { color: 'text-error', hover: 'hover:bg-error-soft' },
 }
 
 interface MenuRowProps
@@ -32,9 +32,9 @@ export function MenuRow({
       className={cn(
         'flex h-control w-full min-w-0 items-center gap-2 rounded px-2 text-left text-ui',
         'transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-        'disabled:pointer-events-none disabled:opacity-40',
+        'disabled:pointer-events-none disabled:opacity-[.45]',
         KIND[kind].color,
-        active ? 'bg-accent/15' : KIND[kind].hover,
+        active ? 'bg-accent-soft' : KIND[kind].hover,
         className,
       )}
       {...rest}

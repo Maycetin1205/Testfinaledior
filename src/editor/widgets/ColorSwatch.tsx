@@ -27,7 +27,7 @@ export function ColorSwatch({ color, name, chosen, onChoose }: ColorSwatchProps)
           : 'hover:ring-1 hover:ring-muted hover:ring-offset-1',
       )}
     >
-      {chosen && <Check size={13} strokeWidth={3} className="text-ground" />}
+      {chosen && <Check size={13} strokeWidth={3} className="text-panel" />}
     </button>
   )
 }

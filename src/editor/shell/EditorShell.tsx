@@ -46,14 +46,14 @@ export function EditorShell() {
   return (
     <div className="flex h-screen w-screen flex-col bg-ground text-ink">
       <header className="flex shrink-0 flex-col border-b border-line bg-panel">
-        <div className="flex min-h-11 items-center gap-3 overflow-x-auto px-3 py-1">
-          <span className="shrink-0 text-ui font-semibold">Aufbau-Editor</span>
+        <div className="flex items-center gap-[12px] overflow-x-auto px-[12px] py-[8px]">
+          <span className="shrink-0 text-title font-bold">Aufbau-Editor</span>
           <Separator vertical />
           <HistoryButtons />
           <div className="flex-1" />
           <Toolbar onDataCenter={() => setDataCenterOpen(true)} />
         </div>
-        <div className="flex min-h-9 items-center gap-4 border-t border-line px-3">
+        <div className="flex min-h-9 items-center gap-4 border-t border-line px-[12px]">
           <PageBar />
         </div>
       </header>

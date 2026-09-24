@@ -80,7 +80,7 @@ export function List({
         <button
           type="button"
           onClick={() => onChoose('')}
-          className={cn(ROW, 'text-muted hover:bg-control hover:text-ink',
+          className={cn(ROW, 'text-muted hover:bg-accent-soft hover:text-ink',
             value === '' && 'font-medium text-ink')}
         >
           <span className="w-3 shrink-0">{value === '' && <Check size={12} />}</span>
@@ -91,7 +91,7 @@ export function List({
       {filtered.map((g) => (
         <div key={g.key} className="flex flex-col">
           {g.name !== undefined && g.name !== '' && (
-            <p className="flex items-baseline gap-2 px-2 pb-0.5 pt-1.5 text-dense font-semibold uppercase tracking-wide text-muted">
+            <p className="flex items-baseline gap-2 px-2 pb-0.5 pt-1.5 text-label font-semibold uppercase tracking-label text-muted">
               <span className="min-w-0 truncate">{g.name}</span>
               {g.badge !== undefined && g.badge !== '' && (
                 <Badge className="font-normal normal-case tracking-normal">{g.badge}</Badge>
@@ -109,9 +109,9 @@ export function List({
                 className={cn(
                   ROW,
                   e.disabled
-                    ? 'cursor-not-allowed text-muted opacity-50'
-                    : 'text-ink hover:bg-control',
-                  chosen && 'bg-accent/15 font-medium',
+                    ? 'cursor-not-allowed text-muted opacity-[.45]'
+                    : 'text-ink hover:bg-accent-soft',
+                  chosen && 'bg-accent-soft font-medium',
                 )}
               >
                 <span className="w-3 shrink-0 text-accent">

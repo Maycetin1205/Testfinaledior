@@ -3,16 +3,18 @@ import { cn } from '@/editor/widgets/cn'
 
 type ButtonKind = 'primary' | 'silent' | 'risk'
 
+// .vbtn, .vbtn-primaer and, for a button of only an icon, .vbtn-ghost; a risk
+// is a .vbtn in the red of the mask.
 const AREA: Record<ButtonKind, string> = {
-  primary: 'bg-accent font-medium text-ground hover:bg-accent/85',
-  silent: 'border border-line bg-control text-ink hover:border-muted',
-  risk: 'border border-error/60 text-error hover:bg-error/15',
+  primary: 'border border-accent bg-accent text-panel hover:border-accent-ink hover:bg-accent-ink',
+  silent: 'border border-line bg-panel text-ink hover:border-accent hover:bg-accent-soft',
+  risk: 'border border-line bg-panel text-error hover:border-error hover:bg-error-soft',
 }
 
 const ONLY_ICON: Record<ButtonKind, string> = {
-  primary: 'bg-accent text-ground hover:bg-accent/85',
-  silent: 'text-muted hover:bg-control hover:text-ink',
-  risk: 'text-muted hover:bg-error/15 hover:text-error',
+  primary: 'bg-accent text-panel hover:bg-accent-ink',
+  silent: 'text-muted hover:bg-ground hover:text-ink',
+  risk: 'text-muted hover:bg-error-soft hover:text-error',
 }
 
 interface ButtonBase extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
@@ -30,10 +32,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       type={type}
       className={cn(
-        'inline-flex h-control shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded text-ui',
+        'inline-flex h-control shrink-0 items-center justify-center gap-[6px] whitespace-nowrap rounded text-ui font-[550]',
         'transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-        'disabled:pointer-events-none disabled:opacity-40',
-        onlyIcon ? `w-control ${ONLY_ICON[kind]}` : `px-2.5 ${AREA[kind]}`,
+        'disabled:pointer-events-none disabled:opacity-[.45]',
+        onlyIcon ? `w-control ${ONLY_ICON[kind]}` : `px-[10px] ${AREA[kind]}`,
         className,
       )}
       {...rest}

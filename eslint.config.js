@@ -7,15 +7,17 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 const rootDir = import.meta.dirname
 
-// Design values a style string must not write itself: every color, and a
-// radius, font size, shadow or font of its own. 0, 50%, none, inherit,
-// transparent, currentColor and a var() stay open.
+// Design values a style string or a Tailwind class must not write itself:
+// every color, and a radius, font size, shadow or font of its own. 0, 50%,
+// none, inherit, transparent, currentColor and a var() stay open, also inside
+// a color function or a Tailwind class: hsl(var(--wb-line)) and
+// shadow-[var(--x)] pass, hsl(246 60% 56%) and rounded-[4px] do not.
 const LOOSE_DESIGN_VALUES = [
   ['color', /(?<!&)#[0-9a-fA-F]{3,8}(?![\w-])/],
-  ['color', /\b(?:rgba?|hsla?|oklch)\(/],
-  ['radius', /radius\s*:[^;{}]*\dpx/],
-  ['font size', /font-size\s*:[^;{}]*\d(?:px|rem)/],
-  ['shadow', /box-shadow\s*:(?!\s*(?:none|var\(--[\w-]+\))\s*(?:!important\s*)?(?:[;}]|$))/],
+  ['color', /\b(?:rgba?|hsla?|oklch)\((?!\s*var\()/],
+  ['radius', /radius\s*:[^;{}]*\dpx|(?<![\w-])rounded(?:-[a-z]+)?-\[(?!var\()/],
+  ['font size', /font-size\s*:[^;{}]*\d(?:px|rem)|(?<![\w-])text-\[\d/],
+  ['shadow', /box-shadow\s*:(?!\s*(?:none|var\(--[\w-]+\))\s*(?:!important\s*)?(?:[;}]|$))|(?<![\w-])shadow-\[(?!var\()/],
   ['font', /font-family\s*:(?!\s*(?:inherit|var\(--[\w-]+\))\s*(?:!important\s*)?(?:[;}]|$))/],
 ]
 
@@ -136,9 +138,14 @@ export default defineConfig([
   // What the mask shows takes its colors, radii, font sizes, shadows and fonts
   // from the tokens in src/design, which carry the values of the reception
   // mask. A value written into a block, the runtime or the export would be a
-  // second look beside it.
+  // second look beside it. The editor wears the same look, from the same place.
   {
-    files: ['src/blocks/**/*.{ts,tsx}', 'src/runtime/**/*.{ts,tsx}', 'src/export/**/*.{ts,tsx}'],
+    files: [
+      'src/blocks/**/*.{ts,tsx}',
+      'src/runtime/**/*.{ts,tsx}',
+      'src/export/**/*.{ts,tsx}',
+      'src/editor/**/*.{ts,tsx}',
+    ],
     rules: {
       'no-restricted-syntax': ['error', ...LOOSE_DESIGN_VALUES.flatMap(([what, pattern]) => [
         { selector: `Literal[value=${pattern}]`, message: `Take the ${what} from a token in src/design.` },

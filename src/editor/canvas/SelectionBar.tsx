@@ -102,7 +102,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
     <div
       ref={barRef}
       data-ff-editor-helper
-      className="absolute z-20 flex items-center gap-0.5 rounded-md border border-line bg-panel p-0.5 shadow-overlay"
+      className="absolute z-20 flex items-center gap-0.5 rounded border border-line bg-panel p-0.5"
       style={STYLE.top}
       onPointerDown={hold}
       onClick={hold}
@@ -136,7 +136,7 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
         <Popover name={`${def?.name ?? 'Baustein'} gestalten`} anchor={anchor}
           width={280} maxHeight={420} onClose={() => setStyle(false)}>
           <div className="flex flex-col gap-3 p-2">
-            <strong className="text-ui">{def?.name} gestalten</strong>
+            <strong className="text-title font-bold">{def?.name} gestalten</strong>
             {properties.map(({ key, property }) => (
               <PropControl key={key} block={block} propertyKey={key} property={property}
                 sourceInReach={editor.dataSourceFor(block.id)} session={session} />

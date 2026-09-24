@@ -29,17 +29,17 @@ export function Switch({
         disabled={disabled}
         onClick={() => onToggle(!on)}
         className={cn(
-          'relative h-4 w-7 shrink-0 rounded border transition-colors',
+          'relative h-[16px] w-[28px] shrink-0 rounded border transition-colors',
           'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-          'disabled:pointer-events-none disabled:opacity-40',
+          'disabled:pointer-events-none disabled:opacity-[.45]',
           on ? 'border-accent bg-accent' : 'border-line bg-control',
         )}
       >
         <span
           aria-hidden
           className={cn(
-            'absolute top-0.5 h-2.5 w-2.5 rounded-[1px] transition-all',
-            on ? 'left-3.5 bg-ground' : 'left-0.5 bg-muted',
+            'absolute top-[2px] h-[10px] w-[10px] rounded transition-all',
+            on ? 'left-[14px] bg-panel' : 'left-[2px] bg-muted',
           )}
         />
       </button>

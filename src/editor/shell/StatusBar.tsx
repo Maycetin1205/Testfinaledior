@@ -9,7 +9,7 @@ export function StatusBar() {
   const page = ed.pages.find((p) => p.id === ed.activePageId)
 
   return (
-    <footer className="flex h-6 shrink-0 items-center justify-between gap-3 border-t border-line bg-panel px-3 text-dense text-muted">
+    <footer className="flex h-6 shrink-0 items-center justify-between gap-3 border-t border-line bg-panel px-[12px] text-label text-muted">
       <div className="flex items-center gap-3">
         <span>
           Bausteine (alle Seiten){' '}

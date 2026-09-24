@@ -47,11 +47,11 @@ export function Dialog({
           : 'h-full w-full',
       )}
     >
-      <header className="flex h-10 shrink-0 items-center gap-3 border-b border-line px-3">
-        <h2 id={titleId} className="min-w-0 flex-1 truncate text-ui font-semibold text-ink">
+      <header className="flex h-10 shrink-0 items-center gap-3 border-b border-line bg-panel px-3">
+        <h2 id={titleId} className="min-w-0 flex-1 truncate text-title font-bold text-ink">
           {title}
           {besideTitle !== undefined && (
-            <span className="ml-2 font-normal text-muted">{besideTitle}</span>
+            <span className="ml-2 text-ui font-normal text-muted">{besideTitle}</span>
           )}
         </h2>
         {actions}
@@ -72,7 +72,7 @@ export function Dialog({
       </div>
 
       {foot && (
-        <footer className="flex shrink-0 items-center justify-end gap-2 border-t border-line px-3 py-2">
+        <footer className="flex shrink-0 items-center justify-end gap-2 border-t border-line bg-panel px-3 py-2">
           {foot}
         </footer>
       )}
@@ -83,7 +83,8 @@ export function Dialog({
     <div
       className={cn(
         'fixed inset-0 z-40',
-        narrow ? 'flex items-center justify-center bg-ink/30 p-6' : '',
+        // .vov: rgba(16,40,48,.34); --wb-ink is the nearest editor color.
+        narrow ? 'flex items-center justify-center bg-ink/[.34] p-6' : '',
       )}
       onPointerDown={(e) => {
         if (narrow && e.target === e.currentTarget) onClose()
