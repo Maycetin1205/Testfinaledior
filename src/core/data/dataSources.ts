@@ -148,7 +148,7 @@ export function choiceOf(source: DataSource): SourceChoice {
     openRecord: delivery.kind === 'push' && delivery.path === 'Var',
     load: delivery.kind === 'relationRows'
       ? {
-          nr: delivery.nr,
+          relationId: delivery.relationId,
           documentKindField: delivery.documentKindField,
           documentNumberField: delivery.documentNumberField,
           yearField: delivery.yearField,

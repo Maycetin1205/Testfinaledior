@@ -76,6 +76,20 @@
   ],
   "relation": [
     {
+      "id": "positions-69",
+      "name": "Positionen holen (Relation 69)",
+      "verb": "GET_RELATION",
+      "nr": "69",
+      "parameter": ["BELART", "POS", "LEN", "BELNR", "JAHR", "ARCHIV", "", "POSNR", "", "", "", ""],
+      "positions": {
+        "slots": [
+          "documentKind", "position", "length", "documentNumber", "year", "archive",
+          "empty", "positionNumber", "empty", "empty", "empty", "empty"
+        ],
+        "answerLength": 255
+      }
+    },
+    {
       "id": "standard-put",
       "name": "Standard-Schreiben (PUT)",
       "verb": "PUT_RELATION",

@@ -3,6 +3,7 @@ import { Field } from '@/editor/widgets/Field'
 import { Group } from '@/editor/widgets/Group'
 import { Button } from '@/editor/widgets/Button'
 import { Row } from '@/editor/widgets/Row'
+import { Choice } from '@/editor/widgets/Choice'
 import {
   relationParameterDefault,
   type Parameter,
@@ -15,7 +16,6 @@ import {
   headerKeyFromInput,
   type DataSource,
 } from '../../core/data/dataSources'
-import { relationNrFromInput } from '../../core/data/deliveries/relationRows'
 import { GET_VALUE_SOURCES, getValueSourceAllowed } from '../../core/data/deliveries/relationValue'
 import { PRESET_IDS, sourcePreset, type PresetId } from '../../core/data/presets/presets'
 import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
@@ -65,7 +65,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
   const load = saved.load
   const [rowsOrigin, setRowsOrigin] = useState<'pushed' | 'fetch'>(load ? 'fetch' : 'pushed')
-  const [relationNr, setRelationNr] = useState(load?.nr ?? '')
+  const [loadRelationId, setLoadRelationId] = useState(load?.relationId ?? '')
   const fieldMapping = {
     documentKindField: load?.documentKindField ?? '',
     documentNumberField: load?.documentNumberField ?? '',
@@ -210,12 +210,13 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     recordNumberOptions.push({ value: recordNumber, name: recordNumber })
   }
 
-  const relationNrError = fetchesRows && relationNrFromInput(relationNr) === ''
-    ? 'Relationsnummer fehlt — nur Ziffern.'
+  const positionTemplates = getTemplates.filter((r) => r.positions !== undefined)
+  const loadRelationError = fetchesRows && !positionTemplates.some((r) => r.id === loadRelationId)
+    ? 'Wähle die Relation, die die Positionen holt.'
     : ''
   const allError = [
     nameError, keyError, headerKeyError, areaError, doubleError,
-    relationNrError, getError,
+    loadRelationError, getError,
     ...rowsError,
   ]
 
@@ -232,7 +233,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         headerKey: asksHeaderKey ? headerKeyFromInput(headerKeyInput) : '',
         area: asksArea ? areaInput.trim().toUpperCase() : '',
         openRecord,
-        load: fetchesRows ? { nr: relationNrFromInput(relationNr), ...fieldMapping } : null,
+        load: fetchesRows ? { relationId: loadRelationId, ...fieldMapping } : null,
         getValue: { relationId: getRelationId, parameter: getParams },
         recordField: recordNumber,
       }),
@@ -355,21 +356,17 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           />
         )}
         {fetchesRows && (
-          <>
-            <Row
-              label="Relationsnummer"
-              error={showError ? relationNrError : undefined}
-            >
-              {(f) => (
-                <Field
-                  {...f}
-                  value={relationNr}
-                  className="w-24"
-                  onChange={(e) => setRelationNr(e.target.value)}
-                />
-              )}
-            </Row>
-          </>
+          <Row label="Relation" error={showError ? loadRelationError : undefined}>
+            {(f) => (
+              <Choice
+                {...f}
+                value={loadRelationId}
+                emptyText="— wählen —"
+                options={positionTemplates.map((r) => ({ value: r.id, name: r.name }))}
+                onChoose={setLoadRelationId}
+              />
+            )}
+          </Row>
         )}
 
         {asksHeaderKey && !fetchesRows && (

@@ -1,14 +1,18 @@
 import type { RuntimeLoadRelation } from '../core/data/deliveries/relationRows'
-import type { RelationAnswer } from '../core/data/relations'
-import { reportTrigger } from './bridge'
+import {
+  positionParams,
+  type PositionFetch,
+  type RelationAnswer,
+  type RuntimeRelation,
+} from '../core/data/relations'
+import { reportTrigger, seWindow } from './bridge'
 import { fieldRead } from './data'
 import { fetchedRowsFor, setFetchedRows } from './fetchedRows'
-import { relationRun } from './relations'
+import { relationFromList, relationRun } from './relations'
 
 const MAX_POSITIONS = 999
 
 const CUT_POS = '0'
-const CUT_LEN = '255'
 
 export interface GetSource {
   id: string
@@ -24,28 +28,16 @@ function emptySource(name: string): void {
 }
 
 async function question(
-  load: RuntimeLoadRelation,
+  template: RuntimeRelation,
+  positions: PositionFetch,
   key: { documentKind: string; documentNumber: string; year: string; archive: string },
   position: number,
   pos: string,
   len: string,
 ): Promise<RelationAnswer> {
   return relationRun(
-    { id: 'relation-loader', verb: 'GET_RELATION', nr: load.nr, parameter: [] },
-    [
-      key.documentKind,
-      pos,
-      len,
-      key.documentNumber,
-      key.year,
-      key.archive,
-      '',
-      String(position),
-      '',
-      '',
-      '',
-      '',
-    ],
+    template,
+    positionParams(positions.slots, { ...key, positionNumber: position, pos, len }),
     { recordAnswer: true },
   )
 }
@@ -71,7 +63,9 @@ export function loadRowsPerRelation(
     archive: load.archiveField === '' ? '' : fieldRead(giverRow, load.archiveField),
   }
 
-  if (key.documentKind === '' || key.documentNumber === '') {
+  const template = relationFromList(seWindow().FF_RELATIONS, load.relationId)
+  const positions = template?.positions
+  if (key.documentKind === '' || key.documentNumber === '' || !template || !positions) {
     emptySource(source.name)
     return
   }
@@ -82,7 +76,7 @@ export function loadRowsPerRelation(
     const rows: Record<string, string>[] = []
 
     for (let position = 1; position <= MAX_POSITIONS; position += 1) {
-      const answer = await question(load, key, position, CUT_POS, CUT_LEN)
+      const answer = await question(template, positions, key, position, CUT_POS, String(positions.answerLength))
       if (generations.get(source.id) !== gen) return
 
       if (answer.failed === true) return
@@ -94,7 +88,8 @@ export function loadRowsPerRelation(
       for (const field of load.extraFields) {
         const divider = field.indexOf('_')
         const extra = await question(
-          load,
+          template,
+          positions,
           key,
           position,
           field.slice(0, divider),

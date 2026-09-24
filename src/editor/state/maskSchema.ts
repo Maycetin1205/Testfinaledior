@@ -416,6 +416,7 @@ export function liftState(raw: unknown): unknown {
   if (raw.schemaVersion < 17) liftMissedNames(lifted.tree)
   if (raw.schemaVersion < 18) liftWithoutRooms(lifted.tree)
   if (raw.schemaVersion < 19) liftTo19(lifted)
+  liftLoadRelations(lifted)
   liftToDescriptors(lifted)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
@@ -586,4 +587,51 @@ export function liftToDescriptors(state: Record<string, unknown>): void {
   const sources = state.dataSources
   if (!Array.isArray(sources)) return
   state.dataSources = sources.map((source) => (isPlainObject(source) ? descriptorSource(source) : source))
+}
+
+// ---- the Hol-Relation as a catalog entry instead of a number at the source ----
+
+// What the mask filled in for every Hol-Relation, whatever number it had.
+const OLD_POSITION_PARAMETER = ['BELART', 'POS', 'LEN', 'BELNR', 'JAHR', 'ARCHIV', '', 'POSNR', '', '', '', '']
+const OLD_POSITION_SLOTS = [
+  'documentKind', 'position', 'length', 'documentNumber', 'year', 'archive',
+  'empty', 'positionNumber', 'empty', 'empty', 'empty', 'empty',
+]
+const OLD_ANSWER_LENGTH = 255
+
+function positionEntryFor(nr: string, relations: unknown[]): string {
+  const present = relations.find((r) => isPlainObject(r) && r.verb === 'GET_RELATION'
+    && r.nr === nr && isPlainObject(r.positions) && typeof r.id === 'string')
+  if (isPlainObject(present) && typeof present.id === 'string') return present.id
+  let id = `positions-${nr}`
+  for (let n = 2; relations.some((r) => isPlainObject(r) && r.id === id); n++) id = `positions-${nr}-${n}`
+  relations.push({
+    id,
+    name: `Positionen holen (Relation ${nr})`,
+    verb: 'GET_RELATION',
+    nr,
+    parameter: [...OLD_POSITION_PARAMETER],
+    positions: { slots: [...OLD_POSITION_SLOTS], answerLength: OLD_ANSWER_LENGTH },
+  })
+  return id
+}
+
+export function liftLoadRelations(state: Record<string, unknown>): void {
+  const sources = state.dataSources
+  if (!Array.isArray(sources)) return
+  const relations: unknown[] = Array.isArray(state.relation) ? state.relation : []
+  for (const source of sources) {
+    if (!isPlainObject(source)) continue
+    const delivery = source.delivery
+    const load = isPlainObject(source.loadRelation)
+      ? source.loadRelation
+      : isPlainObject(delivery) && delivery.kind === 'relationRows' ? delivery : null
+    if (!load || typeof load.nr !== 'string' || 'relationId' in load) continue
+    const nr = load.nr.trim()
+    // A load the mask could not use before stays unusable; it gets no entry.
+    if (!/^\d+$/.test(nr) || !checkLoadRelation({ ...load, relationId: nr })) continue
+    load.relationId = positionEntryFor(nr, relations)
+    delete load.nr
+  }
+  if (relations.length > 0) state.relation = relations
 }

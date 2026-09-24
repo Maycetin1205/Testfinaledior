@@ -6,6 +6,41 @@ export const RELATION_VERBS: readonly RelationVerb[] = [
 
 export type PlaceholderValues = Readonly<Record<string, string | undefined>>
 
+// What a parameter slot carries when the mask asks for one position of a
+// document; fixed:<value> sends the value as it stands.
+export type SlotRole =
+  | 'documentKind'
+  | 'position'
+  | 'length'
+  | 'documentNumber'
+  | 'year'
+  | 'archive'
+  | 'positionNumber'
+  | 'empty'
+  | `fixed:${string}`
+
+const NAMED_SLOT_ROLES = [
+  'documentKind', 'position', 'length', 'documentNumber', 'year', 'archive', 'positionNumber', 'empty',
+] as const
+
+type NamedSlotRole = (typeof NAMED_SLOT_ROLES)[number]
+
+function isNamedSlotRole(value: string): value is NamedSlotRole {
+  return (NAMED_SLOT_ROLES as readonly string[]).includes(value)
+}
+
+function isSlotRole(value: unknown): value is SlotRole {
+  return typeof value === 'string' && (isNamedSlotRole(value) || value.startsWith('fixed:'))
+}
+
+// A relation that answers one field of one position. The first question asks
+// for the record from position 0 in the full answer length; a field that
+// reaches beyond it costs a question of its own.
+export interface PositionFetch {
+  slots: readonly SlotRole[]
+  answerLength: number
+}
+
 export interface RelationTemplate {
   id: string
 
@@ -17,9 +52,47 @@ export interface RelationTemplate {
   parameter: readonly string[]
 
   extraParameterAllowed?: boolean
+
+  positions?: PositionFetch
 }
 
-export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter'>
+export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter' | 'positions'>
+
+export interface PositionAsk {
+  documentKind: string
+  documentNumber: string
+  year: string
+  archive: string
+  positionNumber: number
+  pos: string
+  len: string
+}
+
+const SLOT_VALUES: Record<NamedSlotRole, (ask: PositionAsk) => string> = {
+  documentKind: (ask) => ask.documentKind,
+  position: (ask) => ask.pos,
+  length: (ask) => ask.len,
+  documentNumber: (ask) => ask.documentNumber,
+  year: (ask) => ask.year,
+  archive: (ask) => ask.archive,
+  positionNumber: (ask) => String(ask.positionNumber),
+  empty: () => '',
+}
+
+export function positionParams(slots: readonly SlotRole[], ask: PositionAsk): string[] {
+  return slots.map((role) => (isNamedSlotRole(role) ? SLOT_VALUES[role](ask) : role.slice('fixed:'.length)))
+}
+
+export function checkPositionFetch(raw: unknown, parameterCount: number): PositionFetch | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const e = raw as Record<string, unknown>
+  if (!Array.isArray(e.slots) || e.slots.length !== parameterCount) return null
+  const slots = e.slots.filter(isSlotRole)
+  if (slots.length !== e.slots.length) return null
+  const answerLength = e.answerLength
+  if (typeof answerLength !== 'number' || !Number.isInteger(answerLength) || answerLength < 1) return null
+  return { slots, answerLength }
+}
 
 export interface RelationAnswer {
   value: string
@@ -153,6 +226,7 @@ export function checkRelationTemplates(raw: unknown): RelationTemplate[] {
     if (typeof e.verb !== 'string' || !RELATION_VERBS.includes(e.verb as RelationVerb)) continue
     if (typeof e.nr !== 'string' || e.nr.trim() === '') continue
     if (!Array.isArray(e.parameter) || e.parameter.some((p) => typeof p !== 'string')) continue
+    const positions = e.verb === 'GET_RELATION' ? checkPositionFetch(e.positions, e.parameter.length) : null
     seen.add(e.id)
     acc.push({
       id: e.id,
@@ -161,6 +235,7 @@ export function checkRelationTemplates(raw: unknown): RelationTemplate[] {
       nr: e.nr,
       parameter: [...(e.parameter as string[])],
       extraParameterAllowed: e.extraParameterAllowed === true,
+      ...(positions ? { positions } : {}),
     })
   }
   return acc

@@ -1,5 +1,6 @@
 import {
   RELATION_VERBS,
+  checkPositionFetch,
   type RelationAnswer,
   type RelationVerb,
   type RuntimeRelation,
@@ -26,7 +27,14 @@ export function relationFromList(list: unknown, id: string): RuntimeRelation | u
     if (typeof entry.verb !== 'string' || !RELATION_VERBS.includes(entry.verb as RelationVerb)) continue
     if (typeof entry.nr !== 'string' || entry.nr === '') continue
     if (!Array.isArray(entry.parameter) || entry.parameter.some((p) => typeof p !== 'string')) continue
-    return { id, verb: entry.verb as RelationVerb, nr: entry.nr, parameter: entry.parameter as string[] }
+    const positions = entry.verb === 'GET_RELATION' ? checkPositionFetch(entry.positions, entry.parameter.length) : null
+    return {
+      id,
+      verb: entry.verb as RelationVerb,
+      nr: entry.nr,
+      parameter: entry.parameter as string[],
+      ...(positions ? { positions } : {}),
+    }
   }
   return undefined
 }

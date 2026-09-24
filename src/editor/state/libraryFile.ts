@@ -2,7 +2,7 @@ import { checkDataSources, type DataSource } from '../../core/data/dataSources'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
-import { liftKey, liftLibraries, liftSourceNames, liftToDescriptors } from './maskSchema'
+import { liftKey, liftLibraries, liftLoadRelations, liftSourceNames, liftToDescriptors } from './maskSchema'
 
 const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
@@ -70,6 +70,7 @@ function liftLibrary(raw: Record<string, unknown>): Record<string, unknown> {
     liftLibraries(o)
     liftSourceNames(o)
   }
+  liftLoadRelations(o)
   liftToDescriptors(o)
   return o
 }

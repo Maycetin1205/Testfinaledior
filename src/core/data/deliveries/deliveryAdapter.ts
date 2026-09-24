@@ -1,5 +1,6 @@
 import type { Parameter } from '../actions'
 import type { DataSource } from '../dataSources'
+import type { RelationTemplate } from '../relations'
 import type { Delivery, DeliveryKind, RuntimeDelivery } from './deliveries'
 import type { RuntimeQuery } from './message'
 import type { RuntimeLoadRelation } from './relationRows'
@@ -15,6 +16,7 @@ export interface ExportContext {
   used: ReadonlySet<string> | undefined
   // The field list SoftEngine is asked for.
   fields: (source: DataSource) => string
+  relations: readonly RelationTemplate[]
 }
 
 // The keys the mask's source list carries for the runtime.

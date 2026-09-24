@@ -213,6 +213,7 @@ export function exportMask(
       ...deliveryAdapter(s.delivery.kind).export(s.delivery, s, {
         used: usedFields.get(s.id),
         fields: (source) => orderedFields(source, usedFields.get(source.id), getKey.get(source.id) ?? [], false),
+        relations: relation,
       }),
     }))) + ';',
   ))
@@ -224,6 +225,7 @@ export function exportMask(
       nr: r.nr,
       parameter: r.parameter,
       extraParameterAllowed: r.extraParameterAllowed === true,
+      ...(r.positions ? { positions: r.positions } : {}),
     }))) + ';',
   ))
 

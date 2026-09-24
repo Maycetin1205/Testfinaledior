@@ -3,9 +3,10 @@ import { POS_LEN } from '../sourceInput'
 import type { DeliveryAdapter } from './deliveryAdapter'
 
 // The Hol-Relation: the mask asks for the positions of the document chosen at
-// the giver, one question per position.
+// the giver, one question per position, with a catalog entry that knows its
+// slots.
 export interface LoadRelation {
-  nr: string
+  relationId: string
 
   documentKindField: string
   documentNumberField: string
@@ -27,16 +28,15 @@ export interface RuntimeRelationRowsDelivery {
   load: RuntimeLoadRelation
 }
 
-const ONLY_DIGITS = /^\d+$/
-
-const LOAD_CUT_LEN = 255
-
-export function fieldsBehindCut(used: ReadonlySet<string> | undefined): string[] {
+export function fieldsBehindCut(
+  used: ReadonlySet<string> | undefined,
+  answerLength: number,
+): string[] {
   const out: string[] = []
   for (const code of used ?? []) {
     const m = /^(\d+)_(\d+)$/.exec(code)
     if (!m) continue
-    if (Number(m[1]) + Number(m[2]) > LOAD_CUT_LEN) out.push(code)
+    if (Number(m[1]) + Number(m[2]) > answerLength) out.push(code)
   }
   return out.sort((a, b) => {
     const [posA = 0, lenA = 0] = a.split('_').map(Number)
@@ -45,15 +45,10 @@ export function fieldsBehindCut(used: ReadonlySet<string> | undefined): string[]
   })
 }
 
-export function relationNrFromInput(raw: string): string {
-  const t = raw.trim()
-  return ONLY_DIGITS.test(t) ? t : ''
-}
-
 export function checkLoadRelation(raw: unknown): LoadRelation | null {
   if (!isSeObject(raw)) return null
   const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
-  const nr = text(raw.nr)
+  const relationId = text(raw.relationId)
   const documentKindField = text(raw.documentKindField)
   const documentNumberField = text(raw.documentNumberField)
   const yearField = text(raw.yearField)
@@ -61,12 +56,12 @@ export function checkLoadRelation(raw: unknown): LoadRelation | null {
   const endFields = Array.isArray(raw.endFields)
     ? raw.endFields.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
     : []
-  if (!ONLY_DIGITS.test(nr)) return null
+  if (relationId === '') return null
   if (!POS_LEN.test(documentKindField) || !POS_LEN.test(documentNumberField)) return null
   if (yearField !== '' && !POS_LEN.test(yearField)) return null
   if (archiveField !== '' && !POS_LEN.test(archiveField)) return null
   if (endFields.length === 0) return null
-  return { nr, documentKindField, documentNumberField, yearField, archiveField, endFields }
+  return { relationId, documentKindField, documentNumberField, yearField, archiveField, endFields }
 }
 
 export const relationRows: DeliveryAdapter<'relationRows'> = {
@@ -77,17 +72,20 @@ export const relationRows: DeliveryAdapter<'relationRows'> = {
   },
   needsTable: false,
   fetchOn: 'selection',
-  export: (delivery, _, context) => ({
-    loadRelation: {
-      nr: delivery.nr,
-      documentKindField: delivery.documentKindField,
-      documentNumberField: delivery.documentNumberField,
-      yearField: delivery.yearField,
-      archiveField: delivery.archiveField,
-      endFields: delivery.endFields,
-      extraFields: fieldsBehindCut(context.used),
-    },
-  }),
+  export(delivery, _, context) {
+    const answerLength = context.relations.find((r) => r.id === delivery.relationId)?.positions?.answerLength
+    return {
+      loadRelation: {
+        relationId: delivery.relationId,
+        documentKindField: delivery.documentKindField,
+        documentNumberField: delivery.documentNumberField,
+        yearField: delivery.yearField,
+        archiveField: delivery.archiveField,
+        endFields: delivery.endFields,
+        extraFields: answerLength === undefined ? [] : fieldsBehindCut(context.used, answerLength),
+      },
+    }
+  },
   readExported(entry) {
     const raw = entry.loadRelation
     const load = checkLoadRelation(raw)
@@ -97,7 +95,7 @@ export const relationRows: DeliveryAdapter<'relationRows'> = {
       : []
     return { kind: 'relationRows', load: { ...load, extraFields } }
   },
-  relationIds: () => [],
+  relationIds: (delivery) => [delivery.relationId],
   bindings: () => [],
   giverFields: (delivery) => [
     delivery.documentKindField, delivery.documentNumberField, delivery.yearField, delivery.archiveField,
