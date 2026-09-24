@@ -17,6 +17,8 @@ export interface GetValue {
   parameter: readonly Parameter[]
 }
 
+export type RuntimeGetValue = GetValue & { fields: readonly string[] }
+
 export function checkGetValue(raw: unknown): GetValue | null {
   if (!raw || typeof raw !== 'object') return null
   const e = raw as Record<string, unknown>

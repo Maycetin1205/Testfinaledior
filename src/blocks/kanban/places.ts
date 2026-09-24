@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit'
-import { fieldRead } from '../../softengine/data'
+import { maskState } from '../../runtime/maskState'
 import { Card } from '../card/Card'
 
 export const COLUMN_TAG = 'ff-kanban-column'
@@ -96,7 +96,7 @@ export interface Placement {
 }
 
 export function placementOf(plan: BoardPlan, row: unknown): Placement {
-  const value = plan.field === '' ? '' : fieldRead(row, plan.field)
+  const value = plan.field === '' ? '' : maskState.host.readField(row, plan.field)
   const slot = slotWithValue(value, plan.values)
   return { column: slot >= 0 ? plan.columns[slot] : fallbackColumn(plan) }
 }

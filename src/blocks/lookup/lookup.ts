@@ -2,8 +2,6 @@ import { html, render } from 'lit'
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import type { ListBinding } from '../../core/block/listBinding'
 import { blockType } from '../../core/block/registry'
-import { fieldRead } from '../../softengine/data'
-import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
 import { rowsToSelection } from '../../runtime/selection'
 import { maskState } from '../../runtime/maskState'
 import {
@@ -54,7 +52,7 @@ export function suggestionsInWindowState<T extends Suggestion & { record: unknow
     : lookupColumns(columns).find((s) => s.key === state.key)
 
   if (column !== undefined && state !== null) {
-    const values = hit.map((e) => [fieldRead(e.record, column.field)])
+    const values = hit.map((e) => [maskState.host.readField(e.record, column.field)])
     return sortIndices(values, 0, state.ascending).slice(0, SUGGESTIONS_MAX).map((i) => hit[i])
   }
   return hit.slice(0, SUGGESTIONS_MAX)
@@ -158,8 +156,8 @@ export function lookupEntries(
   const singleColumn = onlyOneColumn(displayField, storageField)
   const seen = new Set<string>()
   for (const row of rows) {
-    const value = fieldRead(row, storageField).trim()
-    const display = displayCode === '' ? value : fieldRead(row, displayCode).trim()
+    const value = maskState.host.readField(row, storageField).trim()
+    const display = displayCode === '' ? value : maskState.host.readField(row, displayCode).trim()
     if (display === '' && value === '') continue
     if (singleColumn) {
       if (seen.has(value)) continue
@@ -184,9 +182,9 @@ export type EntriesResult =
   | { ok: false }
 
 export function sourcesRows(sourceId: string): unknown[] | null {
-  const source = runtimeSource(sourceId)
+  const source = maskState.host.source(sourceId)
   if (!source) return null
-  return rowsOfSource(source)
+  return maskState.host.rows(source)
 }
 
 export function fetchEntries(e: LookupSetting): EntriesResult {
@@ -245,7 +243,7 @@ function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): 
   table.handedRows = entries.map((e) => ({
     rawRow: e.record,
     cells: own.length > 0
-      ? own.map((s) => (s.field === '' ? '' : fieldRead(e.record, s.field)))
+      ? own.map((s) => (s.field === '' ? '' : maskState.host.readField(e.record, s.field)))
       : (singleColumn ? [e.value] : [e.display, e.value]),
   }))
   return table

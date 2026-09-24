@@ -1,7 +1,7 @@
 import { bindingAttr } from '../../core/block/capability'
-import { recordIndexOf, fieldWrite } from '../../softengine/data'
 import { giverIdOf, clearSelection, setSelection } from '../../runtime/selection'
-import { makeDataLink } from '../../runtime/source'
+import { makeDataLink, recordOf } from '../../runtime/source'
+import { maskState } from '../../runtime/maskState'
 import { readBoundSpot } from '../../runtime/boundSpot'
 import { runEvent } from '../../runtime/events'
 
@@ -43,7 +43,7 @@ function hydrate(el: ValueElement): void {
   }
 
   const { row, source, sourceId, cleanCode, value } = spot
-  const pindex = recordIndexOf(source, row)
+  const pindex = recordOf(source, row)
   if (sourceId === '') data.set(el, { row, code: cleanCode, pindex })
   else data.delete(el)
   el.value = value
@@ -53,7 +53,7 @@ function hydrate(el: ValueElement): void {
 
 function writeLocal(el: ValueElement): Connected | undefined {
   const state = data.get(el)
-  if (state) fieldWrite(state.row, state.code, currentValue(el))
+  if (state) maskState.host.writeField(state.row, state.code, currentValue(el))
   return state
 }
 

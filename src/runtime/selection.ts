@@ -1,6 +1,6 @@
+import { isPropertyEntry } from '../core/block/property'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../core/data/selectionFollow'
-import { fieldRead, isObject } from '../softengine/data'
 import { pairListFromAttribute } from './pairList'
 import { maskState } from './maskState'
 
@@ -10,7 +10,7 @@ export function traitOf(row: unknown): string {
   if (row == null) return ''
   try {
     return JSON.stringify(row, (_key, value: unknown) => {
-      if (!isObject(value) || Array.isArray(value)) return value
+      if (!isPropertyEntry(value)) return value
       return Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]]))
     }) ?? ''
   } catch {
@@ -128,6 +128,7 @@ export function rowsToSelection(
   el: HTMLElement,
   rows: unknown[],
 ): { rows: unknown[]; filtered: boolean } {
+  const host = maskState.host
   let out = rows
   let filtered = false
   for (const follow of followsFromAttribute(el)) {
@@ -135,14 +136,14 @@ export function rowsToSelection(
     if (selection === undefined) continue
 
     const activePairs = follow.pairs
-      .map((p) => ({ expected: fieldRead(selection, p.fromField), toField: p.toField }))
+      .map((p) => ({ expected: host.readField(selection, p.fromField), toField: p.toField }))
       .filter((p) => p.expected !== '')
 
     if (activePairs.length === 0) continue
 
     filtered = true
     out = out.filter((row) =>
-      activePairs.every((p) => p.expected === fieldRead(row, p.toField)),
+      activePairs.every((p) => p.expected === host.readField(row, p.toField)),
     )
   }
   return { rows: out, filtered }

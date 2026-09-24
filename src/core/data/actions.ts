@@ -174,6 +174,19 @@ export type RuntimeStep =
   | Omit<RelationStep, 'id'>
   | RuntimePopupStep
 
+export interface RuntimeValues {
+  context: Readonly<Record<string, string | undefined>>
+  previousResult: string
+
+  stepResults?: readonly string[]
+
+  stepRawResults?: readonly unknown[]
+
+  chosenRow?: (giverId: string) => unknown
+
+  rowsCell?: (blockId: string, columnsIndex: number) => string
+}
+
 function isSeObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }

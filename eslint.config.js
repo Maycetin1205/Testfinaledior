@@ -58,9 +58,9 @@ export default defineConfig([
       }],
     },
   },
-  // Only src/softengine knows the host globals. A block gets its data through
-  // named functions (runtimeSources, commands, relations). What runs in the
-  // mask never pulls in the editor or the export.
+  // Only src/softengine knows the host globals. A block asks the mask host in
+  // src/runtime and never SoftEngine itself. What runs in the mask never pulls
+  // in the editor or the export.
   {
     files: ['src/blocks/**/*.{ts,tsx}'],
     rules: {
@@ -72,9 +72,8 @@ export default defineConfig([
       'no-restricted-imports': ['error', {
         patterns: [
           {
-            group: ['**/softengine/bridge'],
-            importNames: ['hostCall'],
-            message: 'Blocks touch SoftEngine only through the door.',
+            regex: '^(?:(?:\\.\\./)+|@/)softengine(?:/|$)',
+            message: 'Blocks reach SoftEngine only through the mask host.',
           },
           {
             regex: '^(?:(?:\\.\\./)+|@/)(?:editor|export)(?:/|$)',
@@ -85,16 +84,34 @@ export default defineConfig([
     },
   },
   // The runtime of the mask knows blocks only through the registry and their
-  // elements, and SoftEngine only through the door.
+  // elements, and SoftEngine only through the one host that fills the door.
   {
     files: ['src/runtime/**/*.{ts,tsx}'],
+    ignores: ['src/runtime/softEngineHost.ts'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [
+          {
+            regex: '^(?:(?:\\.\\./)+|@/)softengine(?:/|$)',
+            message: 'The runtime reaches SoftEngine only through softEngineHost.',
+          },
+          {
+            regex: '^(?:(?:\\.\\./)+|@/)(?:blocks|editor|export)(?:/|$)',
+            message: 'src/runtime must not import a block, the editor or the export.',
+          },
+        ],
+      }],
+    },
+  },
+  {
+    files: ['src/runtime/softEngineHost.ts'],
     rules: {
       'no-restricted-imports': ['error', {
         patterns: [
           {
             group: ['**/softengine/bridge'],
             importNames: ['hostCall'],
-            message: 'The runtime touches SoftEngine only through the door.',
+            message: 'The host passes on what src/softengine offers, it calls no host function itself.',
           },
           {
             regex: '^(?:(?:\\.\\./)+|@/)(?:blocks|editor|export)(?:/|$)',

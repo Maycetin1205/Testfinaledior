@@ -11,7 +11,7 @@ import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
 import type { KeyPair } from '../../core/data/extraSources'
 import { extraSourcesOf } from '../../runtime/foreignSources'
-import { fieldRead } from '../../softengine/data'
+import { maskState } from '../../runtime/maskState'
 
 export interface CapturePlacement {
   columns: readonly Column[]
@@ -210,6 +210,6 @@ export function fittingRecords(
     .filter((b): b is { toField: string; expected: string } => b.expected !== undefined)
   if (known.length === 0) return [...candidates]
   return candidates.filter((record) => known.every(
-    (b) => b.expected !== '' && b.expected === fieldRead(record, b.toField),
+    (b) => b.expected !== '' && b.expected === maskState.host.readField(record, b.toField),
   ))
 }

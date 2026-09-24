@@ -5,11 +5,6 @@ import { allBlockTypes } from '../core/block/registry'
 import { propertyVisible } from '../core/block/property'
 import { SOURCE_PROP } from '../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
-import { fetchQuerySource } from '../softengine/queryLoader'
-import { hasSeData, onSeData } from '../softengine/bridge'
-import { runtimeSources } from '../softengine/runtimeSources'
-import { loadRowsPerRelation } from '../softengine/relationLoader'
-import { fetchValueSource } from '../softengine/valueLoader'
 import {
   onSelectionList,
   selectionFor,
@@ -82,27 +77,30 @@ function mayLoad(sourceId: string, print: string, byControls: boolean): boolean 
 
 function checkFetchingSources(byControls: boolean): void {
   const defsPerTag = defsWithRecordChoice()
-  for (const source of runtimeSources()) {
+  const host = maskState.host
+  for (const source of host.sources()) {
     if (!source.loadRelation) continue
     const { row, giver } = chosenRowOfSource(source.id, defsPerTag)
 
     if (!giver) continue
     if (!mayLoad(source.id, traitOf(row), byControls)) continue
-    loadRowsPerRelation(source, source.loadRelation, row)
+    host.loadRowsPerRelation(source, source.loadRelation, row)
   }
 }
 
 function fetchValueSources(): void {
-  for (const source of runtimeSources()) {
+  const host = maskState.host
+  for (const source of host.sources()) {
     if (!source.getValue) continue
-    fetchValueSource(source, source.getValue)
+    host.fetchValueSource(source, source.getValue)
   }
 }
 
 function fetchQuerySources(): void {
-  for (const source of runtimeSources()) {
+  const host = maskState.host
+  for (const source of host.sources()) {
     if (!source.query) continue
-    fetchQuerySource(source, source.query)
+    host.fetchQuerySource(source, source.query)
   }
 }
 
@@ -111,13 +109,13 @@ export function wireFetchingSources(): void {
   maskState.fetchingSources.wired = true
   onSelectionList(checkFetchingSources)
 
-  onSeData((delivery) => {
+  maskState.host.onData((delivery) => {
     if (!delivery) return
     fetchValueSources()
     fetchQuerySources()
   })
 
-  if (hasSeData()) {
+  if (maskState.host.hasData()) {
     fetchValueSources()
     fetchQuerySources()
   }

@@ -1,8 +1,7 @@
 import { fieldProperty, type Property } from '../core/block/property'
 import { SOURCE_PROP } from '../core/block/sourceProperty'
-import { fieldRead, type RuntimeSource } from '../softengine/data'
-import { startSe, hasSeData, onSeData } from '../softengine/bridge'
-import { runtimeSource, rowsOfSource } from '../softengine/runtimeSources'
+import type { RuntimeSource } from '../core/data/dataSources'
+import { maskState } from './maskState'
 import { onSelectionList } from './selection'
 import { makeFieldReader, type FieldReader } from './foreignSources'
 import { onChosenDay, chosenDay, dayKey } from './chosenDay'
@@ -15,6 +14,11 @@ const DAY_FIELD_ATTR = DAY_FIELD_PROP.toLowerCase()
 
 export function sourceIdOf(el: Element): string {
   return el.getAttribute(SOURCE_ATTR) ?? ''
+}
+
+// The record number the host knows a row by; empty when the source names none.
+export function recordOf(source: RuntimeSource, row: unknown): string {
+  return source.recordField === '' ? '' : maskState.host.readField(row, source.recordField)
 }
 
 export function dayFieldProperty(): Property<string> {
@@ -31,7 +35,7 @@ function rowsAtDay(
   day: string,
 ): unknown[] {
   if (dayCode === '' || day === '') return [...rows]
-  return rows.filter((row) => dayKey(fieldRead(row, dayCode)) === day)
+  return rows.filter((row) => dayKey(maskState.host.readField(row, dayCode)) === day)
 }
 
 export interface DataPreamble {
@@ -45,10 +49,10 @@ export interface DataPreamble {
 export function readDataPreamble(el: HTMLElement): DataPreamble | null {
   const sourceId = sourceIdOf(el)
   if (sourceId === '') return null
-  const source = runtimeSource(sourceId)
+  const source = maskState.host.source(sourceId)
   if (!source) return null
   const rows = rowsAtDay(
-    rowsOfSource(source),
+    maskState.host.rows(source),
     el.getAttribute(DAY_FIELD_ATTR) ?? '',
     chosenDay(),
   )
@@ -70,7 +74,7 @@ export function makeDataLink<T extends HTMLElement>(opts: {
   let registered = false
 
   const hydrateAll = (delivery: boolean): void => {
-    if (!hasSeData()) return
+    if (!maskState.host.hasData()) return
     elements.forEach((el) => { opts.hydrate(el, delivery) })
   }
 
@@ -81,7 +85,7 @@ export function makeDataLink<T extends HTMLElement>(opts: {
 
     if (!registered) {
       registered = true
-      onSeData(hydrateAll)
+      maskState.host.onData(hydrateAll)
 
       onChosenDay(() => { hydrateAll(false) })
 
@@ -89,9 +93,9 @@ export function makeDataLink<T extends HTMLElement>(opts: {
 
       wireFetchingSources()
     }
-    startSe()
+    maskState.host.start()
 
-    if (hasSeData()) opts.hydrate(el, false)
+    if (maskState.host.hasData()) opts.hydrate(el, false)
   }
 
   const disconnect = (el: T): void => {

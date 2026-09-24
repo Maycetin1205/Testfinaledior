@@ -1,5 +1,6 @@
+import type { RuntimeSource } from '../core/data/dataSources'
 import { seWindow } from './bridge'
-import { sourceFromList, isObject, rowsFromDelivery, type RuntimeSource } from './data'
+import { sourceFromList, isObject, rowsFromDelivery } from './data'
 
 export function runtimeSource(id: string): RuntimeSource | undefined {
   return sourceFromList(seWindow().FF_DATA_SOURCES, id)

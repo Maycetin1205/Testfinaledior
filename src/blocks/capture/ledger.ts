@@ -19,7 +19,7 @@ import {
 import { asNumber } from '../list/sorting'
 import { rowsIndexOf } from '../list/sourceRows'
 import { SuggestionState, type KeyAction } from '../lookup/suggestionState'
-import { fieldRead } from '../../softengine/data'
+import { maskState } from '../../runtime/maskState'
 import {
   arrivalCheck,
   changeArrived,
@@ -243,7 +243,7 @@ export class CaptureLedger {
     const target = targetIn(context, index)
     if (target.sourceId === '' || target.code === '') return ''
     const record = this.chosen.get(target.sourceId)
-    return record === undefined ? '' : fieldRead(record, target.code)
+    return record === undefined ? '' : maskState.host.readField(record, target.code)
   }
 
   type(index: number, text: string): void {
@@ -437,7 +437,7 @@ export class CaptureLedger {
       if (record === undefined) {
         return sourcesRows(id) === null ? { kind: 'notLoaded' } : { kind: 'withoutRecord' }
       }
-      return textState(fieldRead(record, code))
+      return textState(maskState.host.readField(record, code))
     }
     const slot = columnWithKey(context.columns, factor.column)
     if (slot === -1) return { kind: 'empty' }
@@ -449,7 +449,7 @@ export class CaptureLedger {
     if (target.sourceId === '' || target.code === '') return { kind: 'empty' }
     const record = this.chosen.get(target.sourceId)
     if (record === undefined) return { kind: 'empty' }
-    return textState(fieldRead(record, target.code))
+    return textState(maskState.host.readField(record, target.code))
   }
 
   private choose(context: CaptureContext, sourceId: string, record: unknown): void {
@@ -472,10 +472,10 @@ export class CaptureLedger {
   ): string | undefined {
     if (partnerId !== '' && partnerId !== context.sourceId) {
       const record = this.chosen.get(partnerId)
-      return record === undefined ? undefined : fieldRead(record, field)
+      return record === undefined ? undefined : maskState.host.readField(record, field)
     }
     const base = this.chosen.get(context.sourceId)
-    if (base !== undefined) return fieldRead(base, field)
+    if (base !== undefined) return maskState.host.readField(base, field)
     for (const sourceId of linkedSourcesIn(context)) {
       if (sourceId === except || !this.byHand.has(sourceId)) continue
 
@@ -485,7 +485,7 @@ export class CaptureLedger {
       if (record === undefined) continue
       for (const pair of context.pairsTo(sourceId)) {
         if (pair.fromField !== field) continue
-        const value = fieldRead(record, pair.toField)
+        const value = maskState.host.readField(record, pair.toField)
         if (value !== '') return value
       }
     }
@@ -513,7 +513,7 @@ export class CaptureLedger {
         if (record !== undefined) {
           const fits = pairs.every((p) => {
             const expected = this.keyValue(context, partnerId, p.fromField, sourceId)
-            return expected === undefined || (expected !== '' && expected === fieldRead(record, p.toField))
+            return expected === undefined || (expected !== '' && expected === maskState.host.readField(record, p.toField))
           })
           if (!fits) {
             this.choose(context, sourceId, undefined)

@@ -1,6 +1,12 @@
 import { SOURCES_DIVIDER, splitBinding } from '../block/blockType'
-import { getValueOf, checkGetValue, type GetValue } from './getValue'
-import { loadRelationOf, POS_LEN, checkLoadRelation, type LoadRelation } from './fetchRelation'
+import { getValueOf, checkGetValue, type GetValue, type RuntimeGetValue } from './getValue'
+import {
+  loadRelationOf,
+  POS_LEN,
+  checkLoadRelation,
+  type LoadRelation,
+  type RuntimeLoadRelation,
+} from './fetchRelation'
 import {
   sourceKind,
   SOURCE_KIND_IDS,
@@ -65,6 +71,24 @@ export interface DataSource {
   area?: string
 
   fields: readonly DataField[]
+}
+
+export interface RuntimeQuery {
+  id: string
+  fields: string
+}
+
+// A data source the way the exported mask hands it to its runtime.
+export interface RuntimeSource {
+  id: string
+  name: string
+  tableId: string
+  recordField: string
+
+  openRecord: boolean
+  loadRelation?: RuntimeLoadRelation
+  getValue?: RuntimeGetValue
+  query?: RuntimeQuery
 }
 
 export function areaOf(source: DataSource): string {

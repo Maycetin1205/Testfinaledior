@@ -1,8 +1,7 @@
 import { bindingAttr, capability } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
-import { recordIndexOf } from '../../softengine/data'
 import { chooseSelection, giverIdOf, relocateSelection, traitOf } from '../../runtime/selection'
-import { readDataPreamble, makeDataLink } from '../../runtime/source'
+import { readDataPreamble, makeDataLink, recordOf } from '../../runtime/source'
 import { runEvent } from '../../runtime/events'
 import {
   CARD_TYPE,
@@ -75,12 +74,12 @@ class Board {
     const recordCount = new Map<string, number>()
 
     for (const row of preamble.rows) {
-      const record = recordIndexOf(preamble.source, row)
+      const record = recordOf(preamble.source, row)
       if (record !== '') recordCount.set(record, (recordCount.get(record) ?? 0) + 1)
     }
 
     for (const row of preamble.rows) {
-      const record = recordIndexOf(preamble.source, row)
+      const record = recordOf(preamble.source, row)
       const unique = record !== '' && recordCount.get(record) === 1
       const base = JSON.stringify([
         preamble.source.id,

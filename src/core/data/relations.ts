@@ -19,6 +19,16 @@ export interface RelationTemplate {
   extraParameterAllowed?: boolean
 }
 
+export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter'>
+
+export interface RelationAnswer {
+  value: string
+
+  raw: unknown
+
+  failed?: boolean
+}
+
 export type RelationSyntax = Pick<
   RelationTemplate,
   'verb' | 'nr' | 'parameter' | 'extraParameterAllowed'

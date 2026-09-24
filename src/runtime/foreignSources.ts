@@ -1,7 +1,6 @@
-import { fieldRead } from '../softengine/data'
-import { runtimeSource, rowsOfSource } from '../softengine/runtimeSources'
 import { EXTRA_SOURCES_PROP, type KeyPair } from '../core/data/extraSources'
 import { splitBinding } from '../core/block/blockType'
+import { maskState } from './maskState'
 import { pairListFromAttribute } from './pairList'
 
 const EXTRA_SOURCES_ATTR = EXTRA_SOURCES_PROP.toLowerCase()
@@ -37,19 +36,20 @@ export function extraSourcesOf(
 }
 
 export function makeFieldReader(el: HTMLElement): FieldReader {
+  const host = maskState.host
   const extra = extraSourcesOf(el)
-  if (extra.length === 0) return (row, value) => fieldRead(row, splitBinding(value).code)
+  if (extra.length === 0) return (row, value) => host.readField(row, splitBinding(value).code)
 
   const lookup = new Map<string, Lookup>()
 
   for (const q of extra) {
     if (q.pairs.length === 0) continue
-    const source = runtimeSource(q.sourceId)
+    const source = host.source(q.sourceId)
     if (!source) continue
-    const rows = rowsOfSource(source)
+    const rows = host.rows(source)
     const toKey = new Map<string, unknown>()
     for (const row of rows) {
-      const key = keyFrom(q.pairs.map((p) => fieldRead(row, p.toField)))
+      const key = keyFrom(q.pairs.map((p) => host.readField(row, p.toField)))
       if (key !== '' && !toKey.has(key)) toKey.set(key, row)
     }
     lookup.set(q.sourceId, {
@@ -67,14 +67,14 @@ export function makeFieldReader(el: HTMLElement): FieldReader {
     const partner = recordOf(entry.partnerId, row, running)
     running.delete(sourceId)
     if (partner === undefined) return undefined
-    const key = keyFrom(entry.hereFields.map((f) => fieldRead(partner, f)))
+    const key = keyFrom(entry.hereFields.map((f) => host.readField(partner, f)))
     return key === '' ? undefined : entry.toKey.get(key)
   }
 
   return (row, value) => {
     const { sourceId, code } = splitBinding(value)
-    if (sourceId === '') return fieldRead(row, code)
+    if (sourceId === '') return host.readField(row, code)
     const record = recordOf(sourceId, row, new Set())
-    return record === undefined ? '' : fieldRead(record, code)
+    return record === undefined ? '' : host.readField(record, code)
   }
 }

@@ -1,6 +1,11 @@
+import type { MaskHost } from './maskHost'
+import { softEngineHost } from './softEngineHost'
+
 // What the running mask holds besides its elements. A page carries one document
 // with one mask, so there is exactly one of it.
 export interface MaskState {
+  // Whom the blocks ask for data and send their actions to.
+  host: MaskHost
   selection: {
     chosen: Map<string, { row: unknown; trait: string; number: number }>
     listeners: Set<(byControls: boolean) => void>
@@ -27,6 +32,7 @@ export interface MaskState {
 }
 
 export const maskState: MaskState = {
+  host: softEngineHost,
   selection: {
     chosen: new Map(),
     listeners: new Set(),

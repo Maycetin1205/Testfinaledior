@@ -1,5 +1,5 @@
+import type { RuntimeGetValue } from '../core/data/getValue'
 import { reportTrigger, seWindow } from './bridge'
-import type { RuntimeGetValue } from './data'
 import { setFetchedRows } from './fetchedRows'
 import {
   relationRun,

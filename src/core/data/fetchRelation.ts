@@ -12,6 +12,8 @@ export interface LoadRelation {
   endFields: readonly string[]
 }
 
+export type RuntimeLoadRelation = LoadRelation & { extraFields: readonly string[] }
+
 export const POS_LEN = /^\d+_\d+$/
 const ONLY_DIGITS = /^\d+$/
 

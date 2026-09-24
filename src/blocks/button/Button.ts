@@ -4,7 +4,7 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import { sectionsOf, chainsRead } from '../../core/data/actions'
 import { runEvent, searchCarrier } from '../../runtime/events'
 import { PENDING_EVENT, pendingRows } from '../../runtime/pendingState'
-import { startSe } from '../../softengine/bridge'
+import { maskState } from '../../runtime/maskState'
 import { buttonStyle } from './buttonStyle'
 import { buttonProperties, type ButtonValues } from './properties'
 
@@ -69,7 +69,7 @@ export class Button extends BlockElement {
     this.wired = true
     const chains = chainsRead(this.getAttribute(CHAINS_ATTR))
 
-    if (Object.values(chains).some((chain) => chain.some((s) => s.kind === 'RELATION'))) startSe()
+    if (Object.values(chains).some((chain) => chain.some((s) => s.kind === 'RELATION'))) maskState.host.start()
     this.addEventListener('click', () => {
       runEvent(this, CLICK, {}).catch(() => {})
     })

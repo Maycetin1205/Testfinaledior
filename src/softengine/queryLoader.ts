@@ -1,5 +1,5 @@
+import type { RuntimeQuery } from '../core/data/dataSources'
 import { reportTrigger } from './bridge'
-import type { RuntimeQuery } from './data'
 import { setFetchedRows } from './fetchedRows'
 import { queryRun } from './relations'
 

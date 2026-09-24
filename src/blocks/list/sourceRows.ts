@@ -1,9 +1,14 @@
 import { hasCapability, contractOf } from '../../core/block/capability'
 import { blockTypeForTag } from '../../core/block/registry'
-import { recordIndexOf } from '../../softengine/data'
-import { runtimeSource } from '../../softengine/runtimeSources'
+import { maskState } from '../../runtime/maskState'
 import { relocateSelection, giverIdOf, traitOf, rowsToSelection } from '../../runtime/selection'
-import { readDataPreamble, makeDataLink, sourceIdOf, type DataPreamble } from '../../runtime/source'
+import {
+  readDataPreamble,
+  makeDataLink,
+  recordOf,
+  sourceIdOf,
+  type DataPreamble,
+} from '../../runtime/source'
 import { addRow, type Calculation } from '../../core/data/calculation'
 import { asNumber } from './sorting'
 import { columnWithKey, type Column } from './columns'
@@ -44,7 +49,7 @@ function checkArrival(el: HTMLElement, preamble: DataPreamble | null): void {
   if (!hasCapability(blockTypeForTag(el.tagName), 'holdsSent')) return
   contractOf(el, 'holdsSent').checkArrival(preamble === null ? null : {
     rows: preamble.rows,
-    recordOf: (row) => recordIndexOf(preamble.source, row),
+    recordOf: (row) => recordOf(preamble.source, row),
     read: preamble.read,
   })
 }
@@ -67,8 +72,8 @@ function rowComputed(
 }
 
 export function rowsIndexOf(el: HTMLElement, rawRow: unknown): string {
-  const source = runtimeSource(sourceIdOf(el))
-  return source ? recordIndexOf(source, rawRow) : ''
+  const source = maskState.host.source(sourceIdOf(el))
+  return source ? recordOf(source, rawRow) : ''
 }
 
 export function rowsTraitOf(el: HTMLElement, rawRow: unknown): string {
@@ -78,7 +83,7 @@ export function rowsTraitOf(el: HTMLElement, rawRow: unknown): string {
 }
 
 export function hasRecordNumber(el: HTMLElement): boolean {
-  const source = runtimeSource(sourceIdOf(el))
+  const source = maskState.host.source(sourceIdOf(el))
   return source !== undefined && source.recordField !== ''
 }
 

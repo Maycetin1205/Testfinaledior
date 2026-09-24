@@ -1,9 +1,11 @@
 import {
   RELATION_VERBS,
-  type RelationTemplate,
+  type RelationAnswer,
   type RelationVerb,
+  type RuntimeRelation,
 } from '../core/data/relations'
-import { BLOCK_ID_ATTR, type Parameter } from '../core/data/actions'
+import { BLOCK_ID_ATTR, type Parameter, type RuntimeValues } from '../core/data/actions'
+import type { RuntimeQuery } from '../core/data/dataSources'
 import { startSe, onSeAnswer, seWindow } from './bridge'
 import {
   sourceFromList,
@@ -11,18 +13,7 @@ import {
   isObject,
   rowsFromQueryAnswer,
   rowsFromDelivery,
-  type RuntimeQuery,
 } from './data'
-
-export interface RelationAnswer {
-  value: string
-
-  raw: unknown
-
-  failed?: boolean
-}
-
-export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter'>
 
 export function runtimeRelation(id: string): RuntimeRelation | undefined {
   return relationFromList(seWindow().FF_RELATIONS, id)
@@ -386,19 +377,6 @@ export function queryRun(query: RuntimeQuery, name: string): Promise<QueryAnswer
     hostCalls.queue.push({ query, name, resolve })
     nextCall()
   })
-}
-
-export interface RuntimeValues {
-  context: Readonly<Record<string, string | undefined>>
-  previousResult: string
-
-  stepResults?: readonly string[]
-
-  stepRawResults?: readonly unknown[]
-
-  chosenRow?: (giverId: string) => unknown
-
-  rowsCell?: (blockId: string, columnsIndex: number) => string
 }
 
 function resolveBlockValue(binding: Parameter, runtime: unknown): string {

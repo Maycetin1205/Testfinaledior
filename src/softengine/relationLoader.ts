@@ -1,7 +1,9 @@
+import type { RuntimeLoadRelation } from '../core/data/fetchRelation'
+import type { RelationAnswer } from '../core/data/relations'
 import { reportTrigger } from './bridge'
-import { fieldRead, type RuntimeLoadRelation } from './data'
+import { fieldRead } from './data'
 import { fetchedRowsFor, setFetchedRows } from './fetchedRows'
-import { relationRun, type RelationAnswer } from './relations'
+import { relationRun } from './relations'
 
 const MAX_POSITIONS = 999
 

@@ -13,15 +13,13 @@ import {
   contractOf,
 } from '../core/block/capability'
 import { selectionFor } from './selection'
+import { maskState } from './maskState'
 import { blockTypeForTag, blockType } from '../core/block/registry'
 import {
   todayAsText,
   placeholderInsert,
   type PlaceholderValues,
 } from '../core/data/relations'
-import { sendBwLink, sendStartTool } from '../softengine/commands'
-import { freshDataRequest } from '../softengine/bridge'
-import { relationRun, runtimeRelation, parameterResolve } from '../softengine/relations'
 
 function applyPopupStep(root: ParentNode, name: string, open: boolean): void {
   if (name.trim() === '') return
@@ -125,6 +123,7 @@ async function runSteps(
 
   start?: Transcript,
 ): Promise<RunResult> {
+  const host = maskState.host
   let written = false
   const values: Record<string, string | undefined> = {
     ...start?.values,
@@ -142,21 +141,21 @@ async function runSteps(
   for (const [slot, step] of steps.entries()) {
     if (only && !only.has(slot)) continue
     if (step.kind === 'START_TOOL') {
-      if (!sendStartTool(step.toolNumber, placeholderInsert({ parameter: step.toolParameter }, values))) {
+      if (!host.sendStartTool(step.toolNumber, placeholderInsert({ parameter: step.toolParameter }, values))) {
         return { written, failed: true, transcript: transcript() }
       }
       continue
     }
     if (step.kind === 'BW_LINK') {
       const command = placeholderInsert({ parameter: [step.command] }, values)[0] ?? ''
-      if (!sendBwLink(command)) return { written, failed: true, transcript: transcript() }
+      if (!host.sendBwLink(command)) return { written, failed: true, transcript: transcript() }
       continue
     }
     if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') {
       applyPopupStep(el.ownerDocument ?? document, step.popup ?? '', step.kind === 'POPUP_OPEN')
       continue
     }
-    const relation = runtimeRelation(step.relationId)
+    const relation = host.relation(step.relationId)
 
     if (!relation) return { written, failed: true, transcript: transcript() }
 
@@ -175,8 +174,8 @@ async function runSteps(
       chosenRow: selectionFor,
       ...(rowsCell ? { rowsCell } : {}),
     }
-    const params = bindings.map((binding) => parameterResolve(binding, runtimeValues))
-    const answer = await relationRun(relation, params)
+    const params = bindings.map((binding) => host.resolveParameter(binding, runtimeValues))
+    const answer = await host.runRelation(relation, params)
     const result = answer.value
     stepResults[slot] = result
     rawResults[slot] = answer.raw
@@ -270,7 +269,7 @@ export async function runEvent(
 
     for (const { carrier, kind, finished } of reports) reportOn(carrier, kind).runDone(kind, finished)
 
-    if (written) freshDataRequest()
+    if (written) maskState.host.requestFreshData()
     return { ran: true, written, cancelled, busy: false }
   } finally {
     locks.delete(eventKey)

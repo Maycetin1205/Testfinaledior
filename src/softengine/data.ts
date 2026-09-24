@@ -1,32 +1,12 @@
-import { checkGetValue, type GetValue } from '../core/data/getValue'
-import { POS_LEN, checkLoadRelation, type LoadRelation } from '../core/data/fetchRelation'
+import type { RuntimeSource } from '../core/data/dataSources'
+import { checkGetValue, type RuntimeGetValue } from '../core/data/getValue'
+import { POS_LEN, checkLoadRelation, type RuntimeLoadRelation } from '../core/data/fetchRelation'
 import { fetchedRowsFor } from './fetchedRows'
 
 export type JsonObject = Record<string, unknown>
 
 export function isObject(v: unknown): v is JsonObject {
   return typeof v === 'object' && v !== null
-}
-
-export type RuntimeLoadRelation = LoadRelation & { extraFields: readonly string[] }
-
-export type RuntimeGetValue = GetValue & { fields: readonly string[] }
-
-export interface RuntimeQuery {
-  id: string
-  fields: string
-}
-
-export interface RuntimeSource {
-  id: string
-  name: string
-  tableId: string
-  recordField: string
-
-  openRecord: boolean
-  loadRelation?: RuntimeLoadRelation
-  getValue?: RuntimeGetValue
-  query?: RuntimeQuery
 }
 
 export function sourceFromList(list: unknown, id: string): RuntimeSource | undefined {
@@ -137,10 +117,6 @@ export function fieldRead(row: unknown, code: string): string {
   const len = Number(m[2])
   if (len <= 0) return ''
   return raw.substring(pos, pos + len).trim()
-}
-
-export function recordIndexOf(source: { recordField: string }, row: unknown): string {
-  return source.recordField === '' ? '' : fieldRead(row, source.recordField)
 }
 
 export function fieldWrite(row: unknown, code: string, value: string): boolean {
