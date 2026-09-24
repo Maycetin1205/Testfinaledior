@@ -3,16 +3,14 @@ import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
 import { Badge } from '@/editor/widgets/Badge'
 import { valueSpotsInTree, selectionGiverInTree } from '../../core/block/treeQuery'
-import { resultStepsBefore, type Step } from '../../core/data/actions'
-import { stepProblem } from '../../core/data/stepCheck'
-import { stepName } from './wording'
+import { anchorStepId, resultStepsBefore, stepProblem } from '../../core/data/steps/chains'
+import { stepAdapter, type Step } from '../../core/data/steps/steps'
+import { deepClone } from '../../core/deepClone'
 import { isWindowPage } from '../../core/block/pages'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
 import { VERB_SHORT } from './parameterText'
-import { isUnnamedTemplate } from './relationLabel'
-import { anchorStepId, stepSummary } from './stepSummary'
 
 interface StepListProps {
   steps: readonly Step[]
@@ -61,17 +59,7 @@ export function StepList({
 
   const duplicate = (at: number): void => {
     if (!onChange) return
-    const source = steps[at]
-    const copy: Step = source.kind === 'START_TOOL'
-      ? { ...source, toolParameter: [...source.toolParameter], id: crypto.randomUUID() }
-      : source.kind === 'RELATION'
-        ? {
-            ...source,
-            parameter: source.parameter.map((binding) => ({ ...binding })),
-            extraParameter: source.extraParameter.map((binding) => ({ ...binding })),
-            id: crypto.randomUUID(),
-          }
-        : { ...source, id: crypto.randomUUID() }
+    const copy: Step = { ...deepClone(steps[at]), id: crypto.randomUUID() }
     const next = [...steps]
     next.splice(at + 1, 0, copy)
     onChange(next)
@@ -80,25 +68,23 @@ export function StepList({
   return (
     <ol>
       {steps.map((s, i) => {
-        const problem = stepProblem(
-          s, relation.list, dataSources.list, popupPages.map((page) => page.id),
-          resultStepsBefore(steps, s.id, relation.list).map((g) => g.id),
-          actionValueRefs,
-          giverIds,
-          steps.slice(0, i),
-        )
-        const stepRelation = s.kind === 'RELATION' ? relation.get(s.relationId) : undefined
-        const popupName = s.kind === 'POPUP_OPEN' || s.kind === 'POPUP_CLOSE'
-          ? popupPages.find((page) => page.id === s.popupId)?.name
-          : undefined
-
-        const what = s.kind === 'RELATION' && stepRelation && !isUnnamedTemplate(stepRelation)
-          ? stepRelation.name
-          : stepName(s.kind)
-        const summary = stepSummary(
-          s, what, stepRelation, ed.tree, dataSources.list,
-          (id) => steps.findIndex((x) => x.id === id) + 1,
-        )
+        const problem = stepProblem(s, {
+          relations: relation.list,
+          dataSources: dataSources.list,
+          popupIds: popupPages.map((page) => page.id),
+          resultIds: resultStepsBefore(steps, s.id, relation.list).map((g) => g.id),
+          actionValues: actionValueRefs,
+          selectionGiverIds: giverIds,
+          before: steps.slice(0, i),
+        })
+        const summary = stepAdapter(s.kind).summary(s, {
+          relations: relation.list,
+          tree: ed.tree,
+          sources: dataSources.list,
+          popupName: (id) => popupPages.find((page) => page.id === id)?.name,
+          stepNumber: (id) => steps.findIndex((x) => x.id === id) + 1,
+        })
+        const stepRelation = summary.relation
 
         const closer = [summary.target !== '' ? summary.target : summary.table, summary.origin]
           .filter((t) => t !== '')
@@ -132,9 +118,7 @@ export function StepList({
               >
                 <span className="block w-full truncate text-dense">
                   {summary.what}
-                  {s.kind === 'START_TOOL' && s.toolNumber.trim() !== '' ? ` — Nr. ${s.toolNumber}` : ''}
-                  {s.kind === 'BW_LINK' && s.command.trim() !== '' ? ` — ${s.command}` : ''}
-                  {popupName ? ` — ${popupName}` : ''}
+                  {summary.detail}
                 </span>
                 {closer !== '' && (
                   <span className="block w-full truncate text-dense text-muted">

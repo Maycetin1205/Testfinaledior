@@ -1,12 +1,11 @@
-import type { Parameter, RuntimeValues } from '../core/data/actions'
 import type { RuntimeQuery, RuntimeSource } from '../core/data/dataSources'
 import type { RuntimeLoadRelation } from '../core/data/fetchRelation'
 import type { RuntimeGetValue } from '../core/data/getValue'
-import type { RelationAnswer, RuntimeRelation } from '../core/data/relations'
+import type { StepHost } from '../core/data/steps/stepAdapter'
 
 // Everything a mask asks of the world outside it. softEngineHost answers in the
 // mask, previewHost in the editor, where the same blocks have nothing to show.
-export interface MaskHost {
+export interface MaskHost extends StepHost {
   start(): void
   hasData(): boolean
   // Delivery is true when the host brought new data, false when it only asks
@@ -19,11 +18,6 @@ export interface MaskHost {
   readField(row: unknown, code: string): string
   writeField(row: unknown, code: string, value: string): boolean
 
-  relation(id: string): RuntimeRelation | undefined
-  resolveParameter(binding: Parameter, values: RuntimeValues): string
-  runRelation(relation: RuntimeRelation, params: readonly string[]): Promise<RelationAnswer>
-  sendStartTool(toolNumber: string, params: readonly string[]): boolean
-  sendBwLink(command: string): boolean
   // After a write: the host delivers the data again.
   requestFreshData(): void
 

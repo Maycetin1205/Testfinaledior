@@ -49,6 +49,25 @@ export function fieldCodeSplit(code: string): { pos: string; len: string } | nul
   return m ? { pos: m[1], len: m[2] } : null
 }
 
+export type ParameterRole = 'pos' | 'len' | 'relid'
+
+// What a parameter of the syntax stands for, read from its name.
+export function parameterRole(raw: string): ParameterRole | null {
+  const match = /^(?:([A-Za-z_]+)|\{([A-Za-z_]+)\})$/.exec(raw)
+  const name = (match?.[1] ?? match?.[2])?.toUpperCase()
+  if (name === 'POS' || name === 'FELD_POS') return 'pos'
+  if (name === 'LEN' || name === 'FELD_LEN') return 'len'
+  if (name === 'IDBID' || name === 'RELID') return 'relid'
+  return null
+}
+
+export function isUnnamedTemplate(entry: RelationTemplate): boolean {
+  const name = entry.name.trim()
+  return name === ''
+    || name === relationSyntaxAsText(entry)
+    || name.startsWith(`${entry.verb}[`)
+}
+
 export function relationSyntaxRead(input: string): RelationSyntax | null {
   const raw = input.trim()
   const head = /^(GET_RELATION|PUTADD_RELATION|PUT_RELATION)\[/i.exec(raw)

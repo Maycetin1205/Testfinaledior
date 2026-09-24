@@ -4,15 +4,10 @@ import { Field } from '@/editor/widgets/Field'
 import { Group } from '@/editor/widgets/Group'
 import { Button } from '@/editor/widgets/Button'
 import { Row } from '@/editor/widgets/Row'
-import {
-  STEP_KINDS,
-  relationParameterDefault,
-  resultStepsBefore,
-  stepsBefore,
-  type Step,
-  type StepKind,
-} from '../../core/data/actions'
-import { stepProblem } from '../../core/data/stepCheck'
+import { relationParameterDefault } from '../../core/data/actions'
+import { resultStepsBefore, stepProblem, stepsBefore } from '../../core/data/steps/chains'
+import { relationBinding } from '../../core/data/steps/relation'
+import { STEP_KINDS, stepAdapter, type Step, type StepKind } from '../../core/data/steps/steps'
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import {
@@ -22,14 +17,9 @@ import {
   captureCarrierInTree,
   deleteCarrierInTree,
 } from '../../core/block/treeQuery'
-import { relationFitsToSearch } from '../../core/data/relations'
-import { stepName } from './wording'
+import { parameterRole, relationFitsToSearch } from '../../core/data/relations'
 import { FieldAdoptPicker } from './FieldAdoptPicker'
-import {
-  fieldAdoptKind,
-  fieldAdopt,
-  type FieldAdoptTarget,
-} from './fieldAdopt'
+import { fieldAdopt, type FieldAdoptTarget } from './fieldAdopt'
 import { blockName } from '../../core/block/blockName'
 import { isWindowPage, pagesOfMask } from '../../core/block/pages'
 import {
@@ -39,7 +29,6 @@ import {
   type BlockValueOption,
 } from './parameterText'
 import {
-  bindingFor,
   draftFrom,
   candidateFrom,
   stepReducer,
@@ -139,20 +128,20 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
     [draft, relation, step],
   )
   const problem = useMemo(
-    () => stepProblem(
-      candidate,
-      templates,
-      sources,
-      selections.popupIds,
+    () => stepProblem(candidate, {
+      relations: templates,
+      dataSources: sources,
+      popupIds: selections.popupIds,
       resultIds,
-      selections.actionValueRefs,
-      selections.giverIds,
-      stepsBefore(chain, step?.id),
-    ),
+      actionValues: selections.actionValueRefs,
+      selectionGiverIds: selections.giverIds,
+      before: stepsBefore(chain, step?.id),
+    }),
     [candidate, templates, sources, selections, resultIds, chain, step?.id],
   )
 
-  const binding = (index: number) => bindingFor(draft, defaults, index)
+  const fields = stepAdapter(draft.type).form.fields
+  const binding = (index: number) => relationBinding(draft, defaults, index)
   const errorText = draft.showError ? problem ?? undefined : undefined
 
   const skipped = relation
@@ -160,13 +149,13 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
     : []
 
   const fieldTriggerActive = relation
-    ? relation.parameter.some((raw) => fieldAdoptKind(raw) === 'pos')
-      && relation.parameter.some((raw) => fieldAdoptKind(raw) === 'len')
+    ? relation.parameter.some((raw) => parameterRole(raw) === 'pos')
+      && relation.parameter.some((raw) => parameterRole(raw) === 'len')
     : false
 
   const adoptedValue = (kind: 'pos' | 'len'): string | null => {
     if (!relation) return null
-    const index = relation.parameter.findIndex((raw) => fieldAdoptKind(raw) === kind)
+    const index = relation.parameter.findIndex((raw) => parameterRole(raw) === kind)
     if (index < 0) return null
     const b = binding(index)
     return b.source === 'fixed' && /^\d+$/.test(b.value) ? b.value : null
@@ -212,11 +201,11 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
       <SelectControl
         label="Aktion"
         value={draft.type}
-        options={STEP_KINDS.map((key) => ({ value: key, name: stepName(key) }))}
+        options={STEP_KINDS.map((key) => ({ value: key, name: stepAdapter(key).name }))}
         onChange={(value) => dispatch({ kind: 'type', type: value as StepKind })}
       />
 
-      {(draft.type === 'POPUP_OPEN' || draft.type === 'POPUP_CLOSE') && (
+      {fields.includes('popup') && (
         <PickerControl
           label="Popup"
           error={errorText}
@@ -230,7 +219,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
         />
       )}
 
-      {draft.type === 'START_TOOL' && (
+      {fields.includes('toolNumber') && (
         <Row label="Nummer" error={errorText}>
           {(control) => (
             <Field
@@ -243,7 +232,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
         </Row>
       )}
 
-      {draft.type === 'BW_LINK' && (
+      {fields.includes('command') && (
         <Row label="Befehl" error={errorText}>
           {(control) => (
             <Field
@@ -255,7 +244,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
         </Row>
       )}
 
-      {draft.type === 'RELATION' && (
+      {fields.includes('relation') && (
         <>
           <RelationPicker
             label="Relation"
@@ -272,7 +261,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
               <Group title="Parameter">
                 {relation.parameter.map((raw, index) => {
                   if (binding(index).source === 'omitted') return null
-                  const parameterKind = fieldAdoptKind(raw)
+                  const parameterKind = parameterRole(raw)
                   const trigger = parameterKind === 'relid'
                     ? 'idb'
                     : parameterKind === 'pos' && fieldTriggerActive
@@ -309,11 +298,14 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
                 )}
               </Group>
 
-              {candidate.kind === 'RELATION' && (
-                <p className="break-all font-mono text-dense text-muted">
-                  {relationPreview(relation, candidate.parameter, candidate.extraParameter, choices)}
-                </p>
-              )}
+              <p className="break-all font-mono text-dense text-muted">
+                {relationPreview(
+                  relation,
+                  relation.parameter.map((_, index) => binding(index)),
+                  draft.extraParams,
+                  choices,
+                )}
+              </p>
               {draft.pickerTarget && (
                 <FieldAdoptPicker
                   sources={sources}
@@ -355,7 +347,7 @@ export function StepForm({ step, chain, onSave, onClose }: StepFormProps) {
         </>
       )}
 
-      {draft.showError && problem && draft.type === 'RELATION' && (
+      {draft.showError && problem && fields.includes('relation') && (
         <p className="text-ui text-error">{problem}</p>
       )}
 

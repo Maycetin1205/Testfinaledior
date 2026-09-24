@@ -1,4 +1,3 @@
-import type { StepKind } from '../../core/data/actions'
 import type { SourceKindId } from '../../core/data/dataSources'
 
 export interface SourcesWording {
@@ -65,16 +64,4 @@ const SOURCES_WORDING: Record<SourceKindId, SourcesWording> = {
 
 export function sourcesWording(kind: SourceKindId): SourcesWording {
   return SOURCES_WORDING[kind]
-}
-
-const STEP_NAMES: Record<StepKind, string> = {
-  START_TOOL: 'START_TOOL',
-  BW_LINK: 'BW-Befehl',
-  RELATION: 'Relation',
-  POPUP_OPEN: 'Popup öffnen',
-  POPUP_CLOSE: 'Popup schließen',
-}
-
-export function stepName(typeKey: string): string {
-  return STEP_NAMES[typeKey as StepKind] ?? typeKey
 }

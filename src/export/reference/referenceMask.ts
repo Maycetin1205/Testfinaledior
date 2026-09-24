@@ -2,7 +2,7 @@ import type { PropertyValue } from '../../core/block/property'
 import { ROOT_ID, ROOT_TYPE, type BlockNode, type MaskTree } from '../../core/block/tree'
 import type { DataSource } from '../../core/data/dataSources'
 import type { RelationTemplate } from '../../core/data/relations'
-import type { Step } from '../../core/data/actions'
+import type { Step } from '../../core/data/steps/steps'
 import { EXTRA_SOURCES_PROP } from '../../core/data/extraSources'
 
 export const REFERENCE_SOURCES: readonly DataSource[] = [

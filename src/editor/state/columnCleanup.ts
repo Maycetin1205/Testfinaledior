@@ -2,11 +2,8 @@ import type { BlockNode, MaskTree } from '../../core/block/tree'
 import type { BlockType } from '../../core/block/blockType'
 import { capability } from '../../core/block/capability'
 import { listRead } from '../../core/block/listBinding'
-import {
-  CELLS_PARAM_SOURCES,
-  type Parameter,
-  type Step,
-} from '../../core/data/actions'
+import { CELLS_PARAM_SOURCES } from '../../core/data/actions'
+import { stepAdapter, type Step } from '../../core/data/steps/steps'
 
 export function droppedKeys(
   def: BlockType | undefined,
@@ -29,21 +26,17 @@ function stepWithoutPointer(
   blockId: string,
   away: ReadonlySet<string>,
 ): { step: Step; hit: number } | null {
-  if (step.kind !== 'RELATION') return null
   let hit = 0
-  const clear = (list: Parameter[]): Parameter[] =>
-    list.map((b) => {
-      const shows = CELLS_PARAM_SOURCES[b.source] !== undefined
-        && (b.blockId ?? '') === blockId
-        && away.has(b.value)
-      if (!shows) return b
-      hit++
+  const next = stepAdapter(step.kind).withBindings(step, (b) => {
+    const shows = CELLS_PARAM_SOURCES[b.source] !== undefined
+      && (b.blockId ?? '') === blockId
+      && away.has(b.value)
+    if (!shows) return b
+    hit++
 
-      return { source: 'omitted' as const, value: '' }
-    })
-  const params = clear(step.parameter)
-  const extraParams = clear(step.extraParameter)
-  return hit > 0 ? { step: { ...step, parameter: params, extraParameter: extraParams }, hit } : null
+    return { source: 'omitted' as const, value: '' }
+  })
+  return hit > 0 ? { step: next, hit } : null
 }
 
 export interface Cleared {

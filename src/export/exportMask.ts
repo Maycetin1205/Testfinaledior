@@ -12,7 +12,8 @@ import {
   carriesOwnSource,
   carriesDeletions,
 } from '../core/block/treeQuery'
-import { BLOCK_ID_ATTR, chainsForExport } from '../core/data/actions'
+import { BLOCK_ID_ATTR } from '../core/data/actions'
+import { chainsForExport } from '../core/data/steps/chains'
 import { SELECTION_FOLLOW_PROP } from '../core/data/selectionFollow'
 import {
   orderedFields,

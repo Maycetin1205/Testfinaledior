@@ -1,4 +1,4 @@
-import type { ActionChains } from '../data/actions'
+import type { ActionChains } from '../data/steps/steps'
 import type { PropertyValue } from './property'
 
 export interface BlockNode {

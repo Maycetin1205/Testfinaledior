@@ -4,6 +4,7 @@ import { blockType } from './registry'
 import { flagOn, flagFor } from './listBinding'
 import { propertyVisible } from './property'
 import { SOURCE_PROP } from './sourceProperty'
+import { stepAdapter } from '../data/steps/steps'
 
 export { SOURCE_PROP }
 
@@ -32,8 +33,7 @@ export function sourcesIdsInChainsOf(node: BlockNode): string[] {
   const ids: string[] = []
   for (const event of capability(blockType(node.type), 'events')?.list ?? []) {
     for (const step of node.chains?.[event.key] ?? []) {
-      if (step.kind !== 'RELATION') continue
-      for (const binding of [...step.parameter, ...step.extraParameter]) {
+      for (const binding of stepAdapter(step.kind).bindings(step)) {
         if (binding.source !== 'dataField') continue
         const id = binding.sourceId ?? ''
         if (id !== '') ids.push(id)
@@ -47,7 +47,8 @@ export function relationIdsOf(node: BlockNode): string[] {
   const ids: string[] = []
   for (const event of capability(blockType(node.type), 'events')?.list ?? []) {
     for (const step of node.chains?.[event.key] ?? []) {
-      if (step.kind === 'RELATION' && step.relationId !== '') ids.push(step.relationId)
+      const id = stepAdapter(step.kind).relationId(step)
+      if (id !== '') ids.push(id)
     }
   }
   return ids

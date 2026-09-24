@@ -1,7 +1,8 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { sectionsOf, chainsRead } from '../../core/data/actions'
+import { sectionsOf, chainsRead } from '../../core/data/steps/chains'
+import { stepAdapter } from '../../core/data/steps/steps'
 import { runEvent, searchCarrier } from '../../runtime/events'
 import { PENDING_EVENT, pendingRows } from '../../runtime/pendingState'
 import { maskState } from '../../runtime/maskState'
@@ -68,7 +69,7 @@ export class Button extends BlockElement {
     this.wired = true
     const chains = chainsRead(this.getAttribute(CHAINS_ATTR))
 
-    if (Object.values(chains).some((chain) => chain.some((s) => s.kind === 'RELATION'))) maskState.host.start()
+    if (Object.values(chains).some((chain) => chain.some((s) => stepAdapter(s.kind).answers))) maskState.host.start()
     this.addEventListener('click', () => {
       runEvent(this, CLICK, {}).catch(() => {})
     })

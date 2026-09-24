@@ -4,12 +4,13 @@ import { Entry } from '@/editor/widgets/Entry'
 import { Field } from '@/editor/widgets/Field'
 import { Badge } from '@/editor/widgets/Badge'
 import {
+  isUnnamedTemplate,
   relationGroup,
   type RelationGroup,
   type RelationTemplate,
 } from '../../core/data/relations'
 import { SegmentControl } from '../inspector/controls/SegmentControl'
-import { isUnnamedTemplate, relationDisplay } from './relationLabel'
+import { relationDisplay } from './relationLabel'
 import { RELATION_GROUPS, VERB_SHORT } from './parameterText'
 
 export function RelationPicker({

@@ -21,6 +21,7 @@ import {
   type SourceInReach,
 } from '../core/data/extraSources'
 import { sourceIdsUsedBy, sourcesInReach } from '../core/block/sourcesInReach'
+import { stepAdapter } from '../core/data/steps/steps'
 
 export function collectDataSources(
   tree: MaskTree,
@@ -142,8 +143,7 @@ export function usedFieldsPerSource(
 
     for (const event of capability(def, 'events')?.list ?? []) {
       for (const step of node.chains?.[event.key] ?? []) {
-        if (step.kind !== 'RELATION') continue
-        for (const binding of [...step.parameter, ...step.extraParameter]) {
+        for (const binding of stepAdapter(step.kind).bindings(step)) {
           if (binding.source === 'dataField') {
             remember(binding.sourceId ?? '', binding.value)
           } else if (binding.source === 'chosenRow') {

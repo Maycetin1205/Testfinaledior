@@ -1,4 +1,4 @@
-import { chainsRead } from '../../core/data/actions'
+import { chainsRead } from '../../core/data/steps/chains'
 import {
   selectionFor,
   giverIdOf,

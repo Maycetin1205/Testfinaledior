@@ -1,6 +1,6 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
 import type { PropertyValue } from '../../core/block/property'
-import { type Parameter, type Step, type ActionChains } from '../../core/data/actions'
+import { stepAdapter, type Step, type ActionChains } from '../../core/data/steps/steps'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { deepClone } from '../../core/deepClone'
 import { freePagesName, isPagesBlock, pagesOfMask } from '../../core/block/pages'
@@ -45,25 +45,8 @@ function rewrittenFollows(raw: unknown, newIdFor: NewIdFor): unknown {
   return changed ? next : raw
 }
 
-function rewrittenBinding(
-  binding: Parameter,
-  newIdFor: NewIdFor,
-): Parameter {
-  const target = replacementId(binding.blockId, newIdFor)
-  return target === undefined ? binding : { ...binding, blockId: target }
-}
-
 function rewrittenStep(step: Step, newIdFor: NewIdFor): Step {
-  if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') {
-    const target = replacementId(step.popupId, newIdFor)
-    return target === undefined ? step : { ...step, popupId: target }
-  }
-  if (step.kind !== 'RELATION') return step
-  const params = step.parameter.map((b) => rewrittenBinding(b, newIdFor))
-  const extraParams = step.extraParameter.map((b) => rewrittenBinding(b, newIdFor))
-  const changed = params.some((b, i) => b !== step.parameter[i])
-    || extraParams.some((b, i) => b !== step.extraParameter[i])
-  return changed ? { ...step, parameter: params, extraParameter: extraParams } : step
+  return stepAdapter(step.kind).withBlockIds(step, newIdFor)
 }
 
 function rewrittenEvents(

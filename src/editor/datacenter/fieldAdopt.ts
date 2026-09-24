@@ -4,6 +4,8 @@ import { tableIdOf, type DataSource } from '../../core/data/dataSources'
 import {
   relIdFromIdbId,
   fieldCodeSplit,
+  parameterRole,
+  type ParameterRole,
   type RelationTemplate,
 } from '../../core/data/relations'
 
@@ -22,7 +24,7 @@ export interface AdoptSource {
 }
 
 export interface AdoptHit {
-  kind: 'pos' | 'len' | 'relid'
+  kind: ParameterRole
   value: string
 }
 
@@ -31,17 +33,7 @@ export interface FieldAdoptResult {
   set: AdoptHit[]
 }
 
-export type FieldAdoptParameterKind = 'pos' | 'len' | 'relid'
 export type FieldAdoptTarget = 'field' | 'idb'
-
-export function fieldAdoptKind(raw: string): FieldAdoptParameterKind | null {
-  const match = /^(?:([A-Za-z_]+)|\{([A-Za-z_]+)\})$/.exec(raw)
-  const name = (match?.[1] ?? match?.[2])?.toUpperCase()
-  if (name === 'POS' || name === 'FELD_POS') return 'pos'
-  if (name === 'LEN' || name === 'FELD_LEN') return 'len'
-  if (name === 'IDBID' || name === 'RELID') return 'relid'
-  return null
-}
 
 function fieldPosLen(
   source: DataSource,
@@ -94,7 +86,7 @@ export function fieldAdopt(
   const set: AdoptHit[] = []
 
   relation.parameter.forEach((param, index) => {
-    const kind = fieldAdoptKind(param)
+    const kind = parameterRole(param)
     if (target === 'idb' && kind === 'relid') {
       const relId = relIdFromIdbId(tableIdOf(source))
       next[index] = { source: 'fixed', value: relId }

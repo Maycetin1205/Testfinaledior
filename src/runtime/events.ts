@@ -1,39 +1,11 @@
-import {
-  BLOCK_ID_ATTR,
-  sectionsOf,
-  chainsRead,
-  RECORD_PLACEHOLDER,
-  type RuntimeStep,
-} from '../core/data/actions'
+import { BLOCK_ID_ATTR } from '../core/data/actions'
+import { sectionsOf, chainsRead } from '../core/data/steps/chains'
+import { stepAdapter, type RuntimeStep } from '../core/data/steps/steps'
 import type { WrittenRow, RunReportElement, PendingKind } from '../core/block/capability'
 import { selectionFor } from './selection'
 import { maskState } from './maskState'
-import { blockType, contractOf } from '../core/block/registry'
-import {
-  todayAsText,
-  placeholderInsert,
-  type PlaceholderValues,
-} from '../core/data/relations'
-
-function applyPopupStep(root: ParentNode, name: string, open: boolean): void {
-  if (name.trim() === '') return
-
-  const popupType = blockType('popup')
-  const all = popupType === undefined ? [] : Array.from(root.querySelectorAll(popupType.tag))
-  const hit = all.filter(
-    (el) => (el.getAttribute('name') ?? popupType?.properties.name?.default) === name,
-  )
-  if (hit.length !== 1) return
-  const target = hit[0]
-  if (!open) {
-    target.removeAttribute('open')
-    return
-  }
-  for (const el of all) {
-    if (el !== target) el.removeAttribute('open')
-  }
-  target.setAttribute('open', '')
-}
+import { contractOf } from '../core/block/registry'
+import { todayAsText, type PlaceholderValues } from '../core/data/relations'
 
 const running = new WeakMap<HTMLElement, Set<string>>()
 
@@ -142,51 +114,28 @@ async function runSteps(
   })
   for (const [slot, step] of steps.entries()) {
     if (only && !only.has(slot)) continue
-    if (step.kind === 'START_TOOL') {
-      if (!host.sendStartTool(step.toolNumber, placeholderInsert({ parameter: step.toolParameter }, values))) {
-        return { written, failed: true, transcript: transcript() }
-      }
-      continue
+    const outcome = await stepAdapter(step.kind).run(step, {
+      host,
+      root: el.ownerDocument ?? document,
+      values,
+      parameterValues: {
+        context: values,
+        previousResult,
+        stepResults,
+        stepRawResults: rawResults,
+        chosenRow: selectionFor,
+        ...(rowsCell ? { rowsCell } : {}),
+      },
+    })
+    const answer = outcome.answer
+    if (answer) {
+      stepResults[slot] = answer.value
+      rawResults[slot] = answer.raw
+      if (answer.wrote) written = true
+      else previousResult = answer.value
     }
-    if (step.kind === 'BW_LINK') {
-      const command = placeholderInsert({ parameter: [step.command] }, values)[0] ?? ''
-      if (!host.sendBwLink(command)) return { written, failed: true, transcript: transcript() }
-      continue
-    }
-    if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') {
-      applyPopupStep(el.ownerDocument ?? document, step.popup ?? '', step.kind === 'POPUP_OPEN')
-      continue
-    }
-    const relation = host.relation(step.relationId)
-
-    if (!relation) return { written, failed: true, transcript: transcript() }
-
-    const bindings = [...step.parameter, ...step.extraParameter]
-
-    const missingRecord = RECORD_PLACEHOLDER.find((name) =>
-      bindings.some((b) => b.source === 'context' && b.value === name)
-      && (values[name] ?? '') === '')
-    if (missingRecord !== undefined) return { written, failed: true, transcript: transcript() }
-
-    const runtimeValues = {
-      context: values,
-      previousResult,
-      stepResults,
-      stepRawResults: rawResults,
-      chosenRow: selectionFor,
-      ...(rowsCell ? { rowsCell } : {}),
-    }
-    const params = bindings.map((binding) => host.resolveParameter(binding, runtimeValues))
-    const answer = await host.runRelation(relation, params)
-    const result = answer.value
-    stepResults[slot] = result
-    rawResults[slot] = answer.raw
-
-    if (relation.verb === 'GET_RELATION') previousResult = result
-    else written = true
-
-    if (answer.failed === true) return { written, failed: true, transcript: transcript() }
-    if (step.resultName !== '') values[step.resultName] = result
+    if (outcome.failed) return { written, failed: true, transcript: transcript() }
+    if (answer && step.resultName !== '') values[step.resultName] = answer.value
   }
   return { written, failed: false, transcript: transcript() }
 }

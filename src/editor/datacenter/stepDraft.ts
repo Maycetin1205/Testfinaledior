@@ -1,28 +1,28 @@
-import {
-  relationParameterDefault,
-  type Parameter,
-  type Step,
-  type StepKind,
-} from '../../core/data/actions'
+import { relationParameterDefault, type Parameter } from '../../core/data/actions'
 import type { RelationTemplate } from '../../core/data/relations'
+import type { StepFormValues } from '../../core/data/steps/stepAdapter'
+import { STEP_KINDS, stepAdapter, type Step, type StepKind } from '../../core/data/steps/steps'
 import type { FieldAdoptTarget } from './fieldAdopt'
 
-export interface StepDraft {
+export interface StepDraft extends StepFormValues {
   id: string
 
   type: StepKind
-  toolNumber: string
-  command: string
-  popupId: string
-  relationId: string
-  relationParams: Parameter[]
-  extraParams: Parameter[]
 
   search: string
 
   showError: boolean
 
   pickerTarget: FieldAdoptTarget | null
+}
+
+const EMPTY_VALUES: StepFormValues = {
+  toolNumber: '',
+  command: '',
+  popupId: '',
+  relationId: '',
+  relationParams: [],
+  extraParams: [],
 }
 
 export function templateOf(
@@ -36,41 +36,15 @@ export function draftFrom(
   step: Step | undefined,
   relations: readonly RelationTemplate[],
 ): StepDraft {
-  const relationStep = step?.kind === 'RELATION' ? step : undefined
-  const relation = templateOf(relations, relationStep?.relationId)
   return {
+    ...EMPTY_VALUES,
+    ...(step ? stepAdapter(step.kind).form.values(step, relations) : {}),
     id: step?.id ?? crypto.randomUUID(),
-    type: step?.kind ?? 'START_TOOL',
-    toolNumber: step?.kind === 'START_TOOL' ? step.toolNumber : '',
-    command: step?.kind === 'BW_LINK' ? step.command : '',
-    popupId: step?.kind === 'POPUP_OPEN' || step?.kind === 'POPUP_CLOSE' ? step.popupId : '',
-    relationId: relationStep?.relationId ?? '',
-    relationParams: startParams(relationStep, relation),
-    extraParams: relationStep ? relationStep.extraParameter.map((b) => ({ ...b })) : [],
+    type: step?.kind ?? STEP_KINDS[0],
     search: '',
     showError: false,
     pickerTarget: null,
   }
-}
-
-function startParams(
-  step: { parameter: Parameter[] } | undefined,
-  relation: RelationTemplate | undefined,
-): Parameter[] {
-  if (!step) return []
-
-  if (relation && step.parameter.length !== relation.parameter.length) {
-    return relationParameterDefault(relation)
-  }
-  return step.parameter.map((b) => ({ ...b }))
-}
-
-export function bindingFor(
-  draft: StepDraft,
-  defaults: readonly Parameter[],
-  index: number,
-): Parameter {
-  return draft.relationParams[index] ?? defaults[index] ?? { source: 'fixed', value: '' }
 }
 
 function onLength(
@@ -173,43 +147,5 @@ export function candidateFrom(
   relation: RelationTemplate | undefined,
   before: Step | undefined,
 ): Step {
-  const { id, type } = draft
-
-  if (type === 'POPUP_OPEN' || type === 'POPUP_CLOSE') {
-    return {
-      id,
-      kind: type,
-      resultName: before?.kind === type ? before.resultName : '',
-      popupId: draft.popupId,
-    }
-  }
-  if (type === 'BW_LINK') {
-    return {
-      id,
-      kind: 'BW_LINK',
-      resultName: before?.kind === 'BW_LINK' ? before.resultName : '',
-      command: draft.command.trim(),
-    }
-  }
-  if (type === 'START_TOOL') {
-    const old = before?.kind === 'START_TOOL' ? before : undefined
-    return {
-      id,
-      kind: 'START_TOOL',
-      resultName: old?.resultName ?? '',
-      toolNumber: draft.toolNumber.trim(),
-      toolParameter: old ? [...old.toolParameter] : [],
-    }
-  }
-  const defaults = relation ? relationParameterDefault(relation) : []
-  return {
-    id,
-    kind: 'RELATION',
-    relationId: draft.relationId,
-    parameter: relation
-      ? relation.parameter.map((_, index) => bindingFor(draft, defaults, index))
-      : [],
-    extraParameter: [...draft.extraParams],
-    resultName: before?.resultName ?? '',
-  }
+  return stepAdapter(draft.type).form.step(draft.id, draft, before, relation)
 }

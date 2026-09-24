@@ -1,9 +1,6 @@
 import type { ReactElement } from 'react'
-import type {
-  Parameter,
-  ParameterSource,
-  ResultStep,
-} from '../../../core/data/actions'
+import type { Parameter, ParameterSource } from '../../../core/data/actions'
+import type { ResultStep } from '../../../core/data/steps/chains'
 import type { DataSource } from '../../../core/data/dataSources'
 import type {
   SelectionGiverOption,
