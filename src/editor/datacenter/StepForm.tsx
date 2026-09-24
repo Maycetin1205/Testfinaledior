@@ -41,8 +41,8 @@ import { RelationPicker } from './RelationPicker'
 import { useRelations } from '../state/useRelations'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { PickerControl } from '../inspector/controls/PickerControl'
-import { SelectControl } from '../inspector/controls/SelectControl'
+import { PickerControl } from '../controls/PickerControl'
+import { SelectControl } from '../controls/SelectControl'
 
 interface StepFormProps {
   step?: Step

@@ -1,4 +1,4 @@
-import type { ChoiceOption } from '../../../core/block/property'
+import type { ChoiceOption } from '../../core/block/property'
 import { Choice } from '@/editor/widgets/Choice'
 import { Row } from '@/editor/widgets/Row'
 

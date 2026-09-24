@@ -16,7 +16,6 @@ import {
 } from './maskFile'
 import { addOn } from './libraryFile'
 import { FileOnDisk } from './fileOnDisk'
-import { readSections, writeSections, type SectionName } from './inspectorSections'
 import {
   carriedLibrary,
   emptyMask,
@@ -77,14 +76,12 @@ export class EditorStore extends Subject<EditorStore> {
   readonly maskOnDisk = new FileOnDisk()
   readonly libraryOnDisk = new FileOnDisk()
 
-  // What the editor shows besides the mask: the open windows and the unfolded
-  // inspector sections. That is no change to the mask, so it has its own
-  // signal and plans no save.
+  // What the editor shows besides the mask: the open windows. That is no
+  // change to the mask, so it has its own signal and plans no save.
   readonly view = new Subject<EditorStore>()
   private _viewVersion = 0
   private _calculationsFor: string | null = null
   private _lookupWindow: OpenLookup | null = null
-  private _sections = readSections()
 
   private _planner = new SavePlanner(() => this.persist(), SAVE_DEBOUNCE_MS)
   private _hydrated = false
@@ -476,15 +473,6 @@ export class EditorStore extends Subject<EditorStore> {
   setLookupWindow(open: OpenLookup | null): void {
     if (this._lookupWindow === open) return
     this._lookupWindow = open
-    this.viewChanged()
-  }
-
-  sectionOpen(name: SectionName): boolean { return this._sections[name] ?? false }
-
-  setSection(name: SectionName, open: boolean): void {
-    if (this.sectionOpen(name) === open) return
-    this._sections = { ...this._sections, [name]: open }
-    writeSections(this._sections)
     this.viewChanged()
   }
 

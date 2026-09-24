@@ -10,7 +10,7 @@ import { Switch } from '@/editor/widgets/Switch'
 import { Separator } from '@/editor/widgets/Separator'
 import { bindingWithSource } from '../../core/block/blockType'
 import type { DataField } from '../../core/data/dataSources'
-import type { EditSession } from '../inspector/controls/useInputSession'
+import type { EditSession } from '../controls/useInputSession'
 
 export interface PickerGroup {
   sourceId: string

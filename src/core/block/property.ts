@@ -1,5 +1,6 @@
 // One declaration per block property. Lit property, registry entry, export
-// attribute, load check and inspector control are all derived from it.
+// attribute, load check and the control in the bar at the block are all
+// derived from it.
 
 import type { Unread } from '../unread'
 
@@ -21,7 +22,7 @@ export interface ChoiceOption {
   value: string
   name: string
 
-  // Ready made css. Carry all options a color, the inspector draws tiles
+  // Ready made css. Carry all options a color, the bar offers swatches
   // instead of a list.
   color?: string
 }
@@ -46,9 +47,9 @@ interface PropertyType<V> {
   options?: readonly ChoiceOption[]
 }
 
-// Where the builder edits the property: in the inspector, at the block itself,
-// or nowhere (it has its own dialog or the editor writes it).
-export type PropertyPlace = 'inspector' | 'block' | 'none'
+// Where the builder edits the property: in the bar at the block, on the block
+// itself, or nowhere (it has its own window or the editor writes it).
+export type PropertyPlace = 'bar' | 'block' | 'none'
 
 export interface Property<V> {
   type: PropertyType<V>
@@ -67,9 +68,6 @@ export interface Property<V> {
   min?: number
   max?: number
   maxLength?: number
-
-  // Groups several properties into one inspector row.
-  row?: string
 
   needsSource?: boolean
   onlyUnderSiblings?: boolean
@@ -102,7 +100,6 @@ interface Init<V> {
   place?: PropertyPlace
   attribute?: string
   when?: Condition
-  row?: string
   needsSource?: boolean
   onlyUnderSiblings?: boolean
   sourceProp?: string
@@ -114,10 +111,9 @@ function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V
     type,
     default: init.default,
     label: init.label,
-    place: init.place ?? 'inspector',
+    place: init.place ?? 'bar',
     attribute: init.attribute ?? '',
     ...(init.when ? { when: init.when } : {}),
-    ...(init.row !== undefined ? { row: init.row } : {}),
     ...(init.needsSource !== undefined ? { needsSource: init.needsSource } : {}),
     ...(init.onlyUnderSiblings !== undefined ? { onlyUnderSiblings: init.onlyUnderSiblings } : {}),
     ...(init.sourceProp !== undefined ? { sourceProp: init.sourceProp } : {}),

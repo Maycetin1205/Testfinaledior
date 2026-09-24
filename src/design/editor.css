@@ -54,13 +54,3 @@
     color: hsl(var(--wb-ink));
   }
 }
-
-@layer components {
-  /* As many columns as fit, else one, so no control gets narrower than the
-     minimum. Pixels, not rem: the threshold must not move with the font size. */
-  .inspector-values {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0.5rem;
-  }
-}

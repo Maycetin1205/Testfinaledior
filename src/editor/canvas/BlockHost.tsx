@@ -21,7 +21,7 @@ import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block
 import { useEditorInstance } from '../state/EditorContext'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
-import { SelectionBar } from './SelectionBar'
+import { BlockBar } from '../bar/BlockBar'
 import { ColumnControls } from './ColumnControls'
 import { useFieldBinding } from './useFieldBinding'
 import { openLookupInEditor } from './lookupWindowState'
@@ -121,7 +121,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         if (slot !== null && searchWindow !== undefined && elementRef.current
           && openLookupInEditor(editor, elementRef.current, block.id, searchWindow, slot)) {
           e.stopPropagation()
-          editor.setSection('lookupWindow', true)
           onSelect?.()
           return
         }
@@ -176,7 +175,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         />
       )}
       {selected && (
-        <SelectionBar
+        <BlockBar
           block={block}
           def={def}
           host={rootRef}

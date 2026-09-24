@@ -16,7 +16,7 @@ import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useView } from '../state/useView'
 import type { OpenLookup } from '../state/EditorStore'
-import { useInputSession } from '../inspector/controls/useInputSession'
+import { useInputSession } from '../controls/useInputSession'
 import {
   windowFrameInEditor,
   windowStateOf,

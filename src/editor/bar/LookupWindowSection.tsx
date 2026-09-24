@@ -1,5 +1,4 @@
 import { Button } from '@/editor/widgets/Button'
-import { Group } from '@/editor/widgets/Group'
 import type { BlockNode } from '../../core/block/tree'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../blocks/dialog/DialogFrame'
 import { numberProperty, propertyVisible } from '../../core/block/property'
@@ -12,8 +11,7 @@ import {
   type WindowState,
 } from '../canvas/lookupWindowState'
 import { useEditor } from '../state/useEditor'
-import { useSection } from './useSection'
-import { NumberControl } from './controls/NumberControl'
+import { NumberControl } from '../controls/NumberControl'
 
 const WIDTH = numberProperty({
   default: WINDOW_WIDTH,
@@ -45,7 +43,6 @@ function slotsOf(block: BlockNode, window: LookupWindow): number[] {
 }
 
 export function LookupWindowSection({ block, window }: LookupWindowSectionProps) {
-  const [open, toggle] = useSection('lookupWindow')
   const ed = useEditor()
 
   const session = {
@@ -65,7 +62,7 @@ export function LookupWindowSection({ block, window }: LookupWindowSectionProps)
   }
 
   return (
-    <Group title="Suchfenster" open={open} onToggle={toggle}>
+    <div className="flex flex-col gap-2">
       {states.map(({ slot, state }) => (
         <div key={slot} className="flex min-w-0 flex-col gap-1">
           {window.entriesProp !== undefined && (
@@ -95,6 +92,6 @@ export function LookupWindowSection({ block, window }: LookupWindowSectionProps)
           </div>
         </div>
       ))}
-    </Group>
+    </div>
   )
 }

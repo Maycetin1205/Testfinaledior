@@ -26,7 +26,7 @@ import { useRelations } from '../state/useRelations'
 import { ParameterRow } from './ParameterRow'
 import type { ParameterChoices } from './parameter/choices'
 import { RelationPicker } from './RelationPicker'
-import { SelectControl } from '../inspector/controls/SelectControl'
+import { SelectControl } from '../controls/SelectControl'
 import { FieldList } from './FieldList'
 import {
   EMPTY_ROW,

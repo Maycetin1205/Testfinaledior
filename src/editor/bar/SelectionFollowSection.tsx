@@ -1,10 +1,9 @@
-import { Group } from '@/editor/widgets/Group'
 import type { ListEntry } from '@/editor/widgets/List'
 import type { BlockNode } from '../../core/block/tree'
-import { selectionSourceIdOf, isSelectionGiver } from '../../core/block/treeQuery'
+import { followOf, giversFor } from './followOffer'
+import { selectionSourceIdOf } from '../../core/block/treeQuery'
 import {
   SELECTION_FOLLOW_PROP,
-  selectionFollowsFrom,
   type SelectionFollow,
 } from '../../core/data/selectionFollow'
 import { sourcesKey } from '../../core/data/dataSources'
@@ -12,8 +11,7 @@ import { deliveryAdapter } from '../../core/data/deliveries/deliveries'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { blockName } from '../../core/block/blockName'
-import { useSection } from './useSection'
-import { PickerControl } from './controls/PickerControl'
+import { PickerControl } from '../controls/PickerControl'
 import { KeyPairRows } from './KeyPairRows'
 
 interface SelectionFollowSectionProps {
@@ -21,17 +19,11 @@ interface SelectionFollowSectionProps {
 }
 
 export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
-  const [open, toggle] = useSection('followsSelection')
   const ed = useEditor()
   const library = useDataSources().list
 
-  const follow: SelectionFollow | undefined = selectionFollowsFrom(block.values[SELECTION_FOLLOW_PROP])[0]
-
-  const candidates = Object.values(ed.tree).filter(
-    (n) => n.id !== block.id && isSelectionGiver(n),
-  )
-
-  if (candidates.length === 0 && !follow) return null
+  const follow = followOf(block)
+  const candidates = giversFor(ed.tree, block)
 
   const sourceOf = (n: BlockNode | undefined) =>
     library.find((s) => s.id === selectionSourceIdOf(n))
@@ -64,8 +56,7 @@ export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
     }])
   }
   return (
-    <Group title="Auswahl folgen" open={open} onToggle={toggle}>
-
+    <div className="flex flex-col gap-2">
       <PickerControl
         label="Folgt der Auswahl von"
         name="Folgt der Auswahl von"
@@ -88,6 +79,6 @@ export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
           />
         </>
       )}
-    </Group>
+    </div>
   )
 }

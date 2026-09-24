@@ -15,7 +15,7 @@ import { useEditor } from '../state/useEditor'
 import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
-import { useInputSession } from '../inspector/controls/useInputSession'
+import { useInputSession } from '../controls/useInputSession'
 
 const MASK_NAMES = {
   html: 'index.basis.source.html',

@@ -2,7 +2,7 @@ import { Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import type { DataField } from '../../core/data/dataSources'
 import { MAX_KEY_PAIRS, type KeyPair } from '../../core/data/extraSources'
-import { PickerControl } from './controls/PickerControl'
+import { PickerControl } from '../controls/PickerControl'
 
 interface KeyPairRowsProps {
   question: string

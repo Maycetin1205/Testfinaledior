@@ -1,6 +1,5 @@
 import { SOURCE_PROP } from '../../core/block/sourceProperty'
 import { Plus, X } from '@/editor/icons/icon'
-import { Group } from '@/editor/widgets/Group'
 import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
 import { sourcesKey } from '../../core/data/dataSources'
@@ -12,8 +11,7 @@ import {
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { openDataCenter } from '../datacenter/openDataCenter'
-import { useSection } from './useSection'
-import { PickerControl } from './controls/PickerControl'
+import { PickerControl } from '../controls/PickerControl'
 import { KeyPairRows } from './KeyPairRows'
 
 interface SourceListProps {
@@ -21,7 +19,6 @@ interface SourceListProps {
 }
 
 export function SourceList({ block }: SourceListProps) {
-  const [open, toggle] = useSection('dataSources')
   const ed = useEditor()
   const library = useDataSources().list
 
@@ -116,14 +113,12 @@ export function SourceList({ block }: SourceListProps) {
 
   if (library.length === 0) {
     return (
-      <Group title="Datenquellen" open={open} onToggle={toggle}>
-        <Button className="self-start" onClick={openDataCenter}>Datencenter öffnen</Button>
-      </Group>
+      <Button className="self-start" onClick={openDataCenter}>Datencenter öffnen</Button>
     )
   }
 
   return (
-    <Group title="Datenquellen" open={open} onToggle={toggle}>
+    <div className="flex flex-col gap-2">
       {sourcesSelection(first, 'Datenquelle 1', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
 
       {extra.map((q, i) => (
@@ -165,6 +160,6 @@ export function SourceList({ block }: SourceListProps) {
           <Plus size={13} /> Datenquelle
         </Button>
       )}
-    </Group>
+    </div>
   )
 }

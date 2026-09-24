@@ -1,7 +1,7 @@
 import { Link2, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Badge } from '@/editor/widgets/Badge'
-import { PickerControl } from '../inspector/controls/PickerControl'
+import { PickerControl } from '../controls/PickerControl'
 import type { Parameter, ParameterSource } from '../../core/data/actions'
 import type { FieldAdoptTarget } from './fieldAdopt'
 import { PARAM_SOURCES, originEntries, newBinding } from './parameter/bindingRegistry'

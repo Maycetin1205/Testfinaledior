@@ -9,7 +9,7 @@ import {
   type RelationGroup,
   type RelationTemplate,
 } from '../../core/data/relations'
-import { SegmentControl } from '../inspector/controls/SegmentControl'
+import { SegmentControl } from '../controls/SegmentControl'
 import { relationDisplay } from './relationLabel'
 import { RELATION_GROUPS, VERB_SHORT } from './parameterText'
 

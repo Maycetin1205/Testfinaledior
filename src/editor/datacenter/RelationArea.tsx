@@ -17,7 +17,7 @@ import {
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
-import { SegmentControl } from '../inspector/controls/SegmentControl'
+import { SegmentControl } from '../controls/SegmentControl'
 import { RelationForm } from './RelationForm'
 import { blockName } from '../../core/block/blockName'
 import { RELATION_GROUPS, VERB_SHORT } from './parameterText'

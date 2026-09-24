@@ -1,20 +1,18 @@
-import { useState } from 'react'
 import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
 import type { EventDef } from '../../core/block/capability'
 import { useEditor } from '../state/useEditor'
-import { ChainWindow } from '../datacenter/ChainWindow'
 
 export function ActionsSection({
   block,
   events,
+  onOpen,
 }: {
   block: BlockNode
   events: readonly EventDef[]
+  onOpen: (event: EventDef) => void
 }) {
   const ed = useEditor()
-
-  const [openEvent, setOpenEvent] = useState<EventDef | null>(null)
 
   const chain = (eventKey: string) => ed.tree[block.id]?.chains?.[eventKey] ?? []
 
@@ -31,20 +29,12 @@ export function ActionsSection({
               )}
             </span>
 
-            <Button onClick={() => setOpenEvent(ev)}>
+            <Button onClick={() => onOpen(ev)}>
               {steps.length === 0 ? 'Schritt anlegen' : 'Kette bearbeiten'}
             </Button>
           </div>
         )
       })}
-      {openEvent && (
-        <ChainWindow
-          block={block}
-          eventKey={openEvent.key}
-          eventName={openEvent.name}
-          onClose={() => setOpenEvent(null)}
-        />
-      )}
     </div>
   )
 }
