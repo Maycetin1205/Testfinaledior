@@ -25,6 +25,11 @@
 
     --wb-selection: 209 54% 50%;      /* #3B82C4 .vspalte-behandlung --sp */
 
+    /* The dark strip of blocks on the left. */
+    --wb-nav: 190.6 54.8% 12.2%;       /* #0E2A30 .vnav */
+    --wb-nav-ink: 186.4 16.7% 67.1%;   /* #9DB6B9 .vnav-item */
+    --wb-nav-hover: 190.9 52.4% 16.5%; /* #143840 .vnav-item:hover */
+
     /* Pixels, not rem: the corner must not grow with the font size. */
     --radius: 4px;                    /* .vkarte */
 

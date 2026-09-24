@@ -1,50 +1,27 @@
-import { Component, Plus, Search } from '@/editor/icons/icon'
-import { createElement, useState } from 'react'
-import { Field } from '@/editor/widgets/Field'
-import { Group } from '@/editor/widgets/Group'
-import { Button } from '@/editor/widgets/Button'
+import { Component } from '@/editor/icons/icon'
+import { createElement } from 'react'
 import { ROOT_ID, ROOT_TYPE } from '../../core/block/tree'
 import { mayContain, allBlockTypes } from '../../core/block/registry'
 import type { Category, BlockType } from '../../core/block/blockType'
-import { BLOCK_ICONS, type BlockIcon } from '../blockIcons'
+import { BLOCK_ICONS } from '../blockIcons'
 import { setNewBlockDrag } from '../canvas/dnd'
 import { capacityOf } from '../canvas/gridArea'
 import { useEditor } from '../state/useEditor'
 
-const REPLACEMENT_SYMBOL: BlockIcon = (properties) => createElement(Component, properties)
-
-function symbolOf(type: string): BlockIcon {
-  return BLOCK_ICONS[type] ?? REPLACEMENT_SYMBOL
-}
-
-const CATEGORY_LABEL: Record<Category, string> = {
-  layout: 'Layout',
-  input: 'Eingabe',
-  display: 'Anzeige',
+function symbolOf(type: string) {
+  return BLOCK_ICONS[type] ?? Component
 }
 
 const CATEGORY_ORDER: Category[] = ['layout', 'input', 'display']
 
+// The blocks as the dark strip of the reception mask's navigation: a click adds
+// one, a drag lays it where it lands.
 export function BlockPalette() {
   const ed = useEditor()
-  const [query, setQuery] = useState('')
 
-  const definitions = allBlockTypes().filter((d) => d.inPalette !== false)
-
-  const q = query.trim().toLowerCase()
-  const filtered = definitions.filter((d) => {
-    if (!q) return true
-    return d.name.toLowerCase().includes(q)
-      || d.type.toLowerCase().includes(q)
-      || d.tag.toLowerCase().includes(q)
-  })
-
-  const grouped: Record<Category, BlockType[]> = {
-    layout: [],
-    input: [],
-    display: [],
-  }
-  for (const def of filtered) grouped[def.category]?.push(def)
+  const definitions = allBlockTypes()
+    .filter((d) => d.inPalette !== false)
+    .sort((a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category))
 
   const insertParentFor = (type: string): string | undefined => {
     let cur = ed.selectedId ? ed.getNode(ed.selectedId) : null
@@ -61,61 +38,40 @@ export function BlockPalette() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="relative flex items-center">
-        <Search size={13} aria-hidden className="absolute left-2 text-muted" />
-        <Field
-          value={query}
-          onChange={(e) => setQuery(e.currentTarget.value)}
-          placeholder="Baustein suchen…"
-          aria-label="Baustein suchen"
-          className="pl-7"
+    <nav className="flex flex-col gap-[2px] px-[2px] py-[6px]">
+      {definitions.map((def) => (
+        <PaletteItem
+          key={def.type}
+          def={def}
+          onAdd={() => {
+            const parentId = insertParentFor(def.type)
+            ed.addBlock(def.type, parentId, undefined, capacityOf(ed.tree, parentId))
+          }}
         />
-      </label>
-
-      {CATEGORY_ORDER.filter((cat) => (grouped[cat]?.length ?? 0) > 0).map((cat) => (
-        <Group key={cat} title={CATEGORY_LABEL[cat]}>
-          <div className="flex flex-col gap-1">
-            {grouped[cat].map((def) => (
-              <PaletteCard
-                key={def.type}
-                def={def}
-                onAdd={() => {
-                  const parentId = insertParentFor(def.type)
-                  ed.addBlock(def.type, parentId, undefined, capacityOf(ed.tree, parentId))
-                }}
-              />
-            ))}
-          </div>
-        </Group>
       ))}
-    </div>
+    </nav>
   )
 }
 
-interface PaletteCardProps {
+interface PaletteItemProps {
   def: BlockType
   onAdd: () => void
 }
 
-function PaletteCard({ def, onAdd }: PaletteCardProps) {
+function PaletteItem({ def, onAdd }: PaletteItemProps) {
   return (
-    <Button
+    <button
+      type="button"
       onClick={onAdd}
       draggable
       onDragStart={(e) => {
         setNewBlockDrag(e.dataTransfer, def.type)
         e.dataTransfer.effectAllowed = 'copy'
       }}
-      className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] gap-2 px-[10px] text-left hover:border-accent hover:bg-panel"
+      className="flex w-full min-w-0 flex-col items-center gap-[4px] rounded py-[8px] text-[hsl(var(--wb-nav-ink))] transition-colors hover:bg-[hsl(var(--wb-nav-hover))] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
     >
-      <span className="flex shrink-0 items-center text-muted group-hover:text-ink">
-        {createElement(symbolOf(def.type), { size: 15 })}
-      </span>
-      <span className="truncate">{def.name}</span>
-      <span className="flex shrink-0 items-center text-muted opacity-0 transition-opacity group-hover:opacity-100">
-        <Plus size={13} />
-      </span>
-    </Button>
+      {createElement(symbolOf(def.type), { size: 20 })}
+      <span className="w-full truncate text-center text-label">{def.name}</span>
+    </button>
   )
 }

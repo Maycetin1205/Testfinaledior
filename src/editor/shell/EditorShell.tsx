@@ -5,7 +5,7 @@ import { CalculationsWindow } from '../canvas/CalculationsWindow'
 import { LookupColumns } from '../canvas/LookupColumns'
 import { PageBar } from '../canvas/PageBar'
 import { Inspector } from '../inspector/Inspector'
-import { Sidebar } from '../sidebar/Sidebar'
+import { BlockPalette } from '../sidebar/BlockPalette'
 import { DataCenter } from '../datacenter/DataCenter'
 import { onDataCenterRequest } from '../datacenter/openDataCenter'
 import {
@@ -23,7 +23,6 @@ export function EditorShell() {
   useKeyboardShortcuts()
 
   const [dataCenterOpen, setDataCenterOpen] = useState(false)
-  const [paletteOpen, setPaletteOpen] = useState(true)
 
   useEffect(() => onDataCenterRequest(() => setDataCenterOpen(true)), [])
 
@@ -52,10 +51,9 @@ export function EditorShell() {
       {dataCenterOpen && <DataCenter onClose={() => setDataCenterOpen(false)} />}
 
       <div className="flex min-h-0 flex-1">
-        <aside
-          className={`${paletteOpen ? 'w-60' : 'w-9'} shrink-0 overflow-hidden border-r border-line bg-panel`}
-        >
-          <Sidebar open={paletteOpen} onToggle={setPaletteOpen} />
+        {/* As wide as .vnav. */}
+        <aside className="w-[72px] shrink-0 overflow-y-auto bg-[hsl(var(--wb-nav))]">
+          <BlockPalette />
         </aside>
 
         <main className="min-w-0 flex-1 overflow-auto bg-[hsl(var(--canvas-bg))] p-4">
