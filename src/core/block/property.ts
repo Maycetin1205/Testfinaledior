@@ -1,6 +1,8 @@
 // One declaration per block property. Lit property, registry entry, export
 // attribute, load check and inspector control are all derived from it.
 
+import type { Unread } from '../unread'
+
 export type ReadResult<V> =
   | { ok: true; value: V }
   | { ok: false }
@@ -31,19 +33,9 @@ export interface Condition {
   noneOf?: readonly PropertyValue[]
 }
 
-// What a block property may hold in the tree. A structured property keeps
-// entries; each block folder reads them back into its own concrete type.
-export interface PropertyEntry {
-  readonly [key: string]: string | number | boolean | PropertyEntry | readonly PropertyEntry[] | undefined
-}
-
-export type PropertyValue = string | number | boolean | readonly PropertyEntry[]
-
-// Stored values arrive as unknown: from the mask file, from an attribute, from
-// browser storage. This is the one step from unknown to a readable entry.
-export function isPropertyEntry(raw: unknown): raw is PropertyEntry {
-  return typeof raw === 'object' && raw !== null && !Array.isArray(raw)
-}
+// What a block property may hold in the tree. A structured property keeps a
+// list whose entries only its declaration reads, into its own concrete type.
+export type PropertyValue = string | number | boolean | readonly object[]
 
 export interface PropertyType<V> {
   control: ControlKind
@@ -89,7 +81,7 @@ export interface Property<V> {
   plainNameProp?: string
 }
 
-export type PropertyMap = { readonly [name: string]: Property<unknown> }
+export type PropertyMap = { readonly [name: string]: Property<PropertyValue> }
 
 export type ValuesOf<P> = { [K in keyof P]: P[K] extends Property<infer V> ? V : never }
 
@@ -219,7 +211,7 @@ export function structuredProperty<V>(
 export function defaultsOf(properties: PropertyMap): Record<string, PropertyValue> {
   const out: Record<string, PropertyValue> = {}
   for (const [name, property] of Object.entries(properties)) {
-    out[name] = property.default as PropertyValue
+    out[name] = property.default
   }
   return out
 }
@@ -228,16 +220,16 @@ export function defaultsOf(properties: PropertyMap): Record<string, PropertyValu
 // away, wrong shapes fall back to the default.
 export function readValues(
   properties: PropertyMap,
-  raw: Readonly<Record<string, unknown>>,
+  raw: Unread<Record<string, PropertyValue>>,
 ): Record<string, PropertyValue> {
   const values: Record<string, PropertyValue> = {}
   for (const [name, property] of Object.entries(properties)) {
     if (!Object.prototype.hasOwnProperty.call(raw, name)) {
-      values[name] = property.default as PropertyValue
+      values[name] = property.default
       continue
     }
     const result = property.type.read(raw[name])
-    values[name] = result.ok ? (result.value as PropertyValue) : (property.default as PropertyValue)
+    values[name] = result.ok ? result.value : property.default
   }
   return values
 }

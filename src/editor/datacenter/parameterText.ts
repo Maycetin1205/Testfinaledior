@@ -77,18 +77,13 @@ export function captureOptions(
 ): CaptureOption[] {
   return carrier.map((node) => {
     const binding = capability(blockType(node.type), 'list')?.binding
-    const keyKey = binding?.keyProperty
-    const raw = binding ? node.values[binding.prop] : undefined
-    const columns = binding && keyKey !== undefined && Array.isArray(raw)
-      ? raw.flatMap((entry) => {
-          const e = entry as Record<string, unknown>
-          const key = e[keyKey]
-          if (typeof key !== 'string' || key === '') return []
-          const title = e[binding.titleKey]
-          return [{
-            key,
-            title: typeof title === 'string' && title !== '' ? title : binding.defaultTitle,
-          }]
+    const keyOf = binding?.keyOf
+    const columns = binding && keyOf !== undefined
+      ? binding.entries(node.values[binding.prop]).flatMap((entry) => {
+          const key = keyOf(entry)
+          if (key === '') return []
+          const title = binding.titleOf(entry)
+          return [{ key, title: title !== '' ? title : binding.defaultTitle }]
         })
       : []
     return { blockId: node.id, label: blockName(node, sources), columns }

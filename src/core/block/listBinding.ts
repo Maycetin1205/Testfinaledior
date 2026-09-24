@@ -1,42 +1,60 @@
 import { splitBinding } from './binding'
 
-export interface ListBinding {
+// A list property whose entries each show one field, like the columns of a
+// table. Only the declaring block knows an entry; the rest reads and writes it here.
+export interface ListBinding<E = unknown> {
   prop: string
-
-  titleKey: string
-
-  fieldKey: string
-
-  keyProperty?: string
 
   defaultTitle: string
 
   sourceProp?: string
 
-  entryFlag?: readonly EntrySwitch[]
+  entryFlag?: readonly EntrySwitch<E>[]
 
-  entryFieldChoice?: readonly EntryFieldChoice[]
-
-  entryAdd?: (props: Readonly<Record<string, unknown>>) => Record<string, unknown>
-  entryRemove?: (props: Readonly<Record<string, unknown>>, index: number) => Record<string, unknown>
-  entryMove?: (
-    props: Readonly<Record<string, unknown>>,
-    from: number,
-    to: number,
-  ) => Record<string, unknown>
+  entryFieldChoice?: readonly EntryFieldChoice<E>[]
 
   entrySpots?: string
+
+  // The entries of a stored value, read the way the property declares them.
+  entries(raw: unknown): E[]
+
+  // Other parts of the mask point at an entry by this key, a step at the cell
+  // of a column. A list without it is never pointed at.
+  keyOf?(entry: E): string
+
+  titleOf(entry: E): string
+
+  fieldOf(entry: E): string
+
+  // A typed title stays when a field is picked; an empty one follows the field again.
+  withTypedTitle(entry: E, title: string): E
+
+  withPickedField(entry: E, field: string, fieldTitle: string, width: number | undefined): E
+
+  // The entry without what only the editor keeps, the way the export writes it.
+  withoutEditorMarks(entry: E): E
+
+  // null when the list cannot change that way.
+  entryAdd?(entries: readonly E[]): E[] | null
+  entryRemove?(entries: readonly E[], index: number): E[] | null
+  entryMove?(entries: readonly E[], from: number, to: number): E[] | null
 }
 
-export interface EntryFieldChoice {
+export interface EntryFieldChoice<E> {
   key: string
 
   name: string
 
   onlyForeignSources?: boolean
+
+  valueOf(entry: E): string
+
+  // An empty field takes the choice away.
+  withValue(entry: E, field: string): E
 }
 
-export interface EntrySwitch {
+export interface EntrySwitch<E> {
+  // Names the switch; a change capability points at it by this key.
   key: string
 
   name: string
@@ -46,83 +64,43 @@ export interface EntrySwitch {
   onlyOwnSource?: boolean
 
   short?: string
+
+  // What the entry holds, undefined when it holds nothing.
+  valueOf(entry: E): boolean | undefined
+
+  // undefined takes the switch away.
+  withValue(entry: E, on: boolean | undefined): E
 }
 
-export function flagOn(
-  flag: EntrySwitch,
-  entry: Record<string, unknown>,
-): boolean {
-  const value = entry[flag.key]
+// The entry with one value set, or without it for undefined. The other values
+// keep their place, so a stored entry reads back in the same order.
+export function withEntryValue<E, K extends keyof E>(entry: E, key: K, value: E[K] | undefined): E {
+  const copy = { ...entry }
+  if (value === undefined) delete copy[key]
+  else copy[key] = value
+  return copy
+}
+
+export function flagOn<E>(flag: EntrySwitch<E>, entry: E): boolean {
+  const value = flag.valueOf(entry)
   return typeof value === 'boolean' ? value : flag.onByDefault === true
 }
 
-export function flagFor(
-  b: ListBinding,
-  entry: Record<string, unknown>,
-): readonly EntrySwitch[] {
-  const field = entry[b.fieldKey]
-  const fromForeignSource = typeof field === 'string'
-    && splitBinding(field).sourceId !== ''
+export function flagFor<E>(b: ListBinding<E>, entry: E): readonly EntrySwitch<E>[] {
+  const fromForeignSource = splitBinding(b.fieldOf(entry)).sourceId !== ''
   return (b.entryFlag ?? [])
     .filter((s) => !(s.onlyOwnSource === true && fromForeignSource))
 }
 
-export function fieldChoicesRead(
-  b: ListBinding,
-  entry: Record<string, unknown>,
-): { choice: EntryFieldChoice; value: string }[] {
-  return (b.entryFieldChoice ?? []).map((choice) => {
-    const raw = entry[choice.key]
-    return { choice, value: typeof raw === 'string' ? raw : '' }
-  })
+export function fieldChoicesRead<E>(
+  b: ListBinding<E>,
+  entry: E,
+): { choice: EntryFieldChoice<E>; value: string }[] {
+  return (b.entryFieldChoice ?? []).map((choice) => ({ choice, value: choice.valueOf(entry) }))
 }
 
 export function listDefaultTitle(b: ListBinding, index: number): string {
   return b.defaultTitle.replace('{n}', String(index + 1))
-}
-
-const TITLE_TYPED = 'titleTyped'
-
-export function typedTitle(b: ListBinding, title: string): Record<string, unknown> {
-  return {
-    [b.titleKey]: title,
-    [TITLE_TYPED]: title.trim() === '' ? undefined : true,
-  }
-}
-
-export function titleToFieldChoice(
-  entry: Record<string, unknown>,
-  fromField: string,
-): string | undefined {
-  return entry[TITLE_TYPED] === true ? undefined : fromField
-}
-
-export function listRead(raw: unknown, b: ListBinding): Record<string, unknown>[] {
-  if (!Array.isArray(raw)) return []
-  return raw.map((x, i) => {
-    if (x && typeof x === 'object') return { ...(x as Record<string, unknown>) }
-    return {
-      [b.titleKey]: typeof x === 'string' ? x : listDefaultTitle(b, i),
-      [b.fieldKey]: '',
-    }
-  })
-}
-
-interface ConditionalKey {
-  key: string
-  allowed: (entry: Record<string, unknown>) => boolean
-}
-
-function conditionalKey(b: ListBinding): ConditionalKey[] {
-  const rules: ConditionalKey[] = []
-  for (const flag of b.entryFlag ?? []) {
-    rules.push({
-      key: flag.key,
-      allowed: (e) => flagFor(b, e).includes(flag)
-        && flagOn(flag, e) !== (flag.onByDefault === true),
-    })
-  }
-  return rules
 }
 
 export function assignKeys(present: readonly string[]): string[] {
@@ -151,20 +129,13 @@ export function assignKeys(present: readonly string[]): string[] {
   })
 }
 
-export function listForExport(raw: unknown, b: ListBinding): unknown {
-  if (!Array.isArray(raw)) return raw
-  const rules = conditionalKey(b)
-  return raw.map((x) => {
-    if (!x || typeof x !== 'object') return x
-    const entry = x as Record<string, unknown>
-    const away = rules
-      .filter((r) => r.key in entry && !r.allowed(entry))
-      .map((r) => r.key)
+// A switch goes into the export only where it applies and differs from its default.
+function switchExported<E>(b: ListBinding<E>, flag: EntrySwitch<E>, entry: E): boolean {
+  return flagFor(b, entry).includes(flag) && flagOn(flag, entry) !== (flag.onByDefault === true)
+}
 
-    if (TITLE_TYPED in entry) away.push(TITLE_TYPED)
-    if (away.length === 0) return x
-    const copy = { ...entry }
-    for (const k of away) delete copy[k]
-    return copy
-  })
+export function listForExport<E>(entries: readonly E[], b: ListBinding<E>): E[] {
+  return entries.map((entry) => (b.entryFlag ?? [])
+    .filter((flag) => !switchExported(b, flag, entry))
+    .reduce((out, flag) => flag.withValue(out, undefined), b.withoutEditorMarks(entry)))
 }

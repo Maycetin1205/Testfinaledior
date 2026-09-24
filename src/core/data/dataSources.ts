@@ -1,5 +1,5 @@
 import { SOURCES_DIVIDER, splitBinding } from '../block/blockType'
-import { isSeObject } from './actions'
+import { isUnread } from '../unread'
 import { deliveryAdapter, isDeliveryKind, type Delivery, type RuntimeDelivery } from './deliveries/deliveries'
 import { isOrderKind, orderAdapter, type Order } from './orders/orders'
 import { isPresetId, sourcePreset, type PresetId } from './presets/presets'
@@ -163,24 +163,24 @@ export function choiceOf(source: DataSource): SourceChoice {
 }
 
 function orderRead(raw: unknown): Order | null {
-  if (!isSeObject(raw) || typeof raw.kind !== 'string' || !isOrderKind(raw.kind)) return null
+  if (!isUnread<Order>(raw) || typeof raw.kind !== 'string' || !isOrderKind(raw.kind)) return null
   return orderAdapter(raw.kind).read(raw)
 }
 
 function deliveryRead(raw: unknown): Delivery | null {
-  if (!isSeObject(raw) || typeof raw.kind !== 'string' || !isDeliveryKind(raw.kind)) return null
+  if (!isUnread<Delivery>(raw) || typeof raw.kind !== 'string' || !isDeliveryKind(raw.kind)) return null
   return deliveryAdapter(raw.kind).read(raw)
 }
 
 function writeRead(raw: unknown): Write | null {
-  if (!isSeObject(raw) || typeof raw.kind !== 'string' || !isWriteKind(raw.kind)) return null
+  if (!isUnread<Write>(raw) || typeof raw.kind !== 'string' || !isWriteKind(raw.kind)) return null
   return writeAdapter(raw.kind).read(raw)
 }
 
 function fieldsRead(raw: unknown): DataField[] {
   const fields: DataField[] = []
   for (const f of Array.isArray(raw) ? raw : []) {
-    if (!isSeObject(f)) continue
+    if (!isUnread<DataField>(f)) continue
     if (typeof f.code !== 'string' || f.code === '') continue
     if (f.code.includes(SOURCES_DIVIDER)) continue
     if (typeof f.name !== 'string' || f.name === '') continue
@@ -203,7 +203,7 @@ export function checkDataSources(raw: unknown): DataSource[] {
   const acc: DataSource[] = []
   const seen = new Set<string>()
   for (const e of raw) {
-    if (!isSeObject(e)) continue
+    if (!isUnread<DataSource>(e)) continue
     if (typeof e.id !== 'string' || e.id === '') continue
     if (seen.has(e.id)) continue
     if (e.id.includes(SOURCES_DIVIDER)) continue

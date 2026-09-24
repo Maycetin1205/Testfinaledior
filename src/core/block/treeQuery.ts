@@ -108,18 +108,13 @@ export function carriesChanges(node: BlockNode): boolean {
   const key = capability(def, 'change')?.key
   const binding = capability(def, 'list')?.binding
   if (key === undefined || !binding) return false
-  const raw = node.values[binding.prop]
-  if (!Array.isArray(raw)) return false
   const flag = (binding.entryFlag ?? []).find((s) => s.key === key)
   if (!flag) return false
 
-  return raw.some((x) => {
-    if (!x || typeof x !== 'object') return false
-    const entry = x as Record<string, unknown>
-    return flagFor(binding, entry).includes(flag)
+  return binding.entries(node.values[binding.prop]).some((entry) =>
+    flagFor(binding, entry).includes(flag)
       && flagOn(flag, entry)
-      && String(entry[binding.fieldKey] ?? '') !== ''
-  })
+      && binding.fieldOf(entry) !== '')
 }
 
 export function changeCarrierInTree(tree: MaskTree): BlockNode[] {

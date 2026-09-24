@@ -1,4 +1,3 @@
-import { isPropertyEntry } from '../core/block/property'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../core/data/selectionFollow'
 import { pairListFromAttribute } from './pairList'
@@ -10,8 +9,8 @@ export function traitOf(row: unknown): string {
   if (row == null) return ''
   try {
     return JSON.stringify(row, (_key, value: unknown) => {
-      if (!isPropertyEntry(value)) return value
-      return Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]]))
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) return value
+      return Object.fromEntries(Object.entries(value).sort(([a], [b]) => (a < b ? -1 : 1)))
     }) ?? ''
   } catch {
     return ''

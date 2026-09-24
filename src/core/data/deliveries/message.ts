@@ -1,4 +1,4 @@
-import { isSeObject } from '../actions'
+import { isUnread } from '../../unread'
 import type { DeliveryAdapter } from './deliveryAdapter'
 
 // Asked with an ERPAPICALL message once the mask is open.
@@ -24,7 +24,7 @@ export const message: DeliveryAdapter<'message'> = {
   export: (_, source, context) => ({ query: { id: source.tableId, fields: context.orderedFields(source) } }),
   readExported(entry) {
     const query = entry.query
-    if (!isSeObject(query) || typeof query.id !== 'string' || query.id === ''
+    if (!isUnread<RuntimeQuery>(query) || typeof query.id !== 'string' || query.id === ''
       || typeof query.fields !== 'string') return null
     return { kind: 'message', query: { id: query.id, fields: query.fields } }
   },

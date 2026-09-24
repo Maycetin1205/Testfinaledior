@@ -1,10 +1,12 @@
-import { assignKeys, listForExport, type ListBinding } from '../../core/block/listBinding'
 import {
-  isPropertyEntry,
-  structuredProperty,
-  type Property,
-  type PropertyEntry,
-} from '../../core/block/property'
+  assignKeys,
+  listForExport,
+  withEntryValue,
+  type EntrySwitch,
+  type ListBinding,
+} from '../../core/block/listBinding'
+import { structuredProperty, type Property } from '../../core/block/property'
+import { isUnread } from '../../core/unread'
 
 export type Column = {
   key: string
@@ -16,6 +18,9 @@ export type Column = {
   total?: boolean
 
   hidden?: boolean
+
+  // The builder typed the title; a picked field leaves it alone.
+  titleTyped?: boolean
 }
 
 export interface ColumnView {
@@ -85,22 +90,17 @@ function asWidth(v: unknown): number | undefined {
   return rounded < COLUMNS_MIN_WIDTH ? COLUMNS_MIN_WIDTH : rounded
 }
 
-const KNOWN_FACTS = ['key', 'title', 'field', 'width', 'total', 'hidden']
+const KNOWN_FACTS: readonly string[] = ['key', 'title', 'field', 'width', 'total', 'hidden', 'titleTyped']
 
 // A column entry may carry facts of the block that declared it: the capture
 // keeps its own per column. They travel through untouched.
-type ColumnFacts = { [key: string]: PropertyEntry[string] }
-
-function extraFacts(entry: PropertyEntry): ColumnFacts {
-  const rest: ColumnFacts = {}
-  for (const [key, value] of Object.entries(entry)) {
-    if (value !== undefined && !KNOWN_FACTS.includes(key)) rest[key] = value
-  }
-  return rest
+function extraFacts(entry: object): object {
+  return Object.fromEntries(Object.entries(entry)
+    .filter(([key, value]) => value !== undefined && !KNOWN_FACTS.includes(key)))
 }
 
 function asColumn(raw: unknown, index: number): Column {
-  if (isPropertyEntry(raw)) {
+  if (isUnread<Column>(raw)) {
     const width = raw.width === undefined ? undefined : asWidth(raw.width)
     const column: Column = {
       key: typeof raw.key === 'string' ? raw.key.trim() : '',
@@ -112,6 +112,8 @@ function asColumn(raw: unknown, index: number): Column {
       ...(typeof raw.total === 'boolean' ? { total: raw.total } : {}),
 
       ...(typeof raw.hidden === 'boolean' ? { hidden: raw.hidden } : {}),
+
+      ...(raw.titleTyped === true ? { titleTyped: true } : {}),
     }
 
     return Object.assign(extraFacts(raw), column)
@@ -168,12 +170,13 @@ export function columnsTemplate(
   return own.map((w) => `minmax(0, ${w ?? middle}fr)`).join(' ')
 }
 
-function withAddedColumn(columns: readonly Column[]): Column[] {
+function withAddedColumn(columns: readonly Column[]): Column[] | null {
+  if (columns.length >= COLUMNS_MAX) return null
   return withKeys([...columns, newColumn(columns.length)])
 }
 
-function withoutColumn(columns: readonly Column[], index: number): readonly Column[] {
-  if (columns.length <= COLUMNS_MIN || index < 0 || index >= columns.length) return columns
+function withoutColumn(columns: readonly Column[], index: number): Column[] | null {
+  if (columns.length <= COLUMNS_MIN || index < 0 || index >= columns.length) return null
   return columns.filter((_, i) => i !== index)
 }
 
@@ -181,52 +184,63 @@ function withMovedColumn(
   columns: readonly Column[],
   from: number,
   to: number,
-): readonly Column[] {
-  if (from < 0 || from >= columns.length) return columns
+): Column[] | null {
+  if (from < 0 || from >= columns.length) return null
   const target = Math.max(0, Math.min(to, columns.length - 1))
-  if (target === from) return columns
+  if (target === from) return null
   const l = [...columns]
   const [column] = l.splice(from, 1)
   l.splice(target, 0, column)
   return l
 }
 
-export const COLUMNS_BINDING: ListBinding = {
-  prop: 'columns',
-  titleKey: 'title',
-  fieldKey: 'field',
-  keyProperty: 'key',
-  defaultTitle: DEFAULT_TITLE,
+export const COLUMN_ACCESS: Pick<
+  ListBinding<Column>,
+  'titleOf' | 'fieldOf' | 'withTypedTitle' | 'withPickedField' | 'withoutEditorMarks'
+> = {
+  titleOf: (column) => column.title,
+  fieldOf: (column) => column.field,
+  withTypedTitle: (column, title) =>
+    withEntryValue({ ...column, title }, 'titleTyped', title.trim() === '' ? undefined : true),
+  withPickedField: (column, field, fieldTitle, width) => ({
+    ...column,
+    ...(column.titleTyped === true ? {} : { title: fieldTitle }),
+    field,
+    ...(width === undefined ? {} : { width }),
+  }),
+  withoutEditorMarks: (column) => withEntryValue(column, 'titleTyped', undefined),
+}
 
-  entryAdd: (props) => {
-    const old = coerceColumns(props.columns)
-    return old.length >= COLUMNS_MAX ? {} : { columns: withAddedColumn(old) }
-  },
-  entryRemove: (props, index) => {
-    const old = coerceColumns(props.columns)
-    const next = withoutColumn(old, index)
-    return next === old ? {} : { columns: [...next] }
-  },
-  entryMove: (props, from, to) => {
-    const old = coerceColumns(props.columns)
-    const next = withMovedColumn(old, from, to)
-    return next === old ? {} : { columns: [...next] }
-  },
+const TOTAL: EntrySwitch<Column> = {
+  key: 'total',
+  name: 'Summe in der Fußzeile',
+  short: 'Summe',
+  valueOf: (column) => column.total,
+  withValue: (column, on) => withEntryValue(column, 'total', on),
+}
+
+const HIDDEN: EntrySwitch<Column> = {
+  key: 'hidden',
+  name: 'In der Maske ausblenden',
+  short: 'ausgeblendet',
+  valueOf: (column) => column.hidden,
+  withValue: (column, on) => withEntryValue(column, 'hidden', on),
+}
+
+export const COLUMNS_BINDING: ListBinding<Column> = {
+  prop: 'columns',
+  defaultTitle: DEFAULT_TITLE,
+  entries: coerceColumns,
+  keyOf: (column) => column.key,
+  ...COLUMN_ACCESS,
+
+  entryAdd: withAddedColumn,
+  entryRemove: withoutColumn,
+  entryMove: withMovedColumn,
 
   entrySpots: '[data-ff-entry]',
 
-  entryFlag: [
-    {
-      key: 'total',
-      name: 'Summe in der Fußzeile',
-      short: 'Summe',
-    },
-    {
-      key: 'hidden',
-      name: 'In der Maske ausblenden',
-      short: 'ausgeblendet',
-    },
-  ],
+  entryFlag: [TOTAL, HIDDEN],
 }
 
 export function columnsProperty(): Property<Column[]> {

@@ -3,7 +3,6 @@ import { cn } from '@/editor/widgets/cn'
 import type { BlockNode } from '../../core/block/tree'
 import type { ListBinding } from '../../core/block/blockType'
 import { useEditorInstance } from '../state/EditorContext'
-import { applyProps } from '../state/applyProps'
 
 interface Spot {
   left: number
@@ -137,12 +136,13 @@ export function ColumnControls({
         else onSelect?.()
         return
       }
-      const move = binding.entryMove
-      if (!move) return
+      if (binding.entryMove === undefined) return
 
       const of = spots[index]?.slot ?? index
       const toRaw = spots[s]?.slot ?? (spots[spots.length - 1]?.slot ?? 0) + 1
-      applyProps(editor, block.id, move(block.values, of, toRaw > of ? toRaw - 1 : toRaw))
+      const entries = binding.entries(block.values[binding.prop])
+      const next = binding.entryMove(entries, of, toRaw > of ? toRaw - 1 : toRaw)
+      if (next !== null) editor.updateProperty(block.id, binding.prop, next)
     }
     function onCancel(): void {
       cleanUp()

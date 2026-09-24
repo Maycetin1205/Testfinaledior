@@ -1,5 +1,5 @@
 import { SOURCE_PROP } from '../../core/block/sourceProperty'
-import { coerceCaptureColumns, windowColumnsIn } from '../../blocks/capture'
+import { coerceCaptureColumns, windowColumnsIn, type CaptureColumn } from '../../blocks/capture'
 import {
   automaticColumns,
   coerceLookupColumns,
@@ -10,7 +10,8 @@ import { DIALOG_FRAME_TAG, WINDOW_HEIGHT, type DialogFrame } from '../../blocks/
 import type { Column } from '../../blocks/list/columns'
 import type { BlockNode } from '../../core/block/tree'
 import { splitBinding } from '../../core/block/blockType'
-import { type LookupWindow } from '../../core/block/capability'
+import type { BlockLookupWindow, EntryLookupWindow, LookupWindow } from '../../core/block/capability'
+import { withEntryValue } from '../../core/block/listBinding'
 import { blockType } from '../../core/block/registry'
 import type { EditorStore } from '../state/EditorStore'
 
@@ -41,17 +42,10 @@ function asNumber(v: unknown): number | undefined {
   return Number.isFinite(number) ? Math.round(number) : undefined
 }
 
-function rawEntries(block: BlockNode, prop: string): Record<string, unknown>[] {
-  const raw = block.values[prop]
-  if (!Array.isArray(raw)) return []
-
-  return raw.map((x) => (x && typeof x === 'object' ? { ...(x as Record<string, unknown>) } : {}))
-}
-
 function stateAtBlock(
   ed: EditorStore,
   block: BlockNode,
-  window: LookupWindow,
+  window: BlockLookupWindow,
 ): WindowState | null {
   const sourceId = String(block.values[window.sourceProp ?? ''] ?? '')
   if (sourceId === '') return null
@@ -86,23 +80,24 @@ function stateAtBlock(
   }
 }
 
+// Only the capture keeps a window per entry: each of its columns may fill from a field of its own.
 function statePerEntry(
   ed: EditorStore,
   block: BlockNode,
-  window: LookupWindow,
+  window: EntryLookupWindow,
   slot: number,
 ): WindowState | null {
   const prop = window.entriesProp
-  if (prop === undefined) return null
-  const entry = rawEntries(block, prop)[slot]
+  const entries = coerceCaptureColumns(block.values[prop])
+  const entry = entries[slot]
   if (entry === undefined) return null
-  const { sourceId, code } = splitBinding(String(entry[window.sourceKey ?? ''] ?? ''))
+  const { sourceId, code } = splitBinding(entry.fillField ?? '')
 
   if (sourceId === '') return null
-  const title = String(entry[window.titleKey ?? ''] ?? '')
+  const title = entry.title
 
   const fromColumns = windowColumnsIn({
-    columns: coerceCaptureColumns(block.values[prop]),
+    columns: entries,
     sourceId: String(block.values[SOURCE_PROP] ?? ''),
     calculations: [],
     pairsTo: () => [],
@@ -112,16 +107,13 @@ function statePerEntry(
     ? fromColumns
     : automaticColumns({ storageField: code, storageTitle: title })
 
-  const write = (part: Record<string, unknown>): void => {
+  const write = (change: (column: CaptureColumn) => CaptureColumn): void => {
     const now = ed.getNode(block.id)
     if (!now) return
-    const next = rawEntries(now, prop)
+    const next = coerceCaptureColumns(now.values[prop])
     const target = next[slot]
     if (!target) return
-    for (const [key, value] of Object.entries(part)) {
-      if (value === undefined) delete target[key]
-      else target[key] = value
-    }
+    next[slot] = change(target)
     ed.updateProperty(block.id, prop, next)
   }
 
@@ -131,15 +123,13 @@ function statePerEntry(
     storageTitle: title,
     title: title !== '' ? title : `Spalte ${slot + 1}`,
     columns,
-    provided: coerceLookupColumns(entry[window.columnsKey]).length > 0,
-    width: asNumber(entry[window.widthKey]) ?? windowWidthFor(columns.length),
-    height: asNumber(entry[window.heightKey]) ?? WINDOW_HEIGHT,
-    setColumns: (next) => write({
-      [window.columnsKey]: next.length === 0 ? undefined : [...next],
-    }),
-    setMetrics: (axis, value) => write({
-      [axis === 'width' ? window.widthKey : window.heightKey]: value,
-    }),
+    provided: coerceLookupColumns(entry.windowColumns).length > 0,
+    width: asNumber(entry.windowWidth) ?? windowWidthFor(columns.length),
+    height: asNumber(entry.windowHeight) ?? WINDOW_HEIGHT,
+    setColumns: (next) => write((column) =>
+      withEntryValue(column, 'windowColumns', next.length === 0 ? undefined : [...next])),
+    setMetrics: (axis, value) => write((column) =>
+      withEntryValue(column, axis === 'width' ? 'windowWidth' : 'windowHeight', value)),
   }
 }
 

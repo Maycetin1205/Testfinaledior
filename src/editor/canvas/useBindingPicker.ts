@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent, RefObject } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
+import type { PropertyValue } from '../../core/block/property'
 import type { EditorStore } from '../state/EditorStore'
 
-export function bindingCode(props: Record<string, unknown>, spot: BindableSpot): string {
+export function bindingCode(props: Readonly<Record<string, PropertyValue>>, spot: BindableSpot): string {
   const code = props[bindingProp(spot.prop)]
   return typeof code === 'string' ? code : ''
 }

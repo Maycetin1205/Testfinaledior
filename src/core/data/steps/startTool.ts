@@ -1,5 +1,6 @@
 import { ACTION_PLACEHOLDER } from '../actions'
 import { placeholderInsert, unknownPlaceholder } from '../relations'
+import type { Unread } from '../../unread'
 import type { StepAdapter, StepBase } from './stepAdapter'
 
 export interface StartToolStep extends StepBase {
@@ -10,7 +11,7 @@ export interface StartToolStep extends StepBase {
 
 export type RuntimeStartToolStep = Omit<StartToolStep, 'id'>
 
-function toolFields(raw: Readonly<Record<string, unknown>>): { toolNumber: string; toolParameter: string[] } | null {
+function toolFields(raw: Unread<RuntimeStartToolStep>): { toolNumber: string; toolParameter: string[] } | null {
   if (typeof raw.toolNumber !== 'string' || !Array.isArray(raw.toolParameter)) return null
   const toolParameter = raw.toolParameter.filter((p): p is string => typeof p === 'string')
   if (toolParameter.length !== raw.toolParameter.length) return null

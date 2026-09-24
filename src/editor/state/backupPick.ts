@@ -1,6 +1,13 @@
+import { isUnread } from '../../core/unread'
 import type { EditorStore } from './EditorStore'
 import { allCopies, type Backup } from './backup'
-import { libraryInMask, readState, STORAGE_KEY } from './maskStorage'
+import {
+  libraryInMask,
+  readState,
+  STORAGE_KEY,
+  type StoredLibrary,
+  type StoredMask,
+} from './maskStorage'
 
 export interface CopyState {
   key: string
@@ -24,17 +31,17 @@ const UNREADABLE: Count = {
 function countsOf(text: string): Count {
   let raw: unknown
   try { raw = JSON.parse(text) } catch { return UNREADABLE }
-  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return UNREADABLE
-  const state = raw as Record<string, unknown>
-  const tree = state.tree
+  // A copy from before the customer file still carries its sources.
+  if (!isUnread<StoredMask & StoredLibrary>(raw)) return UNREADABLE
+  const tree = raw.tree
   return {
     readable: true,
 
     blocks: tree !== null && typeof tree === 'object' && !Array.isArray(tree)
       ? Math.max(0, Object.keys(tree).length - 1)
       : null,
-    dataSources: Array.isArray(state.dataSources) ? state.dataSources.length : null,
-    relation: Array.isArray(state.relation) ? state.relation.length : null,
+    dataSources: Array.isArray(raw.dataSources) ? raw.dataSources.length : null,
+    relation: Array.isArray(raw.relation) ? raw.relation.length : null,
   }
 }
 

@@ -5,6 +5,7 @@ import type { Delivery, DeliveryKind, RuntimeDelivery } from './deliveries'
 import type { RuntimeQuery } from './message'
 import type { RuntimeLoadRelation } from './relationRows'
 import type { RuntimeGetValue } from './relationValue'
+import type { Unread } from '../../unread'
 
 // An intersection instead of Extract keeps an adapter of one kind assignable to
 // the adapter of all kinds.
@@ -28,13 +29,13 @@ export interface RuntimeEntry {
 // How the rows of a source reach the mask.
 export interface DeliveryAdapter<K extends DeliveryKind> {
   kind: K
-  read(raw: Readonly<Record<string, unknown>>): DeliveryOf<K> | null
+  read(raw: Unread<DeliveryOf<K>>): DeliveryOf<K> | null
   // Without its table id the source receives nothing.
   needsTable: boolean
   // When the mask fetches the rows itself.
   fetchOn: 'never' | 'delivery' | 'selection'
   export(delivery: DeliveryOf<K>, source: DataSource, context: ExportContext): RuntimeEntry
-  readExported(entry: Readonly<Record<string, unknown>>): RuntimeDeliveryOf<K> | null
+  readExported(entry: Unread<RuntimeEntry>): RuntimeDeliveryOf<K> | null
   relationIds(delivery: DeliveryOf<K>): readonly string[]
   bindings(delivery: DeliveryOf<K>): readonly Parameter[]
   // The fields the chosen row of the giver has to bring along.

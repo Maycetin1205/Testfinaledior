@@ -5,12 +5,9 @@ import type { PropertyMap, PropertyValue } from './property'
 
 export {
   fieldChoicesRead,
-  typedTitle,
   listDefaultTitle,
-  listRead,
   flagOn,
   flagFor,
-  titleToFieldChoice,
   type EntrySwitch,
   type ListBinding,
 } from './listBinding'

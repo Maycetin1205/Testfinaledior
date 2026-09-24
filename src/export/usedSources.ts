@@ -1,5 +1,5 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
-import { fieldChoicesRead, listRead, splitBinding } from '../core/block/blockType'
+import { fieldChoicesRead, splitBinding } from '../core/block/blockType'
 import { bindingProp, capability } from '../core/block/capability'
 import { blockType } from '../core/block/registry'
 import { propertyVisible } from '../core/block/property'
@@ -106,8 +106,8 @@ export function usedFieldsPerSource(
         else remember(ownSource, value)
       }
 
-      for (const entry of listRead(node.values[b.prop], b)) {
-        rememberEntryField(entry[b.fieldKey])
+      for (const entry of b.entries(node.values[b.prop])) {
+        rememberEntryField(b.fieldOf(entry))
 
         for (const { value } of fieldChoicesRead(b, entry)) rememberEntryField(value)
       }

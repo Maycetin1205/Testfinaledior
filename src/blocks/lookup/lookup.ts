@@ -13,7 +13,13 @@ import {
 } from '../dialog/DialogFrame'
 import { rememberedSorting, sortIndices } from '../list/sorting'
 import { LOOKUP_KEY_PART } from '../list/operatorState'
-import { coerceColumns, DEFAULT_TITLE, FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import {
+  coerceColumns,
+  COLUMN_ACCESS,
+  DEFAULT_TITLE,
+  FIELD_KEY_PREFIX,
+  type Column,
+} from '../list/columns'
 import { fittingSuggestions, SUGGESTIONS_MAX, type Suggestion } from './suggestionList'
 import {
   ROW_ACTIVATED_EVENT,
@@ -73,12 +79,12 @@ export function windowWidthFor(columns: number): number {
   return Math.min(900, Math.max(WINDOW_WIDTH, 160 + 180 * columns))
 }
 
-export const LOOKUP_COLUMNS_BINDING: ListBinding = {
+export const LOOKUP_COLUMNS_BINDING: ListBinding<Column> = {
   prop: 'lookupColumns',
-  titleKey: 'title',
-  fieldKey: 'field',
   defaultTitle: DEFAULT_TITLE,
   sourceProp: 'lookupSource',
+  entries: coerceLookupColumns,
+  ...COLUMN_ACCESS,
 }
 
 export function coerceLookupColumns(v: unknown): Column[] {

@@ -1,4 +1,5 @@
-import { checkParameterBinding, isSeObject, type Parameter, type ParameterSource } from '../actions'
+import { checkParameterBinding, type Parameter, type ParameterSource } from '../actions'
+import { isUnread } from '../../unread'
 import type { DeliveryAdapter } from './deliveryAdapter'
 
 // One row from the answer of a GET relation, asked after every delivery.
@@ -26,7 +27,7 @@ export function getValueSourceAllowed(source: ParameterSource): boolean {
 }
 
 export function checkGetValue(raw: unknown): GetValue | null {
-  if (!isSeObject(raw)) return null
+  if (!isUnread<GetValue>(raw)) return null
   const relationId = typeof raw.relationId === 'string' ? raw.relationId.trim() : ''
   if (relationId === '') return null
   if (!Array.isArray(raw.parameter)) return null
@@ -57,7 +58,7 @@ export const relationValue: DeliveryAdapter<'relationValue'> = {
   readExported(entry) {
     const raw = entry.getValue
     const get = checkGetValue(raw)
-    if (!get || !isSeObject(raw)) return null
+    if (!get || !isUnread<RuntimeGetValue>(raw)) return null
     const fields = Array.isArray(raw.fields)
       ? raw.fields.filter((f): f is string => typeof f === 'string' && f !== '')
       : []

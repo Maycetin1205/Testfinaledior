@@ -1,7 +1,6 @@
 import type { BlockNode, MaskTree } from '../../core/block/tree'
 import type { BlockType } from '../../core/block/blockType'
 import { capability } from '../../core/block/capability'
-import { listRead } from '../../core/block/listBinding'
 import { CELLS_PARAM_SOURCES } from '../../core/data/actions'
 import { stepAdapter, type Step } from '../../core/data/steps/steps'
 
@@ -12,10 +11,10 @@ export function droppedKeys(
   next: unknown,
 ): string[] {
   const b = capability(def, 'list')?.binding
-  const key = b?.keyProperty
-  if (!b || key === undefined || b.prop !== attr) return []
-  const keys = (value: unknown): string[] => listRead(value, b)
-    .map((entry) => String(entry[key] ?? ''))
+  const keyOf = b?.keyOf
+  if (!b || keyOf === undefined || b.prop !== attr) return []
+  const keys = (value: unknown): string[] => b.entries(value)
+    .map(keyOf)
     .filter((key) => key !== '')
   const stays = new Set(keys(next))
   return keys(old).filter((key) => !stays.has(key))

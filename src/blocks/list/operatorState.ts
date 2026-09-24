@@ -1,5 +1,4 @@
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
-import { isPropertyEntry } from '../../core/block/property'
 import { FIELD_KEY_PREFIX } from './columns'
 
 export const LOOKUP_KEY_PART = '/lookup/'
@@ -33,7 +32,7 @@ function withCurrentNames(value: unknown): unknown {
       : value
   }
   if (Array.isArray(value)) return value.map(withCurrentNames)
-  if (!isPropertyEntry(value)) return value
+  if (typeof value !== 'object' || value === null) return value
   return Object.fromEntries(Object.entries(value)
     .map(([key, entry]) => [key === 'on' ? 'ascending' : key, withCurrentNames(entry)]))
 }

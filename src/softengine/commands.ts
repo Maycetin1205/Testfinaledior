@@ -23,7 +23,7 @@ export function sendBwLink(command: string): boolean {
 export function sendStartTool(toolNumber: string, params: readonly string[]): boolean {
   if (toolNumber.trim() === '') return false
   const g = seWindow()
-  const message: Record<string, unknown> = { NR: toolNumber }
+  const message: { NR: string; PARAMS?: string[] } = { NR: toolNumber }
   if (params.length > 0) message.PARAMS = [...params]
   if (typeof g.basisHTML_SND_MSG === 'function'
     && hostCall(() => g.basisHTML_SND_MSG('START_TOOL', message))) return true

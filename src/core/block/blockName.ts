@@ -1,5 +1,5 @@
 import type { BlockNode } from './tree'
-import { defaultsOf } from './property'
+import { defaultsOf, type PropertyValue } from './property'
 import { bindingProp } from './capability'
 import { blockType } from './registry'
 import { bindableSpotsOf, SOURCE_PROP } from './treeQuery'
@@ -10,8 +10,8 @@ const TEXT_PROPS = ['title', 'text', 'label'] as const
 const MAX_LENGTH = 28
 
 function ownText(
-  props: Record<string, unknown>,
-  defaults?: Record<string, unknown>,
+  props: Readonly<Record<string, PropertyValue>>,
+  defaults?: Readonly<Record<string, PropertyValue>>,
 
   covered?: ReadonlySet<string>,
 ): string {

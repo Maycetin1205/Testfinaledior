@@ -1,12 +1,14 @@
-import type { EntrySwitch, ListBinding } from '../../core/block/blockType'
 import { splitBinding } from '../../core/block/blockType'
-import { listForExport } from '../../core/block/listBinding'
-import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../list/columns'
 import {
-  isPropertyEntry,
-  structuredProperty,
-  type Property,
-} from '../../core/block/property'
+  listForExport,
+  withEntryValue,
+  type EntryFieldChoice,
+  type EntrySwitch,
+  type ListBinding,
+} from '../../core/block/listBinding'
+import { structuredProperty, type Property } from '../../core/block/property'
+import { isUnread } from '../../core/unread'
+import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../list/columns'
 
 export type CaptureColumn = Column & {
   editable?: boolean
@@ -14,11 +16,15 @@ export type CaptureColumn = Column & {
   fillField?: string
 
   windowColumns?: Column[]
+
+  windowWidth?: number
+
+  windowHeight?: number
 }
 
 function capturePart(raw: unknown): Partial<CaptureColumn> {
-  if (!isPropertyEntry(raw)) return {}
-  const { editable, fillField, windowColumns } = raw
+  if (!isUnread<CaptureColumn>(raw)) return {}
+  const { editable, fillField, windowColumns, windowWidth, windowHeight } = raw
   return {
     ...(typeof editable === 'boolean' ? { editable } : {}),
 
@@ -29,6 +35,10 @@ function capturePart(raw: unknown): Partial<CaptureColumn> {
     ...(Array.isArray(windowColumns) && windowColumns.length > 0
       ? { windowColumns: coerceColumns(windowColumns) }
       : {}),
+
+    ...(typeof windowWidth === 'number' ? { windowWidth } : {}),
+
+    ...(typeof windowHeight === 'number' ? { windowHeight } : {}),
   }
 }
 
@@ -45,28 +55,32 @@ function tryCoerceCaptureColumns(v: string): CaptureColumn[] {
   }
 }
 
-const EDITABLE: EntrySwitch = {
+const EDITABLE: EntrySwitch<CaptureColumn> = {
   key: 'editable',
   name: 'In der Zeile änderbar',
   short: 'änderbar',
   onByDefault: true,
   onlyOwnSource: true,
+  valueOf: (column) => column.editable,
+  withValue: (column, on) => withEntryValue(column, 'editable', on),
 }
 
-export const CAPTURE_COLUMNS_BINDING: ListBinding = {
+const FILL_FIELD: EntryFieldChoice<CaptureColumn> = {
+  key: 'fillField',
+  name: 'Nachschlagen',
+  onlyForeignSources: true,
+  valueOf: (column) => column.fillField ?? '',
+  withValue: (column, field) => withEntryValue(column, 'fillField', field === '' ? undefined : field),
+}
+
+export const CAPTURE_COLUMNS_BINDING: ListBinding<CaptureColumn> = {
   ...COLUMNS_BINDING,
+  entries: coerceCaptureColumns,
 
   entryFlag: (COLUMNS_BINDING.entryFlag ?? [])
-    .flatMap((s) => (s.key === 'total' ? [s, EDITABLE] : [s])),
+    .flatMap((s): EntrySwitch<CaptureColumn>[] => (s.key === 'total' ? [s, EDITABLE] : [s])),
 
-  entryFieldChoice: [
-    {
-      key: 'fillField',
-
-      name: 'Nachschlagen',
-      onlyForeignSources: true,
-    },
-  ],
+  entryFieldChoice: [FILL_FIELD],
 }
 
 // A field of a helper source is looked up, never typed: the switch does not

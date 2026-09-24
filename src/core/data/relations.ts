@@ -1,3 +1,5 @@
+import { isUnread, type Unread } from '../unread'
+
 export type RelationVerb = 'GET_RELATION' | 'PUT_RELATION' | 'PUTADD_RELATION'
 
 export const RELATION_VERBS: readonly RelationVerb[] = [
@@ -84,12 +86,11 @@ export function positionParams(slots: readonly SlotRole[], ask: PositionAsk): st
 }
 
 export function checkPositionFetch(raw: unknown, parameterCount: number): PositionFetch | null {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
-  const e = raw as Record<string, unknown>
-  if (!Array.isArray(e.slots) || e.slots.length !== parameterCount) return null
-  const slots = e.slots.filter(isSlotRole)
-  if (slots.length !== e.slots.length) return null
-  const answerLength = e.answerLength
+  if (!isUnread<PositionFetch>(raw)) return null
+  if (!Array.isArray(raw.slots) || raw.slots.length !== parameterCount) return null
+  const slots = raw.slots.filter(isSlotRole)
+  if (slots.length !== raw.slots.length) return null
+  const answerLength = raw.answerLength
   if (typeof answerLength !== 'number' || !Number.isInteger(answerLength) || answerLength < 1) return null
   return { slots, answerLength }
 }
@@ -219,7 +220,7 @@ export function checkRelationTemplates(raw: unknown): RelationTemplate[] {
   const seen = new Set<string>()
   for (const entry of raw) {
     if (!entry || typeof entry !== 'object') continue
-    const e = entry as Record<string, unknown>
+    const e: Unread<RelationTemplate> = entry
     if (typeof e.id !== 'string' || e.id === '') continue
     if (seen.has(e.id)) continue
     if (typeof e.name !== 'string' || e.name.trim() === '') continue

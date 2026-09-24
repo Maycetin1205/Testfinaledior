@@ -80,8 +80,7 @@ function liftLibrary(raw: Record<string, unknown>): Record<string, unknown> {
 function stable(value: unknown): string {
   return JSON.stringify(value, (_key, w: unknown) => {
     if (!w || typeof w !== 'object' || Array.isArray(w)) return w
-    const o = w as Record<string, unknown>
-    return Object.fromEntries(Object.keys(o).sort().map((k) => [k, o[k]]))
+    return Object.fromEntries(Object.entries(w).sort(([a], [b]) => (a < b ? -1 : 1)))
   })
 }
 

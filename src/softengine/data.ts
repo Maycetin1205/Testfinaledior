@@ -1,5 +1,6 @@
 import type { RuntimeSource } from '../core/data/dataSources'
 import { runtimeDeliveryFrom } from '../core/data/deliveries/deliveries'
+import { isUnread } from '../core/unread'
 import { fetchedRowsFor } from './fetchedRows'
 
 export type JsonObject = Record<string, unknown>
@@ -59,8 +60,8 @@ export function rowsFromQueryAnswer(raw: unknown): unknown[] | undefined {
 
 function asTrimmedString(v: unknown): string {
   if (v == null) return ''
-  if (typeof v === 'object' && !Array.isArray(v)) {
-    const content = (v as Record<string, unknown>).WERT
+  if (isUnread<{ WERT: string }>(v)) {
+    const content = v.WERT
     return content == null || typeof content === 'object' ? '' : String(content).trim()
   }
   return String(v).trim()

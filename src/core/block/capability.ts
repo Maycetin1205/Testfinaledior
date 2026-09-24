@@ -18,21 +18,31 @@ export interface EventDef {
   name: string
 }
 
-export interface LookupWindow {
-  entriesProp?: string
+// One lookup window at the block, set up by these properties of the block.
+export interface BlockLookupWindow {
+  entriesProp?: undefined
   columnsKey: string
   widthKey: string
   heightKey: string
 
   sourceProp?: string
-  sourceKey?: string
   storageFieldProp?: string
   storageTitleProp?: string
-  titleKey?: string
 
   spot?: string
   when?: Condition
 }
+
+// A lookup window per entry of this list; each entry keeps its own source
+// field, columns and size.
+export interface EntryLookupWindow {
+  entriesProp: string
+
+  spot?: string
+  when?: Condition
+}
+
+export type LookupWindow = BlockLookupWindow | EntryLookupWindow
 
 export type Capability =
 

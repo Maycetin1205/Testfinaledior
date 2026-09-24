@@ -1,7 +1,11 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
 import type { PropertyValue } from '../../core/block/property'
 import { stepAdapter, type Step, type ActionChains } from '../../core/data/steps/steps'
-import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
+import {
+  SELECTION_FOLLOW_PROP,
+  selectionFollowsFrom,
+  type SelectionFollow,
+} from '../../core/data/selectionFollow'
 import { deepClone } from '../../core/deepClone'
 import { freePagesName, isPagesBlock, pagesOfMask } from '../../core/block/pages'
 import { freePositionForCopy } from '../../core/block/gridArea'
@@ -14,35 +18,32 @@ function writeBlockReferencesTo(node: BlockNode, newIdFor: NewIdFor): BlockNode 
     ? undefined
     : rewrittenEvents(node.chains, newIdFor)
 
-  const newProps = follows !== node.values[SELECTION_FOLLOW_PROP]
   const newEvents = events !== undefined && events !== node.chains
-  if (!newProps && !newEvents) return node
+  if (follows === null && !newEvents) return node
   return {
     ...node,
-    ...(newProps
-      ? { values: { ...node.values, [SELECTION_FOLLOW_PROP]: follows as PropertyValue } }
+    ...(follows !== null
+      ? { values: { ...node.values, [SELECTION_FOLLOW_PROP]: follows } }
       : {}),
     ...(newEvents ? { chains: events } : {}),
   }
 }
 
-function replacementId(old: unknown, newIdFor: NewIdFor): string | undefined {
-  if (typeof old !== 'string' || old === '') return undefined
+function replacementId(old: string, newIdFor: NewIdFor): string | undefined {
+  if (old === '') return undefined
   return newIdFor(old)
 }
 
-function rewrittenFollows(raw: unknown, newIdFor: NewIdFor): unknown {
-  if (!Array.isArray(raw)) return raw
+// null when no follow points into the copied part.
+function rewrittenFollows(raw: PropertyValue | undefined, newIdFor: NewIdFor): SelectionFollow[] | null {
   let changed = false
-  const next = raw.map((entry: unknown) => {
-    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) return entry
-    const fields = entry as Record<string, unknown>
-    const target = replacementId(fields.giverId, newIdFor)
-    if (target === undefined) return entry
+  const next = selectionFollowsFrom(raw).map((follow) => {
+    const target = replacementId(follow.giverId, newIdFor)
+    if (target === undefined) return follow
     changed = true
-    return { ...fields, giverId: target }
+    return { ...follow, giverId: target }
   })
-  return changed ? next : raw
+  return changed ? next : null
 }
 
 function rewrittenStep(step: Step, newIdFor: NewIdFor): Step {

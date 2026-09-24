@@ -1,6 +1,7 @@
 import type { PendingKind } from '../../block/capability'
-import { CELLS_PARAM_SOURCES, isSeObject } from '../actions'
+import { CELLS_PARAM_SOURCES } from '../actions'
 import type { RelationTemplate } from '../relations'
+import { isUnread } from '../../unread'
 import type { CheckWorld } from './stepAdapter'
 import { isStepKind, stepAdapter, type ActionChains, type RuntimeStep, type Step } from './steps'
 
@@ -8,7 +9,7 @@ export function chainsClean(
   raw: unknown,
   allowedEvents: readonly string[],
 ): ActionChains | undefined {
-  if (!isSeObject(raw)) return undefined
+  if (!isUnread<ActionChains>(raw)) return undefined
   const out: ActionChains = {}
   for (const key of allowedEvents) {
     const chain = raw[key]
@@ -17,8 +18,8 @@ export function chainsClean(
     const seenIds = new Set<string>()
     let broken = false
     for (const entry of chain) {
-      const id = isSeObject(entry) && typeof entry.id === 'string' ? entry.id : ''
-      const step = isSeObject(entry) && typeof entry.kind === 'string' && isStepKind(entry.kind)
+      const id = isUnread<Step>(entry) && typeof entry.id === 'string' ? entry.id : ''
+      const step = isUnread<Step>(entry) && typeof entry.kind === 'string' && isStepKind(entry.kind)
         && typeof entry.resultName === 'string'
         ? stepAdapter(entry.kind).read(entry, { id, resultName: entry.resultName })
         : null
@@ -28,7 +29,7 @@ export function chainsClean(
       }
       seenIds.add(id)
 
-      const note = isSeObject(entry) && typeof entry.note === 'string' ? entry.note.trim() : ''
+      const note = isUnread<Step>(entry) && typeof entry.note === 'string' ? entry.note.trim() : ''
       steps.push(note !== '' ? { ...step, note } : step)
     }
     if (!broken && steps.length > 0) out[key] = steps
@@ -65,14 +66,14 @@ export function chainsRead(raw: string | null): Record<string, RuntimeStep[]> {
   } catch {
     return {}
   }
-  if (!isSeObject(parsed)) return {}
+  if (!isUnread<Record<string, RuntimeStep[]>>(parsed)) return {}
   const out: Record<string, RuntimeStep[]> = {}
   for (const [key, chain] of Object.entries(parsed)) {
     if (!Array.isArray(chain) || chain.length === 0) continue
     const steps: RuntimeStep[] = []
     let broken = false
     for (const entry of chain) {
-      const step = isSeObject(entry) && typeof entry.kind === 'string' && isStepKind(entry.kind)
+      const step = isUnread<RuntimeStep>(entry) && typeof entry.kind === 'string' && isStepKind(entry.kind)
         && typeof entry.resultName === 'string'
         ? stepAdapter(entry.kind).readExported(entry, entry.resultName)
         : null

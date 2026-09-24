@@ -15,6 +15,7 @@ import {
   relIdFromIdbId,
   type RelationTemplate,
 } from '../relations'
+import type { Unread } from '../../unread'
 import type { StepAdapter, StepBase, StepFormValues } from './stepAdapter'
 
 export interface RelationStep extends StepBase {
@@ -41,7 +42,7 @@ function bindingsRead(raw: unknown): Parameter[] | null {
 }
 
 function relationFields(
-  raw: Readonly<Record<string, unknown>>,
+  raw: Unread<RuntimeRelationStep>,
 ): { relationId: string; parameter: Parameter[]; extraParameter: Parameter[] } | null {
   if (typeof raw.relationId !== 'string') return null
   const parameter = bindingsRead(raw.parameter)

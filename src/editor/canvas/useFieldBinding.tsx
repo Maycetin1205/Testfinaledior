@@ -4,12 +4,9 @@ import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import {
   fieldChoicesRead,
-  typedTitle,
   flagOn,
   flagFor,
   listDefaultTitle,
-  listRead,
-  titleToFieldChoice,
   type ListBinding,
 } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot, type LookupWindow } from '../../core/block/capability'
@@ -18,7 +15,6 @@ import { canCompute } from '../../core/block/treeQuery'
 import { sourcesKey } from '../../core/data/dataSources'
 import type { SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
-import { applyProps } from '../state/applyProps'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { widthFromLength, lengthOf } from './fieldWidth'
@@ -167,19 +163,16 @@ export function useFieldBinding({
     },
   }
 
-  const entriesOf = (): Record<string, unknown>[] => (
-    listBinding ? listRead(block.values[listBinding.prop], listBinding) : []
+  const entriesOf = (): unknown[] => (
+    listBinding ? listBinding.entries(block.values[listBinding.prop]) : []
   )
 
-  const writeInEntry = (index: number, part: Record<string, unknown>): void => {
+  const writeInEntry = (index: number, change: (entry: unknown) => unknown): void => {
     if (!listBinding) return
     const next = entriesOf()
     const target = next[index]
-    if (!target) return
-    for (const [key, value] of Object.entries(part)) {
-      if (value === undefined) delete target[key]
-      else target[key] = value
-    }
+    if (target === undefined) return
+    next[index] = change(target)
     editor.updateProperty(block.id, listBinding.prop, next)
   }
 
@@ -203,7 +196,7 @@ export function useFieldBinding({
       {selected && listPicker && listBinding && listPickerHasFields && (() => {
         const list = entriesOf()
         const entry = list[listPicker.index]
-        if (!entry) return null
+        if (entry === undefined) return null
 
         const perSource = sourceFromProp !== undefined
         const listGroups: PickerGroup[] = perSource
@@ -214,7 +207,7 @@ export function useFieldBinding({
               fields: sourceFromProp.fields,
             }]
           : groups
-        const titleNow = String(entry[listBinding.titleKey] ?? '')
+        const titleNow = listBinding.titleOf(entry)
         const defaultTitle = listDefaultTitle(listBinding, listPicker.index)
         return (
           <FieldPicker
@@ -227,7 +220,7 @@ export function useFieldBinding({
               fallback: defaultTitle,
               onChange: (next) => {
                 typingSession.begin()
-                writeInEntry(listPicker.index, typedTitle(listBinding, next))
+                writeInEntry(listPicker.index, (e) => listBinding.withTypedTitle(e, next))
               },
               session: typingSession,
             }}
@@ -236,10 +229,7 @@ export function useFieldBinding({
               label: choice.name,
               current: value,
               onlyForeignSources: choice.onlyForeignSources,
-              onChoose: (next) => writeInEntry(
-                listPicker.index,
-                { [choice.key]: next === '' ? undefined : next },
-              ),
+              onChoose: (next) => writeInEntry(listPicker.index, (e) => choice.withValue(e, next)),
             }))}
             flag={flagFor(listBinding, entry).map((s) => ({
               key: s.key,
@@ -247,9 +237,9 @@ export function useFieldBinding({
               short: s.short,
               onByDefault: s.onByDefault,
               on: flagOn(s, entry),
-              onToggle: (on) => writeInEntry(listPicker.index, { [s.key]: on }),
+              onToggle: (on) => writeInEntry(listPicker.index, (e) => s.withValue(e, on)),
             }))}
-            current={String(entry[listBinding.fieldKey] ?? '')}
+            current={listBinding.fieldOf(entry)}
             moreActions={[
               ...(!ownWindow || searchWindow === undefined ? [] : [{
                 label: 'Suchfenster…',
@@ -269,9 +259,9 @@ export function useFieldBinding({
             ]}
             removeLabel={`${listBinding.defaultTitle.replace(/\s*\{n\}/, '')} entfernen`}
             onRemove={listBinding.entryRemove === undefined ? undefined : () => {
-              const away = listBinding.entryRemove
-              if (!away) return
-              if (!applyProps(editor, block.id, away(block.values, listPicker.index))) return
+              const next = listBinding.entryRemove?.(entriesOf(), listPicker.index) ?? null
+              if (next === null) return
+              editor.updateProperty(block.id, listBinding.prop, next)
               setListPicker(null)
             }}
             sourcesChoice={perSource ? undefined : sourcesChoice}
@@ -283,7 +273,7 @@ export function useFieldBinding({
                 const value = raw
                 const next = entriesOf()
                 const target = next[listPicker.index]
-                if (!target) return
+                if (target === undefined) return
 
                 const plainName = (fieldValue: string): string => (perSource
                   ? (sourceFromProp.fields.find((f) => f.code === fieldValue)?.name ?? '')
@@ -294,13 +284,12 @@ export function useFieldBinding({
                   : lengthOf(value, sources)
                 const width = widthFromLength(length)
 
-                const title = titleToFieldChoice(
+                next[listPicker.index] = listBinding.withPickedField(
                   target,
+                  value,
                   value === '' ? defaultTitle : plainName(value),
+                  width,
                 )
-                if (title !== undefined) target[listBinding.titleKey] = title
-                target[listBinding.fieldKey] = value
-                if (width !== undefined) target.width = width
                 editor.updateProperty(block.id, listBinding.prop, next)
               })
 

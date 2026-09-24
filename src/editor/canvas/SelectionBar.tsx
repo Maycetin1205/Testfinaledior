@@ -2,10 +2,9 @@ import { useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'reac
 import { Link2, Minus, Plus, SlidersHorizontal, Trash2 } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
-import { listRead, type BlockType } from '../../core/block/blockType'
+import type { BlockType } from '../../core/block/blockType'
 import { capability } from '../../core/block/capability'
 import { useEditorInstance } from '../state/EditorContext'
-import { applyProps } from '../state/applyProps'
 import { firstDescendantOfType, canCompute } from '../../core/block/treeQuery'
 import { fieldPlainName } from '../../core/data/dataSources'
 import { propertiesFor } from '../../core/block/propertyPlace'
@@ -94,12 +93,10 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
         editor.sourcesFor(block.id).map((q) => q.source),
       )) || kind.name
   const list = capability(def, 'list')?.binding
-  const addEntry = list?.entryAdd
-  const removeEntry = list?.entryRemove
   const entryName = list?.defaultTitle.replace(/\s*\{n\}/, '') ?? 'Eintrag'
-  const addPossible = addEntry !== undefined && Object.keys(addEntry(block.values)).length > 0
-  const entries = list ? listRead(block.values[list.prop], list) : []
-  const removePossible = removeEntry !== undefined && entries.length > 1
+  const entries = list ? list.entries(block.values[list.prop]) : []
+  const added = list?.entryAdd?.(entries) ?? null
+  const removePossible = list?.entryRemove !== undefined && entries.length > 1
 
   return (
     <div
@@ -155,24 +152,24 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
           <Plus size={12} /> {kindName}
         </Button>
       )}
-      {addEntry && (
+      {list?.entryAdd !== undefined && (
         <Button
           className="h-6 px-1.5 text-dense"
-          disabled={!addPossible}
-          onClick={() => applyProps(editor, block.id, addEntry(block.values))}
+          disabled={added === null}
+          onClick={() => {
+            if (added !== null) editor.updateProperty(block.id, list.prop, added)
+          }}
         >
           <Plus size={12} /> {entryName}
         </Button>
       )}
-      {removeEntry && (
+      {list?.entryRemove !== undefined && (
         <Button
           className="h-6 px-1.5 text-dense"
           disabled={!removePossible}
           onClick={() => {
-            const index = entries.length - 1
-            if (index >= 0) {
-              applyProps(editor, block.id, removeEntry(block.values, index))
-            }
+            const next = list.entryRemove?.(entries, entries.length - 1) ?? null
+            if (next !== null) editor.updateProperty(block.id, list.prop, next)
           }}
         >
           <Minus size={12} /> {entryName}

@@ -228,17 +228,7 @@ defineBlock(Capture, {
     { kind: 'delete', when: { key: 'deletable', equals: true } },
     { kind: 'holdsSent' },
     { kind: 'compute', prop: CALCULATIONS_PROP },
-    {
-      kind: 'lookupWindow',
-      window: {
-        entriesProp: 'columns',
-        titleKey: 'title',
-        sourceKey: 'fillField',
-        columnsKey: 'windowColumns',
-        widthKey: 'windowWidth',
-        heightKey: 'windowHeight',
-      },
-    },
+    { kind: 'lookupWindow', window: { entriesProp: 'columns' } },
   ],
   contracts: { capture: Capture, change: Capture, delete: Capture, holdsSent: Capture },
   grid: LIST_GRID,

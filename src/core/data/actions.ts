@@ -1,5 +1,6 @@
 import type { PendingKind } from '../block/capability'
 import type { RelationTemplate } from './relations'
+import { isUnread } from '../unread'
 
 export const BLOCK_ID_ATTR = 'data-ff-block-id'
 
@@ -70,12 +71,8 @@ export interface RuntimeValues {
   rowsCell?: (blockId: string, columnsIndex: number) => string
 }
 
-export function isSeObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
-}
-
 export function checkParameterBinding(raw: unknown): Parameter | null {
-  if (!isSeObject(raw)) return null
+  if (!isUnread<Parameter>(raw)) return null
   if (
     typeof raw.source !== 'string'
     || !(SAVED_PARAM_SOURCES as readonly string[]).includes(raw.source)

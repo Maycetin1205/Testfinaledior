@@ -4,6 +4,7 @@ import type { DataSource } from '../dataSources'
 import type { Parameter, RuntimeValues } from '../actions'
 import type { RelationAnswer, RelationTemplate, RuntimeRelation } from '../relations'
 import type { RuntimeStep, Step, StepKind } from './steps'
+import type { Unread } from '../../unread'
 
 export interface StepBase {
   id: string
@@ -99,8 +100,8 @@ export interface StepAdapter<K extends StepKind> {
   name: string
   // Waits for SoftEngine's answer, so the host has to listen before it runs.
   answers: boolean
-  read(raw: Readonly<Record<string, unknown>>, base: { id: string; resultName: string }): StepOf<K> | null
-  readExported(raw: Readonly<Record<string, unknown>>, resultName: string): RuntimeStepOf<K> | null
+  read(raw: Unread<StepOf<K>>, base: { id: string; resultName: string }): StepOf<K> | null
+  readExported(raw: Unread<RuntimeStepOf<K>>, resultName: string): RuntimeStepOf<K> | null
   export(step: StepOf<K>, refs: ExportRefs): RuntimeStepOf<K>
   check(step: StepOf<K>, world: CheckWorld): string | null
   run(step: RuntimeStepOf<K>, run: StepRun): Promise<StepOutcome>

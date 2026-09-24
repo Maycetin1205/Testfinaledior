@@ -1,26 +1,23 @@
 import type { PropertyValue } from '../../core/block/property'
-import { ROOT_ID, ROOT_TYPE, type MaskTree } from '../../core/block/tree'
+import { ROOT_ID, ROOT_TYPE, type BlockNode, type MaskTree } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import { DOCUMENT_FRAME_PROP } from '../../core/block/documentFrame'
 import { MASK_NAME_PROP } from '../../core/block/maskName'
 import { chainsClean } from '../../core/data/steps/chains'
+import { isUnread } from '../../core/unread'
 import { treeFromRoot } from './treeFromRoot'
 import { valuesClean } from '../../core/block/treeOps'
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
 
 export function checkTreeState(raw: {
   tree?: unknown
   selectedId?: unknown
 }): { tree: MaskTree; selectedId: string | null } | null {
-  if (!isPlainObject(raw.tree)) return null
+  if (!isUnread<MaskTree>(raw.tree)) return null
   const read: MaskTree = Object.create(null) as MaskTree
   for (const [id, node] of Object.entries(raw.tree)) {
-    if (!isPlainObject(node) || node.id !== id || typeof node.type !== 'string'
-      || !isPlainObject(node.values) || !Array.isArray(node.childIds)
+    if (!isUnread<BlockNode>(node) || node.id !== id || typeof node.type !== 'string'
+      || !isUnread<BlockNode['values']>(node.values) || !Array.isArray(node.childIds)
       || !node.childIds.every((childId): childId is string => typeof childId === 'string')
       || !(node.parentId === null || typeof node.parentId === 'string')) {
       continue

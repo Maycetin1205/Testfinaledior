@@ -1,9 +1,6 @@
 import { structuredProperty, type Property } from '../block/property'
-import {
-  MAX_KEY_PAIRS,
-  completePairs,
-  type KeyPair,
-} from './extraSources'
+import type { Unread } from '../unread'
+import { completePairs, keyPairsFrom, type KeyPair } from './extraSources'
 
 export interface SelectionFollow {
   giverId: string
@@ -43,16 +40,9 @@ export function selectionFollowsFrom(raw: unknown): SelectionFollow[] {
   const acc: SelectionFollow[] = []
   for (const entry of raw) {
     if (!entry || typeof entry !== 'object') continue
-    const e = entry as Record<string, unknown>
+    const e: Unread<SelectionFollow> = entry
     if (typeof e.giverId !== 'string') continue
-    const pairs: KeyPair[] = []
-    for (const p of Array.isArray(e.pairs) ? e.pairs : []) {
-      if (!p || typeof p !== 'object') continue
-      const pp = p as Record<string, unknown>
-      if (typeof pp.fromField !== 'string' || typeof pp.toField !== 'string') continue
-      pairs.push({ fromField: pp.fromField, toField: pp.toField })
-    }
-    acc.push({ giverId: e.giverId, pairs: pairs.slice(0, MAX_KEY_PAIRS) })
+    acc.push({ giverId: e.giverId, pairs: keyPairsFrom(e.pairs) })
   }
   return acc
 }

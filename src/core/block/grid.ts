@@ -1,4 +1,4 @@
-import { numberProperty, type Property } from './property'
+import { numberProperty, type Property, type PropertyValue } from './property'
 import { styleAsCss } from './styleCss'
 
 export const GRID = { columns: 48, columnPx: 20, rowPx: 12, gapPx: 4 } as const
@@ -46,7 +46,7 @@ function parseGridCell(value: unknown, fallback: number): number {
   return fallback
 }
 
-export function gridSlotRead(props: Record<string, unknown>): GridSlot {
+export function gridSlotRead(props: Readonly<Record<string, PropertyValue>>): GridSlot {
   return {
     x: parseGridCell(props.gridX, 0),
     y: parseGridCell(props.gridY, 0),

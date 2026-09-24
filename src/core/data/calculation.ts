@@ -9,6 +9,7 @@ import {
   inBase,
   type Dimensions,
 } from './units'
+import type { Unread } from '../unread'
 
 export type RoundingDirection = 'up' | 'down' | 'nearest'
 
@@ -50,7 +51,7 @@ export function numberText(value: number, decimals: number): string {
 
 function asRounding(raw: unknown): Rounding {
   if (!raw || typeof raw !== 'object') return { ...ROUND_DEFAULT }
-  const o = raw as Record<string, unknown>
+  const o: Unread<Rounding> = raw
   const decimals = typeof o.decimals === 'number' && Number.isInteger(o.decimals)
     && o.decimals >= 0 && o.decimals <= DECIMALS_MAX
     ? o.decimals
@@ -393,7 +394,7 @@ function text(v: unknown): string {
 
 function asFactor(raw: unknown, index: number): Factor | null {
   if (!raw || typeof raw !== 'object') return null
-  const o = raw as Record<string, unknown>
+  const o: Unread<Factor> = raw
   const key = text(o.key) === '' ? `f${index}` : text(o.key)
   const unit = text(o.unit) === '' ? UNIT_DEFAULT : text(o.unit)
   if (o.kind === 'dataField') {
@@ -461,7 +462,7 @@ export function calculationsFrom(raw: unknown): Calculation[] {
   const out: Calculation[] = []
   raw.forEach((entry, i) => {
     if (!entry || typeof entry !== 'object') return
-    const o = entry as Record<string, unknown>
+    const o: Unread<Calculation> = entry
     const numerator = asList(o.numerator, 100)
     const denominator = asList(o.denominator, 200)
     out.push(withUniqueKeys({
@@ -475,9 +476,8 @@ export function calculationsFrom(raw: unknown): Calculation[] {
   return out
 }
 
-export function calculationsForExport(raw: unknown): unknown {
-  if (!Array.isArray(raw)) return raw
-  return raw.filter((entry) => calculationsFrom([entry])
+export function calculationsForExport(calculations: readonly Calculation[]): Calculation[] {
+  return calculations.filter((entry) => calculationsFrom([entry])
     .some((b) => allFactors(b).some((f) => f.kind === 'column' && f.column !== '')))
 }
 

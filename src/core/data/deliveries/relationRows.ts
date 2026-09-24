@@ -1,4 +1,4 @@
-import { isSeObject } from '../actions'
+import { isUnread } from '../../unread'
 import { POS_LEN } from '../sourceInput'
 import type { DeliveryAdapter } from './deliveryAdapter'
 
@@ -46,7 +46,7 @@ function fieldsBehindCut(
 }
 
 export function checkLoadRelation(raw: unknown): LoadRelation | null {
-  if (!isSeObject(raw)) return null
+  if (!isUnread<LoadRelation>(raw)) return null
   const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
   const relationId = text(raw.relationId)
   const documentKindField = text(raw.documentKindField)
@@ -89,7 +89,7 @@ export const relationRows: DeliveryAdapter<'relationRows'> = {
   readExported(entry) {
     const raw = entry.loadRelation
     const load = checkLoadRelation(raw)
-    if (!load || !isSeObject(raw)) return null
+    if (!load || !isUnread<RuntimeLoadRelation>(raw)) return null
     const extraFields = Array.isArray(raw.extraFields)
       ? raw.extraFields.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
       : []

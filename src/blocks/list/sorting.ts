@@ -1,4 +1,4 @@
-import { isPropertyEntry } from '../../core/block/property'
+import { isUnread } from '../../core/unread'
 import { readDate } from '../../runtime/chosenDay'
 import { makeOperatorState } from './operatorState'
 
@@ -77,7 +77,7 @@ export interface RememberedSorting {
 }
 
 function readSorting(raw: unknown): RememberedSorting | null {
-  if (!isPropertyEntry(raw)) return null
+  if (!isUnread<RememberedSorting>(raw)) return null
   const key = typeof raw.key === 'string' ? raw.key.trim() : ''
   if (key === '') return null
   return { key, ascending: raw.ascending !== false }

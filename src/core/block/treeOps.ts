@@ -6,6 +6,7 @@ import {
 } from './tree'
 import { blockType } from './registry'
 import { readValues, type PropertyValue } from './property'
+import type { Unread } from '../unread'
 
 function createRootNode(): BlockNode {
   return { id: ROOT_ID, type: ROOT_TYPE, values: {}, parentId: null, childIds: [] }
@@ -19,7 +20,7 @@ export function emptyTree(): MaskTree {
 // fit falls back to the default.
 export function valuesClean(
   type: string,
-  rawProps: Readonly<Record<string, unknown>>,
+  rawProps: Unread<BlockNode['values']>,
 ): Record<string, PropertyValue> {
   const def = blockType(type)
   if (!def) return {}

@@ -1,5 +1,5 @@
 import type { BlockType } from './blockType'
-import { structuredProperty, type Property } from './property'
+import { structuredProperty, type Property, type PropertyValue } from './property'
 
 export type Direction = 'column' | 'row'
 export type FlowWidth = 'auto' | 'fill' | number
@@ -8,7 +8,7 @@ export type FlowHeight = 'auto' | 'fill' | number
 
 export function directionOfChildren(
   def: Pick<BlockType, 'childDirection'> | undefined,
-  props: Record<string, unknown>,
+  props: Readonly<Record<string, PropertyValue>>,
 ): Direction {
   if (props.direction === 'row') return 'row'
   if (props.direction === 'column') return 'column'

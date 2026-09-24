@@ -1,5 +1,4 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
-import { listRead } from '../core/block/blockType'
 import { bindingProp, capability, applies } from '../core/block/capability'
 import { blockType } from '../core/block/registry'
 import {
@@ -70,10 +69,10 @@ function columnsIndexFor(tree: MaskTree): (blockId: string, key: string) => stri
   return (blockId, key) => {
     const target = tree[blockId]
     const binding = target ? capability(blockType(target.type), 'list')?.binding : undefined
-    const keyProperty = binding?.keyProperty
-    if (!target || !binding || keyProperty === undefined) return '-1'
-    return String(listRead(target.values[binding.prop], binding)
-      .findIndex((entry) => entry[keyProperty] === key))
+    const keyOf = binding?.keyOf
+    if (!target || !binding || keyOf === undefined) return '-1'
+    return String(binding.entries(target.values[binding.prop])
+      .findIndex((entry) => keyOf(entry) === key))
   }
 }
 
