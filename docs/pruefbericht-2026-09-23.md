@@ -951,8 +951,7 @@ starten.
    Spaltenkopf; Text direkt auf der Fläche; Größe an vier Kanten; Feld binden
    durch Klick; Sonderfenster (Nachschlagen, Auswahl folgt, Aktionen,
    Berechnung) werden deklarierte Eigenschaftsarten mit je einem
-   Bedienelement. Das Bedienmodell je Baustein steht im Chat vom 24.09. und
-   wird vor dem Bau in diesen Bericht übernommen.
+   Bedienelement. Das Bedienmodell steht unten.
 2. Kanban neu nach dem Zweigmodell: ein Baustein, Spalten mit Plätzen,
    Karten mit Tiersymbol, im Editor sichtbar. Zimmer gibt es seit Schema 18
    nicht mehr; `places.ts` ist nur die Ablagemarke.
@@ -964,6 +963,78 @@ starten.
    F6 der Erfassung, Antwort-Schlüssel in `softengine/data.ts`, Formular für
    die Feldcodes der Hol-Relation, Aufräumdurchgang (tote Widgets, ungenutzte
    Exporte, alte Namen).
+
+### Bedienmodell für Schritt 2 (24.09., vom Nutzer als Auftrag gelesen)
+
+Wo was erscheint, nach dem Vorbild der Empfangsmaske:
+
+- Oben eine Zeile, weiß mit Linie darunter: Name der Maske, Rahmen-Nummer,
+  Speichern, Laden, Rückgängig, Wiederholen, Exportieren, Daten. Rechts die
+  Seitenreiter: Hauptseite, Popups, Plus.
+- Links ein schmaler dunkler Streifen wie die Navigation der Empfangsmaske:
+  die Bausteine als Symbole mit Namen, anklicken oder auf die Fläche ziehen.
+  Keine Suche, keine Gruppenüberschriften.
+- Mitte die Maske in echter Größe auf neutralem Grau.
+- Rechts die Seitenleiste für Daten: Quellen, Relationen, Bibliothek. Zu,
+  bis „Daten“ geklickt wird; bleibt dann offen, nie modal, nie Vollbild.
+  Inhalt und Formulare bleiben zunächst, wie sie sind.
+- Am markierten Baustein eine kleine Leiste direkt über der Oberkante (liegt
+  er ganz oben, darunter): Symbol und Name, die wenigen Wahlen, rechts
+  Löschen. Am Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der
+  angeklickten Stelle. Keine Statuszeile.
+
+Grundregeln für alle Bausteine:
+
+- Markieren durch Klick, Verschieben durch Ziehen, Größe an allen vier
+  Kanten und Ecken am Raster, Löschen mit Entf.
+- Text immer direkt auf der Fläche: Doppelklick, tippen.
+- Feld binden: Klick auf die Stelle, Feldliste der Quelle erscheint dort.
+  Gebundene Stellen gepunktet unterstrichen.
+- Aktionen als Sätze unter dem Ereignis („Beim Klick: Relation
+  Standard-Schreiben mit Bezeichnung der gewählten Zeile, dann Popup
+  Hinweis öffnen“), jeder Schritt eine Zeile, Plus für den nächsten, jede
+  Stelle im Satz anklickbar mit kurzer Auswahl. Getippt werden nur Festwerte.
+- „Folgt der Auswahl“: in der Leiste anklicken, dann auf den gebenden
+  Baustein klicken. Feldpaare nur, wenn nötig, als zweite Zeile.
+- Der Inspector fällt weg; die Sonderfenster (Nachschlagen, Auswahl folgt,
+  Aktionen, Berechnung) werden deklarierte Eigenschaftsarten mit je einem
+  Bedienelement, damit jeder neue Baustein seine Bedienung geschenkt bekommt.
+
+Je Baustein (Fläche = direkt am Baustein; Leiste = Pop-up am Baustein):
+
+- Schaltfläche. Fläche: Beschriftung. Leiste: Aussehen, Beim Klick.
+- Text. Fläche: Text, Feld binden per Klick. Leiste: Rolle, Ausrichtung,
+  Quelle.
+- Formularfeld. Fläche: Beschriftung über dem Feld, Feld binden per Klick ins
+  Feld. Leiste: Feldtyp, Darstellung, Quelle, Festwert, bei Auswahl die
+  Optionen als kurze Liste; bei Nachschlagen: Quelle, Gespeichert wird (Feld
+  plus Klarname), Einzigen Treffer übernehmen. Das Nachschlagefenster wird im
+  Editor gezeichnet, Spalten wie bei der Tabelle, Größe durch Ziehen am
+  Fensterrand. Bei „Wert geändert“: Aktionen.
+- Tabelle. Fläche: Spaltenkopf tippen, Breite am Spaltenrand, Reihenfolge
+  durch Ziehen des Kopfs, Plus am Ende fügt eine Spalte an; Klick auf einen
+  Kopf öffnet die Spaltenleiste: Feld, Summe, Ausblenden. Leiste: Quelle,
+  Tag-Feld, Schalter Suchzeile, Blättern, Kopfzeile, Spaltenwahl. Ereignisse
+  Zeile gewählt, Doppelklick, F4 mit Aktionen.
+- Erfassung. Wie Tabelle, je Spalte dazu: Eingabe erlaubt, Füllfeld aus der
+  Hilfsquelle, Nachschlagefenster wie beim Formularfeld. Leiste: Löschbar,
+  Hilfsquelle (Quelle wählen, bis zu drei Feldpaare per Klick). Berechnung
+  am Kopf der Ergebnisspalte als Satz („Doppelt = Menge mal 2, gerundet auf
+  2 Stellen“), jeder Teil anklickbar. Kein Vollbild.
+- Karte. Fläche: Titel, Titel 2, Zeit, Datum, Unterzeile, Textzeile, Chip,
+  jede Stelle tippen oder binden. Leiste: Ton des Chips.
+- Kanban. Fläche: Spaltentitel tippen, Plus fügt eine Spalte an, die erste
+  Karte ist das Muster und wird an Ort und Stelle bearbeitet. Leiste: Quelle,
+  Einsortieren nach, Tag-Feld, Ereignisse Karte angeklickt, Karte verschoben.
+  Klick auf einen Spaltenkopf: Ton, Wert im ERP, Auffangspalte, Unterteilen
+  nach.
+- Popup. Fläche: Name im Seitenreiter, Größe durch Ziehen am Rahmen.
+- Bereich und Datum. Nur Lage und Größe.
+- Maske: Name und Rahmen-Nummer in der Werkzeugleiste.
+
+Was keinen Platz bekommt, fällt weg: Größe in Zahlen, Fensterbreite und
+-höhe als Zahlen, der Klarname als Tippfeld, wenn das Feld ihn liefert. Die
+Punkte der Entscheidungsliste unten fallen weg, sobald der Nutzer ja sagt.
 
 ### Zur Entscheidung des Nutzers (Vorschlag: weg)
 
