@@ -63,7 +63,7 @@ export function columnsChoiceTpl(
 
 const EMPTY_CHOICE: ReadonlySet<string> = new Set()
 
-export interface ColumnsChoiceHost {
+interface ColumnsChoiceHost {
   block: HTMLElement
 
   on: () => boolean

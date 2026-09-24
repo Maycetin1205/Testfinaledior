@@ -54,7 +54,7 @@ import { BRIDGE_SCRIPT } from './validator'
 
 const OWN_SOURCE_PROPS = new Set([SOURCE_PROP, EXTRA_SOURCES_PROP])
 
-export interface MaskExport {
+interface MaskExport {
   html: string
   sevariablen: string
 }

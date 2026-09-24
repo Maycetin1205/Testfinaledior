@@ -9,7 +9,7 @@ import {
   type RelationTemplate,
 } from '../../core/data/relations'
 
-export interface AdoptField {
+interface AdoptField {
   sourceId: string
   sourceName: string
   code: string
@@ -18,17 +18,17 @@ export interface AdoptField {
   posLen: string
 }
 
-export interface AdoptSource {
+interface AdoptSource {
   sourceId: string
   sourceName: string
 }
 
-export interface AdoptHit {
+interface AdoptHit {
   kind: ParameterRole
   value: string
 }
 
-export interface FieldAdoptResult {
+interface FieldAdoptResult {
   params: Parameter[]
   set: AdoptHit[]
 }

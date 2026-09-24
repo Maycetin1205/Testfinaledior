@@ -24,7 +24,6 @@ export interface HandedRow {
   cells: readonly string[]
 }
 
-// What the last fill found.
 export interface RowsReport {
   bySelection: boolean
 }
@@ -33,8 +32,6 @@ export const WITHOUT_ROWS: RowsReport = {
   bySelection: false,
 }
 
-// The element a data source fills. It holds the rows and states what shapes
-// them: its own columns and its own calculations.
 export interface RowsElement extends HTMLElement {
   rawRows: unknown[]
   dataRows: string[][]
@@ -121,7 +118,7 @@ const link = makeDataLink<RowsElement>({ hydrate: fillRows })
 export const followSource = link.connect
 export const unfollowSource = link.disconnect
 
-export interface HandedCells {
+interface HandedCells {
   rawRows: unknown[]
   dataRows: string[][]
 }

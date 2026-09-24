@@ -3,7 +3,7 @@ import { reportTrigger } from './bridge'
 import { setFetchedRows } from './fetchedRows'
 import { queryRun } from './relations'
 
-export interface QuerySource {
+interface QuerySource {
   id: string
   name: string
 }

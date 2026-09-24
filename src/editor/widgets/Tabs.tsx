@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export interface TabsProps {
+interface TabsProps {
   active?: boolean
   onClick: () => void
   onDoubleClick?: () => void

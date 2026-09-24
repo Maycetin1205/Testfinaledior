@@ -37,9 +37,7 @@ import {
   type RowsElement,
 } from './sourceRows'
 
-// The element a record list drives: it holds the rows, carries the settings the
-// list declares and reads its own columns and calculations.
-export interface ListElement
+interface ListElement
   extends RowsElement, ListSettings, MeasureTarget, ReactiveControllerHost {
   // Only compared: new columns void the widths dragged for the old ones.
   readonly columns: readonly Column[]
@@ -50,7 +48,7 @@ export interface ListElement
 
 // What a block adds on top of a plain list. The capture fills all three, the
 // table none.
-export interface ListHooks {
+interface ListHooks {
   cellValue: (rawIndex: number, slot: number) => string
 
   decoration: () => (rawIndex: number | null) => RowDecoration

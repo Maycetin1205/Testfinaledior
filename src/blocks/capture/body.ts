@@ -60,7 +60,7 @@ function crossDisplayTpl(): TemplateResult {
   return html`<span class="row-remove row-remove-static">&#x2715;</span>`
 }
 
-export interface CapturedPlacement {
+interface CapturedPlacement {
   columns: readonly Column[]
   slots: readonly number[]
 
@@ -75,7 +75,7 @@ export interface CapturedPlacement {
   capture: TemplateResult
 }
 
-export interface CapturedAct {
+interface CapturedAct {
   takeCapturedRow: (index: number) => void
 
   bringBackCapturedRow: (index: number) => void
@@ -113,7 +113,7 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
     : nothing}`
 }
 
-export interface DecorationPlacement {
+interface DecorationPlacement {
   preview: boolean
 
   deletable: boolean

@@ -9,10 +9,10 @@ import type { Unread } from '../../unread'
 
 // An intersection instead of Extract keeps an adapter of one kind assignable to
 // the adapter of all kinds.
-export type DeliveryOf<K extends DeliveryKind> = Delivery & { kind: K }
+type DeliveryOf<K extends DeliveryKind> = Delivery & { kind: K }
 export type RuntimeDeliveryOf<K extends DeliveryKind> = RuntimeDelivery & { kind: K }
 
-export interface ExportContext {
+interface ExportContext {
   usedFields: ReadonlySet<string> | undefined
   orderedFields: (source: DataSource) => string
   relations: readonly RelationTemplate[]

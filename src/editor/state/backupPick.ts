@@ -9,7 +9,7 @@ import {
   type StoredMask,
 } from './maskStorage'
 
-export interface CopyState {
+interface CopyState {
   key: string
   time: Date | null
 

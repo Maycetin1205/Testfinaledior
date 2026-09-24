@@ -30,8 +30,6 @@ export function emptyTree(): MaskTree {
   return { [ROOT_ID]: createRootNode() }
 }
 
-// Reads a stored bag of values against the block's declaration. What does not
-// fit falls back to the default.
 export function valuesClean(
   type: string,
   rawProps: Unread<BlockNode['values']>,

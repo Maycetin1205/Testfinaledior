@@ -59,7 +59,7 @@ export function readDataPreamble(el: HTMLElement): DataPreamble | null {
   return { source, rows, read: makeFieldReader(el) }
 }
 
-export interface DataLink<T extends HTMLElement> {
+interface DataLink<T extends HTMLElement> {
   connect: (el: T) => void
 
   disconnect: (el: T) => void

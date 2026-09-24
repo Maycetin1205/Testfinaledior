@@ -8,7 +8,7 @@ export const INPUT_EDGE =
   + ' disabled:cursor-not-allowed disabled:opacity-40'
   + ' aria-[invalid=true]:border-error aria-[invalid=true]:focus-visible:ring-error'
 
-export type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>
+type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>
 
 export const Field = forwardRef<HTMLInputElement, FieldProps>(
   ({ type = 'text', className, ...rest }, ref) => (

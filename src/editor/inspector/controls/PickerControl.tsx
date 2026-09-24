@@ -7,7 +7,7 @@ import { List, type ListGroup } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
 import { Row, type RowControl } from '@/editor/widgets/Row'
 
-export interface PickerControlProps {
+interface PickerControlProps {
   label?: string
   error?: ReactNode
 

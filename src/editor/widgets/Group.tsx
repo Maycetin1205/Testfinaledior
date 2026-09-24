@@ -2,7 +2,7 @@ import { useId, useState, type ReactNode } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 
-export interface GroupProps {
+interface GroupProps {
   title: ReactNode
 
   actions?: ReactNode

@@ -165,7 +165,7 @@ export function rowDouble(
     .catch(() => {})
 }
 
-export interface ActionRowElement extends HTMLElement {
+interface ActionRowElement extends HTMLElement {
   rawRows: unknown[]
 }
 

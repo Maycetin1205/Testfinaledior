@@ -5,7 +5,7 @@ import { maskState } from './maskState'
 import { firstRowToSelection } from './selection'
 import { makeFieldReader } from './foreignSources'
 
-export type BoundSpot =
+type BoundSpot =
 
   | { kind: 'unbound' }
 

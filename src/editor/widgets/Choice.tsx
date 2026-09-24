@@ -11,7 +11,7 @@ export interface ChoiceOption {
   disabled?: boolean
 }
 
-export interface ChoiceProps
+interface ChoiceProps
   extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'value' | 'onChange' | 'children'> {
   options: readonly ChoiceOption[]
   value: string

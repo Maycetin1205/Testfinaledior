@@ -1,6 +1,6 @@
-export type UnitKind = 'mass' | 'volume' | 'counting'
+type UnitKind = 'mass' | 'volume' | 'counting'
 
-export interface Unit {
+interface Unit {
   code: string
   name: string
 

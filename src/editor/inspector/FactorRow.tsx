@@ -40,7 +40,7 @@ function withKind(factor: Factor, kind: string): Factor {
   return { ...newFactor(key), unit }
 }
 
-export interface FactorRowProps {
+interface FactorRowProps {
   factor: Factor
   columns: readonly { key: string; title: string }[]
   sources: readonly SourceInReach[]

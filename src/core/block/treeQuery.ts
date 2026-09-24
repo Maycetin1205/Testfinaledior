@@ -8,7 +8,7 @@ import { stepAdapter } from '../data/steps/steps'
 
 export { SOURCE_PROP }
 
-export interface ValueSpotsTarget {
+interface ValueSpotsTarget {
   node: BlockNode
   spot: ValueSpot
 }

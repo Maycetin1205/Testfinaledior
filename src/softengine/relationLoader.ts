@@ -14,7 +14,7 @@ const MAX_POSITIONS = 999
 
 const CUT_POS = '0'
 
-export interface GetSource {
+interface GetSource {
   id: string
   name: string
 }

@@ -18,7 +18,7 @@ import {
 const DRAGS_ATTR = 'data-ff-dragging'
 
 // What the board writes on its element; the kanban only shows it.
-export interface BoardElement extends HTMLElement {
+interface BoardElement extends HTMLElement {
   columnsField: string
 
   busy: boolean
@@ -191,7 +191,6 @@ class Board {
     return this.template
   }
 
-  // Cards no record asks for any more leave the board.
   private replaceCards(fresh: Map<HTMLElement, CardData>): void {
     for (const card of this.cards.keys()) {
       if (fresh.has(card)) continue

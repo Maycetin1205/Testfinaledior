@@ -38,7 +38,7 @@ function stepWithoutPointer(
   return hit > 0 ? { step: next, hit } : null
 }
 
-export interface Cleared {
+interface Cleared {
   tree: MaskTree
 
   parameter: number

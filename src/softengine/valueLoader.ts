@@ -8,7 +8,7 @@ import {
   parameterResolve,
 } from './relations'
 
-export interface ValueSource {
+interface ValueSource {
   id: string
   name: string
 }

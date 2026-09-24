@@ -40,7 +40,7 @@ import {
   type CaptureContext,
 } from './row'
 
-export type RowsStatus =
+type RowsStatus =
   | 'booked'
   | 'captured'
   | 'changed'
@@ -110,14 +110,13 @@ interface CapturedRow {
   written?: { record: string }
 }
 
-export interface PendingRow {
+interface PendingRow {
   key: string
 
   values: readonly string[]
 }
 
-// What the lookup window of one capture cell opens on.
-export interface LookupSpot {
+interface LookupSpot {
   spot: string
 
   sourceId: string
@@ -133,9 +132,7 @@ export interface LookupSpot {
   searchText: string
 }
 
-// What the ledger needs of its capture: the declared list, the rows of the
-// source and the two ways back into the drawing.
-export interface CaptureHost {
+interface CaptureHost {
   block: HTMLElement
 
   columns: () => readonly CaptureColumn[]

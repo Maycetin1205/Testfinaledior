@@ -1,7 +1,7 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { suggestionListTpl, type Suggestion } from './suggestionList'
 
-export interface InputSpotPlacement {
+interface InputSpotPlacement {
   value: string
 
   title: string
@@ -23,7 +23,7 @@ export interface InputSpotPlacement {
   beside?: TemplateResult
 }
 
-export interface InputSpotAct {
+interface InputSpotAct {
   typing: (text: string) => void
 
   key: (e: KeyboardEvent) => void

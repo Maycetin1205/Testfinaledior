@@ -2,7 +2,7 @@ import type { ExtraSource, KeyPair } from '../core/data/extraSources'
 import type { SelectionFollow } from '../core/data/selectionFollow'
 import { isUnread } from '../core/unread'
 
-export interface PairEntry {
+interface PairEntry {
   id: string
 
   partnerId: string
@@ -10,7 +10,7 @@ export interface PairEntry {
   pairs: KeyPair[]
 }
 
-export interface PairListOptions {
+interface PairListOptions {
   keepWithoutPairs?: boolean
 }
 

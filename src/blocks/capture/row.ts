@@ -13,7 +13,7 @@ import type { KeyPair } from '../../core/data/extraSources'
 import { extraSourcesOf } from '../../runtime/foreignSources'
 import { maskState } from '../../runtime/maskState'
 
-export interface CapturePlacement {
+interface CapturePlacement {
   columns: readonly Column[]
   slots: readonly number[]
 
@@ -36,7 +36,7 @@ export interface CapturePlacement {
   listToTop: boolean
 }
 
-export interface CaptureAct {
+interface CaptureAct {
   typing: (index: number, text: string) => void
   key: (index: number, e: KeyboardEvent) => void
   leave: (index: number) => void
@@ -89,9 +89,9 @@ export function captureRowTpl(
   </div>`
 }
 
-export type CellKind = 'free' | 'own' | 'linked'
+type CellKind = 'free' | 'own' | 'linked'
 
-export interface CellTarget {
+interface CellTarget {
   kind: CellKind
 
   sourceId: string

@@ -11,12 +11,12 @@ const LIBRARY_FILE_VERSION = 2
 // Version 2 stores a data source as preset plus descriptor.
 const LIBRARY_SCHEMA_VERSION = 2
 
-export interface LibraryContent {
+interface LibraryContent {
   dataSources: DataSource[]
   relation: RelationTemplate[]
 }
 
-export type LibraryResult =
+type LibraryResult =
   | { ok: true; content: LibraryContent }
   | { ok: false }
 

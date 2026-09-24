@@ -1,7 +1,7 @@
 import { html, type TemplateResult } from 'lit'
 import { COLUMNS_MIN_WIDTH, type Column } from './columns'
 
-export interface WidthsChange {
+interface WidthsChange {
   index: number
   width: number
 }
@@ -100,7 +100,7 @@ export function widthsHandles(
   ></span>`)
 }
 
-export interface WidthsStateHost {
+interface WidthsStateHost {
   preview: () => boolean
 
   fullSlot: (rendered: number) => number

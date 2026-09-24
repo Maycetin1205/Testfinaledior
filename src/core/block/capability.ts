@@ -69,11 +69,11 @@ export type Capability =
   | { kind: 'compute'; prop: string }
   | { kind: 'events'; list: readonly EventDef[] }
 
-export type CapabilityKind = Capability['kind']
+type CapabilityKind = Capability['kind']
 
-export type CapabilityOf<A extends CapabilityKind> = Extract<Capability, { kind: A }>
+type CapabilityOf<A extends CapabilityKind> = Extract<Capability, { kind: A }>
 
-export interface HasCapabilities {
+interface HasCapabilities {
   capabilities: readonly Capability[]
 }
 
@@ -97,7 +97,7 @@ export function applies(
 
 export type BindingProp<P extends string = string> = `${P}Field`
 
-export type BindingAttr = `${string}field`
+type BindingAttr = `${string}field`
 
 export function bindingProp<P extends string>(prop: P): BindingProp<P> {
   return `${prop}Field`
@@ -107,18 +107,18 @@ export function bindingAttr(prop: string): BindingAttr {
   return `${prop.toLowerCase()}field`
 }
 
-export type BindableSpotProp<Props> = keyof Props extends infer K
+type BindableSpotProp<Props> = keyof Props extends infer K
   ? K extends BindingProp<infer P> ? P : never
   : never
 
-export type BindableSpotsFor<Props> = ReadonlyArray<
+type BindableSpotsFor<Props> = ReadonlyArray<
   Omit<BindableSpot, 'prop' | 'previewProp'> & {
     prop: BindableSpotProp<Props>
     previewProp?: keyof Props & string
   }
 >
 
-export type ValueSpotsFor<Props> = ReadonlyArray<{
+type ValueSpotsFor<Props> = ReadonlyArray<{
   prop: keyof Props & string
   name: string
 }>
@@ -178,7 +178,7 @@ export type ContractKind = keyof RuntimeContracts
 
 // The element class that fulfils a contract. A block names it when it declares
 // the capability, and the type checker holds the class to the contract.
-export type ContractClass<A extends ContractKind> =
+type ContractClass<A extends ContractKind> =
   abstract new (...args: never[]) => RuntimeContracts[A]
 
 export type ContractClasses = { readonly [A in ContractKind]?: ContractClass<A> }

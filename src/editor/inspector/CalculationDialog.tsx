@@ -56,14 +56,14 @@ function previewState(text: string | undefined): FactorState {
   return number === null ? { kind: 'invalid', text: t } : { kind: 'number', number }
 }
 
-export interface CalculationList {
+interface CalculationList {
   calculations: readonly Calculation[]
   onChoose: (key: string) => void
   onAdd: () => void
   onRemove: () => void
 }
 
-export interface CalculationDialogProps {
+interface CalculationDialogProps {
   calculation: Calculation
   list?: CalculationList
   columns: readonly ColumnHead[]

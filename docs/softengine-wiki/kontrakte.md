@@ -51,8 +51,8 @@ fehlt, wird nicht geraten, sondern getestet.
   Code `253_30`. Schlüssel-Scan: gleich / Präfix `code_` / Endung `_code` —
   für Lesen UND Schreiben.
 - Eine ERP-Abfrage liefert Schlüssel mit festem Vorsatz: `LFA_pos_len`.
-- Gilt in: `kern/daten/ladeRelation.ts` (`POS_LEN`), `softengine/data.ts`
-  (`getField`/`setField`), `kern/daten/relationen.ts` (`feldCodeZerlegen`).
+- Gilt in: `core/data/sourceInput.ts` (`POS_LEN`), `softengine/data.ts`
+  (`fieldRead`/`fieldWrite`), `core/data/relations.ts` (`fieldCodeSplit`).
 
 ## 4. SEvariablen — Bestellung
 
@@ -69,7 +69,7 @@ fehlt, wird nicht geraten, sondern getestet.
   lässt, fällt die ganze Bestellung auf `*` zurück.
 - Was in einer expliziten Liste fehlt, liefert SoftEngine **nie** — die
   gebundene Stelle bleibt still leer.
-- Gilt in: `kern/daten/datenquellen.ts` (`bestellteFelder`), `export/sevariablen.ts`.
+- Gilt in: `core/data/dataSources.ts` (`orderedFields`), `export/sevariablen.ts`.
 
 ## 4a. REFRESH — den Klartext zu einem Code-Feld bestellen
 
@@ -195,7 +195,7 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   Tabellen-ID (`Daten.Var.BEL`). Wo der eigene Eintrag leer bleibt, gilt
   `WINDOW_VARIABLE` — die Handmaske liest `B.BEL_3_8 || W.BEL_3_8`. Aus dem
   Fenster zaehlt nur, was den Vorsatz dieser Tabelle traegt (`BEL_`).
-- Gilt in: `kern/daten/datenquellen.ts` (`varAusKopfsaetzen`, `kopfsatzVon`).
+- Gilt in: `core/data/orders/sefileloop.ts` (`varOfHeaderKey`, `headerKeyOf`).
 
 ## 7. Schreiben
 
@@ -226,7 +226,7 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
   lädt er die ganze Maske neu; der Schreibstatus der Zeilen ginge dabei
   verloren. Nicht per Echttest.
-- Gilt in: `kern/daten/relationen.ts`, `bausteine/faehigkeiten/ereignisse.ts`.
+- Gilt in: `core/data/relations.ts`, `runtime/events.ts`.
 
 ## 7a. Schreiben über die ERP-Maske (MASKENEVENT, Echttest 2026-09-18)
 
@@ -309,7 +309,7 @@ Belegt 2026-08-10/11, Echttests:
   trotzdem EINEM Wert.
 - Eine holende Quelle bestellt bei SoftEngine NICHTS — ihr SEFILELOOP-Eintrag
   entfällt.
-- Gilt in: `kern/daten/ladeRelation.ts`, `softengine/relationLader.ts`.
+- Gilt in: `core/data/deliveries/relationRows.ts`, `softengine/relationLoader.ts`.
 
 ## 9. START_TOOL
 
@@ -318,7 +318,7 @@ Belegt 2026-08-10/11, Echttests:
   Weg verwirft die Parameter (aus SoftEngines eigener Maskenbibliothek gelesen,
   nicht per Echttest).
 - Werkzeug-Nummern sind je Installation individuell → Daten, nie Code.
-- Gilt in: `bausteine/faehigkeiten/ereignisse.ts`.
+- Gilt in: `softengine/commands.ts`.
 
 ## 10. ERPAPICALL
 
@@ -344,9 +344,9 @@ Belegt 2026-08-10/11, Echttests:
   auf einmal sind schneller (Echttest 2026-09-21).
 - Nicht belegt und darum nicht angeboten: Kopfsatz, offener Satz (VAR),
   Hol-Relation, Schreibweg. WebUI nicht getestet.
-- Gilt in: `kern/daten/datenquellen.ts` (`holtNachOeffnen`),
-  `softengine/abfrageLader.ts`, `softengine/relations.ts` (`abfrageAusfuehren`),
-  `softengine/data.ts` (`zeilenAusAbfrageAntwort`).
+- Gilt in: `core/data/deliveries/message.ts` (`fetchOn: 'delivery'`),
+  `softengine/queryLoader.ts`, `softengine/relations.ts` (`queryRun`),
+  `softengine/data.ts` (`rowsFromQueryAnswer`).
 
 ## 11. Anlegen (SE-Wissen, wird NICHT gebaut)
 
@@ -371,7 +371,7 @@ steht hier nur als Wissen:
   `IDBID0002_0_30,1002,0,30,Tierart,L,a001,000000`
 - Die Datei enthält auch ALTE Seitenstände.
 - Steuerzeichen werden abgestreift (belegt: ein `0x80` vor `' von'`).
-- Gilt in: `kern/daten/dtkImport.ts`.
+- Gilt in: `core/data/dtkImport.ts`.
 
 ## 13. Plattform-Unterschiede
 
@@ -427,7 +427,7 @@ steht hier nur als Wissen:
 - Echttest 2026-08-12: ohne das Sicht-Attribut lagen zwei
   Flächen **übereinander** — im Editor unsichtbar, in SoftEngine kaputt.
   Wer es entfernt, bricht die Ansichten.
-- Gilt in: `bausteine/grund/Grundbaustein.ts`.
+- Gilt in: `blocks/base/BlockElement.ts`.
 
 ## 15. Optik-Belege aus den echten Masken
 
@@ -481,7 +481,7 @@ ihrer BEZEICHNUNG an.
 
 Offen: Der `DATASET`-Block in den SEvariablen (`ID`, `ALIAS`, `FELDER`, laut
 SoftEngine-Auskunft ab Revision 127025, Zeilen unter `Daten.Tabellen.<ALIAS>`)
-ist noch NICHT im Echttest belegt. Gilt in: `kern/daten/quellenArten.ts`
+ist noch NICHT im Echttest belegt. Gilt in: `core/data/orders/dataset.ts`
 (`dataset`), `export/sevariablen.ts`.
 
 ---

@@ -11,15 +11,12 @@ import {
 import { focusedRawIndex, restoreRowsFocus } from './rowActivation'
 import { rememberedSorting } from './sorting'
 
-// The element whose view the operator changes.
-export interface ViewElement extends HTMLElement, MeasureTarget {
+interface ViewElement extends HTMLElement, MeasureTarget {
   readonly preview: boolean
   editable: boolean
   requestUpdate: () => void
 }
 
-// What the operator chose about the view: search text, sort column, page — plus
-// how many rows the body currently fits.
 export class ViewChoices {
   private readonly el: ViewElement
 

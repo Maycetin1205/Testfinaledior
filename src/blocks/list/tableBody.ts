@@ -43,7 +43,7 @@ export interface Sublines {
   }) => TemplateResult
 }
 
-export interface BodyPlacement {
+interface BodyPlacement {
   columns: readonly Column[]
 
   slots: readonly number[]
@@ -83,7 +83,7 @@ export interface BodyPlacement {
   bottom: TemplateResult | typeof nothing
 }
 
-export interface BodyAct {
+interface BodyAct {
   setSearchText: (text: string) => void
 
   widths: WidthsHost
@@ -227,7 +227,7 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
     `
 }
 
-export interface FootPlacement {
+interface FootPlacement {
   showsRows: boolean
 
   visible: number
@@ -244,7 +244,7 @@ export interface FootPlacement {
   empty: boolean
 }
 
-export interface FootAct {
+interface FootAct {
   page: (to: number) => void
 }
 

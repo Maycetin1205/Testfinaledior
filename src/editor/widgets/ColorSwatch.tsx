@@ -1,7 +1,7 @@
 import { Check } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 
-export interface ColorSwatchProps {
+interface ColorSwatchProps {
   color?: string
 
   name: string

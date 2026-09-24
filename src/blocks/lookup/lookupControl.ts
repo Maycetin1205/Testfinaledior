@@ -46,7 +46,7 @@ function actionOnLeave(
   return typed === confirmedDisplay ? 'nothing' : 'back'
 }
 
-export interface LookupControlHost {
+interface LookupControlHost {
   block: BlockElement
   report: () => void
 

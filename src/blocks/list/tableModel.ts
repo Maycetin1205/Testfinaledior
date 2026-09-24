@@ -11,7 +11,7 @@ import { sortIndices, TOTAL_DECIMALS, totalText } from './sorting'
 import { columnsTemplate, type Column, type ColumnsGrid } from './columns'
 import { rowFits } from './textSearch'
 
-export interface ViewQuestion {
+interface ViewQuestion {
   columns: readonly Column[]
 
   rendered?: readonly Column[]
@@ -41,7 +41,7 @@ export interface ViewQuestion {
   paging: boolean
 }
 
-export interface TableRenderModel {
+interface TableRenderModel {
   cols: ColumnsGrid
 
   tick: number

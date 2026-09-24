@@ -8,7 +8,6 @@ export {
   listDefaultTitle,
   flagOn,
   flagFor,
-  type EntrySwitch,
   type ListBinding,
 } from './listBinding'
 

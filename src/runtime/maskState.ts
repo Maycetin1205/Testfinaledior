@@ -3,7 +3,7 @@ import { softEngineHost } from './softEngineHost'
 
 // What the running mask holds besides its elements. A page carries one document
 // with one mask, so there is exactly one of it.
-export interface MaskState {
+interface MaskState {
   // Whom the blocks ask for data and send their actions to.
   host: MaskHost
   selection: {

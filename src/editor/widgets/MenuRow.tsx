@@ -1,14 +1,14 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export type MenuRowKind = 'silent' | 'risk'
+type MenuRowKind = 'silent' | 'risk'
 
 const KIND: Record<MenuRowKind, { color: string; hover: string }> = {
   silent: { color: 'text-ink', hover: 'hover:bg-control' },
   risk: { color: 'text-error', hover: 'hover:bg-error/15' },
 }
 
-export interface MenuRowProps
+interface MenuRowProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   icon?: ReactNode
 

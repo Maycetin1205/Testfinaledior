@@ -7,7 +7,7 @@ export interface RowControl {
   'aria-invalid': true | undefined
 }
 
-export interface RowProps {
+interface RowProps {
   label?: ReactNode
 
   error?: ReactNode

@@ -2,7 +2,7 @@ import type { Delivery } from '../../core/block/capability'
 import { numberStrict } from '../../core/data/calculation'
 import type { Column } from '../list/columns'
 
-export interface SentRow {
+interface SentRow {
   record: string
 
   values: readonly string[]

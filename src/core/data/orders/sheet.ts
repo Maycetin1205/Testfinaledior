@@ -6,7 +6,7 @@ export interface VarEntry {
   FELDER: string
 }
 
-export interface SefileloopEntry {
+interface SefileloopEntry {
   INDEX_NR: 0
   ALIAS: string
   ID: string
@@ -14,19 +14,19 @@ export interface SefileloopEntry {
   FELDER: string
 }
 
-export interface ErpApiCallEntry {
+interface ErpApiCallEntry {
   ID: string
   ALIAS: string
   FELDER: string
 }
 
-export interface DatasetEntry {
+interface DatasetEntry {
   ID: string
   ALIAS: string
   FELDER: string
 }
 
-export interface MaskEntry {
+interface MaskEntry {
   ID: string
   BEREICH: string
   FELDER: '*'
@@ -34,7 +34,7 @@ export interface MaskEntry {
   ALIAS: string
 }
 
-export interface Sheet {
+interface Sheet {
   VAR: VarEntry[]
   SEFILELOOP: SefileloopEntry[]
   ERPAPICALL: ErpApiCallEntry[]

@@ -3,10 +3,8 @@ import { checkGetValue } from '../../core/data/deliveries/relationValue'
 import { isPresetId, sourcePreset } from '../../core/data/presets/presets'
 import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
 
-// Lifts a saved mask to the format this editor reads. Version 16 renamed every
-// stored name from German to English, version 17 the names that rename missed,
-// version 20 made a data source a preset plus descriptor; a file below them
-// first runs the older steps.
+// Lifts a saved mask to the format this editor reads; a file below a version
+// first runs the steps of every older one.
 export const CURRENT_SCHEMA_VERSION = 20
 
 const ENGLISH_NAMES = 16
@@ -589,9 +587,9 @@ function liftToDescriptors(state: Record<string, unknown>): void {
   state.dataSources = sources.map((source) => (isPlainObject(source) ? descriptorSource(source) : source))
 }
 
-// ---- version 20: the Hol-Relation as a catalog entry, not a number at the source ----
+// ---- version 20: the load relation as a catalog entry, not a number at the source ----
 
-// What the mask filled in for every Hol-Relation, whatever number it had.
+// What the mask filled in for every load relation, whatever number it had.
 const OLD_POSITION_PARAMETER = ['BELART', 'POS', 'LEN', 'BELNR', 'JAHR', 'ARCHIV', '', 'POSNR', '', '', '', '']
 const OLD_POSITION_SLOTS = [
   'documentKind', 'position', 'length', 'documentNumber', 'year', 'archive',
@@ -637,7 +635,7 @@ function liftLoadRelations(state: Record<string, unknown>): void {
 }
 
 // A mask before version 20, and a customer file before version 2, still
-// carries its sources as kinds and its Hol-Relations as numbers.
+// carries its sources as kinds and its load relations as numbers.
 export function liftTo20(state: Record<string, unknown>): void {
   liftLoadRelations(state)
   liftToDescriptors(state)

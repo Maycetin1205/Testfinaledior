@@ -1,4 +1,4 @@
-export interface DtkField {
+interface DtkField {
   code: string
   name: string
 }

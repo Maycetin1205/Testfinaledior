@@ -15,11 +15,9 @@ export interface ListBinding<E = unknown> {
 
   entrySpots?: string
 
-  // The entries of a stored value, read the way the property declares them.
   entries(raw: unknown): E[]
 
-  // Other parts of the mask point at an entry by this key, a step at the cell
-  // of a column. A list without it is never pointed at.
+  // A step points at a column by this key; a list without one is never pointed at.
   keyOf?(entry: E): string
 
   titleOf(entry: E): string
@@ -65,7 +63,6 @@ export interface EntrySwitch<E> {
 
   short?: string
 
-  // What the entry holds, undefined when it holds nothing.
   valueOf(entry: E): boolean | undefined
 
   // undefined takes the switch away.

@@ -3,7 +3,7 @@ import type { Unread } from '../../unread'
 
 // An intersection instead of Extract keeps an adapter of one kind assignable to
 // the adapter of all kinds.
-export type WriteOf<K extends WriteKind> = Write & { kind: K }
+type WriteOf<K extends WriteKind> = Write & { kind: K }
 
 // How the mask writes back what the operator changed in the rows of a source.
 export interface WriteAdapter<K extends WriteKind> {

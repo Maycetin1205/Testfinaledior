@@ -7,7 +7,7 @@ const FORMER_LOOKUP_KEY_PART = '/nachschlagen/'
 
 const FORMER_FIELD_KEY_PREFIX = 'feld:'
 
-export interface OperatorState<T> {
+interface OperatorState<T> {
   read: (el: HTMLElement, key?: string) => T | null
 
   remember: (el: HTMLElement, state: T | null) => void

@@ -25,7 +25,7 @@ export interface MaskContent {
   relationIds: readonly string[]
 }
 
-export type UnpackResult =
+type UnpackResult =
   | { ok: true; content: MaskContent }
   | { ok: false }
 

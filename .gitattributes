@@ -2,4 +2,3 @@
 # reference snapshot turns red on a freshly checked out Windows repo.
 src/export/reference/reference.html -text
 src/export/reference/reference.sevariablen.json -text
-src/export/generated/* -text

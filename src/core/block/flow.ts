@@ -4,7 +4,7 @@ import { structuredProperty, type Property, type PropertyValue } from './propert
 export type Direction = 'column' | 'row'
 export type FlowWidth = 'auto' | 'fill' | number
 
-export type FlowHeight = 'auto' | 'fill' | number
+type FlowHeight = 'auto' | 'fill' | number
 
 export function directionOfChildren(
   def: Pick<BlockType, 'childDirection'> | undefined,

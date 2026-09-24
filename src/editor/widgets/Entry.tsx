@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export interface EntryProps {
+interface EntryProps {
   icon: ComponentType<{ size?: number; className?: string }>
 
   name: string

@@ -14,9 +14,9 @@ import { startRename } from './inlineRename'
 // What a block states beyond its element: name, category, properties and
 // everything the editor needs. Type and tag stay on the class, where the
 // element and the other blocks read them.
-export type BlockShape = Omit<BlockDeclaration, 'type' | 'tag'>
+type BlockShape = Omit<BlockDeclaration, 'type' | 'tag'>
 
-export interface BlockElementClass {
+interface BlockElementClass {
   readonly type: string
   readonly tag: string
   declaredProperties: PropertyMap
@@ -24,7 +24,6 @@ export interface BlockElementClass {
   new(): BlockElement
 }
 
-// What every block carries, whatever it shows.
 function allProperties(shape: BlockShape): PropertyMap {
   const capable = { capabilities: shape.capabilities ?? [] }
   return {
@@ -38,8 +37,6 @@ function allProperties(shape: BlockShape): PropertyMap {
   }
 }
 
-// The mask half: every property with an attribute becomes a lit property with
-// the converter its declaration carries.
 function declareLitProperties(element: BlockElementClass, properties: PropertyMap): void {
   for (const [name, declared] of Object.entries(properties)) {
     if (declared.attribute === '') continue
@@ -98,8 +95,8 @@ export abstract class BlockElement extends LitElement {
     return (this.constructor as typeof BlockElement).declaredProperties
   }
 
-  // The editor mirrors the tree here: only a declared name, and only a value
-  // its declaration reads.
+  // The tree's own value, not the one read from it: a list the editor did not
+  // change keeps its identity, so lit sees no change and the list keeps its widths.
   setDeclared(name: string, value: unknown): void {
     if (!Object.hasOwn(this.properties, name) || !this.properties[name].type.read(value).ok) return
     Object.assign(this, { [name]: value })
@@ -127,8 +124,6 @@ export abstract class BlockElement extends LitElement {
   }
 }
 
-// One declaration becomes the lit properties, the custom element and the
-// registry entry.
 export function defineBlock(element: BlockElementClass, shape: BlockShape): void {
   const properties = allProperties(shape)
   element.declaredProperties = properties

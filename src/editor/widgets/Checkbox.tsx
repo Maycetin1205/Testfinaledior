@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export interface CheckboxProps {
+interface CheckboxProps {
   checked: boolean
   disabled?: boolean
   onChange: () => void

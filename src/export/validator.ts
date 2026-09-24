@@ -1,7 +1,7 @@
 const BRIDGE_PATH = '<!--SOFTENGINE-VAR!EditorPfad-->/JS/JS/basis.html.interface.js'
 export const BRIDGE_SCRIPT = `<script src="${BRIDGE_PATH}"></script>`
 
-export interface CheckResult {
+interface CheckResult {
   name: string
   ok: boolean
   detail: string

@@ -5,7 +5,7 @@ import { cn } from '@/editor/widgets/cn'
 import { useCloseOnEscape } from './useCloseOnEscape'
 import { Button } from './Button'
 
-export interface DialogProps {
+interface DialogProps {
   title: ReactNode
 
   besideTitle?: ReactNode

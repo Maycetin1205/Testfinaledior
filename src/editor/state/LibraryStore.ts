@@ -1,7 +1,7 @@
 import { deepClone } from '../../core/deepClone'
 import { Subject } from './Subject'
 
-export interface LibraryEntry { id: string }
+interface LibraryEntry { id: string }
 
 export class LibraryStore<T extends LibraryEntry> extends Subject<LibraryStore<T>> {
   private _entries: T[]

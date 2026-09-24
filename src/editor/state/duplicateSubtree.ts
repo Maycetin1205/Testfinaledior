@@ -10,7 +10,7 @@ import { deepClone } from '../../core/deepClone'
 import { freePagesName, isPagesBlock, pagesOfMask } from '../../core/block/pages'
 import { freePositionForCopy } from '../../core/block/gridArea'
 
-export type NewIdFor = (oldId: string) => string | undefined
+type NewIdFor = (oldId: string) => string | undefined
 
 function writeBlockReferencesTo(node: BlockNode, newIdFor: NewIdFor): BlockNode {
   const follows = rewrittenFollows(node.values[SELECTION_FOLLOW_PROP], newIdFor)

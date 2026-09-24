@@ -13,7 +13,7 @@ import type { Unread } from '../unread'
 
 export type RoundingDirection = 'up' | 'down' | 'nearest'
 
-export interface Rounding {
+interface Rounding {
   decimals: number
   direction: RoundingDirection
 }
@@ -74,7 +74,7 @@ export interface ColumnsFactor {
   round: Rounding
 }
 
-export interface DataFactor {
+interface DataFactor {
   kind: 'dataField'
   key: string
 
@@ -84,7 +84,7 @@ export interface DataFactor {
   unit: string
 }
 
-export interface NumberFactor {
+interface NumberFactor {
   kind: 'number'
   key: string
   name: string
@@ -151,7 +151,7 @@ export type FactorState =
 
   | { kind: 'notLoaded' }
 
-export type CalculationPlacement =
+type CalculationPlacement =
 
   | { kind: 'result'; key: string; column: string; number: number; text: string }
 
@@ -304,12 +304,12 @@ export function computeCalculation(
   }
 }
 
-export interface RowValue {
+interface RowValue {
   number: number
   text: string
 }
 
-export interface RowMath {
+interface RowMath {
   values: ReadonlyMap<number, RowValue>
 
   placements: ReadonlyMap<string, CalculationPlacement>

@@ -103,7 +103,7 @@ export function windowColumnsOr(provided: unknown, automatic: () => Column[]): C
   return own.length > 0 ? own : automatic()
 }
 
-export interface LookupArgs {
+interface LookupArgs {
   spot?: string
   el: HTMLElement
   sourceId: string
@@ -135,7 +135,7 @@ export interface Entry {
   record: unknown
 }
 
-export interface LookupSetting {
+interface LookupSetting {
   el: HTMLElement
   sourceId: string
   storageField: string
@@ -184,7 +184,7 @@ function windowEntries(
   return lookupEntries(rowsToSelection(el, rows).rows, displayField, storageField)
 }
 
-export type EntriesResult =
+type EntriesResult =
   | { ok: true; entries: Entry[] }
   | { ok: false }
 

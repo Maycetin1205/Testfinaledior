@@ -5,7 +5,7 @@ import { maskState } from '../../runtime/maskState'
 import { readBoundSpot } from '../../runtime/boundSpot'
 import { runEvent } from '../../runtime/events'
 
-export interface ValueElement extends HTMLElement {
+interface ValueElement extends HTMLElement {
   value: string
 
   fillsSelf?: () => boolean

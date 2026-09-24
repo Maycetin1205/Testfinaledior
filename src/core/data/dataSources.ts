@@ -11,7 +11,6 @@ export {
   fieldPrefixFromInput,
   fieldCode,
   keyDisplay,
-  keyFromInput,
   headerKeyFromInput,
   columnsNameFromInput,
 } from './sourceInput'

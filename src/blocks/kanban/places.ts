@@ -66,7 +66,7 @@ function slotWithValue(value: string, values: readonly string[]): number {
 }
 
 // What the board reads once and then asks for every record.
-export interface BoardPlan {
+interface BoardPlan {
   columns: readonly ColumnPlace[]
 
   values: readonly string[]
@@ -91,7 +91,7 @@ function fallbackColumn(plan: BoardPlan): ColumnPlace {
   return plan.columns[plan.catchAll >= 0 ? plan.catchAll : 0]
 }
 
-export interface Placement {
+interface Placement {
   column: ColumnPlace
 }
 

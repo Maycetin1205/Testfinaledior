@@ -43,7 +43,7 @@ export function rulerTicks(fit: number | null, rendered: number): number | null 
   return Math.max(0, fit - rendered)
 }
 
-export interface Split {
+interface Split {
   pages: number
 
   page: number
@@ -51,7 +51,7 @@ export interface Split {
   rows: (number | null)[]
 }
 
-export interface SplitQuestion {
+interface SplitQuestion {
   visible: readonly number[]
 
   // False in the editor: placeholder rows stand in for data that is not there.
@@ -97,7 +97,7 @@ export interface MeasureTarget {
   renderRoot: { querySelector(selection: string): Element | null }
 }
 
-export interface BodyMeasure {
+interface BodyMeasure {
   metrics: RowMetrics | null
 
   height: number

@@ -73,7 +73,7 @@ export class EditorStore extends Subject<EditorStore> {
   private _history = new History()
 
   // The two files the builder picked on disk. Until then the browser store
-  // alone holds the work, as before.
+  // alone holds the work.
   readonly maskOnDisk = new FileOnDisk()
   readonly libraryOnDisk = new FileOnDisk()
 
@@ -329,8 +329,8 @@ export class EditorStore extends Subject<EditorStore> {
     return isTemplateProtected(this._tree, id)
   }
 
-  // Takes a name only when the node declares it, and a value only as the
-  // declaration reads it; anything else leaves the tree as it is.
+  // The tree holds only what a declaration reads, so the element, the export
+  // and the next load all see the same value.
   updateProperty(id: string, name: string, raw: unknown): boolean {
     const node = this._tree[id]
     if (!node) return false

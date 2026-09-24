@@ -18,7 +18,7 @@ export interface ListGroup {
   entries: readonly ListEntry[]
 }
 
-export interface ListProps {
+interface ListProps {
   groups: readonly ListGroup[]
   value: string
 

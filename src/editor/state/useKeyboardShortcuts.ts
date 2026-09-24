@@ -17,7 +17,7 @@ function windowOpen(): boolean {
   return document.querySelector('[role="dialog"]') !== null
 }
 
-export type KeyEffect =
+type KeyEffect =
   | 'nothing'
   | 'save'
   | 'delete'
@@ -26,7 +26,7 @@ export type KeyEffect =
   | 'forward'
   | 'duplicate'
 
-export interface KeyPlacement {
+interface KeyPlacement {
   key: string
 
   mod: boolean

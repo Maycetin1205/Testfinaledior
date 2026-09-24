@@ -42,7 +42,7 @@ export function listProperties() {
   }
 }
 
-export type ListValues = ValuesOf<ReturnType<typeof listProperties>>
+type ListValues = ValuesOf<ReturnType<typeof listProperties>>
 
 // What the list itself reads off its element. The columns stay out: every block
 // reads them into its own column shape.

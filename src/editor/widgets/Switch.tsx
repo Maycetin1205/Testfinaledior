@@ -1,6 +1,6 @@
 import { cn } from '@/editor/widgets/cn'
 
-export interface SwitchProps {
+interface SwitchProps {
   on: boolean
 
   label?: string

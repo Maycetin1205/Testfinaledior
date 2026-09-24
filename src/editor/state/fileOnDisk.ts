@@ -16,7 +16,7 @@ function savePicker(): SaveFilePicker | undefined {
 
 // A file the builder picked once. From then on every change goes there; the
 // browser store stays the clipboard behind it. Edge and Chrome hand out such a
-// file, every other browser downloads as before.
+// file, every other browser downloads.
 export class FileOnDisk {
   private handle: FileSystemFileHandle | null = null
 

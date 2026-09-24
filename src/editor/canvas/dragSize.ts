@@ -1,7 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { EditorStore } from '../state/EditorStore'
 
-export interface DragJob {
+interface DragJob {
   axis: 'x' | 'y'
 
   prop: string

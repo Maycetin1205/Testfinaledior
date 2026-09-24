@@ -25,7 +25,7 @@ export function keyOf(e: KeyboardEvent): string {
   return e.key === 'ArrowDown' && e.altKey ? 'F5' : e.key
 }
 
-export interface KeysPlacement {
+interface KeysPlacement {
   listOpen: boolean
 
   fieldEmpty: boolean

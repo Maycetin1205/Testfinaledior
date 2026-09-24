@@ -1,6 +1,6 @@
 import { css } from 'lit'
 
-export type CellsState = 'quiet' | 'changed' | 'automatic'
+type CellsState = 'quiet' | 'changed' | 'automatic'
 
 const CELL_CLASS: Record<CellsState, string> = {
   quiet: 'cell-input',

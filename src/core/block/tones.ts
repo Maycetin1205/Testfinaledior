@@ -1,8 +1,8 @@
 import type { ChoiceOption } from './property'
 
-export type ToneValue = 'info' | 'success' | 'warning' | 'danger'
+type ToneValue = 'info' | 'success' | 'warning' | 'danger'
 
-export interface Tone {
+interface Tone {
   value: ToneValue
   name: string
 

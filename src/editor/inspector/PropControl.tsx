@@ -14,12 +14,12 @@ import { SegmentControl } from './controls/SegmentControl'
 import { SelectControl } from './controls/SelectControl'
 import { TextControl } from './controls/TextControl'
 
-export interface EditCallbacks {
+interface EditCallbacks {
   onBeginEditing: () => void
   onEndEditing: () => void
 }
 
-export interface PropControlProps {
+interface PropControlProps {
   block: BlockNode
   propertyKey: string
   property: Property<unknown>

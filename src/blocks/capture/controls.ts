@@ -10,7 +10,7 @@ import '../table/Table'
 
 // Where the capture row is drawn and how big its lookup window opens. The
 // ledger answers everything else.
-export interface CaptureRowPlacement {
+interface CaptureRowPlacement {
   ledger: CaptureLedger
 
   block: HTMLElement

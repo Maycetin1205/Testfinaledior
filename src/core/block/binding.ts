@@ -1,6 +1,6 @@
 export const SOURCES_DIVIDER = '::'
 
-export interface FieldTarget {
+interface FieldTarget {
   sourceId: string
   code: string
 }

@@ -18,7 +18,7 @@ const Family = createContext<readonly string[]>([])
 
 export const LEVEL_OVER_MASK_WINDOW = 2147483647
 
-export interface PopoverProps {
+interface PopoverProps {
   name: string
 
   anchor?: RefObject<HTMLElement | null>

@@ -159,7 +159,7 @@ function seMessageKeys(seData: unknown): string[] {
   return Object.keys(seData).filter((key) => /^Message\d+$/.test(key))
 }
 
-export interface NewMessage extends RelationAnswer {
+interface NewMessage extends RelationAnswer {
   key: string
 }
 
@@ -179,7 +179,7 @@ function newSeMessageResult(
   return undefined
 }
 
-export interface RelationOptions {
+interface RelationOptions {
   recordAnswer?: boolean
 }
 
@@ -190,7 +190,7 @@ interface GetJob {
   options: RelationOptions
 }
 
-export interface QueryAnswer {
+interface QueryAnswer {
   rows?: unknown[]
 }
 

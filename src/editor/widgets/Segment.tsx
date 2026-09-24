@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export interface SegmentOption {
+interface SegmentOption {
   value: string
 
   name: string
   icon?: ReactNode
 }
 
-export interface SegmentProps {
+interface SegmentProps {
   name: string
   options: readonly SegmentOption[]
   value: string

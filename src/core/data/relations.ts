@@ -10,7 +10,7 @@ export type PlaceholderValues = Readonly<Record<string, string | undefined>>
 
 // What a parameter slot carries when the mask asks for one position of a
 // document; fixed:<value> sends the value as it stands.
-export type SlotRole =
+type SlotRole =
   | 'documentKind'
   | 'position'
   | 'length'
@@ -60,7 +60,7 @@ export interface RelationTemplate {
 
 export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter' | 'positions'>
 
-export interface PositionAsk {
+interface PositionAsk {
   documentKind: string
   documentNumber: string
   year: string
@@ -103,7 +103,7 @@ export interface RelationAnswer {
   failed?: boolean
 }
 
-export type RelationSyntax = Pick<
+type RelationSyntax = Pick<
   RelationTemplate,
   'verb' | 'nr' | 'parameter' | 'extraParameterAllowed'
 >

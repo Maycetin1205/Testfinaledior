@@ -1,7 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export type ButtonKind = 'primary' | 'silent' | 'risk'
+type ButtonKind = 'primary' | 'silent' | 'risk'
 
 const AREA: Record<ButtonKind, string> = {
   primary: 'bg-accent font-medium text-ground hover:bg-accent/85',
@@ -20,7 +20,7 @@ interface ButtonBase extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'chil
   children: ReactNode
 }
 
-export type ButtonProps =
+type ButtonProps =
   & ButtonBase
   & ({ onlyIcon: true; 'aria-label': string } | { onlyIcon?: false })
 

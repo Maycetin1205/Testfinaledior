@@ -4,7 +4,7 @@ import type { StepFormValues } from '../../core/data/steps/stepAdapter'
 import { STEP_KINDS, stepAdapter, type Step, type StepKind } from '../../core/data/steps/steps'
 import type { FieldAdoptTarget } from './fieldAdopt'
 
-export interface StepDraft extends StepFormValues {
+interface StepDraft extends StepFormValues {
   id: string
 
   type: StepKind
@@ -57,7 +57,7 @@ function onLength(
   return next
 }
 
-export type StepAction =
+type StepAction =
   | { kind: 'type'; type: StepKind }
   | { kind: 'toolNumber'; value: string }
   | { kind: 'command'; value: string }

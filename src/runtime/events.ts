@@ -22,7 +22,7 @@ interface RunRow {
   values: readonly string[]
 }
 
-export interface RunResult {
+interface RunResult {
   written: boolean
 
   failed: boolean
@@ -30,7 +30,7 @@ export interface RunResult {
   transcript: Transcript
 }
 
-export interface Transcript {
+interface Transcript {
   values: Record<string, string | undefined>
 
   stepResults: readonly string[]
@@ -140,7 +140,7 @@ async function runSteps(
   return { written, failed: false, transcript: transcript() }
 }
 
-export interface ActionResult {
+interface ActionResult {
   ran: boolean
   written: boolean
   cancelled: boolean

@@ -17,8 +17,8 @@ export interface StepBase {
 
 // An intersection instead of Extract keeps an adapter of one kind assignable to
 // the adapter of all kinds.
-export type StepOf<K extends StepKind> = Step & { kind: K }
-export type RuntimeStepOf<K extends StepKind> = RuntimeStep & { kind: K }
+type StepOf<K extends StepKind> = Step & { kind: K }
+type RuntimeStepOf<K extends StepKind> = RuntimeStep & { kind: K }
 
 // A missing list is not checked against.
 export interface CheckWorld {
@@ -32,7 +32,7 @@ export interface CheckWorld {
   section?: 'once' | PendingKind
 }
 
-export interface ExportRefs {
+interface ExportRefs {
   popupName: (id: string) => string
   stepPosition: (id: string) => string
   columnsIndex: (blockId: string, key: string) => string
@@ -47,20 +47,20 @@ export interface StepHost {
   sendBwLink(command: string): boolean
 }
 
-export interface StepRun {
+interface StepRun {
   host: StepHost
   root: ParentNode
   values: Readonly<Record<string, string | undefined>>
   parameterValues: RuntimeValues
 }
 
-export interface StepOutcome {
+interface StepOutcome {
   failed: boolean
 
   answer?: { value: string; raw: unknown; wrote: boolean }
 }
 
-export interface SummaryWorld {
+interface SummaryWorld {
   relations: readonly RelationTemplate[]
   tree: MaskTree
   sources: readonly DataSource[]
@@ -82,7 +82,7 @@ export interface StepSummary {
   relation?: RelationTemplate
 }
 
-export type StepField = 'popup' | 'toolNumber' | 'command' | 'relation'
+type StepField = 'popup' | 'toolNumber' | 'command' | 'relation'
 
 export interface StepFormValues {
   toolNumber: string

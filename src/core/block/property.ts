@@ -3,11 +3,11 @@
 
 import type { Unread } from '../unread'
 
-export type ReadResult<V> =
+type ReadResult<V> =
   | { ok: true; value: V }
   | { ok: false }
 
-export type ControlKind =
+type ControlKind =
   | 'text'
   | 'number'
   | 'boolean'
@@ -37,7 +37,7 @@ export interface Condition {
 // list whose entries only its declaration reads, into its own concrete type.
 export type PropertyValue = string | number | boolean | readonly object[]
 
-export interface PropertyType<V> {
+interface PropertyType<V> {
   control: ControlKind
   read(raw: unknown): ReadResult<V>
   toAttribute(value: V): string

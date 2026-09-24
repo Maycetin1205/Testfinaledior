@@ -71,7 +71,7 @@ export function sortIndices(
     })
 }
 
-export interface RememberedSorting {
+interface RememberedSorting {
   key: string
   ascending: boolean
 }

@@ -2,7 +2,7 @@ import { isUnread } from '../../unread'
 import { POS_LEN } from '../sourceInput'
 import type { DeliveryAdapter } from './deliveryAdapter'
 
-// The Hol-Relation: the mask asks for the positions of the document chosen at
+// The load relation: the mask asks for the positions of the document chosen at
 // the giver, one question per position, with a catalog entry that knows its
 // slots.
 export interface LoadRelation {

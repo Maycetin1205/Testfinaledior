@@ -21,7 +21,7 @@ export interface PickerGroup {
   fields: readonly DataField[]
 }
 
-export interface PickerTitle {
+interface PickerTitle {
   value: string
 
   fallback: string
@@ -30,7 +30,7 @@ export interface PickerTitle {
   session: EditSession
 }
 
-export interface PickerFlag {
+interface PickerFlag {
   key: string
   label: string
 
@@ -40,7 +40,7 @@ export interface PickerFlag {
   onToggle: (on: boolean) => void
 }
 
-export interface PickerField {
+interface PickerField {
   key: string
   label: string
 

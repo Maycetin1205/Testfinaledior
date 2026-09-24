@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-export interface BadgeProps {
+interface BadgeProps {
   children: ReactNode
 
   technical?: boolean

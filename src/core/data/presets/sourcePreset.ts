@@ -10,7 +10,7 @@ export interface SourceChoice {
   headerKey: string
   area: string
   openRecord: boolean
-  // The Hol-Relation, when the mask fetches the rows itself.
+  // The load relation, when the mask fetches the rows itself.
   load: LoadRelation | null
   getValue: GetValue
   recordField: string
@@ -25,12 +25,12 @@ export const EMPTY_CHOICE: SourceChoice = {
   recordField: '',
 }
 
-export interface OrderAndDelivery {
+interface OrderAndDelivery {
   order: Order
   delivery: Delivery
 }
 
-export interface SourceDescriptor extends OrderAndDelivery {
+interface SourceDescriptor extends OrderAndDelivery {
   write: Write
 }
 
@@ -49,7 +49,7 @@ export interface SourcePreset<P extends PresetId> {
   prefixed: boolean
   list(choice: SourceChoice): OrderAndDelivery
   openRecord?: OrderAndDelivery
-  // The mask may fetch the rows itself with a Hol-Relation.
+  // The mask may fetch the rows itself with a load relation.
   fetches: boolean
   // Rows may carry a record number and be written back.
   writes: boolean

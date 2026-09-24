@@ -4,7 +4,7 @@ const PUSH_PATHS = ['SEFileLoop', 'Var', 'Tabellen', 'Masken', 'ErpApiCall'] as 
 
 // Where in SoftEngine's delivery the rows stand: Daten.<path>.<alias>, the open
 // record under Daten.Var.<table id>.
-export type PushPath = (typeof PUSH_PATHS)[number]
+type PushPath = (typeof PUSH_PATHS)[number]
 
 export interface PushDelivery {
   kind: 'push'

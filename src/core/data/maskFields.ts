@@ -1,6 +1,6 @@
 import { LENGTH_MAX, type DataField } from './dataSources'
 
-export interface MaskImport {
+interface MaskImport {
   prefix: string
 
   fields: DataField[]
