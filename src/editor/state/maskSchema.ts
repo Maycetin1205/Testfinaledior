@@ -5,11 +5,11 @@ import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePrese
 
 // Lifts a saved mask to the format this editor reads; a file below a version
 // first runs the steps of every older one.
-export const CURRENT_SCHEMA_VERSION = 20
+export const CURRENT_SCHEMA_VERSION = 21
 
 const ENGLISH_NAMES = 16
 
-const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -416,6 +416,7 @@ export function liftState(raw: unknown): unknown {
   if (raw.schemaVersion < 18) liftWithoutRooms(lifted.tree)
   if (raw.schemaVersion < 19) liftTo19(lifted)
   if (raw.schemaVersion < 20) liftTo20(lifted)
+  if (raw.schemaVersion < 21) liftTo21(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
@@ -639,4 +640,34 @@ function liftLoadRelations(state: Record<string, unknown>): void {
 export function liftTo20(state: Record<string, unknown>): void {
   liftLoadRelations(state)
   liftToDescriptors(state)
+}
+
+// ---- version 21: a text takes a role of the reception mask, not size, weight and color ----
+
+// The size a text had while it stored none.
+const OLD_TEXT_SIZE = 14
+
+// Bold becomes a title from 15 px up and a heading below, small type a label,
+// muted type the muted role. Accent and tone colors fall away: the reception
+// mask does not color free text.
+function textRole(values: Record<string, unknown>): string {
+  const size = typeof values.size === 'number' ? values.size : OLD_TEXT_SIZE
+  if (values.weight === 'bold') return size >= 15 ? 'title' : 'heading'
+  if (size <= 11.5) return 'label'
+  if (values.color === 'muted') return 'muted'
+  return 'body'
+}
+
+function liftTo21(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || !isPlainObject(node.values)) continue
+    const values = node.values
+    if (node.type === 'text') {
+      values.role = textRole(values)
+      delete values.size
+      delete values.weight
+      delete values.color
+    }
+  }
 }

@@ -1,43 +1,24 @@
 import {
   choiceProperty,
   fieldProperty,
-  numberProperty,
   segmentProperty,
   sourceProperty,
   textProperty,
   type ValuesOf,
 } from '../../core/block/property'
-import { toneOptions } from '../../core/block/tones'
-
-export const SIZE_MIN = 6
-export const SIZE_MAX = 96
-export const SIZE_DEFAULT = 14
-
-export const NEUTRAL_COLORS: readonly { value: string; name: string; token: string }[] = [
-  { value: 'standard', name: 'Standard', token: '--se-ink' },
-  { value: 'muted', name: 'Gedämpft', token: '--se-muted' },
-  { value: 'accent', name: 'Akzent', token: '--se-accent' },
-]
 
 export const textProperties = {
-  size: numberProperty({
-    default: SIZE_DEFAULT,
-    label: 'Größe',
-    attribute: 'size',
-    unit: 'px',
-    min: SIZE_MIN,
-    max: SIZE_MAX,
-    row: 'Text-Stil',
-  }),
-  weight: segmentProperty([
-    { value: 'thin', name: 'Dünn' },
-    { value: 'normal', name: 'Normal' },
-    { value: 'bold', name: 'Fett' },
+  role: choiceProperty([
+    { value: 'title', name: 'Titel' },
+    { value: 'heading', name: 'Überschrift' },
+    { value: 'label', name: 'Beschriftung' },
+    { value: 'body', name: 'Text' },
+    { value: 'muted', name: 'Nebentext' },
+    { value: 'number', name: 'Zahl' },
   ], {
-    default: 'normal',
-    label: 'Gewicht',
-    attribute: 'weight',
-    row: 'Text-Stil',
+    default: 'body',
+    label: 'Rolle',
+    attribute: 'role',
   }),
   align: segmentProperty([
     { value: 'left', name: 'Links' },
@@ -47,15 +28,6 @@ export const textProperties = {
     default: 'left',
     label: 'Ausrichtung',
     attribute: 'align',
-    row: 'Text-Stil',
-  }),
-  color: choiceProperty([
-    ...NEUTRAL_COLORS.map((f) => ({ value: f.value, name: f.name, color: `var(${f.token})` })),
-    ...toneOptions(),
-  ], {
-    default: 'standard',
-    label: 'Farbe',
-    attribute: 'color',
   }),
   text: textProperty({
     default: 'Text',

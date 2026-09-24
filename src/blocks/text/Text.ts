@@ -2,35 +2,20 @@ import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { bindable, bindingAttr } from '../../core/block/capability'
-import { TONES } from '../../core/block/tones'
 import { readBoundSpot } from '../../runtime/boundSpot'
 import { makeDataLink, sourceIdOf } from '../../runtime/source'
 import { textStyle } from './textStyle'
-import {
-  NEUTRAL_COLORS,
-  SIZE_MAX,
-  SIZE_MIN,
-  SIZE_DEFAULT,
-  textProperties,
-  type TextValues,
-} from './properties'
+import { textProperties, type TextValues } from './properties'
 
-const WEIGHTS: Record<string, string> = { thin: '300', normal: '400', bold: '700' }
 const ALIGNS: Record<string, string> = { left: 'left', center: 'center', right: 'right' }
-
-const COLORS: Record<string, string> = {
-  ...Object.fromEntries(NEUTRAL_COLORS.map((f) => [f.value, `var(${f.token})`])),
-  ...Object.fromEntries(TONES.map((f) => [f.value, `var(${f.strong})`])),
-}
 
 const TEXT_BINDING = bindingAttr('text')
 
-function sizeOf(value: number): number {
-  if (!Number.isFinite(value)) return SIZE_DEFAULT
-  return Math.min(SIZE_MAX, Math.max(SIZE_MIN, value))
+// An element's own ARIA role is a string or null; the declared role is always
+// a string.
+export interface Text extends TextValues {
+  role: string
 }
-
-export interface Text extends TextValues {}
 
 export class Text extends BlockElement {
   static readonly type = 'text'
@@ -39,16 +24,9 @@ export class Text extends BlockElement {
   static override styles: CSSResultGroup = [BlockElement.styles, textStyle]
 
   override render(): TemplateResult {
-    const style = {
-      fontSize: `${sizeOf(this.size)}px`,
-      fontWeight: WEIGHTS[this.weight] ?? WEIGHTS.normal,
-      textAlign: ALIGNS[this.align] ?? ALIGNS.left,
-      color: COLORS[this.color] ?? COLORS.standard,
-    }
-
     return html`<div
-      class="text"
-      style=${styleMap(style)}
+      class="text role-${this.role}"
+      style=${styleMap({ textAlign: ALIGNS[this.align] ?? ALIGNS.left })}
       data-ff-editable
       data-ff-spot="text"
       ?data-ff-bound=${this.textField !== ''}
