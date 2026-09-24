@@ -1,33 +1,32 @@
 import { css } from 'lit'
 
 export const fieldStyle = css`
+  /* Padding of .vinput, plain of .kinput; the label in the empty field
+     starts where the text does. */
   .field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    min-width: 0;
+    --field-pad-y: 7px;
+    --field-pad-x: 10px;
+
     font-family: var(--se-font);
   }
-
-  .label {
-    flex: none;
-    color: var(--se-muted);
-    font-size: var(--se-fs-head);
-    font-weight: 600;
-    line-height: var(--se-lh);
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .field.plain {
+    --field-pad-y: 5px;
+    --field-pad-x: 8px;
   }
 
-  .wrap { position: relative; }
+  /* The label lies on the control, on the line of its text: the control
+     places its text itself, at every height. */
+  .wrap {
+    display: grid;
+    grid-template: 100% / 100%;
+    align-items: baseline;
+  }
+  .wrap > * { grid-area: 1 / 1; }
 
   .ctrl {
     box-sizing: border-box;
     width: 100%;
-    padding: 7px 10px;
+    padding: var(--field-pad-y) var(--field-pad-x);
     border: var(--se-border) solid var(--se-line);
     background: var(--se-panel);
     border-radius: var(--se-radius);
@@ -50,7 +49,6 @@ export const fieldStyle = css`
 
   /* The plain look is the inline field of the record card. */
   .field.plain .ctrl {
-    padding: 5px 8px;
     border-color: transparent;
     background: transparent;
     transition: background var(--se-move), border-color var(--se-move);
@@ -68,9 +66,35 @@ export const fieldStyle = css`
     background: var(--se-panel);
   }
 
-  /* An empty date stays empty instead of showing the browser's date pattern. */
+  /* The label in the empty field, in the color of input::placeholder.
+     Positioned, as the holder of the lookup is, which would paint over it
+     otherwise; empty, it keeps its line for the double click. */
+  .ph {
+    position: relative;
+    min-width: 0;
+    min-height: calc(1em * var(--se-lh));
+    margin: 0 calc(var(--field-pad-x) + var(--se-border));
+    color: var(--se-muted);
+    font-size: var(--se-fs);
+    line-height: var(--se-lh);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+  }
+  /* A select draws its text 4px inside its padding and keeps its end for the
+     arrow. */
+  select.ctrl ~ .ph {
+    margin-left: calc(var(--field-pad-x) + var(--se-border) + 4px);
+    margin-right: calc(var(--field-pad-x) + var(--se-border) + 16px);
+  }
+
+  /* An empty date stays empty instead of showing the browser's date pattern;
+     while it is typed into, the pattern stands instead of the label. */
   .wrap.empty input[type="date"]:not(:focus)::-webkit-datetime-edit,
   .wrap.empty input[type="time"]:not(:focus)::-webkit-datetime-edit { opacity: 0; }
+  input[type="date"]:focus ~ .ph,
+  input[type="time"]:focus ~ .ph { display: none; }
 
   .row {
     display: flex;
@@ -90,6 +114,9 @@ export const fieldStyle = css`
 
   .lookup { position: relative; }
   .field .lookup .ctrl { padding-right: 38px; }
+  /* The label leaves the magnifier free: in the editor it takes clicks and
+     would cover it. */
+  .lookup ~ .ph { margin-right: calc(38px + var(--se-border)); }
 
   /* The open suggestion list hangs out of the field. Grid children stack in
      document order, so without this it would lie under the next block. */
@@ -114,8 +141,9 @@ export const fieldStyle = css`
   .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
 
   /* The magnifier stays clickable in the editor: it opens the lookup window and
-     its inspector section. */
+     its inspector section. The label takes the double click that renames it. */
   :host([preview]) .ctrl { pointer-events: none; }
+  :host([preview]) .ph { pointer-events: auto; }
   :host([preview]) .wrap[data-ff-bound] .ctrl {
     border-style: dotted;
     border-color: var(--se-accent);
@@ -123,8 +151,8 @@ export const fieldStyle = css`
 
   :host(:not([preview])) .row .text { cursor: pointer; user-select: none; }
 
-  :host([fills]) .field { height: 100%; }
-  :host([fills]) .wrap { flex: 1 1 auto; min-height: 0; }
+  :host([fills]) .field,
+  :host([fills]) .wrap,
   :host([fills]) .lookup { height: 100%; }
   :host([fills]) .wrap .ctrl { height: 100%; min-height: 0; }
 `

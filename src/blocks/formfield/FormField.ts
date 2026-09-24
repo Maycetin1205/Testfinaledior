@@ -88,11 +88,11 @@ export class FormField extends BlockElement {
     >${this.label}</span>`
   }
 
-  // The label above the field. A bound field shows the name of its field there.
-  private labelTpl(bound: boolean): TemplateResult | typeof nothing {
-    if (this.label.trim() === '') return nothing
+  // The label inside the empty field, where a placeholder stands. A bound
+  // field shows the name of its field there.
+  private placeholderTpl(bound: boolean): TemplateResult {
     return html`<span
-      class="label"
+      class="ph"
       ?data-ff-bound=${bound}
       data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
@@ -160,16 +160,16 @@ export class FormField extends BlockElement {
 
     const valueBindable = kind !== 'lookup'
     const bound = valueBindable && this.valueField !== ''
-    const inField = valueBindable ? this.value : this._lookup.inField
+    const empty = (valueBindable ? this.value : this._lookup.inField) === ''
     const fieldClasses = `field${this.appearance === 'plain' ? ' plain' : ''}`
     return html`<div class=${fieldClasses}>
-      ${this.labelTpl(bound)}
       <div
-        class=${inField === '' ? 'wrap empty' : 'wrap'}
+        class=${empty ? 'wrap empty' : 'wrap'}
         data-ff-spot=${valueBindable ? 'value' : nothing}
         ?data-ff-bound=${bound}
       >
         ${this.controlTpl(kind)}
+        ${empty ? this.placeholderTpl(bound) : nothing}
       </div>
     </div>`
   }
@@ -218,5 +218,5 @@ defineBlock(FormField, {
     actionValue<typeof formFieldProperties>([{ prop: 'value', name: 'Wert' }]),
     { kind: 'events', list: [{ key: 'onChange', name: 'Wert geändert' }] },
   ],
-  grid: { startWidth: 12, startHeight: 4, minWidth: 4, minHeight: 2 },
+  grid: { startWidth: 12, startHeight: 2, minWidth: 4, minHeight: 2 },
 })
