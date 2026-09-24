@@ -47,6 +47,7 @@ export class Button extends BlockElement {
   override render(): TemplateResult {
     const open = this.open
     return html`<button
+      class="variant-${this.variant}"
       data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
     >${open ? `${this.label} (${open})` : this.label}</button>`

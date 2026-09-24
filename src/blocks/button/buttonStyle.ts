@@ -23,6 +23,23 @@ export const buttonStyle = css`
   }
   button:hover { background: var(--se-accent-soft); border-color: var(--se-accent); }
 
+  /* .vbtn-primaer */
+  .variant-primary { background: var(--se-accent); border-color: var(--se-accent); color: var(--se-panel); }
+  .variant-primary:hover { background: var(--se-accent-dark); border-color: var(--se-accent-dark); }
+
+  /* .vbtn-leise */
+  .variant-quiet {
+    padding: 5px 10px;
+    border-color: transparent;
+    background: var(--se-accent-soft);
+    color: var(--se-accent-dark);
+  }
+  .variant-quiet:hover { border-color: var(--se-accent); }
+
+  /* .vbtn-ghost */
+  .variant-ghost { border-color: transparent; background: transparent; color: var(--se-muted); }
+  .variant-ghost:hover { background: var(--se-bg); color: var(--se-ink); }
+
   button:focus-visible { outline: 2px solid var(--se-accent); outline-offset: 2px; }
 
   :host([fills]) button { width: 100%; height: 100%; }

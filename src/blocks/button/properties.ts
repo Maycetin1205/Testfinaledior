@@ -1,4 +1,4 @@
-import { textProperty, type ValuesOf } from '../../core/block/property'
+import { choiceProperty, textProperty, type ValuesOf } from '../../core/block/property'
 
 export const buttonProperties = {
   label: textProperty({
@@ -6,6 +6,16 @@ export const buttonProperties = {
     label: 'Beschriftung',
     place: 'block',
     attribute: 'label',
+  }),
+  variant: choiceProperty([
+    { value: 'standard', name: 'Standard' },
+    { value: 'primary', name: 'Hervorgehoben' },
+    { value: 'quiet', name: 'Leise' },
+    { value: 'ghost', name: 'Ohne Rahmen' },
+  ], {
+    default: 'standard',
+    label: 'Aussehen',
+    attribute: 'variant',
   }),
 }
 
