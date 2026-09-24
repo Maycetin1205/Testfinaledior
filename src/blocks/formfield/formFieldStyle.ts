@@ -48,21 +48,21 @@ export const fieldStyle = css`
     min-height: 50px;
   }
 
-  /* The line look is the inline field of the record card. */
-  .field.line .ctrl {
+  /* The plain look is the inline field of the record card. */
+  .field.plain .ctrl {
     padding: 5px 8px;
     border-color: transparent;
     background: transparent;
     transition: background var(--se-move), border-color var(--se-move);
   }
-  .field.line .ctrl:hover { background: var(--se-hover); }
-  .field.line .ctrl:focus {
+  .field.plain .ctrl:hover { background: var(--se-hover); }
+  .field.plain .ctrl:focus {
     background: var(--se-panel);
     border-color: var(--se-accent);
     box-shadow: var(--se-focus);
   }
-  .field.line textarea.ctrl,
-  .field.line textarea.ctrl:hover {
+  .field.plain textarea.ctrl,
+  .field.plain textarea.ctrl:hover {
     min-height: 66px;
     border-color: var(--se-line);
     background: var(--se-panel);

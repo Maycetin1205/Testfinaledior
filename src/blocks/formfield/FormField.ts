@@ -161,7 +161,7 @@ export class FormField extends BlockElement {
     const valueBindable = kind !== 'lookup'
     const bound = valueBindable && this.valueField !== ''
     const inField = valueBindable ? this.value : this._lookup.inField
-    const fieldClasses = `field${this.appearance === 'line' ? ' line' : ''}`
+    const fieldClasses = `field${this.appearance === 'plain' ? ' plain' : ''}`
     return html`<div class=${fieldClasses}>
       ${this.labelTpl(bound)}
       <div

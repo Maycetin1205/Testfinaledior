@@ -119,8 +119,8 @@ export const formFieldProperties = {
     when: ONLY_LOOKUP,
   }),
   appearance: choiceProperty([
-    { value: 'standard', name: 'Standard (Kasten)' },
-    { value: 'line', name: 'Linie (Unterstrichen)' },
+    { value: 'standard', name: 'Kasten' },
+    { value: 'plain', name: 'Still' },
   ], {
     default: 'standard',
     label: 'Darstellung',

@@ -642,7 +642,7 @@ export function liftTo20(state: Record<string, unknown>): void {
   liftToDescriptors(state)
 }
 
-// ---- version 21: a text takes a role of the reception mask, not size, weight and color ----
+// ---- version 21: a text takes a role, not size, weight and color; a field looks plain, not line ----
 
 // The size a text had while it stored none.
 const OLD_TEXT_SIZE = 14
@@ -669,5 +669,6 @@ function liftTo21(tree: unknown): void {
       delete values.weight
       delete values.color
     }
+    if (node.type === 'formfield' && values.appearance === 'line') values.appearance = 'plain'
   }
 }
