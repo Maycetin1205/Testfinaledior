@@ -12,6 +12,7 @@ import {
 import { widthsHandles, type WidthsHost } from './columnWidth'
 import { moveRowsFocus, focusFirstRow, focusSearchRow } from './rowActivation'
 import { recordText } from './tableModel'
+import { magnifierIcon } from '../lookup/lookupControl'
 
 export interface RowDecoration {
   status: string
@@ -183,17 +184,19 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
   const firstEmpty = placement.rows.indexOf(null)
   return html`
       ${placement.showSearch ? html`<div class="search-row">
-        <input
-          type="search"
-          placeholder="Tabelle durchsuchen…"
-          aria-label="Tabelle durchsuchen"
-          .value=${placement.searchText}
-          @input=${(e: Event) => act.setSearchText((e.target as HTMLInputElement).value)}
-          @keydown=${(e: KeyboardEvent) => {
-            if (e.key !== 'ArrowDown') return
-            if (focusFirstRow(e.target)) e.preventDefault()
-          }}
-        />
+        <div class="search">
+          <span class="search-icon">${magnifierIcon()}</span>
+          <input
+            type="search"
+            aria-label="Tabelle durchsuchen"
+            .value=${placement.searchText}
+            @input=${(e: Event) => act.setSearchText((e.target as HTMLInputElement).value)}
+            @keydown=${(e: KeyboardEvent) => {
+              if (e.key !== 'ArrowDown') return
+              if (focusFirstRow(e.target)) e.preventDefault()
+            }}
+          />
+        </div>
       </div>` : ''}
       <div class="body" role=${placement.empty ? nothing : 'table'} tabindex="-1">
       ${placement.showHead ? html`<div class="head" role="row" style=${styleMap(placement.cols)}>

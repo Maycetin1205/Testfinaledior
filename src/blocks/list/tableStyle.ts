@@ -22,15 +22,34 @@ export const tableStyle = css`
       }
 
       .search-row {
-        padding: 6px 8px;
+        padding: 4px 8px;
         border-bottom: var(--se-border) solid var(--se-line-soft);
       }
+      /* .vsuche-top: the magnifier stands in the field, left of the text. */
+      .search {
+        position: relative;
+        display: flex;
+        align-items: center;
+        max-width: 440px;
+      }
+      /* .vsuche-ic */
+      .search-icon {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        color: var(--se-faint);
+        pointer-events: none;
+      }
+      .search-icon svg { width: 17px; height: 17px; }
+      /* 28px high as .vbtn-aktion; the text starts 8px after the magnifier. */
       .search-row input {
         box-sizing: border-box;
 
         width: 100%;
-        max-width: 440px;
-        padding: 7px 10px;
+        height: 28px;
+        padding: 0 8px 0 33px;
         font-family: var(--se-font);
         font-size: var(--se-fs);
         line-height: var(--se-lh);
@@ -40,7 +59,6 @@ export const tableStyle = css`
         border-radius: var(--se-radius);
         transition: border-color var(--se-move), box-shadow var(--se-move);
       }
-      .search-row input::placeholder { color: var(--se-muted); opacity: 1; }
       .search-row input:focus {
         outline: none;
         background: var(--se-panel);
