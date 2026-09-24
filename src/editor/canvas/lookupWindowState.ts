@@ -211,6 +211,23 @@ export function openLookupInEditor(
   const frame = windowFrameInEditor()
   if (frame === null) return false
   wireWidths(frame, ed, blockId, window, slot)
+  closesOnClickBeside(frame)
   ed.setLookupWindow({ blockId, window, slot })
   return true
+}
+
+// In the editor a click beside the window closes it, like the small windows of
+// the bar; a click into the window, into the editor's helpers on it or into a
+// window of the editor above it does not.
+function closesOnClickBeside(frame: DialogFrame): void {
+  const beside = (e: PointerEvent): void => {
+    if (!frame.isConnected) {
+      document.removeEventListener('pointerdown', beside, true)
+      return
+    }
+    const inside = e.composedPath().some((t) => t instanceof HTMLElement
+      && (t.getAttribute('role') === 'dialog' || t.dataset.ffEditorHelper !== undefined))
+    if (!inside) frame.close()
+  }
+  document.addEventListener('pointerdown', beside, true)
 }
