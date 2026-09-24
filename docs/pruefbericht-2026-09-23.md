@@ -869,12 +869,14 @@ Entscheidungen des Nutzers vom 23.09. abends, damit sind die Fragen 8.1 und
 
 ---
 
-## Stand 24.09.: das Aufräumen ist durch
+## Stand 24.09.: Aufräumen und Guss sind durch
 
-Neun Bau-Agenten, 38 Commits auf `claude/erp-editor-audit-89bmva`, jeder
-Commit mit grüner Typprüfung und grünen Tests, jeder Schritt im Browser gegen
-den Stand davor verglichen (DOM, gesendete Nachrichten, Bilder). Nichts davon
-ist in SoftEngine geprüft; das kann nur der Nutzer.
+Zwei Etappen liegen auf `claude/erp-editor-audit-89bmva`, jeder Commit mit
+grüner Typprüfung und grünen Tests, jeder Schritt im Browser gegen den Stand
+davor verglichen. Nichts davon ist in SoftEngine geprüft; das kann nur der
+Nutzer.
+
+### Aufräumen (33779a0): neun Agenten, 38 Commits
 
 | | vorher (c0c375a) | nachher (dac9a25) |
 |---|---|---|
@@ -902,17 +904,76 @@ ERP-Masken-Import liest wieder `MASKE`/`Beschreibung`, eine ERP-Maske als
 Quelle liefert ihre Werte, Vorgabe-Belegposition liefert in der
 Belegerfassung, alte Dateien aus der deutschen Zeit laden wieder.
 
-Neu möglich, nicht in SoftEngine geprüft: eine ERP-Abfrage mit Satznummer
-kann Ziel einer PUT-Kette sein.
+### Guss (a3b7b36 bis 703b08a): drei Agenten, sieben Commits
 
-Nicht angefasst, bewusst: Kanban (kommt neu nach dem Zweigmodell), Design,
-Bedienung (Inspector, Datencenter, Aktionen als Vollbild), Berechnung
-fachlich (8.1), die Fehler F2, F3, F6 der Erfassung (brauchen den Echttest),
-das Formular für die Feldcodes der Hol-Relation, die Antwort-Schlüssel in
-`softengine/data.ts` (ohne Echttest nicht entscheidbar).
+Maske und Editor tragen dieselbe Optik, und jeder Wert stammt aus
+`docs/chef-maske/empfang/index.basis.source.html` (gewinnende Regel, zweiter
+Style-Block):
 
-Kleine sichtbare Folgen: In einer löschbaren Erfassung liegt das Kreuz am
-Zeilenende über einer rechtsbündigen Zahl. Die Tailwind-Farbnamen haben sich
-geändert, der Dev-Server muss einmal neu starten. `src/export/generated/`
-enthält auf dem Rechner des Nutzers noch die alten Teildateien; der Ordner
-darf gelöscht werden, er entsteht neu.
+- `src/design/mask.css`: 67 Token, jeder wörtlich in der Empfangsmaske, mit
+  dem Selektor als Kommentar. Eine Rundung (4 px), kein Schatten außer am
+  schwebenden Fenster, Schrift Segoe UI wie die Maske, Consolas für Zahlen.
+  Fünf Töne mit je sechs Werten aus den Spalten des Empfangs, neu „Neutral“.
+- Lint-Regel `LOOSE_DESIGN_VALUES` in `eslint.config.js`: in `src/blocks`,
+  `src/runtime`, `src/export`, `src/editor` sind lose Farben, Rundungen,
+  Schriftgrößen, Schatten und Schriften verboten; erlaubt sind `var(--…)`,
+  0, 50 %, none, inherit, transparent.
+- Bausteine wie ihre Gegenstücke: Knopf `.vbtn`, Feld `.vfeld`/`.vinput`
+  mit Beschriftung darüber, Tabelle `.vpicker-tab`, Karte `.vkarte`, Chip
+  `.vflag`, Spalte `.vspalte`, Datum `.vdaynav`, Dialog `.vmodal`,
+  Nachschlageliste `.vsuche-liste`.
+- Deklarationen: Knopf `variant` (Standard, Hervorgehoben, Leise, Ohne
+  Rahmen = `.vbtn`, `.vbtn-primaer`, `.vbtn-leise`, `.vbtn-ghost`). Text
+  `variant` statt Größe, Gewicht, Farbe (Titel, Überschrift, Beschriftung,
+  Text, Nebentext, Zahl). Feld-Darstellung „Kasten“ oder „Still“ (`plain`,
+  vorher `line`). Maskenschema 21 hebt alte Werte: fett ab 15 px wird Titel,
+  fett darunter Überschrift, bis 11,5 px Beschriftung, gedämpft Nebentext,
+  sonst Text; Akzent- und Tonfarben fallen weg.
+- Editor: `--wb-*` in `src/design/editor.css` aus derselben Palette,
+  Auswahlblau #3B82C4, Rundung 4 px, 13 px Grundschrift, Bedienhöhe 28 px.
+  Paket `@fontsource-variable/inter` entfernt.
+- Export: SEvariablen unverändert; im HTML entfallen `size`, `weight`,
+  `color`, neu möglich `variant`, `appearance="plain"`; der Referenzabzug
+  änderte sich nur in den CSS-Werten.
+
+Kleine sichtbare Folgen: Ein Text ohne eigene Werte ist 13 statt 14 px groß.
+Eine lange Beschriftung auf einem schmalen Knopf läuft über den Rand statt
+umzubrechen. Spaltenköpfe in Großbuchstaben brechen bei schmalen Spalten im
+Wort. Bei einem Baustein am linken Rand ist die Auswahlleiste vorne
+abgeschnitten. Neue Formularfelder starten vier statt zwei Rasterzeilen hoch.
+Auf dem Rechner des Nutzers: `npm install` (Inter ist raus), Dev-Server neu
+starten.
+
+### Offen, in dieser Reihenfolge
+
+1. Bedienung: kleine Leiste am Baustein statt Inspector; Datencenter und
+   Aktionen als schmale Seitenleiste statt Vollbild; Berechnung als Satz am
+   Spaltenkopf; Text direkt auf der Fläche; Größe an vier Kanten; Feld binden
+   durch Klick; Sonderfenster (Nachschlagen, Auswahl folgt, Aktionen,
+   Berechnung) werden deklarierte Eigenschaftsarten mit je einem
+   Bedienelement. Das Bedienmodell je Baustein steht im Chat vom 24.09. und
+   wird vor dem Bau in diesen Bericht übernommen.
+2. Kanban neu nach dem Zweigmodell: ein Baustein, Spalten mit Plätzen,
+   Karten mit Tiersymbol, im Editor sichtbar. Zimmer gibt es seit Schema 18
+   nicht mehr; `places.ts` ist nur die Ablagemarke.
+3. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
+   Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile
+   in `src/blocks/register.ts`; das Symbol gehört noch in die Deklaration
+   statt nach `src/editor/blockIcons.ts`.
+4. Zum Schluss: Echttest in SoftEngine mit frischen Daten, die Fehler F2, F3,
+   F6 der Erfassung, Antwort-Schlüssel in `softengine/data.ts`, Formular für
+   die Feldcodes der Hol-Relation, Aufräumdurchgang (tote Widgets, ungenutzte
+   Exporte, alte Namen).
+
+### Zur Entscheidung des Nutzers (Vorschlag: weg)
+
+Klarname zum gespeicherten Feld von Hand; Fensterbreite und -höhe als Zahlen
+(ziehen statt tippen); Blättern in der Tabelle (scrollen); Kopfzeile
+ausschaltbar (die Datenliste ist ein eigener Baustein); Spaltenwahl zur
+Laufzeit; Spalte ausblenden (Aktionen sollen jedes Feld der Zeile nehmen);
+Rundung und Einheit je Faktor der Berechnung (ein Satz, einmal gerundet);
+Tag-Feld je Baustein (gehört zur Quelle); Chip-Farbe der Karte von Hand
+(kommt aus den Daten); zwei Export-Knöpfe (die Rahmen-Nummer entscheidet);
+Notfallkopie wiederherstellen (Sicherheitsnetz); zwei Dateien zum Laden (die
+Maske trägt heute nur die Nummern ihrer Quellen; sie soll ihre Quellen
+mitführen, die Bibliothek ist der Katalog); Suche und Statuszeile im Editor.
