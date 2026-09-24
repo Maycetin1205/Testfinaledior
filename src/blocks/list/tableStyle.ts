@@ -183,14 +183,15 @@ export const tableStyle = css`
 
         position: relative;
       }
+      /* Breaks only between words; a word too long for the column is cut off. */
       .head-text {
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
-        overflow-wrap: break-word;
-        -webkit-hyphens: auto;
-        hyphens: auto;
+        overflow-wrap: normal;
+        word-break: normal;
+        hyphens: none;
       }
 
       /* A grid child of its own that hangs over the column line, which alone is
