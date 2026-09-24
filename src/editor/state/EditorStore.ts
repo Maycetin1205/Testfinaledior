@@ -1,7 +1,7 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
 import { newSubtree } from '../../core/block/newBlock'
 import { mayContain, blockType } from '../../core/block/registry'
-import { gridMetricsOf } from '../../core/block/grid'
+import { gridMetricsOf, type GridSlot } from '../../core/block/grid'
 import type { LookupWindow } from '../../core/block/capability'
 import { type ActionChains } from '../../core/data/steps/steps'
 import { type DataSource } from '../../core/data/dataSources'
@@ -49,7 +49,7 @@ import {
   slotOn,
   moveInContainer,
   cellMoveIn,
-  cellsSize,
+  slotResize,
 } from '../../core/block/gridArea'
 import { selectionOnPage, selectionTarget } from '../../core/block/selection'
 import { deepClone } from '../../core/deepClone'
@@ -415,8 +415,8 @@ export class EditorStore extends Subject<EditorStore> {
     this.notify(this)
   }
 
-  resizeNodeToCells(id: string, axis: 'x' | 'y', value: number): void {
-    const next = cellsSize(this._tree, id, axis, value)
+  resizeNodeToSlot(id: string, slot: GridSlot): void {
+    const next = slotResize(this._tree, id, slot)
     if (!next) return
     this.pushHistory()
     this._tree = next

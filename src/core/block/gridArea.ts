@@ -7,6 +7,7 @@ import {
   gridSlotRead,
   GRID,
   gridMetricsOf,
+  type GridSlot,
 } from './grid'
 import { isPagesBlock, childrenInFlow } from './pages'
 import { subtreeIds } from './treeOps'
@@ -147,23 +148,25 @@ export function cellMoveIn(
   return next
 }
 
-export function cellsSize(
+// A new place and size in the same area, kept inside the columns.
+export function slotResize(
   tree: MaskTree,
   id: string,
-  axis: 'x' | 'y',
-  value: number,
+  slot: GridSlot,
 ): MaskTree | null {
   const node = tree[id]
   if (!node || !node.parentId) return null
   const parent = tree[node.parentId]
   if (!parent || !isGridArea(parent)) return null
   const cur = gridSlotRead(node.values)
-  const w = axis === 'x' ? Math.max(1, Math.min(value, GRID.columns - cur.x)) : cur.w
-  const h = axis === 'y' ? Math.max(1, value) : cur.h
-  if (w === cur.w && h === cur.h) return null
+  const x = Math.max(0, Math.min(slot.x, GRID.columns - 1))
+  const w = Math.max(1, Math.min(slot.w, GRID.columns - x))
+  const y = Math.max(0, slot.y)
+  const h = Math.max(1, slot.h)
+  if (x === cur.x && y === cur.y && w === cur.w && h === cur.h) return null
   return {
     ...tree,
-    [id]: { ...node, values: { ...node.values, gridW: w, gridH: h } },
+    [id]: { ...node, values: { ...node.values, gridX: x, gridY: y, gridW: w, gridH: h } },
   }
 }
 

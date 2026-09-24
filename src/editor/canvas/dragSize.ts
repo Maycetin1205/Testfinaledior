@@ -13,10 +13,6 @@ interface DragJob {
   min: number
 
   factor?: number
-
-  step?: number
-
-  apply?: (id: string, value: number) => void
 }
 
 export function dragSize(
@@ -33,17 +29,12 @@ export function dragSize(
   const bracket = editor.openGesture()
   const onMove = (ev: PointerEvent) => {
     const pos = job.axis === 'x' ? ev.clientX : ev.clientY
-    const rawDelta = (pos - startPos) * (job.factor ?? 1)
-
-    const delta = job.step && job.step !== 1
-      ? Math.round(rawDelta / job.step)
-      : rawDelta
+    const delta = (pos - startPos) * (job.factor ?? 1)
     const next = Math.max(job.min, Math.round(job.start + delta))
     if (next === last) return
     last = next
     bracket.open()
-    if (job.apply) job.apply(job.getId(), next)
-    else editor.updateProperty(job.getId(), job.prop, next)
+    editor.updateProperty(job.getId(), job.prop, next)
   }
 
   const finish = () => {

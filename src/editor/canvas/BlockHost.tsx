@@ -25,7 +25,7 @@ import { SelectionBar } from './SelectionBar'
 import { ColumnControls } from './ColumnControls'
 import { useFieldBinding } from './useFieldBinding'
 import { openLookupInEditor } from './lookupWindowState'
-import { useBlockResize } from './useBlockResize'
+import { useBlockResize, type Edge } from './useBlockResize'
 import { useLitElement } from './useLitElement'
 
 interface BlockHostProps {
@@ -107,7 +107,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     return null
   }
 
-  const { startGridResize } = useBlockResize(editor, blockRef, rootRef)
+  const { startGridResize, resetGridSize } = useBlockResize(editor, blockRef, rootRef)
 
   const gridSpec = gridMetricsOf(def)
 
@@ -184,37 +184,42 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         />
       )}
 
-      {selected && gridDraggable && gridSpec.widthDraggable && (
-        <Handle
-          axis="x"
-          onStart={(e) => startGridResize(e, 'x')}
-          onReset={() => {
-            const node = blockRef.current
-            editor.updateProperty(node.id, 'gridW', gridMetricsOf(blockType(node.type)).startWidth)
-          }}
-        />
-      )}
-      {selected && gridDraggable && (
-        <Handle
-          axis="y"
-          onStart={(e) => startGridResize(e, 'y')}
-          onReset={() => {
-            const node = blockRef.current
-            editor.updateProperty(node.id, 'gridH', gridMetricsOf(blockType(node.type)).startHeight)
-          }}
-        />
-      )}
+      {selected && gridDraggable && GRIPS
+        .filter((edge) => gridSpec.widthDraggable || !/[ew]/.test(edge))
+        .map((edge) => (
+          <Grip
+            key={edge}
+            edge={edge}
+            onStart={(e) => startGridResize(e, edge)}
+            onReset={() => resetGridSize(edge)}
+          />
+        ))}
     </div>
   )
 }
 
-interface HandleProps {
-  axis: 'x' | 'y'
+// The edges before the corners, so a corner lies on top where both meet. An
+// edge takes the pointer along its whole length; its mark sits in the middle.
+const GRIPS: readonly Edge[] = ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw']
+
+const GRIP_PLACE: Record<Edge, string> = {
+  n: '-top-1 inset-x-[4px] h-[7px] cursor-ns-resize',
+  s: '-bottom-1 inset-x-[4px] h-[7px] cursor-ns-resize',
+  e: '-right-1 inset-y-[4px] w-[7px] cursor-ew-resize',
+  w: '-left-1 inset-y-[4px] w-[7px] cursor-ew-resize',
+  ne: '-right-1 -top-1 h-[7px] w-[7px] cursor-nesw-resize',
+  se: '-bottom-1 -right-1 h-[7px] w-[7px] cursor-nwse-resize',
+  sw: '-bottom-1 -left-1 h-[7px] w-[7px] cursor-nesw-resize',
+  nw: '-left-1 -top-1 h-[7px] w-[7px] cursor-nwse-resize',
+}
+
+interface GripProps {
+  edge: Edge
   onStart: (e: ReactPointerEvent<HTMLDivElement>) => void
   onReset: () => void
 }
 
-function Handle({ axis, onStart, onReset }: HandleProps) {
+function Grip({ edge, onStart, onReset }: GripProps) {
   return (
     <div
       draggable={false}
@@ -224,12 +229,9 @@ function Handle({ axis, onStart, onReset }: HandleProps) {
         e.stopPropagation()
         onReset()
       }}
-      className={cn(
-        'absolute rounded bg-[hsl(var(--wb-selection))]',
-        axis === 'x'
-          ? '-right-1 top-1/2 h-[26px] w-[7px] -translate-y-1/2 cursor-ew-resize'
-          : '-bottom-1 left-1/2 h-[7px] w-[26px] -translate-x-1/2 cursor-ns-resize',
-      )}
-    />
+      className={cn('absolute z-30 flex items-center justify-center', GRIP_PLACE[edge])}
+    >
+      <span className="h-[7px] w-[7px] bg-[hsl(var(--wb-selection))]" />
+    </div>
   )
 }
