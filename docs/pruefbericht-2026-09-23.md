@@ -985,6 +985,10 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
 
 Grundregeln für alle Bausteine:
 
+- Ein Weg je Ding. Was auf der Fläche steht (Beschriftung, Titel,
+  Spaltenkopf, Kartenzeile, Text), wird nur dort geändert; kein zweiter Weg
+  in einer Leiste oder einem Fenster. „Gestalten“ und der Inspector fallen
+  weg, die Leiste hält nur, was die Fläche nicht zeigen kann.
 - Markieren durch Klick, Verschieben durch Ziehen, Größe an allen vier
   Kanten und Ecken am Raster, Löschen mit Entf.
 - Text immer direkt auf der Fläche: Doppelklick, tippen.
