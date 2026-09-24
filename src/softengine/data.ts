@@ -246,8 +246,8 @@ function maskRows(data: JsonObject, alias: string): unknown[] {
   return []
 }
 
-// Only the SEFILELOOP place is belegt for every order; the mask looks in each
-// block SoftEngine fills by alias.
+// Only the SEFILELOOP place is proven by a test in SoftEngine; the mask looks
+// for the alias in every block SoftEngine fills by alias.
 const PUSHED_LISTS = [loopRows, apiCallRows, tableRows, maskRows]
 
 function pushedRows(seData: unknown, alias: string, tableId: string, openRecord: boolean): unknown[] {

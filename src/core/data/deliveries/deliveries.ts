@@ -16,7 +16,7 @@ export type DeliveryKind = Delivery['kind']
 
 // Sources that fetch after a delivery ask in this order. The export entry of a
 // pushed list has no key of its own, so push reads it back last.
-export const DELIVERY_ADAPTERS: { [K in DeliveryKind]: DeliveryAdapter<K> } = {
+const DELIVERY_ADAPTERS: { [K in DeliveryKind]: DeliveryAdapter<K> } = {
   relationRows,
   relationValue,
   message,

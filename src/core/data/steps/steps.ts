@@ -18,7 +18,7 @@ export type StepKind = Step['kind']
 
 export type ActionChains = Record<string, Step[]>
 
-export const STEP_ADAPTERS: { [K in StepKind]: StepAdapter<K> } = {
+const STEP_ADAPTERS: { [K in StepKind]: StepAdapter<K> } = {
   START_TOOL: startTool,
   BW_LINK: bwLink,
   RELATION: relation,

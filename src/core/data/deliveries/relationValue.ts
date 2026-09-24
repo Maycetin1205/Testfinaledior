@@ -33,7 +33,6 @@ export function checkGetValue(raw: unknown): GetValue | null {
   const params: Parameter[] = []
   for (const entry of raw.parameter) {
     const binding = checkParameterBinding(entry)
-
     if (!binding || !getValueSourceAllowed(binding.source)) return null
     params.push(binding)
   }

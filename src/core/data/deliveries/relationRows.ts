@@ -28,7 +28,7 @@ export interface RuntimeRelationRowsDelivery {
   load: RuntimeLoadRelation
 }
 
-export function fieldsBehindCut(
+function fieldsBehindCut(
   used: ReadonlySet<string> | undefined,
   answerLength: number,
 ): string[] {
@@ -82,7 +82,7 @@ export const relationRows: DeliveryAdapter<'relationRows'> = {
         yearField: delivery.yearField,
         archiveField: delivery.archiveField,
         endFields: delivery.endFields,
-        extraFields: answerLength === undefined ? [] : fieldsBehindCut(context.used, answerLength),
+        extraFields: answerLength === undefined ? [] : fieldsBehindCut(context.usedFields, answerLength),
       },
     }
   },

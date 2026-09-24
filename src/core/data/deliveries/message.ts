@@ -21,7 +21,7 @@ export const message: DeliveryAdapter<'message'> = {
   read: () => ({ kind: 'message' }),
   needsTable: true,
   fetchOn: 'delivery',
-  export: (_, source, context) => ({ query: { id: source.tableId, fields: context.fields(source) } }),
+  export: (_, source, context) => ({ query: { id: source.tableId, fields: context.orderedFields(source) } }),
   readExported(entry) {
     const query = entry.query
     if (!isSeObject(query) || typeof query.id !== 'string' || query.id === ''

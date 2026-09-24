@@ -6,12 +6,12 @@ export type Write = NoWrite | PutRelationWrite
 
 export type WriteKind = Write['kind']
 
-export const WRITE_ADAPTERS: { [K in WriteKind]: WriteAdapter<K> } = {
+const WRITE_ADAPTERS: { [K in WriteKind]: WriteAdapter<K> } = {
   none: noWrite,
   putRelation,
 }
 
-export const WRITE_KINDS: readonly WriteKind[] = Object.values(WRITE_ADAPTERS).map((a) => a.kind)
+const WRITE_KINDS: readonly WriteKind[] = Object.values(WRITE_ADAPTERS).map((a) => a.kind)
 
 export function writeAdapter(kind: WriteKind): WriteAdapter<WriteKind> {
   return WRITE_ADAPTERS[kind]

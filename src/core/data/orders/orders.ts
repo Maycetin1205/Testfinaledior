@@ -12,7 +12,7 @@ export type OrderKind = Order['kind']
 
 // The order of the entries is the order in which the sheet is filled: the VAR
 // entries of header keys stand before those of open records.
-export const ORDER_ADAPTERS: { [K in OrderKind]: OrderAdapter<K> } = {
+const ORDER_ADAPTERS: { [K in OrderKind]: OrderAdapter<K> } = {
   none: noOrder,
   sefileloop,
   var: varOrder,

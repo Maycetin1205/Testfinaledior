@@ -12,10 +12,8 @@ export type DeliveryOf<K extends DeliveryKind> = Delivery & { kind: K }
 export type RuntimeDeliveryOf<K extends DeliveryKind> = RuntimeDelivery & { kind: K }
 
 export interface ExportContext {
-  // The fields the mask uses of this source.
-  used: ReadonlySet<string> | undefined
-  // The field list SoftEngine is asked for.
-  fields: (source: DataSource) => string
+  usedFields: ReadonlySet<string> | undefined
+  orderedFields: (source: DataSource) => string
   relations: readonly RelationTemplate[]
 }
 

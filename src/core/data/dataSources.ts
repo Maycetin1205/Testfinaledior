@@ -139,7 +139,6 @@ export function allFieldsDelivered(source: DataSource): boolean {
   return orderAdapter(source.order.kind).allFields(source.order)
 }
 
-// What the data center form shows of a source's descriptor.
 export function choiceOf(source: DataSource): SourceChoice {
   const { order, delivery, write } = source
   return {

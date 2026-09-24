@@ -1,6 +1,6 @@
 import type { DeliveryAdapter } from './deliveryAdapter'
 
-export const PUSH_PATHS = ['SEFileLoop', 'Var', 'Tabellen', 'Masken', 'ErpApiCall'] as const
+const PUSH_PATHS = ['SEFileLoop', 'Var', 'Tabellen', 'Masken', 'ErpApiCall'] as const
 
 // Where in SoftEngine's delivery the rows stand: Daten.<path>.<alias>, the open
 // record under Daten.Var.<table id>.

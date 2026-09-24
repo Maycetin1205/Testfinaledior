@@ -554,7 +554,7 @@ function liftTo19(state: Record<string, unknown>): void {
   liftSourceNames(state)
 }
 
-// ---- a source as preset and descriptor instead of a kind with switches ----
+// ---- version 20: a source as preset and descriptor, not a kind with switches ----
 
 function text(value: unknown): string {
   return typeof value === 'string' ? value : ''
@@ -589,7 +589,7 @@ function liftToDescriptors(state: Record<string, unknown>): void {
   state.dataSources = sources.map((source) => (isPlainObject(source) ? descriptorSource(source) : source))
 }
 
-// ---- the Hol-Relation as a catalog entry instead of a number at the source ----
+// ---- version 20: the Hol-Relation as a catalog entry, not a number at the source ----
 
 // What the mask filled in for every Hol-Relation, whatever number it had.
 const OLD_POSITION_PARAMETER = ['BELART', 'POS', 'LEN', 'BELNR', 'JAHR', 'ARCHIV', '', 'POSNR', '', '', '', '']

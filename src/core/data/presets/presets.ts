@@ -22,7 +22,7 @@ export type PresetId =
   | 'relationValue'
   | 'erpMask'
 
-export const PRESETS: { [P in PresetId]: SourcePreset<P> } = {
+const PRESETS: { [P in PresetId]: SourcePreset<P> } = {
   idb,
   addressMaster,
   itemMaster,

@@ -36,7 +36,7 @@ export function RelationForm({ relation, onClose }: RelationFormProps) {
       setShowError(true)
       return
     }
-    // The slots of a Hol-Relation are data of the catalog; they stay as long as they still fit.
+    // The slots of a Hol-Relation live only here; they stay while they still fit.
     const positions = relation?.positions
     const data: Omit<RelationTemplate, 'id'> = {
       name: name.trim(),

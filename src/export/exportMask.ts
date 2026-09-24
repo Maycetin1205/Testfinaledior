@@ -211,8 +211,8 @@ export function exportMask(
       tableId: s.tableId,
       recordField: recordNumberOf(s),
       ...deliveryAdapter(s.delivery.kind).export(s.delivery, s, {
-        used: usedFields.get(s.id),
-        fields: (source) => orderedFields(source, usedFields.get(source.id), getKey.get(source.id) ?? [], false),
+        usedFields: usedFields.get(s.id),
+        orderedFields: (source) => orderedFields(source, usedFields.get(source.id), getKey.get(source.id) ?? [], false),
         relations: relation,
       }),
     }))) + ';',
