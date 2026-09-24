@@ -936,13 +936,20 @@ Style-Block):
   `color`, neu möglich `variant`, `appearance="plain"`; der Referenzabzug
   änderte sich nur in den CSS-Werten.
 
-Kleine sichtbare Folgen: Ein Text ohne eigene Werte ist 13 statt 14 px groß.
-Eine lange Beschriftung auf einem schmalen Knopf läuft über den Rand statt
-umzubrechen. Spaltenköpfe in Großbuchstaben brechen bei schmalen Spalten im
-Wort. Bei einem Baustein am linken Rand ist die Auswahlleiste vorne
-abgeschnitten. Neue Formularfelder starten vier statt zwei Rasterzeilen hoch.
+Nachlese nach dem Test des Nutzers (bd9c4b2 bis 0fbd90a, fd45b26): Die
+Beschriftung des Formularfelds steht wieder im Feld, nicht darüber. Die
+Suchzeile ist 28 px hoch mit Lupe statt Platzhaltersatz. Eine lange
+Knopfbeschriftung wird gekürzt statt überzulaufen. Spaltenköpfe brechen nur
+zwischen Wörtern. Die Auswahlleiste bleibt in der Leinwand. Der Feldwähler
+schließt sich, wenn er das Datencenter öffnet. Das Pop-up „Gestalten" ist
+weg (ein Weg je Ding). Ein Text ohne eigene Werte ist 13 statt 14 px groß.
 Auf dem Rechner des Nutzers: `npm install` (Inter ist raus), Dev-Server neu
 starten.
+
+Offen aus dem Test: Text braucht neben der Rolle eine Farb- und eine
+Größenwahl in Stufen der Empfangsmaske (Vorschlag, Nutzer entscheidet). Die
+„Arten" (Feldtypen oder Quellenarten, der Nutzer sagt welche) sind
+unlogisch und werden in Schritt 2 neu geordnet.
 
 ### Offen, in dieser Reihenfolge
 
