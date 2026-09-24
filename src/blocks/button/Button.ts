@@ -53,7 +53,6 @@ export class Button extends BlockElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    if (this.inEditor) return
     this.wireClick()
     document.addEventListener(PENDING_EVENT, this.count)
     this.count()

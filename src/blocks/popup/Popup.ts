@@ -30,13 +30,12 @@ export class Popup extends BlockElement {
   @property({ type: Boolean, reflect: true }) open = false
 
   private closeWindow(): void {
-    if (this.inEditor) return
     this.removeAttribute('open')
   }
 
   protected override updated(changed: PropertyValues<this>): void {
     super.updated(changed)
-    if (!changed.has('open') || !this.open || this.inEditor) return
+    if (!changed.has('open') || !this.open) return
     void this.updateComplete.then(() => {
       if (!this.open || !this.isConnected) return
       const target = firstFocusSpot(this)
@@ -49,7 +48,7 @@ export class Popup extends BlockElement {
     return html`<ff-dialog
         .width=${this.popupWidth}
         .height=${this.popupHeight}
-        ?escape-closes=${this.open && !this.inEditor}
+        ?escape-closes=${this.open}
         @ff-dialog-close=${this.closeWindow}
       >
         <span

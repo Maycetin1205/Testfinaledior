@@ -37,9 +37,9 @@ export const fieldStyle = css`
   select.ctrl { padding: calc(var(--field-pad-y) - 1px) calc(var(--field-pad-x) - 2px); }
 
   .field.line .ctrl,
-  :host([data-ff-editor]) .field.line .ctrl,
-  :host([data-ff-editor]) .field.line .wrap[data-ff-bound] .ctrl,
-  :host([data-ff-editor]) .field.line .lookup .ctrl {
+  :host([preview]) .field.line .ctrl,
+  :host([preview]) .field.line .wrap[data-ff-bound] .ctrl,
+  :host([preview]) .field.line .lookup .ctrl {
     border: none !important;
     border-bottom: 1.5px solid var(--se-line) !important;
     border-radius: 0 !important;
@@ -131,18 +131,18 @@ export const fieldStyle = css`
   .magnifier:hover { background: var(--se-accent-soft); color: var(--se-ink); }
   .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
 
-  :host([data-ff-editor]) .ctrl { pointer-events: none; }
+  :host([preview]) .ctrl { pointer-events: none; }
   /* The magnifier stays clickable in the editor: it opens the lookup window and
      its inspector section. */
-  :host([data-ff-editor]) .ph { pointer-events: auto; cursor: text; }
-  :host([data-ff-editor]) .field:not(.line) .wrap[data-ff-bound] .ctrl {
+  :host([preview]) .ph { pointer-events: auto; cursor: text; }
+  :host([preview]) .field:not(.line) .wrap[data-ff-bound] .ctrl {
     border-style: dotted;
     border-color: var(--se-accent);
   }
 
-  :host([data-ff-editor]) [data-ff-editable]:empty::before { content: 'Text …'; opacity: 0.6; }
+  :host([preview]) [data-ff-editable]:empty::before { content: 'Text …'; opacity: 0.6; }
 
-  :host(:not([data-ff-editor])) .row .text { cursor: pointer; user-select: none; }
+  :host(:not([preview])) .row .text { cursor: pointer; user-select: none; }
 
   :host([fills]) .field,
   :host([fills]) .wrap { height: 100%; }

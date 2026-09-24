@@ -15,7 +15,7 @@ export interface CaptureRowPlacement {
 
   block: HTMLElement
 
-  inEditor: boolean
+  preview: boolean
 
   titleInCell: boolean
 
@@ -85,14 +85,14 @@ export function captureRowFor(
   view: ColumnView,
 ): TemplateResult {
   const ledger = placement.ledger
-  const cells = placement.inEditor ? [] : ledger.rowView()
+  const cells = ledger.rowView()
   return captureRowTpl({
     columns: view.columns,
     slots: view.slots,
     sourceId: placement.sourceId,
     cols,
     titleInCell: placement.titleInCell,
-    inEditor: placement.inEditor,
+    preview: placement.preview,
     value: (i) => cells[i]?.value ?? '',
     automatic: (i) => cells[i]?.automatic === true,
     typingColumn: ledger.typingColumn,

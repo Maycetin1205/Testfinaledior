@@ -46,7 +46,7 @@ export class DatePicker extends BlockElement {
     super.connectedCallback()
 
     this.day = chosenDay() || dayOf(new Date())
-    if (this.inEditor) return
+    if (this.preview) return
     this.setDay(this.day)
 
     this.unlistenDay?.()

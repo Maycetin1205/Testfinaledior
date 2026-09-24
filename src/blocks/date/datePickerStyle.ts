@@ -84,9 +84,9 @@ export const dateStyle = css`
     .picker { --field-min: 80px; }
   }
 
-  :host([data-ff-editor]) .field,
-  :host([data-ff-editor]) .arrow,
-  :host([data-ff-editor]) .today { pointer-events: none; }
+  :host([preview]) .field,
+  :host([preview]) .arrow,
+  :host([preview]) .today { pointer-events: none; }
 
   :host([fills]) .picker { height: 100%; }
 `

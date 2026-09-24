@@ -105,7 +105,7 @@ export const cardsStyle = css`
     background: var(--tone-strong);
   }
 
-  :host([data-ff-editor]) [data-ff-spot]:empty::before {
+  :host([preview]) [data-ff-spot]:empty::before {
     content: '—';
     color: var(--se-faint);
   }

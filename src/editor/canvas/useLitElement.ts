@@ -58,7 +58,7 @@ export function useLitElement({
     if (!container) return
     const el = document.createElement(def.tag)
 
-    el.setAttribute('data-ff-editor', '')
+    el.setAttribute('preview', '')
     container.appendChild(el)
     elementRef.current = el
     setElement(el)

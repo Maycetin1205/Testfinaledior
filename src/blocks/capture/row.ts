@@ -21,7 +21,7 @@ export interface CapturePlacement {
 
   cols: Readonly<Record<string, string>>
 
-  inEditor: boolean
+  preview: boolean
 
   titleInCell: boolean
 
@@ -51,7 +51,7 @@ export function captureRowTpl(
 ): TemplateResult {
   return html`<div class="row capture" role="row" style=${styleMap(placement.cols)}>
     ${placement.columns.map((column, i) => {
-      if (placement.inEditor) {
+      if (placement.preview) {
         return html`<div
           class=${column.hidden === true ? 'hidden' : nothing}
           role="cell"

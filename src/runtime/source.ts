@@ -79,7 +79,6 @@ export function makeDataLink<T extends HTMLElement>(opts: {
   }
 
   const connect = (el: T): void => {
-    if (el.hasAttribute('data-ff-editor')) return
     elements.add(el)
     opts.wire?.(el)
 

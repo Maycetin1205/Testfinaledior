@@ -124,12 +124,12 @@ export class Capture extends BlockElement {
   }
 
   private get changePossible(): boolean {
-    return !this.inEditor && this.source.trim() !== '' && hasRecordNumber(this)
+    return this.source.trim() !== '' && hasRecordNumber(this)
   }
 
   private rowsDecoration(): (rawIndex: number | null) => RowDecoration {
     return captureDecoration({
-      inEditor: this.inEditor,
+      preview: this.preview,
       deletable: this.deletable,
       typable: this.changePossible,
       ledger: this._ledger,
@@ -146,7 +146,6 @@ export class Capture extends BlockElement {
           columns: view.columns,
           slots: view.slots,
           cols,
-          inEditor: this.inEditor,
           captured,
           capturedState: (index) => this._ledger.capturedStatus(index),
           correctionSlot,
@@ -154,7 +153,7 @@ export class Capture extends BlockElement {
             {
               ledger: this._ledger,
               block: this,
-              inEditor: this.inEditor,
+              preview: this.preview,
               titleInCell: !this.headerRow,
               sourceId: this.source,
               windowWidth: validMetrics(this.windowWidth, WINDOW_WIDTH),
@@ -174,7 +173,7 @@ export class Capture extends BlockElement {
   }
 
   private readonly maskKey = (e: KeyboardEvent): void => {
-    if (this.inEditor || e.key !== 'Insert') return
+    if (this.preview || e.key !== 'Insert') return
     const all = Array.from(this.ownerDocument.querySelectorAll<Capture>(Capture.tag))
     const path = e.composedPath()
     const responsible = all.find((t) => path.includes(t)) ?? all[0]
@@ -196,7 +195,6 @@ export class Capture extends BlockElement {
 
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed)
-    if (this.inEditor) return
     this._ledger.refresh()
   }
 

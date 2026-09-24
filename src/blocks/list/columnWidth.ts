@@ -101,7 +101,7 @@ export function widthsHandles(
 }
 
 export interface WidthsStateHost {
-  inEditor: () => boolean
+  preview: () => boolean
 
   fullSlot: (rendered: number) => number
 
@@ -148,7 +148,7 @@ export class WidthsState {
       adopt: (raw) => {
         const change = this.full(raw)
         this._beforeDrag = null
-        if (!this.host.inEditor()) {
+        if (!this.host.preview()) {
           for (const a of change) this._widths.set(a.index, a.width)
           this.host.report()
           return

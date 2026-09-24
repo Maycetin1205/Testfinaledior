@@ -61,7 +61,6 @@ export class FormField extends BlockElement {
   private readonly _lookup = new LookupControl({
     block: this,
     report: () => this.requestUpdate(),
-    inEditor: () => this.inEditor,
     source: () => this.lookupSource,
     storageField: () => this.storageField,
     storageTitle: () => this.storageTitle,
@@ -104,7 +103,7 @@ export class FormField extends BlockElement {
   }
 
   private onTextClick(): void {
-    if (this.inEditor) return
+    if (this.preview) return
     this.setTick(!this.ticked)
   }
 

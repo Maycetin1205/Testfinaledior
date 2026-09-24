@@ -13,7 +13,7 @@ import { rememberedSorting } from './sorting'
 
 // The element whose view the operator changes.
 export interface ViewElement extends HTMLElement, MeasureTarget {
-  inEditor: boolean
+  readonly preview: boolean
   editable: boolean
   requestUpdate: () => void
 }
@@ -61,7 +61,7 @@ export class ViewChoices {
   // Only the mask remembers what the operator sorted by; in the editor the
   // builder's own order stands.
   private get remembers(): boolean {
-    return !this.el.inEditor
+    return !this.el.preview
   }
 
   private readRemembered(): void {

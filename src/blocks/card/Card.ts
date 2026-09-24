@@ -28,8 +28,7 @@ export class Card extends BlockElement {
   override render(): TemplateResult {
     const tone = toneValue(this.chipTone)
 
-    const inEditor = this.inEditor
-    const shows = (value: string): boolean => inEditor || value.trim() !== ''
+    const shows = (value: string): boolean => this.preview || value.trim() !== ''
 
     const foot = shows(this.heading2) || shows(this.date) || shows(this.time) || shows(this.chip)
     return html`<div class="card">

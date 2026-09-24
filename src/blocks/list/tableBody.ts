@@ -52,7 +52,7 @@ export interface BodyPlacement {
 
   editable: boolean
 
-  inEditor: boolean
+  preview: boolean
 
   showHead: boolean
 
@@ -118,7 +118,7 @@ function rowTpl(
   rawIndex: number | null,
   viewIndex: number,
 ): TemplateResult {
-  const activatable = rawIndex !== null && !placement.inEditor
+  const activatable = rawIndex !== null
   const decoration = placement.decoration(rawIndex)
   return html`<div
     class="row${viewIndex % 2 === 1 ? ' zebra' : ''}${
@@ -163,7 +163,7 @@ function rowTpl(
       const own = rawIndex === null ? null : decoration.cell(slot, s, value)
       if (own !== null) return own
 
-      const headHandle = placement.inEditor && !placement.showHead && placement.editable
+      const headHandle = placement.preview && !placement.showHead && placement.editable
       const classes = [
         s.hidden === true ? 'hidden' : '',
         rawIndex !== null && asNumber(value) !== null ? 'number' : '',
@@ -204,7 +204,7 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
               .filter((k) => k !== '').join(' ') || nothing}
             role="columnheader"
             data-ff-editable
-            data-ff-entry=${placement.inEditor ? placement.slots[i] : nothing}
+            data-ff-entry=${placement.preview ? placement.slots[i] : nothing}
             style="grid-row: 1; grid-column: ${i + 1}"
             @click=${() => act.clickHead(placement.slots[i])}
             @contextmenu=${placement.columnPickerOn

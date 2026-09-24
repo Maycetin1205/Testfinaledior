@@ -213,7 +213,8 @@ export function openLookupInEditor(
     title: state.title,
     width: state.width,
     height: state.height,
-    inEditor: true,
+    preview: true,
+    entries: [],
     setMetrics: state.setMetrics,
     onAdopt: () => {},
   })

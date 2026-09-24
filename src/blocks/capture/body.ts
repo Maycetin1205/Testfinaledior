@@ -66,8 +66,6 @@ export interface CapturedPlacement {
 
   cols: Readonly<Record<string, string>>
 
-  inEditor: boolean
-
   captured: readonly (readonly string[])[]
 
   capturedState: (index: number) => RowState
@@ -93,22 +91,22 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
       role="row"
       data-status=${state.status}
       style=${styleMap(placement.cols)}
-      @click=${placement.inEditor || fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
+      @click=${fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
     >
       ${placement.columns.map((_s, i) => {
         const value = values[placement.slots[i]] ?? ''
         return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell">${value}</div>`
       })}
-      ${placement.inEditor ? nothing : html`<button
-          class="row-remove"
-          type="button"
-          title=${fixed ? 'Aus der Ansicht nehmen' : 'Diese erfasste Zeile wieder wegnehmen'}
-          aria-label="Erfasste Zeile wegnehmen"
-          @click=${(e: MouseEvent) => {
-            e.stopPropagation()
-            act.takeCapturedRow(rowsIndex)
-          }}
-        >&#x2715;</button>`}
+      <button
+        class="row-remove"
+        type="button"
+        title=${fixed ? 'Aus der Ansicht nehmen' : 'Diese erfasste Zeile wieder wegnehmen'}
+        aria-label="Erfasste Zeile wegnehmen"
+        @click=${(e: MouseEvent) => {
+          e.stopPropagation()
+          act.takeCapturedRow(rowsIndex)
+        }}
+      >&#x2715;</button>
     </div>`
   })}${placement.correctionSlot === null || placement.correctionSlot >= placement.captured.length
     ? placement.capture
@@ -116,7 +114,7 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
 }
 
 export interface DecorationPlacement {
-  inEditor: boolean
+  preview: boolean
 
   deletable: boolean
 
@@ -131,7 +129,7 @@ export function captureDecoration(placement: DecorationPlacement): (rawIndex: nu
     if (rawIndex === null) {
       return {
         ...WITHOUT_DECORATION,
-        right: placement.deletable && placement.inEditor ? crossDisplayTpl() : nothing,
+        right: placement.deletable && placement.preview ? crossDisplayTpl() : nothing,
       }
     }
     const state = placement.ledger.statusOf(rawIndex)

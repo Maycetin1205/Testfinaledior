@@ -20,10 +20,10 @@ export const captureStyle = css`
 
       /* In the editor the column titles stand where the mask shows its
          placeholders, in their color. */
-      :host([data-ff-editor]) .row.capture > div { color: var(--se-faint); }
+      :host([preview]) .row.capture > div { color: var(--se-faint); }
 
       .row.captured { flex: none; }
-      :host(:not([data-ff-editor])) .row.captured { cursor: pointer; }
+      :host(:not([preview])) .row.captured { cursor: pointer; }
 
       /* Room for the status dot before the first cell. */
       .head > div:first-of-type,

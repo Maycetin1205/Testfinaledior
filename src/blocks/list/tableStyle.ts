@@ -199,7 +199,7 @@ export const tableStyle = css`
       .sort-arrow { font-size: 9px; color: var(--se-muted); }
 
       /* Only dimmed in the editor: it is a real column the builder still edits. */
-      :host([data-ff-editor]) .hidden { opacity: 0.45; }
+      :host([preview]) .hidden { opacity: 0.45; }
 
       /* The picker lies inside the table, which clips whatever hangs out. */
       .picker-backdrop {

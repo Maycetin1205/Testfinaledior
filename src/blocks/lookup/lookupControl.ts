@@ -1,9 +1,5 @@
-import {
-  html,
-  type ReactiveController,
-  type ReactiveControllerHost,
-  type TemplateResult,
-} from 'lit'
+import { html, type ReactiveController, type TemplateResult } from 'lit'
+import type { BlockElement } from '../base/BlockElement'
 import { giverIdOf, clearSelection, setSelection, rowsToSelection } from '../../runtime/selection'
 import {
   automaticColumns,
@@ -51,9 +47,8 @@ function actionOnLeave(
 }
 
 export interface LookupControlHost {
-  block: ReactiveControllerHost & HTMLElement
+  block: BlockElement
   report: () => void
-  inEditor: () => boolean
 
   source: () => string
   storageField: () => string
@@ -133,7 +128,6 @@ export class LookupControl implements ReactiveController {
   }
 
   private openWindow(searchText = ''): void {
-    if (this.host.inEditor()) return
     openLookup({
       el: this.host.block,
       sourceId: this.host.source(),
@@ -152,7 +146,7 @@ export class LookupControl implements ReactiveController {
   }
 
   private currentSuggestions(): Entry[] {
-    if (this.list.closed || this.host.inEditor()) return []
+    if (this.list.closed) return []
     if (this.typed === null && !this.list.opened) return []
     const typed = this.typed ?? ''
 
@@ -187,7 +181,7 @@ export class LookupControl implements ReactiveController {
   }
 
   private key(e: KeyboardEvent): void {
-    if (this.host.inEditor()) return
+    if (this.host.block.preview) return
     if (e.key === 'F5') e.preventDefault()
     const action = this.list.actionFor(keyOf(e), {
       listOpen: this.list.open,
@@ -217,7 +211,7 @@ export class LookupControl implements ReactiveController {
   }
 
   private leave(): void {
-    if (this.host.inEditor()) return
+    if (this.host.block.preview) return
     const action = actionOnLeave(this.inField, this.display, this.host.value())
     this.typed = null
     this.list.idle()

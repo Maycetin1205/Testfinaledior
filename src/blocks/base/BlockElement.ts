@@ -73,16 +73,21 @@ export abstract class BlockElement extends LitElement {
     :host([fills]) { height: 100%; box-sizing: border-box; }
     [data-ff-editable] { cursor: text; }
     :host(:not([data-editable])) [data-ff-editable] { cursor: inherit; }
-    :host([data-ff-editor]) [data-ff-bound] {
+    :host([preview]) [data-ff-bound] {
       text-decoration: underline dotted var(--se-accent);
       text-decoration-thickness: 2px;
       text-underline-offset: 3px;
     }
-    :host([data-ff-editor][data-editable]) [data-ff-bound] { cursor: pointer; }
+    :host([preview][data-editable]) [data-ff-bound] { cursor: pointer; }
   `
 
   @property({ type: Boolean, reflect: true, attribute: 'data-editable' })
   editable = false
+
+  // The one switch between editor and mask, set once by the editor before the
+  // block connects. It changes what the block shows, not where its data comes from.
+  @property({ type: Boolean, reflect: true })
+  preview = false
 
   constructor() {
     super()
@@ -91,10 +96,6 @@ export abstract class BlockElement extends LitElement {
 
   get properties(): PropertyMap {
     return (this.constructor as typeof BlockElement).declaredProperties
-  }
-
-  get inEditor(): boolean {
-    return this.hasAttribute('data-ff-editor')
   }
 
   protected inlineEdit(event: MouseEvent, attr: string): void {

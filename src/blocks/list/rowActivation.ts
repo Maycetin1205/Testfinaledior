@@ -140,7 +140,7 @@ export function activateRow(
   rawIndex: number | null,
   viewIndex: number,
 ): void {
-  if (rawIndex === null || el.hasAttribute('data-ff-editor')) return
+  if (rawIndex === null) return
   const rawRow = rawRows[rawIndex]
   if (rawRow === undefined) return
 
@@ -158,7 +158,7 @@ export function rowDouble(
   rawRows: readonly unknown[],
   rawIndex: number | null,
 ): void {
-  if (rawIndex === null || el.hasAttribute('data-ff-editor')) return
+  if (rawIndex === null) return
   const rawRow = rawRows[rawIndex]
   if (rawRow === undefined) return
   runEvent(el, ROW_DOUBLE, { PINDEX: rowsIndexOf(el, rawRow) })
@@ -166,7 +166,6 @@ export function rowDouble(
 }
 
 export interface ActionRowElement extends HTMLElement {
-  inEditor: boolean
   rawRows: unknown[]
 }
 
@@ -177,7 +176,7 @@ export function actionKeyAtRow(
   choice: RowsChoice,
   e: KeyboardEvent,
 ): void {
-  if (el.inEditor || e.defaultPrevented || e.key !== 'F4'
+  if (e.defaultPrevented || e.key !== 'F4'
     || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
   if (!chainsRead(el.getAttribute('data-ff-actions'))[KEY_F4]?.length) return
   e.preventDefault()

@@ -202,7 +202,6 @@ export async function runEvent(
   context: PlaceholderValues,
 ): Promise<ActionResult> {
   const empty = { ran: false, written: false, cancelled: false, busy: false }
-  if (el.hasAttribute('data-ff-editor')) return empty
   const steps = chainsRead(el.getAttribute('data-ff-actions'))[eventKey]
   if (!steps || steps.length === 0) return empty
 

@@ -25,6 +25,7 @@ import type { HandedRow, RowsFrom } from '../list/sourceRows'
 const WINDOW_TABLE_TYPE = 'table'
 
 interface WindowTable extends HTMLElement {
+  preview: boolean
   rowsFrom: RowsFrom
   columns: Column[]
   handedRows: readonly HandedRow[]
@@ -116,7 +117,7 @@ export interface LookupArgs {
 
   searchText?: string
 
-  inEditor?: boolean
+  preview?: boolean
 
   setMetrics?: (axis: 'width' | 'height', value: number | undefined) => void
 }
@@ -226,7 +227,7 @@ function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): 
   const columns = lookupColumns(windowColumnsOr(own, () => automaticColumns(args)))
 
   const table = document.createElement(tag) as WindowTable
-  if (args.inEditor === true) table.setAttribute('data-ff-editor', '')
+  if (args.preview === true) table.preview = true
   else table.setAttribute(BLOCK_ID_ATTR, lookupKey(args.el, args.spot))
   table.setAttribute('fills', '')
   table.setAttribute('search', 'true')
@@ -234,7 +235,6 @@ function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): 
   table.style.setProperty('--se-r-lg', '0px')
   table.rowsFrom = 'handed'
   table.columns = columns
-  if (args.inEditor === true) return table
 
   const singleColumn = onlyOneColumn(
     displayFieldOf(own, args.storageField),
@@ -268,7 +268,7 @@ export function openLookup(args: LookupArgs): void {
 
   let entries = args.entries
 
-  if (entries === undefined && args.inEditor !== true) {
+  if (entries === undefined) {
     const result = fetchEntries(args)
     if (!result.ok) return
     entries = result.entries
@@ -285,7 +285,7 @@ export function openLookup(args: LookupArgs): void {
     viewport
     escape-closes
     data-ff-lookup
-    ?movable=${args.inEditor === true}
+    ?movable=${args.preview === true}
     .heading=${args.title !== '' ? args.title : 'Nachschlagen'}
     .width=${args.width}
     .height=${args.height}
@@ -294,7 +294,7 @@ export function openLookup(args: LookupArgs): void {
   >${table}</ff-dialog>`, holder)
 
   const dialog = holder.querySelector<DialogFrame>(DIALOG_FRAME_TAG)
-  if (dialog && args.inEditor === true) wireDrag(dialog, args)
+  if (dialog && args.preview === true) wireDrag(dialog, args)
   table.addEventListener(ROW_ACTIVATED_EVENT, (event) => {
     const detail = (event as CustomEvent<RowActivatedDetail>).detail
     const entry = found[detail.rawIndex]

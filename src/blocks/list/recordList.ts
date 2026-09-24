@@ -43,7 +43,7 @@ export interface ListElement
   extends RowsElement, ListSettings, MeasureTarget, ReactiveControllerHost {
   // Only compared: new columns void the widths dragged for the old ones.
   readonly columns: readonly Column[]
-  inEditor: boolean
+  readonly preview: boolean
   editable: boolean
   hasUpdated: boolean
 }
@@ -59,7 +59,7 @@ export interface ListHooks {
 }
 
 interface ListShowQuestion {
-  inEditor: boolean
+  preview: boolean
 
   rowsFrom: RowsFrom
 
@@ -80,7 +80,7 @@ interface ListShows {
 // Rows of blanks are as empty as no rows at all.
 function listEmptyState(question: ListShowQuestion): ListShows {
   const sourceId = question.sourceId.trim()
-  const rows = !question.inEditor && (question.rowsFrom === 'handed' || sourceId !== '')
+  const rows = !question.preview && (question.rowsFrom === 'handed' || sourceId !== '')
   if (!rows) return { rows: false, empty: false }
 
   const anyColumnBound = question.columns.some((column) => column.field.trim() !== '')
@@ -110,9 +110,9 @@ export class RecordList implements ReactiveController {
     this.el = el
     this.hooks = hooks
     this._widths = new WidthsState({
-      inEditor: () => el.inEditor,
+      preview: () => el.preview,
       fullSlot: (rendered) =>
-        columnsView(el.listColumns(), el.inEditor, this._choice.away()).slots[rendered] ?? rendered,
+        columnsView(el.listColumns(), el.preview, this._choice.away()).slots[rendered] ?? rendered,
       columnsList: () => [...el.listColumns()],
       writeColumns: (columns) => sendColumnsChange(el, columns),
       report: () => el.requestUpdate(),
@@ -173,7 +173,7 @@ export class RecordList implements ReactiveController {
   }
 
   private get columnPickerOn(): boolean {
-    return this.el.columnPicker && this.el.headerRow && !this.el.inEditor
+    return this.el.columnPicker && this.el.headerRow && !this.el.preview
   }
 
   private cellValue(rawIndex: number, slot: number): string {
@@ -186,7 +186,7 @@ export class RecordList implements ReactiveController {
   }
 
   private readonly locksReload = (e: KeyboardEvent): void => {
-    if (!this.el.inEditor && e.key === 'F5' && !e.ctrlKey && !e.metaKey) e.preventDefault()
+    if (!this.el.preview && e.key === 'F5' && !e.ctrlKey && !e.metaKey) e.preventDefault()
   }
 
   hostConnected(): void {
@@ -226,11 +226,11 @@ export class RecordList implements ReactiveController {
   render(): TemplateResult {
     const el = this.el
     const columns = el.listColumns()
-    const visible = columnsView(columns, el.inEditor, this._choice.away())
+    const visible = columnsView(columns, el.preview, this._choice.away())
     const bottom = this.hooks?.bottom() ?? null
     const decoration = this.hooks?.decoration() ?? ((): RowDecoration => WITHOUT_DECORATION)
     const shows = listEmptyState({
-      inEditor: el.inEditor,
+      preview: el.preview,
       rowsFrom: this._rowsFrom,
       sourceId: el.source,
       columns,
@@ -263,7 +263,7 @@ export class RecordList implements ReactiveController {
         slots: visible.slots,
         cols: view.cols,
         editable: el.editable,
-        inEditor: el.inEditor,
+        preview: el.preview,
         showHead: el.headerRow,
         columnPickerOn: this.columnPickerOn,
         columnPicker: this._choice.open === null ? null : {
