@@ -15,7 +15,7 @@ export const columnStyle = css`
     min-height: 0;
     overflow: hidden;
     background: var(--tone-soft);
-    border-radius: var(--se-r-lg);
+    border-radius: var(--se-radius);
     font-family: var(--se-font);
   }
 
@@ -49,7 +49,7 @@ export const columnStyle = css`
     min-width: 22px;
     padding: 1px 8px;
     line-height: 1;
-    border-radius: var(--se-r-sm);
+    border-radius: var(--se-radius);
     background: var(--se-panel);
     border: var(--se-border) solid var(--tone-strong);
     text-align: center;

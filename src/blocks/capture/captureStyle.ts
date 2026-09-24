@@ -50,12 +50,12 @@ export const captureStyle = css`
       .row[data-status="captured"]::before,
       .row[data-status="writes"]::before { background: var(--se-accent); }
       .row[data-status="changed"]::before,
-      .row[data-status="deletion"]::before { background: var(--se-amber); }
-      .row[data-status="deletion"] { background: var(--se-red-shell); }
+      .row[data-status="deletion"]::before { background: var(--se-warning); }
+      .row[data-status="deletion"] { background: var(--se-danger-soft); }
       .row[data-status="writes"] { animation: se-writing 1.1s ease-in-out infinite; }
       .row[data-status="written"] { color: var(--se-muted); }
-      .row[data-status="error"] { background: var(--se-red-shell); }
-      .row[data-status="error"]::before { background: var(--se-red); }
+      .row[data-status="error"] { background: var(--se-danger-soft); }
+      .row[data-status="error"]::before { background: var(--se-danger); }
       @keyframes se-writing { 50% { opacity: 0.55; } }
       @media (prefers-reduced-motion: reduce) {
         .row[data-status="writes"] { animation: none; }
@@ -74,14 +74,14 @@ export const captureStyle = css`
         color: var(--se-faint);
         background: var(--se-panel);
         border: 0;
-        border-radius: var(--se-r-sm);
+        border-radius: var(--se-radius);
         cursor: pointer;
         opacity: 0;
       }
       .row:hover .row-remove,
       .row.deleted .row-remove,
       .row-remove:focus { opacity: 1; }
-      .row-remove:hover { color: var(--se-red); background: var(--se-red-soft); }
+      .row-remove:hover { color: var(--se-danger); background: var(--se-danger-soft); }
 
       .row-remove.row-remove-static { opacity: 1; cursor: default; }
 

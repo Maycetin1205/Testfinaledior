@@ -17,7 +17,7 @@ export const fieldStyle = css`
     padding: var(--field-pad-y) var(--field-pad-x);
     border: var(--field-border) solid var(--se-line);
     background: var(--se-panel);
-    border-radius: var(--se-r-md);
+    border-radius: var(--se-radius);
     font-family: var(--se-font);
     font-size: var(--se-fs);
 
@@ -27,7 +27,7 @@ export const fieldStyle = css`
   .ctrl:focus {
     outline: none;
     border-color: var(--se-accent);
-    box-shadow: 0 0 0 var(--se-border) var(--se-accent);
+    box-shadow: var(--se-focus);
   }
   textarea.ctrl {
     display: block;

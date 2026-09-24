@@ -5,7 +5,7 @@ export const buttonStyle = css`
     box-sizing: border-box;
     padding: 7px 16px;
     cursor: pointer;
-    border-radius: var(--se-r-md);
+    border-radius: var(--se-radius);
     border: var(--se-border) solid var(--se-accent);
     background: var(--se-accent);
     color: var(--se-panel);

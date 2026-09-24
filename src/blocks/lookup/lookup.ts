@@ -238,7 +238,6 @@ function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): 
   table.setAttribute('fills', '')
   table.setAttribute('search', 'true')
   table.setAttribute('columnpicker', 'true')
-  table.style.setProperty('--se-r-lg', '0px')
   table.rowsFrom = 'handed'
   table.columns = columns
 

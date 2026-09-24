@@ -14,7 +14,7 @@ export const areaStyle = css`
     padding: var(--se-gap-sm);
     background: var(--se-panel);
     border: var(--se-border) solid var(--se-line);
-    border-radius: var(--se-r-md);
+    border-radius: var(--se-radius);
     font-family: var(--se-font);
     font-size: var(--se-fs);
     color: var(--se-ink);

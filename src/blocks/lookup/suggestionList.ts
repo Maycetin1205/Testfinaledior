@@ -160,7 +160,7 @@ export const suggestionStyle = css`
     list-style: none;
     background: var(--se-panel);
     border: var(--se-border) solid var(--se-accent);
-    border-radius: var(--se-r-md);
+    border-radius: var(--se-radius);
     font-family: var(--se-font);
     font-size: var(--se-fs);
     color: var(--se-ink);

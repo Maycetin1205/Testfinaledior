@@ -14,8 +14,7 @@ export const tableStyle = css`
         height: 100%;
         background: var(--se-panel);
         border: var(--se-border) solid var(--se-line);
-        border-radius: var(--se-r-lg);
-        box-shadow: var(--se-shadow);
+        border-radius: var(--se-radius);
         overflow: hidden;
         font-family: var(--se-font);
         font-size: var(--se-fs);
@@ -39,7 +38,7 @@ export const tableStyle = css`
         color: var(--se-ink);
         background: var(--se-panel);
         border: var(--se-border) solid var(--se-line);
-        border-radius: var(--se-r-sm);
+        border-radius: var(--se-radius);
       }
       .search-row input:focus {
         outline: none;
@@ -105,12 +104,6 @@ export const tableStyle = css`
         transition: background-color var(--se-move);
       }
 
-      /* Striped by the index in the view, not by nth-child: without a head row
-         or with the capture row in front the stripes would flip. */
-      .row.zebra {
-        background: var(--se-zebra);
-      }
-
       /* Only a row without a status takes the hover color: the status color is
          the message. */
       .body > .row:not([data-status]):hover {
@@ -131,7 +124,11 @@ export const tableStyle = css`
       .body > .row.selected:not([data-status]):hover,
       .body > .row:not([data-status]):focus-visible:hover {
         background: var(--se-selection);
-        box-shadow: inset 3px 0 0 var(--se-accent);
+      }
+      .body > .row.selected,
+      .body > .row.selected:focus:not(:focus-visible) {
+        outline: var(--se-border) solid var(--se-accent);
+        outline-offset: calc(-1 * var(--se-border));
       }
       .row.selected > div,
       .row:focus-visible > div { color: var(--se-ink); }
@@ -196,7 +193,7 @@ export const tableStyle = css`
         );
       }
 
-      .sort-arrow { font-size: 9px; color: var(--se-muted); }
+      .sort-arrow { font-size: var(--se-fs-xs); color: var(--se-muted); }
 
       /* Only dimmed in the editor: it is a real column the builder still edits. */
       :host([preview]) .hidden { opacity: 0.45; }
@@ -219,8 +216,7 @@ export const tableStyle = css`
         padding: 3px;
         background: var(--se-panel);
         border: var(--se-border) solid var(--se-line);
-        border-radius: var(--se-r-md);
-        box-shadow: var(--se-shadow);
+        border-radius: var(--se-radius);
       }
       .picker-title {
         margin: 0;
@@ -242,7 +238,7 @@ export const tableStyle = css`
         color: var(--se-ink);
         background: none;
         border: 0;
-        border-radius: var(--se-r-sm);
+        border-radius: var(--se-radius);
         cursor: pointer;
       }
       .picker-row:hover:not(:disabled),
@@ -297,8 +293,8 @@ export const tableStyle = css`
       mark {
         padding: 0 1px;
         color: inherit;
-        background: var(--se-amber-soft);
-        border-radius: 2px;
+        background: var(--se-warning-soft);
+        border-radius: var(--se-radius);
       }
 
       .totals {
@@ -319,7 +315,7 @@ export const tableStyle = css`
         font-size: var(--se-fs-sm);
         padding: 2px 6px;
         border: var(--se-border) solid var(--se-line);
-        border-radius: var(--se-r-sm);
+        border-radius: var(--se-radius);
         background: var(--se-panel);
         color: var(--se-ink);
         cursor: pointer;

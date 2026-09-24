@@ -21,7 +21,7 @@ export const dateStyle = css`
     height: 100%;
     padding: 2px;
     border: var(--se-border) solid var(--se-line);
-    border-radius: var(--se-r-sm);
+    border-radius: var(--se-radius);
     background: var(--se-panel);
   }
 
@@ -33,7 +33,7 @@ export const dateStyle = css`
     width: 24px;
     padding: 0;
     border: none;
-    border-radius: var(--se-r-sm);
+    border-radius: var(--se-radius);
     background: transparent;
     color: var(--se-muted);
     font-family: var(--se-font);
@@ -65,7 +65,7 @@ export const dateStyle = css`
     height: 100%;
     padding: 0 9px;
     border: var(--se-border) solid var(--se-line);
-    border-radius: var(--se-r-sm);
+    border-radius: var(--se-radius);
     background: var(--se-panel);
     color: var(--se-ink);
     font-family: var(--se-font);

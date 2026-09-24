@@ -8,12 +8,12 @@ export const cardsStyle = css`
     padding: 11px 13px 12px;
     background: var(--se-card-bg);
     border: var(--se-border) solid var(--se-card-line);
-    border-radius: var(--se-r-md);
+    border-radius: var(--se-radius);
     font-family: var(--se-font);
     transition: border-color var(--se-move);
   }
 
-  .card:hover { border-color: var(--se-faint); }
+  .card:hover { border-color: var(--se-card-hover); }
 
   :host([data-ff-selection]) .card {
     border-color: var(--se-accent);
@@ -33,9 +33,9 @@ export const cardsStyle = css`
   }
   .name {
     color: var(--se-ink);
-    font-size: var(--se-fs-lg);
+    font-size: var(--se-fs-name);
     font-weight: 700;
-    line-height: 1.25;
+    line-height: var(--se-lh-tight);
   }
   .extra {
     color: var(--se-muted);
@@ -84,11 +84,11 @@ export const cardsStyle = css`
     flex: none;
     margin-left: auto;
     padding: 5px 11px 5px 9px;
-    border-radius: var(--se-r-sm);
+    border-radius: var(--se-radius);
 
     clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
     font-family: var(--se-font);
-    font-size: var(--se-fs-sm);
+    font-size: var(--se-fs-chip);
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.02em;

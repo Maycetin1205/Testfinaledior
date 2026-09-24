@@ -1,75 +1,92 @@
+/* Every value stands in docs/chef-maske/empfang/index.basis.source.html; the
+   comment names where. */
 :root {
 
-  --se-bg:        #f3f8fa;
-  --se-panel:     #ffffff;
-  --se-panel-2:   #f6fbfc;
+  --se-bg:        #EDF1F4;  /* --bg */
+  --se-panel:     #FFFFFF;  /* --surface */
+  --se-panel-2:   #F6F8FA;  /* .vsuche-top .vinput */
 
-  --se-ink:       #1b2d3e;
-  --se-muted:     #5f7386;
-  --se-faint:     #9fb3c0;
+  --se-ink:       #16242C;  /* --ink */
+  --se-muted:     #7C8A92;  /* --muted */
+  --se-faint:     #9AA8B0;  /* .vk-sub */
 
-  --se-line:      #d8e5ea;
-  --se-line-soft: #e8f0f4;
+  --se-line:      #DCE3E8;  /* --line-stark */
+  --se-line-soft: #E7ECEF;  /* --line */
 
-  --se-scrim:     rgba(27, 45, 62, 0.45);
+  --se-accent:      #0E7C86;  /* --accent */
+  --se-accent-dark: #0B5E66;  /* --accent-ink */
+  --se-accent-soft: #E3F1F2;  /* --accent-soft */
 
-  --se-accent:      #00778f;
-  --se-accent-dark: #00647a;
-  --se-accent-soft: #e8f6f9;
+  --se-hover:     #F1F4F6;  /* .vdaynav .vbtn-icon:hover */
+  --se-selection: #E3F1F2;  /* .vpet.is-sel */
 
-  --se-selection:   #d3eef5;
-  --se-zebra:       #f7fbfc;
-  --se-hover:       #eef7f9;
+  --se-scrim:     rgba(16,40,48,.34);  /* .vov */
 
-  --se-red:         #b3261e;
-  --se-red-soft:    #fdecea;
+  --se-card-bg:    #FFFFFF;  /* .vkarte */
+  --se-card-line:  #EAEEF1;  /* .vkarte */
+  --se-card-hover: #9FB0C0;  /* .vkarte:hover */
 
-  /* Amber means marked, not yet written. */
-  --se-amber:       #f0a53a;
-  --se-amber-soft:  #fff6e1;
+  /* Tones: --sp, --col, --tint, --shell and --shellb of a column, then the
+     ground of a flag. */
+  --se-neutral:       #8194B0;  /* .vspalte-offen */
+  --se-neutral-ink:   #5A6B86;
+  --se-neutral-tint:  #EEF1F6;
+  --se-neutral-shell: #FAFBFD;
+  --se-neutral-line:  #DCE3EC;
+  --se-neutral-soft:  #EEF1F6;
 
-  --se-blue:        #5e93be;
-  --se-blue-soft:   #e2edf5;
-  --se-green:       #1f7a4d;
-  --se-green-soft:  #e2f3ea;
+  --se-info:          #3B82C4;  /* .vspalte-behandlung */
+  --se-info-ink:      #2563B0;
+  --se-info-tint:     #EEF4FC;
+  --se-info-shell:    #F8FBFE;
+  --se-info-line:     #D7E3F2;
+  --se-info-soft:     #EEF4FC;  /* .vraum-kopf */
 
-  --se-red-shell:   #fdf3f2;  --se-red-line:   #f0cdc9;
-  --se-amber-shell: #fffdf4;  --se-amber-line: #ecd9a4;
-  --se-blue-shell:  #f5f9fc;  --se-blue-line:  #d2e2ee;
-  --se-green-shell: #f6fbf8;  --se-green-line: #cfe6d8;
+  --se-success:       #38A169;  /* .vspalte-abrechnung */
+  --se-success-ink:   #2E8B57;
+  --se-success-tint:  #ECF6F0;
+  --se-success-shell: #F7FCF9;
+  --se-success-line:  #CFE7D9;
+  --se-success-soft:  #ECF6F0;  /* --gruen-soft */
 
-  --se-card-bg:     #ffffff;
-  --se-card-line:   #d8e5ea;
+  --se-warning:       #D69E2E;  /* .vspalte-wartezimmer */
+  --se-warning-ink:   #B7791F;
+  --se-warning-tint:  #FBF6EC;
+  --se-warning-shell: #FDFAF3;
+  --se-warning-line:  #EFE3CC;
+  --se-warning-soft:  #FBF6EC;  /* --amber-soft */
 
-  --se-border: 1px;
+  --se-danger:        #C0392B;  /* --rot */
+  --se-danger-ink:    #C0392B;  /* .vflag-notfall */
+  --se-danger-tint:   #FBE6E4;  /* --rot-soft */
+  --se-danger-shell:  #FFFFFF;  /* --surface */
+  --se-danger-line:   #FBE6E4;  /* --rot-soft */
+  --se-danger-soft:   #FBE6E4;  /* .vflag-notfall */
 
-  --se-r-sm:   4px;
-  --se-r-md:   6px;
-  --se-r-lg:   10px;
+  --se-border: 1px;  /* .vinput */
+  --se-radius: 4px;  /* .vkarte */
 
-  --se-shadow: 0 1px 2px rgba(27, 45, 62, 0.05), 0 4px 12px rgba(27, 45, 62, 0.06);
+  --se-shadow-pop: 0 18px 60px rgba(16,40,48,.28);  /* --schatten-pop */
+  --se-focus: 0 0 0 3px color-mix(in oklab, var(--se-accent) 18%, transparent);  /* .vinput:focus */
 
-  --se-font: "Segoe UI Variable Text", "Segoe UI", system-ui, Tahoma, sans-serif;
-  --se-mono: "IBM Plex Mono", Consolas, monospace;
-  --se-fs:      13px;
-  --se-fs-sm:   12px;
-  --se-fs-xs:   10.5px;
-  --se-fs-lg:   14px;
+  --se-font: "Segoe UI Variable Text", "Segoe UI", system-ui, Arial, sans-serif;  /* * */
+  --se-mono: "Consolas", monospace;  /* .num */
 
-  /* One step below the content, so a column title of two lines fits the head. */
-  --se-fs-head: 11.5px;
+  --se-fs-xs:    10.5px;  /* .vpicker-tab th */
+  --se-fs-chip:  11px;    /* .vflag */
+  --se-fs-head:  11.5px;  /* .vfeld-label */
+  --se-fs-sm:    12px;    /* .vkarte-meta */
+  --se-fs:       13px;    /* .kinput */
+  --se-fs-lg:    14px;    /* html, body */
+  --se-fs-name:  15px;    /* .vkarte-name */
+  --se-fs-title: 16px;    /* .vmodal-titel */
 
-  --se-lh: 1.4;
+  --se-lh:       1.45;  /* html, body */
+  --se-lh-tight: 1.25;  /* .vuhr */
 
-  --se-gap-sm: 6px;
-  --se-gap:    10px;
-  --se-gap-lg: 16px;
+  --se-gap-sm: 6px;   /* .vbtn */
+  --se-gap:    8px;   /* .vspalte-karten */
+  --se-gap-lg: 12px;  /* .vkopf-rechts */
 
-  --se-move: 130ms ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --se-move: 0ms;
-  }
+  --se-move: .12s;  /* .vbtn */
 }

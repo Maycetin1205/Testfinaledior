@@ -7,6 +7,18 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 const rootDir = import.meta.dirname
 
+// Design values a style string must not write itself: every color, and a
+// radius, font size, shadow or font of its own. 0, 50%, none, inherit,
+// transparent, currentColor and a var() stay open.
+const LOOSE_DESIGN_VALUES = [
+  ['color', /(?<!&)#[0-9a-fA-F]{3,8}(?![\w-])/],
+  ['color', /\b(?:rgba?|hsla?|oklch)\(/],
+  ['radius', /radius\s*:[^;{}]*\dpx/],
+  ['font size', /font-size\s*:[^;{}]*\d(?:px|rem)/],
+  ['shadow', /box-shadow\s*:(?!\s*(?:none|var\(--[\w-]+\))\s*(?:!important\s*)?(?:[;}]|$))/],
+  ['font', /font-family\s*:(?!\s*(?:inherit|var\(--[\w-]+\))\s*(?:!important\s*)?(?:[;}]|$))/],
+]
+
 export default defineConfig([
   globalIgnores(['dist', 'src/export/generated']),
   {
@@ -119,6 +131,19 @@ export default defineConfig([
           },
         ],
       }],
+    },
+  },
+  // What the mask shows takes its colors, radii, font sizes, shadows and fonts
+  // from the tokens in src/design, which carry the values of the reception
+  // mask. A value written into a block, the runtime or the export would be a
+  // second look beside it.
+  {
+    files: ['src/blocks/**/*.{ts,tsx}', 'src/runtime/**/*.{ts,tsx}', 'src/export/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': ['error', ...LOOSE_DESIGN_VALUES.flatMap(([what, pattern]) => [
+        { selector: `Literal[value=${pattern}]`, message: `Take the ${what} from a token in src/design.` },
+        { selector: `TemplateElement[value.raw=${pattern}]`, message: `Take the ${what} from a token in src/design.` },
+      ])],
     },
   },
   // The door itself reaches back into nothing that uses it.

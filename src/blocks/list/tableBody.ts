@@ -121,7 +121,7 @@ function rowTpl(
   const activatable = rawIndex !== null
   const decoration = placement.decoration(rawIndex)
   return html`<div
-    class="row${viewIndex % 2 === 1 ? ' zebra' : ''}${
+    class="row${
       rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
       decoration.className === '' ? '' : ' ' + decoration.className}"

@@ -86,7 +86,8 @@ export class DialogFrame extends LitElement {
       overflow: hidden;
       background: var(--se-panel);
       border: var(--se-border) solid var(--se-line);
-      border-radius: var(--se-r-lg);
+      border-radius: var(--se-radius);
+      box-shadow: var(--se-shadow-pop);
     }
     .head {
       flex: none;
@@ -103,7 +104,7 @@ export class DialogFrame extends LitElement {
       overflow: hidden;
       color: var(--se-ink);
 
-      font-size: var(--se-fs-lg);
+      font-size: var(--se-fs-title);
       font-weight: 600;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -116,11 +117,11 @@ export class DialogFrame extends LitElement {
       height: 24px;
       padding: 0;
       border: none;
-      border-radius: var(--se-r-sm);
+      border-radius: var(--se-radius);
       background: none;
       color: var(--se-muted);
       font: inherit;
-      font-size: 15px;
+      font-size: var(--se-fs-lg);
       line-height: 1;
       cursor: pointer;
     }
@@ -136,7 +137,7 @@ export class DialogFrame extends LitElement {
 
     .handle {
       position: absolute;
-      border-radius: 4px;
+      border-radius: var(--se-radius);
       background: var(--se-accent);
       touch-action: none;
       z-index: 2;

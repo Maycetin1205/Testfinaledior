@@ -1,20 +1,42 @@
 import type { ChoiceOption } from './property'
 
-type ToneValue = 'info' | 'success' | 'warning' | 'danger'
+type ToneValue = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
 
 interface Tone {
   value: ToneValue
   name: string
 
+  // The mask tokens of a tone: strong for a dot, ink for text on the tint,
+  // tint for a head, shell for the ground of a column, line for its border,
+  // soft behind a chip.
   strong: string
+  ink: string
+  tint: string
+  shell: string
+  line: string
   soft: string
 }
 
+function tone(value: ToneValue, name: string): Tone {
+  const token = `--se-${value}`
+  return {
+    value,
+    name,
+    strong: token,
+    ink: `${token}-ink`,
+    tint: `${token}-tint`,
+    shell: `${token}-shell`,
+    line: `${token}-line`,
+    soft: `${token}-soft`,
+  }
+}
+
 export const TONES: readonly Tone[] = [
-  { value: 'info', name: 'Hinweis', strong: '--se-blue', soft: '--se-blue-soft' },
-  { value: 'success', name: 'Erfolg', strong: '--se-green', soft: '--se-green-soft' },
-  { value: 'warning', name: 'Warnung', strong: '--se-amber', soft: '--se-amber-soft' },
-  { value: 'danger', name: 'Fehler', strong: '--se-red', soft: '--se-red-soft' },
+  tone('neutral', 'Neutral'),
+  tone('info', 'Hinweis'),
+  tone('success', 'Erfolg'),
+  tone('warning', 'Warnung'),
+  tone('danger', 'Fehler'),
 ]
 
 export function toneValue(value: string): ToneValue {

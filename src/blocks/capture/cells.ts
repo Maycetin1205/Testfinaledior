@@ -64,14 +64,14 @@ export const cellsInputStyle = css`
         color: var(--se-ink);
         background: transparent;
         border: var(--se-border) solid transparent;
-        border-radius: var(--se-r-sm);
+        border-radius: var(--se-radius);
       }
 
-      /* No box, not even under the cursor: the cell stays text like any other,
-         a line below says where the typing goes. */
       .cell-input:focus {
         outline: none;
-        box-shadow: inset 0 -2px 0 var(--se-accent);
+        background: var(--se-panel);
+        border-color: var(--se-accent);
+        box-shadow: var(--se-focus);
       }
 
       /* Left while typing: a number typed up to its comma is no number yet,
@@ -83,11 +83,12 @@ export const cellsInputStyle = css`
       .row.capture .cell-input::placeholder { color: var(--se-faint); }
       .row:focus-within .cell-input::placeholder { color: var(--se-faint); }
 
-      /* Marked, not yet written. No fill: the dot before the row tells its state. */
+      /* Marked, not yet written. */
       .cell-input.changed {
         color: var(--se-ink);
         font-weight: 600;
-        box-shadow: inset 0 -2px 0 var(--se-amber);
+        background: var(--se-panel);
+        border-color: var(--se-accent);
       }
 
       /* Taken from the chosen record and shown like any other value: a tint or
