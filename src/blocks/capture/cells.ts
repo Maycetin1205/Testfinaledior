@@ -50,7 +50,7 @@ export const cellsInputStyle = css`
       .cell-holder.upward .suggestions {
         top: auto;
         bottom: 100%;
-        margin: 0 0 2px;
+        margin: 0 0 4px;
       }
 
       .cell-input {
@@ -65,7 +65,9 @@ export const cellsInputStyle = css`
         background: transparent;
         border: var(--se-border) solid transparent;
         border-radius: var(--se-radius);
+        transition: background var(--se-move), border-color var(--se-move);
       }
+      .cell-input:hover { background: var(--se-hover); }
 
       .cell-input:focus {
         outline: none;
@@ -86,7 +88,6 @@ export const cellsInputStyle = css`
       /* Marked, not yet written. */
       .cell-input.changed {
         color: var(--se-ink);
-        font-weight: 600;
         background: var(--se-panel);
         border-color: var(--se-accent);
       }

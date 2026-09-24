@@ -155,11 +155,11 @@ export const suggestionStyle = css`
     box-sizing: border-box;
     max-height: 240px;
     overflow: auto;
-    margin: 2px 0 0;
-    padding: 0;
+    margin: 4px 0 0;
+    padding: 4px;
     list-style: none;
     background: var(--se-panel);
-    border: var(--se-border) solid var(--se-accent);
+    border: var(--se-border) solid var(--se-line);
     border-radius: var(--se-radius);
     font-family: var(--se-font);
     font-size: var(--se-fs);
@@ -173,21 +173,25 @@ export const suggestionStyle = css`
 
   .suggestion {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--se-gap);
-    padding: 4px 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    padding: 7px 9px;
+    border-radius: var(--se-radius);
     white-space: nowrap;
     cursor: pointer;
   }
-  .suggestion + .suggestion { border-top: 1px solid var(--se-line-soft); }
 
-  .suggestion-display { overflow: hidden; text-overflow: ellipsis; }
+  .suggestion-display {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 700;
+  }
 
   .suggestion-value {
-    flex: none;
     color: var(--se-muted);
-    font-size: var(--se-fs-sm);
+    font-size: var(--se-fs-head);
   }
 
   .suggestion.marked { background: var(--se-accent-soft); }

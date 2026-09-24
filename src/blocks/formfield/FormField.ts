@@ -23,17 +23,6 @@ function fieldTypeOf(v: unknown): FieldType {
   return FIELD_TYPES.includes(v as FieldType) ? (v as FieldType) : 'text'
 }
 
-const WITH_PLACEHOLDER: readonly FieldType[] = [
-  'text', 'number', 'textarea', 'select', 'lookup', 'date', 'time',
-]
-
-const PH_CLASS: Partial<Record<FieldType, string>> = {
-  select: 'ph-select',
-  date: 'ph-native',
-  time: 'ph-native',
-  lookup: 'ph-lookup',
-}
-
 function dateForInput(value: string): string {
   return dayKey(value) || value
 }
@@ -55,8 +44,6 @@ export class FormField extends BlockElement {
   static override styles: CSSResultGroup = [BlockElement.styles, fieldStyle, suggestionStyle]
 
   @state() private ticked = false
-
-  @state() private inControl = false
 
   private readonly _lookup = new LookupControl({
     block: this,
@@ -91,13 +78,23 @@ export class FormField extends BlockElement {
     this.dispatchEvent(new Event('change'))
   }
 
-  private textTpl(cls: string, hidden = false, bound = false): TemplateResult {
+  // The label beside the box of a checkbox, which ticks it.
+  private textTpl(): TemplateResult {
     return html`<span
-      class=${cls}
-      ?hidden=${hidden}
-      ?data-ff-bound=${bound}
+      class="text"
       data-ff-editable
       @click=${this.onTextClick}
+      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
+    >${this.label}</span>`
+  }
+
+  // The label above the field. A bound field shows the name of its field there.
+  private labelTpl(bound: boolean): TemplateResult | typeof nothing {
+    if (this.label.trim() === '') return nothing
+    return html`<span
+      class="label"
+      ?data-ff-bound=${bound}
+      data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
     >${this.label}</span>`
   }
@@ -135,18 +132,8 @@ export class FormField extends BlockElement {
           .value=${kind === 'date' ? dateForInput(this.value) : this.value}
           @input=${this.onInput}
           @change=${this.onChange}
-          @focus=${() => { this.inControl = true }}
-          @blur=${() => { this.inControl = false }}
         />`
     }
-  }
-
-  private placeholderTpl(kind: FieldType, empty: boolean): TemplateResult {
-    return this.textTpl(
-      `ph ${PH_CLASS[kind] ?? ''}`.trim(),
-      !empty,
-      kind !== 'lookup' && this.valueField !== '',
-    )
   }
 
   protected override updated(changed: PropertyValues): void {
@@ -166,26 +153,23 @@ export class FormField extends BlockElement {
             .checked=${this.ticked}
             @change=${(e: Event) => this.setTick((e.target as HTMLInputElement).checked)}
           />
-          ${this.textTpl('text')}
+          ${this.textTpl()}
         </div>
       </div>`
     }
 
     const valueBindable = kind !== 'lookup'
+    const bound = valueBindable && this.valueField !== ''
     const inField = valueBindable ? this.value : this._lookup.inField
-    const empty = inField === ''
-    const wrapClasses = `wrap${empty ? ' empty' : ''}${this.inControl ? ' typing' : ''}`
     const fieldClasses = `field${this.appearance === 'line' ? ' line' : ''}`
     return html`<div class=${fieldClasses}>
+      ${this.labelTpl(bound)}
       <div
-        class=${wrapClasses}
+        class=${inField === '' ? 'wrap empty' : 'wrap'}
         data-ff-spot=${valueBindable ? 'value' : nothing}
-        ?data-ff-bound=${valueBindable && this.valueField !== ''}
+        ?data-ff-bound=${bound}
       >
         ${this.controlTpl(kind)}
-        ${WITH_PLACEHOLDER.includes(kind)
-          ? this.placeholderTpl(kind, empty)
-          : nothing}
       </div>
     </div>`
   }
@@ -234,5 +218,5 @@ defineBlock(FormField, {
     actionValue<typeof formFieldProperties>([{ prop: 'value', name: 'Wert' }]),
     { kind: 'events', list: [{ key: 'onChange', name: 'Wert geändert' }] },
   ],
-  grid: { startWidth: 12, startHeight: 2, minWidth: 4, minHeight: 2 },
+  grid: { startWidth: 12, startHeight: 4, minWidth: 4, minHeight: 2 },
 })

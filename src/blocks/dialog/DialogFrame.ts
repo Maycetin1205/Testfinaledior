@@ -94,8 +94,7 @@ export class DialogFrame extends LitElement {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 6px 6px 12px;
-      background: var(--se-panel-2);
+      padding: 18px 20px;
       border-bottom: var(--se-border) solid var(--se-line-soft);
     }
     .title {
@@ -105,7 +104,7 @@ export class DialogFrame extends LitElement {
       color: var(--se-ink);
 
       font-size: var(--se-fs-title);
-      font-weight: 600;
+      font-weight: 700;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -113,12 +112,12 @@ export class DialogFrame extends LitElement {
       flex: none;
       display: grid;
       place-items: center;
-      width: 24px;
-      height: 24px;
+      width: 32px;
+      height: 32px;
       padding: 0;
       border: none;
       border-radius: var(--se-radius);
-      background: none;
+      background: var(--se-hover);
       color: var(--se-muted);
       font: inherit;
       font-size: var(--se-fs-lg);

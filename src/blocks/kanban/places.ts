@@ -11,15 +11,14 @@ export const COLUMN_TITLE_DEFAULT = 'Neue Spalte'
 export const TARGET_CLASS = 'target'
 export const TARGET_ATTR = 'data-ff-target'
 
-// A column slots the cards and marks itself while a dragged card would land in it.
+// A column slots the cards and marks their area while a dragged card would land in it.
 export const placeStyle = css`
-  ::slotted(*) { margin-top: 24px; }
   slot { display: contents; }
 
   :host([${unsafeCSS(TARGET_ATTR)}]) .${unsafeCSS(TARGET_CLASS)} {
-    background: var(--se-accent-soft);
-    outline: var(--se-border) solid var(--se-accent);
-    outline-offset: calc(-1 * var(--se-border));
+    background: color-mix(in oklab, var(--tone-strong) 8%, transparent);
+    outline: 2px dashed var(--tone-strong);
+    outline-offset: -2px;
   }
 `
 

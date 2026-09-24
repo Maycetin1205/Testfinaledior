@@ -4,7 +4,7 @@ export const tableStyle = css`
       :host { min-width: 0; height: 100%; }
 
       .table {
-        --se-cell-x: 10px;
+        --se-cell-x: 8px;
         --se-input-x: 4px;
 
         position: relative;
@@ -22,27 +22,30 @@ export const tableStyle = css`
       }
 
       .search-row {
-        padding: 5px 8px;
-        border-bottom: var(--se-border) solid var(--se-line);
-        background: var(--se-panel-2);
+        padding: 6px 8px;
+        border-bottom: var(--se-border) solid var(--se-line-soft);
       }
       .search-row input {
         box-sizing: border-box;
 
         width: 100%;
-        max-width: 15rem;
-        height: 24px;
-        padding: 0 8px;
+        max-width: 440px;
+        padding: 7px 10px;
         font-family: var(--se-font);
-        font-size: var(--se-fs-sm);
+        font-size: var(--se-fs);
+        line-height: var(--se-lh);
         color: var(--se-ink);
-        background: var(--se-panel);
+        background: var(--se-panel-2);
         border: var(--se-border) solid var(--se-line);
         border-radius: var(--se-radius);
+        transition: border-color var(--se-move), box-shadow var(--se-move);
       }
+      .search-row input::placeholder { color: var(--se-muted); opacity: 1; }
       .search-row input:focus {
         outline: none;
+        background: var(--se-panel);
         border-color: var(--se-accent);
+        box-shadow: var(--se-focus);
       }
 
       .head {
@@ -61,10 +64,12 @@ export const tableStyle = css`
         top: 0;
         z-index: 1;
         flex: none;
-        background: var(--se-panel-2);
-        border-bottom: var(--se-border) solid var(--se-line);
-        font-size: var(--se-fs-head);
-        font-weight: 600;
+        background: var(--se-panel);
+        border-bottom: var(--se-border) solid var(--se-line-soft);
+        font-size: var(--se-fs-xs);
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
         color: var(--se-muted);
       }
 
@@ -99,7 +104,7 @@ export const tableStyle = css`
       }
 
       .row {
-        border-bottom: 1px solid var(--se-line-soft);
+        border-bottom: var(--se-border) solid var(--se-line-soft);
         background: var(--se-panel);
         transition: background-color var(--se-move);
       }
@@ -107,7 +112,7 @@ export const tableStyle = css`
       /* Only a row without a status takes the hover color: the status color is
          the message. */
       .body > .row:not([data-status]):hover {
-        background: var(--se-hover);
+        background: var(--se-accent-soft);
       }
 
       .body > .row.selectable { cursor: pointer; }
@@ -213,7 +218,7 @@ export const tableStyle = css`
         max-width: 260px;
         max-height: 70%;
         overflow-y: auto;
-        padding: 3px;
+        padding: 4px;
         background: var(--se-panel);
         border: var(--se-border) solid var(--se-line);
         border-radius: var(--se-radius);
@@ -231,7 +236,7 @@ export const tableStyle = css`
         align-items: center;
         gap: 6px;
         width: 100%;
-        padding: 4px 8px;
+        padding: 7px 9px;
         font-family: var(--se-font);
         font-size: var(--se-fs);
         text-align: left;
@@ -242,7 +247,7 @@ export const tableStyle = css`
         cursor: pointer;
       }
       .picker-row:hover:not(:disabled),
-      .picker-all:hover { background: var(--se-hover); }
+      .picker-all:hover { background: var(--se-accent-soft); }
       .picker-row:disabled { cursor: default; opacity: 0.55; }
       .picker-row:not(.checked) { color: var(--se-muted); }
       .picker-check {
@@ -254,7 +259,8 @@ export const tableStyle = css`
         margin-top: 3px;
         padding-top: 6px;
         border-top: var(--se-border) solid var(--se-line);
-        color: var(--se-accent);
+        color: var(--se-accent-dark);
+        font-weight: 600;
       }
 
       .row > div { color: var(--se-ink); }
@@ -300,7 +306,7 @@ export const tableStyle = css`
       .totals {
         display: flex;
         align-items: baseline;
-        gap: 12px;
+        gap: var(--se-gap-lg);
       }
       .total-title { color: var(--se-muted); }
       .totals b {

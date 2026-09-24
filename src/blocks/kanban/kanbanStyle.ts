@@ -7,7 +7,7 @@ export const kanbanStyle = css`
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    gap: var(--se-gap-lg);
+    gap: 15px;
     flex: 1;
     min-height: 0;
     overflow-x: auto;

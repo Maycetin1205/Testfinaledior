@@ -5,7 +5,8 @@ export const cardsStyle = css`
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 11px 13px 12px;
+    gap: var(--se-gap-sm);
+    padding: 8px;
     background: var(--se-card-bg);
     border: var(--se-border) solid var(--se-card-line);
     border-radius: var(--se-radius);
@@ -21,7 +22,7 @@ export const cardsStyle = css`
   }
 
   :host([data-ff-dragging]) .card {
-    opacity: 0.45;
+    opacity: 0.55;
   }
 
   .name,
@@ -34,7 +35,7 @@ export const cardsStyle = css`
   .name {
     color: var(--se-ink);
     font-size: var(--se-fs-name);
-    font-weight: 700;
+    font-weight: 600;
     line-height: var(--se-lh-tight);
   }
   .extra {
@@ -47,17 +48,15 @@ export const cardsStyle = css`
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
-    margin-top: 9px;
     color: var(--se-ink);
     font-size: var(--se-fs);
-    line-height: 1.45;
+    line-height: var(--se-lh);
   }
 
   .foot {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 10px;
+    gap: var(--se-gap);
   }
   .foot-title {
     min-width: 0;
@@ -71,38 +70,23 @@ export const cardsStyle = css`
   .date,
   .time {
     flex: none;
-    color: var(--se-muted);
+    color: var(--se-faint);
     font-size: var(--se-fs-sm);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
 
   .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     flex: none;
     margin-left: auto;
-    padding: 5px 11px 5px 9px;
+    padding: 2px 8px;
     border-radius: var(--se-radius);
-
-    clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
     font-family: var(--se-font);
     font-size: var(--se-fs-chip);
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: 0.02em;
-    color: var(--se-ink);
+    font-weight: 600;
+    color: var(--tone-ink);
     background: var(--tone-soft);
     white-space: nowrap;
-  }
-
-  .chip::before {
-    content: '';
-    flex: none;
-    width: 6px;
-    height: 6px;
-    background: var(--tone-strong);
   }
 
   :host([preview]) [data-ff-spot]:empty::before {

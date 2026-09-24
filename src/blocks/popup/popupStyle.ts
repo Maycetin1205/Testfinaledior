@@ -24,7 +24,7 @@ export const popupStyle = css`
     box-sizing: border-box;
     height: 100%;
     overflow: auto;
-    padding: 12px;
+    padding: 18px 20px 20px;
     ${unsafeCSS(gridAreaCss())};
   }
 

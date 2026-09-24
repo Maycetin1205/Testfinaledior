@@ -2,11 +2,24 @@ import { css } from 'lit'
 
 export const fieldStyle = css`
   .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
     font-family: var(--se-font);
+  }
 
-    --field-pad-y: 7px;
-    --field-pad-x: 10px;
-    --field-border: var(--se-border);
+  .label {
+    flex: none;
+    color: var(--se-muted);
+    font-size: var(--se-fs-head);
+    font-weight: 600;
+    line-height: var(--se-lh);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .wrap { position: relative; }
@@ -14,15 +27,15 @@ export const fieldStyle = css`
   .ctrl {
     box-sizing: border-box;
     width: 100%;
-    padding: var(--field-pad-y) var(--field-pad-x);
-    border: var(--field-border) solid var(--se-line);
+    padding: 7px 10px;
+    border: var(--se-border) solid var(--se-line);
     background: var(--se-panel);
     border-radius: var(--se-radius);
     font-family: var(--se-font);
     font-size: var(--se-fs);
-
-    line-height: 1.4;
+    line-height: var(--se-lh);
     color: var(--se-ink);
+    transition: border-color var(--se-move), box-shadow var(--se-move);
   }
   .ctrl:focus {
     outline: none;
@@ -32,82 +45,51 @@ export const fieldStyle = css`
   textarea.ctrl {
     display: block;
     resize: vertical;
-    min-height: 64px;
+    min-height: 50px;
   }
-  select.ctrl { padding: calc(var(--field-pad-y) - 1px) calc(var(--field-pad-x) - 2px); }
 
-  .field.line .ctrl,
-  :host([preview]) .field.line .ctrl,
-  :host([preview]) .field.line .wrap[data-ff-bound] .ctrl,
-  :host([preview]) .field.line .lookup .ctrl {
-    border: none !important;
-    border-bottom: 1.5px solid var(--se-line) !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    padding-left: 2px;
-    padding-right: 2px;
-    box-shadow: none !important;
-    outline: none !important;
+  /* The line look is the inline field of the record card. */
+  .field.line .ctrl {
+    padding: 5px 8px;
+    border-color: transparent;
+    background: transparent;
+    transition: background var(--se-move), border-color var(--se-move);
   }
+  .field.line .ctrl:hover { background: var(--se-hover); }
   .field.line .ctrl:focus {
-    outline: none !important;
-    border-bottom-color: var(--se-accent) !important;
-    box-shadow: none !important;
+    background: var(--se-panel);
+    border-color: var(--se-accent);
+    box-shadow: var(--se-focus);
   }
-  .field.line [data-ff-bound] {
-    text-decoration: none !important;
-  }
-  .field.line .ph {
-    left: 2px;
-    right: 2px;
-  }
-
-  .ph {
-    position: absolute;
-    top: calc(var(--field-pad-y) + var(--field-border));
-    left: calc(var(--field-pad-x) + var(--field-border));
-    right: calc(var(--field-pad-x) + var(--field-border));
-    color: var(--se-faint);
-    font-size: var(--se-fs);
-    line-height: 1.4;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    pointer-events: none;
-  }
-  .ph[hidden] { display: none; }
-
-  .ph-select {
-    top: calc(var(--field-pad-y) - 1px + var(--field-border));
-    left: calc(var(--field-pad-x) - 2px + var(--field-border));
-    right: 25px;
+  .field.line textarea.ctrl,
+  .field.line textarea.ctrl:hover {
+    min-height: 66px;
+    border-color: var(--se-line);
+    background: var(--se-panel);
   }
 
-  /* The placeholder leaves the magnifier free: in the editor it takes clicks
-     and would cover it. */
-  .ph-lookup { right: 34px; }
-
+  /* An empty date stays empty instead of showing the browser's date pattern. */
   .wrap.empty input[type="date"]:not(:focus)::-webkit-datetime-edit,
   .wrap.empty input[type="time"]:not(:focus)::-webkit-datetime-edit { opacity: 0; }
-  .wrap.empty.typing .ph-native { display: none; }
 
   .row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--se-gap);
     font-size: var(--se-fs);
+    font-weight: 500;
     color: var(--se-ink);
   }
   input[type='checkbox'].ctrl {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     padding: 0;
     flex: none;
     accent-color: var(--se-accent);
   }
 
   .lookup { position: relative; }
-  .lookup .ctrl { padding-right: 34px; border-style: dashed; }
+  .field .lookup .ctrl { padding-right: 38px; }
 
   /* The open suggestion list hangs out of the field. Grid children stack in
      document order, so without this it would lie under the next block. */
@@ -115,9 +97,9 @@ export const fieldStyle = css`
 
   .magnifier {
     position: absolute;
-    top: var(--field-border);
-    bottom: var(--field-border);
-    right: var(--field-border);
+    top: var(--se-border);
+    bottom: var(--se-border);
+    right: var(--se-border);
     width: 30px;
     display: grid;
     place-items: center;
@@ -131,20 +113,18 @@ export const fieldStyle = css`
   .magnifier:hover { background: var(--se-accent-soft); color: var(--se-ink); }
   .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
 
-  :host([preview]) .ctrl { pointer-events: none; }
   /* The magnifier stays clickable in the editor: it opens the lookup window and
      its inspector section. */
-  :host([preview]) .ph { pointer-events: auto; cursor: text; }
-  :host([preview]) .field:not(.line) .wrap[data-ff-bound] .ctrl {
+  :host([preview]) .ctrl { pointer-events: none; }
+  :host([preview]) .wrap[data-ff-bound] .ctrl {
     border-style: dotted;
     border-color: var(--se-accent);
   }
 
-  :host([preview]) [data-ff-editable]:empty::before { content: 'Text …'; opacity: 0.6; }
-
   :host(:not([preview])) .row .text { cursor: pointer; user-select: none; }
 
-  :host([fills]) .field,
-  :host([fills]) .wrap { height: 100%; }
-  :host([fills]) .wrap .ctrl { height: 100%; }
+  :host([fills]) .field { height: 100%; }
+  :host([fills]) .wrap { flex: 1 1 auto; min-height: 0; }
+  :host([fills]) .lookup { height: 100%; }
+  :host([fills]) .wrap .ctrl { height: 100%; min-height: 0; }
 `

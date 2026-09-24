@@ -14,7 +14,8 @@ export const columnStyle = css`
     flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
-    background: var(--tone-soft);
+    background: var(--tone-shell);
+    border: 1.5px solid var(--tone-line);
     border-radius: var(--se-radius);
     font-family: var(--se-font);
   }
@@ -23,22 +24,24 @@ export const columnStyle = css`
     flex: none;
     display: flex;
     align-items: center;
-    gap: var(--se-gap-sm);
-    padding: 10px 12px;
+    gap: 9px;
+    padding: 13px 15px;
+    background: var(--tone-tint);
+    border-bottom: var(--se-border) solid var(--tone-line);
   }
 
   .dot {
     flex: none;
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
     background: var(--tone-strong);
   }
 
   .title {
-    color: var(--se-ink);
+    color: var(--tone-ink);
     font-size: var(--se-fs);
     font-weight: 600;
-    line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -48,22 +51,22 @@ export const columnStyle = css`
     margin-left: auto;
     min-width: 22px;
     padding: 1px 8px;
-    line-height: 1;
     border-radius: var(--se-radius);
     background: var(--se-panel);
-    border: var(--se-border) solid var(--tone-strong);
+    border: var(--se-border) solid var(--tone-line);
     text-align: center;
     font-family: var(--se-mono);
     font-size: var(--se-fs-sm);
     font-weight: 600;
-    color: var(--se-ink);
+    color: var(--tone-ink);
   }
 
   .body {
-    padding: 0 10px 12px;
+    padding: 11px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    gap: var(--se-gap);
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;

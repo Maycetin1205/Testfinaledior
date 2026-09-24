@@ -22,7 +22,7 @@ export class KanbanColumn extends BlockElement {
   @property({ attribute: false }) cardCount = 0
 
   override render(): TemplateResult {
-    return html`<div class="column ${TARGET_CLASS} tone-${toneValue(this.tone)}">
+    return html`<div class="column tone-${toneValue(this.tone)}">
       <div class="head">
         <span class="dot"></span>
         <span
@@ -32,7 +32,7 @@ export class KanbanColumn extends BlockElement {
         >${this.heading}</span>
         <span class="count">${this.cardCount}</span>
       </div>
-      <div class="body">
+      <div class="body ${TARGET_CLASS}">
         <slot></slot>
       </div>
     </div>`

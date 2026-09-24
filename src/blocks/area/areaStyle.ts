@@ -13,7 +13,7 @@ export const areaStyle = css`
     overflow: clip;
     padding: var(--se-gap-sm);
     background: var(--se-panel);
-    border: var(--se-border) solid var(--se-line);
+    border: var(--se-border) solid var(--se-line-soft);
     border-radius: var(--se-radius);
     font-family: var(--se-font);
     font-size: var(--se-fs);
