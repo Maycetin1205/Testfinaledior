@@ -1040,15 +1040,35 @@ Was keinen Platz bekommt, fällt weg: Größe in Zahlen, Fensterbreite und
 -höhe als Zahlen, der Klarname als Tippfeld, wenn das Feld ihn liefert. Die
 Punkte der Entscheidungsliste unten fallen weg, sobald der Nutzer ja sagt.
 
-### Zur Entscheidung des Nutzers (Vorschlag: weg)
+### Entschieden am 24.09. (Nutzer)
 
-Klarname zum gespeicherten Feld von Hand; Fensterbreite und -höhe als Zahlen
-(ziehen statt tippen); Blättern in der Tabelle (scrollen); Kopfzeile
-ausschaltbar (die Datenliste ist ein eigener Baustein); Spaltenwahl zur
-Laufzeit; Spalte ausblenden (Aktionen sollen jedes Feld der Zeile nehmen);
-Rundung und Einheit je Faktor der Berechnung (ein Satz, einmal gerundet);
-Tag-Feld je Baustein (gehört zur Quelle); Chip-Farbe der Karte von Hand
-(kommt aus den Daten); zwei Export-Knöpfe (die Rahmen-Nummer entscheidet);
-Notfallkopie wiederherstellen (Sicherheitsnetz); zwei Dateien zum Laden (die
-Maske trägt heute nur die Nummern ihrer Quellen; sie soll ihre Quellen
-mitführen, die Bibliothek ist der Katalog); Suche und Statuszeile im Editor.
+Weg, weil es doppelt ist oder direkt geht:
+
+- Klarname zum gespeicherten Feld im Formularfeld tippen. Der Name steht
+  schon in der Datenquelle; das Feld fragt nicht noch einmal.
+- Fensterbreite und -höhe als Zahlen (Formularfeld, Erfassung, Popup):
+  ziehen am Fensterrand.
+- Kopfzeile ausschaltbar: die Tabelle hat immer einen Kopf; Zeilen ohne
+  Kopf sind der neue Baustein Datenliste.
+- Zwei Export-Knöpfe: einer; die Rahmen-Nummer entscheidet.
+- Notfallkopie wiederherstellen.
+- Zwei Dateien zum Laden: die Maske trägt ihre Quellen mit, die Bibliothek
+  ist der Katalog zum Auswählen.
+- Suche in der Palette, Statuszeile.
+
+Bleibt:
+
+- Blättern in der Tabelle.
+- Spaltenwahl zur Laufzeit und Spalte ausblenden: in SoftEngine wählt der
+  Bediener per Rechtsklick auf den Spaltenkopf, welche Spalten sichtbar
+  sind; so soll es auch in der Maske sein. Im Editor am Spaltenkopf statt
+  im Inspector.
+- Tag-Feld je Baustein, vorerst wie heute.
+
+Später, vor dem Bau besprechen:
+
+- Berechnung: komplett neu, Vollbild und Aufbau sind Müll. Der Nutzer
+  versteht die heutige Rechnung nicht; Form und Bedienung werden vor dem
+  Bau mit ihm festgelegt (Vorschlag: ein Satz am Spaltenkopf).
+- Chip-Farbe der Karte: folgt einem Feld, aber einstellbar, welches Feld
+  und welcher Wert welchen Ton bekommt. Kommt mit dem neuen Kanban.
