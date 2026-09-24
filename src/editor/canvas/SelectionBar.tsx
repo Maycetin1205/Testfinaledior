@@ -1,5 +1,5 @@
-import { useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { Link2, Minus, Plus, SlidersHorizontal, Trash2 } from '@/editor/icons/icon'
+import { useLayoutEffect, useRef, type RefObject } from 'react'
+import { Link2, Minus, Plus, Trash2 } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
 import type { BlockType } from '../../core/block/blockType'
@@ -7,9 +7,6 @@ import { capability } from '../../core/block/capability'
 import { useEditorInstance } from '../state/EditorContext'
 import { firstDescendantOfType, canCompute } from '../../core/block/treeQuery'
 import { fieldPlainName } from '../../core/data/dataSources'
-import { propertiesFor } from '../../core/block/propertyPlace'
-import { Popover } from '@/editor/widgets/Popover'
-import { PropControl } from '../inspector/PropControl'
 
 interface SelectionBarProps {
   block: BlockNode
@@ -68,13 +65,6 @@ const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
 export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) {
   const editor = useEditorInstance()
-  const [style, setStyle] = useState(false)
-  const anchor = useRef<HTMLButtonElement>(null)
-  const session = useMemo(() => ({
-    onBeginEditing: () => editor.beginTransaction(),
-    onEndEditing: () => editor.endTransaction(),
-  }), [editor])
-  const properties = def ? propertiesFor(block, def, 'block') : []
   const template = def?.templateKind ? firstDescendantOfType(editor.tree, block.id, def.templateKind.type) : undefined
 
   const barRef = useRef<HTMLDivElement | null>(null)
@@ -109,14 +99,6 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       onDoubleClick={hold}
       onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }}
     >
-      {properties.length > 0 && (
-        <Button ref={anchor} className="h-6 px-1.5 text-dense"
-          aria-expanded={style} aria-haspopup="dialog"
-          onClick={() => setStyle((open) => !open)}>
-          <SlidersHorizontal size={12} /> Gestalten
-        </Button>
-      )}
-
       {canCompute(block) && (
         <Button className="h-6 px-1.5 text-dense"
           onClick={() => editor.openCalculations(block.id)}>
@@ -131,18 +113,6 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
       {onRemove && (
         <Button onlyIcon className="h-6 w-6" title="Baustein löschen" aria-label="Baustein löschen"
           onClick={onRemove}><Trash2 size={12} /></Button>
-      )}
-      {style && (
-        <Popover name={`${def?.name ?? 'Baustein'} gestalten`} anchor={anchor}
-          width={280} maxHeight={420} onClose={() => setStyle(false)}>
-          <div className="flex flex-col gap-3 p-2">
-            <strong className="text-title font-bold">{def?.name} gestalten</strong>
-            {properties.map(({ key, property }) => (
-              <PropControl key={key} block={block} propertyKey={key} property={property}
-                sourceInReach={editor.dataSourceFor(block.id)} session={session} />
-            ))}
-          </div>
-        </Popover>
       )}
       {kind && (
         <Button
