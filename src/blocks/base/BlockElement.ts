@@ -98,6 +98,13 @@ export abstract class BlockElement extends LitElement {
     return (this.constructor as typeof BlockElement).declaredProperties
   }
 
+  // The editor mirrors the tree here: only a declared name, and only a value
+  // its declaration reads.
+  setDeclared(name: string, value: unknown): void {
+    if (!Object.hasOwn(this.properties, name) || !this.properties[name].type.read(value).ok) return
+    Object.assign(this, { [name]: value })
+  }
+
   protected inlineEdit(event: MouseEvent, attr: string): void {
     if (!this.editable) return
     const target = event.currentTarget as HTMLElement | null

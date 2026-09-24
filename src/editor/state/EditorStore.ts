@@ -1,5 +1,4 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
-import type { PropertyValue } from '../../core/block/property'
 import { newSubtree } from '../../core/block/newBlock'
 import { mayContain, blockType } from '../../core/block/registry'
 import { gridMetricsOf } from '../../core/block/grid'
@@ -33,7 +32,7 @@ import { droppedKeys, withoutColumnsPointer } from './columnCleanup'
 import { SavePlanner } from './savePlanner'
 import { Subject } from './Subject'
 import { duplicateSubtree } from './duplicateSubtree'
-import { subtreeIds, emptyTree } from '../../core/block/treeOps'
+import { declaredProperty, subtreeIds, emptyTree } from '../../core/block/treeOps'
 import { isRemoveProtected as isTemplateProtected } from './isRemoveProtected'
 import {
   activePagesRoot,
@@ -330,27 +329,31 @@ export class EditorStore extends Subject<EditorStore> {
     return isTemplateProtected(this._tree, id)
   }
 
-  updateProperty(id: string, attr: string, raw: unknown): boolean {
+  // Takes a name only when the node declares it, and a value only as the
+  // declaration reads it; anything else leaves the tree as it is.
+  updateProperty(id: string, name: string, raw: unknown): boolean {
     const node = this._tree[id]
     if (!node) return false
+    const declared = declaredProperty(node, name)
+    if (declared === undefined) return false
     const def = blockType(node.type)
 
-    const value = writeValue(def, this.pages, id, attr, raw)
-    if (value === null) return false
+    const read = declared.type.read(writeValue(def, this.pages, id, name, raw))
+    if (!read.ok) return false
+    const value = read.value
 
-    if (Object.is(node.values[attr], value)) return true
+    if (Object.is(node.values[name], value)) return true
     this.pushHistory()
     const next: MaskTree = {
       ...this._tree,
-      [id]: { ...node, values: { ...node.values, [attr]: value as PropertyValue } },
+      [id]: { ...node, values: { ...node.values, [name]: value } },
     }
 
-    const prop = def?.properties[attr]
-    if (prop?.onlyUnderSiblings && value === true && node.parentId) {
+    if (declared.onlyUnderSiblings && value === true && node.parentId) {
       for (const sibId of this._tree[node.parentId]?.childIds ?? []) {
         const sib = next[sibId]
-        if (sibId !== id && sib?.type === node.type && sib.values[attr] === true) {
-          next[sibId] = { ...sib, values: { ...sib.values, [attr]: false } }
+        if (sibId !== id && sib?.type === node.type && sib.values[name] === true) {
+          next[sibId] = { ...sib, values: { ...sib.values, [name]: false } }
         }
       }
     }
@@ -358,7 +361,7 @@ export class EditorStore extends Subject<EditorStore> {
     const cleaned = withoutColumnsPointer(
       next,
       id,
-      droppedKeys(def, attr, node.values[attr], value),
+      droppedKeys(def, name, node.values[name], value),
     )
 
     this._tree = cleaned.tree

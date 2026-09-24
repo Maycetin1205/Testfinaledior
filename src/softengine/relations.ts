@@ -7,6 +7,7 @@ import {
 } from '../core/data/relations'
 import { BLOCK_ID_ATTR, type Parameter, type RuntimeValues } from '../core/data/actions'
 import type { RuntimeQuery } from '../core/data/deliveries/message'
+import { readActionValue } from '../core/block/registry'
 import { startSe, onSeAnswer, seWindow } from './bridge'
 import {
   sourceFromList,
@@ -394,8 +395,7 @@ function resolveBlockValue(binding: Parameter, runtime: unknown): string {
   const element = Array.from(doc.querySelectorAll<HTMLElement>(`[${BLOCK_ID_ATTR}]`))
     .find((candidate) => candidate.getAttribute(BLOCK_ID_ATTR) === binding.blockId)
   if (!element) return ''
-  const raw = (element as unknown as Record<string, unknown>)[binding.value]
-  return raw == null ? '' : String(raw)
+  return readActionValue(element, binding.value)
 }
 
 export function parameterResolve(

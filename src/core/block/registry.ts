@@ -1,6 +1,6 @@
 import { ROOT_TYPE } from './tree'
 import type { BlockDeclaration, BlockType } from './blockType'
-import { hasCapability, type ContractKind, type RuntimeContracts } from './capability'
+import { capability, hasCapability, type ContractKind, type RuntimeContracts } from './capability'
 
 const registry = new Map<string, BlockType>()
 
@@ -46,6 +46,15 @@ export function contractOf<A extends ContractKind>(
   throw new Error(
     `<${el.tagName.toLowerCase()}> meldet die Faehigkeit „${kind}", nennt aber keine Klasse, die sie erfuellt.`,
   )
+}
+
+// What an element holds at a spot its block names in actionValue. Only a
+// declared spot is read; any other name reads as empty.
+export function readActionValue(el: Element, prop: string): string {
+  const spots = capability(blockTypeForTag(el.tagName), 'actionValue')?.spots ?? []
+  if (!spots.some((spot) => spot.prop === prop)) return ''
+  const raw: unknown = Reflect.get(el, prop)
+  return raw == null ? '' : String(raw)
 }
 
 export function mayContain(parentType: string, childType: string): boolean {

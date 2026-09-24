@@ -4,6 +4,7 @@ import type { BlockNode } from '../../core/block/tree'
 import { splitBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
+import { BlockElement } from '../../blocks/base/BlockElement'
 import type { SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
 import type { GestureBracket } from '../state/history'
@@ -93,10 +94,9 @@ export function useLitElement({
 
   useEffect(() => {
     const el = elementRef.current
-    if (!el) return
-    const elAny = el as unknown as Record<string, unknown>
+    if (!(el instanceof BlockElement)) return
     for (const [key, value] of Object.entries(block.values)) {
-      elAny[key] = value
+      el.setDeclared(key, value)
     }
 
     for (const spot of bindableSpots) {
@@ -109,14 +109,14 @@ export function useLitElement({
         : sources.find((q) => q.source.id === sourceId)?.source
       const field = source?.fields.find((f) => f.code === code)
       if (field) {
-        elAny[spot.previewProp ?? spot.prop] = field.name
-          + (sourceId === '' ? '' : FOREIGN_ICON)
+        el.setDeclared(spot.previewProp ?? spot.prop, field.name
+          + (sourceId === '' ? '' : FOREIGN_ICON))
       } else {
-        elAny[bindingProp(spot.prop)] = ''
+        el.setDeclared(bindingProp(spot.prop), '')
       }
     }
 
-    elAny.editable = !!selected
+    el.editable = !!selected
 
     el.toggleAttribute('fills', !!grid)
   }, [element, block.type, block.values, selected, bindableSpots, sources, grid])
