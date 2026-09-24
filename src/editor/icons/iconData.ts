@@ -99,6 +99,17 @@ export const NODE = {
     ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }],
     ["path", { d: "m7 10 5 5 5-5" }],
   ],
+  FilePlus: [
+    [
+    "path",
+    {
+      d: "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+    }
+  ],
+    ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5" }],
+    ["path", { d: "M9 15h6" }],
+    ["path", { d: "M12 18v-6" }],
+  ],
   FileText: [
     [
     "path",
@@ -135,11 +146,6 @@ export const NODE = {
     ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2" }],
     ["line", { x1: "8", x2: "16", y1: "12", y2: "12" }],
   ],
-  MoreHorizontal: [
-    ["circle", { cx: "12", cy: "12", r: "1" }],
-    ["circle", { cx: "19", cy: "12", r: "1" }],
-    ["circle", { cx: "5", cy: "12", r: "1" }],
-  ],
   Minus: [
     ["path", { d: "M5 12h14" }],
   ],
@@ -171,17 +177,6 @@ export const NODE = {
     ["circle", { cx: "18", cy: "19", r: "3" }],
     ["line", { x1: "8.59", x2: "15.42", y1: "13.51", y2: "17.49" }],
     ["line", { x1: "15.41", x2: "8.59", y1: "6.51", y2: "10.49" }],
-  ],
-  SlidersHorizontal: [
-    ["path", { d: "M10 5H3" }],
-    ["path", { d: "M12 19H3" }],
-    ["path", { d: "M14 3v4" }],
-    ["path", { d: "M16 17v4" }],
-    ["path", { d: "M21 12h-9" }],
-    ["path", { d: "M21 19h-5" }],
-    ["path", { d: "M21 5h-7" }],
-    ["path", { d: "M8 10v4" }],
-    ["path", { d: "M8 12H3" }],
   ],
   Trash: [
     ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" }],

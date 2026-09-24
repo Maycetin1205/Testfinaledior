@@ -1,4 +1,4 @@
-import { Trash } from '@/editor/icons/icon'
+import { Plus, Trash } from '@/editor/icons/icon'
 import { Fragment, useState } from 'react'
 import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
@@ -67,12 +67,16 @@ export function PageBar() {
         )
       ))}
       {pageTypes.map((def) => (
-        <Tabs
+        <Button
           key={def.type}
+          onlyIcon
+          title={`Neues ${def.name}`}
+          aria-label={`Neues ${def.name}`}
           onClick={() => ed.addPage(def.type)}
+          className="h-6 w-6"
         >
-          ＋ {def.name}
-        </Tabs>
+          <Plus size={13} />
+        </Button>
       ))}
     </div>
   )

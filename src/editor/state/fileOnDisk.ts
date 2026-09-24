@@ -24,6 +24,10 @@ export class FileOnDisk {
     this.handle = handle
   }
 
+  forget(): void {
+    this.handle = null
+  }
+
   private async put(handle: FileSystemFileHandle, text: string): Promise<void> {
     const open = await handle.createWritable()
     await open.write(text)

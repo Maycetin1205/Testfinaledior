@@ -1,5 +1,4 @@
 import { useEffect, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
-import { Separator } from '@/editor/widgets/Separator'
 import { useKeyboardShortcuts } from '../state/useKeyboardShortcuts'
 import { Canvas } from '../canvas/Canvas'
 import { CalculationsWindow } from '../canvas/CalculationsWindow'
@@ -18,8 +17,7 @@ import {
   rememberWidth,
   startWidthsDrag,
 } from './inspectorWidth'
-import { StatusBar } from './StatusBar'
-import { Toolbar, HistoryButtons } from './Toolbar'
+import { Toolbar } from './Toolbar'
 
 export function EditorShell() {
   useKeyboardShortcuts()
@@ -45,17 +43,10 @@ export function EditorShell() {
 
   return (
     <div className="flex h-screen w-screen flex-col bg-ground text-ink">
-      <header className="flex shrink-0 flex-col border-b border-line bg-panel">
-        <div className="flex items-center gap-[12px] overflow-x-auto px-[12px] py-[8px]">
-          <span className="shrink-0 text-title font-bold">Aufbau-Editor</span>
-          <Separator vertical />
-          <HistoryButtons />
-          <div className="flex-1" />
-          <Toolbar onDataCenter={() => setDataCenterOpen(true)} />
-        </div>
-        <div className="flex min-h-9 items-center gap-4 border-t border-line px-[12px]">
-          <PageBar />
-        </div>
+      <header className="flex shrink-0 items-center gap-[12px] overflow-x-auto border-b border-line bg-panel px-[12px] py-[8px]">
+        <Toolbar onData={() => setDataCenterOpen(true)} />
+        <div className="flex-1" />
+        <PageBar />
       </header>
 
       {dataCenterOpen && <DataCenter onClose={() => setDataCenterOpen(false)} />}
@@ -90,8 +81,6 @@ export function EditorShell() {
           <Inspector />
         </aside>
       </div>
-
-      <StatusBar />
 
       <LookupColumns />
       <CalculationsWindow />

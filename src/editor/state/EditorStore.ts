@@ -433,14 +433,14 @@ export class EditorStore extends Subject<EditorStore> {
     return res.node
   }
 
-  clear(): void {
-    if (this.blockCount === 0) return
+  // „Neu": a mask of its own. The file picked for the one before stays as it
+  // was; the next „Speichern" asks for a file again.
+  newMask(): void {
     this.pushHistory()
-
-    const empty = emptyTree()
-    empty[ROOT_ID] = { ...empty[ROOT_ID], values: { ...this._tree[ROOT_ID].values } }
-    this._tree = empty
+    this.maskOnDisk.forget()
+    this._tree = emptyTree()
     this._selectedId = null
+    this._activePageId = ROOT_ID
     this.notify(this)
   }
 
