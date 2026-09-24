@@ -4,13 +4,14 @@ import { isPresetId, sourcePreset } from '../../core/data/presets/presets'
 import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
 
 // Lifts a saved mask to the format this editor reads. Version 16 renamed every
-// stored name from German to English, version 17 the names that rename missed;
-// a file below them first runs the older steps.
-export const CURRENT_SCHEMA_VERSION = 19
+// stored name from German to English, version 17 the names that rename missed,
+// version 20 made a data source a preset plus descriptor; a file below them
+// first runs the older steps.
+export const CURRENT_SCHEMA_VERSION = 20
 
 const ENGLISH_NAMES = 16
 
-const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -416,8 +417,7 @@ export function liftState(raw: unknown): unknown {
   if (raw.schemaVersion < 17) liftMissedNames(lifted.tree)
   if (raw.schemaVersion < 18) liftWithoutRooms(lifted.tree)
   if (raw.schemaVersion < 19) liftTo19(lifted)
-  liftLoadRelations(lifted)
-  liftToDescriptors(lifted)
+  if (raw.schemaVersion < 20) liftTo20(lifted)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
@@ -583,7 +583,7 @@ function descriptorSource(source: Record<string, unknown>): Record<string, unkno
   }
 }
 
-export function liftToDescriptors(state: Record<string, unknown>): void {
+function liftToDescriptors(state: Record<string, unknown>): void {
   const sources = state.dataSources
   if (!Array.isArray(sources)) return
   state.dataSources = sources.map((source) => (isPlainObject(source) ? descriptorSource(source) : source))
@@ -616,7 +616,7 @@ function positionEntryFor(nr: string, relations: unknown[]): string {
   return id
 }
 
-export function liftLoadRelations(state: Record<string, unknown>): void {
+function liftLoadRelations(state: Record<string, unknown>): void {
   const sources = state.dataSources
   if (!Array.isArray(sources)) return
   const relations: unknown[] = Array.isArray(state.relation) ? state.relation : []
@@ -634,4 +634,11 @@ export function liftLoadRelations(state: Record<string, unknown>): void {
     delete load.nr
   }
   if (relations.length > 0) state.relation = relations
+}
+
+// A mask before version 20, and a customer file before version 2, still
+// carries its sources as kinds and its Hol-Relations as numbers.
+export function liftTo20(state: Record<string, unknown>): void {
+  liftLoadRelations(state)
+  liftToDescriptors(state)
 }

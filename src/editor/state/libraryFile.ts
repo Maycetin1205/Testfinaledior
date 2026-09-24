@@ -2,13 +2,14 @@ import { checkDataSources, type DataSource } from '../../core/data/dataSources'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
-import { liftKey, liftLibraries, liftLoadRelations, liftSourceNames, liftToDescriptors } from './maskSchema'
+import { liftKey, liftLibraries, liftSourceNames, liftTo20 } from './maskSchema'
 
 const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
 const LIBRARY_FILE_VERSION = 2
 
-const LIBRARY_SCHEMA_VERSION = 1
+// Version 2 stores a data source as preset plus descriptor.
+const LIBRARY_SCHEMA_VERSION = 2
 
 export interface LibraryContent {
   dataSources: DataSource[]
@@ -65,13 +66,14 @@ export function packLibraryFrom(text: string): LibraryResult {
 }
 
 function liftLibrary(raw: Record<string, unknown>): Record<string, unknown> {
-  const o = raw.schemaVersion === LIBRARY_SCHEMA_VERSION ? raw : liftKey(raw)
-  if (raw.schemaVersion !== LIBRARY_SCHEMA_VERSION) {
+  const version = typeof raw.schemaVersion === 'number' ? raw.schemaVersion : 0
+  if (version >= LIBRARY_SCHEMA_VERSION) return raw
+  const o = version < 1 ? liftKey(raw) : raw
+  if (version < 1) {
     liftLibraries(o)
     liftSourceNames(o)
   }
-  liftLoadRelations(o)
-  liftToDescriptors(o)
+  liftTo20(o)
   return o
 }
 

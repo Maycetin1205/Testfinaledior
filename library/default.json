@@ -1,12 +1,16 @@
 {
   "kind": "aufbau-editor-bibliothek",
   "fileVersion": 2,
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "dataSources": [
     {
       "id": "3f1c7a20-8c4e-4d36-9a71-2b5e0d6f1a01",
       "name": "Beleg",
-      "kind": "document",
+      "preset": "document",
+      "tableId": "BEL",
+      "order": { "kind": "sefileloop", "wildcard": false, "underHeader": false, "headerKey": "" },
+      "delivery": { "kind": "push", "path": "SEFileLoop" },
+      "write": { "kind": "none" },
       "fields": [
         { "code": "0_11", "name": "Satzschlüssel" },
         { "code": "2_1", "name": "Belegart" },
@@ -22,9 +26,11 @@
     {
       "id": "3f1c7a20-8c4e-4d36-9a71-2b5e0d6f1a02",
       "name": "Belegposition",
-      "kind": "documentItem",
-      "recordField": "645_10",
-      "headerKeyIndex": "BEL_0_11",
+      "preset": "documentItem",
+      "tableId": "POS",
+      "order": { "kind": "sefileloop", "wildcard": false, "underHeader": true, "headerKey": "BEL_0_11" },
+      "delivery": { "kind": "push", "path": "SEFileLoop" },
+      "write": { "kind": "putRelation", "recordField": "645_10" },
       "fields": [
         { "code": "2_1", "name": "Belegart" },
         { "code": "3_8", "name": "Belegnummer" },
@@ -46,15 +52,19 @@
     {
       "id": "3f1c7a20-8c4e-4d36-9a71-2b5e0d6f1a03",
       "name": "Belegposition (per Relation geholt)",
-      "kind": "documentItem",
-      "loadRelation": {
-        "nr": "69",
+      "preset": "documentItem",
+      "tableId": "POS",
+      "order": { "kind": "none" },
+      "delivery": {
+        "kind": "relationRows",
+        "relationId": "positions-69",
         "documentKindField": "2_1",
         "documentNumberField": "3_8",
         "yearField": "0_1",
         "archiveField": "1_1",
         "endFields": ["11_6", "18_25"]
       },
+      "write": { "kind": "none" },
       "fields": [
         { "code": "2_1", "name": "Belegart" },
         { "code": "3_8", "name": "Belegnummer" },
