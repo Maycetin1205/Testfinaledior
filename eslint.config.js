@@ -51,7 +51,7 @@ export default defineConfig([
             message: 'src/core must stay framework free.',
           },
           {
-            regex: '^(?:(?:\\.\\./)+|@/)(?:blocks|design|editor|export|softengine)(?:/|$)',
+            regex: '^(?:(?:\\.\\./)+|@/)(?:blocks|design|editor|export|runtime|softengine)(?:/|$)',
             message: 'src/core must not import an outer application layer.',
           },
         ],
@@ -59,7 +59,8 @@ export default defineConfig([
     },
   },
   // Only src/softengine knows the host globals. A block gets its data through
-  // named functions (runtimeSources, commands, relations).
+  // named functions (runtimeSources, commands, relations). What runs in the
+  // mask never pulls in the editor or the export.
   {
     files: ['src/blocks/**/*.{ts,tsx}'],
     rules: {
@@ -69,10 +70,48 @@ export default defineConfig([
       '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
       '@typescript-eslint/no-unsafe-declaration-merging': 'off',
       'no-restricted-imports': ['error', {
+        patterns: [
+          {
+            group: ['**/softengine/bridge'],
+            importNames: ['hostCall'],
+            message: 'Blocks touch SoftEngine only through the door.',
+          },
+          {
+            regex: '^(?:(?:\\.\\./)+|@/)(?:editor|export)(?:/|$)',
+            message: 'Blocks must not import the editor or the export.',
+          },
+        ],
+      }],
+    },
+  },
+  // The runtime of the mask knows blocks only through the registry and their
+  // elements, and SoftEngine only through the door.
+  {
+    files: ['src/runtime/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [
+          {
+            group: ['**/softengine/bridge'],
+            importNames: ['hostCall'],
+            message: 'The runtime touches SoftEngine only through the door.',
+          },
+          {
+            regex: '^(?:(?:\\.\\./)+|@/)(?:blocks|editor|export)(?:/|$)',
+            message: 'src/runtime must not import a block, the editor or the export.',
+          },
+        ],
+      }],
+    },
+  },
+  // The door itself reaches back into nothing that uses it.
+  {
+    files: ['src/softengine/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
         patterns: [{
-          group: ['**/softengine/bridge'],
-          importNames: ['hostCall'],
-          message: 'Blocks touch SoftEngine only through the door.',
+          regex: '^(?:(?:\\.\\./)+|@/)(?:blocks|editor|export|runtime)(?:/|$)',
+          message: 'src/softengine must not import a block, the runtime, the editor or the export.',
         }],
       }],
     },
