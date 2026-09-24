@@ -1,5 +1,7 @@
 import { SOURCES_DIVIDER } from '../block/blockType'
-import { sourceKind, type SourceKindId } from './sourceKinds'
+
+// The one form of a field code SoftEngine lists: position and length.
+export const POS_LEN = /^\d+_\d+$/
 
 export function fieldCode(pos: string, len: string, prefix = ''): string {
   const p = pos.trim()
@@ -35,11 +37,6 @@ export function headerKeyFromInput(raw: string): string {
 export function keyDisplay(key: string | undefined): string {
   const m = /^IDB(ID\d{4})$/.exec(key ?? '')
   return m ? m[1] : (key ?? '')
-}
-
-export function sourcesKey(source: { kind: SourceKindId; idbId?: string }): string {
-  const fixed = sourceKind(source.kind).tableId
-  return fixed !== '' ? fixed : keyDisplay(source.idbId)
 }
 
 export function columnsNameFromInput(raw: string): string {

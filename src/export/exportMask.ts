@@ -17,16 +17,11 @@ import { chainsForExport } from '../core/data/steps/chains'
 import { SELECTION_FOLLOW_PROP } from '../core/data/selectionFollow'
 import {
   orderedFields,
-  fieldsBehindCut,
-  fetchesToOpen,
-  isOpenRecord,
-  getValueOf,
-  loadRelationOf,
   withUniqueNames,
   recordNumberOf,
-  tableIdOf,
   type DataSource,
 } from '../core/data/dataSources'
+import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
 import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
 import { pagesOfMask } from '../core/block/pages'
@@ -210,29 +205,16 @@ export function exportMask(
   const runtimeJs = guardScriptContent(escapeNonAsciiJs(runtimeRaw))
 
   const sourcesJs = guardJsonScript(escapeNonAsciiJs(
-    'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => {
-      const load = loadRelationOf(s)
-      const get = getValueOf(s)
-      return {
-        id: s.id,
-        name: s.name,
-        tableId: tableIdOf(s),
-        recordField: recordNumberOf(s),
-        ...(isOpenRecord(s) ? { openRecord: true } : {}),
-        ...(load
-          ? { loadRelation: { ...load, extraFields: fieldsBehindCut(usedFields.get(s.id)) } }
-          : {}),
-        ...(get ? { getValue: { ...get, fields: s.fields.map((f) => f.code) } } : {}),
-        ...(fetchesToOpen(s)
-          ? {
-            query: {
-              id: tableIdOf(s),
-              fields: orderedFields(s, usedFields.get(s.id), getKey.get(s.id) ?? []),
-            },
-          }
-          : {}),
-      }
-    })) + ';',
+    'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => ({
+      id: s.id,
+      name: s.name,
+      tableId: s.tableId,
+      recordField: recordNumberOf(s),
+      ...deliveryAdapter(s.delivery.kind).export(s.delivery, s, {
+        used: usedFields.get(s.id),
+        fields: (source) => orderedFields(source, usedFields.get(source.id), getKey.get(source.id) ?? [], false),
+      }),
+    }))) + ';',
   ))
 
   const relationJs = guardJsonScript(escapeNonAsciiJs(

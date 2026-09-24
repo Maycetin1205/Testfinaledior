@@ -6,11 +6,11 @@ import { ListDetail } from '@/editor/widgets/ListDetail'
 import { Entry } from '@/editor/widgets/Entry'
 import { Badge } from '@/editor/widgets/Badge'
 import {
-  sourceKind,
+  allFieldsDelivered,
   sourcesKey,
   type DataSource,
 } from '../../core/data/dataSources'
-import { sourcesWording } from './wording'
+import { sourcePreset } from '../../core/data/presets/presets'
 import { dtkRead, type DtkTable } from '../../core/data/dtkImport'
 import { blocksWithSource } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
@@ -18,7 +18,7 @@ import { useEditor } from '../state/useEditor'
 import { DataSourceForm } from './DataSourceForm'
 import { DtkImportForm } from './DtkImportForm'
 import { blockName } from '../../core/block/blockName'
-import { iconForKind } from './parameterText'
+import { iconForPreset } from './parameterText'
 
 function copyName(name: string, taken: readonly string[]): string {
   const base = `${name} (Kopie)`
@@ -58,7 +58,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
     blocksWithSource(ed.tree, id).map((n) => blockName(n, store.list))
 
   const incomplete = (s: DataSource): boolean =>
-    sourceKind(s.kind).fieldsSingle && s.fields.length === 0
+    !allFieldsDelivered(s) && s.fields.length === 0
 
   const key = (s: DataSource): string => sourcesKey(s)
 
@@ -111,7 +111,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
             const used = usageOf(s.id).length
             const active =
               (mode === 'read' || mode === 'edit') && selection?.id === s.id
-            const Icon = iconForKind(s.kind)
+            const Icon = iconForPreset(s.preset)
             return (
               <Entry
                 key={s.id}
@@ -124,7 +124,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
                     {incomplete(s) && (
                       <TriangleAlert size={12} className="shrink-0 text-error" />
                     )}
-                    <Badge technical={false}>{sourcesWording(s.kind).name}</Badge>
+                    <Badge technical={false}>{sourcePreset(s.preset).name}</Badge>
                   </>
                 )}
                 bottom={(
@@ -160,7 +160,7 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
             <div>
               <h3 className="text-ui font-semibold text-ink">{selection.name}</h3>
               <p className="text-muted">
-                {sourcesWording(selection.kind).name}
+                {sourcePreset(selection.preset).name}
                 {key(selection) !== '' ? ` · ${key(selection)}` : ''}
               </p>
             </div>

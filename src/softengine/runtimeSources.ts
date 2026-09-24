@@ -1,6 +1,6 @@
 import type { RuntimeSource } from '../core/data/dataSources'
 import { seWindow } from './bridge'
-import { sourceFromList, isObject, rowsFromDelivery } from './data'
+import { sourceFromList, isObject, rowsOfSource as rowsFrom } from './data'
 
 export function runtimeSource(id: string): RuntimeSource | undefined {
   return sourceFromList(seWindow().FF_DATA_SOURCES, id)
@@ -19,5 +19,5 @@ export function runtimeSources(): RuntimeSource[] {
 }
 
 export function rowsOfSource(source: RuntimeSource): unknown[] {
-  return rowsFromDelivery(seWindow().SEDATA, source.name, source.tableId, source.openRecord)
+  return rowsFrom(source, seWindow().SEDATA)
 }

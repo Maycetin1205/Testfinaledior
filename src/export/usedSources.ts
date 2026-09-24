@@ -12,7 +12,8 @@ import {
 } from '../core/block/treeQuery'
 import { SELECTION_FOLLOW_PROP, selectionFollowsFrom, followUsable } from '../core/data/selectionFollow'
 import { dataFieldsFrom } from '../core/data/calculation'
-import { loadRelationOf, sourcesFromGetValue, type DataSource } from '../core/data/dataSources'
+import type { DataSource } from '../core/data/dataSources'
+import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import {
   sourceUsable,
   completePairs,
@@ -22,6 +23,17 @@ import {
 } from '../core/data/extraSources'
 import { sourceIdsUsedBy, sourcesInReach } from '../core/block/sourcesInReach'
 import { stepAdapter } from '../core/data/steps/steps'
+
+// The fields of other sources a source reads while its rows are fetched.
+function fieldsReadBy(source: DataSource): { sourceId: string; code: string }[] {
+  const out: { sourceId: string; code: string }[] = []
+  for (const binding of deliveryAdapter(source.delivery.kind).bindings(source.delivery)) {
+    if (binding.source !== 'dataField') continue
+    const sourceId = binding.sourceId ?? ''
+    if (sourceId !== '') out.push({ sourceId, code: binding.value })
+  }
+  return out
+}
 
 export function collectDataSources(
   tree: MaskTree,
@@ -44,7 +56,7 @@ export function collectDataSources(
   visit(tree[ROOT_ID])
 
   for (let i = 0; i < acc.length; i++) {
-    for (const { sourceId } of sourcesFromGetValue(acc[i])) add(sourceId)
+    for (const { sourceId } of fieldsReadBy(acc[i])) add(sourceId)
   }
   return acc
 }
@@ -157,7 +169,7 @@ export function usedFieldsPerSource(
   visit(tree[ROOT_ID])
 
   for (const source of collectDataSources(tree, sources)) {
-    for (const { sourceId, code } of sourcesFromGetValue(source)) remember(sourceId, code)
+    for (const { sourceId, code } of fieldsReadBy(source)) remember(sourceId, code)
   }
   return fields
 }
@@ -176,13 +188,10 @@ export function getKeyPerGiver(
   const visit = (node: BlockNode | undefined): void => {
     if (!node) return
     const source = sources.find((s) => s.id === selectionSourceIdOf(node))
-    const load = source ? loadRelationOf(source) : null
-    if (load) {
+    const giverFields = source ? deliveryAdapter(source.delivery.kind).giverFields(source.delivery) : []
+    if (giverFields.length > 0) {
       for (const follow of selectionFollowsFrom(node.values[SELECTION_FOLLOW_PROP])) {
-        remember(
-          selectionSourceIdOf(tree[follow.giverId]),
-          [load.documentKindField, load.documentNumberField, load.yearField, load.archiveField],
-        )
+        remember(selectionSourceIdOf(tree[follow.giverId]), giverFields)
       }
     }
     node.childIds.forEach((id) => visit(tree[id]))

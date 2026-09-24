@@ -1,6 +1,6 @@
 import type { Parameter } from '../../core/data/actions'
 import { relationParameterDefault } from '../../core/data/actions'
-import { tableIdOf, type DataSource } from '../../core/data/dataSources'
+import type { DataSource } from '../../core/data/dataSources'
 import {
   relIdFromIdbId,
   fieldCodeSplit,
@@ -68,7 +68,7 @@ export function adoptTables(
   dataSources: readonly DataSource[],
 ): AdoptSource[] {
   return dataSources
-    .filter((source) => tableIdOf(source) !== '')
+    .filter((source) => source.tableId !== '')
     .map((source) => ({ sourceId: source.id, sourceName: source.name }))
 }
 
@@ -88,7 +88,7 @@ export function fieldAdopt(
   relation.parameter.forEach((param, index) => {
     const kind = parameterRole(param)
     if (target === 'idb' && kind === 'relid') {
-      const relId = relIdFromIdbId(tableIdOf(source))
+      const relId = relIdFromIdbId(source.tableId)
       next[index] = { source: 'fixed', value: relId }
       set.push({ kind, value: relId })
       return

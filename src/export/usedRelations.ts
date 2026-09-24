@@ -1,6 +1,7 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
 import { relationIdsOf } from '../core/block/treeQuery'
-import { getValueOf, type DataSource } from '../core/data/dataSources'
+import type { DataSource } from '../core/data/dataSources'
+import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
 
 export function collectRelation(
@@ -24,8 +25,7 @@ export function collectRelation(
   }
   visit(tree[ROOT_ID])
   for (const source of sources) {
-    const get = getValueOf(source)
-    if (get) add(get.relationId)
+    for (const id of deliveryAdapter(source.delivery.kind).relationIds(source.delivery)) add(id)
   }
   return acc
 }

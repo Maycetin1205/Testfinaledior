@@ -1,6 +1,5 @@
 import type { RuntimeSource } from '../core/data/dataSources'
-import { checkGetValue, type RuntimeGetValue } from '../core/data/getValue'
-import { POS_LEN, checkLoadRelation, type RuntimeLoadRelation } from '../core/data/fetchRelation'
+import { runtimeDeliveryFrom } from '../core/data/deliveries/deliveries'
 import { fetchedRowsFor } from './fetchedRows'
 
 export type JsonObject = Record<string, unknown>
@@ -14,41 +13,12 @@ export function sourceFromList(list: unknown, id: string): RuntimeSource | undef
   for (const entry of list) {
     if (!isObject(entry) || entry.id !== id) continue
     if (typeof entry.name !== 'string' || typeof entry.tableId !== 'string') continue
-
-    let loadRelation: RuntimeLoadRelation | undefined
-    const checked = checkLoadRelation(entry.loadRelation)
-    if (checked && isObject(entry.loadRelation)) {
-      const raw = entry.loadRelation.extraFields
-      const extraFields = Array.isArray(raw)
-        ? raw.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
-        : []
-      loadRelation = { ...checked, extraFields }
-    }
-
-    let getValue: RuntimeGetValue | undefined
-    const checkedValue = checkGetValue(entry.getValue)
-    if (checkedValue && isObject(entry.getValue)) {
-      const raw = entry.getValue.fields
-      const fields = Array.isArray(raw)
-        ? raw.filter((f): f is string => typeof f === 'string' && f !== '')
-        : []
-      getValue = { ...checkedValue, fields }
-    }
-
-    const rawQuery = entry.query
-    const query = isObject(rawQuery) && typeof rawQuery.id === 'string'
-      && rawQuery.id !== '' && typeof rawQuery.fields === 'string'
-      ? { id: rawQuery.id, fields: rawQuery.fields }
-      : undefined
     return {
       id,
       name: entry.name,
       tableId: entry.tableId,
       recordField: typeof entry.recordField === 'string' ? entry.recordField : '',
-      openRecord: entry.openRecord === true,
-      ...(loadRelation ? { loadRelation } : {}),
-      ...(getValue ? { getValue } : {}),
-      ...(query ? { query } : {}),
+      delivery: runtimeDeliveryFrom(entry),
     }
   }
   return undefined
@@ -210,17 +180,7 @@ function openRecordRows(seData: unknown, tableId: string): unknown[] {
   return Object.keys(record).length === 0 ? [] : [record]
 }
 
-export function rowsFromDelivery(
-  seData: unknown,
-  alias: string,
-  idbId: string,
-
-  openRecord = false,
-): unknown[] {
-  if (!isObject(seData) || !isObject(seData.Daten)) return []
-  if (openRecord) return openRecordRows(seData, idbId)
-  const data = seData.Daten
-
+function loopRows(data: JsonObject, alias: string): unknown[] {
   const sfl = data.SEFileLoop
   if (Array.isArray(sfl)) {
     for (const entry of sfl) {
@@ -239,7 +199,10 @@ export function rowsFromDelivery(
       }
     }
   }
+  return []
+}
 
+function apiCallRows(data: JsonObject, alias: string): unknown[] {
   for (const key of ['ErpApiCall', 'ERPAPICALL', 'erpapicall']) {
     const api = data[key]
     if (!isObject(api)) continue
@@ -249,25 +212,58 @@ export function rowsFromDelivery(
       if (rows.length > 0) return rows
     }
   }
+  return []
+}
 
+function tableRows(data: JsonObject, alias: string, tableId: string): unknown[] {
   const tab = data.Tabellen
-  if (isObject(tab)) {
-    const keys = [alias, alias.toUpperCase(), alias.toLowerCase(), idbId]
-    for (const key of keys) {
-      if (key !== '' && key in tab) {
-        const rows = rowsOfEntry(tab[key])
-        if (rows.length > 0) return rows
-      }
-    }
-    for (const key of Object.keys(tab)) {
-      if (sameAlias(key, alias)) {
-        const rows = rowsOfEntry(tab[key])
-        if (rows.length > 0) return rows
-      }
+  if (!isObject(tab)) return []
+  const keys = [alias, alias.toUpperCase(), alias.toLowerCase(), tableId]
+  for (const key of keys) {
+    if (key !== '' && key in tab) {
+      const rows = rowsOfEntry(tab[key])
+      if (rows.length > 0) return rows
     }
   }
+  for (const key of Object.keys(tab)) {
+    if (sameAlias(key, alias)) {
+      const rows = rowsOfEntry(tab[key])
+      if (rows.length > 0) return rows
+    }
+  }
+  return []
+}
 
-  return fetchedRowsFor(alias) ?? []
+// An ERP mask arrives as one record: its values, the plain texts and the field
+// descriptions under MASKE.
+function maskRows(data: JsonObject, alias: string): unknown[] {
+  const masks = data.Masken
+  if (!isObject(masks)) return []
+  for (const key of Object.keys(masks)) {
+    const entry = masks[key]
+    if (sameAlias(key, alias) && isObject(entry) && !Array.isArray(entry)) return [entry]
+  }
+  return []
+}
+
+// Only the SEFILELOOP place is belegt for every order; the mask looks in each
+// block SoftEngine fills by alias.
+const PUSHED_LISTS = [loopRows, apiCallRows, tableRows, maskRows]
+
+function pushedRows(seData: unknown, alias: string, tableId: string, openRecord: boolean): unknown[] {
+  if (!isObject(seData) || !isObject(seData.Daten)) return []
+  if (openRecord) return openRecordRows(seData, tableId)
+  for (const read of PUSHED_LISTS) {
+    const rows = read(seData.Daten, alias, tableId)
+    if (rows.length > 0) return rows
+  }
+  return []
+}
+
+export function rowsOfSource(source: RuntimeSource, seData: unknown): unknown[] {
+  const delivery = source.delivery
+  if (delivery.kind !== 'push') return fetchedRowsFor(source.name) ?? []
+  return pushedRows(seData, source.name, source.tableId, delivery.openRecord)
 }
 
 export function dataFromContent(raw: unknown): JsonObject | undefined {
@@ -277,7 +273,7 @@ export function dataFromContent(raw: unknown): JsonObject | undefined {
   }
   if (!isObject(data) || !isObject(data.Daten)) return undefined
   const block = data.Daten
-  if (!block.SEFileLoop && !block.Tabellen && !block.ErpApiCall && !varBlockOf(block)) {
+  if (!block.SEFileLoop && !block.Tabellen && !block.ErpApiCall && !block.Masken && !varBlockOf(block)) {
     return undefined
   }
   return block

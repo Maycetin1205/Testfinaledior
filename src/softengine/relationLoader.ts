@@ -1,4 +1,4 @@
-import type { RuntimeLoadRelation } from '../core/data/fetchRelation'
+import type { RuntimeLoadRelation } from '../core/data/deliveries/relationRows'
 import type { RelationAnswer } from '../core/data/relations'
 import { reportTrigger } from './bridge'
 import { fieldRead } from './data'

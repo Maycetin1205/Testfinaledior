@@ -5,6 +5,7 @@ import { allBlockTypes } from '../core/block/registry'
 import { propertyVisible } from '../core/block/property'
 import { SOURCE_PROP } from '../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
+import { DELIVERY_KINDS, deliveryAdapter } from '../core/data/deliveries/deliveries'
 import {
   onSelectionList,
   selectionFor,
@@ -79,28 +80,23 @@ function checkFetchingSources(byControls: boolean): void {
   const defsPerTag = defsWithRecordChoice()
   const host = maskState.host
   for (const source of host.sources()) {
-    if (!source.loadRelation) continue
+    if (deliveryAdapter(source.delivery.kind).fetchOn !== 'selection') continue
     const { row, giver } = chosenRowOfSource(source.id, defsPerTag)
 
     if (!giver) continue
     if (!mayLoad(source.id, traitOf(row), byControls)) continue
-    host.loadRowsPerRelation(source, source.loadRelation, row)
+    host.fetchRows(source, row)
   }
 }
 
-function fetchValueSources(): void {
+function fetchAfterDelivery(): void {
   const host = maskState.host
-  for (const source of host.sources()) {
-    if (!source.getValue) continue
-    host.fetchValueSource(source, source.getValue)
-  }
-}
-
-function fetchQuerySources(): void {
-  const host = maskState.host
-  for (const source of host.sources()) {
-    if (!source.query) continue
-    host.fetchQuerySource(source, source.query)
+  const sources = host.sources()
+  for (const kind of DELIVERY_KINDS) {
+    if (deliveryAdapter(kind).fetchOn !== 'delivery') continue
+    for (const source of sources) {
+      if (source.delivery.kind === kind) host.fetchRows(source, undefined)
+    }
   }
 }
 
@@ -110,13 +106,8 @@ export function wireFetchingSources(): void {
   onSelectionList(checkFetchingSources)
 
   maskState.host.onData((delivery) => {
-    if (!delivery) return
-    fetchValueSources()
-    fetchQuerySources()
+    if (delivery) fetchAfterDelivery()
   })
 
-  if (maskState.host.hasData()) {
-    fetchValueSources()
-    fetchQuerySources()
-  }
+  if (maskState.host.hasData()) fetchAfterDelivery()
 }

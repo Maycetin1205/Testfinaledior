@@ -20,7 +20,5 @@ export const previewHost: MaskHost = {
   sendBwLink: () => false,
   requestFreshData: () => {},
 
-  loadRowsPerRelation: () => {},
-  fetchValueSource: () => {},
-  fetchQuerySource: () => {},
+  fetchRows: () => {},
 }

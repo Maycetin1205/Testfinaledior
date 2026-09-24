@@ -2,7 +2,7 @@ import { checkDataSources, type DataSource } from '../../core/data/dataSources'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
-import { liftKey, liftLibraries, liftSourceNames } from './maskSchema'
+import { liftKey, liftLibraries, liftSourceNames, liftToDescriptors } from './maskSchema'
 
 const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
@@ -65,10 +65,12 @@ export function packLibraryFrom(text: string): LibraryResult {
 }
 
 function liftLibrary(raw: Record<string, unknown>): Record<string, unknown> {
-  if (raw.schemaVersion === LIBRARY_SCHEMA_VERSION) return raw
-  const o = liftKey(raw)
-  liftLibraries(o)
-  liftSourceNames(o)
+  const o = raw.schemaVersion === LIBRARY_SCHEMA_VERSION ? raw : liftKey(raw)
+  if (raw.schemaVersion !== LIBRARY_SCHEMA_VERSION) {
+    liftLibraries(o)
+    liftSourceNames(o)
+  }
+  liftToDescriptors(o)
   return o
 }
 

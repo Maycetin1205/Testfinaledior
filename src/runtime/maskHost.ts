@@ -1,6 +1,4 @@
-import type { RuntimeQuery, RuntimeSource } from '../core/data/dataSources'
-import type { RuntimeLoadRelation } from '../core/data/fetchRelation'
-import type { RuntimeGetValue } from '../core/data/getValue'
+import type { RuntimeSource } from '../core/data/dataSources'
 import type { StepHost } from '../core/data/steps/stepAdapter'
 
 // Everything a mask asks of the world outside it. softEngineHost answers in the
@@ -21,8 +19,6 @@ export interface MaskHost extends StepHost {
   // After a write: the host delivers the data again.
   requestFreshData(): void
 
-  // Sources the mask fetches itself once it is open.
-  loadRowsPerRelation(source: RuntimeSource, load: RuntimeLoadRelation, giverRow: unknown): void
-  fetchValueSource(source: RuntimeSource, get: RuntimeGetValue): void
-  fetchQuerySource(source: RuntimeSource, query: RuntimeQuery): void
+  // A source the mask fetches itself; giverRow is the chosen row it follows.
+  fetchRows(source: RuntimeSource, giverRow: unknown): void
 }

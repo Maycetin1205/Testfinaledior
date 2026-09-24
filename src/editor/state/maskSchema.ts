@@ -1,3 +1,8 @@
+import { checkLoadRelation } from '../../core/data/deliveries/relationRows'
+import { checkGetValue } from '../../core/data/deliveries/relationValue'
+import { isPresetId, sourcePreset } from '../../core/data/presets/presets'
+import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
+
 // Lifts a saved mask to the format this editor reads. Version 16 renamed every
 // stored name from German to English, version 17 the names that rename missed;
 // a file below them first runs the older steps.
@@ -411,6 +416,7 @@ export function liftState(raw: unknown): unknown {
   if (raw.schemaVersion < 17) liftMissedNames(lifted.tree)
   if (raw.schemaVersion < 18) liftWithoutRooms(lifted.tree)
   if (raw.schemaVersion < 19) liftTo19(lifted)
+  liftToDescriptors(lifted)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
@@ -545,4 +551,39 @@ function liftTo19(state: Record<string, unknown>): void {
     }
   }
   liftSourceNames(state)
+}
+
+// ---- a source as preset and descriptor instead of a kind with switches ----
+
+function text(value: unknown): string {
+  return typeof value === 'string' ? value : ''
+}
+
+// The kind names the preset; what each kind allowed decides the descriptor.
+function descriptorSource(source: Record<string, unknown>): Record<string, unknown> {
+  if ('preset' in source || !isPresetId(source.kind)) return source
+  const {
+    kind, idbId, recordField, headerKeyIndex, delivery, loadRelation, getValue, area, ...kept
+  } = source
+  const preset = sourcePreset(kind)
+  return {
+    ...kept,
+    preset: kind,
+    tableId: preset.tableId !== '' ? preset.tableId : text(idbId),
+    ...descriptorFor(preset, {
+      headerKey: text(headerKeyIndex),
+      area: text(area),
+      openRecord: delivery === 'openRecord',
+      load: checkLoadRelation(loadRelation),
+      getValue: checkGetValue(getValue) ?? EMPTY_CHOICE.getValue,
+      // An ERP query could not carry a record number; one left over stays unused.
+      recordField: kind === 'erpQuery' ? '' : text(recordField),
+    }),
+  }
+}
+
+export function liftToDescriptors(state: Record<string, unknown>): void {
+  const sources = state.dataSources
+  if (!Array.isArray(sources)) return
+  state.dataSources = sources.map((source) => (isPlainObject(source) ? descriptorSource(source) : source))
 }

@@ -5,18 +5,19 @@ import type { ChoiceOption } from '../../core/block/property'
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import { selectionSourceIdOf } from '../../core/block/treeQuery'
-import type { DataSource, DataField, SourceKindId } from '../../core/data/dataSources'
+import type { DataSource, DataField } from '../../core/data/dataSources'
+import type { PresetId } from '../../core/data/presets/presets'
 import type { RelationTemplate } from '../../core/data/relations'
 
-const KIND_ICONS: Partial<Record<SourceKindId, typeof Database>> = {
+const PRESET_ICONS: Partial<Record<PresetId, typeof Database>> = {
   idb: Database,
   addressMaster: Users,
   itemMaster: Boxes,
   document: FileText,
 }
 
-export function iconForKind(kind: SourceKindId): typeof Database {
-  return KIND_ICONS[kind] ?? Database
+export function iconForPreset(preset: PresetId): typeof Database {
+  return PRESET_ICONS[preset] ?? Database
 }
 
 export const VERB_SHORT: Record<RelationTemplate['verb'], string> = {

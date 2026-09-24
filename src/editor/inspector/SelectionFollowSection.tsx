@@ -7,7 +7,8 @@ import {
   selectionFollowsFrom,
   type SelectionFollow,
 } from '../../core/data/selectionFollow'
-import { loadRelationOf, sourcesKey } from '../../core/data/dataSources'
+import { sourcesKey } from '../../core/data/dataSources'
+import { deliveryAdapter } from '../../core/data/deliveries/deliveries'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { blockName } from '../../core/block/blockName'
@@ -38,7 +39,8 @@ export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
   const giverNode = follow ? ed.tree[follow.giverId] : undefined
   const giverSource = sourceOf(giverNode)
 
-  const fetchesRows = ownSource !== undefined && loadRelationOf(ownSource) !== null
+  const fetchesRows = ownSource !== undefined
+    && deliveryAdapter(ownSource.delivery.kind).fetchOn === 'selection'
 
   const entry = (n: BlockNode): ListEntry => {
     const q = sourceOf(n)

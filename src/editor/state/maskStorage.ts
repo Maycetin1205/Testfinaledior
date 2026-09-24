@@ -1,7 +1,7 @@
 import { ROOT_ID, type MaskTree } from '../../core/block/tree'
 import { emptyTree } from '../../core/block/treeOps'
-import type { DataSource } from '../../core/data/dataSources'
-import type { RelationTemplate } from '../../core/data/relations'
+import { checkDataSources, type DataSource } from '../../core/data/dataSources'
+import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { packLibrary, packLibraryFrom } from './libraryFile'
 import { checkTreeState } from './checkTreeState'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
@@ -99,6 +99,13 @@ export function libraryInMask(raw: string): StoredLibrary {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return empty
   const state = liftState(parsed) as Record<string, unknown>
   if (!Array.isArray(state.dataSources) && !Array.isArray(state.relation)) return empty
+  // What the mask's own lift brought up to date must not be lifted a second time.
+  if (state !== parsed) {
+    return {
+      dataSources: checkDataSources(state.dataSources),
+      relation: checkRelationTemplates(state.relation),
+    }
+  }
   const packed = packLibraryFrom(JSON.stringify({
     dataSources: state.dataSources ?? [],
     relation: state.relation ?? [],

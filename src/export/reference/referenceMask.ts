@@ -9,8 +9,11 @@ export const REFERENCE_SOURCES: readonly DataSource[] = [
   {
     id: 'q-pos',
     name: 'Belegpositionen',
-    kind: 'documentItem',
-    recordField: '645_10',
+    preset: 'documentItem',
+    tableId: 'POS',
+    order: { kind: 'sefileloop', wildcard: false, underHeader: true, headerKey: '' },
+    delivery: { kind: 'push', path: 'SEFileLoop' },
+    write: { kind: 'putRelation', recordField: '645_10' },
     fields: [
       { code: '18_25', name: 'ArtNr' },
       { code: '45_60', name: 'Bezeichnung' },
@@ -20,7 +23,11 @@ export const REFERENCE_SOURCES: readonly DataSource[] = [
   {
     id: 'q-art',
     name: 'Artikelstamm',
-    kind: 'itemMaster',
+    preset: 'itemMaster',
+    tableId: 'ART',
+    order: { kind: 'sefileloop', wildcard: false, underHeader: false, headerKey: '' },
+    delivery: { kind: 'push', path: 'SEFileLoop' },
+    write: { kind: 'none' },
     fields: [
       { code: 'bez', name: 'Bezeichnung' },
       { code: 'unit', name: 'Einheit' },

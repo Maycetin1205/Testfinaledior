@@ -7,7 +7,7 @@ import {
   relationParameterDefault,
   type Parameter,
 } from '../actions'
-import { sourcesKey, tableIdOf, type DataSource } from '../dataSources'
+import { sourcesKey, type DataSource } from '../dataSources'
 import {
   fieldCodeSplit,
   isUnnamedTemplate,
@@ -89,7 +89,7 @@ function sourceFromRelId(
   const index = relation.parameter.findIndex((p) => parameterRole(p) === 'relid')
   const value = index < 0 ? '' : fixedValue(params[index])
   if (value === '') return undefined
-  return sources.find((q) => relIdFromIdbId(tableIdOf(q)) === value)
+  return sources.find((q) => relIdFromIdbId(q.tableId) === value)
 }
 
 function fieldCodeFromParams(

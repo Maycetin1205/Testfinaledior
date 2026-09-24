@@ -1,4 +1,4 @@
-import type { RuntimeGetValue } from '../core/data/getValue'
+import type { RuntimeGetValue } from '../core/data/deliveries/relationValue'
 import { reportTrigger, seWindow } from './bridge'
 import { setFetchedRows } from './fetchedRows'
 import {

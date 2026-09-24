@@ -9,19 +9,16 @@ import {
 } from '../../core/data/actions'
 import {
   aliasOf,
-  sourceKind,
+  choiceOf,
   fieldPrefixFromInput,
-  GET_VALUE_SOURCES,
-  getValueSourceAllowed,
   keyDisplay,
-  keyFromInput,
   headerKeyFromInput,
-  SOURCE_KINDS,
-  relationNrFromInput,
-  tableKeyNeeded,
   type DataSource,
-  type SourceKindId,
 } from '../../core/data/dataSources'
+import { relationNrFromInput } from '../../core/data/deliveries/relationRows'
+import { GET_VALUE_SOURCES, getValueSourceAllowed } from '../../core/data/deliveries/relationValue'
+import { PRESET_IDS, sourcePreset, type PresetId } from '../../core/data/presets/presets'
+import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
 import { readMaskFields } from '../../core/data/maskFields'
 import { relationFitsToSearch } from '../../core/data/relations'
 import { useDataSources } from '../state/useDataSources'
@@ -31,7 +28,6 @@ import type { ParameterChoices } from './parameter/choices'
 import { RelationPicker } from './RelationPicker'
 import { SelectControl } from '../inspector/controls/SelectControl'
 import { FieldList } from './FieldList'
-import { sourcesWording } from './wording'
 import {
   EMPTY_ROW,
   rowFromField,
@@ -50,21 +46,24 @@ interface DataSourceFormProps {
 
 export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   const store = useDataSources()
+  const saved = source ? choiceOf(source) : EMPTY_CHOICE
   const [name, setName] = useState(source?.name ?? '')
-  const [kind, setKind] = useState<SourceKindId>(source?.kind ?? 'idb')
-  const [keyInput, setKeyInput] = useState(keyDisplay(source?.idbId))
-  const [headerKeyInput, setHeaderKeyInput] = useState(source?.headerKeyIndex ?? '')
+  const [presetId, setPresetId] = useState<PresetId>(source?.preset ?? 'idb')
+  const [keyInput, setKeyInput] = useState(
+    source && sourcePreset(source.preset).keyLabel !== '' ? keyDisplay(source.tableId) : '',
+  )
+  const [headerKeyInput, setHeaderKeyInput] = useState(saved.headerKey)
 
   const [prefixInput, setPrefixInput] = useState(source?.fieldPrefix ?? '')
-  const [areaInput, setAreaInput] = useState(source?.area ?? '')
+  const [areaInput, setAreaInput] = useState(saved.area)
 
   const [maskText, setMaskText] = useState('')
 
   const [delivery, setDelivery] = useState<'list' | 'openRecord'>(
-    source?.delivery ?? 'list',
+    saved.openRecord ? 'openRecord' : 'list',
   )
 
-  const load = source?.loadRelation
+  const load = saved.load
   const [rowsOrigin, setRowsOrigin] = useState<'pushed' | 'fetch'>(load ? 'fetch' : 'pushed')
   const [relationNr, setRelationNr] = useState(load?.nr ?? '')
   const fieldMapping = {
@@ -78,44 +77,43 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     source && source.fields.length > 0
 
       ? source.fields.map((f) => rowFromField(
-          f, source.fieldPrefix ?? '', sourceKind(source.kind).columnsNames,
+          f, source.fieldPrefix ?? '', sourcePreset(source.preset).columnsLabel !== '',
         ))
       : [{ ...EMPTY_ROW }],
   )
 
-  const [recordNumber, setRecordNumber] = useState(source?.recordField ?? '')
+  const [recordNumber, setRecordNumber] = useState(saved.recordField)
 
   const [showError, setShowError] = useState(false)
 
   const relation = useRelations()
   const getTemplates = relation.list
-  const [getRelationId, setGetRelationId] = useState(source?.getValue?.relationId ?? '')
-  const [getParams, setGetParams] = useState<Parameter[]>(
-    source?.getValue ? [...source.getValue.parameter] : [],
-  )
+  const [getRelationId, setGetRelationId] = useState(saved.getValue.relationId)
+  const [getParams, setGetParams] = useState<Parameter[]>([...saved.getValue.parameter])
   const [getSearch, setGetSearch] = useState('')
 
-  const kindFacts = sourceKind(kind)
-  const wording = sourcesWording(kind)
-  const asksKey = tableKeyNeeded(kindFacts)
+  const preset = sourcePreset(presetId)
+  const listed = preset.list(EMPTY_CHOICE)
+  const columnsNames = preset.columnsLabel !== ''
+  const asksKey = preset.keyLabel !== ''
 
-  const asksHeaderKey = kindFacts.headerKeyPossible
+  const asksHeaderKey = listed.order.kind === 'sefileloop' && listed.order.underHeader
 
-  const asksArea = kindFacts.areaNeeded
+  const asksArea = listed.order.kind === 'mask'
 
-  const fetchPossible = kindFacts.relationLoadPossible
+  const fetchPossible = preset.fetches
 
   const prefix = fieldPrefixFromInput(prefixInput)
 
-  const asksPrefix = kindFacts.fieldPrefixPossible || prefix !== ''
+  const asksPrefix = preset.prefixed || prefix !== ''
   const fetchesRows = fetchPossible && rowsOrigin === 'fetch'
 
-  const deliverySelectable = kindFacts.varPossible && !fetchesRows
+  const deliverySelectable = preset.openRecord !== undefined && !fetchesRows
   const openRecord = deliverySelectable && delivery === 'openRecord'
 
   const giverOptions = store.list.filter((s) => s.id !== source?.id)
 
-  const fetchesValue = kindFacts.getValuePossible
+  const fetchesValue = listed.delivery.kind === 'relationValue'
   const getRelation = getTemplates.find((r) => r.id === getRelationId)
   const visibleRelation = useMemo(
     () => getTemplates.filter((entry) => relationFitsToSearch(entry, getSearch)),
@@ -150,8 +148,8 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     getError = 'Nur eine lesende Relation (GET) liefert einen Wert zurück.'
   }
 
-  function chooseKind(next: SourceKindId): void {
-    setKind(next)
+  function choosePreset(next: PresetId): void {
+    setPresetId(next)
   }
 
   const nameDouble = store.list.some(
@@ -161,8 +159,8 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   if (name.trim() === '') nameError = 'Anzeigename fehlt.'
   else if (nameDouble) nameError = 'Diesen Namen trägt schon eine andere Quelle.'
   const keyError =
-    asksKey && keyFromInput(keyInput, kindFacts.idbShortForm) === ''
-      ? `${wording.keyLabel} fehlt.`
+    asksKey && preset.key(keyInput) === ''
+      ? `${preset.keyLabel} fehlt.`
       : ''
 
   const headerKeyError =
@@ -183,19 +181,19 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
   }
   const rowsError = rows.map((z) => {
     if (z.label.trim() === '') return 'Klarname fehlt.'
-    if (!kindFacts.columnsNames && FIELD_CODE.test(z.label.trim())) {
+    if (!columnsNames && FIELD_CODE.test(z.label.trim())) {
       return 'Klarname darf kein Feldcode sein.'
     }
-    if (rowsCode(z, prefix, kindFacts.columnsNames) === '') {
-      return kindFacts.columnsNames
+    if (rowsCode(z, prefix, columnsNames) === '') {
+      return columnsNames
         ? 'Spaltenname fehlt (ohne Komma).'
         : 'Position und Länge als Zahlen angeben.'
     }
     return ''
   })
-  const codes = rows.map((z) => rowsCode(z, prefix, kindFacts.columnsNames))
+  const codes = rows.map((z) => rowsCode(z, prefix, columnsNames))
   const doubleError = codes.some((c, i) => c !== '' && codes.indexOf(c) !== i)
-    ? (kindFacts.columnsNames
+    ? (columnsNames
         ? 'Zwei Felder zeigen auf dieselbe Spalte.'
         : 'Zwei Felder haben dieselbe Position + Länge.')
     : ''
@@ -228,39 +226,22 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
     }
     const data: Omit<DataSource, 'id'> = {
       name: name.trim(),
-      kind: kind,
-      ...(asksKey ? { idbId: keyFromInput(keyInput, kindFacts.idbShortForm) } : {}),
-
-      ...(asksHeaderKey && headerKeyFromInput(headerKeyInput) !== ''
-        ? { headerKeyIndex: headerKeyFromInput(headerKeyInput) }
-        : {}),
+      preset: presetId,
+      tableId: asksKey ? preset.key(keyInput) : preset.tableId,
+      ...descriptorFor(preset, {
+        headerKey: asksHeaderKey ? headerKeyFromInput(headerKeyInput) : '',
+        area: asksArea ? areaInput.trim().toUpperCase() : '',
+        openRecord,
+        load: fetchesRows ? { nr: relationNrFromInput(relationNr), ...fieldMapping } : null,
+        getValue: { relationId: getRelationId, parameter: getParams },
+        recordField: recordNumber,
+      }),
 
       ...(prefix !== '' ? { fieldPrefix: prefix } : {}),
-
-      ...(asksArea ? { area: areaInput.trim().toUpperCase() } : {}),
-
-      ...(openRecord ? { delivery: 'openRecord' as const } : {}),
-
-      ...(kindFacts.recordNumberPossible && recordNumber !== ''
-        ? { recordField: recordNumber }
-        : {}),
-
-      ...(fetchesRows
-        ? {
-            loadRelation: {
-              nr: relationNrFromInput(relationNr),
-              ...fieldMapping,
-            },
-          }
-        : {}),
-
-      ...(fetchesValue && getRelationId !== ''
-        ? { getValue: { relationId: getRelationId, parameter: getParams } }
-        : {}),
       fields: rows.map((z) => {
         const length = rowsLength(z)
         return {
-          code: rowsCode(z, prefix, kindFacts.columnsNames),
+          code: rowsCode(z, prefix, columnsNames),
           name: z.label.trim(),
           ...(length === undefined ? {} : { length }),
         }
@@ -286,13 +267,13 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
 
         <SelectControl
           label="Art"
-          value={kind}
-          options={SOURCE_KINDS.map((a) => ({ value: a.id, name: sourcesWording(a.id).name }))}
-          onChange={(v) => chooseKind(v as SourceKindId)}
+          value={presetId}
+          options={PRESET_IDS.map((id) => ({ value: id, name: sourcePreset(id).name }))}
+          onChange={(v) => choosePreset(v as PresetId)}
         />
 
         {asksKey && (
-          <Row label={wording.keyLabel} error={showError ? keyError : undefined}>
+          <Row label={preset.keyLabel} error={showError ? keyError : undefined}>
             {(f) => (
               <Field
                 {...f}
@@ -443,8 +424,8 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
         )}
 
         <FieldList
-          columnsNames={kindFacts.columnsNames}
-          columnsLabel={wording.columnsLabel}
+          columnsNames={columnsNames}
+          columnsLabel={preset.columnsLabel}
           rows={rows}
           setRows={setRows}
           rowsError={rowsError}
@@ -452,7 +433,7 @@ export function DataSourceForm({ source, onClose }: DataSourceFormProps) {
           showError={showError}
         />
 
-        {kindFacts.recordNumberPossible && (
+        {preset.writes && (
           <SelectControl
             label="Satznummer"
             value={recordNumber}

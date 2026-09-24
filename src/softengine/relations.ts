@@ -5,14 +5,14 @@ import {
   type RuntimeRelation,
 } from '../core/data/relations'
 import { BLOCK_ID_ATTR, type Parameter, type RuntimeValues } from '../core/data/actions'
-import type { RuntimeQuery } from '../core/data/dataSources'
+import type { RuntimeQuery } from '../core/data/deliveries/message'
 import { startSe, onSeAnswer, seWindow } from './bridge'
 import {
   sourceFromList,
   fieldRead,
   isObject,
   rowsFromQueryAnswer,
-  rowsFromDelivery,
+  rowsOfSource,
 } from './data'
 
 export function runtimeRelation(id: string): RuntimeRelation | undefined {
@@ -430,7 +430,7 @@ export function parameterResolve(
 
   const source = sourceFromList(runtime.FF_DATA_SOURCES, binding.sourceId ?? '')
   if (!source) return ''
-  const rows = rowsFromDelivery(runtime.SEDATA, source.name, source.tableId, source.openRecord)
+  const rows = rowsOfSource(source, runtime.SEDATA)
   const pindex = values.context.PINDEX ?? ''
 
   const row = pindex !== '' && source.recordField !== ''

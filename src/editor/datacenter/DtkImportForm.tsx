@@ -5,6 +5,8 @@ import { Button } from '@/editor/widgets/Button'
 import { Field } from '@/editor/widgets/Field'
 import { Row } from '@/editor/widgets/Row'
 import { keyDisplay } from '../../core/data/dataSources'
+import { sourcePreset } from '../../core/data/presets/presets'
+import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
 import type { DtkTable } from '../../core/data/dtkImport'
 import { useDataSources } from '../state/useDataSources'
 import { FormCard } from './FormCard'
@@ -19,7 +21,7 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
   const store = useDataSources()
 
   const present = new Set(
-    store.list.map((s) => s.idbId).filter((k): k is string => typeof k === 'string'),
+    store.list.map((s) => s.tableId).filter((k) => k !== ''),
   )
 
   const [ticked, setTicked] = useState<ReadonlySet<string>>(
@@ -49,10 +51,9 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
       if (!ticked.has(t.key) || present.has(t.key)) continue
       store.add({
         name: t.name !== '' ? t.name : keyDisplay(t.key),
-        kind: 'idb',
-        idbId: t.key,
-
-        recordField: recordField.trim(),
+        preset: 'idb',
+        tableId: t.key,
+        ...descriptorFor(sourcePreset('idb'), { ...EMPTY_CHOICE, recordField }),
         fields: t.fields,
       })
     }

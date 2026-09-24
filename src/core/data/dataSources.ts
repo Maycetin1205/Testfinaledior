@@ -1,39 +1,18 @@
 import { SOURCES_DIVIDER, splitBinding } from '../block/blockType'
-import { getValueOf, checkGetValue, type GetValue, type RuntimeGetValue } from './getValue'
-import {
-  loadRelationOf,
-  POS_LEN,
-  checkLoadRelation,
-  type LoadRelation,
-  type RuntimeLoadRelation,
-} from './fetchRelation'
-import {
-  sourceKind,
-  SOURCE_KIND_IDS,
-  SOURCE_KINDS,
-  tableKeyNeeded,
-  type SourceKindId,
-} from './sourceKinds'
+import { isSeObject } from './actions'
+import { deliveryAdapter, isDeliveryKind, type Delivery, type RuntimeDelivery } from './deliveries/deliveries'
+import { isOrderKind, orderAdapter, type Order } from './orders/orders'
+import { isPresetId, sourcePreset, type PresetId } from './presets/presets'
+import { EMPTY_CHOICE, type SourceChoice } from './presets/sourcePreset'
+import { POS_LEN, keyDisplay } from './sourceInput'
+import { isWriteKind, recordFieldOf, writeAdapter, type Write } from './writes/writes'
 
-export { sourceKind, SOURCE_KINDS, tableKeyNeeded, type SourceKindId }
-export {
-  getValueOf,
-  GET_VALUE_SOURCES,
-  getValueSourceAllowed,
-  sourcesFromGetValue,
-} from './getValue'
-export {
-  fieldsBehindCut,
-  loadRelationOf,
-  relationNrFromInput,
-} from './fetchRelation'
 export {
   fieldPrefixFromInput,
   fieldCode,
   keyDisplay,
   keyFromInput,
   headerKeyFromInput,
-  sourcesKey,
   columnsNameFromInput,
 } from './sourceInput'
 
@@ -52,30 +31,21 @@ export interface DataSource {
 
   name: string
 
-  kind: SourceKindId
+  // The data center shows the form of this preset; the export never reads it.
+  preset: PresetId
 
-  idbId?: string
+  // SoftEngine's id of what the source reads: table, query, DataSet or mask.
+  tableId: string
 
-  recordField?: string
+  order: Order
 
-  headerKeyIndex?: string
+  delivery: Delivery
 
-  delivery?: 'list' | 'openRecord'
-
-  loadRelation?: LoadRelation
-
-  getValue?: GetValue
+  write: Write
 
   fieldPrefix?: string
 
-  area?: string
-
   fields: readonly DataField[]
-}
-
-export interface RuntimeQuery {
-  id: string
-  fields: string
 }
 
 // A data source the way the exported mask hands it to its runtime.
@@ -85,22 +55,7 @@ export interface RuntimeSource {
   tableId: string
   recordField: string
 
-  openRecord: boolean
-  loadRelation?: RuntimeLoadRelation
-  getValue?: RuntimeGetValue
-  query?: RuntimeQuery
-}
-
-export function areaOf(source: DataSource): string {
-  return (source.area ?? '').trim().toUpperCase()
-}
-
-export function fetchesSelf(source: DataSource): boolean {
-  return loadRelationOf(source) !== null || getValueOf(source) !== null || fetchesToOpen(source)
-}
-
-export function fetchesToOpen(source: DataSource): boolean {
-  return sourceKind(source.kind).orderBlock === 'erpapicall'
+  delivery: RuntimeDelivery
 }
 
 export function fieldPlainName(
@@ -115,13 +70,12 @@ export function fieldPlainName(
   return source?.fields.find((f) => f.code === code)?.name ?? ''
 }
 
-export function isOpenRecord(source: DataSource): boolean {
-  return sourceKind(source.kind).varPossible && source.delivery === 'openRecord'
+export function recordNumberOf(source: DataSource): string {
+  return recordFieldOf(source.write)
 }
 
-export function recordNumberOf(source: DataSource): string {
-  if (!sourceKind(source.kind).recordNumberPossible) return ''
-  return (source.recordField ?? '').trim()
+export function sourcesKey(source: Pick<DataSource, 'tableId'>): string {
+  return keyDisplay(source.tableId)
 }
 
 export function aliasOf(name: string): string {
@@ -138,15 +92,13 @@ export function withUniqueNames(sources: readonly DataSource[]): DataSource[] {
   })
 }
 
-export function tableIdOf(source: DataSource): string {
-  const fixed = sourceKind(source.kind).tableId
-  return fixed === '' ? (source.idbId ?? '') : fixed
-}
-
+// SoftEngine never sends a field its list leaves out. With wildcard it may be
+// asked for '*', and must be as soon as one used code is no position and length.
 export function orderedFields(
   source: DataSource,
-  used?: ReadonlySet<string>,
-  getKey: readonly string[] = [],
+  used: ReadonlySet<string> | undefined,
+  getKey: readonly string[],
+  wildcard: boolean,
 ): string {
   const withKeys = (codes: string[]): string[] => {
     for (const code of getKey) {
@@ -169,7 +121,7 @@ export function orderedFields(
   const index = recordNumberOf(source)
   const front = index === '' ? [] : [index]
 
-  if (sourceKind(source.kind).fieldsSingle) {
+  if (!wildcard) {
     if (!used || used.size === 0) {
       return withKeys(source.fields.map((f) => f.code)).join(',')
     }
@@ -183,95 +135,109 @@ export function orderedFields(
   return codes.every((code) => POS_LEN.test(code)) ? codes.join(',') : '*'
 }
 
-export function loopOrder(sources: readonly DataSource[]): DataSource[] {
-  const standalone: DataSource[] = []
-  const underHeaderKey: DataSource[] = []
-  for (const source of sources) {
-    if (sourceKind(source.kind).headerKeyPossible) underHeaderKey.push(source)
-    else standalone.push(source)
-  }
-  return [...standalone, ...underHeaderKey]
+export function allFieldsDelivered(source: DataSource): boolean {
+  return orderAdapter(source.order.kind).allFields(source.order)
 }
 
-export function headerKeyOf(source: DataSource): string {
-  if (!sourceKind(source.kind).headerKeyPossible) return ''
-  return (source.headerKeyIndex ?? '').trim()
+// What the data center form shows of a source's descriptor.
+export function choiceOf(source: DataSource): SourceChoice {
+  const { order, delivery, write } = source
+  return {
+    headerKey: order.kind === 'sefileloop' ? order.headerKey : '',
+    area: order.kind === 'mask' ? order.area : '',
+    openRecord: delivery.kind === 'push' && delivery.path === 'Var',
+    load: delivery.kind === 'relationRows'
+      ? {
+          nr: delivery.nr,
+          documentKindField: delivery.documentKindField,
+          documentNumberField: delivery.documentNumberField,
+          yearField: delivery.yearField,
+          archiveField: delivery.archiveField,
+          endFields: delivery.endFields,
+        }
+      : null,
+    getValue: delivery.kind === 'relationValue'
+      ? { relationId: delivery.relationId, parameter: delivery.parameter }
+      : EMPTY_CHOICE.getValue,
+    recordField: recordFieldOf(write),
+  }
 }
 
-export function varFromHeaderKeys(
-  sources: readonly DataSource[],
-): { ID: string; FELDER: string }[] {
-  const perId = new Map<string, string[]>()
-  for (const s of sources) {
-    const headerKey = headerKeyOf(s)
-    if (headerKey === '') continue
+function orderRead(raw: unknown): Order | null {
+  if (!isSeObject(raw) || typeof raw.kind !== 'string' || !isOrderKind(raw.kind)) return null
+  return orderAdapter(raw.kind).read(raw)
+}
 
-    const parts = /^([A-Za-z][A-Za-z0-9]*)_(\d+_\d+)$/.exec(headerKey)
-    if (!parts) continue
-    const fields = perId.get(parts[1]) ?? []
-    if (!fields.includes(parts[2])) fields.push(parts[2])
-    perId.set(parts[1], fields)
+function deliveryRead(raw: unknown): Delivery | null {
+  if (!isSeObject(raw) || typeof raw.kind !== 'string' || !isDeliveryKind(raw.kind)) return null
+  return deliveryAdapter(raw.kind).read(raw)
+}
+
+function writeRead(raw: unknown): Write | null {
+  if (!isSeObject(raw) || typeof raw.kind !== 'string' || !isWriteKind(raw.kind)) return null
+  return writeAdapter(raw.kind).read(raw)
+}
+
+function fieldsRead(raw: unknown): DataField[] {
+  const fields: DataField[] = []
+  for (const f of Array.isArray(raw) ? raw : []) {
+    if (!isSeObject(f)) continue
+    if (typeof f.code !== 'string' || f.code === '') continue
+    if (f.code.includes(SOURCES_DIVIDER)) continue
+    if (typeof f.name !== 'string' || f.name === '') continue
+
+    const length = typeof f.length === 'number' && Number.isFinite(f.length)
+      && f.length >= 1
+      ? Math.min(LENGTH_MAX, Math.round(f.length))
+      : undefined
+    fields.push({
+      code: f.code,
+      name: f.name,
+      ...(length === undefined ? {} : { length }),
+    })
   }
-  return [...perId].map(([ID, fields]) => ({ ID, FELDER: fields.join(',') }))
+  return fields
 }
 
 export function checkDataSources(raw: unknown): DataSource[] {
   if (!Array.isArray(raw)) return []
   const acc: DataSource[] = []
   const seen = new Set<string>()
-  for (const entry of raw) {
-    if (!entry || typeof entry !== 'object') continue
-    const e = entry as Record<string, unknown>
+  for (const e of raw) {
+    if (!isSeObject(e)) continue
     if (typeof e.id !== 'string' || e.id === '') continue
     if (seen.has(e.id)) continue
     if (e.id.includes(SOURCES_DIVIDER)) continue
     if (typeof e.name !== 'string' || e.name.trim() === '') continue
-    if (typeof e.kind !== 'string' || !SOURCE_KIND_IDS.includes(e.kind as SourceKindId)) continue
-    if (tableKeyNeeded(sourceKind(e.kind as SourceKindId))
-      && (typeof e.idbId !== 'string' || e.idbId.trim() === '')) continue
-    if (sourceKind(e.kind as SourceKindId).areaNeeded
-      && (typeof e.area !== 'string' || e.area.trim() === '')) continue
-    const fields: DataField[] = []
-    for (const f of Array.isArray(e.fields) ? e.fields : []) {
-      if (!f || typeof f !== 'object') continue
-      const ff = f as Record<string, unknown>
-      if (typeof ff.code !== 'string' || ff.code === '') continue
-      if (ff.code.includes(SOURCES_DIVIDER)) continue
-      if (typeof ff.name !== 'string' || ff.name === '') continue
+    if (!isPresetId(e.preset)) continue
+    const tableId = typeof e.tableId === 'string' ? e.tableId : ''
 
-      const length = typeof ff.length === 'number' && Number.isFinite(ff.length)
-        && ff.length >= 1
-        ? Math.min(LENGTH_MAX, Math.round(ff.length))
-        : undefined
-      fields.push({
-        code: ff.code,
-        name: ff.name,
-        ...(length === undefined ? {} : { length }),
-      })
+    // A part that no longer reads falls back to the list its preset offers.
+    let order = orderRead(e.order)
+    let delivery = deliveryRead(e.delivery)
+    if (!order || !delivery) {
+      const listed = sourcePreset(e.preset).list(EMPTY_CHOICE)
+      order = orderRead(listed.order)
+      delivery = deliveryRead(listed.delivery)
     }
+    if (!order || !delivery) continue
+    if ((orderAdapter(order.kind).needsTable || deliveryAdapter(delivery.kind).needsTable)
+      && tableId.trim() === '') continue
+    const write = writeRead(e.write) ?? { kind: 'none' }
 
-    const loadRelation = e.loadRelation === undefined ? null : checkLoadRelation(e.loadRelation)
-    const getValue = e.getValue === undefined ? null : checkGetValue(e.getValue)
     seen.add(e.id)
     acc.push({
       id: e.id,
       name: e.name,
-      kind: e.kind as SourceKindId,
-      ...(typeof e.idbId === 'string' && e.idbId !== '' ? { idbId: e.idbId } : {}),
-      ...(typeof e.recordField === 'string' && e.recordField !== '' ? { recordField: e.recordField } : {}),
-      ...(typeof e.headerKeyIndex === 'string' && e.headerKeyIndex !== ''
-        ? { headerKeyIndex: e.headerKeyIndex }
-        : {}),
-      ...(e.delivery === 'openRecord' ? { delivery: 'openRecord' as const } : {}),
+      preset: e.preset,
+      tableId,
+      order,
+      delivery,
+      write,
       ...(typeof e.fieldPrefix === 'string' && e.fieldPrefix !== ''
         ? { fieldPrefix: e.fieldPrefix }
         : {}),
-      ...(typeof e.area === 'string' && e.area.trim() !== ''
-        ? { area: e.area.trim().toUpperCase() }
-        : {}),
-      ...(loadRelation ? { loadRelation } : {}),
-      ...(getValue ? { getValue } : {}),
-      fields: fields,
+      fields: fieldsRead(e.fields),
     })
   }
   return acc
