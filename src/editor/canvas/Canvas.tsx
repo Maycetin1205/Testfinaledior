@@ -43,6 +43,7 @@ export function Canvas() {
     <DndContext.Provider value={dnd}>
       <div className="flex h-full w-full flex-col">
         <div
+          data-ff-canvas
           onClick={() => ed.selectBlock(null)}
 
           className="relative min-h-0 w-full flex-1 overflow-hidden rounded border border-line"

@@ -4,7 +4,7 @@ import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import type { ChoiceOption, Property } from '../../core/block/property'
-import { sourcesKey, type DataSource } from '../../core/data/dataSources'
+import { fieldPlainName, sourcesKey, type DataSource } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import type { ListGroup } from '@/editor/widgets/List'
@@ -17,6 +17,7 @@ import { NumberControl } from '../controls/NumberControl'
 import { PickerControl } from '../controls/PickerControl'
 import { SegmentControl } from '../controls/SegmentControl'
 import { useInputSession } from '../controls/useInputSession'
+import { controlShown, fieldSourceOf } from './controlShown'
 
 interface EditCallbacks {
   onBeginEditing: () => void
@@ -40,13 +41,19 @@ interface PickerCase {
   onChoose: (value: string) => void
 }
 
-// The name in front of a control, as .vfeld-label writes it.
-export function Labeled({ label, children }: { label: string; children: ReactNode }) {
+// The name in front of a control, as .vfeld-label writes it, and what it
+// refers to, like the field a Kanban column sorts by.
+export function Labeled({ label, detail = '', children }: {
+  label: string
+  detail?: string
+  children: ReactNode
+}) {
   return (
     <span className="flex min-w-0 items-center gap-[6px]">
       <span className="shrink-0 text-label font-semibold uppercase tracking-label text-muted">
         {label}
       </span>
+      {detail !== '' && <span className="shrink-0 font-semibold text-ink">{detail}</span>}
       {children}
     </span>
   )
@@ -69,12 +76,20 @@ export function BarControl({
   const kind = property.type.control
   const set = (v: unknown) => ed.updateProperty(block.id, propertyKey, v)
 
-  const fieldSource = property.sourceProp
-    ? sources.get(String(block.values[property.sourceProp] ?? ''))
-    : sourceInReach
+  const fieldSource = fieldSourceOf(property, block, sourceInReach, sources.list)
 
-  if (property.needsSource && !sourceInReach) return null
-  if (kind === 'field' && !fieldSource) return null
+  const parent = property.nameFromParentField !== undefined && block.parentId
+    ? ed.getNode(block.parentId)
+    : undefined
+  const parentField = parent && property.nameFromParentField !== undefined
+    ? fieldPlainName(
+      String(parent.values[property.nameFromParentField] ?? ''),
+      ed.dataSourceFor(parent.id)?.id ?? '',
+      ed.sourcesFor(parent.id).map((q) => q.source),
+    )
+    : ''
+
+  if (!controlShown(property, block, sourceInReach, sources.list)) return null
 
   const pickerCase = (): PickerCase | undefined => {
     switch (kind) {
@@ -168,7 +183,7 @@ export function BarControl({
       return <Tile label={property.label} on={value === true} onToggle={set} />
     case 'text':
       return (
-        <Labeled label={property.label}>
+        <Labeled label={property.label} detail={parentField}>
           <BarText property={property} value={String(value ?? '')} onChange={set} {...session} />
         </Labeled>
       )

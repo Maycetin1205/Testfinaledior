@@ -41,6 +41,7 @@ export function deletableProperty(): Property<boolean> {
   return booleanProperty({
     default: false,
     label: 'Zeilen löschbar',
+    place: 'display',
     attribute: 'deletable',
     needsSource: true,
   })

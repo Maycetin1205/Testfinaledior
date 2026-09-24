@@ -65,6 +65,7 @@ export class Table extends BlockElement {
 
 defineBlock(Table, {
   name: 'Tabelle',
+  head: '.head',
   category: 'display',
   properties: tableProperties,
   capabilities: listCapabilities(COLUMNS_BINDING),

@@ -47,9 +47,11 @@ interface PropertyType<V> {
   options?: readonly ChoiceOption[]
 }
 
-// Where the builder edits the property: in the bar at the block, on the block
-// itself, or nowhere (it has its own window or the editor writes it).
-export type PropertyPlace = 'bar' | 'block' | 'none'
+// Where the builder edits the property: in the bar at the block, in one of the
+// bar's small windows (display switches, what the source holds, the lookup),
+// on the block itself, or nowhere (it has its own window or the editor writes
+// it).
+export type PropertyPlace = 'bar' | 'display' | 'source' | 'lookup' | 'block' | 'none'
 
 export interface Property<V> {
   type: PropertyType<V>
@@ -77,6 +79,10 @@ export interface Property<V> {
 
   // A field property keeps the code; this one mirrors the readable name.
   plainNameProp?: string
+
+  // The property of the parent block holding a field; the bar names that field
+  // beside this one.
+  nameFromParentField?: string
 }
 
 export type PropertyMap = { readonly [name: string]: Property<PropertyValue> }
@@ -104,6 +110,7 @@ interface Init<V> {
   onlyUnderSiblings?: boolean
   sourceProp?: string
   plainNameProp?: string
+  nameFromParentField?: string
 }
 
 function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V>> = {}): Property<V> {
@@ -118,6 +125,7 @@ function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V
     ...(init.onlyUnderSiblings !== undefined ? { onlyUnderSiblings: init.onlyUnderSiblings } : {}),
     ...(init.sourceProp !== undefined ? { sourceProp: init.sourceProp } : {}),
     ...(init.plainNameProp !== undefined ? { plainNameProp: init.plainNameProp } : {}),
+    ...(init.nameFromParentField !== undefined ? { nameFromParentField: init.nameFromParentField } : {}),
     ...extra,
   }
 }

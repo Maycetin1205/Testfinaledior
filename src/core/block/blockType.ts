@@ -46,6 +46,10 @@ export interface BlockDeclaration {
   childDirection?: Direction
   inPalette?: boolean
 
+  // A selector in the shadow root: the part at the top that stays free when the
+  // bar has to lie inside the block, like the head row of a table.
+  head?: string
+
   templateKind?: { type: string; name: string; direction?: Direction }
   containerFrame?: boolean
 

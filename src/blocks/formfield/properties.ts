@@ -65,18 +65,21 @@ export const formFieldProperties = {
   valueField: fieldProperty({
     default: '',
     label: 'Feld',
+    place: 'source',
     attribute: 'valuefield',
     when: { key: 'fieldType', noneOf: WITHOUT_VALUE },
   }),
   lookupSource: sourceProperty({
     default: '',
     label: 'Quelle',
+    place: 'lookup',
     attribute: 'lookupsource',
     when: ONLY_LOOKUP,
   }),
   storageField: fieldProperty({
     default: '',
     label: 'Gespeichert wird',
+    place: 'lookup',
     attribute: 'storagefield',
     sourceProp: 'lookupSource',
     plainNameProp: 'storageTitle',
@@ -115,6 +118,7 @@ export const formFieldProperties = {
   onlyHit: booleanProperty({
     default: false,
     label: 'Einzigen Treffer übernehmen',
+    place: 'lookup',
     attribute: 'onlyhit',
     when: ONLY_LOOKUP,
   }),

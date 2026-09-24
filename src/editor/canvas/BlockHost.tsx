@@ -179,6 +179,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           block={block}
           def={def}
           host={rootRef}
+          element={element}
           onRemove={editor.isRemoveProtected(block.id) ? undefined : () => editor.removeBlock(blockRef.current.id)}
         />
       )}

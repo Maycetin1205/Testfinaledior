@@ -19,6 +19,7 @@ export const kanbanProperties = {
   columnsField: fieldProperty({
     default: '',
     label: 'Einsortieren nach',
+    place: 'source',
     attribute: 'columnsfield',
   }),
   dayField: dayFieldProperty(),
@@ -36,8 +37,9 @@ export const kanbanColumnProperties = {
   }),
   value: textProperty({
     default: '',
-    label: 'Wert im ERP',
+    label: 'Feldwert',
     attribute: 'value',
+    nameFromParentField: 'columnsField',
   }),
   catchAll: booleanProperty({
     default: false,

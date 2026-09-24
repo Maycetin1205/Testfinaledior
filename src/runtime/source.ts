@@ -25,6 +25,7 @@ export function dayFieldProperty(): Property<string> {
   return fieldProperty({
     default: '',
     label: 'Tag filtern nach',
+    place: 'source',
     attribute: 'dayfield',
   })
 }

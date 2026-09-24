@@ -41,6 +41,7 @@ export class KanbanColumn extends BlockElement {
 
 defineBlock(KanbanColumn, {
   name: 'Kanban-Spalte',
+  head: '.head',
   category: 'display',
   properties: kanbanColumnProperties,
 

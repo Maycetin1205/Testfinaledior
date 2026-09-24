@@ -32,7 +32,8 @@ export function EditorShell() {
           <BlockPalette />
         </aside>
 
-        <main className="min-w-0 flex-1 overflow-auto bg-[hsl(var(--canvas-bg))] p-4">
+        {/* Above the mask room for the bar of a block in its first row. */}
+        <main className="min-w-0 flex-1 overflow-auto bg-[hsl(var(--canvas-bg))] px-4 pb-4 pt-[20px]">
           <Canvas />
         </main>
       </div>
