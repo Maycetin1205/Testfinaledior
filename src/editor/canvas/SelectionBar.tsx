@@ -39,13 +39,24 @@ function clipParent(el: HTMLElement): HTMLElement | null {
   return null
 }
 
+interface Limit {
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+function limitOf(el: HTMLElement): Limit {
+  const clip = clipParent(el)
+  return clip
+    ? clip.getBoundingClientRect()
+    : { top: 0, bottom: window.innerHeight, left: 0, right: window.innerWidth }
+}
+
 function placementFor(el: HTMLElement | null): Placement {
   if (el === null) return 'inside'
   const r = el.getBoundingClientRect()
-  const clip = clipParent(el)
-  const limit = clip
-    ? clip.getBoundingClientRect()
-    : { top: 0, bottom: window.innerHeight, right: window.innerWidth }
+  const limit = limitOf(el)
   if (r.width >= WIDTH) {
     if (r.top - BAR >= limit.top) return 'top'
     if (r.bottom + BAR <= limit.bottom) return 'bottom'
@@ -61,6 +72,19 @@ const STYLE: Record<Placement, { top: string; bottom: string; right: string; lef
   inside: { top: 'auto', bottom: '4px', right: '4px', left: 'auto' },
 }
 
+// A bar flush right with a block narrower than itself would stick out of
+// the canvas on the left: it stands flush left with the block instead, as far
+// from its edge as it stood from the right one, and if the block itself
+// begins outside, where the canvas begins.
+function keepInside(bar: HTMLElement, el: HTMLElement, placement: Placement): void {
+  if (placement === 'right') return
+  const limit = limitOf(el)
+  if (bar.getBoundingClientRect().left >= limit.left) return
+  const edge = parseFloat(STYLE[placement].right)
+  bar.style.right = 'auto'
+  bar.style.left = `${Math.max(edge, limit.left - el.getBoundingClientRect().left)}px`
+}
+
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
 export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) {
@@ -70,7 +94,10 @@ export function SelectionBar({ block, def, host, onRemove }: SelectionBarProps) 
   const barRef = useRef<HTMLDivElement | null>(null)
   useLayoutEffect(() => {
     const el = barRef.current
-    if (el) Object.assign(el.style, STYLE[placementFor(host.current)])
+    if (!el) return
+    const placement = placementFor(host.current)
+    Object.assign(el.style, STYLE[placement])
+    if (host.current) keepInside(el, host.current, placement)
   }, [host, block])
   const kind = def?.childButton
 
