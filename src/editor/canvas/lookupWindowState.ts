@@ -5,8 +5,8 @@ import {
   coerceLookupColumns,
   windowWidthFor,
   openLookup,
-} from '../../blocks/behavior/lookup'
-import { DIALOG_FRAME_TAG, WINDOW_HEIGHT, type DialogFrame } from '../../blocks/behavior/DialogFrame'
+} from '../../blocks/lookup/lookup'
+import { DIALOG_FRAME_TAG, WINDOW_HEIGHT, type DialogFrame } from '../../blocks/dialog/DialogFrame'
 import type { Column } from '../../blocks/list/columns'
 import type { BlockNode } from '../../core/block/tree'
 import { splitBinding } from '../../core/block/blockType'

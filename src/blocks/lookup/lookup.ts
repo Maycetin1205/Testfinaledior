@@ -1,17 +1,17 @@
-import { html, render, type TemplateResult } from 'lit'
+import { html, render } from 'lit'
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
 import type { ListBinding } from '../../core/block/listBinding'
 import { blockType } from '../../core/block/registry'
 import { fieldRead } from '../../softengine/data'
 import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
-import { rowsToSelection } from './selection'
+import { rowsToSelection } from '../behavior/selection'
 import {
   DIALOG_SIZE_EVENT,
   DIALOG_FRAME_TAG,
   WINDOW_WIDTH,
   type DialogSizeDetail,
   type DialogFrame,
-} from './DialogFrame'
+} from '../dialog/DialogFrame'
 import { rememberedSorting, sortIndices } from '../list/sorting'
 import { LOOKUP_KEY_PART } from '../list/operatorState'
 import { coerceColumns, DEFAULT_TITLE, FIELD_KEY_PREFIX, type Column } from '../list/columns'
@@ -32,13 +32,6 @@ interface WindowTable extends HTMLElement {
   setSearchText: (text: string) => void
   focusSearch: () => boolean
   updateComplete: Promise<boolean>
-}
-
-export function magnifierIcon(): TemplateResult {
-  return html`<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-      <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
-      <line x1="10.4" y1="10.4" x2="14" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
-    </svg>`
 }
 
 function lookupKey(el: HTMLElement, spot = 'field'): string {
@@ -201,32 +194,6 @@ export function fetchEntries(e: LookupSetting): EntriesResult {
   if (rows === null) return { ok: false }
   const displayField = displayFieldOf(coerceLookupColumns([...e.columns]), e.storageField)
   return { ok: true, entries: windowEntries(e.el, rows, displayField, e.storageField) }
-}
-
-export function findOnlyHit(
-  entries: readonly Entry[],
-  fieldEmpty: boolean,
-): Entry | null {
-  return fieldEmpty && entries.length === 1 ? entries[0] : null
-}
-
-export function recordFitsSelection(el: HTMLElement, record: unknown): boolean {
-  const { rows, filtered } = rowsToSelection(el, [record])
-  return !filtered || rows.length > 0
-}
-
-export type LeaveAction = 'nothing' | 'clear' | 'back'
-
-export function actionOnLeave(
-  typed: string,
-
-  confirmedDisplay: string,
-  confirmedValue: string,
-): LeaveAction {
-  if (typed === '') {
-    return confirmedDisplay === '' && confirmedValue === '' ? 'nothing' : 'clear'
-  }
-  return typed === confirmedDisplay ? 'nothing' : 'back'
 }
 
 let open: HTMLElement | null = null

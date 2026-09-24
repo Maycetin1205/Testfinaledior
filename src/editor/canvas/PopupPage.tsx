@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { DIALOG_EDGE, DIALOG_CLOSE_EVENT } from '../../blocks/behavior/DialogFrame'
+import { DIALOG_EDGE, DIALOG_CLOSE_EVENT } from '../../blocks/dialog/DialogFrame'
 import { blockType } from '../../core/block/registry'
 import { useEditor } from '../state/useEditor'
 import { BlockHost } from './BlockHost'

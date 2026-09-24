@@ -7,7 +7,7 @@ import {
 import { listProperties } from '../list/listDeclaration'
 import { captureColumnsProperty } from './column'
 import { deletableProperty } from './body'
-import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../behavior/DialogFrame'
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 
 export const captureProperties = {
   ...listProperties(),

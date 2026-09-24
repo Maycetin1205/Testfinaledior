@@ -1,7 +1,7 @@
 import { Button } from '@/editor/widgets/Button'
 import { Group } from '@/editor/widgets/Group'
 import type { BlockNode } from '../../core/block/tree'
-import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../blocks/behavior/DialogFrame'
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../../blocks/dialog/DialogFrame'
 import { numberProperty, propertyVisible } from '../../core/block/property'
 import type { LookupWindow } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'

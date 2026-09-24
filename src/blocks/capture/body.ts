@@ -1,7 +1,7 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { booleanProperty, type Property } from '../../core/block/property'
-import { inputSpotTpl } from '../behavior/inputSpot'
+import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
 import { asNumber } from '../list/sorting'

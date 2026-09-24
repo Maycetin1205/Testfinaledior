@@ -2,7 +2,7 @@ import { html, type CSSResultGroup, type PropertyValues, type TemplateResult } f
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { ROOT_TYPE } from '../../core/block/tree'
-import '../behavior/DialogFrame'
+import '../dialog/DialogFrame'
 import { popupStyle } from './popupStyle'
 import { popupProperties, type PopupValues } from './properties'
 

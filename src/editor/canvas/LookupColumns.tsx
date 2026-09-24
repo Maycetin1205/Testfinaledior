@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/editor/widgets/cn'
 import { LEVEL_OVER_MASK_WINDOW } from '@/editor/widgets/Popover'
 import { Plus } from '@/editor/icons/icon'
-import type { DialogFrame } from '../../blocks/behavior/DialogFrame'
+import type { DialogFrame } from '../../blocks/dialog/DialogFrame'
 import type { Table } from '../../blocks/table/Table'
 import {
   newColumn,

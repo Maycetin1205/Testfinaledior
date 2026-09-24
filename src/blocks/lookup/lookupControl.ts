@@ -1,26 +1,57 @@
-import { html, type TemplateResult } from 'lit'
-import { giverIdOf, clearSelection, setSelection } from '../behavior/selection'
+import {
+  html,
+  type ReactiveController,
+  type ReactiveControllerHost,
+  type TemplateResult,
+} from 'lit'
+import { giverIdOf, clearSelection, setSelection, rowsToSelection } from '../behavior/selection'
 import {
   automaticColumns,
-  findOnlyHit,
-  actionOnLeave,
   fetchEntries,
-  magnifierIcon,
   openLookup,
-  recordFitsSelection,
   closeLookupFor,
   suggestionsInWindowState,
   type Entry,
-} from '../behavior/lookup'
+} from './lookup'
 import type { Column } from '../list/columns'
-import { keyOf, SuggestionState } from '../behavior/suggestionState'
-import { inputSpotTpl } from '../behavior/inputSpot'
+import { keyOf, SuggestionState } from './suggestionState'
+import { inputSpotTpl } from './inputSpot'
 
-// The lookup window draws its rows with the table block.
-import '../table/Table'
+function magnifierIcon(): TemplateResult {
+  return html`<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"></circle>
+      <line x1="10.4" y1="10.4" x2="14" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
+    </svg>`
+}
+
+function findOnlyHit(
+  entries: readonly Entry[],
+  fieldEmpty: boolean,
+): Entry | null {
+  return fieldEmpty && entries.length === 1 ? entries[0] : null
+}
+
+function recordFitsSelection(el: HTMLElement, record: unknown): boolean {
+  const { rows, filtered } = rowsToSelection(el, [record])
+  return !filtered || rows.length > 0
+}
+
+type LeaveAction = 'nothing' | 'clear' | 'back'
+
+function actionOnLeave(
+  typed: string,
+
+  confirmedDisplay: string,
+  confirmedValue: string,
+): LeaveAction {
+  if (typed === '') {
+    return confirmedDisplay === '' && confirmedValue === '' ? 'nothing' : 'clear'
+  }
+  return typed === confirmedDisplay ? 'nothing' : 'back'
+}
 
 export interface LookupControlHost {
-  block: HTMLElement
+  block: ReactiveControllerHost & HTMLElement
   report: () => void
   inEditor: () => boolean
 
@@ -38,7 +69,7 @@ export interface LookupControlHost {
   changed: () => void
 }
 
-export class LookupControl {
+export class LookupControl implements ReactiveController {
   private display = ''
 
   private typed: string | null = null
@@ -51,6 +82,7 @@ export class LookupControl {
 
   constructor(host: LookupControlHost) {
     this.host = host
+    host.block.addController(this)
   }
 
   get inField(): string {
@@ -63,7 +95,7 @@ export class LookupControl {
     return this.list.open
   }
 
-  refresh(): void {
+  hostUpdate(): void {
     this.list.show(this.currentSuggestions())
   }
 
@@ -235,7 +267,7 @@ export class LookupControl {
     if (hit) this.take(hit.display, hit.value, hit.record)
   }
 
-  cleanUp(): void {
+  hostDisconnected(): void {
     closeLookupFor(this.host.block)
   }
 }

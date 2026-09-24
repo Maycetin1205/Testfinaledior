@@ -2,10 +2,12 @@ import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateR
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable } from '../../core/block/capability'
-import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../behavior/lookup'
+import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
 import { readDate, dayKey } from '../behavior/chosenDay'
-import { suggestionStyle } from '../behavior/suggestionList'
-import { LookupControl } from './lookupControl'
+import { suggestionStyle } from '../lookup/suggestionList'
+import { LookupControl } from '../lookup/lookupControl'
+// The lookup window draws its rows with the table block.
+import '../table/Table'
 import { disconnectValue, connectValue } from './valueBinding'
 import { fieldStyle } from './formFieldStyle'
 import {
@@ -148,11 +150,6 @@ export class FormField extends BlockElement {
     )
   }
 
-  protected override willUpdate(changed: PropertyValues): void {
-    super.willUpdate(changed)
-    this._lookup.refresh()
-  }
-
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
 
@@ -202,7 +199,6 @@ export class FormField extends BlockElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback()
     disconnectValue(this)
-    this._lookup.cleanUp()
   }
 }
 

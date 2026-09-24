@@ -15,10 +15,10 @@ import {
   sourcesRows,
   suggestionsInWindowState,
   type Entry,
-} from '../behavior/lookup'
+} from '../lookup/lookup'
 import { asNumber } from '../list/sorting'
 import { rowsIndexOf } from '../list/sourceRows'
-import { SuggestionState, type KeyAction } from '../behavior/suggestionState'
+import { SuggestionState, type KeyAction } from '../lookup/suggestionState'
 import { fieldRead } from '../../softengine/data'
 import {
   arrivalCheck,
