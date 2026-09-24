@@ -85,9 +85,9 @@ function headDepth(el: HTMLElement, element: HTMLElement | null, head: string | 
   return part ? Math.max(0, part.getBoundingClientRect().bottom - el.getBoundingClientRect().top) : 0
 }
 
-// Above the top edge; where that is taken, inside at the top of the block below
-// its head; where that is taken as well, below the block. Flush left, else
-// flush right. Never over another block while there is a place without one.
+// Above the top edge, where no other block and no edge is in the way; else
+// inside on the block's own top edge, below the column heads of a table. Flush
+// left, else flush right, whichever touches no other block.
 function spotFor(bar: HTMLElement, el: HTMLElement, depth: number): { top: number; left: number } {
   const room = roomOf(el)
   bar.style.maxWidth = `${Math.max(0, room.right - room.left)}px`
@@ -97,15 +97,15 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number): { top: numbe
   const others = otherBlocks(el)
   const inRoom = (left: number) => Math.max(room.left, Math.min(left, room.right - w))
   const lefts = [inRoom(r.left), inRoom(r.right - w)]
-  for (const top of [r.top - GAP - h, r.top + depth, r.bottom + GAP]) {
-    for (const left of lefts) {
-      const box = { top, bottom: top + h, left, right: left + w }
-      if (box.top >= room.top && box.bottom <= room.bottom && !others.some((o) => overlaps(box, o))) {
-        return { top, left }
-      }
-    }
+  const free = (top: number, left: number) => {
+    const box = { top, bottom: top + h, left, right: left + w }
+    return box.top >= room.top && box.bottom <= room.bottom && !others.some((o) => overlaps(box, o))
   }
-  return { top: r.top + depth, left: lefts[0] }
+  const above = r.top - GAP - h
+  const aboveLeft = lefts.find((left) => free(above, left))
+  if (aboveLeft !== undefined) return { top: above, left: aboveLeft }
+  const inside = r.top + depth
+  return { top: inside, left: lefts.find((left) => free(inside, left)) ?? lefts[0] }
 }
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
