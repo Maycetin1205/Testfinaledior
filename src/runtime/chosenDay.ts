@@ -1,3 +1,5 @@
+import { maskState } from './maskState'
+
 // d.m.yyyy, d.m.yy or yyyy-mm-dd at the start of the text, a time may follow.
 export function readDate(value: unknown): Date | null {
   const text = String(value ?? '').trim()
@@ -34,21 +36,20 @@ export function dayKey(value: unknown): string {
   return date ? dayOf(date) : ''
 }
 
-let day = ''
-const listeners = new Set<() => void>()
-
 export function chosenDay(): string {
-  return day
+  return maskState.chosenDay.day
 }
 
 export function setChosenDay(value: unknown): void {
   const next = dayKey(value)
-  if (next === day) return
-  day = next
-  listeners.forEach((cb) => cb())
+  const chosen = maskState.chosenDay
+  if (next === chosen.day) return
+  chosen.day = next
+  chosen.listeners.forEach((cb) => cb())
 }
 
 export function onChosenDay(cb: () => void): () => void {
+  const listeners = maskState.chosenDay.listeners
   listeners.add(cb)
   return () => { listeners.delete(cb) }
 }

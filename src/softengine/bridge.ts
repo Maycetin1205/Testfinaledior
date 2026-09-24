@@ -33,14 +33,29 @@ function refreshDataBase(): void {
   if (typeof g.InitialisiereDatenBasis === 'function') hostCall(() => g.InitialisiereDatenBasis())
 }
 
-const listeners = new Set<(delivery: boolean) => void>()
-const answerListeners = new Set<(raw: unknown) => void>()
+interface BridgeState {
+  listeners: Set<(delivery: boolean) => void>
+  answerListeners: Set<(raw: unknown) => void>
+  pending: boolean
+  pendingDelivery: boolean
+  afterRun: ReturnType<typeof setInterval> | null
+  lastSignature: string
+  openSignature: string | null
+  booted: boolean
+}
+
+const bridge: BridgeState = {
+  listeners: new Set(),
+  answerListeners: new Set(),
+  pending: false,
+  pendingDelivery: false,
+  afterRun: null,
+  lastSignature: '',
+  openSignature: null,
+  booted: false,
+}
 
 const AFTER_RUN_MS = 800
-
-let pending = false
-let pendingDelivery = false
-let afterRun: ReturnType<typeof setInterval> | null = null
 
 function deepestActive(): Element | null {
   let el: Element | null = document.activeElement
@@ -58,53 +73,53 @@ function focusOnUs(): boolean {
 }
 
 function afterRunStart(): void {
-  if (afterRun !== null) return
-  afterRun = setInterval(() => {
+  if (bridge.afterRun !== null) return
+  bridge.afterRun = setInterval(() => {
     if (focusOnUs()) return
     afterRunStop()
-    if (!pending) return
-    pending = false
-    const ran = pendingDelivery
-    pendingDelivery = false
+    if (!bridge.pending) return
+    bridge.pending = false
+    const ran = bridge.pendingDelivery
+    bridge.pendingDelivery = false
     spread(ran)
   }, AFTER_RUN_MS)
 }
 
 function afterRunStop(): void {
-  if (afterRun === null) return
-  clearInterval(afterRun)
-  afterRun = null
+  if (bridge.afterRun === null) return
+  clearInterval(bridge.afterRun)
+  bridge.afterRun = null
 }
 
 export function onSeData(cb: (delivery: boolean) => void): () => void {
-  listeners.add(cb)
-  return () => { listeners.delete(cb) }
+  bridge.listeners.add(cb)
+  return () => { bridge.listeners.delete(cb) }
 }
 
 export function onSeAnswer(cb: (raw: unknown) => void): () => void {
-  answerListeners.add(cb)
-  return () => { answerListeners.delete(cb) }
+  bridge.answerListeners.add(cb)
+  return () => { bridge.answerListeners.delete(cb) }
 }
 
 function spread(delivery: boolean): void {
   let complete = true
-  listeners.forEach((cb) => {
+  bridge.listeners.forEach((cb) => {
     try { cb(delivery) } catch { complete = false }
   })
-  if (complete && openSignature !== null) lastSignature = openSignature
-  openSignature = null
+  if (complete && bridge.openSignature !== null) bridge.lastSignature = bridge.openSignature
+  bridge.openSignature = null
 }
 
 function ring(delivery: boolean): void {
-  if (delivery) pendingDelivery = true
+  if (delivery) bridge.pendingDelivery = true
   if (focusOnUs()) {
-    pending = true
+    bridge.pending = true
     afterRunStart()
     return
   }
-  pending = false
-  const ran = pendingDelivery
-  pendingDelivery = false
+  bridge.pending = false
+  const ran = bridge.pendingDelivery
+  bridge.pendingDelivery = false
   spread(ran)
 }
 
@@ -118,7 +133,7 @@ export function freshDataRequest(): void {
     && hostCall(() => g.ReloadInputJSON())
   if (!requested) refreshDataBase()
 
-  pendingDelivery = false
+  bridge.pendingDelivery = false
   ring(false)
 }
 
@@ -127,21 +142,18 @@ function dataAreNew(): boolean {
   const raw = isObject(g.SEDATA) ? g.SEDATA.Daten : undefined
   if (!isObject(raw)) return false
   const signature = signatureOf(raw)
-  if (signature !== '' && signature === lastSignature) return false
-  openSignature = signature
+  if (signature !== '' && signature === bridge.lastSignature) return false
+  bridge.openSignature = signature
   return true
 }
 
 function answerRing(raw: unknown): void {
-  answerListeners.forEach((cb) => {
+  bridge.answerListeners.forEach((cb) => {
     hostCall(() => cb(raw))
   })
 }
 
 const SIGNATURE_LIMIT = 2_000_000
-
-let lastSignature = ''
-let openSignature: string | null = null
 
 function signatureOf(data: JsonObject): string {
   try {
@@ -164,8 +176,8 @@ function seConsume(raw: unknown): void {
   refreshDataBase()
 
   const signature = signatureOf(data)
-  if (signature !== '' && signature === lastSignature) return
-  openSignature = signature
+  if (signature !== '' && signature === bridge.lastSignature) return
+  bridge.openSignature = signature
   ring(true)
 }
 
@@ -186,11 +198,9 @@ function buildFocusBridge(): void {
   seWindow().basisHTML_DoSetFocusToHTML = (): boolean => focusOnUs()
 }
 
-let booted = false
-
 export function startSe(): void {
-  if (booted) return
-  booted = true
+  if (bridge.booted) return
+  bridge.booted = true
   tryInitSe()
   const g = seWindow()
 

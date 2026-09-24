@@ -5,6 +5,7 @@ import { blockType } from '../../core/block/registry'
 import { fieldRead } from '../../softengine/data'
 import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
 import { rowsToSelection } from '../../runtime/selection'
+import { maskState } from '../../runtime/maskState'
 import {
   DIALOG_SIZE_EVENT,
   DIALOG_FRAME_TAG,
@@ -196,26 +197,23 @@ export function fetchEntries(e: LookupSetting): EntriesResult {
   return { ok: true, entries: windowEntries(e.el, rows, displayField, e.storageField) }
 }
 
-let open: HTMLElement | null = null
-let openFor: HTMLElement | null = null
-let backFocus: HTMLElement | (() => void) | null = null
-
 function magnifierOf(el: HTMLElement): HTMLElement | null {
   return el.shadowRoot?.querySelector<HTMLElement>('.magnifier') ?? null
 }
 
 function close(withFocus = true): void {
-  const target = withFocus ? backFocus : null
-  backFocus = null
-  open?.remove()
-  open = null
-  openFor = null
+  const lookupWindow = maskState.lookupWindow
+  const target = withFocus ? lookupWindow.backFocus : null
+  lookupWindow.backFocus = null
+  lookupWindow.open?.remove()
+  lookupWindow.open = null
+  lookupWindow.openFor = null
   if (typeof target === 'function') target()
   else target?.focus()
 }
 
 export function closeLookupFor(el: HTMLElement): void {
-  if (openFor === el) close(false)
+  if (maskState.lookupWindow.openFor === el) close(false)
 }
 
 type ColumnsSource = Pick<LookupArgs, 'storageField' | 'storageTitle'>
@@ -307,10 +305,11 @@ export function openLookup(args: LookupArgs): void {
     args.onAdopt(entry.display, entry.value, entry.record)
   })
 
-  backFocus = args.backFocus ?? magnifierOf(args.el)
+  const lookupWindow = maskState.lookupWindow
+  lookupWindow.backFocus = args.backFocus ?? magnifierOf(args.el)
   document.body.appendChild(holder)
-  open = holder
-  openFor = args.el
+  lookupWindow.open = holder
+  lookupWindow.openFor = args.el
 
   const brought = args.searchText ?? ''
   if (brought !== '') table.setSearchText(brought)

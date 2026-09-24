@@ -17,12 +17,7 @@ import {
   selectionNumber,
   traitOf,
 } from './selection'
-
-const lastPrint = new Map<string, string>()
-
-const silentLoaded = new Map<string, Set<string>>()
-
-let wired = false
+import { maskState } from './maskState'
 
 function defsWithRecordChoice(): Map<string, BlockType> {
   const map = new Map<string, BlockType>()
@@ -71,6 +66,7 @@ function chosenRowOfSource(
 }
 
 function mayLoad(sourceId: string, print: string, byControls: boolean): boolean {
+  const { lastPrint, silentLoaded } = maskState.fetchingSources
   if (lastPrint.get(sourceId) === print) return false
   if (byControls) {
     silentLoaded.set(sourceId, new Set([print]))
@@ -111,8 +107,8 @@ function fetchQuerySources(): void {
 }
 
 export function wireFetchingSources(): void {
-  if (wired) return
-  wired = true
+  if (maskState.fetchingSources.wired) return
+  maskState.fetchingSources.wired = true
   onSelectionList(checkFetchingSources)
 
   onSeData((delivery) => {

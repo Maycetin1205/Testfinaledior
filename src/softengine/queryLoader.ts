@@ -8,18 +8,20 @@ export interface QuerySource {
   name: string
 }
 
-const fetched = new Set<string>()
-const inFlight = new Set<string>()
+const queries = {
+  fetched: new Set<string>(),
+  inFlight: new Set<string>(),
+}
 
 export function fetchQuerySource(source: QuerySource, query: RuntimeQuery): void {
-  if (fetched.has(source.id) || inFlight.has(source.id)) return
-  inFlight.add(source.id)
+  if (queries.fetched.has(source.id) || queries.inFlight.has(source.id)) return
+  queries.inFlight.add(source.id)
   void (async () => {
     const answer = await queryRun(query, source.name)
-    inFlight.delete(source.id)
+    queries.inFlight.delete(source.id)
 
     if (answer.rows === undefined) return
-    fetched.add(source.id)
+    queries.fetched.add(source.id)
     setFetchedRows(source.name, answer.rows)
     reportTrigger()
   })()

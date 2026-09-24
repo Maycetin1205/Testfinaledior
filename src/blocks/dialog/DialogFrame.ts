@@ -1,5 +1,6 @@
 import { css, html, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
+import { maskState } from '../../runtime/maskState'
 
 export const DIALOG_FRAME_TAG = 'ff-dialog'
 export const DIALOG_CLOSE_EVENT = 'ff-dialog-close'
@@ -27,17 +28,16 @@ function pixel(value: unknown, replacement: number): number {
   return Number.isFinite(number) && number > 0 ? number : replacement
 }
 
-const catchingFrames: DialogFrame[] = []
-
 function onEscape(event: KeyboardEvent): void {
   if (event.key !== 'Escape') return
-  const topmost = catchingFrames.filter((f) => f.isConnected).pop()
+  const topmost = maskState.catchingFrames.filter((f) => f.isConnected).pop()
   if (!topmost) return
   event.stopPropagation()
   topmost.close()
 }
 
 function catchesEscape(frame: DialogFrame, catches: boolean): void {
+  const catchingFrames = maskState.catchingFrames
   const slot = catchingFrames.indexOf(frame)
   if (catches && slot < 0) {
     catchingFrames.push(frame)

@@ -2,6 +2,7 @@ import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../core/data/selectionFollow'
 import { fieldRead, isObject } from '../softengine/data'
 import { pairListFromAttribute } from './pairList'
+import { maskState } from './maskState'
 
 // Two deliveries of the same record may list their fields in a different order,
 // so the trait sorts them before it compares.
@@ -17,49 +18,41 @@ export function traitOf(row: unknown): string {
   }
 }
 
-const state = new Map<string, { row: unknown; trait: string; number: number }>()
-const listener = new Set<(byControls: boolean) => void>()
-
-let selectionCounter = 0
-
-let messageRuns = false
-let lateReport = false
-let toControls = false
-
 function report(byControls: boolean): void {
-  if (messageRuns) {
-    lateReport = true
-    toControls ||= byControls
+  const selection = maskState.selection
+  if (selection.messageRuns) {
+    selection.lateReport = true
+    selection.toControls ||= byControls
     return
   }
-  messageRuns = true
+  selection.messageRuns = true
   let origin = byControls
   try {
     do {
-      lateReport = false
-      toControls = false
-      listener.forEach((cb) => cb(origin))
-      origin = toControls
-    } while (lateReport)
+      selection.lateReport = false
+      selection.toControls = false
+      selection.listeners.forEach((cb) => cb(origin))
+      origin = selection.toControls
+    } while (selection.lateReport)
   } finally {
-    messageRuns = false
+    selection.messageRuns = false
   }
 }
 
 export function onSelectionList(cb: (byControls: boolean) => void): void {
-  listener.add(cb)
+  maskState.selection.listeners.add(cb)
 }
 
 export function selectionFor(giverId: string): unknown | undefined {
-  return state.get(giverId)?.row
+  return maskState.selection.chosen.get(giverId)?.row
 }
 
 function selectionTrait(giverId: string): string {
-  return state.get(giverId)?.trait ?? ''
+  return maskState.selection.chosen.get(giverId)?.trait ?? ''
 }
 
 export function selectionNumber(giverId: string): number {
-  return state.get(giverId)?.number ?? 0
+  return maskState.selection.chosen.get(giverId)?.number ?? 0
 }
 
 export function giverIdOf(el: Element): string {
@@ -81,10 +74,11 @@ export function relocateSelection<T>(
   })
   if (hit.length === 0) clearSelection(giverId)
   else {
-    const old = state.get(giverId)
+    const chosen = maskState.selection.chosen
+    const old = chosen.get(giverId)
     const row = rowOf(candidates[hit[0]])
     if (old && traitOf(old.row) !== traitOf(row)) {
-      state.set(giverId, { ...old, row })
+      chosen.set(giverId, { ...old, row })
       report(false)
     }
   }
@@ -95,9 +89,10 @@ export function chooseSelection(giverId: string, row: unknown, key = ''): void {
   if (giverId === '') return
   const trait = key || traitOf(row)
   if (trait === '') return
-  const old = state.get(giverId)
-  if (old && old.trait === trait) state.delete(giverId)
-  else state.set(giverId, { row, trait, number: ++selectionCounter })
+  const selection = maskState.selection
+  const old = selection.chosen.get(giverId)
+  if (old && old.trait === trait) selection.chosen.delete(giverId)
+  else selection.chosen.set(giverId, { row, trait, number: ++selection.counter })
   report(true)
 }
 
@@ -105,14 +100,16 @@ export function setSelection(giverId: string, row: unknown, byControls = false, 
   if (giverId === '') return
   const trait = key || traitOf(row)
   if (trait === '') return
-  if (state.get(giverId)?.trait === trait) return
-  state.set(giverId, { row, trait, number: ++selectionCounter })
+  const selection = maskState.selection
+  if (selection.chosen.get(giverId)?.trait === trait) return
+  selection.chosen.set(giverId, { row, trait, number: ++selection.counter })
   report(byControls)
 }
 
 export function clearSelection(giverId: string): void {
-  if (!state.has(giverId)) return
-  state.delete(giverId)
+  const chosen = maskState.selection.chosen
+  if (!chosen.has(giverId)) return
+  chosen.delete(giverId)
   report(false)
 }
 

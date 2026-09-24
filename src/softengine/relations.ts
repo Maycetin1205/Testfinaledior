@@ -200,24 +200,35 @@ interface QueryJob {
   resolve: (answer: QueryAnswer) => void
 }
 
-const queue: (GetJob | QueryJob)[] = []
-let callInFlight = false
+interface HostCalls {
+  queue: (GetJob | QueryJob)[]
+  callInFlight: boolean
+  expiryUntil: number
+  expiresCallback: boolean
+  expiresReread: boolean
+}
+
+const hostCalls: HostCalls = {
+  queue: [],
+  callInFlight: false,
+  expiryUntil: 0,
+  expiresCallback: false,
+  expiresReread: false,
+}
+
 const GET_TIMEOUT_MS = 20_000
 const GET_POLL_MS = 100
 
 const EXPIRY_MS = GET_TIMEOUT_MS
-let expiryUntil = 0
-let expiresCallback = false
-let expiresReread = false
 
 function expiryApplies(): boolean {
-  return Date.now() < expiryUntil
+  return Date.now() < hostCalls.expiryUntil
 }
 
 function nextCall(): void {
-  if (callInFlight || queue.length === 0) return
-  callInFlight = true
-  const job = queue.shift()!
+  if (hostCalls.callInFlight || hostCalls.queue.length === 0) return
+  hostCalls.callInFlight = true
+  const job = hostCalls.queue.shift()!
   if ('query' in job) {
     sendQuery(job)
     return
@@ -234,7 +245,7 @@ function nextCall(): void {
     unsubscribe?.()
     if (poll !== null) clearInterval(poll)
     if (timeout !== null) clearTimeout(timeout)
-    callInFlight = false
+    hostCalls.callInFlight = false
     job.resolve(failed ? { value, raw, failed } : { value, raw })
 
     queueMicrotask(nextCall)
@@ -249,8 +260,8 @@ function nextCall(): void {
       if (rowsFromQueryAnswer(raw) !== undefined) return
       const result = recordAnswer ? extractRecordAnswer(raw) : resultFromAnswer(raw)
       if (result === undefined) return
-      if (expiresCallback && expiryApplies()) {
-        expiresCallback = false
+      if (hostCalls.expiresCallback && expiryApplies()) {
+        hostCalls.expiresCallback = false
         expiryUsed = true
         return
       }
@@ -264,8 +275,8 @@ function nextCall(): void {
         before.add(message.key)
         return
       }
-      if (expiresReread && expiryApplies()) {
-        expiresReread = false
+      if (hostCalls.expiresReread && expiryApplies()) {
+        hostCalls.expiresReread = false
         expiryUsed = true
 
         before.add(message.key)
@@ -276,9 +287,9 @@ function nextCall(): void {
 
     timeout = setTimeout(() => {
       if (!expiryUsed) {
-        expiresCallback = true
-        expiresReread = true
-        expiryUntil = Date.now() + EXPIRY_MS
+        hostCalls.expiresCallback = true
+        hostCalls.expiresReread = true
+        hostCalls.expiryUntil = Date.now() + EXPIRY_MS
       }
       finish('', undefined, true)
     }, GET_TIMEOUT_MS)
@@ -316,7 +327,7 @@ export function relationRun(
     return Promise.resolve({ value: '', raw: undefined })
   }
   return new Promise((resolve) => {
-    queue.push({ template, params: [...params], resolve, options })
+    hostCalls.queue.push({ template, params: [...params], resolve, options })
     nextCall()
   })
 }
@@ -340,7 +351,7 @@ function sendQuery(job: QueryJob): void {
     settled = true
     unregister?.()
     if (clock !== null) clearTimeout(clock)
-    callInFlight = false
+    hostCalls.callInFlight = false
     job.resolve(rows === undefined ? {} : { rows })
     queueMicrotask(nextCall)
   }
@@ -372,7 +383,7 @@ function sendQuery(job: QueryJob): void {
 export function queryRun(query: RuntimeQuery, name: string): Promise<QueryAnswer> {
   startSe()
   return new Promise((resolve) => {
-    queue.push({ query, name, resolve })
+    hostCalls.queue.push({ query, name, resolve })
     nextCall()
   })
 }
