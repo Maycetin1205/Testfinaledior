@@ -1,28 +1,19 @@
-import type {
-  ChangeCarrierElement,
-  CaptureCarrierElement,
-  DeleteCarrierElement,
-  PendingKind,
-} from '../core/block/capability'
+import type { PendingKind } from '../core/block/capability'
+import { contractOf } from '../core/block/registry'
 
 export const PENDING_EVENT = 'ff-pending-change'
 
-export type PendingCarrier = HTMLElement
-  & Partial<CaptureCarrierElement>
-  & Partial<ChangeCarrierElement>
-  & Partial<DeleteCarrierElement>
-
 const KINDS: readonly PendingKind[] = ['captured', 'changed', 'deleted']
 
-export function pendingRows(carrier: PendingCarrier, kind: PendingKind): number {
-  if (kind === 'captured') return carrier.capturedRows?.length ?? 0
-  if (kind === 'changed') return carrier.changedRows?.length ?? 0
-  return carrier.deletedRows?.length ?? 0
+export function pendingRows(carrier: HTMLElement, kind: PendingKind): number {
+  if (kind === 'captured') return contractOf(carrier, 'capture')?.capturedRows.length ?? 0
+  if (kind === 'changed') return contractOf(carrier, 'change')?.changedRows.length ?? 0
+  return contractOf(carrier, 'delete')?.deletedRows.length ?? 0
 }
 
 const last = new WeakMap<HTMLElement, string>()
 
-export function reportPendingMarks(el: PendingCarrier): void {
+export function reportPendingMarks(el: HTMLElement): void {
   const now = KINDS.map((kind) => pendingRows(el, kind)).join(' ')
   if (last.get(el) === now) return
   last.set(el, now)

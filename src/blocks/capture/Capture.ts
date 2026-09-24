@@ -1,7 +1,16 @@
 import type { CSSResultGroup, PropertyValues, TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import type { WrittenRow, Delivery, PendingKind } from '../../core/block/capability'
+import type {
+  CaptureCarrier,
+  ChangeCarrier,
+  DeleteCarrier,
+  Delivery,
+  PendingKind,
+  RunReportElement,
+  SentRowsElement,
+  WrittenRow,
+} from '../../core/block/capability'
 import {
   CALCULATIONS_PROP,
   calculationsFrom,
@@ -30,7 +39,8 @@ import { captureProperties, type CaptureValues } from './properties'
 
 export interface Capture extends CaptureValues {}
 
-export class Capture extends BlockElement {
+export class Capture extends BlockElement
+  implements CaptureCarrier, ChangeCarrier, DeleteCarrier, SentRowsElement, RunReportElement {
   static readonly type = 'capture'
   static readonly tag = 'ff-capture'
 
@@ -230,5 +240,6 @@ defineBlock(Capture, {
       },
     },
   ],
+  contracts: { capture: Capture, change: Capture, delete: Capture, holdsSent: Capture },
   grid: LIST_GRID,
 })

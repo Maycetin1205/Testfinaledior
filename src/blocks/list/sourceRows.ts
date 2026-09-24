@@ -1,5 +1,4 @@
-import { hasCapability, contractOf } from '../../core/block/capability'
-import { blockTypeForTag } from '../../core/block/registry'
+import { contractOf } from '../../core/block/registry'
 import { maskState } from '../../runtime/maskState'
 import { relocateSelection, giverIdOf, traitOf, rowsToSelection } from '../../runtime/selection'
 import {
@@ -46,8 +45,7 @@ export interface RowsElement extends HTMLElement {
 }
 
 function checkArrival(el: HTMLElement, preamble: DataPreamble | null): void {
-  if (!hasCapability(blockTypeForTag(el.tagName), 'holdsSent')) return
-  contractOf(el, 'holdsSent').checkArrival(preamble === null ? null : {
+  contractOf(el, 'holdsSent')?.checkArrival(preamble === null ? null : {
     rows: preamble.rows,
     recordOf: (row) => recordOf(preamble.source, row),
     read: preamble.read,

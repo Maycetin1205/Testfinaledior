@@ -5,16 +5,10 @@ import {
   RECORD_PLACEHOLDER,
   type RuntimeStep,
 } from '../core/data/actions'
-import {
-  type WrittenRow,
-  type RunReportElement,
-  type PendingKind,
-  hasCapability,
-  contractOf,
-} from '../core/block/capability'
+import type { WrittenRow, RunReportElement, PendingKind } from '../core/block/capability'
 import { selectionFor } from './selection'
 import { maskState } from './maskState'
-import { blockTypeForTag, blockType } from '../core/block/registry'
+import { blockType, contractOf } from '../core/block/registry'
 import {
   todayAsText,
   placeholderInsert,
@@ -45,12 +39,6 @@ const running = new WeakMap<HTMLElement, Set<string>>()
 
 type RowsCarrier = HTMLElement
 
-const CAPABILITY_PER_LIST = { captured: 'capture', changed: 'change', deleted: 'delete' } as const
-
-function reportOn(carrier: RowsCarrier, kind: PendingKind): RunReportElement {
-  return contractOf(carrier, CAPABILITY_PER_LIST[kind])
-}
-
 export function searchCarrier(root: ParentNode, blockId: string): RowsCarrier | undefined {
   return Array.from(root.querySelectorAll<HTMLElement>(`[${BLOCK_ID_ATTR}]`))
     .find((el) => el.getAttribute(BLOCK_ID_ATTR) === blockId)
@@ -80,20 +68,34 @@ export interface Transcript {
   previousResult: string
 }
 
-function rowsOfList(carrier: RowsCarrier, kind: PendingKind): RunRow[] | undefined {
-  if (!hasCapability(blockTypeForTag(carrier.tagName), CAPABILITY_PER_LIST[kind])) return undefined
-  if (kind === 'captured') {
-    const v = contractOf(carrier, 'capture')
-    return v.capturedRows.map((values, slot) => ({
-      record: '',
-      key: v.capturedKey[slot] ?? String(slot),
-      values,
-    }))
-  }
-  const raw = kind === 'changed'
-    ? contractOf(carrier, 'change').changedRows
-    : contractOf(carrier, 'delete').deletedRows
+// The rows a section runs over, and whom it reports each row to.
+interface ListRun {
+  rows: RunRow[]
+  report: RunReportElement
+}
+
+function bookedRows(raw: readonly { record: string; values: readonly string[] }[]): RunRow[] {
   return raw.map((z) => ({ record: z.record, key: z.record, values: z.values }))
+}
+
+function rowsOfList(carrier: RowsCarrier, kind: PendingKind): ListRun | undefined {
+  if (kind === 'captured') {
+    const capture = contractOf(carrier, 'capture')
+    return capture && {
+      report: capture,
+      rows: capture.capturedRows.map((values, slot) => ({
+        record: '',
+        key: capture.capturedKey[slot] ?? String(slot),
+        values,
+      })),
+    }
+  }
+  if (kind === 'changed') {
+    const change = contractOf(carrier, 'change')
+    return change && { report: change, rows: bookedRows(change.changedRows) }
+  }
+  const deletion = contractOf(carrier, 'delete')
+  return deletion && { report: deletion, rows: bookedRows(deletion.deletedRows) }
 }
 
 function rowsContext(
@@ -215,7 +217,7 @@ export async function runEvent(
   try {
     const sections = sectionsOf(steps)
     const reports: {
-      carrier: RowsCarrier; kind: PendingKind; finished: WrittenRow[]
+      report: RunReportElement; kind: PendingKind; finished: WrittenRow[]
     }[] = []
     let written = false
     let cancelled = false
@@ -236,16 +238,16 @@ export async function runEvent(
         break
       }
       const carrier = searchCarrier(el.ownerDocument ?? document, section.blockId)
-      const rows = carrier && rowsOfList(carrier, section.kind)
-      if (!carrier || !rows) {
+      const list = carrier && rowsOfList(carrier, section.kind)
+      if (!list) {
         cancelled = true
         break
       }
-      if (rows.length === 0) continue
-      const report = { carrier, kind: section.kind, finished: [] as WrittenRow[] }
+      if (list.rows.length === 0) continue
+      const report = { report: list.report, kind: section.kind, finished: [] as WrittenRow[] }
       reports.push(report)
-      for (const row of rows) {
-        reportOn(carrier, section.kind).rowWrites(section.kind, row.key)
+      for (const row of list.rows) {
+        list.report.rowWrites(section.kind, row.key)
 
         const result = await runSteps(el, steps, rowsContext(context, section.kind, row),
           (blockId, columnsIndex) =>
@@ -254,7 +256,7 @@ export async function runEvent(
         if (result.written) written = true
 
         if (result.failed) {
-          reportOn(carrier, section.kind).rowFailed(section.kind, row.key)
+          list.report.rowFailed(section.kind, row.key)
           cancelled = true
           break
         }
@@ -266,7 +268,7 @@ export async function runEvent(
       if (cancelled) break
     }
 
-    for (const { carrier, kind, finished } of reports) reportOn(carrier, kind).runDone(kind, finished)
+    for (const { report, kind, finished } of reports) report.runDone(kind, finished)
 
     if (written) maskState.host.requestFreshData()
     return { ran: true, written, cancelled, busy: false }

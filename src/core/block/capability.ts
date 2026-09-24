@@ -123,16 +123,16 @@ export function actionValue<Props>(spots: ValueSpotsFor<Props>): CapabilityOf<'a
 
 export type PendingKind = 'captured' | 'changed' | 'deleted'
 
-export interface CaptureCarrierElement {
+export interface CaptureCarrier {
   capturedRows: readonly (readonly string[])[]
   capturedKey: readonly string[]
 }
 
-export interface DeleteCarrierElement {
+export interface DeleteCarrier {
   deletedRows: readonly { record: string; values: readonly string[] }[]
 }
 
-export interface ChangeCarrierElement {
+export interface ChangeCarrier {
   changedRows: readonly { record: string; values: readonly string[] }[]
 }
 
@@ -158,29 +158,17 @@ export interface RunReportElement {
 }
 
 export interface RuntimeContracts {
-  capture: CaptureCarrierElement & RunReportElement
-  change: ChangeCarrierElement & RunReportElement
-  delete: DeleteCarrierElement & RunReportElement
+  capture: CaptureCarrier & RunReportElement
+  change: ChangeCarrier & RunReportElement
+  delete: DeleteCarrier & RunReportElement
   holdsSent: SentRowsElement
 }
 
-const CONTRACT_MEMBERS: { [A in keyof RuntimeContracts]: readonly string[] } = {
-  capture: ['capturedRows', 'capturedKey', 'rowWrites', 'rowFailed', 'runDone'],
-  change: ['changedRows', 'rowWrites', 'rowFailed', 'runDone'],
-  delete: ['deletedRows', 'rowWrites', 'rowFailed', 'runDone'],
-  holdsSent: ['checkArrival'],
-}
+export type ContractKind = keyof RuntimeContracts
 
-export function contractOf<A extends keyof RuntimeContracts>(
-  el: Element,
-  kind: A,
-): RuntimeContracts[A] {
-  for (const member of CONTRACT_MEMBERS[kind]) {
-    if (!(member in el)) {
-      throw new Error(
-        `<${el.tagName.toLowerCase()}> meldet die Faehigkeit „${kind}", hat aber „${member}" nicht.`,
-      )
-    }
-  }
-  return el as unknown as RuntimeContracts[A]
-}
+// The element class that fulfils a contract. A block names it when it declares
+// the capability, and the type checker holds the class to the contract.
+export type ContractClass<A extends ContractKind> =
+  abstract new (...args: never[]) => RuntimeContracts[A]
+
+export type ContractClasses = { readonly [A in ContractKind]?: ContractClass<A> }

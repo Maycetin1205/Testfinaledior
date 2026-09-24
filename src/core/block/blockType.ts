@@ -1,4 +1,4 @@
-import type { Capability } from './capability'
+import type { Capability, ContractClasses } from './capability'
 import type { Direction, FlowWidth } from './flow'
 import type { GridMetrics } from './grid'
 import type { PropertyMap, PropertyValue } from './property'
@@ -39,6 +39,7 @@ export interface BlockDeclaration {
 
   properties?: PropertyMap
   capabilities?: readonly Capability[]
+  contracts?: ContractClasses
 
   takesChildren?: boolean
 
