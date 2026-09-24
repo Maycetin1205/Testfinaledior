@@ -8,7 +8,7 @@ import {
 } from '../../core/block/property'
 
 export const textProperties = {
-  role: choiceProperty([
+  variant: choiceProperty([
     { value: 'title', name: 'Titel' },
     { value: 'heading', name: 'Überschrift' },
     { value: 'label', name: 'Beschriftung' },
@@ -18,7 +18,7 @@ export const textProperties = {
   ], {
     default: 'body',
     label: 'Rolle',
-    attribute: 'role',
+    attribute: 'variant',
   }),
   align: segmentProperty([
     { value: 'left', name: 'Links' },

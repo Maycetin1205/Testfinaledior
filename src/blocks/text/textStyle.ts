@@ -13,7 +13,7 @@ export const textStyle = css`
   .text:empty { min-height: calc(1em * var(--text-line-height)); }
 
   /* .vmodal-titel */
-  .role-title {
+  .variant-title {
     color: var(--se-ink);
     font-size: var(--se-fs-title);
     font-weight: 700;
@@ -21,7 +21,7 @@ export const textStyle = css`
   }
 
   /* .vspalte-kopf h2 */
-  .role-heading {
+  .variant-heading {
     color: var(--se-ink);
     font-size: var(--se-fs);
     font-weight: 600;
@@ -30,7 +30,7 @@ export const textStyle = css`
   }
 
   /* .vfeld-label */
-  .role-label {
+  .variant-label {
     color: var(--se-muted);
     font-size: var(--se-fs-head);
     font-weight: 600;
@@ -38,14 +38,14 @@ export const textStyle = css`
     text-transform: uppercase;
   }
 
-  .role-body {
+  .variant-body {
     color: var(--se-ink);
     font-size: var(--se-fs);
     font-weight: 400;
   }
 
   /* .vkarte-meta */
-  .role-muted {
+  .variant-muted {
     overflow: hidden;
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
@@ -55,7 +55,7 @@ export const textStyle = css`
   }
 
   /* .num */
-  .role-number {
+  .variant-number {
     color: var(--se-ink);
     font-family: var(--se-mono);
     font-size: var(--se-fs);

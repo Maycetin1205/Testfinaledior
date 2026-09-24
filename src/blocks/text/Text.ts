@@ -11,11 +11,7 @@ const ALIGNS: Record<string, string> = { left: 'left', center: 'center', right: 
 
 const TEXT_BINDING = bindingAttr('text')
 
-// An element's own ARIA role is a string or null; the declared role is always
-// a string.
-export interface Text extends TextValues {
-  role: string
-}
+export interface Text extends TextValues {}
 
 export class Text extends BlockElement {
   static readonly type = 'text'
@@ -25,7 +21,7 @@ export class Text extends BlockElement {
 
   override render(): TemplateResult {
     return html`<div
-      class="text role-${this.role}"
+      class="text variant-${this.variant}"
       style=${styleMap({ textAlign: ALIGNS[this.align] ?? ALIGNS.left })}
       data-ff-editable
       data-ff-spot="text"

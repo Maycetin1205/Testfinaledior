@@ -642,15 +642,15 @@ export function liftTo20(state: Record<string, unknown>): void {
   liftToDescriptors(state)
 }
 
-// ---- version 21: a text takes a role, not size, weight and color; a field looks plain, not line ----
+// ---- version 21: a text takes a variant, not size, weight and color; a field looks plain, not line ----
 
 // The size a text had while it stored none.
 const OLD_TEXT_SIZE = 14
 
 // Bold becomes a title from 15 px up and a heading below, small type a label,
-// muted type the muted role. Accent and tone colors fall away: the reception
+// muted type the muted variant. Accent and tone colors fall away: the reception
 // mask does not color free text.
-function textRole(values: Record<string, unknown>): string {
+function textVariant(values: Record<string, unknown>): string {
   const size = typeof values.size === 'number' ? values.size : OLD_TEXT_SIZE
   if (values.weight === 'bold') return size >= 15 ? 'title' : 'heading'
   if (size <= 11.5) return 'label'
@@ -664,7 +664,7 @@ function liftTo21(tree: unknown): void {
     if (!isPlainObject(node) || !isPlainObject(node.values)) continue
     const values = node.values
     if (node.type === 'text') {
-      values.role = textRole(values)
+      values.variant = textVariant(values)
       delete values.size
       delete values.weight
       delete values.color
