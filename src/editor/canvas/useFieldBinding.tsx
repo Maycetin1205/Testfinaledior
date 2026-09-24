@@ -155,7 +155,12 @@ export function useFieldBinding({
 
   const sourcesChoice = !libraryOffer ? undefined : {
     entries: library.map((s) => ({ value: s.id, name: s.name, badge: sourcesKey(s) })),
-    onDataCenter: openDataCenter,
+    // The data center covers the canvas; a picker left open would float above it.
+    onDataCenter: () => {
+      closePicker()
+      closeListPicker()
+      openDataCenter()
+    },
     onChoose: (sourceId: string) => {
       const carrier = sourcesCarrier(editor.tree, blockRef.current.id)
       if (sourceId === '' || !carrier) return
