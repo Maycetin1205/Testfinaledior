@@ -181,12 +181,38 @@ export function BarControl({
   switch (kind) {
     case 'boolean':
       return <Tile label={property.label} on={value === true} onToggle={set} />
-    case 'text':
+    case 'text': {
+      // A value that belongs to a field of the parent (the column's value for
+      // the board's sorting field) reads as "STATUS =", and while the parent
+      // has no field yet, the parent's field control stands in its place.
+      if (parent && property.nameFromParentField !== undefined) {
+        const code = String(parent.values[property.nameFromParentField] ?? '')
+        if (code === '') {
+          const parentProperty = blockType(parent.type)?.properties[property.nameFromParentField]
+          return parentProperty
+            ? (
+                <BarControl
+                  block={parent}
+                  propertyKey={property.nameFromParentField}
+                  property={parentProperty}
+                  sourceInReach={ed.dataSourceFor(parent.id)}
+                  session={session}
+                />
+              )
+            : null
+        }
+        return (
+          <Labeled label={`${parentField !== '' ? parentField : code} =`}>
+            <BarText property={property} value={String(value ?? '')} onChange={set} {...session} />
+          </Labeled>
+        )
+      }
       return (
-        <Labeled label={property.label} detail={parentField}>
+        <Labeled label={property.label}>
           <BarText property={property} value={String(value ?? '')} onChange={set} {...session} />
         </Labeled>
       )
+    }
     case 'number':
       return (
         <Labeled label={property.label}>

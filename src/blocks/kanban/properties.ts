@@ -37,7 +37,7 @@ export const kanbanColumnProperties = {
   }),
   value: textProperty({
     default: '',
-    label: 'Feldwert',
+    label: 'Wert',
     attribute: 'value',
     nameFromParentField: 'columnsField',
   }),
