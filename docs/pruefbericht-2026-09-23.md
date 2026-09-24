@@ -866,3 +866,53 @@ Entscheidungen des Nutzers vom 23.09. abends, damit sind die Fragen 8.1 und
   wird nicht angezeigt; die Ankunftsprüfung arbeitet still.
 - Offen bleiben 8.3 bis 8.9: Zimmer und Avatar im Kanban, Probedaten,
   Navigation, Sprache im Code (Vorschlag Englisch), Register statt Vorrat.
+
+---
+
+## Stand 24.09.: das Aufräumen ist durch
+
+Neun Bau-Agenten, 38 Commits auf `claude/erp-editor-audit-89bmva`, jeder
+Commit mit grüner Typprüfung und grünen Tests, jeder Schritt im Browser gegen
+den Stand davor verglichen (DOM, gesendete Nachrichten, Bilder). Nichts davon
+ist in SoftEngine geprüft; das kann nur der Nutzer.
+
+| | vorher (c0c375a) | nachher (dac9a25) |
+|---|---|---|
+| Zeilen ts/tsx in `src/` | 31.816 | 30.034 |
+| Sammelordner `behavior/` | 32 Dateien | weg |
+| Meldungen, Hilfetexte, Leertexte, rote Leiste | überall | keine |
+| Deutsche Bezeichner, Klassen, Token, Ereignisse | rund 400 | 0 |
+| Dateiname ungleich Export im Editor | 40 | 0 (bis auf Groß/Klein) |
+| `Record<string, unknown>` als Typersatz | 81 | 23, alle an der Dateigrenze |
+| `as unknown as` | 3 | 0 |
+| `inEditor`/`data-ff-editor`-Weichen | 90 | 1 Eigenschaft `preview` |
+| Bausteine, die `softengine/` importieren | 8 (+6 Laufzeit) | 0, eine Tür `softEngineHost` |
+| Laufzeit-Bau | 341 Zeilen, 63 Teile, `window.FF` | 22 Zeilen, ein Bundle |
+| Quellenart | 12-Merkmal-Tabelle in 10 Dateien | Vorlage plus Deskriptor, Adapter je Datei |
+| Neue Schrittart | 8 bis 10 Dateien | 1 Datei + 1 Eintrag |
+| Neue Quellenart / Bestellblock / Lieferform | 7 bis 10 Dateien | 1 Datei + 1 Eintrag |
+| Hol-Relation | 12 Plätze im Code | Katalogeintrag in der Kundendatei |
+| Maskenschema / Kundendatei | 18 / ohne Version | 20 / 2, alte Dateien laden |
+
+Behoben nebenbei: tote Statusfarben der Erfassung, Zahlen rechtsbündig,
+Vorschlagsliste, gedämpfte versteckte Spalten, Auffangspalte des Kanban,
+Zusatzangaben in Listen, Escape-Leck im Dialog, Nachschlagen ohne
+Baustein-Import, „Verwendung in dieser Maske“ zählt Berechnungen,
+ERP-Masken-Import liest wieder `MASKE`/`Beschreibung`, eine ERP-Maske als
+Quelle liefert ihre Werte, Vorgabe-Belegposition liefert in der
+Belegerfassung, alte Dateien aus der deutschen Zeit laden wieder.
+
+Neu möglich, nicht in SoftEngine geprüft: eine ERP-Abfrage mit Satznummer
+kann Ziel einer PUT-Kette sein.
+
+Nicht angefasst, bewusst: Kanban (kommt neu nach dem Zweigmodell), Design,
+Bedienung (Inspector, Datencenter, Aktionen als Vollbild), Berechnung
+fachlich (8.1), die Fehler F2, F3, F6 der Erfassung (brauchen den Echttest),
+das Formular für die Feldcodes der Hol-Relation, die Antwort-Schlüssel in
+`softengine/data.ts` (ohne Echttest nicht entscheidbar).
+
+Kleine sichtbare Folgen: In einer löschbaren Erfassung liegt das Kreuz am
+Zeilenende über einer rechtsbündigen Zahl. Die Tailwind-Farbnamen haben sich
+geändert, der Dev-Server muss einmal neu starten. `src/export/generated/`
+enthält auf dem Rechner des Nutzers noch die alten Teildateien; der Ordner
+darf gelöscht werden, er entsteht neu.
