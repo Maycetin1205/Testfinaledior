@@ -230,7 +230,7 @@ export function FieldPicker({
             <div className="flex flex-col gap-2 px-1.5 pb-1">
               {sourcesChoice.onDataCenter && (
                 <Button kind="primary" className="self-start" onClick={sourcesChoice.onDataCenter}>
-                  Datencenter öffnen
+                  Daten öffnen
                 </Button>
               )}
             </div>

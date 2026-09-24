@@ -22,7 +22,7 @@ const MASK_NAMES = {
   sevariablen: 'index.basis.SEvariablen.json',
 }
 
-export function Toolbar({ onData }: { onData: () => void }) {
+export function Toolbar({ dataOpen, onData }: { dataOpen: boolean; onData: () => void }) {
   const ed = useEditor()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -130,7 +130,11 @@ export function Toolbar({ onData }: { onData: () => void }) {
       >
         <Download size={14} /> Exportieren
       </Button>
-      <Button onClick={onData}>
+      <Button
+        aria-pressed={dataOpen}
+        className={dataOpen ? 'border-accent bg-accent-soft' : undefined}
+        onClick={onData}
+      >
         <Database size={14} /> Daten
       </Button>
     </div>

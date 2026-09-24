@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react'
-import { Database, FolderOpen, Link2, Save } from '@/editor/icons/icon'
-import { Dialog } from '@/editor/widgets/Dialog'
-import { Entry } from '@/editor/widgets/Entry'
+import { FolderOpen, Save, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
+import { Tabs } from '@/editor/widgets/Tabs'
 import { loadLibraryFromFile, saveLibraryAsFile } from '../state/libraryFile'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
@@ -10,54 +9,51 @@ import { useRelations } from '../state/useRelations'
 import { DataSourcesArea } from './DataSourcesArea'
 import { RelationArea } from './RelationArea'
 
-type Area = 'dataSources' | 'relation'
+type Area = 'dataSources' | 'relation' | 'library'
 
-const AREAS: ReadonlyArray<{ key: Area; name: string; icon: typeof Database }> = [
-  { key: 'dataSources', name: 'Datenquellen', icon: Database },
-  { key: 'relation', name: 'Relationen', icon: Link2 },
-]
-
+// The data at the right of the canvas: sources, relations, the library. It is
+// no window over the mask; the mask stays at hand beside it.
 export function DataCenter({ onClose }: { onClose: () => void }) {
   const [area, setArea] = useState<Area>('dataSources')
   const sources = useDataSources()
   const relation = useRelations()
 
-  const navNumber: Record<Area, string> = {
-    dataSources: String(sources.list.length),
-    relation: String(relation.list.length),
-  }
-
-  const areaBar = (
-    <>
-      {AREAS.map(({ key, name, icon }) => (
-        <Entry
-          key={key}
-          icon={icon}
-          name={name}
-          active={area === key}
-          onClick={() => setArea(key)}
-          right={(
-            <span className="shrink-0 text-dense tabular-nums text-muted">{navNumber[key]}</span>
-          )}
-        />
-      ))}
-    </>
-  )
+  const tabs: ReadonlyArray<{ key: Area; name: string; count?: number }> = [
+    { key: 'dataSources', name: 'Quellen', count: sources.list.length },
+    { key: 'relation', name: 'Relationen', count: relation.list.length },
+    { key: 'library', name: 'Bibliothek' },
+  ]
 
   return (
-    <Dialog edgeless title="Datencenter" actions={<LibraryActions />} onClose={onClose}>
-      {area === 'dataSources' && <DataSourcesArea areas={areaBar} />}
-      {area === 'relation' && <RelationArea areas={areaBar} />}
-    </Dialog>
+    <section aria-label="Daten" data-ff-data-panel className="flex h-full min-h-0 flex-col">
+      <header className="flex h-[40px] shrink-0 items-center gap-0.5 border-b border-line px-[6px]">
+        {tabs.map(({ key, name, count }) => (
+          <Tabs key={key} active={area === key} onClick={() => setArea(key)}>
+            {name}
+            {count !== undefined && <span className="ml-1.5 tabular-nums opacity-70">{count}</span>}
+          </Tabs>
+        ))}
+        <div className="flex-1" />
+        <Button onlyIcon aria-label="Daten schließen" title="Schließen" onClick={onClose}>
+          <X size={15} />
+        </Button>
+      </header>
+
+      <div className="flex min-h-0 flex-1">
+        {area === 'dataSources' && <DataSourcesArea />}
+        {area === 'relation' && <RelationArea />}
+        {area === 'library' && <LibraryArea />}
+      </div>
+    </section>
   )
 }
 
-function LibraryActions() {
+function LibraryArea() {
   const ed = useEditor()
   const fileRef = useRef<HTMLInputElement>(null)
 
   return (
-    <>
+    <div className="flex flex-col items-start gap-2 p-[12px]">
       <input
         ref={fileRef}
         type="file"
@@ -78,6 +74,6 @@ function LibraryActions() {
       <Button onClick={() => fileRef.current?.click()}>
         <FolderOpen size={14} /> Bibliothek laden…
       </Button>
-    </>
+    </div>
   )
 }

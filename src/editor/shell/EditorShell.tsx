@@ -12,19 +12,18 @@ import { Toolbar } from './Toolbar'
 export function EditorShell() {
   useKeyboardShortcuts()
 
-  const [dataCenterOpen, setDataCenterOpen] = useState(false)
+  // The data stay closed until „Daten" is clicked, then open beside the mask.
+  const [dataOpen, setDataOpen] = useState(false)
 
-  useEffect(() => onDataCenterRequest(() => setDataCenterOpen(true)), [])
+  useEffect(() => onDataCenterRequest(() => setDataOpen(true)), [])
 
   return (
     <div className="flex h-screen w-screen flex-col bg-ground text-ink">
       <header className="flex shrink-0 items-center gap-[12px] overflow-x-auto border-b border-line bg-panel px-[12px] py-[8px]">
-        <Toolbar onData={() => setDataCenterOpen(true)} />
+        <Toolbar dataOpen={dataOpen} onData={() => setDataOpen(!dataOpen)} />
         <div className="flex-1" />
         <PageBar />
       </header>
-
-      {dataCenterOpen && <DataCenter onClose={() => setDataCenterOpen(false)} />}
 
       <div className="flex min-h-0 flex-1">
         {/* As wide as .vnav. */}
@@ -36,6 +35,13 @@ export function EditorShell() {
         <main className="min-w-0 flex-1 overflow-auto bg-[hsl(var(--canvas-bg))] px-4 pb-4 pt-[20px]">
           <Canvas />
         </main>
+
+        {/* As wide as .vmodal. */}
+        {dataOpen && (
+          <aside className="w-[560px] shrink-0 overflow-hidden border-l border-line bg-panel">
+            <DataCenter onClose={() => setDataOpen(false)} />
+          </aside>
+        )}
       </div>
 
       <LookupColumns />

@@ -113,7 +113,7 @@ export function SourceList({ block }: SourceListProps) {
 
   if (library.length === 0) {
     return (
-      <Button className="self-start" onClick={openDataCenter}>Datencenter öffnen</Button>
+      <Button className="self-start" onClick={openDataCenter}>Daten öffnen</Button>
     )
   }
 

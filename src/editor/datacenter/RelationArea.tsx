@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { Plus, Search, Share2 } from '@/editor/icons/icon'
 import { Field } from '@/editor/widgets/Field'
 import { Group } from '@/editor/widgets/Group'
@@ -22,7 +22,7 @@ import { RelationForm } from './RelationForm'
 import { blockName } from '../../core/block/blockName'
 import { RELATION_GROUPS, VERB_SHORT } from './parameterText'
 
-export function RelationArea({ areas }: { areas?: ReactNode }) {
+export function RelationArea() {
   const store = useRelations()
   const ed = useEditor()
   const sources = useDataSources().list
@@ -63,7 +63,6 @@ export function RelationArea({ areas }: { areas?: ReactNode }) {
   return (
     <>
       <ListDetail
-        areas={areas}
         listHead={(
           <>
           <Button className="w-full" onClick={() => setMode('new')}>
