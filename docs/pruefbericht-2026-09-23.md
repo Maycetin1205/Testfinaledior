@@ -985,10 +985,15 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
 - Rechts die Seitenleiste für Daten: Quellen, Relationen, Bibliothek. Zu,
   bis „Daten“ geklickt wird; bleibt dann offen, nie modal, nie Vollbild.
   Inhalt und Formulare bleiben zunächst, wie sie sind.
-- Am markierten Baustein eine kleine Leiste direkt über der Oberkante (liegt
-  er ganz oben, darunter): Symbol und Name, die wenigen Wahlen, rechts
-  Löschen. Am Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der
-  angeklickten Stelle. Keine Statuszeile.
+- Am markierten Baustein eine kleine Leiste direkt über der Oberkante: eine
+  Zeile, höchstens sieben Elemente, Symbol und Name, dann die Wahlen, rechts
+  Löschen. Was mehr ist, wird gebündelt: Schalter eines Bausteins in ein
+  Pop-up „Anzeige“, Quelle und Tag-Feld in ein Pop-up „Quelle“, alles
+  Weitere als Knopf mit Symbol, der sein kleines Fenster öffnet. Passt die
+  Leiste nicht über den Baustein, liegt sie innen an seinem oberen Rand.
+  Nie über einem anderen Baustein, nie über der eigenen Kopfzeile. Am
+  Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der angeklickten
+  Stelle. Keine Statuszeile.
 
 Grundregeln für alle Bausteine:
 
