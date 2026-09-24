@@ -23,6 +23,13 @@ export const buttonStyle = css`
   }
   button:hover { background: var(--se-accent-soft); border-color: var(--se-accent); }
 
+  /* One line as .vbtn; a label wider than the button ends in an ellipsis. */
+  .text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   /* .vbtn-primaer */
   .variant-primary { background: var(--se-accent); border-color: var(--se-accent); color: var(--se-panel); }
   .variant-primary:hover { background: var(--se-accent-dark); border-color: var(--se-accent-dark); }

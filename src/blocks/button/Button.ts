@@ -50,7 +50,7 @@ export class Button extends BlockElement {
       class="variant-${this.variant}"
       data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
-    >${open ? `${this.label} (${open})` : this.label}</button>`
+    ><span class="text">${open ? `${this.label} (${open})` : this.label}</span></button>`
   }
 
   override connectedCallback(): void {
