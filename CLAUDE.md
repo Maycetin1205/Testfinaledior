@@ -50,4 +50,4 @@ hinfaellig.
 - Aendert sich der Export gewollt: `REFERENCE_REFRESH=1 npm test` und im
   Commit sagen, was sich aenderte.
 - Git: kein force-push. `se-quelle/` ist fremd und bleibt draussen.
-  Sicherungsstand vor dem Aufraeumen: master c0c375a.
+  Sicherungsstand vor dem Aufraeumen: c0c375a (master bis 24.09.).
