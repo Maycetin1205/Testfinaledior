@@ -78,7 +78,7 @@ export class Button extends BlockElement {
 }
 
 defineBlock(Button, {
-  name: 'Schaltfläche',
+  name: 'Knopf',
   category: 'input',
   properties: buttonProperties,
   capabilities: [{ kind: 'events', list: [{ key: CLICK, name: 'Klick' }] }],

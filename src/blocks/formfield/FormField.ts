@@ -186,7 +186,7 @@ export class FormField extends BlockElement {
 }
 
 defineBlock(FormField, {
-  name: 'Formularfeld',
+  name: 'Feld',
   category: 'input',
   properties: formFieldProperties,
   capabilities: [
