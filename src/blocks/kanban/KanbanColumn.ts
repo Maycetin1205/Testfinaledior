@@ -1,7 +1,7 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { toneStyle, toneValue } from '../behavior/tone'
+import { toneStyle, toneValue } from '../tone/tone'
 import { COLUMN_TAG, TARGET_CLASS, placeStyle } from './places'
 import { columnStyle } from './columnStyle'
 import { kanbanColumnProperties, type KanbanColumnValues } from './properties'

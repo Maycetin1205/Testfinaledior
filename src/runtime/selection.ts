@@ -1,6 +1,6 @@
-import { BLOCK_ID_ATTR } from '../../core/data/actions'
-import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../../core/data/selectionFollow'
-import { fieldRead, isObject } from '../../softengine/data'
+import { BLOCK_ID_ATTR } from '../core/data/actions'
+import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../core/data/selectionFollow'
+import { fieldRead, isObject } from '../softengine/data'
 import { pairListFromAttribute } from './pairList'
 
 // Two deliveries of the same record may list their fields in a different order,

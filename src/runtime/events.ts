@@ -4,24 +4,24 @@ import {
   chainsRead,
   RECORD_PLACEHOLDER,
   type RuntimeStep,
-} from '../../core/data/actions'
+} from '../core/data/actions'
 import {
   type WrittenRow,
   type RunReportElement,
   type PendingKind,
   hasCapability,
   contractOf,
-} from '../../core/block/capability'
+} from '../core/block/capability'
 import { selectionFor } from './selection'
-import { blockTypeForTag, blockType } from '../../core/block/registry'
+import { blockTypeForTag, blockType } from '../core/block/registry'
 import {
   todayAsText,
   placeholderInsert,
   type PlaceholderValues,
-} from '../../core/data/relations'
-import { sendBwLink, sendStartTool } from '../../softengine/commands'
-import { freshDataRequest } from '../../softengine/bridge'
-import { relationRun, runtimeRelation, parameterResolve } from '../../softengine/relations'
+} from '../core/data/relations'
+import { sendBwLink, sendStartTool } from '../softengine/commands'
+import { freshDataRequest } from '../softengine/bridge'
+import { relationRun, runtimeRelation, parameterResolve } from '../softengine/relations'
 
 function applyPopupStep(root: ParentNode, name: string, open: boolean): void {
   if (name.trim() === '') return

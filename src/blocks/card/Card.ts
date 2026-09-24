@@ -1,7 +1,7 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { bindable, type BindingProp } from '../../core/block/capability'
-import { toneStyle, toneValue } from '../behavior/tone'
+import { toneStyle, toneValue } from '../tone/tone'
 import { cardsStyle } from './cardStyle'
 import { cardProperties, type CardValues } from './properties'
 

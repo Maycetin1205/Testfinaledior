@@ -3,7 +3,7 @@ import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable } from '../../core/block/capability'
 import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
-import { readDate, dayKey } from '../behavior/chosenDay'
+import { readDate, dayKey } from '../../runtime/chosenDay'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { LookupControl } from '../lookup/lookupControl'
 // The lookup window draws its rows with the table block.

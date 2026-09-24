@@ -1,7 +1,7 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { onChosenDay, chosenDay, setChosenDay, readDate, dayOf } from '../behavior/chosenDay'
+import { onChosenDay, chosenDay, setChosenDay, readDate, dayOf } from '../../runtime/chosenDay'
 import { dateStyle } from './datePickerStyle'
 
 function dayPlus(key: string, days: number): string {

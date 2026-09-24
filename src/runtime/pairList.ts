@@ -1,5 +1,5 @@
-import { isPropertyEntry } from '../../core/block/property'
-import type { KeyPair } from '../../core/data/extraSources'
+import { isPropertyEntry } from '../core/block/property'
+import type { KeyPair } from '../core/data/extraSources'
 
 export interface PairEntry {
   id: string

@@ -1,7 +1,7 @@
 import { sourceIdOf } from './source'
-import { splitBinding } from '../../core/block/blockType'
-import { fieldRead, type RuntimeSource } from '../../softengine/data'
-import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
+import { splitBinding } from '../core/block/blockType'
+import { fieldRead, type RuntimeSource } from '../softengine/data'
+import { runtimeSource, rowsOfSource } from '../softengine/runtimeSources'
 import { firstRowToSelection } from './selection'
 import { makeFieldReader } from './foreignSources'
 

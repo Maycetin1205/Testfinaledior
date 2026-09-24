@@ -7,7 +7,7 @@ import {
 } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { ViewChoices } from './viewChoices'
-import { giverIdOf } from '../behavior/selection'
+import { giverIdOf } from '../../runtime/selection'
 import type { MeasureTarget } from './pageSize'
 import { columnsView, sendColumnsChange, type Column } from './columns'
 import { WidthsState } from './columnWidth'

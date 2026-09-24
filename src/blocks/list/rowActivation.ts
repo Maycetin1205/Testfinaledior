@@ -4,8 +4,8 @@ import {
   giverIdOf,
   chooseSelection,
   setSelection,
-} from '../behavior/selection'
-import { runEvent } from '../behavior/events'
+} from '../../runtime/selection'
+import { runEvent } from '../../runtime/events'
 import { rowsIndexOf, rowsTraitOf } from './sourceRows'
 
 export const ROW_ACTIVATED_EVENT = 'ff-row-activate'

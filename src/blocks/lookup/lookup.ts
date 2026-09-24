@@ -4,7 +4,7 @@ import type { ListBinding } from '../../core/block/listBinding'
 import { blockType } from '../../core/block/registry'
 import { fieldRead } from '../../softengine/data'
 import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
-import { rowsToSelection } from '../behavior/selection'
+import { rowsToSelection } from '../../runtime/selection'
 import {
   DIALOG_SIZE_EVENT,
   DIALOG_FRAME_TAG,

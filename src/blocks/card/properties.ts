@@ -1,5 +1,5 @@
 import { fieldProperty, textProperty, type ValuesOf } from '../../core/block/property'
-import { toneProperty } from '../behavior/tone'
+import { toneProperty } from '../tone/tone'
 
 function spot(label: string, attribute: string) {
   return textProperty({

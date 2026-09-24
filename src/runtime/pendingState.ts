@@ -3,7 +3,7 @@ import type {
   CaptureCarrierElement,
   DeleteCarrierElement,
   PendingKind,
-} from '../../core/block/capability'
+} from '../core/block/capability'
 
 export const PENDING_EVENT = 'ff-pending-change'
 

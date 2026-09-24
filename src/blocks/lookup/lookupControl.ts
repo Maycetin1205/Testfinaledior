@@ -4,7 +4,7 @@ import {
   type ReactiveControllerHost,
   type TemplateResult,
 } from 'lit'
-import { giverIdOf, clearSelection, setSelection, rowsToSelection } from '../behavior/selection'
+import { giverIdOf, clearSelection, setSelection, rowsToSelection } from '../../runtime/selection'
 import {
   automaticColumns,
   fetchEntries,

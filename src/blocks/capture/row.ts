@@ -10,7 +10,7 @@ import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
 import type { KeyPair } from '../../core/data/extraSources'
-import { extraSourcesOf } from '../behavior/foreignSources'
+import { extraSourcesOf } from '../../runtime/foreignSources'
 import { fieldRead } from '../../softengine/data'
 
 export interface CapturePlacement {

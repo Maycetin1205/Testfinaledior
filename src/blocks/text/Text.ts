@@ -3,8 +3,8 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { bindable, bindingAttr } from '../../core/block/capability'
 import { TONES } from '../../core/block/tones'
-import { readBoundSpot } from '../behavior/boundSpot'
-import { makeDataLink, sourceIdOf } from '../behavior/source'
+import { readBoundSpot } from '../../runtime/boundSpot'
+import { makeDataLink, sourceIdOf } from '../../runtime/source'
 import { textStyle } from './textStyle'
 import {
   NEUTRAL_COLORS,

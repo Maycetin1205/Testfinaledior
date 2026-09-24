@@ -1,7 +1,7 @@
-import { fieldRead } from '../../softengine/data'
-import { runtimeSource, rowsOfSource } from '../../softengine/runtimeSources'
-import { EXTRA_SOURCES_PROP, type KeyPair } from '../../core/data/extraSources'
-import { splitBinding } from '../../core/block/blockType'
+import { fieldRead } from '../softengine/data'
+import { runtimeSource, rowsOfSource } from '../softengine/runtimeSources'
+import { EXTRA_SOURCES_PROP, type KeyPair } from '../core/data/extraSources'
+import { splitBinding } from '../core/block/blockType'
 import { pairListFromAttribute } from './pairList'
 
 const EXTRA_SOURCES_ATTR = EXTRA_SOURCES_PROP.toLowerCase()

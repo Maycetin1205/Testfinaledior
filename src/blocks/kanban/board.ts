@@ -1,9 +1,9 @@
 import { bindingAttr, capability } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
 import { recordIndexOf } from '../../softengine/data'
-import { chooseSelection, giverIdOf, relocateSelection, traitOf } from '../behavior/selection'
-import { readDataPreamble, makeDataLink } from '../behavior/source'
-import { runEvent } from '../behavior/events'
+import { chooseSelection, giverIdOf, relocateSelection, traitOf } from '../../runtime/selection'
+import { readDataPreamble, makeDataLink } from '../../runtime/source'
+import { runEvent } from '../../runtime/events'
 import {
   CARD_TYPE,
   TARGET_ATTR,

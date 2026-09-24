@@ -1,9 +1,9 @@
 import { bindingAttr } from '../../core/block/capability'
 import { recordIndexOf, fieldWrite } from '../../softengine/data'
-import { giverIdOf, clearSelection, setSelection } from '../behavior/selection'
-import { makeDataLink } from '../behavior/source'
-import { readBoundSpot } from '../behavior/boundSpot'
-import { runEvent } from '../behavior/events'
+import { giverIdOf, clearSelection, setSelection } from '../../runtime/selection'
+import { makeDataLink } from '../../runtime/source'
+import { readBoundSpot } from '../../runtime/boundSpot'
+import { runEvent } from '../../runtime/events'
 
 export interface ValueElement extends HTMLElement {
   value: string
