@@ -1,83 +1,90 @@
-import type { ListEntry } from '@/editor/widgets/List'
+import { Link2, X } from '@/editor/icons/icon'
+import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
-import { followOf, giversFor } from './followOffer'
+import { blockName } from '../../core/block/blockName'
 import { selectionSourceIdOf } from '../../core/block/treeQuery'
-import {
-  SELECTION_FOLLOW_PROP,
-  type SelectionFollow,
-} from '../../core/data/selectionFollow'
-import { sourcesKey } from '../../core/data/dataSources'
-import { deliveryAdapter } from '../../core/data/deliveries/deliveries'
+import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../../core/data/selectionFollow'
+import { OriginPicker } from '../controls/OriginPicker'
+import type { OriginOffer } from '../controls/originOffer'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { blockName } from '../../core/block/blockName'
-import { PickerControl } from '../controls/PickerControl'
+import { followOf } from './followOffer'
 import { KeyPairRows } from './KeyPairRows'
 
 interface SelectionFollowSectionProps {
   block: BlockNode
+
+  // Waits for a click on another giver.
+  onPick: () => void
 }
 
-export function SelectionFollowSection({ block }: SelectionFollowSectionProps) {
+// Whose selection the block follows, and below it the field pairs, where the
+// rows are not fetched for the chosen row anyway.
+export function SelectionFollowSection({ block, onPick }: SelectionFollowSectionProps) {
   const ed = useEditor()
   const library = useDataSources().list
 
   const follow = followOf(block)
-  const candidates = giversFor(ed.tree, block)
+  if (!follow) return null
 
   const sourceOf = (n: BlockNode | undefined) =>
     library.find((s) => s.id === selectionSourceIdOf(n))
+  const giver = ed.tree[follow.giverId]
+  const giverName = giver ? blockName(giver, library) : ''
+  const giverSource = sourceOf(giver)
   const ownSource = sourceOf(block)
-  const giverNode = follow ? ed.tree[follow.giverId] : undefined
-  const giverSource = sourceOf(giverNode)
 
-  const fetchesRows = ownSource !== undefined
-    && deliveryAdapter(ownSource.delivery.kind).fetchOn === 'selection'
-
-  const entry = (n: BlockNode): ListEntry => {
-    const q = sourceOf(n)
-    return q
-      ? { value: n.id, name: `${blockName(n, library)} (${q.name})`, badge: sourcesKey(q) }
-      : { value: n.id, name: blockName(n, library) }
+  // The value of a pair is a column of the giver's chosen row.
+  const offer: OriginOffer = {
+    rows: giverSource
+      ? [{
+          sourceId: follow.giverId,
+          name: `Gewählte Zeile ${giverName}`,
+          fields: giverSource.fields.map((f) => ({ value: f.code, name: f.name || f.code, badge: f.code })),
+        }]
+      : [],
   }
 
   function set(next: SelectionFollow[]): void {
     ed.updateProperty(block.id, SELECTION_FOLLOW_PROP, next)
   }
-  function setGiver(v: string): void {
-    if (v === '') {
-      set([])
-      return
-    }
-    const keyPairs = follow && follow.pairs.length > 0 ? follow.pairs : []
-    set([{
-      giverId: v,
-      pairs: fetchesRows || keyPairs.length > 0 ? keyPairs : [{ fromField: '', toField: '' }],
-    }])
-  }
+
   return (
     <div className="flex flex-col gap-2">
-      <PickerControl
-        label="Folgt der Auswahl von"
-        name="Folgt der Auswahl von"
-        groups={[{ key: 'giver', entries: candidates.map(entry) }]}
-        value={follow?.giverId ?? ''}
-        emptyText="Keiner"
-        onChoose={setGiver}
-      />
-      {follow && (
-        <>
-          <KeyPairRows
-            question="Verbindende Felder"
-            pairs={follow.pairs}
-            leftFields={giverSource?.fields ?? []}
-            rightFields={ownSource?.fields ?? []}
-            leftName={(at) => `Feld ${at + 1} beim Auswahl-Geber`}
-            rightName={(at) => `Feld ${at + 1} in diesem Baustein`}
-            removeName={(at) => `Feldpaar ${at + 1} entfernen`}
-            onChange={(keyPairs) => set([{ ...follow, pairs: keyPairs }])}
-          />
-        </>
+      <div className="flex min-h-control items-center gap-1.5">
+        <span className="shrink-0 text-label font-semibold uppercase tracking-label text-muted">
+          Folgt der Auswahl von
+        </span>
+        <span className="min-w-0 flex-1 truncate font-semibold text-ink">{giverName}</span>
+        <Button onlyIcon aria-label="Anderen Baustein wählen" title="Anderen Baustein wählen" onClick={onPick}>
+          <Link2 size={13} />
+        </Button>
+        <Button onlyIcon aria-label="Folgt nicht mehr" title="Folgt nicht mehr" onClick={() => set([])}>
+          <X size={13} />
+        </Button>
+      </div>
+      {follow.pairs.length > 0 && (
+        <KeyPairRows
+          question="Verbindende Felder"
+          pairs={follow.pairs}
+          leftFields={[]}
+          left={(pair, at) => (
+            <OriginPicker
+              name={`Wert ${at + 1}`}
+              origin={pair.fromField === '' ? null : { kind: 'row', sourceId: follow.giverId, value: pair.fromField }}
+              offer={offer}
+              onChoose={(origin) => set([{
+                ...follow,
+                pairs: follow.pairs.map((p, x) => (x === at ? { ...p, fromField: origin.value } : p)),
+              }])}
+            />
+          )}
+          rightFields={ownSource?.fields ?? []}
+          leftName={(at) => `Wert ${at + 1}`}
+          rightName={(at) => `Feld ${at + 1} in diesem Baustein`}
+          removeName={(at) => `Feldpaar ${at + 1} entfernen`}
+          onChange={(keyPairs) => set([{ ...follow, pairs: keyPairs }])}
+        />
       )}
     </div>
   )

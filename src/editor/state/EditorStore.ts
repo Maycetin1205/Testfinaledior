@@ -78,6 +78,7 @@ export class EditorStore extends Subject<EditorStore> {
   private _viewVersion = 0
   private _calculationsFor: string | null = null
   private _lookupWindow: OpenLookup | null = null
+  private _followPickFor: string | null = null
 
   private _planner = new SavePlanner(() => this.persist(), SAVE_DEBOUNCE_MS)
   private _hydrated = false
@@ -302,6 +303,7 @@ export class EditorStore extends Subject<EditorStore> {
   selectBlock(id: string | null): void {
     if (this._selectedId === id) return
     this._selectedId = id
+    this.pickFollowFor(null)
     this.notify(this)
   }
 
@@ -473,6 +475,15 @@ export class EditorStore extends Subject<EditorStore> {
   }
 
   get lookupWindow(): OpenLookup | null { return this._lookupWindow }
+
+  // The block that waits for a click on the block whose selection it follows.
+  get followPickFor(): string | null { return this._followPickFor }
+
+  pickFollowFor(blockId: string | null): void {
+    if (this._followPickFor === blockId) return
+    this._followPickFor = blockId
+    this.viewChanged()
+  }
 
   setLookupWindow(open: OpenLookup | null): void {
     if (this._lookupWindow === open) return

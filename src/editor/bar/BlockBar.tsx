@@ -31,7 +31,9 @@ import { useEditor } from '../state/useEditor'
 import { ActionsSection } from './ActionsSection'
 import { BarControl, FontChoice } from './BarControl'
 import { controlShown } from './controlShown'
-import { followOffered } from './followOffer'
+import { followOf, followOffered } from './followOffer'
+import { useView } from '../state/useView'
+import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import { LookupWindowSection } from './LookupWindowSection'
 import { SelectionFollowSection } from './SelectionFollowSection'
 import { SourceList } from './SourceList'
@@ -273,11 +275,24 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
           )}
         </BarWindow>
       )}
-      {maySelectionFollows(block) && followOffered(ed.tree, block) && (
-        <BarWindow label="Folgt der Auswahl" icon={Link2}>
-          {() => <SelectionFollowSection block={block} />}
-        </BarWindow>
-      )}
+      {maySelectionFollows(block) && followOffered(ed.tree, block) && (() => {
+        const follow = followOf(block)
+        if (follow === undefined) return <FollowPick block={block} />
+        const open = follow.pairs.some((p) => p.fromField === '' || p.toField === '')
+        return (
+          <BarWindow key={`follow:${follow.giverId}`} label="Folgt der Auswahl" icon={Link2} defaultOpen={open}>
+            {(close) => (
+              <SelectionFollowSection
+                block={block}
+                onPick={() => {
+                  close()
+                  ed.pickFollowFor(block.id)
+                }}
+              />
+            )}
+          </BarWindow>
+        )
+      })()}
       {events.length > 0 && (
         <BarWindow label="Aktionen" icon={Zap} width={ACTIONS_WIDTH}>
           {() => <ActionsSection block={block} events={events} />}
@@ -308,15 +323,43 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   )
 }
 
+// Waits for a click on the block whose selection this one follows; Escape or a
+// click on the canvas ends the waiting.
+function FollowPick({ block }: { block: BlockNode }) {
+  const ed = useView()
+  const waiting = ed.followPickFor === block.id
+  return (
+    <>
+      <Button
+        onlyIcon
+        aria-label="Folgt der Auswahl"
+        title="Folgt der Auswahl"
+        aria-pressed={waiting}
+        className={waiting ? 'border-accent bg-accent-soft text-ink' : undefined}
+        onClick={() => ed.pickFollowFor(waiting ? null : block.id)}
+      >
+        <Link2 size={15} />
+      </Button>
+      {waiting && <EscapeEnds onEscape={() => ed.pickFollowFor(null)} />}
+    </>
+  )
+}
+
+function EscapeEnds({ onEscape }: { onEscape: () => void }) {
+  useCloseOnEscape(onEscape)
+  return null
+}
+
 // A button in the bar that opens a small window beside it; with a sign, the
 // sign alone stands in the bar.
-export function BarWindow({ label, icon, width = 340, children }: {
+export function BarWindow({ label, icon, width = 340, defaultOpen = false, children }: {
   label: string
   icon?: Icon
   width?: number
+  defaultOpen?: boolean
   children: (close: () => void) => ReactNode
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)
   const button = useRef<HTMLButtonElement>(null)
   const pressed = open ? 'border-accent bg-accent-soft text-ink' : undefined
   return (

@@ -15,8 +15,11 @@ import {
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import { gridMetricsOf } from '../../core/block/grid'
-import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block/treeQuery'
+import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource, isSelectionGiver } from '../../core/block/treeQuery'
+import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { useEditorInstance } from '../state/EditorContext'
+import { useView } from '../state/useView'
+import { followOn } from '../bar/followOffer'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { BlockBar } from '../bar/BlockBar'
@@ -44,6 +47,7 @@ const GRAB_EDGE = 10
 
 export function BlockHost({ block, selected, onSelect, grid = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
+  const follower = useView().followPickFor
   const rootRef = useRef<HTMLDivElement | null>(null)
   const def = blockType(block.type)
   const isContainer = def?.takesChildren ?? false
@@ -112,10 +116,22 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
 
   const gridDraggable = grid
 
+  // While a block waits for its giver, only a giver answers a click; a click
+  // elsewhere goes on to the canvas, which ends the waiting.
+  const giverToPick = follower !== null && follower !== block.id && isSelectionGiver(block)
+
   return (
     <div
       ref={rootRef}
       onClick={(e) => {
+        if (follower !== null) {
+          if (!giverToPick) return
+          e.stopPropagation()
+          const node = editor.getNode(follower)
+          if (node) editor.updateProperty(follower, SELECTION_FOLLOW_PROP, followOn(node, block.id, library))
+          editor.pickFollowFor(null)
+          return
+        }
         const slot = onWindowSpot(e)
         if (slot !== null && searchWindow !== undefined && elementRef.current
           && openLookupInEditor(editor, elementRef.current, block.id, searchWindow, slot)) {
@@ -133,7 +149,9 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
 
         height: '100%',
         cursor: selected ? 'default' : 'pointer',
-        outline: selected ? '2px solid hsl(var(--wb-selection))' : '2px solid transparent',
+        outline: selected
+          ? '2px solid hsl(var(--wb-selection))'
+          : giverToPick ? '2px dashed hsl(var(--wb-selection))' : '2px solid transparent',
         outlineOffset: 1,
         borderRadius: 'var(--radius)',
         userSelect: 'none',
