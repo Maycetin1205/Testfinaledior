@@ -337,9 +337,14 @@ export class EditorStore extends Subject<EditorStore> {
 
     if (Object.is(node.values[name], value)) return true
     this.pushHistory()
+    // What this value presets, like color and size of a text by its role,
+    // follows it again.
+    const presets = Object.entries(def?.properties ?? {})
+      .filter(([, other]) => other.preset?.by === name)
+      .map(([key, other]) => [key, other.default])
     const next: MaskTree = {
       ...this._tree,
-      [id]: { ...node, values: { ...node.values, [name]: value } },
+      [id]: { ...node, values: { ...node.values, ...Object.fromEntries(presets), [name]: value } },
     }
 
     if (declared.onlyUnderSiblings && value === true && node.parentId) {

@@ -30,7 +30,7 @@ import { ChainWindow } from '../datacenter/ChainWindow'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { ActionsSection } from './ActionsSection'
-import { BarControl } from './BarControl'
+import { BarControl, FontChoice } from './BarControl'
 import { controlShown } from './controlShown'
 import { followOffered } from './followOffer'
 import { LookupWindowSection } from './LookupWindowSection'
@@ -110,6 +110,21 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number): { top: numbe
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
+// Color and size stand right behind the choice that presets them, like the
+// role of a text; without one, behind all choices.
+function withFonts(
+  shown: ReactNode[],
+  choices: DeclaredProperty[],
+  fonts: DeclaredProperty[],
+  block: BlockNode,
+): ReactNode[] {
+  if (fonts.length === 0) return shown
+  const by = fonts.find((f) => f.property.preset)?.property.preset?.by
+  const after = choices.findIndex((c) => c.key === by)
+  const at = after < 0 ? shown.length : after + 1
+  return [...shown.slice(0, at), <FontChoice key="fonts" block={block} fonts={fonts} />, ...shown.slice(at)]
+}
+
 // The small bar at the marked block: its sign and name, what the surface
 // cannot show, and on the right the bin. One line.
 export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps) {
@@ -183,6 +198,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   ))
 
   const choices = at('bar')
+  const fonts = at('font')
   const shows = at('display')
   const sourceProps = at('source')
   const lookupProps = at('lookup')
@@ -206,8 +222,8 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
         {def?.name ?? block.type}
       </span>
 
-      {choices.length > 0 && <Separator vertical />}
-      {controls(choices)}
+      {(choices.length > 0 || fonts.length > 0) && <Separator vertical />}
+      {withFonts(controls(choices), choices, fonts, block)}
 
       {shows.length > 0 && (
         <BarWindow label="Anzeige">

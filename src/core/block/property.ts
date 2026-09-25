@@ -48,10 +48,17 @@ interface PropertyType<V> {
 }
 
 // Where the builder edits the property: in the bar at the block, in one of the
-// bar's small windows (display switches, what the source holds, the lookup),
-// on the block itself, or nowhere (it has its own window or the editor writes
-// it).
-export type PropertyPlace = 'bar' | 'display' | 'source' | 'lookup' | 'block' | 'none'
+// bar's small windows (display switches, color and size of the type, what the
+// source holds, the lookup), on the block itself, or nowhere (it has its own
+// window or the editor writes it).
+export type PropertyPlace = 'bar' | 'display' | 'font' | 'source' | 'lookup' | 'block' | 'none'
+
+// While a property holds its default, another one decides what it shows, like
+// the role of a text its color. A new value there brings it back to the default.
+export interface Preset {
+  by: string
+  values: Readonly<Record<string, string>>
+}
 
 export interface Property<V> {
   type: PropertyType<V>
@@ -83,6 +90,8 @@ export interface Property<V> {
   // The property of the parent block holding a field; the bar names that field
   // beside this one.
   nameFromParentField?: string
+
+  preset?: Preset
 }
 
 export type PropertyMap = { readonly [name: string]: Property<PropertyValue> }
@@ -111,6 +120,7 @@ interface Init<V> {
   sourceProp?: string
   plainNameProp?: string
   nameFromParentField?: string
+  preset?: Preset
 }
 
 function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V>> = {}): Property<V> {
@@ -126,6 +136,7 @@ function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V
     ...(init.sourceProp !== undefined ? { sourceProp: init.sourceProp } : {}),
     ...(init.plainNameProp !== undefined ? { plainNameProp: init.plainNameProp } : {}),
     ...(init.nameFromParentField !== undefined ? { nameFromParentField: init.nameFromParentField } : {}),
+    ...(init.preset !== undefined ? { preset: init.preset } : {}),
     ...extra,
   }
 }
