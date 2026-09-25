@@ -351,7 +351,7 @@ export function FontChoice({ block, fonts }: { block: BlockNode; fonts: readonly
 
   const presetOf = (property: Property<unknown>): string => {
     const preset = property.preset
-    return preset ? preset.values[String(block.values[preset.by] ?? '')] ?? '' : ''
+    return preset?.values?.[String(block.values[preset.by] ?? '')] ?? ''
   }
   const shownOf = (d: DeclaredProperty): string => {
     const held = String(block.values[d.key] ?? '')

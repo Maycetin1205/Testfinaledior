@@ -13,30 +13,39 @@ import type { Column } from '../list/columns'
 import { coerceLookupColumns } from '../lookup/lookup'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 
-export const FIELD_TYPES = [
-  'text', 'number', 'textarea', 'select', 'date', 'time', 'checkbox', 'lookup',
-] as const
+export const FIELD_TYPES = ['text', 'number', 'date', 'time', 'select', 'checkbox'] as const
 
 export type FieldType = (typeof FIELD_TYPES)[number]
 
-export const ONLY_LOOKUP: Condition = { key: 'fieldType', equals: 'lookup' }
+// Only a text field looks up; another field type switches it off.
+export const ONLY_LOOKUP: Condition = { key: 'lookup', equals: true }
 
-export const WITHOUT_VALUE: readonly FieldType[] = ['checkbox', 'lookup']
+// A field that neither ticks nor looks up shows a value of its source.
+export const WITH_VALUE: Condition = {
+  key: 'fieldType',
+  notEquals: 'checkbox',
+  and: { key: 'lookup', notEquals: true },
+}
 
 export const formFieldProperties = {
   fieldType: choiceProperty([
     { value: 'text', name: 'Text' },
     { value: 'number', name: 'Zahl' },
-    { value: 'textarea', name: 'Mehrzeilig' },
-    { value: 'select', name: 'Auswahl' },
     { value: 'date', name: 'Datum' },
     { value: 'time', name: 'Uhrzeit' },
+    { value: 'select', name: 'Auswahl' },
     { value: 'checkbox', name: 'Ankreuzfeld' },
-    { value: 'lookup', name: 'Nachschlagen' },
   ], {
     default: 'text',
     label: 'Feldtyp',
     attribute: 'fieldtype',
+  }),
+  lookup: booleanProperty({
+    default: false,
+    label: 'Nachschlagen',
+    attribute: 'lookup',
+    when: { key: 'fieldType', equals: 'text' },
+    preset: { by: 'fieldType' },
   }),
   label: textProperty({
     default: 'Feldname',
@@ -67,7 +76,7 @@ export const formFieldProperties = {
     label: 'Feld',
     place: 'source',
     attribute: 'valuefield',
-    when: { key: 'fieldType', noneOf: WITHOUT_VALUE },
+    when: WITH_VALUE,
   }),
   lookupSource: sourceProperty({
     default: '',

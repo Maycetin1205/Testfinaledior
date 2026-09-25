@@ -13,7 +13,7 @@ import { fieldStyle } from './formFieldStyle'
 import {
   FIELD_TYPES,
   ONLY_LOOKUP,
-  WITHOUT_VALUE,
+  WITH_VALUE,
   formFieldProperties,
   type FieldType,
   type FormFieldValues,
@@ -45,6 +45,10 @@ export class FormField extends BlockElement {
 
   @state() private ticked = false
 
+  // A text field with room for two lines takes them.
+  @state() private roomy = false
+  private readonly _size = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure())
+
   private readonly _lookup = new LookupControl({
     block: this,
     report: () => this.requestUpdate(),
@@ -62,7 +66,18 @@ export class FormField extends BlockElement {
   })
 
   fillsSelf(): boolean {
-    return fieldTypeOf(this.fieldType) === 'lookup'
+    return this.lookup
+  }
+
+  private measure(): void {
+    const ctrl = this.renderRoot.querySelector<HTMLElement>('.ctrl')
+    if (!ctrl) return
+    const style = getComputedStyle(ctrl)
+    const px = (value: string): number => parseFloat(value) || 0
+    const twoLines = 2 * px(style.lineHeight) + px(style.paddingTop) + px(style.paddingBottom)
+      + px(style.borderTopWidth) + px(style.borderBottomWidth)
+    const roomy = this.clientHeight >= twoLines
+    if (roomy !== this.roomy) this.roomy = roomy
   }
 
   checkOwnValue(): void {
@@ -111,29 +126,26 @@ export class FormField extends BlockElement {
   }
 
   private controlTpl(kind: FieldType): TemplateResult {
-    switch (kind) {
-      case 'textarea':
-        return html`<textarea class="ctrl" .value=${this.value} @input=${this.onInput} @change=${this.onChange}></textarea>`
-      case 'select': {
-        const entries = this.options.split(',').map((o) => o.trim()).filter((o) => o !== '')
-        const foreignValue = this.value !== '' && !entries.includes(this.value)
-        return html`<select class="ctrl" .value=${this.value} @input=${this.onInput} @change=${this.onChange}>
-          <option value="" disabled hidden></option>
-          ${foreignValue ? html`<option value=${this.value} hidden>${this.value}</option>` : nothing}
-          ${entries.map((o) => html`<option value=${o}>${o}</option>`)}
-        </select>`
-      }
-      case 'lookup':
-        return this._lookup.render('ctrl', this.label)
-      default:
-        return html`<input
-          class="ctrl"
-          type=${kind}
-          .value=${kind === 'date' ? dateForInput(this.value) : this.value}
-          @input=${this.onInput}
-          @change=${this.onChange}
-        />`
+    if (this.lookup) return this._lookup.render('ctrl', this.label)
+    if (kind === 'select') {
+      const entries = this.options.split(',').map((o) => o.trim()).filter((o) => o !== '')
+      const foreignValue = this.value !== '' && !entries.includes(this.value)
+      return html`<select class="ctrl" .value=${this.value} @input=${this.onInput} @change=${this.onChange}>
+        <option value="" disabled hidden></option>
+        ${foreignValue ? html`<option value=${this.value} hidden>${this.value}</option>` : nothing}
+        ${entries.map((o) => html`<option value=${o}>${o}</option>`)}
+      </select>`
     }
+    if (kind === 'text' && this.roomy) {
+      return html`<textarea class="ctrl" .value=${this.value} @input=${this.onInput} @change=${this.onChange}></textarea>`
+    }
+    return html`<input
+      class="ctrl"
+      type=${kind}
+      .value=${kind === 'date' ? dateForInput(this.value) : this.value}
+      @input=${this.onInput}
+      @change=${this.onChange}
+    />`
   }
 
   protected override updated(changed: PropertyValues): void {
@@ -158,7 +170,7 @@ export class FormField extends BlockElement {
       </div>`
     }
 
-    const valueBindable = kind !== 'lookup'
+    const valueBindable = !this.lookup
     const bound = valueBindable && this.valueField !== ''
     const empty = (valueBindable ? this.value : this._lookup.inField) === ''
     const fieldClasses = `field${this.appearance === 'plain' ? ' plain' : ''}`
@@ -177,11 +189,13 @@ export class FormField extends BlockElement {
   override connectedCallback(): void {
     super.connectedCallback()
     connectValue(this)
+    this._size?.observe(this)
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
     disconnectValue(this)
+    this._size?.disconnect()
   }
 }
 
@@ -190,7 +204,7 @@ defineBlock(FormField, {
   category: 'input',
   properties: formFieldProperties,
   capabilities: [
-    { kind: 'source', when: { key: 'fieldType', notEquals: 'lookup' } },
+    { kind: 'source', when: { key: 'lookup', notEquals: true } },
     { kind: 'followsSelection' },
     { kind: 'recordPick', sourceProp: 'lookupSource', when: ONLY_LOOKUP },
     { kind: 'list', binding: LOOKUP_COLUMNS_BINDING },
@@ -211,7 +225,7 @@ defineBlock(FormField, {
       {
         prop: 'value',
         name: 'Wert',
-        when: { key: 'fieldType', noneOf: WITHOUT_VALUE },
+        when: WITH_VALUE,
         previewProp: 'label',
       },
     ]),

@@ -32,6 +32,9 @@ export interface Condition {
   equals?: PropertyValue
   notEquals?: PropertyValue
   noneOf?: readonly PropertyValue[]
+
+  // A second condition that has to hold as well.
+  and?: Condition
 }
 
 // What a block property may hold in the tree. A structured property keeps a
@@ -53,11 +56,12 @@ interface PropertyType<V> {
 // window or the editor writes it).
 export type PropertyPlace = 'bar' | 'display' | 'font' | 'source' | 'lookup' | 'block' | 'none'
 
-// While a property holds its default, another one decides what it shows, like
-// the role of a text its color. A new value there brings it back to the default.
+// Another property presets this one, like the role of a text its color: a new
+// value there brings this one back to its default, and while it holds the
+// default, `values` names what it shows.
 export interface Preset {
   by: string
-  values: Readonly<Record<string, string>>
+  values?: Readonly<Record<string, string>>
 }
 
 export interface Property<V> {
@@ -103,6 +107,7 @@ export function propertyVisible(
   values: Readonly<Record<string, PropertyValue>>,
 ): boolean {
   if (!condition) return true
+  if (condition.and && !propertyVisible(condition.and, values)) return false
   const value = values[condition.key]
   if (condition.noneOf) return !condition.noneOf.some((v) => Object.is(value, v))
   if ('notEquals' in condition) return !Object.is(value, condition.notEquals)
