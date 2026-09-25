@@ -1,18 +1,14 @@
 import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
 import { Choice, type ChoiceOption } from '@/editor/widgets/Choice'
-import { NumberInput } from '@/editor/widgets/NumberInput'
 import { X } from '@/editor/icons/icon'
 import { bindingWithSource, splitBinding } from '../../core/block/binding'
 import { newFactor, numberStrict, numberText, DECIMALS_MAX, type Factor } from '../../core/data/calculation'
 import { UNITS } from '../../core/data/units'
 import type { SourceInReach } from '../../core/data/extraSources'
-
-const KINDS: ChoiceOption[] = [
-  { value: 'column', name: 'Spalte der Zeile' },
-  { value: 'dataField', name: 'Feld des Datensatzes' },
-  { value: 'number', name: 'Feste Zahl' },
-]
+import type { ValueOrigin } from '../../core/data/valueOrigin'
+import { OriginPicker } from '../controls/OriginPicker'
+import type { OriginOffer } from '../controls/originOffer'
 
 const UNIT_OPTIONS: ChoiceOption[] = UNITS.map((e) => ({ value: e.code, name: e.name }))
 
@@ -24,20 +20,27 @@ function columnsOptions(
     .map((s) => ({ value: s.key, name: s.title === '' ? s.key : s.title }))
 }
 
-function fieldOptions(source: SourceInReach | undefined): ChoiceOption[] {
-  return (source?.source.fields ?? []).map((f) => ({
-    value: f.code,
-    name: f.name === '' ? f.code : f.name,
-    badge: f.code,
-  }))
+function originOf(factor: Factor): ValueOrigin | null {
+  if (factor.kind === 'column') return factor.column === '' ? null : { kind: 'row', value: factor.column }
+  if (factor.kind === 'number') return { kind: 'fixed', value: numberText(factor.number, DECIMALS_MAX) }
+  const { sourceId, code } = splitBinding(factor.field)
+  return code === '' ? null : { kind: 'helper', sourceId, value: code }
 }
 
-function withKind(factor: Factor, kind: string): Factor {
-  if (kind === factor.kind) return factor
+function withOrigin(factor: Factor, origin: ValueOrigin): Factor | null {
   const { key, unit } = factor
-  if (kind === 'dataField') return { kind: 'dataField', key, unit, name: '', field: '' }
-  if (kind === 'number') return { kind: 'number', key, unit, name: '', number: 1 }
-  return { ...newFactor(key), unit }
+  const name = factor.kind === 'column' ? '' : factor.name
+  if (origin.kind === 'row') {
+    return factor.kind === 'column'
+      ? { ...factor, column: origin.value }
+      : { ...newFactor(key), unit, result: false, column: origin.value }
+  }
+  if (origin.kind === 'helper') {
+    return { kind: 'dataField', key, unit, name, field: bindingWithSource(origin.sourceId ?? '', origin.value) }
+  }
+  if (origin.kind !== 'fixed') return null
+  const number = numberStrict(origin.value)
+  return number === null ? null : { kind: 'number', key, unit, name, number }
 }
 
 interface FactorRowProps {
@@ -58,27 +61,39 @@ export function FactorRow({
   onFactor,
   onRemove,
 }: FactorRowProps) {
-  const target = factor.kind === 'dataField' ? splitBinding(factor.field) : { sourceId: '', code: '' }
-  const source = sources.find((q) => q.source.id === target.sourceId)
+  // A factor takes its value from a column of the row, a field of a helper
+  // source or a fixed number.
+  const offer: OriginOffer = {
+    row: columnsOptions(columns),
+    helpers: sources.slice(1).map((q) => ({
+      sourceId: q.source.id,
+      name: q.source.name,
+      fields: q.source.fields.map((f) => ({ value: f.code, name: f.name === '' ? f.code : f.name, badge: f.code })),
+    })),
+    fixed: true,
+  }
 
   return (
     <div className="flex flex-col gap-1.5 rounded border border-line p-2">
       <div className="flex items-center gap-1.5">
-        {!lead && (
-          <Choice
-            className="w-44"
-            options={KINDS}
-            value={factor.kind}
-            onChoose={(kind) => onFactor(withKind(factor, kind))}
-          />
-        )}
-
-        {factor.kind === 'column' && (
+        {lead && factor.kind === 'column' && (
           <Choice
             options={columnsOptions(columns)}
             value={factor.column}
             emptyText="Spalte wählen"
             onChoose={(column) => onFactor({ ...factor, column })}
+          />
+        )}
+        {!lead && (
+          <OriginPicker
+            name="Wert"
+            className="w-56"
+            origin={originOf(factor)}
+            offer={offer}
+            onChoose={(origin) => {
+              const next = withOrigin(factor, origin)
+              if (next !== null) onFactor(next)
+            }}
           />
         )}
 
@@ -104,35 +119,6 @@ export function FactorRow({
         )}
       </div>
 
-      {factor.kind === 'dataField' && (
-        <div className="flex items-center gap-1.5">
-          <Choice
-            options={sources.map((q) => ({ value: q.source.id, name: q.source.name }))}
-            value={target.sourceId}
-            emptyText="Datenquelle wählen"
-            onChoose={(id) => onFactor({ ...factor, field: bindingWithSource(id, target.code) })}
-          />
-          <Choice
-            options={fieldOptions(source)}
-            value={target.code}
-            emptyText="Feld wählen"
-            onChoose={(code) => onFactor({ ...factor, field: bindingWithSource(target.sourceId, code) })}
-          />
-        </div>
-      )}
-
-      {factor.kind === 'number' && (
-        <NumberInput
-          key={numberText(factor.number, DECIMALS_MAX)}
-          className="w-32"
-          defaultValue={numberText(factor.number, DECIMALS_MAX)}
-          onBlur={(e) => {
-            const number = numberStrict(e.currentTarget.value)
-            if (number === null) e.currentTarget.value = numberText(factor.number, DECIMALS_MAX)
-            else if (number !== factor.number) onFactor({ ...factor, number })
-          }}
-        />
-      )}
     </div>
   )
 }

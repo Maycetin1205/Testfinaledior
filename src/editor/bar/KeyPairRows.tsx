@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import type { DataField } from '../../core/data/dataSources'
@@ -9,6 +10,9 @@ interface KeyPairRowsProps {
   pairs: readonly KeyPair[]
 
   leftFields: readonly DataField[]
+
+  // Where the left value comes from, in place of the field list.
+  left?: (pair: KeyPair, at: number) => ReactNode
   rightFields: readonly DataField[]
   leftName: (at: number) => string
   rightName: (at: number) => string
@@ -20,6 +24,7 @@ export function KeyPairRows({
   question,
   pairs,
   leftFields,
+  left,
   rightFields,
   leftName,
   rightName,
@@ -68,8 +73,10 @@ export function KeyPairRows({
               </Button>
             )}
           </div>
-          {fieldPicker(leftName(at), leftFields, pair.fromField,
-            (code) => setPair(at, { fromField: code }))}
+          {left
+            ? left(pair, at)
+            : fieldPicker(leftName(at), leftFields, pair.fromField,
+              (code) => setPair(at, { fromField: code }))}
           <span className="text-dense text-muted">{rightName(at)}</span>
           {fieldPicker(rightName(at), rightFields, pair.toField,
             (code) => setPair(at, { toField: code }))}

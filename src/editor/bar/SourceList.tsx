@@ -11,6 +11,9 @@ import {
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { openDataCenter } from '../datacenter/openDataCenter'
+import type { ValueOrigin } from '../../core/data/valueOrigin'
+import { OriginPicker } from '../controls/OriginPicker'
+import type { OriginOffer } from '../controls/originOffer'
 import { PickerControl } from '../controls/PickerControl'
 import { KeyPairRows } from './KeyPairRows'
 
@@ -44,56 +47,46 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     return library.filter((s) => !taken.has(s.id))
   }
 
-  function spot(id: string): string {
-    if (id === '') return 'verbundenen Datenquelle'
-    if (id === first) return 'Datenquelle'
-    const at = extra.findIndex((q) => q.sourceId === id)
-    return at === -1 ? 'Datenquelle' : `Hilfsquelle ${at + 1}`
+  const entriesOf = (id: string) => fieldsOf(id).map((f) => ({ value: f.code, name: f.name, badge: f.code }))
+
+  // The key of a helper source comes from the row itself or from another
+  // helper source; all its pairs read from the same place.
+  function offerFor(index: number): OriginOffer {
+    const own = extra[index]
+    return {
+      row: entriesOf(first),
+      helpers: extra
+        .filter((q, at) => at !== index && q.sourceId !== '' && q.sourceId !== own?.sourceId)
+        .map((q) => ({
+          sourceId: q.sourceId,
+          name: library.find((s) => s.id === q.sourceId)?.name ?? '',
+          fields: entriesOf(q.sourceId),
+        })),
+    }
   }
 
   function partnerOf(index: number): string {
     const own = extra[index]
-    if (!own || own.pairs.length === 0) return ''
-    return own.partnerId === '' || own.partnerId === own.sourceId ? first : own.partnerId
+    return !own || own.partnerId === own.sourceId ? '' : own.partnerId
   }
 
-  function setPartner(index: number, value: string): void {
+  function originOf(index: number, fromField: string): ValueOrigin | null {
+    if (fromField === '') return null
+    const partner = partnerOf(index)
+    return partner === '' ? { kind: 'row', value: fromField } : { kind: 'helper', sourceId: partner, value: fromField }
+  }
+
+  function setOrigin(index: number, at: number, origin: ValueOrigin): void {
     const own = extra[index]
-    if (value === '') {
-      change(index, { partnerId: '', pairs: [] })
-      return
-    }
+    if (!own) return
+    const partner = origin.kind === 'helper' ? (origin.sourceId ?? '') : ''
+    const same = partner === partnerOf(index)
     change(index, {
-      partnerId: value === first ? '' : value,
-      pairs: (own?.pairs.length ?? 0) === 0
-        ? [{ fromField: '', toField: '' }]
-        : (own?.pairs ?? []),
+      partnerId: partner,
+      pairs: own.pairs.map((p, x) => (x === at
+        ? { ...p, fromField: origin.value }
+        : (same ? p : { ...p, fromField: '' }))),
     })
-  }
-
-  const partnerSelection = (index: number) => {
-    const own = extra[index]
-    const entries = [
-      { value: first, name: library.find((s) => s.id === first)?.name ?? '', badge: 'Datenquelle' },
-      ...extra
-        .map((q, at) => ({ q, at }))
-        .filter(({ q, at }) => at !== index && q.sourceId !== '' && q.sourceId !== own?.sourceId)
-        .map(({ q, at }) => ({
-          value: q.sourceId,
-          name: library.find((s) => s.id === q.sourceId)?.name ?? '',
-          badge: `Hilfsquelle ${at + 1}`,
-        })),
-    ]
-    return (
-      <PickerControl
-        label="Verbunden mit"
-        name="Verbunden mit"
-        groups={[{ key: 'partner', entries }]}
-        value={partnerOf(index)}
-        emptyText="Keine"
-        onChoose={(v) => setPartner(index, v)}
-      />
-    )
   }
 
   const sourcesSelection = (value: string, title: string, onValue: (v: string) => void) => (
@@ -138,15 +131,22 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
               <X size={13} />
             </Button>
           </div>
-          {partnerSelection(i)}
 
-          {partnerOf(i) !== '' && (
+          {q.sourceId !== '' && (
             <KeyPairRows
               question="Verbindende Felder (freiwillig)"
               pairs={q.pairs}
-              leftFields={fieldsOf(partnerOf(i))}
+              leftFields={[]}
+              left={(pair, at) => (
+                <OriginPicker
+                  name={`Wert ${at + 1}`}
+                  origin={originOf(i, pair.fromField)}
+                  offer={offerFor(i)}
+                  onChoose={(origin) => setOrigin(i, at, origin)}
+                />
+              )}
               rightFields={fieldsOf(q.sourceId)}
-              leftName={(at) => `Feld ${at + 1} der ${spot(partnerOf(i))}`}
+              leftName={(at) => `Wert ${at + 1}`}
               rightName={(at) => `Feld ${at + 1} der Hilfsquelle ${i + 1}`}
               removeName={(at) => `Zeile ${at + 1} entfernen`}
               onChange={(keyPairs) => change(i, { pairs: keyPairs })}
