@@ -5,7 +5,7 @@ import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
 import { asNumber } from '../list/sorting'
-import { CELL_PLACEHOLDER, FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import { FIELD_KEY_PREFIX, type Column } from '../list/columns'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -22,8 +22,6 @@ interface CapturePlacement {
   cols: Readonly<Record<string, string>>
 
   preview: boolean
-
-  titleInCell: boolean
 
   value: (index: number) => string
 
@@ -55,9 +53,7 @@ export function captureRowTpl(
         return html`<div
           class=${column.hidden === true ? 'hidden' : nothing}
           role="cell"
-        ><span class="cell-label">${
-          placement.titleInCell ? column.title || CELL_PLACEHOLDER : ''
-        }</span></div>`
+        ><span class="cell-label"></span></div>`
       }
       const slot = placement.slots[i]
 
@@ -71,7 +67,7 @@ export function captureRowTpl(
       >${inputSpotTpl({
         value,
         title: column.title,
-        placeholder: placement.titleInCell ? column.title : '',
+        placeholder: '',
         inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
         holderClass: 'cell-holder',
         slot,

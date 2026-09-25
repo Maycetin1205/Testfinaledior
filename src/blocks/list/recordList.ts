@@ -171,7 +171,7 @@ export class RecordList implements ReactiveController {
   }
 
   private get columnPickerOn(): boolean {
-    return this.el.columnPicker && this.el.headerRow && !this.el.preview
+    return this.el.columnPicker && !this.el.preview
   }
 
   private cellValue(rawIndex: number, slot: number): string {
@@ -262,7 +262,6 @@ export class RecordList implements ReactiveController {
         cols: view.cols,
         editable: el.editable,
         preview: el.preview,
-        showHead: el.headerRow,
         columnPickerOn: this.columnPickerOn,
         columnPicker: this._choice.open === null ? null : {
           selectable: columns.filter((column) => column.hidden !== true),

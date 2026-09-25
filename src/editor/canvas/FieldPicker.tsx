@@ -1,16 +1,13 @@
-import { useEffect, useState, type RefObject } from 'react'
+import type { RefObject } from 'react'
 import { Popover } from '@/editor/widgets/Popover'
 import { cn } from '@/editor/widgets/cn'
 import { Badge } from '@/editor/widgets/Badge'
-import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { MenuRow } from '@/editor/widgets/MenuRow'
-import { Switch } from '@/editor/widgets/Switch'
 import { Separator } from '@/editor/widgets/Separator'
 import { bindingWithSource } from '../../core/block/blockType'
 import type { DataField } from '../../core/data/dataSources'
-import type { EditSession } from '../controls/useInputSession'
 
 export interface PickerGroup {
   sourceId: string
@@ -21,26 +18,7 @@ export interface PickerGroup {
   fields: readonly DataField[]
 }
 
-interface PickerTitle {
-  value: string
-
-  fallback: string
-  onChange: (title: string) => void
-
-  session: EditSession
-}
-
-interface PickerFlag {
-  key: string
-  label: string
-
-  short?: string
-  onByDefault?: boolean
-  on: boolean
-  onToggle: (on: boolean) => void
-}
-
-interface PickerField {
+export interface PickerField {
   key: string
   label: string
 
@@ -50,32 +28,24 @@ interface PickerField {
   onChoose: (value: string) => void
 }
 
+// A block without a source yet offers the sources of the library instead.
+export interface SourcesChoice {
+  entries: readonly { value: string; name: string; badge?: string }[]
+  onChoose: (sourceId: string) => void
+
+  onDataCenter?: () => void
+}
+
 interface FieldPickerProps {
   spotLabel: string
   groups: readonly PickerGroup[]
 
-  title?: PickerTitle
-
-  flag?: readonly PickerFlag[]
-
-  extraFields?: readonly PickerField[]
-
-  sourcesChoice?: {
-    entries: readonly { value: string; name: string; badge?: string }[]
-    onChoose: (sourceId: string) => void
-
-    onDataCenter?: () => void
-  }
+  sourcesChoice?: SourcesChoice
 
   current?: string
 
   onRemove?: () => void
   removeLabel?: string
-
-  moreActions?: readonly {
-    label: string
-    onOpen: () => void
-  }[]
 
   anchor?: RefObject<HTMLElement | null>
 
@@ -87,8 +57,6 @@ interface FieldPickerProps {
   onPick: (value: string) => void
   onClose: () => void
 }
-
-const MAIN_FIELD = ''
 
 const NOT_BOUND = 'Nicht gebunden'
 
@@ -126,16 +94,13 @@ function listGroups(groups: readonly PickerGroup[]): ListGroup[] {
 interface FieldRowProps {
   label: string
   display: Display
-  active: boolean
-  onActive: () => void
 }
 
-function FieldRow({ label, display, active, onActive }: FieldRowProps) {
+function FieldRow({ label, display }: FieldRowProps) {
   return (
     <MenuRow
-      active={active}
-      aria-pressed={active}
-      onClick={onActive}
+      active
+      aria-pressed
       className="shrink-0 px-1.5"
     >
 
@@ -159,9 +124,6 @@ function FieldRow({ label, display, active, onActive }: FieldRowProps) {
 export function FieldPicker({
   spotLabel,
   groups,
-  title,
-  flag,
-  extraFields,
   sourcesChoice,
   current,
   anchor,
@@ -172,43 +134,8 @@ export function FieldPicker({
   onClose,
   onRemove,
   removeLabel,
-  moreActions,
 }: FieldPickerProps) {
-  const titleSession = title?.session
-  useEffect(() => () => {
-    titleSession?.finish()
-  }, [titleSession])
-
-  const [targetKey, setTargetKey] = useState(MAIN_FIELD)
-
-  const extraTargets = extraFields ?? []
-
-  const targets: readonly PickerField[] = [
-    {
-      key: MAIN_FIELD,
-      label: 'Feld',
-      current: current ?? '',
-      onChoose: onPick,
-    },
-    ...extraTargets,
-  ]
-  const active = targets.find((z) => z.key === targetKey) ?? targets[0]
-
-  const visibleGroups = active.onlyForeignSources === true
-    ? groups.filter((g) => g.sourceId !== '')
-    : groups
-
-  const hasFlags = (flag?.length ?? 0) > 0
-
-  const fieldRow = (target: PickerField) => (
-    <FieldRow
-      key={target.key}
-      label={target.label}
-      display={displayOf(target.current, groups)}
-      active={target.key === active.key}
-      onActive={() => setTargetKey(target.key)}
-    />
-  )
+  const chosen = current ?? ''
 
   return (
     <Popover
@@ -249,78 +176,38 @@ export function FieldPicker({
         ) : (
           <>
 
-        {title && (
-          <Field
-            value={title.value}
-            placeholder={title.fallback}
-            aria-label="Spaltenname"
-            onChange={(e) => {
-              title.session.begin()
-              title.onChange(e.currentTarget.value)
-            }}
-            onBlur={() => {
-              title.session.finish()
-              if (title.value.trim() === '') title.onChange(title.fallback)
-            }}
-            className="shrink-0 font-medium"
-          />
-        )}
-
-        {fieldRow(targets[0])}
-
-        {extraTargets.map(fieldRow)}
-
-        {hasFlags && (
-          <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 px-1.5">
-            {(flag ?? []).map((s) => (
-              <Switch
-                key={s.key}
-                on={s.on}
-                label={s.short ?? s.label}
-                onToggle={s.onToggle}
-              />
-            ))}
-          </div>
-        )}
+        <FieldRow label="Feld" display={displayOf(chosen, groups)} />
 
         <Separator className="shrink-0" />
 
         <p className="flex shrink-0 items-baseline gap-2 px-1.5 text-label font-semibold uppercase tracking-label text-muted">
           <span className="min-w-0 truncate">
-            {active.label} wählen
+            Feld wählen
           </span>
-          {visibleGroups.length === 1 && (
+          {groups.length === 1 && (
             <span className="min-w-0 truncate normal-case tracking-normal">
-              aus {visibleGroups[0].name}
+              aus {groups[0].name}
             </span>
           )}
         </p>
 
         <List
-          key={`liste:${active.key}`}
           fill
           searchable
           groups={listGroups(
-            visibleGroups.length === 1
-              ? [{ ...visibleGroups[0], name: '' }]
-              : visibleGroups,
+            groups.length === 1
+              ? [{ ...groups[0], name: '' }]
+              : groups,
           )}
-          value={active.current}
+          value={chosen}
           emptyText={NOT_BOUND}
-          onChoose={active.onChoose}
+          onChoose={onPick}
         />
           </>
         )}
-        {((moreActions?.length ?? 0) > 0 || onRemove !== undefined) && (
-          <div className="flex shrink-0 items-center justify-between gap-2 border-t border-line px-1.5 pt-1.5">
-            <div className="flex items-center gap-1.5">
-              {(moreActions ?? []).map((w) => (
-                <Button key={w.label} onClick={w.onOpen}>{w.label}</Button>
-              ))}
-            </div>
-            {onRemove !== undefined && (
-              <Button kind="risk" onClick={onRemove}>{removeLabel ?? 'Entfernen'}</Button>
-            )}
+        {onRemove !== undefined && (
+          <div className="flex shrink-0 items-center justify-end gap-2 border-t border-line px-1.5 pt-1.5">
+            <Button kind="risk" onClick={onRemove}>{removeLabel ?? 'Entfernen'}</Button>
           </div>
         )}
       </div>

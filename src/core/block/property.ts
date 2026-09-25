@@ -52,9 +52,9 @@ interface PropertyType<V> {
 
 // Where the builder edits the property: in the bar at the block, in one of the
 // bar's small windows (display switches, color and size of the type, what the
-// source holds, the lookup), on the block itself, or nowhere (it has its own
-// window or the editor writes it).
-export type PropertyPlace = 'bar' | 'display' | 'font' | 'source' | 'lookup' | 'block' | 'none'
+// source holds, the lookup), in the bar at a column head, on the block itself,
+// or nowhere (it has its own window or the editor writes it).
+export type PropertyPlace = 'bar' | 'display' | 'font' | 'source' | 'lookup' | 'column' | 'block' | 'none'
 
 // Another property presets this one, like the role of a text its color: a new
 // value there brings this one back to its default, and while it holds the

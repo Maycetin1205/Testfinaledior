@@ -55,8 +55,6 @@ interface BodyPlacement {
 
   preview: boolean
 
-  showHead: boolean
-
   columnPickerOn: boolean
 
   columnPicker: ColumnsChoicePlacement | null
@@ -164,7 +162,6 @@ function rowTpl(
       const own = rawIndex === null ? null : decoration.cell(slot, s, value)
       if (own !== null) return own
 
-      const headHandle = placement.preview && !placement.showHead && placement.editable
       const classes = [
         s.hidden === true ? 'hidden' : '',
         rawIndex !== null && asNumber(value) !== null ? 'number' : '',
@@ -172,8 +169,6 @@ function rowTpl(
       return html`<div
         class=${classes === '' ? nothing : classes}
         role="cell"
-        data-ff-editable=${headHandle ? '' : nothing}
-        data-ff-entry=${headHandle && viewIndex === 0 ? slot : nothing}
       >${markHit(value, placement.searchText)}</div>`
     })}
     ${decoration.right}
@@ -199,7 +194,7 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
         </div>
       </div>` : ''}
       <div class="body" role=${placement.empty ? nothing : 'table'} tabindex="-1">
-      ${placement.showHead ? html`<div class="head" role="row" style=${styleMap(placement.cols)}>
+      <div class="head" role="row" style=${styleMap(placement.cols)}>
         ${
           placement.columns.map(
           (s, i) => html`<div
@@ -218,7 +213,7 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
             : ''}</div>`,
         )}
         ${widthsHandles(placement.columns.length, act.widths)}
-      </div>` : nothing}
+      </div>
         ${placement.empty ? nothing : html`
         ${placement.rows.map((rawIndex, viewIndex) => html`${
           viewIndex === firstEmpty ? placement.bottom : nothing

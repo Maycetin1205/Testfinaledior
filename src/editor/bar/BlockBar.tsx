@@ -9,7 +9,7 @@ import {
   type RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Calculator, Component, Link2, Minus, Plus, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
+import { Calculator, Component, Link2, Plus, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Popover } from '@/editor/widgets/Popover'
 import { Separator } from '@/editor/widgets/Separator'
@@ -87,8 +87,9 @@ function headDepth(el: HTMLElement, element: HTMLElement | null, head: string | 
 
 // Above the top edge, where no other block and no edge is in the way; else
 // inside on the block's own top edge, below the column heads of a table. Flush
-// left, else flush right, whichever touches no other block.
-function spotFor(bar: HTMLElement, el: HTMLElement, depth: number): { top: number; left: number } {
+// with the given left edge, like a column's, else flush left, else flush right,
+// whichever touches no other block.
+function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: number): { top: number; left: number } {
   const room = roomOf(el)
   bar.style.maxWidth = `${Math.max(0, room.right - room.left)}px`
   const w = bar.offsetWidth
@@ -96,7 +97,7 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number): { top: numbe
   const r = el.getBoundingClientRect()
   const others = otherBlocks(el)
   const inRoom = (left: number) => Math.max(room.left, Math.min(left, room.right - w))
-  const lefts = [inRoom(r.left), inRoom(r.right - w)]
+  const lefts = [...(align === undefined ? [] : [inRoom(align)]), inRoom(r.left), inRoom(r.right - w)]
   const free = (top: number, left: number) => {
     const box = { top, bottom: top + h, left, right: left + w }
     return box.top >= room.top && box.bottom <= room.bottom && !others.some((o) => overlaps(box, o))
@@ -109,6 +110,63 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number): { top: numbe
 }
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
+
+interface BarFrameProps {
+  host: RefObject<HTMLElement | null>
+  element: HTMLElement | null
+  head?: string
+
+  // The left edge the bar would rather start at, like a column's.
+  align?: number
+  children: ReactNode
+}
+
+// The frame of a bar at a block: one line, placed anew after every change and
+// whenever the canvas scrolls or the block changes its size.
+export function BarFrame({ host, element, head, align, children }: BarFrameProps) {
+  const barRef = useRef<HTMLDivElement | null>(null)
+  const placeRef = useRef(() => {})
+  useLayoutEffect(() => {
+    placeRef.current = () => {
+      const bar = barRef.current
+      const el = host.current
+      if (!bar || !el) return
+      const spot = spotFor(bar, el, headDepth(el, element, head), align)
+      bar.style.top = `${spot.top}px`
+      bar.style.left = `${spot.left}px`
+    }
+    placeRef.current()
+  })
+  useEffect(() => {
+    const place = () => placeRef.current()
+    const el = host.current
+    const watch = new ResizeObserver(place)
+    if (el) watch.observe(el)
+    window.addEventListener('scroll', place, true)
+    window.addEventListener('resize', place)
+    return () => {
+      watch.disconnect()
+      window.removeEventListener('scroll', place, true)
+      window.removeEventListener('resize', place)
+    }
+  }, [host])
+
+  return createPortal(
+    <div
+      ref={barRef}
+      data-ff-editor-helper
+      className="fixed z-20 flex w-max items-center gap-[4px] overflow-hidden whitespace-nowrap rounded border border-line bg-panel p-px text-ui text-ink"
+      style={{ top: -9999, left: -9999 }}
+      onPointerDown={hold}
+      onClick={hold}
+      onDoubleClick={hold}
+      onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }}
+    >
+      {children}
+    </div>,
+    document.body,
+  )
+}
 
 // Color and size stand right behind the choice that presets them, like the
 // role of a text; without one, behind all choices.
@@ -133,36 +191,6 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   const template = def?.templateKind ? firstDescendantOfType(ed.tree, block.id, def.templateKind.type) : undefined
   const [chainEvent, setChainEvent] = useState<EventDef | null>(null)
 
-  // Placed anew after every change, and whenever the canvas scrolls or the
-  // block changes its size.
-  const barRef = useRef<HTMLDivElement | null>(null)
-  const placeRef = useRef(() => {})
-  const head = def?.head
-  useLayoutEffect(() => {
-    placeRef.current = () => {
-      const bar = barRef.current
-      const el = host.current
-      if (!bar || !el) return
-      const spot = spotFor(bar, el, headDepth(el, element, head))
-      bar.style.top = `${spot.top}px`
-      bar.style.left = `${spot.left}px`
-    }
-    placeRef.current()
-  })
-  useEffect(() => {
-    const place = () => placeRef.current()
-    const el = host.current
-    const watch = new ResizeObserver(place)
-    if (el) watch.observe(el)
-    window.addEventListener('scroll', place, true)
-    window.addEventListener('resize', place)
-    return () => {
-      watch.disconnect()
-      window.removeEventListener('scroll', place, true)
-      window.removeEventListener('resize', place)
-    }
-  }, [host])
-
   const session = useMemo(() => ({
     onBeginEditing: () => ed.beginTransaction(),
     onEndEditing: () => ed.endTransaction(),
@@ -177,11 +205,6 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
         ed.dataSourceFor(block.id)?.id ?? '',
         ed.sourcesFor(block.id).map((q) => q.source),
       )) || kind.name
-  const list = capability(def, 'list')?.binding
-  const entryName = list?.defaultTitle.replace(/\s*\{n\}/, '') ?? 'Eintrag'
-  const entries = list ? list.entries(block.values[list.prop]) : []
-  const added = list?.entryAdd?.(entries) ?? null
-  const removePossible = list?.entryRemove !== undefined && entries.length > 1
 
   const sourceInReach = ed.dataSourceFor(block.id)
   const at = (where: PropertyPlace): DeclaredProperty[] => (def ? propertiesFor(block, def, where) : [])
@@ -206,17 +229,8 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   const windowShown = searchWindow !== undefined && propertyVisible(searchWindow.when, block.values)
   const events = capability(def, 'events')?.list ?? []
 
-  return createPortal(
-    <div
-      ref={barRef}
-      data-ff-editor-helper
-      className="fixed z-20 flex w-max items-center gap-[4px] overflow-hidden whitespace-nowrap rounded border border-line bg-panel p-px text-ui text-ink"
-      style={{ top: -9999, left: -9999 }}
-      onPointerDown={hold}
-      onClick={hold}
-      onDoubleClick={hold}
-      onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }}
-    >
+  return (
+    <BarFrame host={host} element={element} head={def?.head}>
       <span className="flex h-control items-center gap-[6px] pl-[6px] pr-[2px] font-semibold">
         {createElement(BLOCK_ICONS[block.type] ?? Component, { size: 14, className: 'text-muted' })}
         {def?.name ?? block.type}
@@ -290,27 +304,6 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
           <Plus size={13} /> {kindName}
         </Button>
       )}
-      {list?.entryAdd !== undefined && (
-        <Button
-          disabled={added === null}
-          onClick={() => {
-            if (added !== null) ed.updateProperty(block.id, list.prop, added)
-          }}
-        >
-          <Plus size={13} /> {entryName}
-        </Button>
-      )}
-      {list?.entryRemove !== undefined && (
-        <Button
-          disabled={!removePossible}
-          onClick={() => {
-            const next = list.entryRemove?.(entries, entries.length - 1) ?? null
-            if (next !== null) ed.updateProperty(block.id, list.prop, next)
-          }}
-        >
-          <Minus size={13} /> {entryName}
-        </Button>
-      )}
 
       {onRemove && (
         <>
@@ -329,8 +322,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
           onClose={() => setChainEvent(null)}
         />
       )}
-    </div>,
-    document.body,
+    </BarFrame>
   )
 }
 

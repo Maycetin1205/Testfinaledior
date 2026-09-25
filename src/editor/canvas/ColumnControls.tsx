@@ -1,7 +1,9 @@
 import { useEffect, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
+import { Plus } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
+import { startRename } from '../../blocks/base/inlineRename'
 import type { BlockNode } from '../../core/block/tree'
-import type { ListBinding } from '../../core/block/blockType'
+import { listDefaultTitle, type ListBinding } from '../../core/block/blockType'
 import { useEditorInstance } from '../state/EditorContext'
 
 interface Spot {
@@ -15,6 +17,7 @@ interface Spot {
 
 interface ColumnControlsProps {
   block: BlockNode
+  selected: boolean
   binding: ListBinding
   selector: string
 
@@ -29,6 +32,9 @@ interface ColumnControlsProps {
 const DRAG_THRESHOLD = 5
 
 const HANDLE_EDGE = 6
+
+// The plus at the end of the heads, as .vspalte-zahl: white with an edge.
+const PLUS_SIZE = 20
 
 function measure(element: HTMLElement, host: HTMLElement, selector: string): Spot[] {
   const root = element.shadowRoot
@@ -48,7 +54,7 @@ function measure(element: HTMLElement, host: HTMLElement, selector: string): Spo
 }
 
 export function ColumnControls({
-  block, binding, selector, element, host, container, onSelect,
+  block, selected, binding, selector, element, host, container, onSelect,
 }: ColumnControlsProps) {
   const editor = useEditorInstance()
   const [spots, setSpots] = useState<Spot[]>([])
@@ -91,6 +97,25 @@ export function ColumnControls({
       },
     }))
   }
+
+  // The title is typed on the head itself.
+  const rename = (index: number): void => {
+    const s = spots[index]
+    const head = element?.shadowRoot?.querySelectorAll<HTMLElement>(selector)[index]
+    const text = head?.querySelector<HTMLElement>('.head-text') ?? head
+    if (!s || !text) return
+    startRename(text, (typed, original) => {
+      if (typed === original) return true
+      const entries = binding.entries(block.values[binding.prop])
+      const entry = entries[s.slot]
+      if (entry === undefined) return false
+      const next = [...entries]
+      next[s.slot] = binding.withTypedTitle(entry, typed === '' ? listDefaultTitle(binding, s.slot) : typed)
+      return editor.updateProperty(block.id, binding.prop, next)
+    })
+  }
+
+  const added = binding.entryAdd?.(binding.entries(block.values[binding.prop])) ?? null
 
   const onPress = (index: number, e: ReactPointerEvent<HTMLDivElement>): void => {
     if (e.button !== 0) return
@@ -184,9 +209,33 @@ export function ColumnControls({
           }}
           onPointerDown={(e) => onPress(i, e)}
           onClick={(e) => e.stopPropagation()}
-          onDoubleClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => {
+            e.stopPropagation()
+            rename(i)
+          }}
         />
       ))}
+      {selected && added !== null && (
+        <button
+          type="button"
+          aria-label="Spalte anfügen"
+          title="Spalte anfügen"
+          className="pointer-events-auto absolute grid place-items-center rounded border border-line bg-panel text-[hsl(var(--wb-selection))] hover:bg-[hsl(var(--wb-selection)/0.08)]"
+          style={{
+            left: last.left + last.width - PLUS_SIZE - 4,
+            top: last.top + (last.height - PLUS_SIZE) / 2,
+            width: PLUS_SIZE,
+            height: PLUS_SIZE,
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            editor.updateProperty(block.id, binding.prop, added)
+          }}
+        >
+          <Plus size={13} />
+        </button>
+      )}
       {line !== null && (
         <div
           className="absolute w-[3px] rounded bg-[hsl(var(--wb-selection))]"

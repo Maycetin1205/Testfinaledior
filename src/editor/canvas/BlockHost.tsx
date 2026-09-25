@@ -79,7 +79,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     grid,
   })
 
-  const { onClick, onDoubleClick, pickers } = useFieldBinding({
+  const { onClick, onDoubleClick, pickers, columnOpen } = useFieldBinding({
     editor,
     blockRef,
     block,
@@ -165,6 +165,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       {list?.entrySpots !== undefined && (
         <ColumnControls
           block={block}
+          selected={selected === true}
           binding={list}
           selector={list.entrySpots}
           element={element}
@@ -173,7 +174,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           onSelect={onSelect}
         />
       )}
-      {selected && (
+      {selected && !columnOpen && (
         <BlockBar
           block={block}
           def={def}

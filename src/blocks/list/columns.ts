@@ -222,7 +222,7 @@ const TOTAL: EntrySwitch<Column> = {
 const HIDDEN: EntrySwitch<Column> = {
   key: 'hidden',
   name: 'In der Maske ausblenden',
-  short: 'ausgeblendet',
+  short: 'Ausblenden',
   valueOf: (column) => column.hidden,
   withValue: (column, on) => withEntryValue(column, 'hidden', on),
 }

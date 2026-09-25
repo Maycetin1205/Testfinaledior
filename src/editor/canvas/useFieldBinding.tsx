@@ -19,8 +19,9 @@ import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { widthFromLength, lengthOf } from './fieldWidth'
 import { openLookupInEditor } from './lookupWindowState'
-import { useInputSession } from '../controls/useInputSession'
 import { openDataCenter } from '../datacenter/openDataCenter'
+import { Calculator, Search } from '@/editor/icons/icon'
+import { ColumnBar } from '../bar/ColumnBar'
 import { FieldPicker, type PickerGroup } from './FieldPicker'
 import { bindingCode, useBindingPicker } from './useBindingPicker'
 
@@ -83,13 +84,12 @@ export function useFieldBinding({
   onClick: (e: ReactMouseEvent<HTMLDivElement>) => void
   onDoubleClick: (e: ReactMouseEvent<HTMLDivElement>) => void
   pickers: ReactNode
+
+  // A column head is chosen: its bar stands in the place of the block's.
+  columnOpen: boolean
 } {
   const library = useDataSources().list
 
-  const typingSession = useInputSession(
-    () => editor.beginTransaction(),
-    () => editor.endTransaction(),
-  )
   const hasSource = sources.length > 0
 
   const libraryOffer = !hasSource && sourcesCarrier(editor.tree, block.id) !== undefined
@@ -133,11 +133,11 @@ export function useFieldBinding({
       if (detail?.prop !== listBinding.prop || typeof detail.index !== 'number') return
       const index = detail.index
 
-      setListPicker((before) => (before !== null && before.index === index ? null : {
+      setListPicker({
         index,
         top: Math.max(8, detail.top ?? 0),
-        left: Math.max(8, Math.min(detail.left ?? 0, window.innerWidth - 248)),
-      }))
+        left: Math.max(8, detail.left ?? 0),
+      })
     }
     el.addEventListener('ff-list-bind', handler)
     return () => el.removeEventListener('ff-list-bind', handler)
@@ -198,7 +198,7 @@ export function useFieldBinding({
           onClose={closePicker}
         />
       )}
-      {selected && listPicker && listBinding && listPickerHasFields && (() => {
+      {selected && listPicker && listBinding && (() => {
         const list = entriesOf()
         const entry = list[listPicker.index]
         if (entry === undefined) return null
@@ -214,48 +214,67 @@ export function useFieldBinding({
           : groups
         const titleNow = listBinding.titleOf(entry)
         const defaultTitle = listDefaultTitle(listBinding, listPicker.index)
-        return (
-          <FieldPicker
+        const plainName = (fieldValue: string): string => (perSource
+          ? (sourceFromProp.fields.find((f) => f.code === fieldValue)?.name ?? '')
+          : plainNameOf(fieldValue, sources)) || fieldValue
 
+        const pickField = (value: string): void => {
+          editor.transaction(() => {
+            const next = entriesOf()
+            const target = next[listPicker.index]
+            if (target === undefined) return
+            const length = perSource
+              ? sourceFromProp.fields.find((f) => f.code === value)?.length
+              : lengthOf(value, sources)
+            next[listPicker.index] = listBinding.withPickedField(
+              target,
+              value,
+              value === '' ? defaultTitle : plainName(value),
+              widthFromLength(length),
+            )
+            editor.updateProperty(block.id, listBinding.prop, next)
+          })
+        }
+
+        return (
+          <ColumnBar
             key={listPicker.index}
-            spotLabel={titleNow === '' ? defaultTitle : titleNow}
+            block={block}
+            host={containerRef}
+            element={element}
+            align={listPicker.left}
+            name={titleNow === '' ? defaultTitle : titleNow}
+            fields={!listPickerHasFields ? [] : [
+              { key: 'field', label: 'Feld', current: listBinding.fieldOf(entry), onChoose: pickField },
+              ...fieldChoicesRead(listBinding, entry).map(({ choice, value }) => ({
+                key: choice.key,
+                label: choice.name,
+                current: value,
+                onlyForeignSources: choice.onlyForeignSources,
+                onChoose: (next: string) => writeInEntry(listPicker.index, (e) => choice.withValue(e, next)),
+              })),
+            ]}
             groups={listGroups}
-            title={{
-              value: titleNow,
-              fallback: defaultTitle,
-              onChange: (next) => {
-                typingSession.begin()
-                writeInEntry(listPicker.index, (e) => listBinding.withTypedTitle(e, next))
-              },
-              session: typingSession,
-            }}
-            extraFields={fieldChoicesRead(listBinding, entry).map(({ choice, value }) => ({
-              key: choice.key,
-              label: choice.name,
-              current: value,
-              onlyForeignSources: choice.onlyForeignSources,
-              onChoose: (next) => writeInEntry(listPicker.index, (e) => choice.withValue(e, next)),
-            }))}
-            flag={flagFor(listBinding, entry).map((s) => ({
+            sourcesChoice={perSource ? undefined : sourcesChoice}
+            nameOf={plainName}
+            switches={flagFor(listBinding, entry).map((s) => ({
               key: s.key,
-              label: s.name,
-              short: s.short,
-              onByDefault: s.onByDefault,
+              label: s.short ?? s.name,
               on: flagOn(s, entry),
               onToggle: (on) => writeInEntry(listPicker.index, (e) => s.withValue(e, on)),
             }))}
-            current={listBinding.fieldOf(entry)}
-            moreActions={[
+            actions={[
               ...(!ownWindow || searchWindow === undefined ? [] : [{
-                label: 'Suchfenster…',
+                label: 'Suchfenster',
+                icon: Search,
                 onOpen: () => {
                   openWindow(listPicker.index)
-
                   setListPicker(null)
                 },
               }]),
               ...(!canCompute(block) ? [] : [{
-                label: 'Berechnung…',
+                label: 'Berechnung',
+                icon: Calculator,
                 onOpen: () => {
                   editor.openCalculations(block.id)
                   setListPicker(null)
@@ -269,36 +288,6 @@ export function useFieldBinding({
               editor.updateProperty(block.id, listBinding.prop, next)
               setListPicker(null)
             }}
-            sourcesChoice={perSource ? undefined : sourcesChoice}
-            anchor={containerRef}
-            top={listPicker.top}
-            left={listPicker.left}
-            onPick={(raw) => {
-              editor.transaction(() => {
-                const value = raw
-                const next = entriesOf()
-                const target = next[listPicker.index]
-                if (target === undefined) return
-
-                const plainName = (fieldValue: string): string => (perSource
-                  ? (sourceFromProp.fields.find((f) => f.code === fieldValue)?.name ?? '')
-                  : plainNameOf(fieldValue, sources)) || fieldValue
-
-                const length = perSource
-                  ? sourceFromProp.fields.find((f) => f.code === value)?.length
-                  : lengthOf(value, sources)
-                const width = widthFromLength(length)
-
-                next[listPicker.index] = listBinding.withPickedField(
-                  target,
-                  value,
-                  value === '' ? defaultTitle : plainName(value),
-                  width,
-                )
-                editor.updateProperty(block.id, listBinding.prop, next)
-              })
-
-            }}
             onClose={closeListPicker}
           />
         )
@@ -306,5 +295,8 @@ export function useFieldBinding({
     </>
   )
 
-  return { onClick, onDoubleClick, pickers }
+  const columnOpen = selected === true && listPicker !== null
+    && entriesOf()[listPicker.index] !== undefined
+
+  return { onClick, onDoubleClick, pickers, columnOpen }
 }

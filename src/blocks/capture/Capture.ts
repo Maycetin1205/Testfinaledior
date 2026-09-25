@@ -164,7 +164,6 @@ export class Capture extends BlockElement
               ledger: this._ledger,
               block: this,
               preview: this.preview,
-              titleInCell: !this.headerRow,
               sourceId: this.source,
               windowWidth: validMetrics(this.windowWidth, WINDOW_WIDTH),
               windowHeight: validMetrics(this.windowHeight, WINDOW_HEIGHT),

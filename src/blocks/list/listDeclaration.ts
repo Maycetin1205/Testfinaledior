@@ -30,16 +30,10 @@ export function listProperties() {
       place: 'display',
       attribute: 'paging',
     }),
-    headerRow: booleanProperty({
-      default: true,
-      label: 'Kopfzeile',
-      place: 'display',
-      attribute: 'headerrow',
-    }),
     columnPicker: booleanProperty({
       default: false,
       label: 'Spaltenwahl',
-      place: 'display',
+      place: 'column',
       attribute: 'columnpicker',
     }),
     dayField: dayFieldProperty(),

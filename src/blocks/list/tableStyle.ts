@@ -165,6 +165,13 @@ export const tableStyle = css`
         text-overflow: ellipsis;
       }
 
+      /* A 1-px line between the columns: in the head, in the rows, in the rest below. */
+      .head > [role='columnheader'] + [role='columnheader'],
+      .row > [role='cell'] + [role='cell'],
+      .ruler > div + div {
+        border-left: var(--se-border) solid var(--se-line-soft);
+      }
+
       .row > div.number {
         text-align: right;
         font-variant-numeric: tabular-nums;

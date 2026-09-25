@@ -17,8 +17,6 @@ interface CaptureRowPlacement {
 
   preview: boolean
 
-  titleInCell: boolean
-
   sourceId: string
 
   windowWidth: number
@@ -91,7 +89,6 @@ export function captureRowFor(
     slots: view.slots,
     sourceId: placement.sourceId,
     cols,
-    titleInCell: placement.titleInCell,
     preview: placement.preview,
     value: (i) => cells[i]?.value ?? '',
     automatic: (i) => cells[i]?.automatic === true,
