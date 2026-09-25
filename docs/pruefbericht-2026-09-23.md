@@ -962,10 +962,13 @@ unlogisch und werden in Schritt 2 neu geordnet.
    (90a210e), 9 Suchfenster und Popup ziehen (6dcba5f), 10 Tabelle mit
    Spaltenleiste (ab3befa), 11 Erfassung (16b31c9), 12 Wertherkunft
    (8764260), 13 Aktionen als Sätze (0adbba0), 14 Folgt der Auswahl
-   (f086f44). Die Wertherkunft bietet je Stelle, was die Stelle lesen kann:
-   Hilfsquelle Spalte dieser Zeile und Feld einer Hilfsquelle, Berechnung
-   dazu den festen Wert, Aktionen alle fünf, Folgt der Auswahl die gewählte
-   Zeile des Gebers.
+   (f086f44). Danach, nicht in SoftEngine geprüft: 15 Folgt auch dem Beleg
+   oder einem Formularfeld (e156f1a), 16 Wer folgt, zeigt ohne Vorgabe
+   nichts (5642ce5), 17 Sortieren per Klick (9e81fbe), 18 Pflicht je Spalte
+   und je Feld (2247a4a). Die Wertherkunft bietet je Stelle, was die Stelle
+   lesen kann: Hilfsquelle Spalte dieser Zeile und Feld einer Hilfsquelle,
+   Berechnung dazu den festen Wert, Aktionen alle fünf, Folgt der Auswahl die
+   gewählte Zeile des Gebers, den Beleg und die Formularfelder.
    Regel für die Leiste: eine Zeile, höchstens sieben Elemente, über dem
    Baustein; passt es dort nicht, unter dem Baustein; erst dann innen auf
    dem eigenen Kopf. Nie über anderen Bausteinen, nie über Inhalt. Sind es
