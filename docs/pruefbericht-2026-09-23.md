@@ -958,9 +958,9 @@ unlogisch und werden in Schritt 2 neu geordnet.
    Fertig: 1 Kopfzeile (1ad6913), 2 Palette als dunkler Streifen (4c2c96d,
    Namen Knopf und Feld 8738d38), 3 Ziehen an vier Kanten (ea42748),
    4 Leiste am Baustein statt Inspector (57acab5, nachgebessert 766f411,
-   3de3945, 87344dc), 5 Daten als Seitenleiste (4ee693b). Offen:
-   6. Eine Datei zum Laden: die Maske trägt ihre Quellen und Relationen
-      selbst; die Bibliothek bleibt der Katalog.
+   3de3945, 87344dc), 5 Daten als Seitenleiste (4ee693b), 6 Eine Datei
+   zum Laden, die Maske trägt ihre Quellen und Relationen selbst, die
+   Bibliothek bleibt der Katalog (3f2bc88). Offen:
    7. Text: Farbe (Dunkel, Grau, Hell, Petrol, Blau, Grün, Ocker, Rot) und
       Größe (11, 12, 13, 14, 15, 16, 19 px) in der Leiste; die Rolle gibt
       beides vor, die Wahl ändert nur das eine.
@@ -975,11 +975,22 @@ unlogisch und werden in Schritt 2 neu geordnet.
       Spalte plus/minus fallen aus der Leiste; senkrechte Trennlinien 1 px
       `--se-line-soft`, auch im Nachschlagefenster; weg: Kopfzeile aus.
    11. Erfassung: am Spaltenkopf Eingabe erlaubt, Füllfeld, Nachschlagen; in
-      der Leiste Löschbar und Hilfsquelle. Eine Zelle, in die getippt wird,
-      sieht aus wie jede andere, nur mit Cursor: kein Rahmen, kein Ring,
-      kein weißer Grund; die gewählte Zeile höchstens `--se-accent-soft`.
-   12. Aktionen als Sätze unter dem Ereignis, jede Stelle anklickbar.
-   13. Folgt der Auswahl: in der Leiste anklicken, dann den gebenden
+      der Leiste Hilfsquelle. Eine Zelle, in die getippt wird, sieht aus wie
+      jede andere, nur mit Cursor: kein Rahmen, kein Ring, kein weißer
+      Grund; die gewählte Zeile höchstens `--se-accent-soft`. Enter und Tab
+      gehen eine Spalte weiter, eine vorgefüllte Zelle ist beim Betreten
+      markiert, die letzte Spalte erfasst die Zeile. Enter in der
+      Vorschlagsliste übernimmt nur den Treffer; getippter Text ohne Treffer
+      fällt beim Verlassen der Zelle weg. Der genaue Treffer steht oben in
+      der Liste, die Suche geht über alle Spalten derselben Quelle.
+      Geschrieben wird nur, was unter dem Strich steht, nie die Tippzeile.
+      Weg: der Schalter „Löschbar" und das Kreuz; F4 bleibt.
+   12. Wertherkunft: eine Liste, woher ein Wert kommt (Spalte dieser Zeile,
+      Feld einer Hilfsquelle, Feld des offenen Belegs, Formularfeld, fester
+      Wert), mit einem Bedienelement, das Hilfsquelle, Aktionen, Berechnung
+      und „Folgt der Auswahl" gemeinsam nutzen. 13 und 14 bauen darauf auf.
+   13. Aktionen als Sätze unter dem Ereignis, jede Stelle anklickbar.
+   14. Folgt der Auswahl: in der Leiste anklicken, dann den gebenden
       Baustein anklicken.
    Regel für die Leiste (nach Commit 4): eine Zeile, höchstens sieben
    Elemente, über dem Baustein; passt es dort nicht, unter dem Baustein;
