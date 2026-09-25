@@ -23,7 +23,7 @@ import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../dialog/DialogFrame'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { reportPendingMarks } from '../../runtime/pendingState'
 import { enterCell, cellsInputStyle, cellsFields } from './cells'
-import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../list/sourceRows'
+import { hasRecordNumber } from '../list/sourceRows'
 import type { Sublines, RowDecoration } from '../list/tableBody'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
@@ -54,8 +54,6 @@ export class Capture extends BlockElement
   @property({ attribute: false }) dataRows: string[][] = []
 
   @property({ attribute: false }) rawRows: unknown[] = []
-
-  @property({ attribute: false }) rowsReport: RowsReport = WITHOUT_ROWS
 
   private readonly _ledger = new CaptureLedger({
     block: this,

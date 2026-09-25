@@ -231,7 +231,6 @@ interface FootPlacement {
   visible: number
   total: number
   searchesActive: boolean
-  selectionActive: boolean
   page: number
   pageCount: number
 
@@ -252,7 +251,7 @@ export function tableFoot(
 ): TemplateResult | typeof nothing {
   if (placement.empty) return nothing
 
-  const saysSomething = placement.pageCount > 1 || placement.searchesActive || placement.selectionActive || placement.totals.length > 0
+  const saysSomething = placement.pageCount > 1 || placement.searchesActive || placement.totals.length > 0
   if (!saysSomething) return html`<div class="foot foot--quiet"></div>`
   return html`<div class="foot">
     <div class="page-info">${recordText({
@@ -260,7 +259,6 @@ export function tableFoot(
       visible: placement.visible,
       total: placement.total,
       searchesActive: placement.searchesActive,
-      selectionActive: placement.selectionActive,
     })}</div>
     ${placement.totals.length === 0 ? nothing : html`<div class="totals">
       ${placement.totals.map((s) => html`<span class="total">

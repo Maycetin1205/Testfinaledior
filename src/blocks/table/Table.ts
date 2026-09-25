@@ -6,12 +6,7 @@ import { LIST_GRID, listCapabilities } from '../list/listDeclaration'
 import { RecordList } from '../list/recordList'
 import { COLUMNS_BINDING, coerceColumns, type Column } from '../list/columns'
 import { tableStyle } from '../list/tableStyle'
-import {
-  WITHOUT_ROWS,
-  type HandedRow,
-  type RowsFrom,
-  type RowsReport,
-} from '../list/sourceRows'
+import type { HandedRow, RowsFrom } from '../list/sourceRows'
 import { tableProperties, type TableValues } from './properties'
 
 export interface Table extends TableValues {}
@@ -25,8 +20,6 @@ export class Table extends BlockElement {
   @property({ attribute: false }) dataRows: string[][] = []
 
   @property({ attribute: false }) rawRows: unknown[] = []
-
-  @property({ attribute: false }) rowsReport: RowsReport = WITHOUT_ROWS
 
   private readonly _list = new RecordList(this)
 

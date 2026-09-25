@@ -177,7 +177,7 @@ function windowEntries(
   displayField: string,
   storageField: string,
 ): Entry[] {
-  return lookupEntries(rowsToSelection(el, rows).rows, displayField, storageField)
+  return lookupEntries(rowsToSelection(el, rows), displayField, storageField)
 }
 
 type EntriesResult =

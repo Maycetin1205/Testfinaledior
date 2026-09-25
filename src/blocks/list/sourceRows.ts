@@ -24,18 +24,9 @@ export interface HandedRow {
   cells: readonly string[]
 }
 
-export interface RowsReport {
-  bySelection: boolean
-}
-
-export const WITHOUT_ROWS: RowsReport = {
-  bySelection: false,
-}
-
 export interface RowsElement extends HTMLElement {
   rawRows: unknown[]
   dataRows: string[][]
-  rowsReport: RowsReport
 
   listColumns: () => readonly Column[]
   listCalculations: () => readonly Calculation[]
@@ -89,13 +80,12 @@ function fillRows(el: RowsElement, delivery: boolean): void {
   if (!preamble) {
     el.rawRows = []
     el.dataRows = []
-    el.rowsReport = WITHOUT_ROWS
     return
   }
   const columns = el.listColumns()
   const calculations = el.listCalculations()
 
-  const { rows, filtered } = rowsToSelection(el, preamble.rows)
+  const rows = rowsToSelection(el, preamble.rows)
 
   relocateSelection(giverIdOf(el), rows, (r) => r, (r) => rowsTraitOf(el, r))
 
@@ -110,7 +100,6 @@ function fillRows(el: RowsElement, delivery: boolean): void {
       return field === '' ? '' : read(row, field)
     },
   ))
-  el.rowsReport = { bySelection: filtered }
 }
 
 const link = makeDataLink<RowsElement>({ hydrate: fillRows })

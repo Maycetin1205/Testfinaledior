@@ -31,7 +31,6 @@ import {
   followSource,
   unfollowSource,
   cellsForHandedRows,
-  WITHOUT_ROWS,
   type HandedRow,
   type RowsFrom,
   type RowsElement,
@@ -146,7 +145,6 @@ export class RecordList implements ReactiveController {
     const cells = cellsForHandedRows(rows, el.listColumns(), el.listCalculations())
     el.rawRows = cells.rawRows
     el.dataRows = cells.dataRows
-    el.rowsReport = WITHOUT_ROWS
     this._rowsChoice.forget()
     this._view.invalidate()
     el.requestUpdate()
@@ -156,7 +154,6 @@ export class RecordList implements ReactiveController {
     const el = this.el
     el.rawRows = []
     el.dataRows = []
-    el.rowsReport = WITHOUT_ROWS
     this._rowsChoice.forget()
     this._view.reset()
   }
@@ -307,7 +304,6 @@ export class RecordList implements ReactiveController {
         visible: view.total,
         total: el.dataRows.length,
         searchesActive: this._view.searchesActive,
-        selectionActive: el.rowsReport.bySelection,
         page: view.page,
         pageCount: view.pageCount,
         paging: el.paging,

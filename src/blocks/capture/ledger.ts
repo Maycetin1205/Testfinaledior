@@ -473,6 +473,10 @@ export class CaptureLedger {
     }
   }
 
+  // The key a helper source takes from its partner. Another helper source
+  // not chosen yet gives an empty key, so nothing fits. The row itself is
+  // still being entered: its key restricts once it is known, from the chosen
+  // record or from another helper source chosen by hand.
   private keyValue(
     context: CaptureContext,
     partnerId: string,
@@ -481,7 +485,7 @@ export class CaptureLedger {
   ): string | undefined {
     if (partnerId !== '' && partnerId !== context.sourceId) {
       const record = this.chosen.get(partnerId)
-      return record === undefined ? undefined : maskState.host.readField(record, field)
+      return record === undefined ? '' : maskState.host.readField(record, field)
     }
     const base = this.chosen.get(context.sourceId)
     if (base !== undefined) return maskState.host.readField(base, field)
@@ -502,16 +506,14 @@ export class CaptureLedger {
   }
 
   // The key of a pair: from the document or a form field, else from the
-  // partner. An empty value from outside is not known yet.
+  // partner. An empty value counts as missing, and then nothing fits.
   private pairValue(
     context: CaptureContext,
     partnerId: string,
     pair: KeyPair,
     except: string,
   ): string | undefined {
-    const outside = outsideValue(pair, this.host.block)
-    if (outside !== undefined) return outside === '' ? undefined : outside
-    return this.keyValue(context, partnerId, pair.fromField, except)
+    return outsideValue(pair, this.host.block) ?? this.keyValue(context, partnerId, pair.fromField, except)
   }
 
   private possible(context: CaptureContext, sourceId: string, rows: readonly unknown[]): unknown[] {

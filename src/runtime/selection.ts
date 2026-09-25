@@ -120,12 +120,14 @@ export function clearSelection(giverId: string): void {
 
 const SELECTION_FOLLOW_ATTR = SELECTION_FOLLOW_PROP.toLowerCase()
 
-// The follows as the mask carries them, each with its complete pairs.
+// The follows as the mask carries them, each with its complete pairs. A
+// follow of a giver counts without pairs as well: its rows are fetched for the
+// chosen row, or it waits for one.
 function followsFromAttribute(el: HTMLElement): SelectionFollow[] {
   const raw = el.getAttribute(SELECTION_FOLLOW_ATTR) ?? ''
   if (raw === '') return []
   return followsFromText(raw)
-    .filter(followUsable)
+    .filter((f) => f.giverId !== '' || followUsable(f))
     .map((f) => ({ giverId: f.giverId, pairs: completePairs(f) }))
 }
 
@@ -138,34 +140,25 @@ export function followsFormField(el: HTMLElement, blockId: string): boolean {
   return followsFromAttribute(el).some((f) => f.pairs.some((p) => p.from === 'formField' && p.fromField === blockId))
 }
 
-export function rowsToSelection(
-  el: HTMLElement,
-  rows: unknown[],
-): { rows: unknown[]; filtered: boolean } {
+// The rows that fit what the block follows. Whoever follows shows nothing
+// without it: no chosen row at the giver, or a key value missing, and an empty
+// value counts as missing.
+export function rowsToSelection(el: HTMLElement, rows: unknown[]): unknown[] {
   const host = maskState.host
   let out = rows
-  let filtered = false
   for (const follow of followsFromAttribute(el)) {
     const selection = follow.giverId === '' ? undefined : selectionFor(follow.giverId)
-    if (selection === undefined && follow.pairs.some((p) => p.from === undefined)) continue
+    if (follow.giverId !== '' && selection === undefined) return []
 
     // A pair reads the giver's chosen row, the open document or a form field.
-    const activePairs = follow.pairs
-      .map((p) => ({ expected: outsideValue(p, el) ?? host.readField(selection, p.fromField), toField: p.toField }))
-      .filter((p) => p.expected !== '')
+    const expected = follow.pairs.map((p) => outsideValue(p, el) ?? host.readField(selection, p.fromField))
+    if (expected.some((value) => value.trim() === '')) return []
 
-    if (activePairs.length === 0) continue
-
-    filtered = true
-    out = out.filter((row) =>
-      activePairs.every((p) => p.expected === host.readField(row, p.toField)),
-    )
+    out = out.filter((row) => follow.pairs.every((p, i) => expected[i] === host.readField(row, p.toField)))
   }
-  return { rows: out, filtered }
+  return out
 }
 
 export function firstRowToSelection(el: HTMLElement, rows: unknown[]): unknown {
-  if (followsFromAttribute(el).length === 0) return rows[0]
-  const { rows: fitting, filtered } = rowsToSelection(el, rows)
-  return filtered ? fitting[0] : undefined
+  return rowsToSelection(el, rows)[0]
 }
