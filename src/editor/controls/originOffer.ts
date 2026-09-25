@@ -16,6 +16,9 @@ export interface OfferSource {
 // What a place can take a value from; a part left out is not offered there.
 export interface OriginOffer {
   row?: readonly OfferEntry[]
+
+  // Rows of their own, like the chosen row of a table or the captured rows.
+  rows?: readonly OfferSource[]
   helpers?: readonly OfferSource[]
   document?: OfferSource
   formFields?: readonly OfferEntry[]
@@ -36,8 +39,10 @@ const nameIn = (entries: readonly OfferEntry[] | undefined, value: string): stri
 export function originText(origin: ValueOrigin | null, offer: OriginOffer): string {
   if (origin === null) return ''
   switch (origin.kind) {
-    case 'row':
-      return `Spalte ${nameIn(offer.row, origin.value)}`
+    case 'row': {
+      const rows = origin.sourceId === undefined ? undefined : offer.rows?.find((g) => g.sourceId === origin.sourceId)
+      return rows ? `${nameIn(rows.fields, origin.value)} · ${rows.name}` : `Spalte ${nameIn(offer.row, origin.value)}`
+    }
     case 'helper': {
       const source = offer.helpers?.find((h) => h.sourceId === (origin.sourceId ?? ''))
       const field = nameIn(source?.fields, origin.value)
@@ -56,7 +61,7 @@ export function originText(origin: ValueOrigin | null, offer: OriginOffer): stri
 export function originGroups(offer: OriginOffer): ListGroup[] {
   const entries = (fields: readonly OfferEntry[], origin: (value: string) => ValueOrigin) =>
     fields.map((f) => ({ value: encodeOrigin(origin(f.value)), name: f.name, badge: f.badge }))
-  const fieldsOf = (kind: 'helper' | 'document', s: OfferSource): ListGroup => ({
+  const fieldsOf = (kind: 'row' | 'helper' | 'document', s: OfferSource): ListGroup => ({
     key: `${kind}:${s.sourceId}`,
     name: ORIGIN_KINDS[kind],
     badge: s.name,
@@ -66,6 +71,7 @@ export function originGroups(offer: OriginOffer): ListGroup[] {
     ...(offer.row
       ? [{ key: 'row', name: ORIGIN_KINDS.row, entries: entries(offer.row, (value) => ({ kind: 'row', value })) }]
       : []),
+    ...(offer.rows ?? []).map((s) => fieldsOf('row', s)),
     ...(offer.helpers ?? []).map((s) => fieldsOf('helper', s)),
     ...(offer.document ? [fieldsOf('document', offer.document)] : []),
     ...(offer.formFields

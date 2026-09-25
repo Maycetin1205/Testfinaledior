@@ -15,7 +15,7 @@ import { Popover } from '@/editor/widgets/Popover'
 import { Separator } from '@/editor/widgets/Separator'
 import type { BlockNode } from '../../core/block/tree'
 import type { BlockType } from '../../core/block/blockType'
-import { capability, type EventDef } from '../../core/block/capability'
+import { capability } from '../../core/block/capability'
 import { propertyVisible, type PropertyPlace } from '../../core/block/property'
 import { propertiesFor, type DeclaredProperty } from '../../core/block/propertyPlace'
 import {
@@ -26,7 +26,6 @@ import {
 } from '../../core/block/treeQuery'
 import { fieldPlainName } from '../../core/data/dataSources'
 import { BLOCK_ICONS } from '../blockIcons'
-import { ChainWindow } from '../datacenter/ChainWindow'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { ActionsSection } from './ActionsSection'
@@ -111,6 +110,9 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: numbe
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
+// The sentences of the actions want room for a relation and its values.
+const ACTIONS_WIDTH = 520
+
 interface BarFrameProps {
   host: RefObject<HTMLElement | null>
   element: HTMLElement | null
@@ -189,7 +191,6 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   const ed = useEditor()
   const library = useDataSources().list
   const template = def?.templateKind ? firstDescendantOfType(ed.tree, block.id, def.templateKind.type) : undefined
-  const [chainEvent, setChainEvent] = useState<EventDef | null>(null)
 
   const session = useMemo(() => ({
     onBeginEditing: () => ed.beginTransaction(),
@@ -278,17 +279,8 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
         </BarWindow>
       )}
       {events.length > 0 && (
-        <BarWindow label="Aktionen" icon={Zap}>
-          {(close) => (
-            <ActionsSection
-              block={block}
-              events={events}
-              onOpen={(ev) => {
-                close()
-                setChainEvent(ev)
-              }}
-            />
-          )}
+        <BarWindow label="Aktionen" icon={Zap} width={ACTIONS_WIDTH}>
+          {() => <ActionsSection block={block} events={events} />}
         </BarWindow>
       )}
 
@@ -312,23 +304,16 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
         </>
       )}
 
-      {chainEvent && (
-        <ChainWindow
-          block={block}
-          eventKey={chainEvent.key}
-          eventName={chainEvent.name}
-          onClose={() => setChainEvent(null)}
-        />
-      )}
     </BarFrame>
   )
 }
 
 // A button in the bar that opens a small window beside it; with a sign, the
 // sign alone stands in the bar.
-export function BarWindow({ label, icon, children }: {
+export function BarWindow({ label, icon, width = 340, children }: {
   label: string
   icon?: Icon
+  width?: number
   children: (close: () => void) => ReactNode
 }) {
   const [open, setOpen] = useState(false)
@@ -363,7 +348,7 @@ export function BarWindow({ label, icon, children }: {
             </Button>
           )}
       {open && (
-        <Popover name={label} anchor={button} width={340} maxHeight={480} onClose={() => setOpen(false)}>
+        <Popover name={label} anchor={button} width={width} maxHeight={480} onClose={() => setOpen(false)}>
           <div className="p-[6px]">{children(() => setOpen(false))}</div>
         </Popover>
       )}

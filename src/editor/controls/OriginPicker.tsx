@@ -9,16 +9,19 @@ import { decodeOrigin, encodeOrigin, originGroups, originText, type OriginOffer 
 
 // Chooses where a value comes from: the origin in words, and below it the
 // columns, fields and form fields the place offers, and a fixed value.
-export function OriginPicker({ name, origin, offer, className, onChoose }: {
+export function OriginPicker({ name, origin, offer, shown, className, onChoose }: {
   name: string
   origin: ValueOrigin | null
+
+  // What stands there while no origin of the list is chosen, like the value of the event.
+  shown?: string
   offer: OriginOffer
   className?: string
   onChoose: (origin: ValueOrigin) => void
 }) {
   const [open, setOpen] = useState(false)
   const button = useRef<HTMLButtonElement>(null)
-  const text = originText(origin, offer)
+  const text = origin === null ? (shown ?? '') : originText(origin, offer)
 
   const take = (next: ValueOrigin) => {
     onChoose(next)
