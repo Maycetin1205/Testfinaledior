@@ -953,49 +953,24 @@ unlogisch und werden in Schritt 2 neu geordnet.
 
 ### Offen, in dieser Reihenfolge
 
-1. Bedienung (Schritt 2, läuft seit 24.09. auf `claude/erp-editor-audit-89bmva`,
-   ein Opus-Chat, ein Commit je Zeile; geprüft von Fable nach jedem Commit).
-   Fertig: 1 Kopfzeile (1ad6913), 2 Palette als dunkler Streifen (4c2c96d,
-   Namen Knopf und Feld 8738d38), 3 Ziehen an vier Kanten (ea42748),
-   4 Leiste am Baustein statt Inspector (57acab5, nachgebessert 766f411,
-   3de3945, 87344dc), 5 Daten als Seitenleiste (4ee693b), 6 Eine Datei
-   zum Laden, die Maske trägt ihre Quellen und Relationen selbst, die
-   Bibliothek bleibt der Katalog (3f2bc88). Offen:
-   7. Text: Farbe (Dunkel, Grau, Hell, Petrol, Blau, Grün, Ocker, Rot) und
-      Größe (11, 12, 13, 14, 15, 16, 19 px) in der Leiste; die Rolle gibt
-      beides vor, die Wahl ändert nur das eine.
-   8. Feld: Feldtypen Text, Zahl, Datum, Uhrzeit, Auswahl, Ankreuzfeld;
-      Nachschlagen als Schalter am Textfeld; mehrzeilig ergibt sich aus der
-      Höhe; Darstellung „Still" mit 1-px-Linie unten in `--se-line-soft`,
-      Fokus `--se-accent`; Schema 22 hebt alte Werte.
-   9. Nachschlagefenster und Popup: Größe am Rand ziehen; weg: Breite und
-      Höhe als Zahlen, das Tippfeld für den Klarnamen.
-   10. Tabelle: Klick auf den Spaltenkopf öffnet die Spaltenleiste (Feld,
-      Summe, Ausblenden, Spaltenwahl), Plus am Ende fügt eine Spalte an,
-      Spalte plus/minus fallen aus der Leiste; senkrechte Trennlinien 1 px
-      `--se-line-soft`, auch im Nachschlagefenster; weg: Kopfzeile aus.
-   11. Erfassung: am Spaltenkopf Eingabe erlaubt, Füllfeld, Nachschlagen; in
-      der Leiste Hilfsquelle. Eine Zelle, in die getippt wird, sieht aus wie
-      jede andere, nur mit Cursor: kein Rahmen, kein Ring, kein weißer
-      Grund; die gewählte Zeile höchstens `--se-accent-soft`. Enter und Tab
-      gehen eine Spalte weiter, eine vorgefüllte Zelle ist beim Betreten
-      markiert, die letzte Spalte erfasst die Zeile. Enter in der
-      Vorschlagsliste übernimmt nur den Treffer; getippter Text ohne Treffer
-      fällt beim Verlassen der Zelle weg. Der genaue Treffer steht oben in
-      der Liste, die Suche geht über alle Spalten derselben Quelle.
-      Geschrieben wird nur, was unter dem Strich steht, nie die Tippzeile.
-      Weg: der Schalter „Löschbar" und das Kreuz; F4 bleibt.
-   12. Wertherkunft: eine Liste, woher ein Wert kommt (Spalte dieser Zeile,
-      Feld einer Hilfsquelle, Feld des offenen Belegs, Formularfeld, fester
-      Wert), mit einem Bedienelement, das Hilfsquelle, Aktionen, Berechnung
-      und „Folgt der Auswahl" gemeinsam nutzen. 13 und 14 bauen darauf auf.
-   13. Aktionen als Sätze unter dem Ereignis, jede Stelle anklickbar.
-   14. Folgt der Auswahl: in der Leiste anklicken, dann den gebenden
-      Baustein anklicken.
-   Regel für die Leiste (nach Commit 4): eine Zeile, höchstens sieben
-   Elemente, über dem Baustein; passt es dort nicht, unter dem Baustein;
-   erst dann innen auf dem eigenen Kopf. Nie über anderen Bausteinen, nie
-   über Inhalt. Jedes Fenster an der Leiste schließt beim Klick daneben.
+1. Bedienung (Schritt 2) ist fertig auf `claude/erp-editor-audit-89bmva`, ein
+   Commit je Punkt, nichts davon in SoftEngine geprüft: 1 Kopfzeile
+   (1ad6913), 2 Palette als dunkler Streifen (4c2c96d, 8738d38), 3 Ziehen an
+   vier Kanten (ea42748), 4 Leiste am Baustein (57acab5, 766f411, 3de3945,
+   87344dc), 5 Daten als Seitenleiste (4ee693b), 6 Eine Datei zum Laden
+   (3f2bc88), 7 Text mit Farbe und Größe (9221fb1), 8 Feld, Schema 22
+   (90a210e), 9 Suchfenster und Popup ziehen (6dcba5f), 10 Tabelle mit
+   Spaltenleiste (ab3befa), 11 Erfassung (16b31c9), 12 Wertherkunft
+   (8764260), 13 Aktionen als Sätze (0adbba0), 14 Folgt der Auswahl
+   (f086f44). Die Wertherkunft bietet je Stelle, was die Stelle lesen kann:
+   Hilfsquelle Spalte dieser Zeile und Feld einer Hilfsquelle, Berechnung
+   dazu den festen Wert, Aktionen alle fünf, Folgt der Auswahl die gewählte
+   Zeile des Gebers.
+   Regel für die Leiste: eine Zeile, höchstens sieben Elemente, über dem
+   Baustein; passt es dort nicht, unter dem Baustein; erst dann innen auf
+   dem eigenen Kopf. Nie über anderen Bausteinen, nie über Inhalt. Sind es
+   mehr als sieben, liegen die Schalter im Fenster „Anzeige". Jedes Fenster
+   an der Leiste schließt beim Klick daneben.
 2. Kanban neu nach dem Zweigmodell: ein Baustein, Spalten mit Plätzen,
    Karten mit Tiersymbol, im Editor sichtbar. Zimmer gibt es seit Schema 18
    nicht mehr; `places.ts` ist nur die Ablagemarke. Chip-Farbe folgt einem
@@ -1010,7 +985,7 @@ unlogisch und werden in Schritt 2 neu geordnet.
 5. Zum Schluss: Echttest in SoftEngine mit frischen Daten, die Fehler F2, F3,
    F6 der Erfassung, Berechnung komplett neu (vorher mit dem Nutzer
    festlegen), Antwort-Schlüssel in `softengine/data.ts`, Formular für die
-   Feldcodes der Hol-Relation, Aufräumdurchgang (tote Widgets, ungenutzte
+   Feldcodes der Hol-Relation, Aufräumdurchgang (Löschvormerkung der Erfassung ohne Bedienung, tote Widgets, ungenutzte
    Exporte, alte Namen).
 
 ### Bedienmodell für Schritt 2 (24.09., vom Nutzer als Auftrag gelesen)
