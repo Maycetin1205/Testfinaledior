@@ -7,8 +7,8 @@ import { checkTreeState } from './checkTreeState'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
 
 // One key for the mask, one for the customer file. Nothing is matched up
-// between them: the mask names the keys it uses, the customer file holds the
-// sources themselves.
+// between them: the blocks name the keys of their sources, the customer file
+// holds the sources themselves.
 const STORAGE_KEY = 'aufbau_editor_mask'
 
 const LIBRARY_KEY = 'aufbau_editor_library'
@@ -22,9 +22,6 @@ export interface StoredMask {
   tree: MaskTree
   selectedId: string | null
   activePageId: string
-
-  sourceIds: readonly string[]
-  relationIds: readonly string[]
 }
 
 export interface StoredLibrary {
@@ -64,11 +61,6 @@ export function loadLibraryFromStorage(): StoredLibrary {
   if (raw === null) return { dataSources: [], relation: [] }
   const result = packLibraryFrom(raw)
   return result.ok ? result.content : { dataSources: [], relation: [] }
-}
-
-function keysOf(raw: unknown): string[] {
-  if (!Array.isArray(raw)) return []
-  return raw.filter((id): id is string => typeof id === 'string' && id !== '')
 }
 
 export function loadFromStorage(): StoredMask | null {
@@ -123,8 +115,6 @@ function readState(raw: string): StoredMask | null {
     return {
       ...tree,
       activePageId: typeof state.activePageId === 'string' ? state.activePageId : ROOT_ID,
-      sourceIds: keysOf(state.sourceIds),
-      relationIds: keysOf(state.relationIds),
     }
   } catch {
     return null
@@ -136,22 +126,16 @@ export function emptyMask(): StoredMask {
     tree: emptyTree(),
     selectedId: null,
     activePageId: ROOT_ID,
-    sourceIds: [],
-    relationIds: [],
   }
 }
 
-export function persistMask(mask: StoredMask): string {
-  const text = JSON.stringify({
+export function persistMask(mask: StoredMask): void {
+  write(STORAGE_KEY, JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: mask.tree,
     selectedId: mask.selectedId,
     activePageId: mask.activePageId,
-    sourceIds: mask.sourceIds,
-    relationIds: mask.relationIds,
-  })
-  write(STORAGE_KEY, text)
-  return text
+  }))
 }
 
 export function persistLibrary(library: StoredLibrary): string {

@@ -9,11 +9,7 @@ import { type SourceInReach } from '../../core/data/extraSources'
 import { DataSourceStore } from './DataSourceStore'
 import { firstSourceInReach, sourcesInReach } from '../../core/block/sourcesInReach'
 import { gestureBracket, History, type EditorSnapshot, type GestureBracket } from './history'
-import {
-  usedRelationIds,
-  usedSourceIds,
-  type MaskContent,
-} from './maskFile'
+import { packMask, type MaskContent } from './maskFile'
 import { addOn } from './libraryFile'
 import { FileOnDisk } from './fileOnDisk'
 import {
@@ -441,8 +437,11 @@ export class EditorStore extends Subject<EditorStore> {
     this.notify(this)
   }
 
+  // The file it came from gets no handle, so the file picked for the mask
+  // before is not written over; the next „Speichern" asks for a file again.
   replaceMask(content: MaskContent): void {
     this.pushHistory()
+    this.maskOnDisk.forget()
     this.setLibraries({
       dataSources: addOn(this.dataSources.list, content.dataSources).list,
       relation: addOn(this.relation.list, content.relation).list,
@@ -481,10 +480,9 @@ export class EditorStore extends Subject<EditorStore> {
       tree: this._tree,
       selectedId: this._selectedId,
       activePageId: this.activePageId,
-      sourceIds: usedSourceIds(this._tree, this.dataSources.list),
-      relationIds: usedRelationIds(this._tree, this.dataSources.list, this.relation.list),
     }
-    void this.maskOnDisk.writeAgain(persistMask(mask))
+    persistMask(mask)
+    void this.maskOnDisk.writeAgain(packMask(this._tree, this.dataSources.list, this.relation.list))
     void this.libraryOnDisk.writeAgain(persistLibrary({
       dataSources: this.dataSources.list,
       relation: this.relation.list,
