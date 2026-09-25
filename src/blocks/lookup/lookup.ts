@@ -5,10 +5,8 @@ import { blockType } from '../../core/block/registry'
 import { rowsToSelection } from '../../runtime/selection'
 import { maskState } from '../../runtime/maskState'
 import {
-  DIALOG_SIZE_EVENT,
   DIALOG_FRAME_TAG,
   WINDOW_WIDTH,
-  type DialogSizeDetail,
   type DialogFrame,
 } from '../dialog/DialogFrame'
 import { rememberedSorting, sortIndices } from '../list/sorting'
@@ -124,8 +122,6 @@ interface LookupArgs {
   searchText?: string
 
   preview?: boolean
-
-  setMetrics?: (axis: 'width' | 'height', value: number | undefined) => void
 }
 
 export interface Entry {
@@ -254,19 +250,6 @@ function windowTable(tag: string, args: LookupArgs, entries: readonly Entry[]): 
   return table
 }
 
-function wireDrag(dialog: DialogFrame, args: LookupArgs): void {
-  dialog.addEventListener(DIALOG_SIZE_EVENT, (event) => {
-    const detail = (event as CustomEvent<DialogSizeDetail>).detail
-    if (detail.gesture === 'reset') {
-      args.setMetrics?.(detail.axis, undefined)
-      return
-    }
-    if (detail.axis === 'width') dialog.width = detail.value
-    else dialog.height = detail.value
-    if (detail.gesture === 'end') args.setMetrics?.(detail.axis, detail.value)
-  })
-}
-
 export function openLookup(args: LookupArgs): void {
   const tag = blockType(WINDOW_TABLE_TYPE)?.tag
   if (tag === undefined) return
@@ -290,7 +273,6 @@ export function openLookup(args: LookupArgs): void {
     viewport
     escape-closes
     data-ff-lookup
-    ?movable=${args.preview === true}
     .heading=${args.title !== '' ? args.title : 'Nachschlagen'}
     .width=${args.width}
     .height=${args.height}
@@ -299,7 +281,6 @@ export function openLookup(args: LookupArgs): void {
   >${table}</ff-dialog>`, holder)
 
   const dialog = holder.querySelector<DialogFrame>(DIALOG_FRAME_TAG)
-  if (dialog && args.preview === true) wireDrag(dialog, args)
   table.addEventListener(ROW_ACTIVATED_EVENT, (event) => {
     const detail = (event as CustomEvent<RowActivatedDetail>).detail
     const entry = found[detail.rawIndex]

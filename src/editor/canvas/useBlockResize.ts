@@ -10,6 +10,9 @@ import { swallowNextClick } from './dragPosition'
 // The edge or corner a size is pulled at, by compass point.
 export type Edge = 'n' | 'e' | 's' | 'w' | 'ne' | 'se' | 'sw' | 'nw'
 
+// The edges before the corners, so a corner lies on top where both meet.
+export const GRIPS: readonly Edge[] = ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw']
+
 const clamp = (value: number, low: number, high: number): number =>
   Math.max(low, Math.min(value, Math.max(low, high)))
 

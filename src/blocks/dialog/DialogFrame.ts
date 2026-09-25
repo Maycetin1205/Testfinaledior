@@ -1,27 +1,17 @@
-import { css, html, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit'
+import { css, html, LitElement, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { maskState } from '../../runtime/maskState'
 
 export const DIALOG_FRAME_TAG = 'ff-dialog'
 export const DIALOG_CLOSE_EVENT = 'ff-dialog-close'
 
-export const DIALOG_SIZE_EVENT = 'ff-dialog-resize'
-
-export interface DialogSizeDetail {
-  axis: 'width' | 'height'
-
-  value: number
-
-  gesture: 'start' | 'move' | 'end' | 'reset'
-}
-
 export const DIALOG_EDGE = 24
 
 export const WINDOW_WIDTH = 520
 export const WINDOW_HEIGHT = 380
 
-const DIALOG_MIN_WIDTH = 240
-const DIALOG_MIN_HEIGHT = 160
+export const DIALOG_MIN_WIDTH = 240
+export const DIALOG_MIN_HEIGHT = 160
 
 function pixel(value: unknown, replacement: number): number {
   const number = Number(value)
@@ -133,30 +123,6 @@ export class DialogFrame extends LitElement {
       min-height: 0;
       overflow: hidden;
     }
-
-    .handle {
-      position: absolute;
-      border-radius: var(--se-radius);
-      background: var(--se-accent);
-      touch-action: none;
-      z-index: 2;
-    }
-    .handle.width {
-      top: 50%;
-      right: -3px;
-      width: 7px;
-      height: 26px;
-      transform: translateY(-50%);
-      cursor: ew-resize;
-    }
-    .handle.height {
-      left: 50%;
-      bottom: -3px;
-      width: 26px;
-      height: 7px;
-      transform: translateX(-50%);
-      cursor: ns-resize;
-    }
   `
 
   @property() heading = 'Dialog'
@@ -165,8 +131,6 @@ export class DialogFrame extends LitElement {
   @property({ type: Boolean, reflect: true }) viewport = false
   @property({ type: Boolean, attribute: 'escape-closes' }) escapeCloses = false
 
-  @property({ type: Boolean, reflect: true }) movable = false
-
   private escapeRegistered = false
 
   private refreshEscape(): void {
@@ -174,61 +138,6 @@ export class DialogFrame extends LitElement {
     if (shouldRegister === this.escapeRegistered) return
     this.escapeRegistered = shouldRegister
     catchesEscape(this, shouldRegister)
-  }
-
-  private drag(event: PointerEvent, axis: 'width' | 'height'): void {
-    if (!this.movable) return
-    event.preventDefault()
-    event.stopPropagation()
-
-    const start = axis === 'width'
-      ? pixel(this.width, WINDOW_WIDTH)
-      : pixel(this.height, WINDOW_HEIGHT)
-    const min = axis === 'width' ? DIALOG_MIN_WIDTH : DIALOG_MIN_HEIGHT
-    const startPos = axis === 'width' ? event.clientX : event.clientY
-
-    let last = Math.max(min, Math.round(start))
-    let reported = false
-
-    const report = (value: number, gesture: DialogSizeDetail['gesture']): void => {
-      this.dispatchEvent(new CustomEvent<DialogSizeDetail>(DIALOG_SIZE_EVENT, {
-        detail: { axis, value, gesture },
-        bubbles: true,
-        composed: true,
-      }))
-    }
-
-    const onMove = (ev: PointerEvent): void => {
-      const pos = axis === 'width' ? ev.clientX : ev.clientY
-      const next = Math.max(min, Math.round(start + (pos - startPos) * 2))
-      if (next === last) return
-      last = next
-      report(next, reported ? 'move' : 'start')
-      reported = true
-    }
-
-    const finish = (): void => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', finish)
-      window.removeEventListener('pointercancel', finish)
-      window.removeEventListener('blur', finish)
-      if (reported) report(last, 'end')
-    }
-
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', finish)
-    window.addEventListener('pointercancel', finish)
-    window.addEventListener('blur', finish)
-  }
-
-  private onReset(event: Event, axis: 'width' | 'height'): void {
-    if (!this.movable) return
-    event.stopPropagation()
-    this.dispatchEvent(new CustomEvent<DialogSizeDetail>(DIALOG_SIZE_EVENT, {
-      detail: { axis, value: 0, gesture: 'reset' },
-      bubbles: true,
-      composed: true,
-    }))
   }
 
   close(): void {
@@ -278,18 +187,6 @@ export class DialogFrame extends LitElement {
             >✕</button>
           </header>
           <div class="content"><slot></slot></div>
-          ${this.movable ? html`
-            <div
-              class="handle width"
-              @pointerdown=${(e: PointerEvent) => this.drag(e, 'width')}
-              @dblclick=${(e: Event) => this.onReset(e, 'width')}
-            ></div>
-            <div
-              class="handle height"
-              @pointerdown=${(e: PointerEvent) => this.drag(e, 'height')}
-              @dblclick=${(e: Event) => this.onReset(e, 'height')}
-            ></div>
-          ` : nothing}
         </section>
       </div>
     `

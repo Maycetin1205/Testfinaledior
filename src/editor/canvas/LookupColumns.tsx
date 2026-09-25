@@ -16,7 +16,6 @@ import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useView } from '../state/useView'
 import type { OpenLookup } from '../state/EditorStore'
-import { useInputSession } from '../controls/useInputSession'
 import {
   windowFrameInEditor,
   windowStateOf,
@@ -24,6 +23,9 @@ import {
 } from './lookupWindowState'
 import { widthFromLength } from './fieldWidth'
 import { FieldPicker, type PickerGroup } from './FieldPicker'
+import { axesOf, dragSize } from './dragSize'
+import { Grip } from './Grip'
+import { GRIPS } from './useBlockResize'
 
 const HANDLE_EDGE = 6
 
@@ -42,19 +44,24 @@ interface Measurement {
   heads: readonly Head[]
 
   row: { right: number; top: number; height: number } | null
+
+  box: { left: number; top: number; width: number; height: number } | null
 }
 
-const NOTHING: Measurement = { heads: [], row: null }
+const NOTHING: Measurement = { heads: [], row: null, box: null }
 
 function tableIn(frame: DialogFrame): Table | null {
   return frame.querySelector<Table>('ff-table')
 }
 
 function measure(frame: DialogFrame): Measurement {
+  const rect = frame.shadowRoot?.querySelector('.window')?.getBoundingClientRect()
+  const box = rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null
   const row = tableIn(frame)?.shadowRoot?.querySelector('.head')
-  if (row == null) return NOTHING
+  if (row == null) return { ...NOTHING, box }
   const rowRect = row.getBoundingClientRect()
   return {
+    box,
     heads: Array.from(row.querySelectorAll<HTMLElement>(':scope > [data-ff-entry]')).map(
       (el, i) => {
         const r = el.getBoundingClientRect()
@@ -101,10 +108,6 @@ function Heads({ open }: { open: OpenLookup }) {
   const [metrics, setMetrics] = useState<Measurement>(NOTHING)
   const [chosen, setChosen] = useState<number | null>(null)
   const layerRef = useRef<HTMLDivElement | null>(null)
-  const typingSession = useInputSession(
-    () => ed.beginTransaction(),
-    () => ed.endTransaction(),
-  )
 
   useEffect(() => {
     const check = (): void => {
@@ -173,6 +176,7 @@ function Heads({ open }: { open: OpenLookup }) {
   const defaultTitle = DEFAULT_TITLE.replace('{n}', String((chosen ?? 0) + 1))
 
   const plus = state.columns.length < COLUMNS_MAX ? metrics.row : null
+  const box = metrics.box
 
   return createPortal(
     <>
@@ -209,6 +213,21 @@ function Heads({ open }: { open: OpenLookup }) {
           )
         })}
 
+        {box !== null && (
+          <div className="absolute" style={box}>
+            {GRIPS.map((edge) => (
+              <Grip
+                key={edge}
+                edge={edge}
+                onStart={(e) => dragSize(ed, e, edge, box, (axis, value) => state.setMetrics(axis, value))}
+                onReset={() => ed.transaction(() => {
+                  for (const axis of axesOf(edge)) state.setMetrics(axis, undefined)
+                })}
+              />
+            ))}
+          </div>
+        )}
+
         {plus !== null && (
           <button
             type="button"
@@ -242,15 +261,6 @@ function Heads({ open }: { open: OpenLookup }) {
           level={LEVEL_OVER_MASK_WINDOW}
           spotLabel={columnOfPickers.title === '' ? defaultTitle : columnOfPickers.title}
           groups={groups}
-          title={{
-            value: columnOfPickers.title,
-            fallback: defaultTitle,
-            onChange: (next) => {
-              typingSession.begin()
-              change(chosen, { title: next })
-            },
-            session: typingSession,
-          }}
           current={columnOfPickers.field}
           anchor={layerRef}
           top={headOfPickers.top + headOfPickers.height + 4}

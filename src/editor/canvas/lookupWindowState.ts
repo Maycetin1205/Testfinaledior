@@ -205,7 +205,6 @@ export function openLookupInEditor(
     height: state.height,
     preview: true,
     entries: [],
-    setMetrics: state.setMetrics,
     onAdopt: () => {},
   })
   const frame = windowFrameInEditor()
