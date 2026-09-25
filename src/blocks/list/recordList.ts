@@ -290,9 +290,7 @@ export class RecordList implements ReactiveController {
           close: () => this._choice.close(),
         },
         widths: this._widths.hostForDrag(),
-        clickHead: (i) => {
-          if (!el.editable) this._view.clickSort(i)
-        },
+        clickHead: (i) => this._view.clickSort(i),
         activateRow: (rawIndex, viewIndex) => {
           activateRow(el, this._rowsChoice, el.rawRows, rawIndex, viewIndex)
           el.requestUpdate()

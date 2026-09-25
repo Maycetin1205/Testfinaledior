@@ -8,7 +8,8 @@ import { KEY_F4, ROW_DOUBLE, ROW_CHOSEN } from './rowActivation'
 export const LIST_GRID = { startWidth: 48, startHeight: 14, minWidth: 12, minHeight: 4 }
 
 // The properties every list carries. The order is the order in the export.
-export function listProperties() {
+// A table sorts by a click on a column head from the start, a capture not.
+export function listProperties(sortsByClick: boolean) {
   return {
     source: sourceProperty({
       default: '',
@@ -29,6 +30,12 @@ export function listProperties() {
       label: 'Blättern',
       place: 'display',
       attribute: 'paging',
+    }),
+    sortByClick: booleanProperty({
+      default: sortsByClick,
+      label: 'Sortieren per Klick',
+      place: 'display',
+      attribute: 'sortbyclick',
     }),
     columnPicker: booleanProperty({
       default: false,

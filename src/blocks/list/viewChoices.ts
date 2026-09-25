@@ -14,6 +14,7 @@ import { rememberedSorting } from './sorting'
 interface ViewElement extends HTMLElement, MeasureTarget {
   readonly preview: boolean
   editable: boolean
+  sortByClick: boolean
   requestUpdate: () => void
 }
 
@@ -83,7 +84,10 @@ export class ViewChoices {
     )
   }
 
+  // Without sorting by click the rows keep the order of the source, also
+  // against a sorting remembered from before.
   get sortColumn(): number {
+    if (!this.el.sortByClick) return -1
     this.readRemembered()
     return this._sortColumn
   }
@@ -109,7 +113,7 @@ export class ViewChoices {
   }
 
   clickSort(index: number): void {
-    if (this.el.editable) return
+    if (this.el.editable || !this.el.sortByClick) return
     this.rememberRowsFocus()
 
     this.readRemembered()

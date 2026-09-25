@@ -9,7 +9,7 @@ import { captureColumnsProperty } from './column'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 
 export const captureProperties = {
-  ...listProperties(),
+  ...listProperties(false),
   columns: captureColumnsProperty(),
   calculations: structuredProperty<Calculation[]>({
     read: (raw) => (raw === undefined || Array.isArray(raw)
