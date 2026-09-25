@@ -1,7 +1,8 @@
 import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { actionValue, bindable } from '../../core/block/capability'
+import { actionValue, bindable, type ValueCarrier } from '../../core/block/capability'
+import { propertyVisible } from '../../core/block/property'
 import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
 import { readDate, dayKey } from '../../runtime/chosenDay'
 import { suggestionStyle } from '../lookup/suggestionList'
@@ -12,6 +13,7 @@ import { disconnectValue, connectValue } from './valueBinding'
 import { fieldStyle } from './formFieldStyle'
 import {
   FIELD_TYPES,
+  NOT_CHECKBOX,
   ONLY_LOOKUP,
   WITH_VALUE,
   formFieldProperties,
@@ -37,7 +39,7 @@ function dateFromInput(value: string): string {
 
 export interface FormField extends FormFieldValues {}
 
-export class FormField extends BlockElement {
+export class FormField extends BlockElement implements ValueCarrier {
   static readonly type = 'formfield'
   static readonly tag = 'ff-formfield'
 
@@ -82,6 +84,14 @@ export class FormField extends BlockElement {
 
   checkOwnValue(): void {
     if (this.fillsSelf()) this._lookup.checkValue()
+  }
+
+  valueRequired(prop: string): boolean {
+    return prop === 'value' && this.required && propertyVisible(NOT_CHECKBOX, { fieldType: this.fieldType })
+  }
+
+  focusValue(): void {
+    this.renderRoot.querySelector<HTMLElement>('input, textarea, select')?.focus()
   }
 
   private onInput(e: Event): void {
@@ -233,4 +243,5 @@ defineBlock(FormField, {
     { kind: 'events', list: [{ key: 'onChange', name: 'Wert geändert' }] },
   ],
   grid: { startWidth: 12, startHeight: 2, minWidth: 4, minHeight: 2 },
+  contracts: { actionValue: FormField },
 })

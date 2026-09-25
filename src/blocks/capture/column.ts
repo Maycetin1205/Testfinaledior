@@ -13,6 +13,8 @@ import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../
 export type CaptureColumn = Column & {
   editable?: boolean
 
+  required?: boolean
+
   fillField?: string
 
   windowColumns?: Column[]
@@ -24,9 +26,11 @@ export type CaptureColumn = Column & {
 
 function capturePart(raw: unknown): Partial<CaptureColumn> {
   if (!isUnread<CaptureColumn>(raw)) return {}
-  const { editable, fillField, windowColumns, windowWidth, windowHeight } = raw
+  const { editable, required, fillField, windowColumns, windowWidth, windowHeight } = raw
   return {
     ...(typeof editable === 'boolean' ? { editable } : {}),
+
+    ...(typeof required === 'boolean' ? { required } : {}),
 
     ...(typeof fillField === 'string' && fillField.trim() !== ''
       ? { fillField: fillField.trim() }
@@ -65,6 +69,14 @@ const EDITABLE: EntrySwitch<CaptureColumn> = {
   withValue: (column, on) => withEntryValue(column, 'editable', on),
 }
 
+// A row without a value in this column is not captured.
+const REQUIRED: EntrySwitch<CaptureColumn> = {
+  key: 'required',
+  name: 'Pflicht',
+  valueOf: (column) => column.required,
+  withValue: (column, on) => withEntryValue(column, 'required', on),
+}
+
 const FILL_FIELD: EntryFieldChoice<CaptureColumn> = {
   key: 'fillField',
   name: 'Füllfeld',
@@ -78,7 +90,7 @@ export const CAPTURE_COLUMNS_BINDING: ListBinding<CaptureColumn> = {
   entries: coerceCaptureColumns,
 
   entryFlag: (COLUMNS_BINDING.entryFlag ?? [])
-    .flatMap((s): EntrySwitch<CaptureColumn>[] => (s.key === 'total' ? [s, EDITABLE] : [s])),
+    .flatMap((s): EntrySwitch<CaptureColumn>[] => (s.key === 'total' ? [s, EDITABLE, REQUIRED] : [s])),
 
   entryFieldChoice: [FILL_FIELD],
 }

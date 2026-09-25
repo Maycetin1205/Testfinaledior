@@ -4,7 +4,8 @@ import { stepAdapter, type RuntimeStep } from '../core/data/steps/steps'
 import type { WrittenRow, RunReportElement, PendingKind } from '../core/block/capability'
 import { selectionFor } from './selection'
 import { maskState } from './maskState'
-import { contractOf } from '../core/block/registry'
+import { contractOf, readActionValue } from '../core/block/registry'
+import type { ValueCarrier } from '../core/block/capability'
 import { todayAsText, type PlaceholderValues } from '../core/data/relations'
 
 const running = new WeakMap<HTMLElement, Set<string>>()
@@ -147,6 +148,23 @@ interface ActionResult {
   busy: boolean
 }
 
+// A required form field the chain reads, left empty.
+function emptyRequired(
+  root: ParentNode,
+  steps: readonly RuntimeStep[],
+): { field: ValueCarrier; prop: string } | undefined {
+  for (const step of steps) {
+    for (const binding of stepAdapter(step.kind).bindings(step)) {
+      if (binding.source !== 'blockValue') continue
+      const el = searchCarrier(root, binding.blockId ?? '')
+      const field = el && contractOf(el, 'actionValue')
+      if (!el || !field?.valueRequired(binding.value)) continue
+      if (readActionValue(el, binding.value).trim() === '') return { field, prop: binding.value }
+    }
+  }
+  return undefined
+}
+
 export async function runEvent(
   el: HTMLElement,
   eventKey: string,
@@ -155,6 +173,13 @@ export async function runEvent(
   const empty = { ran: false, written: false, cancelled: false, busy: false }
   const steps = chainsRead(el.getAttribute('data-ff-actions'))[eventKey]
   if (!steps || steps.length === 0) return empty
+
+  // A chain that reads an empty required field does not run; the cursor goes there.
+  const missing = emptyRequired(el.ownerDocument ?? document, steps)
+  if (missing) {
+    missing.field.focusValue(missing.prop)
+    return { ...empty, cancelled: true }
+  }
 
   let locks = running.get(el)
   if (!locks) {

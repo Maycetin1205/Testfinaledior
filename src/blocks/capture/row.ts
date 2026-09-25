@@ -157,6 +157,13 @@ export function neighbourSlot(
   return -1
 }
 
+// The first column the operator can step to that must hold a value and is
+// empty; -1 when there is none.
+export function missingRequired(columns: readonly CaptureColumn[], values: readonly string[]): number {
+  return columns.findIndex((column, i) =>
+    column.required === true && column.hidden !== true && (values[i] ?? '').trim() === '')
+}
+
 export function linkedSourcesIn(context: CaptureContext): string[] {
   const out: string[] = []
   for (const column of context.columns) {

@@ -20,6 +20,9 @@ export type FieldType = (typeof FIELD_TYPES)[number]
 // Only a text field looks up; another field type switches it off.
 export const ONLY_LOOKUP: Condition = { key: 'lookup', equals: true }
 
+// A checkbox is never empty.
+export const NOT_CHECKBOX: Condition = { key: 'fieldType', notEquals: 'checkbox' }
+
 // A field that neither ticks nor looks up shows a value of its source.
 export const WITH_VALUE: Condition = {
   key: 'fieldType',
@@ -139,6 +142,13 @@ export const formFieldProperties = {
     label: 'Darstellung',
     attribute: 'appearance',
     when: { key: 'fieldType', noneOf: ['checkbox'] },
+  }),
+  required: booleanProperty({
+    default: false,
+    label: 'Pflicht',
+    place: 'display',
+    attribute: 'required',
+    when: NOT_CHECKBOX,
   }),
 }
 

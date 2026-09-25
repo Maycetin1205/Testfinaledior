@@ -38,6 +38,7 @@ import {
   displayColumnIn,
   fittingRecords,
   linkedSourcesIn,
+  missingRequired,
   neighbourSlot,
   sameSourceCodes,
   targetIn,
@@ -622,24 +623,28 @@ export class CaptureLedger {
     )
   }
 
-  // The typed row moves down to the captured ones: Tab past the last column,
-  // Enter when no column is empty any more.
+  // The typed row moves down to the captured ones: Enter or Tab past the last
+  // column. A required cell left empty holds it back, and the cursor goes there.
   captureRow(): boolean {
-    if (!this.capture(this.context())) return false
-    this.host.captured()
+    const outcome = this.capture(this.context())
+    if (outcome === 'nothing') return false
+    if (outcome === 'captured') this.host.captured()
+    else this.host.focusCell(outcome.missing)
     return true
   }
 
-  private capture(context: CaptureContext): boolean {
+  private capture(context: CaptureContext): 'captured' | 'nothing' | { missing: number } {
     this.compute(context)
     const values = context.columns.map((_, i) => this.valueIn(context, i))
     const back = this.correction
     if (values.every((w) => w === '')) {
-      if (!back) return false
+      if (!back) return 'nothing'
       this.correction = null
       this.clearCaptureRow()
-      return true
+      return 'captured'
     }
+    const missing = missingRequired(context.columns, values)
+    if (missing !== -1) return { missing }
     if (back) {
       this.rows = [
         ...this.rows.slice(0, back.slot),
@@ -652,16 +657,20 @@ export class CaptureLedger {
       this.nextKey += 1
     }
     this.clearCaptureRow()
-    return true
+    return 'captured'
   }
 
   // A captured row goes back into the capture row. What stands there is captured
-  // first, so nothing is lost.
+  // first, so nothing is lost; a required cell left empty there comes first.
   bringBackCaptured(index: number): void {
     const context = this.context()
     const row = this.rows[index]
     if (!row || row.written !== undefined) return
-    this.capture(context)
+    const before = this.capture(context)
+    if (typeof before === 'object') {
+      this.host.focusCell(before.missing)
+      return
+    }
     const now = this.rows.indexOf(row)
     if (now === -1) return
     this.rows = this.rows.filter((_, i) => i !== now)

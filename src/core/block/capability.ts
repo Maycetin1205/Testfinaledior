@@ -169,7 +169,15 @@ export interface RunReportElement {
   runDone: (kind: PendingKind, written: readonly WrittenRow[]) => void
 }
 
+// A block whose values an action reads. A required value keeps the action from
+// running while it is empty, and the cursor goes to it.
+export interface ValueCarrier {
+  valueRequired: (prop: string) => boolean
+  focusValue: (prop: string) => void
+}
+
 export interface RuntimeContracts {
+  actionValue: ValueCarrier
   capture: CaptureCarrier & RunReportElement
   change: ChangeCarrier & RunReportElement
   delete: DeleteCarrier & RunReportElement
