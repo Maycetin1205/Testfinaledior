@@ -1,5 +1,5 @@
 import { createElement, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { ChevronDown, Component, Trash2, type Icon } from '@/editor/icons/icon'
+import { ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
 import { Tile } from '@/editor/widgets/Tile'
@@ -7,12 +7,11 @@ import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
 import { propertiesFor } from '../../core/block/propertyPlace'
-import { BLOCK_ICONS } from '../blockIcons'
 import { FieldPicker, type PickerField, type PickerGroup, type SourcesChoice } from '../canvas/FieldPicker'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { BarControl, Labeled } from './BarControl'
-import { BarFrame, BarWindow } from './BlockBar'
+import { BarFrame, BarSign, BarWindow } from './BlockBar'
 import { controlShown } from './controlShown'
 
 // One line holds seven parts at most; more, and the switches share a window.
@@ -104,10 +103,7 @@ export function ColumnBar({
 
   return (
     <BarFrame host={host} element={element} head={def?.head} align={align}>
-      <span className="flex h-control items-center gap-[6px] pl-[6px] pr-[2px] font-semibold">
-        {createElement(BLOCK_ICONS[block.type] ?? Component, { size: 14, className: 'text-muted' })}
-        {name}
-      </span>
+      <BarSign type={block.type} name={name} />
       <Separator vertical />
 
       {fields.map((field) => (

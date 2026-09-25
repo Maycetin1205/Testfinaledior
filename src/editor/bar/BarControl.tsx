@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useContext, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
@@ -20,6 +20,7 @@ import { PickerControl } from '../controls/PickerControl'
 import { SegmentControl } from '../controls/SegmentControl'
 import { useInputSession } from '../controls/useInputSession'
 import { controlShown, fieldSourceOf } from './controlShown'
+import { LabelsShown } from './labelsShown'
 
 interface EditCallbacks {
   onBeginEditing: () => void
@@ -44,12 +45,14 @@ interface PickerCase {
 }
 
 // The name in front of a control, as .vfeld-label writes it, and what it
-// refers to, like the field a Kanban column sorts by.
+// refers to, like the field a Kanban column sorts by. In the bar itself the
+// control stands alone.
 export function Labeled({ label, detail = '', children }: {
   label: string
   detail?: string
   children: ReactNode
 }) {
+  if (!useContext(LabelsShown)) return <>{children}</>
   return (
     <span className="flex min-w-0 items-center gap-[6px]">
       <span className="shrink-0 text-label font-semibold uppercase tracking-label text-muted">

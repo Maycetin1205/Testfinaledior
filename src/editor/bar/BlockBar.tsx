@@ -37,6 +37,7 @@ import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import { LookupWindowSection } from './LookupWindowSection'
 import { SelectionFollowSection } from './SelectionFollowSection'
 import { SourceList } from './SourceList'
+import { LabelsShown } from './labelsShown'
 
 interface BlockBarProps {
   block: BlockNode
@@ -166,9 +167,19 @@ export function BarFrame({ host, element, head, align, children }: BarFrameProps
       onDoubleClick={hold}
       onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }}
     >
-      {children}
+      <LabelsShown.Provider value={false}>{children}</LabelsShown.Provider>
     </div>,
     document.body,
+  )
+}
+
+// The block or column the bar belongs to, as its sign alone; the name is for
+// a screen reader.
+export function BarSign({ type, name }: { type: string; name: string }) {
+  return (
+    <span role="img" aria-label={name} className="flex h-control items-center px-[6px]">
+      {createElement(BLOCK_ICONS[type] ?? Component, { size: 14, className: 'text-muted', 'aria-hidden': true })}
+    </span>
   )
 }
 
@@ -237,10 +248,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
 
   return (
     <BarFrame host={host} element={element} head={def?.head}>
-      <span className="flex h-control items-center gap-[6px] pl-[6px] pr-[2px] font-semibold">
-        {createElement(BLOCK_ICONS[block.type] ?? Component, { size: 14, className: 'text-muted' })}
-        {def?.name ?? block.type}
-      </span>
+      <BarSign type={block.type} name={def?.name ?? block.type} />
 
       {(choices.length > 0 || fonts.length > 0) && <Separator vertical />}
       {withFonts(controls(choices), choices, fonts, block)}
@@ -392,7 +400,9 @@ export function BarWindow({ label, icon, width = 340, defaultOpen = false, child
           )}
       {open && (
         <Popover name={label} anchor={button} width={width} maxHeight={480} onClose={() => setOpen(false)}>
-          <div className="p-[6px]">{children(() => setOpen(false))}</div>
+          <LabelsShown.Provider value>
+            <div className="p-[6px]">{children(() => setOpen(false))}</div>
+          </LabelsShown.Provider>
         </Popover>
       )}
     </>
