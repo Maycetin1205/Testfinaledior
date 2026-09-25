@@ -9,7 +9,7 @@ import {
   type RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Component, Link2, Plus, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
+import { Component, FileText, Link2, Plus, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Popover } from '@/editor/widgets/Popover'
 import { Separator } from '@/editor/widgets/Separator'
@@ -25,13 +25,15 @@ import {
   SOURCE_PROP,
 } from '../../core/block/treeQuery'
 import { fieldPlainName } from '../../core/data/dataSources'
+import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { BLOCK_ICONS } from '../blockIcons'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { ActionsSection } from './ActionsSection'
 import { BarControl, FontChoice } from './BarControl'
 import { controlShown } from './controlShown'
-import { followOf, followOffered } from './followOffer'
+import { followKey, followOf, followOffered, followOnDocument } from './followOffer'
+import { openDocumentOf } from '../controls/outsideOrigin'
 import { useView } from '../state/useView'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import { LookupWindowSection } from './LookupWindowSection'
@@ -283,12 +285,12 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
           )}
         </BarWindow>
       )}
-      {maySelectionFollows(block) && followOffered(ed.tree, block) && (() => {
+      {maySelectionFollows(block) && followOffered(ed.tree, block, library) && (() => {
         const follow = followOf(block)
-        if (follow === undefined) return <FollowPick block={block} />
+        if (follow === undefined || ed.followPickFor === block.id) return <FollowPick block={block} />
         const open = follow.pairs.some((p) => p.fromField === '' || p.toField === '')
         return (
-          <BarWindow key={`follow:${follow.giverId}`} label="Folgt der Auswahl" icon={Link2} defaultOpen={open}>
+          <BarWindow key={`follow:${followKey(follow)}`} label="Folgt der Auswahl" icon={Link2} defaultOpen={open}>
             {(close) => (
               <SelectionFollowSection
                 block={block}
@@ -331,10 +333,12 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   )
 }
 
-// Waits for a click on the block whose selection this one follows; Escape or a
-// click on the canvas ends the waiting.
+// Waits for a click on what this block follows: a block with a chosen row or
+// a form field on the canvas, or the open document beside the sign. Escape or
+// a click on the canvas ends the waiting.
 function FollowPick({ block }: { block: BlockNode }) {
   const ed = useView()
+  const openDocument = openDocumentOf(useDataSources().list)
   const waiting = ed.followPickFor === block.id
   return (
     <>
@@ -348,6 +352,19 @@ function FollowPick({ block }: { block: BlockNode }) {
       >
         <Link2 size={15} />
       </Button>
+      {waiting && openDocument && (
+        <Button
+          onlyIcon
+          aria-label={openDocument.name}
+          title={openDocument.name}
+          onClick={() => {
+            ed.updateProperty(block.id, SELECTION_FOLLOW_PROP, followOnDocument(block, openDocument.id))
+            ed.pickFollowFor(null)
+          }}
+        >
+          <FileText size={15} />
+        </Button>
+      )}
       {waiting && <EscapeEnds onEscape={() => ed.pickFollowFor(null)} />}
     </>
   )

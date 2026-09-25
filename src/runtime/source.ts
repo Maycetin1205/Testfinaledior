@@ -3,7 +3,7 @@ import { SOURCE_PROP } from '../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import type { RuntimeSource } from '../core/data/dataSources'
 import { maskState } from './maskState'
-import { onSelectionList } from './selection'
+import { followsFormField, onSelectionList } from './selection'
 import { keyedByFormField, makeFieldReader, type FieldReader } from './foreignSources'
 import { onChosenDay, chosenDay, dayKey } from './chosenDay'
 import { wireFetchingSources } from './fetchingSources'
@@ -92,11 +92,14 @@ export function makeDataLink<T extends HTMLElement>(opts: {
 
       onSelectionList(() => { hydrateAll(false) })
 
-      // A block keyed by a form field reads anew once the field's value changes.
+      // A block keyed by a form field or following one reads anew once the
+      // field's value changes.
       el.ownerDocument.addEventListener('change', (e) => {
         const blockId = e.target instanceof Element ? e.target.getAttribute(BLOCK_ID_ATTR) : null
         if (blockId === null || !maskState.host.hasData()) return
-        elements.forEach((other) => { if (keyedByFormField(other, blockId)) opts.hydrate(other, false) })
+        elements.forEach((other) => {
+          if (keyedByFormField(other, blockId) || followsFormField(other, blockId)) opts.hydrate(other, false)
+        })
       }, true)
 
       wireFetchingSources()

@@ -3,23 +3,34 @@ import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
 import { blockName } from '../../core/block/blockName'
 import { selectionSourceIdOf } from '../../core/block/treeQuery'
+import type { KeyPair } from '../../core/data/extraSources'
 import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../../core/data/selectionFollow'
+import type { ValueOrigin } from '../../core/data/valueOrigin'
 import { OriginPicker } from '../controls/OriginPicker'
 import type { OriginOffer } from '../controls/originOffer'
+import {
+  fieldEntries,
+  formFieldSpots,
+  fromOutside,
+  outsideOffer,
+  outsideOrigin,
+  outsidePair,
+} from '../controls/outsideOrigin'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { followOf } from './followOffer'
+import { followedName, followOf } from './followOffer'
 import { KeyPairRows } from './KeyPairRows'
 
 interface SelectionFollowSectionProps {
   block: BlockNode
 
-  // Waits for a click on another giver.
+  // Waits for a click on what to follow instead.
   onPick: () => void
 }
 
-// Whose selection the block follows, and below it the field pairs, where the
-// rows are not fetched for the chosen row anyway.
+// What the block follows, and below it the field pairs, where the rows are not
+// fetched for the chosen row anyway. The value of a pair comes from the
+// giver's chosen row, the open document or a form field.
 export function SelectionFollowSection({ block, onPick }: SelectionFollowSectionProps) {
   const ed = useEditor()
   const library = useDataSources().list
@@ -30,20 +41,28 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
   const sourceOf = (n: BlockNode | undefined) =>
     library.find((s) => s.id === selectionSourceIdOf(n))
   const giver = ed.tree[follow.giverId]
-  const giverName = giver ? blockName(giver, library) : ''
   const giverSource = sourceOf(giver)
   const ownSource = sourceOf(block)
+  const formFields = formFieldSpots(ed.tree, library, block.id)
 
-  // The value of a pair is a column of the giver's chosen row.
   const offer: OriginOffer = {
-    rows: giverSource
+    rows: giver && giverSource
       ? [{
           sourceId: follow.giverId,
-          name: `Gewählte Zeile ${giverName}`,
-          fields: giverSource.fields.map((f) => ({ value: f.code, name: f.name || f.code, badge: f.code })),
+          name: `Gewählte Zeile ${blockName(giver, library)}`,
+          fields: fieldEntries(giverSource),
         }]
       : [],
+    ...outsideOffer(library, formFields),
   }
+
+  const originOf = (pair: KeyPair): ValueOrigin | null => (pair.fromField === ''
+    ? null
+    : outsideOrigin(pair) ?? { kind: 'row', sourceId: follow.giverId, value: pair.fromField })
+
+  const pairFor = (origin: ValueOrigin, pair: KeyPair): KeyPair | null => (fromOutside(origin)
+    ? outsidePair(origin, pair.toField, formFields)
+    : { fromField: origin.value, toField: pair.toField })
 
   function set(next: SelectionFollow[]): void {
     ed.updateProperty(block.id, SELECTION_FOLLOW_PROP, next)
@@ -53,10 +72,12 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
     <div className="flex flex-col gap-2">
       <div className="flex min-h-control items-center gap-1.5">
         <span className="shrink-0 text-label font-semibold uppercase tracking-label text-muted">
-          Folgt der Auswahl von
+          Folgt
         </span>
-        <span className="min-w-0 flex-1 truncate font-semibold text-ink">{giverName}</span>
-        <Button onlyIcon aria-label="Anderen Baustein wählen" title="Anderen Baustein wählen" onClick={onPick}>
+        <span className="min-w-0 flex-1 truncate font-semibold text-ink">
+          {followedName(follow, ed.tree, library)}
+        </span>
+        <Button onlyIcon aria-label="Anderes wählen" title="Anderes wählen" onClick={onPick}>
           <Link2 size={13} />
         </Button>
         <Button onlyIcon aria-label="Folgt nicht mehr" title="Folgt nicht mehr" onClick={() => set([])}>
@@ -71,12 +92,12 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
           left={(pair, at) => (
             <OriginPicker
               name={`Wert ${at + 1}`}
-              origin={pair.fromField === '' ? null : { kind: 'row', sourceId: follow.giverId, value: pair.fromField }}
+              origin={originOf(pair)}
               offer={offer}
-              onChoose={(origin) => set([{
-                ...follow,
-                pairs: follow.pairs.map((p, x) => (x === at ? { ...p, fromField: origin.value } : p)),
-              }])}
+              onChoose={(origin) => {
+                const next = pairFor(origin, pair)
+                if (next) set([{ ...follow, pairs: follow.pairs.map((p, x) => (x === at ? next : p)) }])
+              }}
             />
           )}
           rightFields={ownSource?.fields ?? []}

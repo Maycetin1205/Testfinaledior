@@ -3,9 +3,10 @@ import { blockType } from './registry'
 import { propertyVisible } from './property'
 import { capability } from './capability'
 import { splitBinding } from './binding'
-import { SOURCE_PROP, sourcesIdsInChainsOf, carriesOwnSource } from './treeQuery'
+import { SOURCE_PROP, sourcesIdsInChainsOf, carriesOwnSource, maySelectionFollows } from './treeQuery'
 import { dataFieldsFrom } from '../data/calculation'
 import type { DataSource } from '../data/dataSources'
+import { SELECTION_FOLLOW_PROP, selectionFollowsFrom } from '../data/selectionFollow'
 import {
   sourcesResolve,
   sourceUsable,
@@ -45,6 +46,11 @@ export function sourceIdsUsedBy(node: BlockNode): string[] {
       if (!sourceUsable(q)) continue
       add(q.sourceId)
       for (const pair of q.pairs) if (pair.from === 'document') add(pair.fromSourceId)
+    }
+  }
+  if (maySelectionFollows(node)) {
+    for (const follow of selectionFollowsFrom(node.values[SELECTION_FOLLOW_PROP])) {
+      for (const pair of follow.pairs) if (pair.from === 'document') add(pair.fromSourceId)
     }
   }
   const def = blockType(node.type)

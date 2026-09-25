@@ -1,6 +1,12 @@
 import { BLOCK_ID_ATTR } from '../core/data/actions'
-import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../core/data/selectionFollow'
-import { pairListFromAttribute } from './pairList'
+import { completePairs } from '../core/data/extraSources'
+import {
+  followsFromText,
+  followUsable,
+  SELECTION_FOLLOW_PROP,
+  type SelectionFollow,
+} from '../core/data/selectionFollow'
+import { outsideValue } from './foreignSources'
 import { maskState } from './maskState'
 
 // Two deliveries of the same record may list their fields in a different order,
@@ -114,13 +120,22 @@ export function clearSelection(giverId: string): void {
 
 const SELECTION_FOLLOW_ATTR = SELECTION_FOLLOW_PROP.toLowerCase()
 
+// The follows as the mask carries them, each with its complete pairs.
 function followsFromAttribute(el: HTMLElement): SelectionFollow[] {
-  return pairListFromAttribute(el, SELECTION_FOLLOW_ATTR, 'giverId')
-    .map((e) => ({ giverId: e.id, pairs: e.pairs }))
+  const raw = el.getAttribute(SELECTION_FOLLOW_ATTR) ?? ''
+  if (raw === '') return []
+  return followsFromText(raw)
+    .filter(followUsable)
+    .map((f) => ({ giverId: f.giverId, pairs: completePairs(f) }))
 }
 
 export function selectionGiverOf(el: HTMLElement): string[] {
   return followsFromAttribute(el).map((f) => f.giverId).filter((id) => id !== '')
+}
+
+// Whether the block follows the value of this form field.
+export function followsFormField(el: HTMLElement, blockId: string): boolean {
+  return followsFromAttribute(el).some((f) => f.pairs.some((p) => p.from === 'formField' && p.fromField === blockId))
 }
 
 export function rowsToSelection(
@@ -131,11 +146,12 @@ export function rowsToSelection(
   let out = rows
   let filtered = false
   for (const follow of followsFromAttribute(el)) {
-    const selection = selectionFor(follow.giverId)
-    if (selection === undefined) continue
+    const selection = follow.giverId === '' ? undefined : selectionFor(follow.giverId)
+    if (selection === undefined && follow.pairs.some((p) => p.from === undefined)) continue
 
+    // A pair reads the giver's chosen row, the open document or a form field.
     const activePairs = follow.pairs
-      .map((p) => ({ expected: host.readField(selection, p.fromField), toField: p.toField }))
+      .map((p) => ({ expected: outsideValue(p, el) ?? host.readField(selection, p.fromField), toField: p.toField }))
       .filter((p) => p.expected !== '')
 
     if (activePairs.length === 0) continue

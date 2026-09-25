@@ -51,7 +51,7 @@ function keyFrom(values: readonly string[]): string {
 export function extraSourcesOf(
   el: HTMLElement,
 ): { sourceId: string; partnerId: string; pairs: KeyPair[] }[] {
-  return pairListFromAttribute(el, EXTRA_SOURCES_ATTR, 'sourceId', { keepWithoutPairs: true })
+  return pairListFromAttribute(el, EXTRA_SOURCES_ATTR)
     .map((e) => ({ sourceId: e.id, partnerId: e.partnerId, pairs: e.pairs }))
 }
 

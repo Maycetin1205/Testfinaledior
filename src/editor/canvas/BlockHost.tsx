@@ -15,11 +15,11 @@ import {
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import { gridMetricsOf } from '../../core/block/grid'
-import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource, isSelectionGiver } from '../../core/block/treeQuery'
+import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block/treeQuery'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { useEditorInstance } from '../state/EditorContext'
 import { useView } from '../state/useView'
-import { followOn } from '../bar/followOffer'
+import { followableByClick, followByClick } from '../bar/followOffer'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { BlockBar } from '../bar/BlockBar'
@@ -116,19 +116,21 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
 
   const gridDraggable = grid
 
-  // While a block waits for its giver, only a giver answers a click; a click
-  // elsewhere goes on to the canvas, which ends the waiting.
-  const giverToPick = follower !== null && follower !== block.id && isSelectionGiver(block)
+  // While a block waits for what it follows, only a giver or a form field
+  // answers a click; a click elsewhere goes on to the canvas, which ends the
+  // waiting.
+  const toFollow = follower !== null && followableByClick(block, follower)
 
   return (
     <div
       ref={rootRef}
       onClick={(e) => {
         if (follower !== null) {
-          if (!giverToPick) return
+          if (!toFollow) return
           e.stopPropagation()
           const node = editor.getNode(follower)
-          if (node) editor.updateProperty(follower, SELECTION_FOLLOW_PROP, followOn(node, block.id, library))
+          const next = node ? followByClick(node, block, library) : null
+          if (next) editor.updateProperty(follower, SELECTION_FOLLOW_PROP, next)
           editor.pickFollowFor(null)
           return
         }
@@ -151,7 +153,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         cursor: selected ? 'default' : 'pointer',
         outline: selected
           ? '2px solid hsl(var(--wb-selection))'
-          : giverToPick ? '2px dashed hsl(var(--wb-selection))' : '2px solid transparent',
+          : toFollow ? '2px dashed hsl(var(--wb-selection))' : '2px solid transparent',
         outlineOffset: 1,
         borderRadius: 'var(--radius)',
         userSelect: 'none',
