@@ -136,7 +136,7 @@ function FieldRow({ label, display, active, onActive }: FieldRowProps) {
       active={active}
       aria-pressed={active}
       onClick={onActive}
-      className="px-1.5"
+      className="shrink-0 px-1.5"
     >
 
       <span className="w-24 shrink-0 truncate text-ui text-muted">{label}</span>
@@ -220,14 +220,14 @@ export function FieldPicker({
       level={level}
       onClose={onClose}
     >
-      <div className="flex flex-col gap-1.5">
-        <p className="truncate px-1.5 pt-0.5 text-label font-semibold uppercase tracking-label text-muted">
+      <div className="flex min-h-0 flex-1 flex-col gap-1.5">
+        <p className="shrink-0 truncate px-1.5 pt-0.5 text-label font-semibold uppercase tracking-label text-muted">
           {spotLabel}
         </p>
 
         {sourcesChoice ? (
           sourcesChoice.entries.length === 0 ? (
-            <div className="flex flex-col gap-2 px-1.5 pb-1">
+            <div className="flex shrink-0 flex-col gap-2 px-1.5 pb-1">
               {sourcesChoice.onDataCenter && (
                 <Button kind="primary" className="self-start" onClick={sourcesChoice.onDataCenter}>
                   Daten öffnen
@@ -236,8 +236,9 @@ export function FieldPicker({
             </div>
           ) : (
             <>
-              <Separator />
+              <Separator className="shrink-0" />
               <List
+                fill
                 searchable={sourcesChoice.entries.length > 8}
                 groups={[{ key: 'sources', entries: sourcesChoice.entries }]}
                 value=""
@@ -261,7 +262,7 @@ export function FieldPicker({
               title.session.finish()
               if (title.value.trim() === '') title.onChange(title.fallback)
             }}
-            className="font-medium"
+            className="shrink-0 font-medium"
           />
         )}
 
@@ -270,7 +271,7 @@ export function FieldPicker({
         {extraTargets.map(fieldRow)}
 
         {hasFlags && (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 px-1.5">
+          <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 px-1.5">
             {(flag ?? []).map((s) => (
               <Switch
                 key={s.key}
@@ -282,9 +283,9 @@ export function FieldPicker({
           </div>
         )}
 
-        <Separator />
+        <Separator className="shrink-0" />
 
-        <p className="flex items-baseline gap-2 px-1.5 text-label font-semibold uppercase tracking-label text-muted">
+        <p className="flex shrink-0 items-baseline gap-2 px-1.5 text-label font-semibold uppercase tracking-label text-muted">
           <span className="min-w-0 truncate">
             {active.label} wählen
           </span>
@@ -297,6 +298,7 @@ export function FieldPicker({
 
         <List
           key={`liste:${active.key}`}
+          fill
           searchable
           groups={listGroups(
             visibleGroups.length === 1
@@ -310,7 +312,7 @@ export function FieldPicker({
           </>
         )}
         {((moreActions?.length ?? 0) > 0 || onRemove !== undefined) && (
-          <div className="sticky bottom-0 -mb-1 flex items-center justify-between gap-2 border-t border-line bg-panel px-1.5 py-1.5">
+          <div className="flex shrink-0 items-center justify-between gap-2 border-t border-line px-1.5 pt-1.5">
             <div className="flex items-center gap-1.5">
               {(moreActions ?? []).map((w) => (
                 <Button key={w.label} onClick={w.onOpen}>{w.label}</Button>

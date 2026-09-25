@@ -25,6 +25,9 @@ interface ListProps {
   emptyText?: string
 
   searchable?: boolean
+
+  // Takes the room its parent leaves: the entries scroll below a standing search.
+  fill?: boolean
   onChoose: (value: string) => void
 }
 
@@ -39,6 +42,7 @@ export function List({
   value,
   emptyText,
   searchable = false,
+  fill = false,
   onChoose,
 }: ListProps) {
   const [search, setSearch] = useState('')
@@ -61,7 +65,7 @@ export function List({
   }, [groups, wanted])
 
   return (
-    <div className="flex flex-col">
+    <div className={cn('flex flex-col', fill && 'min-h-0 flex-1')}>
       {searchable && (
         <div className="flex items-center gap-1.5 border-b border-line px-2 py-1">
           <Search size={13} aria-hidden className="shrink-0 text-muted" />
@@ -76,6 +80,7 @@ export function List({
         </div>
       )}
 
+      <div className={cn('flex flex-col', fill && 'min-h-0 flex-1 overflow-y-auto')}>
       {emptyText !== undefined && wanted === '' && (
         <button
           type="button"
@@ -126,6 +131,7 @@ export function List({
           })}
         </div>
       ))}
+      </div>
     </div>
   )
 }

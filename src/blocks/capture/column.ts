@@ -67,7 +67,7 @@ const EDITABLE: EntrySwitch<CaptureColumn> = {
 
 const FILL_FIELD: EntryFieldChoice<CaptureColumn> = {
   key: 'fillField',
-  name: 'Nachschlagen',
+  name: 'Füllfeld',
   onlyForeignSources: true,
   valueOf: (column) => column.fillField ?? '',
   withValue: (column, field) => withEntryValue(column, 'fillField', field === '' ? undefined : field),
