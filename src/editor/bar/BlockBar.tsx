@@ -217,7 +217,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
       {(carriesOwnSource(block) || sourceProps.length > 0) && (
         <BarWindow label="Quelle">
           {() => (
-            <div className="flex flex-col items-start gap-[8px]">
+            <div className="flex flex-col gap-[8px]">
               {carriesOwnSource(block) && <SourceList block={block} />}
               {controls(sourceProps)}
             </div>
@@ -227,7 +227,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
       {(windowShown || lookupProps.length > 0) && (
         <BarWindow label="Suchfenster" icon={Search}>
           {() => (
-            <div className="flex flex-col items-start gap-[8px]">
+            <div className="flex flex-col gap-[8px]">
               {controls(lookupProps)}
               {windowShown && <LookupWindowSection block={block} window={searchWindow} />}
             </div>
