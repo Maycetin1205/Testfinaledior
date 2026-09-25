@@ -42,7 +42,9 @@ export function sourceIdsUsedBy(node: BlockNode): string[] {
   if (carriesOwnSource(node)) {
     add(node.values[SOURCE_PROP])
     for (const q of extraSourcesFrom(node.values[EXTRA_SOURCES_PROP])) {
-      if (sourceUsable(q)) add(q.sourceId)
+      if (!sourceUsable(q)) continue
+      add(q.sourceId)
+      for (const pair of q.pairs) if (pair.from === 'document') add(pair.fromSourceId)
     }
   }
   const def = blockType(node.type)

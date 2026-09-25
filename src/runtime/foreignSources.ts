@@ -1,5 +1,7 @@
 import { EXTRA_SOURCES_PROP, type KeyPair } from '../core/data/extraSources'
 import { splitBinding } from '../core/block/blockType'
+import { readActionValue } from '../core/block/registry'
+import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { maskState } from './maskState'
 import { pairListFromAttribute } from './pairList'
 
@@ -12,7 +14,25 @@ interface Lookup {
 
   partnerId: string
 
-  hereFields: string[]
+  pairs: KeyPair[]
+}
+
+// The value a key takes from outside the row: a field of the open document or
+// the value of a form field in the same mask. Undefined for a key the partner
+// gives.
+export function outsideValue(pair: KeyPair, el: Element): string | undefined {
+  const host = maskState.host
+  if (pair.from === 'document') {
+    const source = host.source(pair.fromSourceId ?? '')
+    const record = source ? host.rows(source)[0] : undefined
+    return record === undefined ? '' : host.readField(record, pair.fromField)
+  }
+  if (pair.from === 'formField') {
+    const field = Array.from(el.ownerDocument.querySelectorAll(`[${BLOCK_ID_ATTR}]`))
+      .find((candidate) => candidate.getAttribute(BLOCK_ID_ATTR) === pair.fromField)
+    return field ? readActionValue(field, pair.fromProp ?? 'value').trim() : ''
+  }
+  return undefined
 }
 
 const KEY_DIVIDER = '\x01'
@@ -35,6 +55,11 @@ export function extraSourcesOf(
     .map((e) => ({ sourceId: e.id, partnerId: e.partnerId, pairs: e.pairs }))
 }
 
+// Whether a helper source of the block takes its key from this form field.
+export function keyedByFormField(el: HTMLElement, blockId: string): boolean {
+  return extraSourcesOf(el).some((q) => q.pairs.some((p) => p.from === 'formField' && p.fromField === blockId))
+}
+
 export function makeFieldReader(el: HTMLElement): FieldReader {
   const host = maskState.host
   const extra = extraSourcesOf(el)
@@ -52,22 +77,20 @@ export function makeFieldReader(el: HTMLElement): FieldReader {
       const key = keyFrom(q.pairs.map((p) => host.readField(row, p.toField)))
       if (key !== '' && !toKey.has(key)) toKey.set(key, row)
     }
-    lookup.set(q.sourceId, {
-      toKey,
-      partnerId: q.partnerId,
-      hereFields: q.pairs.map((p) => p.fromField),
-    })
+    lookup.set(q.sourceId, { toKey, partnerId: q.partnerId, pairs: q.pairs })
   }
 
+  // A key from the document or a form field needs no partner record.
   const recordOf = (sourceId: string, row: unknown, running: Set<string>): unknown => {
     if (sourceId === '') return row
     const entry = lookup.get(sourceId)
     if (!entry || running.has(sourceId)) return undefined
+    const needsPartner = entry.pairs.some((p) => p.from === undefined)
     running.add(sourceId)
-    const partner = recordOf(entry.partnerId, row, running)
+    const partner = needsPartner ? recordOf(entry.partnerId, row, running) : undefined
     running.delete(sourceId)
-    if (partner === undefined) return undefined
-    const key = keyFrom(entry.hereFields.map((f) => host.readField(partner, f)))
+    if (needsPartner && partner === undefined) return undefined
+    const key = keyFrom(entry.pairs.map((p) => outsideValue(p, el) ?? host.readField(partner, p.fromField)))
     return key === '' ? undefined : entry.toKey.get(key)
   }
 

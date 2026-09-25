@@ -213,11 +213,11 @@ function automaticColumnsIn(context: CaptureContext, index: number): Column[] {
 
 export function fittingRecords(
   pairs: readonly KeyPair[],
-  keyValue: (field: string) => string | undefined,
+  keyValue: (pair: KeyPair) => string | undefined,
   candidates: readonly unknown[],
 ): unknown[] {
   const known = pairs
-    .map((p) => ({ toField: p.toField, expected: keyValue(p.fromField) }))
+    .map((p) => ({ toField: p.toField, expected: keyValue(p) }))
     .filter((b): b is { toField: string; expected: string } => b.expected !== undefined)
   if (known.length === 0) return [...candidates]
   return candidates.filter((record) => known.every(

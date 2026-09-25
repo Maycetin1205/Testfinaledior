@@ -2,12 +2,16 @@ import { SOURCE_PROP } from '../../core/block/sourceProperty'
 import { Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
+import { blockName } from '../../core/block/blockName'
+import { valueSpotsInTree } from '../../core/block/treeQuery'
 import { sourcesKey } from '../../core/data/dataSources'
 import {
   EXTRA_SOURCES_PROP,
   extraSourcesFrom,
   type ExtraSource,
+  type KeyPair,
 } from '../../core/data/extraSources'
+import { blockValueKey } from '../datacenter/parameterText'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { openDataCenter } from '../datacenter/openDataCenter'
@@ -49,8 +53,17 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
 
   const entriesOf = (id: string) => fieldsOf(id).map((f) => ({ value: f.code, name: f.name, badge: f.code }))
 
-  // The key of a helper source comes from the row itself or from another
-  // helper source; all its pairs read from the same place.
+  const openDocument = library.find((s) => s.preset === 'document')
+  const formFields = valueSpotsInTree(ed.tree).map(({ node, spot }) => ({
+    key: blockValueKey(node.id, spot.prop),
+    blockId: node.id,
+    prop: spot.prop,
+    name: blockName(node, library),
+  }))
+
+  // The key of a helper source comes from the row itself, another helper
+  // source, the open document or a form field. The pairs that read the row or
+  // a helper source all read from the same one.
   function offerFor(index: number): OriginOffer {
     const own = extra[index]
     return {
@@ -62,6 +75,8 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
           name: library.find((s) => s.id === q.sourceId)?.name ?? '',
           fields: entriesOf(q.sourceId),
         })),
+      ...(openDocument ? { document: { sourceId: openDocument.id, name: openDocument.name, fields: entriesOf(openDocument.id) } } : {}),
+      formFields: formFields.map((f) => ({ value: f.key, name: f.name })),
     }
   }
 
@@ -70,22 +85,44 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     return !own || own.partnerId === own.sourceId ? '' : own.partnerId
   }
 
-  function originOf(index: number, fromField: string): ValueOrigin | null {
-    if (fromField === '') return null
+  function originOf(index: number, pair: KeyPair): ValueOrigin | null {
+    if (pair.fromField === '') return null
+    if (pair.from === 'document') return { kind: 'document', sourceId: pair.fromSourceId ?? '', value: pair.fromField }
+    if (pair.from === 'formField') {
+      return { kind: 'formField', value: blockValueKey(pair.fromField, pair.fromProp ?? 'value') }
+    }
     const partner = partnerOf(index)
-    return partner === '' ? { kind: 'row', value: fromField } : { kind: 'helper', sourceId: partner, value: fromField }
+    return partner === '' ? { kind: 'row', value: pair.fromField } : { kind: 'helper', sourceId: partner, value: pair.fromField }
   }
+
+  const fromPartner = (p: KeyPair, fromField: string): KeyPair => ({ fromField, toField: p.toField })
 
   function setOrigin(index: number, at: number, origin: ValueOrigin): void {
     const own = extra[index]
     if (!own) return
+    const pairs = [...own.pairs]
+    const pair = pairs[at]
+    if (!pair) return
+    if (origin.kind === 'document') {
+      pairs[at] = { fromField: origin.value, toField: pair.toField, from: 'document', fromSourceId: origin.sourceId ?? '' }
+      change(index, { pairs })
+      return
+    }
+    if (origin.kind === 'formField') {
+      const spot = formFields.find((f) => f.key === origin.value)
+      if (!spot) return
+      pairs[at] = { fromField: spot.blockId, toField: pair.toField, from: 'formField', fromProp: spot.prop }
+      change(index, { pairs })
+      return
+    }
+    // A new partner leaves the pairs that read the old one empty.
     const partner = origin.kind === 'helper' ? (origin.sourceId ?? '') : ''
     const same = partner === partnerOf(index)
     change(index, {
       partnerId: partner,
-      pairs: own.pairs.map((p, x) => (x === at
-        ? { ...p, fromField: origin.value }
-        : (same ? p : { ...p, fromField: '' }))),
+      pairs: pairs.map((p, x) => (x === at
+        ? fromPartner(p, origin.value)
+        : (same || p.from !== undefined ? p : fromPartner(p, '')))),
     })
   }
 
@@ -140,7 +177,7 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
               left={(pair, at) => (
                 <OriginPicker
                   name={`Wert ${at + 1}`}
-                  origin={originOf(i, pair.fromField)}
+                  origin={originOf(i, pair)}
                   offer={offerFor(i)}
                   onChoose={(origin) => setOrigin(i, at, origin)}
                 />

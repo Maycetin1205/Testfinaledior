@@ -22,6 +22,8 @@ import { SuggestionState, type KeyAction } from '../lookup/suggestionState'
 import { SUGGESTIONS_MAX } from '../lookup/suggestionList'
 import { plainText, rowFits } from '../list/textSearch'
 import { maskState } from '../../runtime/maskState'
+import { outsideValue } from '../../runtime/foreignSources'
+import type { KeyPair } from '../../core/data/extraSources'
 import {
   arrivalCheck,
   changeArrived,
@@ -491,7 +493,7 @@ export class CaptureLedger {
       const record = this.chosen.get(sourceId)
       if (record === undefined) continue
       for (const pair of context.pairsTo(sourceId)) {
-        if (pair.fromField !== field) continue
+        if (pair.from !== undefined || pair.fromField !== field) continue
         const value = maskState.host.readField(record, pair.toField)
         if (value !== '') return value
       }
@@ -499,11 +501,24 @@ export class CaptureLedger {
     return undefined
   }
 
+  // The key of a pair: from the document or a form field, else from the
+  // partner. An empty value from outside is not known yet.
+  private pairValue(
+    context: CaptureContext,
+    partnerId: string,
+    pair: KeyPair,
+    except: string,
+  ): string | undefined {
+    const outside = outsideValue(pair, this.host.block)
+    if (outside !== undefined) return outside === '' ? undefined : outside
+    return this.keyValue(context, partnerId, pair.fromField, except)
+  }
+
   private possible(context: CaptureContext, sourceId: string, rows: readonly unknown[]): unknown[] {
     const partnerId = context.partnerOf(sourceId)
     return fittingRecords(
       context.pairsTo(sourceId),
-      (field) => this.keyValue(context, partnerId, field, sourceId),
+      (pair) => this.pairValue(context, partnerId, pair, sourceId),
       rows,
     )
   }
@@ -519,7 +534,7 @@ export class CaptureLedger {
         const record = this.chosen.get(sourceId)
         if (record !== undefined) {
           const fits = pairs.every((p) => {
-            const expected = this.keyValue(context, partnerId, p.fromField, sourceId)
+            const expected = this.pairValue(context, partnerId, p, sourceId)
             return expected === undefined || (expected !== '' && expected === maskState.host.readField(record, p.toField))
           })
           if (!fits) {
@@ -528,7 +543,7 @@ export class CaptureLedger {
           }
           continue
         }
-        if (!pairs.some((p) => this.keyValue(context, partnerId, p.fromField, sourceId) !== undefined)) continue
+        if (!pairs.some((p) => this.pairValue(context, partnerId, p, sourceId) !== undefined)) continue
         const rows = sourcesRows(sourceId)
         if (rows === null) continue
         const fitting = this.possible(context, sourceId, rows)

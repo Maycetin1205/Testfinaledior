@@ -135,7 +135,8 @@ export function usedFieldsPerSource(
 
         const partner = q.partnerId === '' ? first : q.partnerId
         for (const pair of completePairs(q)) {
-          remember(partner, pair.fromField)
+          if (pair.from === 'document') remember(pair.fromSourceId ?? '', pair.fromField)
+          else if (pair.from === undefined) remember(partner, pair.fromField)
           remember(q.sourceId, pair.toField)
         }
       }

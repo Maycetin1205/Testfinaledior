@@ -24,7 +24,7 @@ export function parameterOffer(choices: ParameterChoices): OriginOffer {
       name: `${word} ${c.label}`,
       fields: c.columns.map((s) => ({ value: s.key, name: s.title || s.key })),
     }))
-  const document = choices.dataSources.find(isDocument)
+  const openDocument = choices.dataSources.find(isDocument)
   return {
     rows: [
       ...choices.giver.map((g) => ({
@@ -38,7 +38,7 @@ export function parameterOffer(choices: ParameterChoices): OriginOffer {
     helpers: choices.dataSources
       .filter((s) => !isDocument(s))
       .map((s) => ({ sourceId: s.id, name: s.name, fields: fieldsOf(s) })),
-    ...(document ? { document: { sourceId: document.id, name: document.name, fields: fieldsOf(document) } } : {}),
+    ...(openDocument ? { document: { sourceId: openDocument.id, name: openDocument.name, fields: fieldsOf(openDocument) } } : {}),
     formFields: choices.blockValues.map((b) => ({ value: b.key, name: b.label })),
     fixed: true,
   }
