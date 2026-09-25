@@ -46,7 +46,9 @@ export type LookupWindow = BlockLookupWindow | EntryLookupWindow
 
 export type Capability =
 
-  | { kind: 'source'; when?: Condition }
+  // helpersApart: the helper sources stand in a window of their own in the
+  // bar, as the capture's do, whose columns look them up.
+  | { kind: 'source'; when?: Condition; helpersApart?: boolean }
 
   | { kind: 'recordPick'; sourceProp?: string; when?: Condition }
 

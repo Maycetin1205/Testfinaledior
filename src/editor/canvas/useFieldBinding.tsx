@@ -265,7 +265,7 @@ export function useFieldBinding({
             }))}
             actions={[
               ...(!ownWindow || searchWindow === undefined ? [] : [{
-                label: 'Suchfenster',
+                label: 'Nachschlagen',
                 icon: Search,
                 onOpen: () => {
                   openWindow(listPicker.index)

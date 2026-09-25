@@ -19,6 +19,8 @@ import {
 import { asNumber } from '../list/sorting'
 import { rowsIndexOf } from '../list/sourceRows'
 import { SuggestionState, type KeyAction } from '../lookup/suggestionState'
+import { SUGGESTIONS_MAX } from '../lookup/suggestionList'
+import { plainText, rowFits } from '../list/textSearch'
 import { maskState } from '../../runtime/maskState'
 import {
   arrivalCheck,
@@ -35,6 +37,7 @@ import {
   fittingRecords,
   linkedSourcesIn,
   neighbourSlot,
+  sameSourceCodes,
   targetIn,
   windowColumnsIn,
   type CaptureContext,
@@ -252,11 +255,23 @@ export class CaptureLedger {
 
   leave(index: number): void {
     if (this.cursorColumn === index) {
+      this.settleTyped(this.context(), index)
       this.cursorColumn = -1
       this.listColumn = -1
       this.list.idle()
     }
     this.host.report()
+  }
+
+  // A cell of a helper source holds a value of that source, never loose text:
+  // what was typed takes the exact hit, or falls away.
+  private settleTyped(context: CaptureContext, index: number): void {
+    const typed = (this.typed.get(index) ?? '').trim()
+    if (typed === '' || targetIn(context, index).kind !== 'linked') return
+    const wanted = plainText(typed)
+    const exact = this.entriesIn(context, index).filter((e) => plainText(e.value.trim()) === wanted)
+    if (exact.length === 1) this.adopt(index, exact[0].record)
+    else this.typed.delete(index)
   }
 
   empty(index: number): void {
@@ -300,15 +315,6 @@ export class CaptureLedger {
     return action
   }
 
-  nextEmpty(from: number): number {
-    const context = this.context()
-    for (let i = from + 1; i < context.columns.length; i++) {
-      if (context.columns[i]?.hidden === true) continue
-      if (this.valueIn(context, i) === '') return i
-    }
-    return -1
-  }
-
   neighbour(from: number, direction: 1 | -1): number {
     return neighbourSlot(this.host.columns(), from, direction)
   }
@@ -317,21 +323,16 @@ export class CaptureLedger {
     this.host.focusCell(index)
   }
 
-  // Where the cursor goes next: Tab walks to the neighbour column, the other keys
-  // look for the next empty cell and capture the row when none is left.
+  // Enter and Tab go one column on; past the last one they capture the row.
   jumpFrom(index: number, key: string): boolean {
-    if (key === 'Tab') {
-      const next = this.neighbour(index, 1)
-      if (next !== -1) {
-        this.host.focusCell(next)
-        return true
-      }
-      return this.captureRow()
+    this.settleTyped(this.context(), index)
+    const next = this.neighbour(index, 1)
+    if (next !== -1) {
+      this.host.focusCell(next)
+      return true
     }
-    const target = this.nextEmpty(index)
-    if (target !== -1) this.host.focusCell(target)
-    else if (key === 'Enter') this.captureRow()
-    return true
+    if (key !== 'Tab' && key !== 'Enter') return true
+    return this.captureRow()
   }
 
   // What the lookup window of a cell shows. Nothing when the column names no
@@ -397,15 +398,24 @@ export class CaptureLedger {
     this.list.show(this.suggestionsFor(context))
   }
 
+  // The typed words are looked for in every column of the same source; what
+  // equals the typed text stands on top.
   private suggestionsFor(context: CaptureContext): Entry[] {
     const index = this.cursorColumn
     if (this.list.closed || targetIn(context, index).kind === 'free') return []
     const typed = this.typed.get(index) ?? ''
-    if (typed === '') {
-      if (this.listColumn !== index) return []
-    }
-    return suggestionsInWindowState(this.entriesIn(context, index), typed,
+    if (typed === '' && this.listColumn !== index) return []
+    const codes = sameSourceCodes(context, index)
+    const texts = (e: Entry): string[] => [
+      e.display, e.value, ...codes.map((code) => maskState.host.readField(e.record, code)),
+    ]
+    const entries = this.entriesIn(context, index)
+    const hit = typed.trim() === '' ? entries : entries.filter((e) => rowFits(texts(e), typed))
+    const wanted = plainText(typed.trim())
+    const exact = (e: Entry): boolean => wanted !== '' && texts(e).some((t) => plainText(t.trim()) === wanted)
+    const rest = suggestionsInWindowState(hit.filter((e) => !exact(e)), '',
       windowColumnsIn(context, index), context.block, context.columns[index]?.key)
+    return [...hit.filter(exact), ...rest].slice(0, SUGGESTIONS_MAX)
   }
 
   private compute(context: CaptureContext): void {
@@ -579,23 +589,11 @@ export class CaptureLedger {
     return `e${this.nextKey}`
   }
 
+  // Only what stands below the line goes out, never the capture row.
   pendingMarks(): PendingRow[] {
-    const context = this.context()
-    const all = this.rows
+    return this.rows
       .filter((z) => z.written === undefined)
       .map((z) => ({ key: z.key, values: z.values as readonly string[] }))
-    const top = context.columns.map((_, i) => this.valueIn(context, i))
-    if (top.every((w) => w === '')) return all
-    const back = this.correction
-    if (!back) return [...all, { key: this.topKey, values: top }]
-    const slot = this.rows
-      .slice(0, back.slot)
-      .filter((z) => z.written === undefined).length
-    return [
-      ...all.slice(0, slot),
-      { key: back.key, values: top },
-      ...all.slice(slot),
-    ]
   }
 
   capturedStatus(index: number): RowState {
@@ -667,7 +665,6 @@ export class CaptureLedger {
 
   private markWritten(written: readonly WrittenRow[]): boolean {
     if (written.length === 0) return false
-    const context = this.context()
     const records = new Map(written.map((g) => [g.key, { record: g.record }]))
     let changed = false
     this.rows = this.rows.map((z) => {
@@ -676,25 +673,7 @@ export class CaptureLedger {
       changed = true
       return { ...z, written: mark }
     })
-    const back = this.correction
-    const topMark = records.get(back === null ? this.topKey : back.key)
-    if (topMark === undefined) return changed
-    const values = context.columns.map((_, i) => this.valueIn(context, i))
-    if (back !== null) {
-      this.rows = [
-        ...this.rows.slice(0, back.slot),
-        { key: back.key, values, written: topMark },
-        ...this.rows.slice(back.slot),
-      ]
-      this.correction = null
-      this.clearCaptureRow()
-      return true
-    }
-    if (values.every((w) => w === '')) return changed
-    this.rows = [...this.rows, { key: this.topKey, values, written: topMark }]
-    this.nextKey += 1
-    this.clearCaptureRow()
-    return true
+    return changed
   }
 
   // ----- the booked rows -----

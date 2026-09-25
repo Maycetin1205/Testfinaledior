@@ -6,13 +6,11 @@ import {
 } from '../../core/data/calculation'
 import { listProperties } from '../list/listDeclaration'
 import { captureColumnsProperty } from './column'
-import { deletableProperty } from './body'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 
 export const captureProperties = {
   ...listProperties(),
   columns: captureColumnsProperty(),
-  deletable: deletableProperty(),
   calculations: structuredProperty<Calculation[]>({
     read: (raw) => (raw === undefined || Array.isArray(raw)
       ? { ok: true, value: calculationsFrom(raw) }

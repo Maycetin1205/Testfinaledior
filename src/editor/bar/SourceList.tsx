@@ -16,9 +16,12 @@ import { KeyPairRows } from './KeyPairRows'
 
 interface SourceListProps {
   block: BlockNode
+
+  // The block's own source, its helper sources, or both.
+  part?: 'own' | 'helpers' | 'all'
 }
 
-export function SourceList({ block }: SourceListProps) {
+export function SourceList({ block, part = 'all' }: SourceListProps) {
   const ed = useEditor()
   const library = useDataSources().list
 
@@ -43,9 +46,9 @@ export function SourceList({ block }: SourceListProps) {
 
   function spot(id: string): string {
     if (id === '') return 'verbundenen Datenquelle'
-    if (id === first) return 'Datenquelle 1'
+    if (id === first) return 'Datenquelle'
     const at = extra.findIndex((q) => q.sourceId === id)
-    return at === -1 ? 'Datenquelle 1' : `Datenquelle ${at + 2}`
+    return at === -1 ? 'Datenquelle' : `Hilfsquelle ${at + 1}`
   }
 
   function partnerOf(index: number): string {
@@ -71,14 +74,14 @@ export function SourceList({ block }: SourceListProps) {
   const partnerSelection = (index: number) => {
     const own = extra[index]
     const entries = [
-      { value: first, name: library.find((s) => s.id === first)?.name ?? '', badge: 'Datenquelle 1' },
+      { value: first, name: library.find((s) => s.id === first)?.name ?? '', badge: 'Datenquelle' },
       ...extra
         .map((q, at) => ({ q, at }))
         .filter(({ q, at }) => at !== index && q.sourceId !== '' && q.sourceId !== own?.sourceId)
         .map(({ q, at }) => ({
           value: q.sourceId,
           name: library.find((s) => s.id === q.sourceId)?.name ?? '',
-          badge: `Datenquelle ${at + 2}`,
+          badge: `Hilfsquelle ${at + 1}`,
         })),
     ]
     return (
@@ -119,17 +122,17 @@ export function SourceList({ block }: SourceListProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      {sourcesSelection(first, 'Datenquelle 1', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
+      {part !== 'helpers' && sourcesSelection(first, 'Datenquelle', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
 
-      {extra.map((q, i) => (
+      {part !== 'own' && extra.map((q, i) => (
         <div key={i} className="flex flex-col gap-1.5 rounded border border-line p-2">
           <div className="flex items-end gap-1">
             <div className="min-w-0 flex-1">
-              {sourcesSelection(q.sourceId, `Datenquelle ${i + 2}`, (v) => change(i, { sourceId: v }))}
+              {sourcesSelection(q.sourceId, `Hilfsquelle ${i + 1}`, (v) => change(i, { sourceId: v }))}
             </div>
             <Button
               onlyIcon
-              aria-label={`Datenquelle ${i + 2} entfernen`}
+              aria-label={`Hilfsquelle ${i + 1} entfernen`}
               onClick={() => setExtra(extra.filter((_, at) => at !== i))}
             >
               <X size={13} />
@@ -144,7 +147,7 @@ export function SourceList({ block }: SourceListProps) {
               leftFields={fieldsOf(partnerOf(i))}
               rightFields={fieldsOf(q.sourceId)}
               leftName={(at) => `Feld ${at + 1} der ${spot(partnerOf(i))}`}
-              rightName={(at) => `Feld ${at + 1} der Datenquelle ${i + 2}`}
+              rightName={(at) => `Feld ${at + 1} der Hilfsquelle ${i + 1}`}
               removeName={(at) => `Zeile ${at + 1} entfernen`}
               onChange={(keyPairs) => change(i, { pairs: keyPairs })}
             />
@@ -152,12 +155,12 @@ export function SourceList({ block }: SourceListProps) {
         </div>
       ))}
 
-      {first !== '' && (
+      {part !== 'own' && first !== '' && (
         <Button
           className="self-start"
           onClick={() => setExtra([...extra, { sourceId: '', partnerId: '', pairs: [] }])}
         >
-          <Plus size={13} /> Datenquelle
+          <Plus size={13} /> Hilfsquelle
         </Button>
       )}
     </div>

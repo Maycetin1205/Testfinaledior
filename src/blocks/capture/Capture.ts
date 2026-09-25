@@ -4,7 +4,6 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import type {
   CaptureCarrier,
   ChangeCarrier,
-  DeleteCarrier,
   Delivery,
   PendingKind,
   RunReportElement,
@@ -40,7 +39,7 @@ import { captureProperties, type CaptureValues } from './properties'
 export interface Capture extends CaptureValues {}
 
 export class Capture extends BlockElement
-  implements CaptureCarrier, ChangeCarrier, DeleteCarrier, SentRowsElement, RunReportElement {
+  implements CaptureCarrier, ChangeCarrier, SentRowsElement, RunReportElement {
   static readonly type = 'capture'
   static readonly tag = 'ff-capture'
 
@@ -92,10 +91,6 @@ export class Capture extends BlockElement
     return this._ledger.changedRows
   }
 
-  get deletedRows(): readonly { record: string; values: readonly string[] }[] {
-    return this._ledger.deletedRows
-  }
-
   rowWrites(kind: PendingKind, key: string): void {
     this._ledger.writes(kind, key)
   }
@@ -139,8 +134,6 @@ export class Capture extends BlockElement
 
   private rowsDecoration(): (rawIndex: number | null) => RowDecoration {
     return captureDecoration({
-      preview: this.preview,
-      deletable: this.deletable,
       typable: this.changePossible,
       ledger: this._ledger,
     })
@@ -222,14 +215,13 @@ defineBlock(Capture, {
   category: 'input',
   properties: captureProperties,
   capabilities: [
-    ...listCapabilities(CAPTURE_COLUMNS_BINDING),
+    ...listCapabilities(CAPTURE_COLUMNS_BINDING, { kind: 'source', helpersApart: true }),
     { kind: 'capture' },
     { kind: 'change', key: 'editable' },
-    { kind: 'delete', when: { key: 'deletable', equals: true } },
     { kind: 'holdsSent' },
     { kind: 'compute', prop: CALCULATIONS_PROP },
     { kind: 'lookupWindow', window: { entriesProp: 'columns' } },
   ],
-  contracts: { capture: Capture, change: Capture, delete: Capture, holdsSent: Capture },
+  contracts: { capture: Capture, change: Capture, holdsSent: Capture },
   grid: LIST_GRID,
 })

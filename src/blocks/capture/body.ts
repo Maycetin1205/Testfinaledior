@@ -1,6 +1,5 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import { booleanProperty, type Property } from '../../core/block/property'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
@@ -25,6 +24,7 @@ function typingCellTpl(
     placeholder: '',
     inputClass: cellsClass(ledger.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
     holderClass: 'cell-holder',
+    marksOnEntering: true,
     slot,
     suggestions: [],
     mark: 0,
@@ -35,30 +35,6 @@ function typingCellTpl(
     chooseSuggestion: () => {},
     setMark: () => {},
   })}</div>`
-}
-
-export function deletableProperty(): Property<boolean> {
-  return booleanProperty({
-    default: false,
-    label: 'Zeilen löschbar',
-    place: 'display',
-    attribute: 'deletable',
-    needsSource: true,
-  })
-}
-
-function deleteCrossTpl(deleted: boolean, toggle: () => void): TemplateResult {
-  return html`<button
-    class="row-remove"
-    type="button"
-    title=${deleted ? 'Löschen zurücknehmen' : 'Diese Position zum Löschen vormerken'}
-    aria-label=${deleted ? 'Löschen zurücknehmen' : 'Position zum Löschen vormerken'}
-    @click=${(e: MouseEvent) => { e.stopPropagation(); toggle() }}
-  >${deleted ? '\u21BA' : '\u2715'}</button>`
-}
-
-function crossDisplayTpl(): TemplateResult {
-  return html`<span class="row-remove row-remove-static">&#x2715;</span>`
 }
 
 interface CapturedPlacement {
@@ -115,40 +91,21 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
 }
 
 interface DecorationPlacement {
-  preview: boolean
-
-  deletable: boolean
-
   typable: boolean
 
   ledger: CaptureLedger
 }
 
 export function captureDecoration(placement: DecorationPlacement): (rawIndex: number | null) => RowDecoration {
-  const cross = placement.deletable && placement.typable
   return (rawIndex) => {
-    if (rawIndex === null) {
-      return {
-        ...WITHOUT_DECORATION,
-        right: placement.deletable && placement.preview ? crossDisplayTpl() : nothing,
-      }
-    }
+    if (rawIndex === null) return WITHOUT_DECORATION
     const state = placement.ledger.statusOf(rawIndex)
-    const deleted = placement.ledger.isDeleted(rawIndex)
     return {
+      ...WITHOUT_DECORATION,
       status: state.status === 'booked' ? '' : state.status,
-      className: deleted ? 'deleted' : '',
       cell: (slot, column) => (placement.typable && columnEditable(column)
         ? typingCellTpl(placement.ledger, rawIndex, slot, column)
         : null),
-      right: cross
-        ? deleteCrossTpl(deleted, () => placement.ledger.toggleDeletion(rawIndex))
-        : nothing,
-      key: (e) => {
-        if (e.key !== 'Delete' || !cross) return false
-        placement.ledger.toggleDeletion(rawIndex)
-        return true
-      },
     }
   }
 }

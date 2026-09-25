@@ -110,7 +110,6 @@ export function referenceTree(): MaskTree {
         { key: 'sp-menge', title: 'Menge', field: '164_8', kind: 'text', editable: true },
         { key: 'sp-doppelt', title: 'Doppelt', field: '' },
       ],
-      deletable: true,
       calculations: [{
         key: 'b1',
         name: 'Doppelt',

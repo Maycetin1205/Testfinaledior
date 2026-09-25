@@ -9,7 +9,7 @@ import {
   type RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Calculator, Component, Link2, Plus, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
+import { Component, Link2, Plus, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Popover } from '@/editor/widgets/Popover'
 import { Separator } from '@/editor/widgets/Separator'
@@ -19,10 +19,10 @@ import { capability, type EventDef } from '../../core/block/capability'
 import { propertyVisible, type PropertyPlace } from '../../core/block/property'
 import { propertiesFor, type DeclaredProperty } from '../../core/block/propertyPlace'
 import {
-  canCompute,
   carriesOwnSource,
   firstDescendantOfType,
   maySelectionFollows,
+  SOURCE_PROP,
 } from '../../core/block/treeQuery'
 import { fieldPlainName } from '../../core/data/dataSources'
 import { BLOCK_ICONS } from '../blockIcons'
@@ -226,8 +226,11 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   const sourceProps = at('source')
   const lookupProps = at('lookup')
   const searchWindow = capability(def, 'lookupWindow')?.window
-  const windowShown = searchWindow !== undefined && propertyVisible(searchWindow.when, block.values)
+  // A window per column opens at the column head, not here.
+  const windowShown = searchWindow !== undefined && searchWindow.entriesProp === undefined
+    && propertyVisible(searchWindow.when, block.values)
   const events = capability(def, 'events')?.list ?? []
+  const helpersApart = capability(def, 'source')?.helpersApart === true && carriesOwnSource(block)
 
   return (
     <BarFrame host={host} element={element} head={def?.head}>
@@ -248,10 +251,15 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
         <BarWindow label="Quelle">
           {() => (
             <div className="flex flex-col gap-[8px]">
-              {carriesOwnSource(block) && <SourceList block={block} />}
+              {carriesOwnSource(block) && <SourceList block={block} part={helpersApart ? 'own' : 'all'} />}
               {controls(sourceProps)}
             </div>
           )}
+        </BarWindow>
+      )}
+      {helpersApart && String(block.values[SOURCE_PROP] ?? '') !== '' && (
+        <BarWindow label="Hilfsquelle">
+          {() => <SourceList block={block} part="helpers" />}
         </BarWindow>
       )}
       {(windowShown || lookupProps.length > 0) && (
@@ -282,16 +290,6 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
             />
           )}
         </BarWindow>
-      )}
-      {canCompute(block) && (
-        <Button
-          onlyIcon
-          aria-label="Berechnungen"
-          title="Berechnungen"
-          onClick={() => ed.openCalculations(block.id)}
-        >
-          <Calculator size={15} />
-        </Button>
       )}
 
       {template && def?.templateKind && (
@@ -328,7 +326,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
 
 // A button in the bar that opens a small window beside it; with a sign, the
 // sign alone stands in the bar.
-function BarWindow({ label, icon, children }: {
+export function BarWindow({ label, icon, children }: {
   label: string
   icon?: Icon
   children: (close: () => void) => ReactNode

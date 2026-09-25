@@ -44,8 +44,6 @@ export const captureStyle = css`
         pointer-events: none;
       }
 
-      .row.deleted > div { text-decoration: line-through; color: var(--se-muted); }
-
       .row[data-status="captured"] { background: var(--se-accent-soft); }
       .row[data-status="captured"]::before,
       .row[data-status="writes"]::before { background: var(--se-accent); }
@@ -79,11 +77,13 @@ export const captureStyle = css`
         opacity: 0;
       }
       .row:hover .row-remove,
-      .row.deleted .row-remove,
       .row-remove:focus { opacity: 1; }
       .row-remove:hover { color: var(--se-danger); background: var(--se-danger-soft); }
 
-      .row-remove.row-remove-static { opacity: 1; cursor: default; }
+      /* The chosen row is tinted at most, never framed. */
+      .body > .row.selected,
+      .body > .row:focus,
+      .body > .row.selected:focus:not(:focus-visible) { outline: none; }
 
       /* A typable cell hands its padding to its input, so the text keeps the
          edge of every other cell, and lets the suggestion list hang out. */

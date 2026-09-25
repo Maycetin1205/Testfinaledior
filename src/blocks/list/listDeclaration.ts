@@ -46,9 +46,12 @@ type ListValues = ValuesOf<ReturnType<typeof listProperties>>
 // reads them into its own column shape.
 export type ListSettings = Omit<ListValues, 'columns'>
 
-export function listCapabilities(binding: ListBinding): Capability[] {
+export function listCapabilities(
+  binding: ListBinding,
+  source: Capability = { kind: 'source' },
+): Capability[] {
   return [
-    { kind: 'source' },
+    source,
     { kind: 'recordPick' },
     { kind: 'followsSelection' },
     { kind: 'list', binding },

@@ -70,6 +70,7 @@ export function captureRowTpl(
         placeholder: '',
         inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
         holderClass: 'cell-holder',
+        marksOnEntering: true,
         slot,
         suggestions: list ? placement.suggestions : [],
         mark: placement.mark,
@@ -181,6 +182,20 @@ export function displayColumnIn(
     return { title: column.title, code: other.code }
   }
   return undefined
+}
+
+// The fields of every column that shows the same source as this one.
+export function sameSourceCodes(context: CaptureContext, index: number): string[] {
+  const target = targetIn(context, index)
+  if (target.sourceId === '') return []
+  const codes: string[] = []
+  for (const column of context.columns) {
+    const other = cellTargetOf(column, context.sourceId)
+    if (other.sourceId === target.sourceId && other.code !== '' && !codes.includes(other.code)) {
+      codes.push(other.code)
+    }
+  }
+  return codes
 }
 
 export function windowColumnsIn(context: CaptureContext, index: number): Column[] {

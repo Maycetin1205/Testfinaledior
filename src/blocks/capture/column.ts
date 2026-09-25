@@ -58,7 +58,7 @@ function tryCoerceCaptureColumns(v: string): CaptureColumn[] {
 const EDITABLE: EntrySwitch<CaptureColumn> = {
   key: 'editable',
   name: 'In der Zeile änderbar',
-  short: 'änderbar',
+  short: 'Eingabe erlaubt',
   onByDefault: true,
   onlyOwnSource: true,
   valueOf: (column) => column.editable,

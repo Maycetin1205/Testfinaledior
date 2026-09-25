@@ -20,7 +20,28 @@ interface InputSpotPlacement {
 
   listToTop?: boolean
 
+  // A filled field is marked whole when the cursor comes in, also by click.
+  marksOnEntering?: boolean
+
   beside?: TemplateResult
+}
+
+// A click would move the cursor to its spot right after the field is marked.
+const enteringByPointer = new WeakSet<HTMLInputElement>()
+
+const marking = {
+  pointerdown: (e: PointerEvent): void => {
+    const field = e.currentTarget as HTMLInputElement
+    if (!field.matches(':focus')) enteringByPointer.add(field)
+  },
+  mouseup: (e: MouseEvent): void => {
+    const field = e.currentTarget as HTMLInputElement
+    if (enteringByPointer.delete(field) && field.value !== '') e.preventDefault()
+  },
+  focus: (e: FocusEvent): void => {
+    const field = e.currentTarget as HTMLInputElement
+    if (field.value !== '') field.select()
+  },
 }
 
 interface InputSpotAct {
@@ -52,6 +73,9 @@ export function inputSpotTpl(
       @input=${(e: Event) => act.typing((e.target as HTMLInputElement).value)}
       @keydown=${(e: KeyboardEvent) => act.key(e)}
       @blur=${(e: Event) => act.leave((e.target as HTMLInputElement).value)}
+      @pointerdown=${placement.marksOnEntering === true ? marking.pointerdown : nothing}
+      @mouseup=${placement.marksOnEntering === true ? marking.mouseup : nothing}
+      @focus=${placement.marksOnEntering === true ? marking.focus : nothing}
     />
     ${placement.beside ?? nothing}
     ${placement.suggestions.length === 0 ? nothing : suggestionListTpl({

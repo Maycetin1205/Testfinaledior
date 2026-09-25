@@ -12,8 +12,11 @@ import { FieldPicker, type PickerField, type PickerGroup, type SourcesChoice } f
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { BarControl, Labeled } from './BarControl'
-import { BarFrame } from './BlockBar'
+import { BarFrame, BarWindow } from './BlockBar'
 import { controlShown } from './controlShown'
+
+// One line holds seven parts at most; more, and the switches share a window.
+const BAR_PARTS = 7
 
 export interface ColumnSwitch {
   key: string
@@ -81,6 +84,23 @@ export function ColumnBar({
   const sourceInReach = ed.dataSourceFor(block.id)
   const choices = (def ? propertiesFor(block, def, 'column') : [])
     .filter(({ property }) => controlShown(property, block, sourceInReach, library))
+  const parts = 1 + fields.length + switches.length + choices.length + actions.length + (onRemove ? 1 : 0)
+
+  const shows = (
+    <>
+      {switches.map((s) => <Tile key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
+      {choices.map(({ key, property }) => (
+        <BarControl
+          key={key}
+          block={block}
+          propertyKey={key}
+          property={property}
+          sourceInReach={sourceInReach}
+          session={session}
+        />
+      ))}
+    </>
+  )
 
   return (
     <BarFrame host={host} element={element} head={def?.head} align={align}>
@@ -99,17 +119,13 @@ export function ColumnBar({
           nameOf={nameOf}
         />
       ))}
-      {switches.map((s) => <Tile key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
-      {choices.map(({ key, property }) => (
-        <BarControl
-          key={key}
-          block={block}
-          propertyKey={key}
-          property={property}
-          sourceInReach={sourceInReach}
-          session={session}
-        />
-      ))}
+      {parts > BAR_PARTS
+        ? (
+            <BarWindow label="Anzeige">
+              {() => <div className="flex flex-col items-start gap-[6px]">{shows}</div>}
+            </BarWindow>
+          )
+        : shows}
       {actions.map((a) => (
         <Button key={a.label} onlyIcon aria-label={a.label} title={a.label} onClick={a.onOpen}>
           {createElement(a.icon, { size: 15 })}
