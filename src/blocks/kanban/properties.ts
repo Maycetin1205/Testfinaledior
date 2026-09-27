@@ -1,6 +1,7 @@
 import {
   choiceProperty,
   fieldProperty,
+  segmentProperty,
   sourceProperty,
   textProperty,
   type ValuesOf,
@@ -43,6 +44,16 @@ export const kanbanProperties = {
   }),
   dayField: dayFieldProperty(),
   columns: kanbanColumnsProperty(),
+  avatarKind: segmentProperty([
+    { value: 'animal', name: 'Tiersymbol' },
+    { value: 'image', name: 'Bild' },
+  ], {
+    default: 'animal',
+    label: 'Avatar',
+    place: 'display',
+    attribute: 'avatarkind',
+    when: { key: 'avatarField', notEquals: '' },
+  }),
   chipTone: choiceProperty(toneOptions(), {
     default: 'info',
     label: 'Ton des Chips',
@@ -63,6 +74,7 @@ export const kanbanProperties = {
   sublineField: spotField('Unterzeile', 'sublinefield'),
   textField: spotField('Textzeile', 'textfield'),
   chipField: spotField('Chip', 'chipfield'),
+  avatarField: spotField('Avatar', 'avatarfield'),
 }
 
 export type KanbanValues = ValuesOf<typeof kanbanProperties>
@@ -79,3 +91,6 @@ export const CARD_SPOTS = [
 ] as const
 
 export type CardSpot = (typeof CARD_SPOTS)[number]['prop']
+
+// The avatar is only ever bound: what its field holds, nothing typed.
+export const AVATAR_SPOT = { prop: 'avatar', name: 'Avatar' } as const

@@ -146,6 +146,39 @@ export const kanbanStyle = css`
 
   .card.dragging { opacity: 0.55; }
 
+  /* The avatar beside name and subline, as .vkarte-haupt holds them. */
+  .main {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    min-width: 0;
+  }
+
+  .ident {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--se-gap-sm);
+  }
+
+  .avatar {
+    box-sizing: border-box;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--se-radius);
+    background: no-repeat center / cover;
+    color: var(--se-animal-paw);
+  }
+  .avatar svg { width: 88%; height: 88%; stroke-width: 2; }
+
+  /* A bound avatar has a dotted edge in the editor, as a bound form field. */
+  :host([preview]) .avatar[data-ff-bound] { border: var(--se-border) dotted var(--se-accent); }
+  :host([preview][data-editable]) .avatar { cursor: pointer; }
+
   .name,
   .extra {
     display: block;
@@ -210,7 +243,7 @@ export const kanbanStyle = css`
     white-space: nowrap;
   }
 
-  :host([preview]) [data-ff-spot]:empty::before {
+  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before {
     content: '—';
     color: var(--se-faint);
   }

@@ -3,11 +3,12 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
 import type { DataPreamble } from '../../runtime/source'
+import { animalOf, animalOutline } from './animal'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
 import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom, type KanbanPlace } from './columns'
 import type { Spot } from './places'
 import { kanbanStyle } from './kanbanStyle'
-import { CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
+import { AVATAR_SPOT, CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
 
 const COUNT_IN_EDITOR = '—'
 
@@ -26,10 +27,11 @@ export class Kanban extends BlockElement {
 
   // A bound spot shows its field, any other what the builder typed.
   cardValues(row: unknown, read: DataPreamble['read']): Record<string, string> {
-    return Object.fromEntries(CARD_SPOTS.map(({ prop }) => {
+    const typedOrBound = Object.fromEntries(CARD_SPOTS.map(({ prop }) => {
       const field = this[`${prop}Field`]
       return [prop, field === '' ? this[prop] : read(row, field)]
     }))
+    return { ...typedOrBound, avatar: this.avatarField === '' ? '' : read(row, this.avatarField) }
   }
 
   private spot(prop: CardSpot, className: string, values: Readonly<Record<string, string>> | null): TemplateResult {
@@ -43,14 +45,43 @@ export class Kanban extends BlockElement {
     >${this[prop]}</span>`
   }
 
+  // The avatar shows its field: the outline of the animal it names, in the
+  // color of that kind, or the picture at the address it holds; a picture that
+  // does not load leaves the avatar empty. In the editor a bound avatar shows
+  // the outline the mask draws for an animal it does not know; a picture only
+  // the mask has.
+  private avatar(values: Readonly<Record<string, string>> | null): TemplateResult {
+    const image = this.avatarKind === 'image'
+    if (values !== null) {
+      if (image) return html`<span class="avatar" style=${`background-image:url(${JSON.stringify(values.avatar)})`}></span>`
+      const animal = animalOf(values.avatar)
+      return html`<span class="avatar" style="color:var(--se-animal-${animal})">${animalOutline(animal)}</span>`
+    }
+    const bound = this.avatarField !== ''
+    return html`<span
+      class="avatar"
+      data-ff-spot=${AVATAR_SPOT.prop}
+      ?data-ff-bound=${bound}
+    >${bound && !image ? animalOutline('paw') : nothing}</span>`
+  }
+
   // Without values the card is the one the builder shapes: every spot shows.
   // In the mask a spot without a value falls away.
   private cardContent(values: Readonly<Record<string, string>> | null): TemplateResult {
-    const shows = (prop: CardSpot): boolean => values === null || (values[prop] ?? '').trim() !== ''
+    const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean =>
+      values === null || (values[prop] ?? '').trim() !== ''
+    const main = shows('avatar') || shows('heading') || shows('subline')
     const foot = shows('heading2') || shows('date') || shows('time') || shows('chip')
     return html`
-      ${shows('heading') ? this.spot('heading', 'name', values) : nothing}
-      ${shows('subline') ? this.spot('subline', 'extra', values) : nothing}
+      ${main
+        ? html`<div class="main">
+            ${shows('avatar') ? this.avatar(values) : nothing}
+            <div class="ident">
+              ${shows('heading') ? this.spot('heading', 'name', values) : nothing}
+              ${shows('subline') ? this.spot('subline', 'extra', values) : nothing}
+            </div>
+          </div>`
+        : nothing}
       ${shows('text') ? this.spot('text', 'text', values) : nothing}
       ${foot
         ? html`<div class="foot">
@@ -152,7 +183,7 @@ defineBlock(Kanban, {
     { kind: 'source' },
     { kind: 'recordPick' },
     { kind: 'list', binding: KANBAN_COLUMNS_BINDING },
-    bindable<typeof kanbanProperties>(CARD_SPOTS),
+    bindable<typeof kanbanProperties>([...CARD_SPOTS, AVATAR_SPOT]),
     {
       kind: 'events',
       list: [

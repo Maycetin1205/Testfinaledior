@@ -979,8 +979,9 @@ unlogisch und werden in Schritt 2 neu geordnet.
    geprüft. Fertig: 1 Ein Baustein zeichnet Spalten und Karten selbst, die
    Karte steht im Editor in Maskenform, die Spalten bedienen sich am Kopf wie
    bei der Tabelle, Schema 23 hebt alte Masken (38200b9); 2 Plätze in den
-   Spalten, Wert je Platz, Auffangspalte an der Spalte (74fba76). Offen:
-   3 Tiersymbol auf der Karte; 4 Chip-Farbe folgt einem Feld, einstellbar,
+   Spalten, Wert je Platz, Auffangspalte an der Spalte (74fba76); 3 Avatar
+   auf der Karte, Tiersymbol in der Artfarbe des Empfangs oder Bild, per
+   Klick gebunden. Offen: 4 Chip-Farbe folgt einem Feld, einstellbar,
    welcher Wert welchen Ton bekommt. Versteckte Plätze („Erledigt") nur auf
    Wunsch des Nutzers.
 3. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,

@@ -63,6 +63,15 @@
   --se-danger-line:   #FBE6E4;  /* --rot-soft */
   --se-danger-soft:   #FBE6E4;  /* .vflag-notfall */
 
+  /* The outline of an animal on the card, in the color of its kind. */
+  --se-animal-dog:    #3A56B0;  /* SPECIES_COLOR.dog */
+  --se-animal-cat:    #A8693A;  /* SPECIES_COLOR.cat */
+  --se-animal-rabbit: #6E7D39;  /* SPECIES_COLOR.rabbit */
+  --se-animal-bird:   #2E8794;  /* SPECIES_COLOR.bird */
+  --se-animal-rat:    #955494;  /* SPECIES_COLOR.rat */
+  --se-animal-turtle: #4B6068;  /* SPECIES_COLOR.turtle */
+  --se-animal-paw:    #5B6B76;  /* SPECIES_COLOR.paw */
+
   --se-border: 1px;  /* .vinput */
   --se-radius: 4px;  /* .vkarte */
 

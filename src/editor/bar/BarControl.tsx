@@ -237,12 +237,14 @@ export function BarControl({
       )
     case 'segment':
       return (
-        <SegmentControl
-          name={property.label}
-          options={options}
-          value={String(value ?? '')}
-          onChange={set}
-        />
+        <Labeled label={property.label}>
+          <SegmentControl
+            name={property.label}
+            options={options}
+            value={String(value ?? '')}
+            onChange={set}
+          />
+        </Labeled>
       )
     case 'choice':
       return options.length > 0 && options.every((o) => o.color !== undefined)
