@@ -4,6 +4,8 @@ import type { GridMetrics } from './grid'
 import type { PropertyMap, PropertyValue } from './property'
 
 export {
+  entriesWithValue,
+  entryValues,
   fieldChoicesRead,
   listDefaultTitle,
   flagOn,
@@ -42,7 +44,6 @@ export interface BlockDeclaration {
   allowedChildren?: readonly string[]
   allowedParent?: readonly string[]
   fixedWidth?: FlowWidth
-  childDefaults?: readonly ChildDefault[]
   childDirection?: Direction
   inPalette?: boolean
 
@@ -51,10 +52,8 @@ export interface BlockDeclaration {
   // block without one takes the bar on its own top edge.
   head?: string
 
-  templateKind?: { type: string; name: string; direction?: Direction }
   containerFrame?: boolean
 
-  childButton?: { name: string; childType: string; nameFromField?: string }
   page?: boolean
 
   gridArea?: boolean

@@ -139,14 +139,10 @@ export function referenceTree(): MaskTree {
     b1: node('b1', 'button', ROOT_ID, {
       gridX: 26, gridY: 0, gridW: 8, gridH: 3, label: 'Schreiben',
     }),
-    c1: node('c1', 'card', 'k1', {
-      gridX: 0, gridY: 25, gridW: 12, gridH: 12, heading: 'Karte', headingField: '45_60',
-    }),
     k1: node('k1', 'kanban', ROOT_ID, {
       gridX: 18, gridY: 3, gridW: 30, gridH: 22, source: 'q-pos', columnsField: '18_25',
-    }, ['c1', 'ks1']),
-    ks1: node('ks1', 'kanban-column', 'k1', {
-      heading: 'Offen', value: 'ART-B', tone: 'info',
+      columns: [{ heading: 'Offen', tone: 'info', value: 'ART-B', catchAll: false }],
+      heading: 'Karte', headingField: '45_60',
     }),
     tx1: node('tx1', 'text', ROOT_ID, { gridX: 34, gridY: 0, gridW: 14, gridH: 3 }),
     d1: node('d1', 'date', ROOT_ID, { gridX: 0, gridY: 0, gridW: 10, gridH: 3 }),

@@ -92,7 +92,8 @@ export interface Property<V> {
   plainNameProp?: string
 
   // The property of the parent block holding a field; the bar names that field
-  // beside this one.
+  // beside this one. The parent of a list entry, like a board's column, is the
+  // block holding the list.
   nameFromParentField?: string
 
   preset?: Preset

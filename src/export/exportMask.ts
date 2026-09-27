@@ -4,7 +4,6 @@ import { blockType } from '../core/block/registry'
 import {
   bindableSpotsOf,
   maySelectionFollows,
-  firstDescendantOfType,
   isSelectionGiver,
   SOURCE_PROP,
   carriesChanges,
@@ -59,12 +58,6 @@ interface MaskExport {
   sevariablen: string
 }
 
-interface TemplateCtx {
-  type: string
-  id: string | undefined
-  direction: Direction
-}
-
 function columnsIndexFor(tree: MaskTree): (blockId: string, key: string) => string {
   return (blockId, key) => {
     const target = tree[blockId]
@@ -87,19 +80,12 @@ function nodeToHtml(
   columnsIndex: (blockId: string, key: string) => string,
 
   sources: readonly DataSource[],
-  templateCtx?: TemplateCtx,
 
   gridLevel = false,
 ): string {
   const def = blockType(node.type)
   if (!def) return ''
   const pad = '  '.repeat(depth)
-  if (templateCtx && node.type === templateCtx.type) {
-    if (node.id !== templateCtx.id) return ''
-
-    const inner = nodeToHtml(tree, node, templateCtx.direction, depth + 1, popupName, columnsIndex, sources, undefined, gridLevel)
-    return `${pad}<template data-ff-template>\n${inner}\n${pad}</template>`
-  }
 
   const bindableSpots = bindableSpotsOf(node)
   const bindable = new Set(bindableSpots.map((spot) => spot.prop))
@@ -153,18 +139,11 @@ function nodeToHtml(
 
   const childDirection = directionOfChildren(def, node.values)
 
-  const childCtx: TemplateCtx | undefined = def.templateKind
-    ? {
-        type: def.templateKind.type,
-        id: firstDescendantOfType(tree, node.id, def.templateKind.type),
-        direction: def.templateKind.direction ?? childDirection,
-      }
-    : templateCtx
   const children = node.childIds
     .map((id) => tree[id])
     .filter((c): c is BlockNode => Boolean(c))
 
-    .map((c) => nodeToHtml(tree, c, childDirection, depth + 1, popupName, columnsIndex, sources, childCtx, isGridArea(node)))
+    .map((c) => nodeToHtml(tree, c, childDirection, depth + 1, popupName, columnsIndex, sources, isGridArea(node)))
     .filter((html) => html !== '')
     .join('\n')
   return children === ''
@@ -189,7 +168,7 @@ export function exportMask(
   const blocks = (root?.childIds ?? [])
     .map((id) => tree[id])
     .filter((n): n is BlockNode => Boolean(n))
-    .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, columnsIndex, sources, undefined, true))
+    .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, columnsIndex, sources, true))
     .join('\n')
 
   const used = withUniqueNames(collectDataSources(tree, sources))

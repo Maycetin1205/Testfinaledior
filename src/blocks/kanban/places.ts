@@ -1,101 +1,19 @@
-import { css, unsafeCSS } from 'lit'
 import { maskState } from '../../runtime/maskState'
-import { Card } from '../card/Card'
-
-export const COLUMN_TAG = 'ff-kanban-column'
-const CARD_TAG = Card.tag
-export const CARD_TYPE = Card.type
-
-export const COLUMN_TITLE_DEFAULT = 'Neue Spalte'
-
-export const TARGET_CLASS = 'target'
-export const TARGET_ATTR = 'data-ff-target'
-
-// A column slots the cards and marks their area while a dragged card would land in it.
-export const placeStyle = css`
-  slot { display: contents; }
-
-  :host([${unsafeCSS(TARGET_ATTR)}]) .${unsafeCSS(TARGET_CLASS)} {
-    background: color-mix(in oklab, var(--tone-strong) 8%, transparent);
-    outline: 2px dashed var(--tone-strong);
-    outline-offset: -2px;
-  }
-`
-
-// A column is where cards lie. The board fills it and tells it what to show.
-export interface ColumnPlace extends HTMLElement {
-  cardCount: number
-  catchAll: boolean
-}
-
-export function isColumn(el: EventTarget): el is ColumnPlace {
-  return el instanceof HTMLElement && el.tagName.toLowerCase() === COLUMN_TAG
-}
-
-export function isCard(el: EventTarget): el is HTMLElement {
-  return el instanceof HTMLElement && el.tagName.toLowerCase() === CARD_TAG
-}
-
-function columnsOf(board: HTMLElement): ColumnPlace[] {
-  return Array.from(board.children).filter(isColumn)
-}
-
-export function cardsOf(column: ColumnPlace): HTMLElement[] {
-  return Array.from(column.children).filter(isCard)
-}
-
-function columnTitle(column: HTMLElement): string {
-  return column.getAttribute('heading') ?? COLUMN_TITLE_DEFAULT
-}
+import type { KanbanColumn } from './columns'
 
 // What the ERP holds for a column: its own value, or its title when it has none.
-export function columnValue(column: HTMLElement): string {
-  const value = (column.getAttribute('value') ?? '').trim()
-  return value !== '' ? value : columnTitle(column)
+export function columnValue(column: KanbanColumn): string {
+  const value = column.value.trim()
+  return value !== '' ? value : column.heading
 }
 
-function slotWithValue(value: string, values: readonly string[]): number {
-  const wanted = value.trim().toLowerCase()
-  if (wanted === '') return -1
-  for (let i = 0; i < values.length; i++) {
-    const candidate = values[i].trim().toLowerCase()
-    if (candidate !== '' && candidate === wanted) return i
-  }
-  return -1
-}
+const same = (a: string, b: string): boolean => a.trim().toLowerCase() === b.trim().toLowerCase()
 
-// What the board reads once and then asks for every record.
-interface BoardPlan {
-  columns: readonly ColumnPlace[]
-
-  values: readonly string[]
-
-  field: string
-
-  catchAll: number
-}
-
-export function boardPlan(board: HTMLElement, columnsField: string): BoardPlan {
-  const columns = columnsOf(board)
-  return {
-    columns,
-    values: columns.map(columnValue),
-    field: columnsField.trim(),
-    catchAll: columns.findIndex((c) => c.catchAll),
-  }
-}
-
-// Where a card lands whose record names no column: the catch-all, or the first.
-function fallbackColumn(plan: BoardPlan): ColumnPlace {
-  return plan.columns[plan.catchAll >= 0 ? plan.catchAll : 0]
-}
-
-interface Placement {
-  column: ColumnPlace
-}
-
-export function placementOf(plan: BoardPlan, row: unknown): Placement {
-  const value = plan.field === '' ? '' : maskState.host.readField(row, plan.field)
-  const slot = slotWithValue(value, plan.values)
-  return { column: slot >= 0 ? plan.columns[slot] : fallbackColumn(plan) }
+// Where a record lies: in the column that names its value, else in the
+// catch-all column, else in the first.
+export function columnOf(columns: readonly KanbanColumn[], field: string, row: unknown): number {
+  const value = field === '' ? '' : maskState.host.readField(row, field)
+  const named = value.trim() === '' ? -1 : columns.findIndex((c) => same(columnValue(c), value))
+  if (named >= 0) return named
+  return Math.max(0, columns.findIndex((c) => c.catchAll))
 }

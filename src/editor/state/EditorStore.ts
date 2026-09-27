@@ -28,7 +28,6 @@ import { SavePlanner } from './savePlanner'
 import { Subject } from './Subject'
 import { duplicateSubtree } from './duplicateSubtree'
 import { declaredProperty, subtreeIds, emptyTree } from '../../core/block/treeOps'
-import { isRemoveProtected as isTemplateProtected } from './isRemoveProtected'
 import {
   activePagesRoot,
   freePagesName,
@@ -284,7 +283,6 @@ export class EditorStore extends Subject<EditorStore> {
     const node = this._tree[id]
     if (!node || id === ROOT_ID) return
 
-    if (this.isRemoveProtected(id)) return
     this.pushHistory()
     const remove = new Set(subtreeIds(this._tree, id))
     const next: MaskTree = {}
@@ -320,10 +318,6 @@ export class EditorStore extends Subject<EditorStore> {
     return sourcesInReach(this._tree, id, this.dataSources.list)
   }
 
-  isRemoveProtected(id: string): boolean {
-    return isTemplateProtected(this._tree, id)
-  }
-
   // The tree holds only what a declaration reads, so the element, the export
   // and the next load all see the same value.
   updateProperty(id: string, name: string, raw: unknown): boolean {
@@ -347,15 +341,6 @@ export class EditorStore extends Subject<EditorStore> {
     const next: MaskTree = {
       ...this._tree,
       [id]: { ...node, values: { ...node.values, ...Object.fromEntries(presets), [name]: value } },
-    }
-
-    if (declared.onlyUnderSiblings && value === true && node.parentId) {
-      for (const sibId of this._tree[node.parentId]?.childIds ?? []) {
-        const sib = next[sibId]
-        if (sibId !== id && sib?.type === node.type && sib.values[name] === true) {
-          next[sibId] = { ...sib, values: { ...sib.values, [name]: false } }
-        }
-      }
     }
 
     const cleaned = withoutColumnsPointer(
@@ -385,7 +370,6 @@ export class EditorStore extends Subject<EditorStore> {
   }
 
   duplicateBlock(id: string, rows: number | null = null): BlockNode | null {
-    if (this.isRemoveProtected(id)) return null
     const res = duplicateSubtree(this._tree, id, rows)
     if (!res) return null
     this.pushHistory()
@@ -398,7 +382,6 @@ export class EditorStore extends Subject<EditorStore> {
   }
 
   moveNode(id: string, newParentId: string, index: number): void {
-    if (this.isRemoveProtected(id)) return
     const next = moveInContainer(this._tree, id, newParentId, index)
     if (!next) return
     this.pushHistory()

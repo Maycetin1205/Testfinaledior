@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState, type ReactNode, type RefObject } from
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import {
+  entriesWithValue,
+  entryValues,
   fieldChoicesRead,
   flagOn,
   flagFor,
@@ -244,7 +246,7 @@ export function useFieldBinding({
             element={element}
             align={listPicker.left}
             name={titleNow === '' ? defaultTitle : titleNow}
-            fields={!listPickerHasFields ? [] : [
+            fields={!listPickerHasFields || listBinding.fieldless === true ? [] : [
               { key: 'field', label: 'Feld', current: listBinding.fieldOf(entry), onChoose: pickField },
               ...fieldChoicesRead(listBinding, entry).map(({ choice, value }) => ({
                 key: choice.key,
@@ -257,6 +259,17 @@ export function useFieldBinding({
             groups={listGroups}
             sourcesChoice={perSource ? undefined : sourcesChoice}
             nameOf={plainName}
+            entry={listBinding.entryProperties === undefined ? undefined : {
+              properties: Object.entries(listBinding.entryProperties),
+              access: {
+                values: entryValues(listBinding, entry),
+                set: (key, value) => editor.updateProperty(
+                  block.id,
+                  listBinding.prop,
+                  entriesWithValue(listBinding, entriesOf(), listPicker.index, key, value),
+                ),
+              },
+            }}
             switches={flagFor(listBinding, entry).map((s) => ({
               key: s.key,
               label: s.short ?? s.name,

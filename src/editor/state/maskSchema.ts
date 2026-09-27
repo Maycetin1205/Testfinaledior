@@ -5,11 +5,11 @@ import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePrese
 
 // Lifts a saved mask to the format this editor reads; a file below a version
 // first runs the steps of every older one.
-export const CURRENT_SCHEMA_VERSION = 22
+export const CURRENT_SCHEMA_VERSION = 23
 
 const ENGLISH_NAMES = 16
 
-const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -418,6 +418,7 @@ export function liftState(raw: unknown): unknown {
   if (raw.schemaVersion < 20) liftTo20(lifted)
   if (raw.schemaVersion < 21) liftTo21(lifted.tree)
   if (raw.schemaVersion < 22) liftTo22(lifted.tree)
+  if (raw.schemaVersion < 23) liftTo23(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
@@ -683,5 +684,46 @@ function liftTo22(tree: unknown): void {
     const values = node.values
     if (values.fieldType === 'lookup') values.lookup = true
     if (values.fieldType === 'lookup' || values.fieldType === 'textarea') values.fieldType = 'text'
+  }
+}
+
+// ---- version 23: a kanban draws its columns and its card itself ----
+
+const COLUMN_VALUES_23 = ['heading', 'tone', 'value', 'catchAll']
+const CARD_VALUES_23 = [
+  'chipTone', 'heading', 'heading2', 'time', 'date', 'subline', 'text', 'chip',
+  'headingField', 'heading2Field', 'timeField', 'dateField', 'sublineField', 'textField', 'chipField',
+]
+
+function picked(values: unknown, keys: readonly string[]): Record<string, unknown> {
+  if (!isPlainObject(values)) return {}
+  return Object.fromEntries(keys.filter((key) => key in values).map((key) => [key, values[key]]))
+}
+
+// The column blocks become the board's columns, the card block its card; both
+// leave the tree.
+function liftTo23(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  const drop = (id: unknown): void => {
+    if (typeof id !== 'string') return
+    const node = tree[id]
+    if (isPlainObject(node) && Array.isArray(node.childIds)) node.childIds.forEach(drop)
+    delete tree[id]
+  }
+  for (const board of Object.values(tree)) {
+    if (!isPlainObject(board) || board.type !== 'kanban' || !Array.isArray(board.childIds)) continue
+    const values = isPlainObject(board.values) ? board.values : {}
+    const children = board.childIds
+      .map((id) => (typeof id === 'string' ? tree[id] : undefined))
+      .filter(isPlainObject)
+    const columns = children
+      .filter((child) => child.type === 'kanban-column')
+      .map((child) => picked(child.values, COLUMN_VALUES_23))
+    if (columns.length > 0) values.columns = columns
+    const card = children.find((child) => child.type === 'card')
+    if (card) Object.assign(values, picked(card.values, CARD_VALUES_23))
+    board.values = values
+    board.childIds.forEach(drop)
+    board.childIds = []
   }
 }

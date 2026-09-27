@@ -5,12 +5,13 @@ import { Separator } from '@/editor/widgets/Separator'
 import { Tile } from '@/editor/widgets/Tile'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { BlockNode } from '../../core/block/tree'
+import type { Property } from '../../core/block/property'
 import { blockType } from '../../core/block/registry'
 import { propertiesFor } from '../../core/block/propertyPlace'
 import { FieldPicker, type PickerField, type PickerGroup, type SourcesChoice } from '../canvas/FieldPicker'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { BarControl, Labeled } from './BarControl'
+import { BarControl, Labeled, type EntryAccess } from './BarControl'
 import { BarFrame, BarSign, BarWindow } from './BlockBar'
 import { controlShown } from './controlShown'
 
@@ -49,6 +50,12 @@ interface ColumnBarProps {
   switches: readonly ColumnSwitch[]
   actions: readonly ColumnAction[]
 
+  // What the entry itself declares, like the tone and value of a board's column.
+  entry?: {
+    properties: readonly (readonly [string, Property<unknown>])[]
+    access: EntryAccess
+  }
+
   removeLabel: string
   onRemove?: () => void
   onClose: () => void
@@ -58,7 +65,7 @@ interface ColumnBarProps {
 // fields, its switches, what the list chooses at its heads, and the bin.
 export function ColumnBar({
   block, host, element, align, name, fields, groups, sourcesChoice, nameOf,
-  switches, actions, removeLabel, onRemove, onClose,
+  switches, actions, entry, removeLabel, onRemove, onClose,
 }: ColumnBarProps) {
   const ed = useEditor()
   const library = useDataSources().list
@@ -83,10 +90,23 @@ export function ColumnBar({
   const sourceInReach = ed.dataSourceFor(block.id)
   const choices = (def ? propertiesFor(block, def, 'column') : [])
     .filter(({ property }) => controlShown(property, block, sourceInReach, library))
-  const parts = 1 + fields.length + switches.length + choices.length + actions.length + (onRemove ? 1 : 0)
+  const own = (entry?.properties ?? [])
+    .filter(([, property]) => controlShown(property, block, sourceInReach, library))
+  const parts = 1 + fields.length + own.length + switches.length + choices.length + actions.length + (onRemove ? 1 : 0)
 
   const shows = (
     <>
+      {entry && own.map(([key, property]) => (
+        <BarControl
+          key={key}
+          block={block}
+          propertyKey={key}
+          property={property}
+          sourceInReach={sourceInReach}
+          session={session}
+          entry={entry.access}
+        />
+      ))}
       {switches.map((s) => <Tile key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
       {choices.map(({ key, property }) => (
         <BarControl

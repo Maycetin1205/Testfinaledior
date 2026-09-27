@@ -50,27 +50,19 @@ function InsertionLine({ direction }: { direction: Direction }) {
 }
 
 export function NodeList(
-  { parentId, direction, grid = false, template }:
-  { parentId: string; direction: Direction; grid?: boolean; template?: BlockNode },
+  { parentId, direction, grid = false }:
+  { parentId: string; direction: Direction; grid?: boolean },
 ) {
   const ed = useEditor()
   const dnd = useDnd()
 
-  const all = ed.childNodesOf(parentId)
-
-  const templateChild = blockType(ed.getNode(parentId)?.type ?? '')?.templateKind
-  const own = templateChild ? all.find((n) => n.type === templateChild.type) : undefined
-  const nodes = own ? all.filter((n) => n.id !== own.id) : all
-  const templateNode = template ?? own
+  const nodes = ed.childNodesOf(parentId)
 
   const lineAt = (i: number) =>
     !grid
     && dnd.dropTarget?.kind === 'flow'
     && dnd.dropTarget.parentId === parentId
     && dnd.dropTarget.index === i
-
-  const templateHere = templateNode !== undefined && nodes.length === 0 ? templateNode : undefined
-  const templateWithFirst = templateNode !== undefined && nodes.length > 0 ? templateNode : undefined
 
   const ghost = grid && dnd.dropTarget?.kind === 'grid' && dnd.dropTarget.parentId === parentId
     ? dnd.dropTarget
@@ -87,31 +79,12 @@ export function NodeList(
             parentId={parentId}
             listDirection={direction}
             grid={grid}
-            template={i === 0 ? templateWithFirst : undefined}
           />
         </Fragment>
       ))}
       {lineAt(nodes.length) && <InsertionLine direction={direction} />}
-      {templateHere && <TemplateNode template={templateHere} fallbackParent={parentId} direction={direction} />}
       {ghost && <GridGhost slot={ghost} />}
     </>
-  )
-}
-
-function TemplateNode(
-  { template, fallbackParent, direction }:
-  { template: BlockNode; fallbackParent: string; direction: Direction },
-) {
-  const ed = useEditor()
-  const parentId = template.parentId ?? fallbackParent
-  const index = ed.childNodesOf(parentId).findIndex((n) => n.id === template.id)
-  return (
-    <CanvasNode
-      node={template}
-      index={Math.max(0, index)}
-      parentId={parentId}
-      listDirection={direction}
-    />
   )
 }
 
@@ -122,11 +95,9 @@ interface CanvasNodeProps {
   listDirection: Direction
 
   grid?: boolean
-
-  template?: BlockNode
 }
 
-function CanvasNode({ node, index, parentId, listDirection, grid = false, template }: CanvasNodeProps) {
+function CanvasNode({ node, index, parentId, listDirection, grid = false }: CanvasNodeProps) {
   const ed = useEditor()
   const dnd = useDnd()
   const def = blockType(node.type)
@@ -193,7 +164,6 @@ function CanvasNode({ node, index, parentId, listDirection, grid = false, templa
           parentId={node.id}
           direction={childDirection}
           grid={isGridArea(node)}
-          template={template}
         />
       )}
     </BlockHost>

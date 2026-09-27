@@ -27,6 +27,13 @@ interface EditCallbacks {
   onEndEditing: () => void
 }
 
+// An entry of the block's list, like a column of a board, that a control
+// reads and writes in place of the block.
+export interface EntryAccess {
+  values: Readonly<Record<string, unknown>>
+  set: (key: string, value: unknown) => void
+}
+
 interface BarControlProps {
   block: BlockNode
   propertyKey: string
@@ -34,6 +41,9 @@ interface BarControlProps {
 
   sourceInReach: DataSource | undefined
   session: EditCallbacks
+
+  // With an entry the control belongs to the entry, and the block is its parent.
+  entry?: EntryAccess
 }
 
 interface PickerCase {
@@ -71,21 +81,22 @@ export function BarControl({
   property,
   sourceInReach,
   session,
+  entry,
 }: BarControlProps) {
   const ed = useEditor()
 
   const sources = useDataSources()
   const def = blockType(block.type)
 
-  const value = block.values[propertyKey]
+  const value = entry ? entry.values[propertyKey] : block.values[propertyKey]
   const kind = property.type.control
-  const set = (v: unknown) => ed.updateProperty(block.id, propertyKey, v)
+  const set = (v: unknown) => (entry ? entry.set(propertyKey, v) : ed.updateProperty(block.id, propertyKey, v))
 
   const fieldSource = fieldSourceOf(property, block, sourceInReach, sources.list)
 
-  const parent = property.nameFromParentField !== undefined && block.parentId
-    ? ed.getNode(block.parentId)
-    : undefined
+  const parent = property.nameFromParentField === undefined
+    ? undefined
+    : entry ? block : block.parentId ? ed.getNode(block.parentId) : undefined
   const parentField = parent && property.nameFromParentField !== undefined
     ? fieldPlainName(
       String(parent.values[property.nameFromParentField] ?? ''),

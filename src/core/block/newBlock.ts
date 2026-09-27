@@ -25,7 +25,7 @@ export function newSubtree(type: string): { nodes: MaskTree; rootId: string } {
     node.parentId = parentId
     if (spec.values) node.values = { ...node.values, ...deepClone(spec.values) }
     nodes[node.id] = node
-    const children = spec.children ?? blockType(spec.type)?.childDefaults ?? []
+    const children = spec.children ?? []
     node.childIds = children.map((child) => build(child, node.id))
     return node.id
   }

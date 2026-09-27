@@ -1,4 +1,5 @@
 import { splitBinding } from './binding'
+import type { PropertyMap } from './property'
 
 // A list property whose entries each show one field, like the columns of a
 // table. Only the declaring block knows an entry; the rest reads and writes it here.
@@ -8,6 +9,14 @@ export interface ListBinding<E = unknown> {
   defaultTitle: string
 
   sourceProp?: string
+
+  // The entries show no field of their own, like the columns of a board.
+  fieldless?: boolean
+
+  // What an entry holds besides its title, declared like the properties of a
+  // block; the bar at the entry's head shows them. The entry keeps each value
+  // under its key.
+  entryProperties?: PropertyMap
 
   entryFlag?: readonly EntrySwitch<E>[]
 
@@ -76,6 +85,29 @@ export function withEntryValue<E, K extends keyof E>(entry: E, key: K, value: E[
   if (value === undefined) delete copy[key]
   else copy[key] = value
   return copy
+}
+
+// The declared values of an entry, as the bar at its head reads them.
+export function entryValues<E>(b: ListBinding<E>, entry: E): Record<string, unknown> {
+  return Object.fromEntries(Object.keys(b.entryProperties ?? {})
+    .map((key) => [key, entry !== null && typeof entry === 'object' ? Reflect.get(entry, key) : undefined]))
+}
+
+// The entries with one declared value changed; reading the entries again
+// holds the value to its declaration. A value only one entry may hold, like
+// the catch-all column of a board, goes off at the others.
+export function entriesWithValue<E>(
+  b: ListBinding<E>,
+  entries: readonly E[],
+  index: number,
+  key: string,
+  value: unknown,
+): E[] {
+  const alone = b.entryProperties?.[key]?.onlyUnderSiblings === true && value === true
+  return entries.map((entry, i) => {
+    if (i === index) return { ...entry, [key]: value }
+    return alone && entryValues(b, entry)[key] === true ? { ...entry, [key]: false } : entry
+  })
 }
 
 export function flagOn<E>(flag: EntrySwitch<E>, entry: E): boolean {

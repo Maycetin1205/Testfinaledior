@@ -121,21 +121,6 @@ export function changeCarrierInTree(tree: MaskTree): BlockNode[] {
   return nodesWhere(tree, carriesChanges)
 }
 
-export function firstDescendantOfType(
-  tree: MaskTree,
-  rootId: string,
-  type: string,
-): string | undefined {
-  for (const cid of tree[rootId]?.childIds ?? []) {
-    const child = tree[cid]
-    if (!child) continue
-    if (child.type === type) return cid
-    const found = firstDescendantOfType(tree, cid, type)
-    if (found) return found
-  }
-  return undefined
-}
-
 export function canCompute(node: BlockNode): boolean {
   return hasCapability(blockType(node.type), 'compute')
 }

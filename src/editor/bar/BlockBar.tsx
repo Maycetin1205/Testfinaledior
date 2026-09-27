@@ -9,7 +9,7 @@ import {
   type RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Component, FileText, Link2, Plus, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
+import { Component, FileText, Link2, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Popover } from '@/editor/widgets/Popover'
 import { Separator } from '@/editor/widgets/Separator'
@@ -20,11 +20,9 @@ import { propertyVisible, type PropertyPlace } from '../../core/block/property'
 import { propertiesFor, type DeclaredProperty } from '../../core/block/propertyPlace'
 import {
   carriesOwnSource,
-  firstDescendantOfType,
   maySelectionFollows,
   SOURCE_PROP,
 } from '../../core/block/treeQuery'
-import { fieldPlainName } from '../../core/data/dataSources'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { BLOCK_ICONS } from '../blockIcons'
 import { useDataSources } from '../state/useDataSources'
@@ -205,22 +203,11 @@ function withFonts(
 export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps) {
   const ed = useEditor()
   const library = useDataSources().list
-  const template = def?.templateKind ? firstDescendantOfType(ed.tree, block.id, def.templateKind.type) : undefined
 
   const session = useMemo(() => ({
     onBeginEditing: () => ed.beginTransaction(),
     onEndEditing: () => ed.endTransaction(),
   }), [ed])
-
-  const kind = def?.childButton
-  const kindName = kind === undefined
-    ? ''
-    : (kind.nameFromField !== undefined
-      && fieldPlainName(
-        String(block.values[kind.nameFromField] ?? ''),
-        ed.dataSourceFor(block.id)?.id ?? '',
-        ed.sourcesFor(block.id).map((q) => q.source),
-      )) || kind.name
 
   const sourceInReach = ed.dataSourceFor(block.id)
   const at = (where: PropertyPlace): DeclaredProperty[] => (def ? propertiesFor(block, def, where) : [])
@@ -307,17 +294,6 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
         <BarWindow label="Aktionen" icon={Zap} width={ACTIONS_WIDTH}>
           {() => <ActionsSection block={block} events={events} />}
         </BarWindow>
-      )}
-
-      {template && def?.templateKind && (
-        <Button onClick={() => ed.selectBlock(template)}>
-          {def.templateKind.name}
-        </Button>
-      )}
-      {kind && (
-        <Button onClick={() => ed.addBlock(kind.childType, block.id)}>
-          <Plus size={13} /> {kindName}
-        </Button>
       )}
 
       {onRemove && (
