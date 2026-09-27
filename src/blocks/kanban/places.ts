@@ -1,19 +1,33 @@
 import { maskState } from '../../runtime/maskState'
-import type { KanbanColumn } from './columns'
+import type { KanbanColumn, KanbanPlace } from './columns'
 
-// What the ERP holds for a column: its own value, or its title when it has none.
-export function columnValue(column: KanbanColumn): string {
-  const value = column.value.trim()
-  return value !== '' ? value : column.heading
+// A place of a column, where a card lies.
+export interface Spot {
+  column: number
+  place: number
+}
+
+export const sameSpot = (a: Spot, b: Spot): boolean => a.column === b.column && a.place === b.place
+
+// What the ERP holds for a place: its own value, else the title of a column
+// with this one place, else the place's name.
+export function placeValue(column: KanbanColumn, place: KanbanPlace): string {
+  const value = place.value.trim()
+  if (value !== '') return value
+  return column.places.length === 1 ? column.heading : place.name
 }
 
 const same = (a: string, b: string): boolean => a.trim().toLowerCase() === b.trim().toLowerCase()
 
-// Where a record lies: in the column that names its value, else in the
-// catch-all column, else in the first.
-export function columnOf(columns: readonly KanbanColumn[], field: string, row: unknown): number {
+// Where a record lies: at the place that names its value, else at the first
+// place of the catch-all column, else at the very first place.
+export function spotOf(columns: readonly KanbanColumn[], field: string, row: unknown): Spot {
   const value = field === '' ? '' : maskState.host.readField(row, field)
-  const named = value.trim() === '' ? -1 : columns.findIndex((c) => same(columnValue(c), value))
-  if (named >= 0) return named
-  return Math.max(0, columns.findIndex((c) => c.catchAll))
+  if (value.trim() !== '') {
+    for (const [c, column] of columns.entries()) {
+      const p = column.places.findIndex((place) => same(placeValue(column, place), value))
+      if (p >= 0) return { column: c, place: p }
+    }
+  }
+  return { column: Math.max(0, columns.findIndex((c) => c.catchAll)), place: 0 }
 }

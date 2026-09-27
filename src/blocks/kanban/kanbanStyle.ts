@@ -82,8 +82,43 @@ export const kanbanStyle = css`
     overflow-y: auto;
   }
 
+  /* A place of a column with more than one: a box in the box. */
+  .place {
+    flex: none;
+    border: 1.5px solid var(--tone-line);
+    border-radius: var(--se-radius);
+    background: var(--se-panel);
+    overflow: hidden;
+  }
+
+  .place-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--tone-soft);
+  }
+  .place-head .head-text { font-size: var(--se-fs-sm); }
+
+  .place-count {
+    flex: none;
+    margin-left: auto;
+    font-family: var(--se-mono);
+    font-size: var(--se-fs-sm);
+    font-weight: 600;
+    color: var(--tone-ink);
+  }
+
+  .place-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--se-gap);
+    padding: 10px;
+  }
+
   /* Where a dragged card would land. */
-  .column.target .body {
+  .column.target .body,
+  .place.target .place-body {
     background: color-mix(in oklab, var(--tone-strong) 8%, transparent);
     outline: 2px dashed var(--tone-strong);
     outline-offset: -2px;

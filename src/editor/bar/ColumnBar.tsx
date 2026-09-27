@@ -50,11 +50,12 @@ interface ColumnBarProps {
   switches: readonly ColumnSwitch[]
   actions: readonly ColumnAction[]
 
-  // What the entry itself declares, like the tone and value of a board's column.
-  entry?: {
+  // What the entry itself declares, like the tone of a board's column, each
+  // group with the entry it reads and writes.
+  entries?: readonly {
     properties: readonly (readonly [string, Property<unknown>])[]
     access: EntryAccess
-  }
+  }[]
 
   removeLabel: string
   onRemove?: () => void
@@ -65,7 +66,7 @@ interface ColumnBarProps {
 // fields, its switches, what the list chooses at its heads, and the bin.
 export function ColumnBar({
   block, host, element, align, name, fields, groups, sourcesChoice, nameOf,
-  switches, actions, entry, removeLabel, onRemove, onClose,
+  switches, actions, entries = [], removeLabel, onRemove, onClose,
 }: ColumnBarProps) {
   const ed = useEditor()
   const library = useDataSources().list
@@ -90,21 +91,22 @@ export function ColumnBar({
   const sourceInReach = ed.dataSourceFor(block.id)
   const choices = (def ? propertiesFor(block, def, 'column') : [])
     .filter(({ property }) => controlShown(property, block, sourceInReach, library))
-  const own = (entry?.properties ?? [])
+  const own = entries.flatMap(({ properties, access }, group) => properties
     .filter(([, property]) => controlShown(property, block, sourceInReach, library))
+    .map(([key, property]) => ({ key: `${group}:${key}`, propertyKey: key, property, access })))
   const parts = 1 + fields.length + own.length + switches.length + choices.length + actions.length + (onRemove ? 1 : 0)
 
   const shows = (
     <>
-      {entry && own.map(([key, property]) => (
+      {own.map(({ key, propertyKey, property, access }) => (
         <BarControl
           key={key}
           block={block}
-          propertyKey={key}
+          propertyKey={propertyKey}
           property={property}
           sourceInReach={sourceInReach}
           session={session}
-          entry={entry.access}
+          entry={access}
         />
       ))}
       {switches.map((s) => <Tile key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}

@@ -689,7 +689,7 @@ function liftTo22(tree: unknown): void {
 
 // ---- version 23: a kanban draws its columns and its card itself ----
 
-const COLUMN_VALUES_23 = ['heading', 'tone', 'value', 'catchAll']
+const COLUMN_VALUES_23 = ['heading', 'tone', 'catchAll']
 const CARD_VALUES_23 = [
   'chipTone', 'heading', 'heading2', 'time', 'date', 'subline', 'text', 'chip',
   'headingField', 'heading2Field', 'timeField', 'dateField', 'sublineField', 'textField', 'chipField',
@@ -700,8 +700,9 @@ function picked(values: unknown, keys: readonly string[]): Record<string, unknow
   return Object.fromEntries(keys.filter((key) => key in values).map((key) => [key, values[key]]))
 }
 
-// The column blocks become the board's columns, the card block its card; both
-// leave the tree.
+// The column blocks become the board's columns, each with one place holding
+// the column's value; the card block becomes the board's card. Both leave the
+// tree.
 function liftTo23(tree: unknown): void {
   if (!isPlainObject(tree)) return
   const drop = (id: unknown): void => {
@@ -718,7 +719,13 @@ function liftTo23(tree: unknown): void {
       .filter(isPlainObject)
     const columns = children
       .filter((child) => child.type === 'kanban-column')
-      .map((child) => picked(child.values, COLUMN_VALUES_23))
+      .map((child) => {
+        const own = isPlainObject(child.values) ? child.values : {}
+        return {
+          ...picked(own, COLUMN_VALUES_23),
+          places: [{ ...picked(own, ['value']), ...('heading' in own ? { name: own.heading } : {}) }],
+        }
+      })
     if (columns.length > 0) values.columns = columns
     const card = children.find((child) => child.type === 'card')
     if (card) Object.assign(values, picked(card.values, CARD_VALUES_23))

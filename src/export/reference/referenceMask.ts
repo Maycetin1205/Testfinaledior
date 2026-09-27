@@ -141,7 +141,7 @@ export function referenceTree(): MaskTree {
     }),
     k1: node('k1', 'kanban', ROOT_ID, {
       gridX: 18, gridY: 3, gridW: 30, gridH: 22, source: 'q-pos', columnsField: '18_25',
-      columns: [{ heading: 'Offen', tone: 'info', value: 'ART-B', catchAll: false }],
+      columns: [{ heading: 'Offen', tone: 'info', catchAll: false, places: [{ name: 'Offen', value: 'ART-B' }] }],
       heading: 'Karte', headingField: '45_60',
     }),
     tx1: node('tx1', 'text', ROOT_ID, { gridX: 34, gridY: 0, gridW: 14, gridH: 3 }),

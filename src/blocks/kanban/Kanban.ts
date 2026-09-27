@@ -4,7 +4,8 @@ import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
 import type { DataPreamble } from '../../runtime/source'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
-import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom } from './columns'
+import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom, type KanbanPlace } from './columns'
+import type { Spot } from './places'
 import { kanbanStyle } from './kanbanStyle'
 import { CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
 
@@ -12,8 +13,9 @@ const COUNT_IN_EDITOR = '—'
 
 export interface Kanban extends KanbanValues {}
 
-// One block draws the columns and the cards. In the editor every column holds
-// the card as the mask draws it; its spots are typed or bound right there.
+// One block draws the columns, their places and the cards. In the editor every
+// place holds the card as the mask draws it; its spots are typed or bound right
+// there.
 export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
@@ -80,25 +82,51 @@ export class Kanban extends BlockElement {
     >${this.cardContent(card.values)}</div>`
   }
 
+  private cardsAt(spot: Spot): TemplateResult | TemplateResult[] {
+    if (this.preview) return html`<div class="card">${this.cardContent(null)}</div>`
+    return this.board.cardsAt(spot).map((card) => this.cardTpl(card))
+  }
+
+  private count(cards: readonly CardData[]): string | number {
+    return this.preview ? COUNT_IN_EDITOR : cards.length
+  }
+
+  // A place of a column with more than one, as a box with its name on top.
+  private placeTpl(spot: Spot, place: KanbanPlace): TemplateResult {
+    const board = this.board
+    return html`<div
+      class="place${board.isTarget(spot) ? ' target' : ''}"
+      @dragover=${(e: DragEvent) => board.over(e, spot)}
+      @drop=${(e: DragEvent) => board.drop(e, spot)}
+    >
+      <div class="place-head" data-ff-entry="${spot.column}.${spot.place}">
+        <span class="head-text">${place.name}</span>
+        <span class="place-count">${this.count(board.cardsAt(spot))}</span>
+      </div>
+      <div class="place-body">${this.cardsAt(spot)}</div>
+    </div>`
+  }
+
   override render(): TemplateResult {
     const board = this.board
     return html`<div class="board" aria-busy=${String(board.writes)} @dragleave=${(e: DragEvent) => board.leave(e)}>
       ${kanbanColumnsFrom(this.columns).map((column, i) => {
-        const cards = this.preview ? [] : board.cardsIn(i)
+        const only: Spot = { column: i, place: 0 }
+        const single = column.places.length === 1
         return html`<div
-          class="column tone-${toneValue(column.tone)}${board.target === i ? ' target' : ''}"
-          @dragover=${(e: DragEvent) => board.over(e, i)}
-          @drop=${(e: DragEvent) => board.drop(e, i)}
+          class="column tone-${toneValue(column.tone)}${single && board.isTarget(only) ? ' target' : ''}"
+          @dragover=${single ? (e: DragEvent) => board.over(e, only) : nothing}
+          @drop=${single ? (e: DragEvent) => board.drop(e, only) : nothing}
         >
           <div class="head" data-ff-entry=${i}>
             <span class="dot"></span>
             <span class="head-text">${column.heading}</span>
-            <span class="count">${this.preview ? COUNT_IN_EDITOR : cards.length}</span>
+            <span class="count">${this.count(board.cardsIn(i))}</span>
           </div>
           <div class="body">
-            ${this.preview
-              ? html`<div class="card">${this.cardContent(null)}</div>`
-              : cards.map((card) => this.cardTpl(card))}
+            ${single
+              ? this.cardsAt(only)
+              : column.places.map((place, p) => this.placeTpl({ column: i, place: p }, place))}
           </div>
         </div>`
       })}

@@ -2,7 +2,7 @@ import { chooseSelection, giverIdOf, relocateSelection, traitOf } from '../../ru
 import { readDataPreamble, makeDataLink, recordOf, type DataPreamble } from '../../runtime/source'
 import { runEvent } from '../../runtime/events'
 import { kanbanColumnsFrom, type KanbanColumn } from './columns'
-import { columnOf, columnValue } from './places'
+import { placeValue, sameSpot, spotOf, type Spot } from './places'
 
 export interface CardData {
   key: string
@@ -11,8 +11,8 @@ export interface CardData {
   // The record number the host knows this row by; empty when the source names none.
   record: string
 
-  // The column the data puts the card in.
-  column: number
+  // The place the data puts the card at.
+  spot: Spot
 
   // What each spot of the card shows.
   values: Readonly<Record<string, string>>
@@ -33,12 +33,12 @@ export class Board {
 
   chosen = ''
   dragging = ''
-  target = -1
+  target: Spot | null = null
   writes = false
 
-  // A card put into another column while its action runs, or until the data
-  // put it there as well.
-  private readonly moved = new Map<string, number>()
+  // A card put at another place while its action runs, or until the data put
+  // it there as well.
+  private readonly moved = new Map<string, Spot>()
 
   private readonly el: BoardElement
 
@@ -46,12 +46,20 @@ export class Board {
     this.el = el
   }
 
-  columnOf(card: CardData): number {
-    return this.moved.get(card.key) ?? card.column
+  spotOf(card: CardData): Spot {
+    return this.moved.get(card.key) ?? card.spot
+  }
+
+  cardsAt(spot: Spot): CardData[] {
+    return this.cards.filter((card) => sameSpot(this.spotOf(card), spot))
   }
 
   cardsIn(column: number): CardData[] {
-    return this.cards.filter((card) => this.columnOf(card) === column)
+    return this.cards.filter((card) => this.spotOf(card).column === column)
+  }
+
+  isTarget(spot: Spot): boolean {
+    return this.target !== null && sameSpot(this.target, spot)
   }
 
   // A card keeps its key across deliveries: the record number where it is
@@ -83,7 +91,7 @@ export class Board {
         key: `${base}:${number}`,
         row,
         record,
-        column: columnOf(columns, field, row),
+        spot: spotOf(columns, field, row),
         values: el.cardValues(row, preamble.read),
       }
     })
@@ -111,18 +119,19 @@ export class Board {
   }
 
   endDrag(): void {
-    if (this.dragging === '' && this.target === -1) return
+    if (this.dragging === '' && this.target === null) return
     this.dragging = ''
-    this.target = -1
+    this.target = null
     this.el.requestUpdate()
   }
 
-  over(event: DragEvent, column: number): void {
+  over(event: DragEvent, spot: Spot): void {
     if (this.dragging === '' || this.writes) return
     event.preventDefault()
+    event.stopPropagation()
     if (event.dataTransfer) event.dataTransfer.dropEffect = 'move'
-    if (this.target === column) return
-    this.target = column
+    if (this.isTarget(spot)) return
+    this.target = spot
     this.el.requestUpdate()
   }
 
@@ -130,30 +139,32 @@ export class Board {
     const into = event.relatedTarget
     const board = event.currentTarget
     if (into instanceof Node && board instanceof Node && board.contains(into)) return
-    if (this.target === -1) return
-    this.target = -1
+    if (this.target === null) return
+    this.target = null
     this.el.requestUpdate()
   }
 
-  drop(event: DragEvent, column: number): void {
+  drop(event: DragEvent, spot: Spot): void {
     const card = this.cards.find((c) => c.key === this.dragging)
     this.endDrag()
     if (!card) return
     event.preventDefault()
-    void this.move(card, column)
+    event.stopPropagation()
+    void this.move(card, spot)
   }
 
-  // The card lies in its new column at once. Fails the action, it lies again
+  // The card lies at its new place at once. Fails the action, it lies again
   // where it came from; the next delivery sorts by the data anyway.
-  private async move(card: CardData, column: number): Promise<void> {
-    const target = kanbanColumnsFrom(this.el.columns)[column]
-    if (this.writes || !target || this.columnOf(card) === column) return
-    this.moved.set(card.key, column)
+  private async move(card: CardData, spot: Spot): Promise<void> {
+    const column = kanbanColumnsFrom(this.el.columns)[spot.column]
+    const place = column?.places[spot.place]
+    if (this.writes || !column || !place || sameSpot(this.spotOf(card), spot)) return
+    this.moved.set(card.key, spot)
     this.writes = true
     this.el.requestUpdate()
     let back: boolean
     try {
-      const result = await runEvent(this.el, 'onCardDrop', { PINDEX: card.record, VALUE: columnValue(target) })
+      const result = await runEvent(this.el, 'onCardDrop', { PINDEX: card.record, VALUE: placeValue(column, place) })
       back = result.cancelled || !result.ran || !result.written
     } catch {
       back = true

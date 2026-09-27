@@ -18,6 +18,10 @@ export interface ListBinding<E = unknown> {
   // under its key.
   entryProperties?: PropertyMap
 
+  // Each entry holds a list of its own, like the places of a board's column,
+  // handled at their heads the same way, one level down.
+  inner?: InnerList<E>
+
   entryFlag?: readonly EntrySwitch<E>[]
 
   entryFieldChoice?: readonly EntryFieldChoice<E>[]
@@ -45,6 +49,40 @@ export interface ListBinding<E = unknown> {
   entryAdd?(entries: readonly E[]): E[] | null
   entryRemove?(entries: readonly E[], index: number): E[] | null
   entryMove?(entries: readonly E[], from: number, to: number): E[] | null
+}
+
+export interface InnerList<E> {
+  binding: ListBinding
+  of(entry: E): readonly unknown[]
+  with(entry: E, inner: readonly unknown[]): E
+}
+
+// Where an entry stands: in the list, or in the inner list of an entry. Its
+// head carries it as "2" or "2.1".
+export interface EntryPath {
+  index: number
+  inner?: number
+}
+
+export function entryPathFrom(raw: string | null, fallback: number): EntryPath {
+  const [outer, inner] = (raw ?? '').split('.')
+  const index = Number(outer)
+  if (outer === '' || !Number.isInteger(index)) return { index: fallback }
+  const at = Number(inner)
+  return inner !== undefined && Number.isInteger(at) ? { index, inner: at } : { index }
+}
+
+export function innerOf<E>(b: ListBinding<E>, entry: E | undefined): readonly unknown[] {
+  return entry === undefined || !b.inner ? [] : b.inner.of(entry)
+}
+
+// The entries with the inner list of one of them replaced.
+export function withInner<E>(b: ListBinding<E>, entries: readonly E[], index: number, inner: readonly unknown[]): E[] {
+  const entry = entries[index]
+  if (!b.inner || entry === undefined) return [...entries]
+  const next = [...entries]
+  next[index] = b.inner.with(entry, inner)
+  return next
 }
 
 export interface EntryFieldChoice<E> {

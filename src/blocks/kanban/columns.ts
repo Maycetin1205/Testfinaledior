@@ -9,9 +9,26 @@ import { listDefaultTitle, type ListBinding } from '../../core/block/listBinding
 import { isUnread } from '../../core/unread'
 import { toneProperty } from '../tone/tone'
 
-// A column of the board: its title, typed on its head; its tone; the value it
-// stands for in the field the board sorts by; and whether it takes the cards
-// whose value no other column names.
+// A place in a column, where a card lies: its name, typed on its head, and the
+// value it stands for in the field the board sorts by.
+export const kanbanPlaceProperties = {
+  name: textProperty({
+    default: 'Platz',
+    label: 'Name',
+    place: 'block',
+    attribute: 'name',
+  }),
+  value: textProperty({
+    default: '',
+    label: 'Wert',
+    attribute: 'value',
+    nameFromParentField: 'columnsField',
+  }),
+}
+
+// A column of the board: its title, typed on its head; its tone; whether it
+// takes the cards whose value no place names; and its places, one at least.
+// A column with one place shows no place of its own.
 export const kanbanColumnProperties = {
   heading: textProperty({
     default: 'Neue Spalte',
@@ -20,12 +37,6 @@ export const kanbanColumnProperties = {
     attribute: 'heading',
   }),
   tone: toneProperty(),
-  value: textProperty({
-    default: '',
-    label: 'Wert',
-    attribute: 'value',
-    nameFromParentField: 'columnsField',
-  }),
   catchAll: booleanProperty({
     default: false,
     label: 'Auffangspalte',
@@ -35,38 +46,48 @@ export const kanbanColumnProperties = {
   }),
 }
 
+export interface KanbanPlace {
+  name: string
+  value: string
+}
+
 export interface KanbanColumn {
   heading: string
   tone: string
-  value: string
   catchAll: boolean
+  places: KanbanPlace[]
 }
 
-// The title is typed on the head; the bar at the head holds the rest.
-const IN_THE_BAR = {
-  tone: kanbanColumnProperties.tone,
-  value: kanbanColumnProperties.value,
-  catchAll: kanbanColumnProperties.catchAll,
-}
-
-const DEFAULT_TITLE = 'Spalte {n}'
+const place = (name: string): KanbanPlace => ({ name, value: '' })
 
 function column(heading: string, tone: string): KanbanColumn {
-  return { heading, tone, value: '', catchAll: false }
+  return { heading, tone, catchAll: false, places: [place(heading)] }
 }
 
 export function defaultKanbanColumns(): KanbanColumn[] {
   return [column('Offen', 'warning'), column('In Arbeit', 'info'), column('Fertig', 'success')]
 }
 
-// What a column lacks takes the default of its declaration.
+// What an entry lacks takes the default of its declaration.
+function placeFrom(raw: unknown): KanbanPlace {
+  const values = readValues(kanbanPlaceProperties, isUnread<KanbanPlace>(raw) ? raw : {})
+  return { name: String(values.name), value: String(values.value) }
+}
+
+export function kanbanPlacesFrom(raw: unknown): KanbanPlace[] {
+  return Array.isArray(raw) ? raw.map(placeFrom) : []
+}
+
 function columnFrom(raw: unknown): KanbanColumn {
-  const values = readValues(kanbanColumnProperties, isUnread<KanbanColumn>(raw) ? raw : {})
+  const entry = isUnread<KanbanColumn>(raw) ? raw : {}
+  const values = readValues(kanbanColumnProperties, entry)
+  const heading = String(values.heading)
+  const places = kanbanPlacesFrom(entry.places)
   return {
-    heading: String(values.heading),
+    heading,
     tone: String(values.tone),
-    value: String(values.value),
     catchAll: values.catchAll === true,
+    places: places.length > 0 ? places : [place(heading)],
   }
 }
 
@@ -105,14 +126,37 @@ function moved<E>(entries: readonly E[], from: number, to: number): E[] | null {
   return next
 }
 
+// The places of a column at their heads: name typed on the head, value in the
+// bar, added from the bar at the column's head. A column keeps one place.
+export const KANBAN_PLACES_BINDING: ListBinding<KanbanPlace> = {
+  prop: 'places',
+  defaultTitle: 'Platz {n}',
+  fieldless: true,
+  entryProperties: { value: kanbanPlaceProperties.value },
+  entries: kanbanPlacesFrom,
+  titleOf: (p) => p.name,
+  fieldOf: () => '',
+  withTypedTitle: (p, name) => ({ ...p, name }),
+  withPickedField: (p) => p,
+  withoutEditorMarks: (p) => p,
+  entryAdd: (places) => [...places, place(listDefaultTitle(KANBAN_PLACES_BINDING, places.length))],
+  entryRemove: (places, index) => (places.length <= 1 ? null : places.filter((_, i) => i !== index)),
+  entryMove: moved,
+}
+
 // The columns of a board as the editor handles them at their heads: title
-// typed on the head, tone, value and catch-all in the bar at the head, plus at
-// the end, moved by dragging the head. A board keeps one column at least.
+// typed on the head, tone and catch-all in the bar at the head, plus at the
+// end, moved by dragging the head. A board keeps one column at least.
 export const KANBAN_COLUMNS_BINDING: ListBinding<KanbanColumn> = {
   prop: 'columns',
-  defaultTitle: DEFAULT_TITLE,
+  defaultTitle: 'Spalte {n}',
   fieldless: true,
-  entryProperties: IN_THE_BAR,
+  entryProperties: { tone: kanbanColumnProperties.tone, catchAll: kanbanColumnProperties.catchAll },
+  inner: {
+    binding: KANBAN_PLACES_BINDING,
+    of: (c) => c.places,
+    with: (c, places) => ({ ...c, places: kanbanPlacesFrom(places) }),
+  },
   entries: kanbanColumnsFrom,
   titleOf: (c) => c.heading,
   fieldOf: () => '',
