@@ -31,7 +31,6 @@ import {
   followSource,
   unfollowSource,
   cellsForHandedRows,
-  WITHOUT_ROWS,
   type HandedRow,
   type RowsFrom,
   type RowsElement,
@@ -146,7 +145,6 @@ export class RecordList implements ReactiveController {
     const cells = cellsForHandedRows(rows, el.listColumns(), el.listCalculations())
     el.rawRows = cells.rawRows
     el.dataRows = cells.dataRows
-    el.rowsReport = WITHOUT_ROWS
     this._rowsChoice.forget()
     this._view.invalidate()
     el.requestUpdate()
@@ -156,7 +154,6 @@ export class RecordList implements ReactiveController {
     const el = this.el
     el.rawRows = []
     el.dataRows = []
-    el.rowsReport = WITHOUT_ROWS
     this._rowsChoice.forget()
     this._view.reset()
   }
@@ -171,7 +168,7 @@ export class RecordList implements ReactiveController {
   }
 
   private get columnPickerOn(): boolean {
-    return this.el.columnPicker && this.el.headerRow && !this.el.preview
+    return this.el.columnPicker && !this.el.preview
   }
 
   private cellValue(rawIndex: number, slot: number): string {
@@ -262,7 +259,6 @@ export class RecordList implements ReactiveController {
         cols: view.cols,
         editable: el.editable,
         preview: el.preview,
-        showHead: el.headerRow,
         columnPickerOn: this.columnPickerOn,
         columnPicker: this._choice.open === null ? null : {
           selectable: columns.filter((column) => column.hidden !== true),
@@ -294,9 +290,7 @@ export class RecordList implements ReactiveController {
           close: () => this._choice.close(),
         },
         widths: this._widths.hostForDrag(),
-        clickHead: (i) => {
-          if (!el.editable) this._view.clickSort(i)
-        },
+        clickHead: (i) => this._view.clickSort(i),
         activateRow: (rawIndex, viewIndex) => {
           activateRow(el, this._rowsChoice, el.rawRows, rawIndex, viewIndex)
           el.requestUpdate()
@@ -308,7 +302,6 @@ export class RecordList implements ReactiveController {
         visible: view.total,
         total: el.dataRows.length,
         searchesActive: this._view.searchesActive,
-        selectionActive: el.rowsReport.bySelection,
         page: view.page,
         pageCount: view.pageCount,
         paging: el.paging,

@@ -20,6 +20,14 @@ function swallowClick(ev: MouseEvent): void {
   ev.preventDefault()
 }
 
+// The click that ends a drag is no click on what lies under the pointer.
+export function swallowNextClick(): void {
+  window.addEventListener('click', swallowClick, { capture: true, once: true })
+  setTimeout(() => {
+    window.removeEventListener('click', swallowClick, { capture: true })
+  }, 0)
+}
+
 function inTextEditing(e: ReactPointerEvent<HTMLElement>): boolean {
   for (const t of e.nativeEvent.composedPath()) {
     if (t === e.currentTarget) return false
@@ -92,11 +100,7 @@ export function dragPosition(
     cleanUp()
     if (active && last) {
       editor.moveNodeToCell(id, last.target.parentId, last.x, last.y)
-
-      window.addEventListener('click', swallowClick, { capture: true, once: true })
-      setTimeout(() => {
-        window.removeEventListener('click', swallowClick, { capture: true })
-      }, 0)
+      swallowNextClick()
     }
     dnd.reset()
   }

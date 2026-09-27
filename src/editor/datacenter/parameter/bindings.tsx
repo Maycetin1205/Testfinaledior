@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Field } from '@/editor/widgets/Field'
 import type { ListEntry, ListGroup } from '@/editor/widgets/List'
-import { PickerControl } from '../../inspector/controls/PickerControl'
+import { PickerControl } from '../../controls/PickerControl'
 import {
   ACTION_PLACEHOLDER,
   type Parameter,

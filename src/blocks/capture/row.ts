@@ -5,7 +5,7 @@ import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
 import { asNumber } from '../list/sorting'
-import { CELL_PLACEHOLDER, FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import { FIELD_KEY_PREFIX, type Column } from '../list/columns'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -22,8 +22,6 @@ interface CapturePlacement {
   cols: Readonly<Record<string, string>>
 
   preview: boolean
-
-  titleInCell: boolean
 
   value: (index: number) => string
 
@@ -55,9 +53,7 @@ export function captureRowTpl(
         return html`<div
           class=${column.hidden === true ? 'hidden' : nothing}
           role="cell"
-        ><span class="cell-label">${
-          placement.titleInCell ? column.title || CELL_PLACEHOLDER : ''
-        }</span></div>`
+        ><span class="cell-label"></span></div>`
       }
       const slot = placement.slots[i]
 
@@ -71,9 +67,10 @@ export function captureRowTpl(
       >${inputSpotTpl({
         value,
         title: column.title,
-        placeholder: placement.titleInCell ? column.title : '',
+        placeholder: '',
         inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
         holderClass: 'cell-holder',
+        marksOnEntering: true,
         slot,
         suggestions: list ? placement.suggestions : [],
         mark: placement.mark,
@@ -160,6 +157,13 @@ export function neighbourSlot(
   return -1
 }
 
+// The first column the operator can step to that must hold a value and is
+// empty; -1 when there is none.
+export function missingRequired(columns: readonly CaptureColumn[], values: readonly string[]): number {
+  return columns.findIndex((column, i) =>
+    column.required === true && column.hidden !== true && (values[i] ?? '').trim() === '')
+}
+
 export function linkedSourcesIn(context: CaptureContext): string[] {
   const out: string[] = []
   for (const column of context.columns) {
@@ -187,6 +191,20 @@ export function displayColumnIn(
   return undefined
 }
 
+// The fields of every column that shows the same source as this one.
+export function sameSourceCodes(context: CaptureContext, index: number): string[] {
+  const target = targetIn(context, index)
+  if (target.sourceId === '') return []
+  const codes: string[] = []
+  for (const column of context.columns) {
+    const other = cellTargetOf(column, context.sourceId)
+    if (other.sourceId === target.sourceId && other.code !== '' && !codes.includes(other.code)) {
+      codes.push(other.code)
+    }
+  }
+  return codes
+}
+
 export function windowColumnsIn(context: CaptureContext, index: number): Column[] {
   return windowColumnsOr(
     context.columns[index]?.windowColumns,
@@ -202,11 +220,11 @@ function automaticColumnsIn(context: CaptureContext, index: number): Column[] {
 
 export function fittingRecords(
   pairs: readonly KeyPair[],
-  keyValue: (field: string) => string | undefined,
+  keyValue: (pair: KeyPair) => string | undefined,
   candidates: readonly unknown[],
 ): unknown[] {
   const known = pairs
-    .map((p) => ({ toField: p.toField, expected: keyValue(p.fromField) }))
+    .map((p) => ({ toField: p.toField, expected: keyValue(p) }))
     .filter((b): b is { toField: string; expected: string } => b.expected !== undefined)
   if (known.length === 0) return [...candidates]
   return candidates.filter((record) => known.every(

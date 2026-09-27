@@ -19,7 +19,11 @@ import {
 import { asNumber } from '../list/sorting'
 import { rowsIndexOf } from '../list/sourceRows'
 import { SuggestionState, type KeyAction } from '../lookup/suggestionState'
+import { SUGGESTIONS_MAX } from '../lookup/suggestionList'
+import { plainText, rowFits } from '../list/textSearch'
 import { maskState } from '../../runtime/maskState'
+import { outsideValue } from '../../runtime/foreignSources'
+import type { KeyPair } from '../../core/data/extraSources'
 import {
   arrivalCheck,
   changeArrived,
@@ -34,7 +38,9 @@ import {
   displayColumnIn,
   fittingRecords,
   linkedSourcesIn,
+  missingRequired,
   neighbourSlot,
+  sameSourceCodes,
   targetIn,
   windowColumnsIn,
   type CaptureContext,
@@ -252,11 +258,23 @@ export class CaptureLedger {
 
   leave(index: number): void {
     if (this.cursorColumn === index) {
+      this.settleTyped(this.context(), index)
       this.cursorColumn = -1
       this.listColumn = -1
       this.list.idle()
     }
     this.host.report()
+  }
+
+  // A cell of a helper source holds a value of that source, never loose text:
+  // what was typed takes the exact hit, or falls away.
+  private settleTyped(context: CaptureContext, index: number): void {
+    const typed = (this.typed.get(index) ?? '').trim()
+    if (typed === '' || targetIn(context, index).kind !== 'linked') return
+    const wanted = plainText(typed)
+    const exact = this.entriesIn(context, index).filter((e) => plainText(e.value.trim()) === wanted)
+    if (exact.length === 1) this.adopt(index, exact[0].record)
+    else this.typed.delete(index)
   }
 
   empty(index: number): void {
@@ -300,15 +318,6 @@ export class CaptureLedger {
     return action
   }
 
-  nextEmpty(from: number): number {
-    const context = this.context()
-    for (let i = from + 1; i < context.columns.length; i++) {
-      if (context.columns[i]?.hidden === true) continue
-      if (this.valueIn(context, i) === '') return i
-    }
-    return -1
-  }
-
   neighbour(from: number, direction: 1 | -1): number {
     return neighbourSlot(this.host.columns(), from, direction)
   }
@@ -317,21 +326,16 @@ export class CaptureLedger {
     this.host.focusCell(index)
   }
 
-  // Where the cursor goes next: Tab walks to the neighbour column, the other keys
-  // look for the next empty cell and capture the row when none is left.
+  // Enter and Tab go one column on; past the last one they capture the row.
   jumpFrom(index: number, key: string): boolean {
-    if (key === 'Tab') {
-      const next = this.neighbour(index, 1)
-      if (next !== -1) {
-        this.host.focusCell(next)
-        return true
-      }
-      return this.captureRow()
+    this.settleTyped(this.context(), index)
+    const next = this.neighbour(index, 1)
+    if (next !== -1) {
+      this.host.focusCell(next)
+      return true
     }
-    const target = this.nextEmpty(index)
-    if (target !== -1) this.host.focusCell(target)
-    else if (key === 'Enter') this.captureRow()
-    return true
+    if (key !== 'Tab' && key !== 'Enter') return true
+    return this.captureRow()
   }
 
   // What the lookup window of a cell shows. Nothing when the column names no
@@ -397,15 +401,24 @@ export class CaptureLedger {
     this.list.show(this.suggestionsFor(context))
   }
 
+  // The typed words are looked for in every column of the same source; what
+  // equals the typed text stands on top.
   private suggestionsFor(context: CaptureContext): Entry[] {
     const index = this.cursorColumn
     if (this.list.closed || targetIn(context, index).kind === 'free') return []
     const typed = this.typed.get(index) ?? ''
-    if (typed === '') {
-      if (this.listColumn !== index) return []
-    }
-    return suggestionsInWindowState(this.entriesIn(context, index), typed,
+    if (typed === '' && this.listColumn !== index) return []
+    const codes = sameSourceCodes(context, index)
+    const texts = (e: Entry): string[] => [
+      e.display, e.value, ...codes.map((code) => maskState.host.readField(e.record, code)),
+    ]
+    const entries = this.entriesIn(context, index)
+    const hit = typed.trim() === '' ? entries : entries.filter((e) => rowFits(texts(e), typed))
+    const wanted = plainText(typed.trim())
+    const exact = (e: Entry): boolean => wanted !== '' && texts(e).some((t) => plainText(t.trim()) === wanted)
+    const rest = suggestionsInWindowState(hit.filter((e) => !exact(e)), '',
       windowColumnsIn(context, index), context.block, context.columns[index]?.key)
+    return [...hit.filter(exact), ...rest].slice(0, SUGGESTIONS_MAX)
   }
 
   private compute(context: CaptureContext): void {
@@ -461,6 +474,10 @@ export class CaptureLedger {
     }
   }
 
+  // The key a helper source takes from its partner. Another helper source
+  // not chosen yet gives an empty key, so nothing fits. The row itself is
+  // still being entered: its key restricts once it is known, from the chosen
+  // record or from another helper source chosen by hand.
   private keyValue(
     context: CaptureContext,
     partnerId: string,
@@ -469,7 +486,7 @@ export class CaptureLedger {
   ): string | undefined {
     if (partnerId !== '' && partnerId !== context.sourceId) {
       const record = this.chosen.get(partnerId)
-      return record === undefined ? undefined : maskState.host.readField(record, field)
+      return record === undefined ? '' : maskState.host.readField(record, field)
     }
     const base = this.chosen.get(context.sourceId)
     if (base !== undefined) return maskState.host.readField(base, field)
@@ -481,7 +498,7 @@ export class CaptureLedger {
       const record = this.chosen.get(sourceId)
       if (record === undefined) continue
       for (const pair of context.pairsTo(sourceId)) {
-        if (pair.fromField !== field) continue
+        if (pair.from !== undefined || pair.fromField !== field) continue
         const value = maskState.host.readField(record, pair.toField)
         if (value !== '') return value
       }
@@ -489,11 +506,22 @@ export class CaptureLedger {
     return undefined
   }
 
+  // The key of a pair: from the document or a form field, else from the
+  // partner. An empty value counts as missing, and then nothing fits.
+  private pairValue(
+    context: CaptureContext,
+    partnerId: string,
+    pair: KeyPair,
+    except: string,
+  ): string | undefined {
+    return outsideValue(pair, this.host.block) ?? this.keyValue(context, partnerId, pair.fromField, except)
+  }
+
   private possible(context: CaptureContext, sourceId: string, rows: readonly unknown[]): unknown[] {
     const partnerId = context.partnerOf(sourceId)
     return fittingRecords(
       context.pairsTo(sourceId),
-      (field) => this.keyValue(context, partnerId, field, sourceId),
+      (pair) => this.pairValue(context, partnerId, pair, sourceId),
       rows,
     )
   }
@@ -509,7 +537,7 @@ export class CaptureLedger {
         const record = this.chosen.get(sourceId)
         if (record !== undefined) {
           const fits = pairs.every((p) => {
-            const expected = this.keyValue(context, partnerId, p.fromField, sourceId)
+            const expected = this.pairValue(context, partnerId, p, sourceId)
             return expected === undefined || (expected !== '' && expected === maskState.host.readField(record, p.toField))
           })
           if (!fits) {
@@ -518,7 +546,7 @@ export class CaptureLedger {
           }
           continue
         }
-        if (!pairs.some((p) => this.keyValue(context, partnerId, p.fromField, sourceId) !== undefined)) continue
+        if (!pairs.some((p) => this.pairValue(context, partnerId, p, sourceId) !== undefined)) continue
         const rows = sourcesRows(sourceId)
         if (rows === null) continue
         const fitting = this.possible(context, sourceId, rows)
@@ -579,23 +607,11 @@ export class CaptureLedger {
     return `e${this.nextKey}`
   }
 
+  // Only what stands below the line goes out, never the capture row.
   pendingMarks(): PendingRow[] {
-    const context = this.context()
-    const all = this.rows
+    return this.rows
       .filter((z) => z.written === undefined)
       .map((z) => ({ key: z.key, values: z.values as readonly string[] }))
-    const top = context.columns.map((_, i) => this.valueIn(context, i))
-    if (top.every((w) => w === '')) return all
-    const back = this.correction
-    if (!back) return [...all, { key: this.topKey, values: top }]
-    const slot = this.rows
-      .slice(0, back.slot)
-      .filter((z) => z.written === undefined).length
-    return [
-      ...all.slice(0, slot),
-      { key: back.key, values: top },
-      ...all.slice(slot),
-    ]
   }
 
   capturedStatus(index: number): RowState {
@@ -607,24 +623,28 @@ export class CaptureLedger {
     )
   }
 
-  // The typed row moves down to the captured ones: Tab past the last column,
-  // Enter when no column is empty any more.
+  // The typed row moves down to the captured ones: Enter or Tab past the last
+  // column. A required cell left empty holds it back, and the cursor goes there.
   captureRow(): boolean {
-    if (!this.capture(this.context())) return false
-    this.host.captured()
+    const outcome = this.capture(this.context())
+    if (outcome === 'nothing') return false
+    if (outcome === 'captured') this.host.captured()
+    else this.host.focusCell(outcome.missing)
     return true
   }
 
-  private capture(context: CaptureContext): boolean {
+  private capture(context: CaptureContext): 'captured' | 'nothing' | { missing: number } {
     this.compute(context)
     const values = context.columns.map((_, i) => this.valueIn(context, i))
     const back = this.correction
     if (values.every((w) => w === '')) {
-      if (!back) return false
+      if (!back) return 'nothing'
       this.correction = null
       this.clearCaptureRow()
-      return true
+      return 'captured'
     }
+    const missing = missingRequired(context.columns, values)
+    if (missing !== -1) return { missing }
     if (back) {
       this.rows = [
         ...this.rows.slice(0, back.slot),
@@ -637,16 +657,20 @@ export class CaptureLedger {
       this.nextKey += 1
     }
     this.clearCaptureRow()
-    return true
+    return 'captured'
   }
 
   // A captured row goes back into the capture row. What stands there is captured
-  // first, so nothing is lost.
+  // first, so nothing is lost; a required cell left empty there comes first.
   bringBackCaptured(index: number): void {
     const context = this.context()
     const row = this.rows[index]
     if (!row || row.written !== undefined) return
-    this.capture(context)
+    const before = this.capture(context)
+    if (typeof before === 'object') {
+      this.host.focusCell(before.missing)
+      return
+    }
     const now = this.rows.indexOf(row)
     if (now === -1) return
     this.rows = this.rows.filter((_, i) => i !== now)
@@ -667,7 +691,6 @@ export class CaptureLedger {
 
   private markWritten(written: readonly WrittenRow[]): boolean {
     if (written.length === 0) return false
-    const context = this.context()
     const records = new Map(written.map((g) => [g.key, { record: g.record }]))
     let changed = false
     this.rows = this.rows.map((z) => {
@@ -676,25 +699,7 @@ export class CaptureLedger {
       changed = true
       return { ...z, written: mark }
     })
-    const back = this.correction
-    const topMark = records.get(back === null ? this.topKey : back.key)
-    if (topMark === undefined) return changed
-    const values = context.columns.map((_, i) => this.valueIn(context, i))
-    if (back !== null) {
-      this.rows = [
-        ...this.rows.slice(0, back.slot),
-        { key: back.key, values, written: topMark },
-        ...this.rows.slice(back.slot),
-      ]
-      this.correction = null
-      this.clearCaptureRow()
-      return true
-    }
-    if (values.every((w) => w === '')) return changed
-    this.rows = [...this.rows, { key: this.topKey, values, written: topMark }]
-    this.nextKey += 1
-    this.clearCaptureRow()
-    return true
+    return changed
   }
 
   // ----- the booked rows -----

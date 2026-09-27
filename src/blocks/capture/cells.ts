@@ -65,16 +65,10 @@ export const cellsInputStyle = css`
         background: transparent;
         border: var(--se-border) solid transparent;
         border-radius: var(--se-radius);
-        transition: background var(--se-move), border-color var(--se-move);
       }
-      .cell-input:hover { background: var(--se-hover); }
 
-      .cell-input:focus {
-        outline: none;
-        background: var(--se-panel);
-        border-color: var(--se-accent);
-        box-shadow: var(--se-focus);
-      }
+      /* A cell being typed into looks like any other, only with the cursor. */
+      .cell-input:focus { outline: none; }
 
       /* Left while typing: a number typed up to its comma is no number yet,
          and the text would jump. */
@@ -84,13 +78,6 @@ export const cellsInputStyle = css`
       .cell-input::placeholder { color: transparent; }
       .row.capture .cell-input::placeholder { color: var(--se-faint); }
       .row:focus-within .cell-input::placeholder { color: var(--se-faint); }
-
-      /* Marked, not yet written. */
-      .cell-input.changed {
-        color: var(--se-ink);
-        background: var(--se-panel);
-        border-color: var(--se-accent);
-      }
 
       /* Taken from the chosen record and shown like any other value: a tint or
          italics made the row look foreign. */

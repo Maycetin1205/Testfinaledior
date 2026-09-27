@@ -64,15 +64,12 @@ function keyAction(key: string, l: KeysPlacement & {
   if (key === 'ArrowUp') return l.listOpen ? 'markUp' : 'nothing'
   if (key !== 'Enter') return 'nothing'
 
+  // A row that jumps takes the marked hit of the list, else goes one column on.
+  if (l.jumps) return l.listOpen ? 'adopt' : 'further'
+
   if (l.listOpen) return unique ? 'adopt' : 'window'
-
-  if (l.fieldEmpty) {
-    if (l.jumps) return 'further'
-    return l.lookupable && l.hasRecords() ? 'window' : 'nothing'
-  }
-
-  if (l.typed && l.lookupable) return 'nothing'
-  return l.jumps ? 'further' : 'nothing'
+  if (l.fieldEmpty) return l.lookupable && l.hasRecords() ? 'window' : 'nothing'
+  return 'nothing'
 }
 
 export class SuggestionState<T extends Suggestion = Suggestion> {

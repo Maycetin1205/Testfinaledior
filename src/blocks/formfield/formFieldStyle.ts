@@ -43,27 +43,19 @@ export const fieldStyle = css`
   }
   textarea.ctrl {
     display: block;
-    resize: vertical;
-    min-height: 50px;
+    resize: none;
   }
 
-  /* The plain look is the inline field of the record card. */
+  /* The plain look: a line below, in the accent while typed into. */
   .field.plain .ctrl {
     border-color: transparent;
+    border-bottom-color: var(--se-line-soft);
+    border-radius: 0;
     background: transparent;
-    transition: background var(--se-move), border-color var(--se-move);
   }
-  .field.plain .ctrl:hover { background: var(--se-hover); }
   .field.plain .ctrl:focus {
-    background: var(--se-panel);
-    border-color: var(--se-accent);
-    box-shadow: var(--se-focus);
-  }
-  .field.plain textarea.ctrl,
-  .field.plain textarea.ctrl:hover {
-    min-height: 66px;
-    border-color: var(--se-line);
-    background: var(--se-panel);
+    border-bottom-color: var(--se-accent);
+    box-shadow: none;
   }
 
   /* The label in the empty field, in the color of input::placeholder.
@@ -147,6 +139,10 @@ export const fieldStyle = css`
   :host([preview]) .wrap[data-ff-bound] .ctrl {
     border-style: dotted;
     border-color: var(--se-accent);
+  }
+  :host([preview]) .field.plain .wrap[data-ff-bound] .ctrl {
+    border-color: transparent;
+    border-bottom-color: var(--se-accent);
   }
 
   :host(:not([preview])) .row .text { cursor: pointer; user-select: none; }

@@ -7,7 +7,7 @@ export { toneValue } from '../../core/block/tones'
 export function toneProperty(attribute = 'tone'): Property<string> {
   return choiceProperty(toneOptions(), {
     default: 'info',
-    label: 'Bedeutung',
+    label: 'Ton',
     attribute,
   })
 }

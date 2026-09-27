@@ -135,7 +135,8 @@ export function usedFieldsPerSource(
 
         const partner = q.partnerId === '' ? first : q.partnerId
         for (const pair of completePairs(q)) {
-          remember(partner, pair.fromField)
+          if (pair.from === 'document') remember(pair.fromSourceId ?? '', pair.fromField)
+          else if (pair.from === undefined) remember(partner, pair.fromField)
           remember(q.sourceId, pair.toField)
         }
       }
@@ -147,7 +148,8 @@ export function usedFieldsPerSource(
         if (!followUsable(follow)) continue
         const giver = selectionSourceIdOf(tree[follow.giverId])
         for (const pair of completePairs(follow)) {
-          remember(giver, pair.fromField)
+          if (pair.from === 'document') remember(pair.fromSourceId ?? '', pair.fromField)
+          else if (pair.from === undefined) remember(giver, pair.fromField)
           remember(own, pair.toField)
         }
       }

@@ -16,6 +16,12 @@ export const NODE = {
     ["path", { d: "M21 12H9" }],
     ["path", { d: "M21 19H7" }],
   ],
+  AppWindow: [
+    ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2" }],
+    ["path", { d: "M10 4v4" }],
+    ["path", { d: "M2 8h20" }],
+    ["path", { d: "M6 4v4" }],
+  ],
   ArrowDown: [
     ["path", { d: "M12 5v14" }],
     ["path", { d: "m19 12-7 7-7-7" }],
@@ -52,6 +58,24 @@ export const NODE = {
     ["path", { d: "M12 8 7.26 5.15" }],
     ["path", { d: "m12 8 4.74-2.85" }],
     ["path", { d: "M12 13.5V8" }],
+  ],
+  Calculator: [
+    ["rect", { width: "16", height: "20", x: "4", y: "2", rx: "2" }],
+    ["line", { x1: "8", x2: "16", y1: "6", y2: "6" }],
+    ["line", { x1: "16", x2: "16", y1: "14", y2: "18" }],
+    ["path", { d: "M16 10h.01" }],
+    ["path", { d: "M12 10h.01" }],
+    ["path", { d: "M8 10h.01" }],
+    ["path", { d: "M12 14h.01" }],
+    ["path", { d: "M8 14h.01" }],
+    ["path", { d: "M12 18h.01" }],
+    ["path", { d: "M8 18h.01" }],
+  ],
+  Calendar: [
+    ["path", { d: "M8 2v4" }],
+    ["path", { d: "M16 2v4" }],
+    ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2" }],
+    ["path", { d: "M3 10h18" }],
   ],
   Check: [
     ["path", { d: "M20 6 9 17l-5-5" }],
@@ -99,6 +123,17 @@ export const NODE = {
     ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }],
     ["path", { d: "m7 10 5 5 5-5" }],
   ],
+  FilePlus: [
+    [
+    "path",
+    {
+      d: "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+    }
+  ],
+    ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5" }],
+    ["path", { d: "M9 15h6" }],
+    ["path", { d: "M12 18v-6" }],
+  ],
   FileText: [
     [
     "path",
@@ -130,22 +165,41 @@ export const NODE = {
     }
   ],
   ],
+  IdCard: [
+    ["path", { d: "M16 10h2" }],
+    ["path", { d: "M16 14h2" }],
+    ["path", { d: "M6.17 15a3 3 0 0 1 5.66 0" }],
+    ["circle", { cx: "9", cy: "11", r: "2" }],
+    ["rect", { x: "2", y: "5", width: "20", height: "14", rx: "2" }],
+  ],
   Link2: [
     ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2" }],
     ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2" }],
     ["line", { x1: "8", x2: "16", y1: "12", y2: "12" }],
   ],
-  MoreHorizontal: [
-    ["circle", { cx: "12", cy: "12", r: "1" }],
-    ["circle", { cx: "19", cy: "12", r: "1" }],
-    ["circle", { cx: "5", cy: "12", r: "1" }],
+  ListPlus: [
+    ["path", { d: "M11 12H3" }],
+    ["path", { d: "M16 6H3" }],
+    ["path", { d: "M16 18H3" }],
+    ["path", { d: "M18 9v6" }],
+    ["path", { d: "M21 12h-6" }],
   ],
   Minus: [
     ["path", { d: "M5 12h14" }],
   ],
+  PanelTop: [
+    ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2" }],
+    ["path", { d: "M3 9h18" }],
+  ],
   Plus: [
     ["path", { d: "M5 12h14" }],
     ["path", { d: "M12 5v14" }],
+  ],
+  RectangleHorizontal: [
+    ["rect", { width: "20", height: "12", x: "2", y: "6", rx: "2" }],
+  ],
+  RectangleVertical: [
+    ["rect", { width: "12", height: "20", x: "6", y: "2", rx: "2" }],
   ],
   Redo2: [
     ["path", { d: "m15 14 5-5-5-5" }],
@@ -172,16 +226,24 @@ export const NODE = {
     ["line", { x1: "8.59", x2: "15.42", y1: "13.51", y2: "17.49" }],
     ["line", { x1: "15.41", x2: "8.59", y1: "6.51", y2: "10.49" }],
   ],
-  SlidersHorizontal: [
-    ["path", { d: "M10 5H3" }],
-    ["path", { d: "M12 19H3" }],
-    ["path", { d: "M14 3v4" }],
-    ["path", { d: "M16 17v4" }],
-    ["path", { d: "M21 12h-9" }],
-    ["path", { d: "M21 19h-5" }],
-    ["path", { d: "M21 5h-7" }],
-    ["path", { d: "M8 10v4" }],
-    ["path", { d: "M8 12H3" }],
+  SquareKanban: [
+    ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2" }],
+    ["path", { d: "M8 7v7" }],
+    ["path", { d: "M12 7v4" }],
+    ["path", { d: "M16 7v9" }],
+  ],
+  Table: [
+    ["path", { d: "M12 3v18" }],
+    ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2" }],
+    ["path", { d: "M3 9h18" }],
+    ["path", { d: "M3 15h18" }],
+  ],
+  TextCursorInput: [
+    ["path", { d: "M12 20h-1a2 2 0 0 1-2-2 2 2 0 0 1-2 2H6" }],
+    ["path", { d: "M13 8h7a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-7" }],
+    ["path", { d: "M5 16H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h1" }],
+    ["path", { d: "M6 4h1a2 2 0 0 1 2 2 2 2 0 0 1 2-2h1" }],
+    ["path", { d: "M9 6v12" }],
   ],
   Trash: [
     ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" }],
@@ -205,6 +267,11 @@ export const NODE = {
     ["path", { d: "M12 9v4" }],
     ["path", { d: "M12 17h.01" }],
   ],
+  Type: [
+    ["path", { d: "M12 4v16" }],
+    ["path", { d: "M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" }],
+    ["path", { d: "M9 20h6" }],
+  ],
   Undo2: [
     ["path", { d: "M9 14 4 9l5-5" }],
     ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" }],
@@ -218,5 +285,8 @@ export const NODE = {
   X: [
     ["path", { d: "M18 6 6 18" }],
     ["path", { d: "m6 6 12 12" }],
+  ],
+  Zap: [
+    ["path", { d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" }],
   ],
 } satisfies Record<string, readonly Node[]>

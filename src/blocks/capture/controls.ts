@@ -17,8 +17,6 @@ interface CaptureRowPlacement {
 
   preview: boolean
 
-  titleInCell: boolean
-
   sourceId: string
 
   windowWidth: number
@@ -69,7 +67,8 @@ function key(placement: CaptureRowPlacement, index: number, e: KeyboardEvent): v
   let keep = true
   if (action === 'adopt') {
     ledger.adoptSuggestion(index, ledger.mark)
-    keep = ledger.jumpFrom(index, e.key)
+    // Enter takes the hit and stays in the cell; Tab goes on.
+    if (e.key === 'Tab') keep = ledger.jumpFrom(index, e.key)
   } else if (action === 'window') openWindow(placement, index)
   else if (action === 'openList') ledger.openList(index)
   else if (action === 'further') keep = ledger.jumpFrom(index, e.key)
@@ -91,7 +90,6 @@ export function captureRowFor(
     slots: view.slots,
     sourceId: placement.sourceId,
     cols,
-    titleInCell: placement.titleInCell,
     preview: placement.preview,
     value: (i) => cells[i]?.value ?? '',
     automatic: (i) => cells[i]?.automatic === true,

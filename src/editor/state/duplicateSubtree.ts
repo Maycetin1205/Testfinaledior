@@ -34,14 +34,20 @@ function replacementId(old: string, newIdFor: NewIdFor): string | undefined {
   return newIdFor(old)
 }
 
-// null when no follow points into the copied part.
+// null when no follow points into the copied part: neither its giver nor a
+// form field one of its pairs reads.
 function rewrittenFollows(raw: PropertyValue | undefined, newIdFor: NewIdFor): SelectionFollow[] | null {
   let changed = false
   const next = selectionFollowsFrom(raw).map((follow) => {
-    const target = replacementId(follow.giverId, newIdFor)
-    if (target === undefined) return follow
+    const giver = replacementId(follow.giverId, newIdFor)
+    const pairs = follow.pairs.map((pair) => {
+      const field = pair.from === 'formField' ? replacementId(pair.fromField, newIdFor) : undefined
+      return field === undefined ? pair : { ...pair, fromField: field }
+    })
+    const pairsMoved = pairs.some((p, i) => p !== follow.pairs[i])
+    if (giver === undefined && !pairsMoved) return follow
     changed = true
-    return { ...follow, giverId: target }
+    return { giverId: giver ?? follow.giverId, pairs }
   })
   return changed ? next : null
 }

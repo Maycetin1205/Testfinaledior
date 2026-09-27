@@ -5,11 +5,11 @@ import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePrese
 
 // Lifts a saved mask to the format this editor reads; a file below a version
 // first runs the steps of every older one.
-export const CURRENT_SCHEMA_VERSION = 21
+export const CURRENT_SCHEMA_VERSION = 22
 
 const ENGLISH_NAMES = 16
 
-const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+const LIFTABLE = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -417,6 +417,7 @@ export function liftState(raw: unknown): unknown {
   if (raw.schemaVersion < 19) liftTo19(lifted)
   if (raw.schemaVersion < 20) liftTo20(lifted)
   if (raw.schemaVersion < 21) liftTo21(lifted.tree)
+  if (raw.schemaVersion < 22) liftTo22(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
@@ -670,5 +671,17 @@ function liftTo21(tree: unknown): void {
       delete values.color
     }
     if (node.type === 'formfield' && values.appearance === 'line') values.appearance = 'plain'
+  }
+}
+
+// ---- version 22: a field looks up as a text field with the switch on; a text field takes two lines by its height ----
+
+function liftTo22(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'formfield' || !isPlainObject(node.values)) continue
+    const values = node.values
+    if (values.fieldType === 'lookup') values.lookup = true
+    if (values.fieldType === 'lookup' || values.fieldType === 'textarea') values.fieldType = 'text'
   }
 }

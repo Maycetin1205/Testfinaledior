@@ -8,7 +8,7 @@ import { calculationsFrom, newCalculation, type Calculation } from '../../core/d
 import { sourcesInReach } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { CalculationDialog, type ColumnHead } from '../inspector/CalculationDialog'
+import { CalculationDialog, type ColumnHead } from '../bar/CalculationDialog'
 import { useView } from '../state/useView'
 
 export function CalculationsWindow() {

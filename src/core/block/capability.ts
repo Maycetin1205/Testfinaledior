@@ -46,7 +46,9 @@ export type LookupWindow = BlockLookupWindow | EntryLookupWindow
 
 export type Capability =
 
-  | { kind: 'source'; when?: Condition }
+  // helpersApart: the helper sources stand in a window of their own in the
+  // bar, as the capture's do, whose columns look them up.
+  | { kind: 'source'; when?: Condition; helpersApart?: boolean }
 
   | { kind: 'recordPick'; sourceProp?: string; when?: Condition }
 
@@ -167,7 +169,15 @@ export interface RunReportElement {
   runDone: (kind: PendingKind, written: readonly WrittenRow[]) => void
 }
 
+// A block whose values an action reads. A required value keeps the action from
+// running while it is empty, and the cursor goes to it.
+export interface ValueCarrier {
+  valueRequired: (prop: string) => boolean
+  focusValue: (prop: string) => void
+}
+
 export interface RuntimeContracts {
+  actionValue: ValueCarrier
   capture: CaptureCarrier & RunReportElement
   change: ChangeCarrier & RunReportElement
   delete: DeleteCarrier & RunReportElement

@@ -13,6 +13,12 @@ function inInputField(e: KeyboardEvent): boolean {
   return false
 }
 
+// The data beside the mask have lists of their own; Delete there is not meant
+// for the marked block.
+function inDataPanel(e: KeyboardEvent): boolean {
+  return e.composedPath().some((t) => t instanceof HTMLElement && t.dataset.ffDataPanel !== undefined)
+}
+
 function windowOpen(): boolean {
   return document.querySelector('[role="dialog"]') !== null
 }
@@ -35,6 +41,8 @@ interface KeyPlacement {
 
   inInputField: boolean
 
+  inDataPanel: boolean
+
   windowOpen: boolean
 
   somethingChosen: boolean
@@ -48,6 +56,7 @@ function keyEffect(placement: KeyPlacement): KeyEffect {
   if (placement.inInputField || placement.windowOpen) return 'nothing'
 
   if (!placement.mod) {
+    if (placement.inDataPanel) return 'nothing'
     if (placement.key === 'Delete' || placement.key === 'Backspace') {
       return placement.somethingChosen ? 'delete' : 'nothing'
     }
@@ -57,7 +66,7 @@ function keyEffect(placement: KeyPlacement): KeyEffect {
 
   if (letter === 'z') return placement.shift ? 'forward' : 'back'
   if (letter === 'y') return 'forward'
-  if (letter === 'd') return placement.somethingChosen ? 'duplicate' : 'nothing'
+  if (letter === 'd') return placement.somethingChosen && !placement.inDataPanel ? 'duplicate' : 'nothing'
   return 'nothing'
 }
 
@@ -71,6 +80,7 @@ export function useKeyboardShortcuts() {
         mod: e.ctrlKey || e.metaKey,
         shift: e.shiftKey,
         inInputField: inInputField(e),
+        inDataPanel: inDataPanel(e),
         windowOpen: windowOpen(),
         somethingChosen: chosen !== null,
       })

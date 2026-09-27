@@ -953,22 +953,42 @@ unlogisch und werden in Schritt 2 neu geordnet.
 
 ### Offen, in dieser Reihenfolge
 
-1. Bedienung: kleine Leiste am Baustein statt Inspector; Datencenter und
-   Aktionen als schmale Seitenleiste statt Vollbild; Berechnung als Satz am
-   Spaltenkopf; Text direkt auf der Fläche; Größe an vier Kanten; Feld binden
-   durch Klick; Sonderfenster (Nachschlagen, Auswahl folgt, Aktionen,
-   Berechnung) werden deklarierte Eigenschaftsarten mit je einem
-   Bedienelement. Das Bedienmodell steht unten.
+1. Bedienung (Schritt 2) ist fertig auf `claude/erp-editor-audit-89bmva`, ein
+   Commit je Punkt, nichts davon in SoftEngine geprüft: 1 Kopfzeile
+   (1ad6913), 2 Palette als dunkler Streifen (4c2c96d, 8738d38), 3 Ziehen an
+   vier Kanten (ea42748), 4 Leiste am Baustein (57acab5, 766f411, 3de3945,
+   87344dc), 5 Daten als Seitenleiste (4ee693b), 6 Eine Datei zum Laden
+   (3f2bc88), 7 Text mit Farbe und Größe (9221fb1), 8 Feld, Schema 22
+   (90a210e), 9 Suchfenster und Popup ziehen (6dcba5f), 10 Tabelle mit
+   Spaltenleiste (ab3befa), 11 Erfassung (16b31c9), 12 Wertherkunft
+   (8764260), 13 Aktionen als Sätze (0adbba0), 14 Folgt der Auswahl
+   (f086f44). Danach, nicht in SoftEngine geprüft: 15 Folgt auch dem Beleg
+   oder einem Formularfeld (e156f1a), 16 Wer folgt, zeigt ohne Vorgabe
+   nichts (5642ce5), 17 Sortieren per Klick (9e81fbe), 18 Pflicht je Spalte
+   und je Feld (2247a4a). Die Wertherkunft bietet je Stelle, was die Stelle
+   lesen kann: Hilfsquelle Spalte dieser Zeile und Feld einer Hilfsquelle,
+   Berechnung dazu den festen Wert, Aktionen alle fünf, Folgt der Auswahl die
+   gewählte Zeile des Gebers, den Beleg und die Formularfelder.
+   Regel für die Leiste: eine Zeile, höchstens sieben Elemente, über dem
+   Baustein; passt es dort nicht, unter dem Baustein; erst dann innen auf
+   dem eigenen Kopf. Nie über anderen Bausteinen, nie über Inhalt. Sind es
+   mehr als sieben, liegen die Schalter im Fenster „Anzeige". Jedes Fenster
+   an der Leiste schließt beim Klick daneben.
 2. Kanban neu nach dem Zweigmodell: ein Baustein, Spalten mit Plätzen,
    Karten mit Tiersymbol, im Editor sichtbar. Zimmer gibt es seit Schema 18
-   nicht mehr; `places.ts` ist nur die Ablagemarke.
+   nicht mehr; `places.ts` ist nur die Ablagemarke. Chip-Farbe folgt einem
+   Feld, einstellbar, welcher Wert welchen Ton bekommt. Die Spalte zeigt
+   ihren Wert als „FELDNAME = Wert".
 3. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
    Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile
    in `src/blocks/register.ts`; das Symbol gehört noch in die Deklaration
    statt nach `src/editor/blockIcons.ts`.
-4. Zum Schluss: Echttest in SoftEngine mit frischen Daten, die Fehler F2, F3,
-   F6 der Erfassung, Antwort-Schlüssel in `softengine/data.ts`, Formular für
-   die Feldcodes der Hol-Relation, Aufräumdurchgang (tote Widgets, ungenutzte
+4. Quellenarten neu ordnen (Was lesen, nicht Wie liefern), wenn der Inhalt
+   der Daten-Seitenleiste drankommt.
+5. Zum Schluss: Echttest in SoftEngine mit frischen Daten, die Fehler F2, F3,
+   F6 der Erfassung, Berechnung komplett neu (vorher mit dem Nutzer
+   festlegen), Antwort-Schlüssel in `softengine/data.ts`, Formular für die
+   Feldcodes der Hol-Relation, Aufräumdurchgang (Löschvormerkung der Erfassung ohne Bedienung, tote Widgets, ungenutzte
    Exporte, alte Namen).
 
 ### Bedienmodell für Schritt 2 (24.09., vom Nutzer als Auftrag gelesen)
@@ -985,10 +1005,15 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
 - Rechts die Seitenleiste für Daten: Quellen, Relationen, Bibliothek. Zu,
   bis „Daten“ geklickt wird; bleibt dann offen, nie modal, nie Vollbild.
   Inhalt und Formulare bleiben zunächst, wie sie sind.
-- Am markierten Baustein eine kleine Leiste direkt über der Oberkante (liegt
-  er ganz oben, darunter): Symbol und Name, die wenigen Wahlen, rechts
-  Löschen. Am Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der
-  angeklickten Stelle. Keine Statuszeile.
+- Am markierten Baustein eine kleine Leiste direkt über der Oberkante: eine
+  Zeile, höchstens sieben Elemente, Symbol und Name, dann die Wahlen, rechts
+  Löschen. Was mehr ist, wird gebündelt: Schalter eines Bausteins in ein
+  Pop-up „Anzeige“, Quelle und Tag-Feld in ein Pop-up „Quelle“, alles
+  Weitere als Knopf mit Symbol, der sein kleines Fenster öffnet. Passt die
+  Leiste nicht über den Baustein, liegt sie innen an seinem oberen Rand.
+  Nie über einem anderen Baustein, nie über der eigenen Kopfzeile. Am
+  Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der angeklickten
+  Stelle. Keine Statuszeile.
 
 Grundregeln für alle Bausteine:
 

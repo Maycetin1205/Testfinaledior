@@ -1,5 +1,6 @@
 // One declaration per block property. Lit property, registry entry, export
-// attribute, load check and inspector control are all derived from it.
+// attribute, load check and the control in the bar at the block are all
+// derived from it.
 
 import type { Unread } from '../unread'
 
@@ -21,7 +22,7 @@ export interface ChoiceOption {
   value: string
   name: string
 
-  // Ready made css. Carry all options a color, the inspector draws tiles
+  // Ready made css. Carry all options a color, the bar offers swatches
   // instead of a list.
   color?: string
 }
@@ -31,6 +32,9 @@ export interface Condition {
   equals?: PropertyValue
   notEquals?: PropertyValue
   noneOf?: readonly PropertyValue[]
+
+  // A second condition that has to hold as well.
+  and?: Condition
 }
 
 // What a block property may hold in the tree. A structured property keeps a
@@ -46,9 +50,19 @@ interface PropertyType<V> {
   options?: readonly ChoiceOption[]
 }
 
-// Where the builder edits the property: in the inspector, at the block itself,
-// or nowhere (it has its own dialog or the editor writes it).
-export type PropertyPlace = 'inspector' | 'block' | 'none'
+// Where the builder edits the property: in the bar at the block, in one of the
+// bar's small windows (display switches, color and size of the type, what the
+// source holds, the lookup), in the bar at a column head, on the block itself,
+// or nowhere (it has its own window or the editor writes it).
+export type PropertyPlace = 'bar' | 'display' | 'font' | 'source' | 'lookup' | 'column' | 'block' | 'none'
+
+// Another property presets this one, like the role of a text its color: a new
+// value there brings this one back to its default, and while it holds the
+// default, `values` names what it shows.
+export interface Preset {
+  by: string
+  values?: Readonly<Record<string, string>>
+}
 
 export interface Property<V> {
   type: PropertyType<V>
@@ -68,9 +82,6 @@ export interface Property<V> {
   max?: number
   maxLength?: number
 
-  // Groups several properties into one inspector row.
-  row?: string
-
   needsSource?: boolean
   onlyUnderSiblings?: boolean
 
@@ -79,6 +90,12 @@ export interface Property<V> {
 
   // A field property keeps the code; this one mirrors the readable name.
   plainNameProp?: string
+
+  // The property of the parent block holding a field; the bar names that field
+  // beside this one.
+  nameFromParentField?: string
+
+  preset?: Preset
 }
 
 export type PropertyMap = { readonly [name: string]: Property<PropertyValue> }
@@ -90,6 +107,7 @@ export function propertyVisible(
   values: Readonly<Record<string, PropertyValue>>,
 ): boolean {
   if (!condition) return true
+  if (condition.and && !propertyVisible(condition.and, values)) return false
   const value = values[condition.key]
   if (condition.noneOf) return !condition.noneOf.some((v) => Object.is(value, v))
   if ('notEquals' in condition) return !Object.is(value, condition.notEquals)
@@ -102,11 +120,12 @@ interface Init<V> {
   place?: PropertyPlace
   attribute?: string
   when?: Condition
-  row?: string
   needsSource?: boolean
   onlyUnderSiblings?: boolean
   sourceProp?: string
   plainNameProp?: string
+  nameFromParentField?: string
+  preset?: Preset
 }
 
 function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V>> = {}): Property<V> {
@@ -114,14 +133,15 @@ function make<V>(type: PropertyType<V>, init: Init<V>, extra: Partial<Property<V
     type,
     default: init.default,
     label: init.label,
-    place: init.place ?? 'inspector',
+    place: init.place ?? 'bar',
     attribute: init.attribute ?? '',
     ...(init.when ? { when: init.when } : {}),
-    ...(init.row !== undefined ? { row: init.row } : {}),
     ...(init.needsSource !== undefined ? { needsSource: init.needsSource } : {}),
     ...(init.onlyUnderSiblings !== undefined ? { onlyUnderSiblings: init.onlyUnderSiblings } : {}),
     ...(init.sourceProp !== undefined ? { sourceProp: init.sourceProp } : {}),
     ...(init.plainNameProp !== undefined ? { plainNameProp: init.plainNameProp } : {}),
+    ...(init.nameFromParentField !== undefined ? { nameFromParentField: init.nameFromParentField } : {}),
+    ...(init.preset !== undefined ? { preset: init.preset } : {}),
     ...extra,
   }
 }

@@ -4,7 +4,6 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import type {
   CaptureCarrier,
   ChangeCarrier,
-  DeleteCarrier,
   Delivery,
   PendingKind,
   RunReportElement,
@@ -24,7 +23,7 @@ import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../dialog/DialogFrame'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { reportPendingMarks } from '../../runtime/pendingState'
 import { enterCell, cellsInputStyle, cellsFields } from './cells'
-import { hasRecordNumber, WITHOUT_ROWS, type RowsReport } from '../list/sourceRows'
+import { hasRecordNumber } from '../list/sourceRows'
 import type { Sublines, RowDecoration } from '../list/tableBody'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
@@ -40,7 +39,7 @@ import { captureProperties, type CaptureValues } from './properties'
 export interface Capture extends CaptureValues {}
 
 export class Capture extends BlockElement
-  implements CaptureCarrier, ChangeCarrier, DeleteCarrier, SentRowsElement, RunReportElement {
+  implements CaptureCarrier, ChangeCarrier, SentRowsElement, RunReportElement {
   static readonly type = 'capture'
   static readonly tag = 'ff-capture'
 
@@ -55,8 +54,6 @@ export class Capture extends BlockElement
   @property({ attribute: false }) dataRows: string[][] = []
 
   @property({ attribute: false }) rawRows: unknown[] = []
-
-  @property({ attribute: false }) rowsReport: RowsReport = WITHOUT_ROWS
 
   private readonly _ledger = new CaptureLedger({
     block: this,
@@ -90,10 +87,6 @@ export class Capture extends BlockElement
 
   get changedRows(): readonly { record: string; values: readonly string[] }[] {
     return this._ledger.changedRows
-  }
-
-  get deletedRows(): readonly { record: string; values: readonly string[] }[] {
-    return this._ledger.deletedRows
   }
 
   rowWrites(kind: PendingKind, key: string): void {
@@ -139,8 +132,6 @@ export class Capture extends BlockElement
 
   private rowsDecoration(): (rawIndex: number | null) => RowDecoration {
     return captureDecoration({
-      preview: this.preview,
-      deletable: this.deletable,
       typable: this.changePossible,
       ledger: this._ledger,
     })
@@ -164,7 +155,6 @@ export class Capture extends BlockElement
               ledger: this._ledger,
               block: this,
               preview: this.preview,
-              titleInCell: !this.headerRow,
               sourceId: this.source,
               windowWidth: validMetrics(this.windowWidth, WINDOW_WIDTH),
               windowHeight: validMetrics(this.windowHeight, WINDOW_HEIGHT),
@@ -219,17 +209,17 @@ export class Capture extends BlockElement
 
 defineBlock(Capture, {
   name: 'Erfassung',
+  head: '.head',
   category: 'input',
   properties: captureProperties,
   capabilities: [
-    ...listCapabilities(CAPTURE_COLUMNS_BINDING),
+    ...listCapabilities(CAPTURE_COLUMNS_BINDING, { kind: 'source', helpersApart: true }),
     { kind: 'capture' },
     { kind: 'change', key: 'editable' },
-    { kind: 'delete', when: { key: 'deletable', equals: true } },
     { kind: 'holdsSent' },
     { kind: 'compute', prop: CALCULATIONS_PROP },
     { kind: 'lookupWindow', window: { entriesProp: 'columns' } },
   ],
-  contracts: { capture: Capture, change: Capture, delete: Capture, holdsSent: Capture },
+  contracts: { capture: Capture, change: Capture, holdsSent: Capture },
   grid: LIST_GRID,
 })

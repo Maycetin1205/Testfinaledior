@@ -5,11 +5,14 @@ import { bindable, bindingAttr } from '../../core/block/capability'
 import { readBoundSpot } from '../../runtime/boundSpot'
 import { makeDataLink, sourceIdOf } from '../../runtime/source'
 import { textStyle } from './textStyle'
-import { textProperties, type TextValues } from './properties'
+import { TEXT_COLORS, TEXT_SIZES, textProperties, type TextValues } from './properties'
 
 const ALIGNS: Record<string, string> = { left: 'left', center: 'center', right: 'right' }
 
 const TEXT_BINDING = bindingAttr('text')
+
+// Without a choice of its own the role decides.
+const tokenOf = (token: string | undefined): string | undefined => (token ? `var(${token})` : undefined)
 
 export interface Text extends TextValues {}
 
@@ -22,7 +25,11 @@ export class Text extends BlockElement {
   override render(): TemplateResult {
     return html`<div
       class="text variant-${this.variant}"
-      style=${styleMap({ textAlign: ALIGNS[this.align] ?? ALIGNS.left })}
+      style=${styleMap({
+        textAlign: ALIGNS[this.align] ?? ALIGNS.left,
+        color: tokenOf(TEXT_COLORS[this.color]?.token),
+        fontSize: tokenOf(TEXT_SIZES[this.size]),
+      })}
       data-ff-editable
       data-ff-spot="text"
       ?data-ff-bound=${this.textField !== ''}

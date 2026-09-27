@@ -3,11 +3,9 @@ import {
   useMemo,
   useRef,
   type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { cn } from '@/editor/widgets/cn'
 import type { BlockNode } from '../../core/block/tree'
 import {
   sourcesResolve,
@@ -18,14 +16,18 @@ import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import { gridMetricsOf } from '../../core/block/grid'
 import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block/treeQuery'
+import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { useEditorInstance } from '../state/EditorContext'
+import { useView } from '../state/useView'
+import { followableByClick, followByClick } from '../bar/followOffer'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
-import { SelectionBar } from './SelectionBar'
+import { BlockBar } from '../bar/BlockBar'
 import { ColumnControls } from './ColumnControls'
 import { useFieldBinding } from './useFieldBinding'
 import { openLookupInEditor } from './lookupWindowState'
-import { useBlockResize } from './useBlockResize'
+import { Grip } from './Grip'
+import { GRIPS, useBlockResize } from './useBlockResize'
 import { useLitElement } from './useLitElement'
 
 interface BlockHostProps {
@@ -45,6 +47,7 @@ const GRAB_EDGE = 10
 
 export function BlockHost({ block, selected, onSelect, grid = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
+  const follower = useView().followPickFor
   const rootRef = useRef<HTMLDivElement | null>(null)
   const def = blockType(block.type)
   const isContainer = def?.takesChildren ?? false
@@ -80,7 +83,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     grid,
   })
 
-  const { onClick, onDoubleClick, pickers } = useFieldBinding({
+  const { onClick, onDoubleClick, pickers, columnOpen } = useFieldBinding({
     editor,
     blockRef,
     block,
@@ -107,21 +110,34 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     return null
   }
 
-  const { startGridResize } = useBlockResize(editor, blockRef, rootRef)
+  const { startGridResize, resetGridSize } = useBlockResize(editor, blockRef, rootRef)
 
   const gridSpec = gridMetricsOf(def)
 
   const gridDraggable = grid
 
+  // While a block waits for what it follows, only a giver or a form field
+  // answers a click; a click elsewhere goes on to the canvas, which ends the
+  // waiting.
+  const toFollow = follower !== null && followableByClick(block, follower)
+
   return (
     <div
       ref={rootRef}
       onClick={(e) => {
+        if (follower !== null) {
+          if (!toFollow) return
+          e.stopPropagation()
+          const node = editor.getNode(follower)
+          const next = node ? followByClick(node, block, library) : null
+          if (next) editor.updateProperty(follower, SELECTION_FOLLOW_PROP, next)
+          editor.pickFollowFor(null)
+          return
+        }
         const slot = onWindowSpot(e)
         if (slot !== null && searchWindow !== undefined && elementRef.current
           && openLookupInEditor(editor, elementRef.current, block.id, searchWindow, slot)) {
           e.stopPropagation()
-          editor.setSection('lookupWindow', true)
           onSelect?.()
           return
         }
@@ -135,7 +151,9 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
 
         height: '100%',
         cursor: selected ? 'default' : 'pointer',
-        outline: selected ? '2px solid hsl(var(--wb-selection))' : '2px solid transparent',
+        outline: selected
+          ? '2px solid hsl(var(--wb-selection))'
+          : toFollow ? '2px dashed hsl(var(--wb-selection))' : '2px solid transparent',
         outlineOffset: 1,
         borderRadius: 'var(--radius)',
         userSelect: 'none',
@@ -167,6 +185,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       {list?.entrySpots !== undefined && (
         <ColumnControls
           block={block}
+          selected={selected === true}
           binding={list}
           selector={list.entrySpots}
           element={element}
@@ -175,61 +194,26 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           onSelect={onSelect}
         />
       )}
-      {selected && (
-        <SelectionBar
+      {selected && !columnOpen && (
+        <BlockBar
           block={block}
           def={def}
           host={rootRef}
+          element={element}
           onRemove={editor.isRemoveProtected(block.id) ? undefined : () => editor.removeBlock(blockRef.current.id)}
         />
       )}
 
-      {selected && gridDraggable && gridSpec.widthDraggable && (
-        <Handle
-          axis="x"
-          onStart={(e) => startGridResize(e, 'x')}
-          onReset={() => {
-            const node = blockRef.current
-            editor.updateProperty(node.id, 'gridW', gridMetricsOf(blockType(node.type)).startWidth)
-          }}
-        />
-      )}
-      {selected && gridDraggable && (
-        <Handle
-          axis="y"
-          onStart={(e) => startGridResize(e, 'y')}
-          onReset={() => {
-            const node = blockRef.current
-            editor.updateProperty(node.id, 'gridH', gridMetricsOf(blockType(node.type)).startHeight)
-          }}
-        />
-      )}
+      {selected && gridDraggable && GRIPS
+        .filter((edge) => gridSpec.widthDraggable || !/[ew]/.test(edge))
+        .map((edge) => (
+          <Grip
+            key={edge}
+            edge={edge}
+            onStart={(e) => startGridResize(e, edge)}
+            onReset={() => resetGridSize(edge)}
+          />
+        ))}
     </div>
-  )
-}
-
-interface HandleProps {
-  axis: 'x' | 'y'
-  onStart: (e: ReactPointerEvent<HTMLDivElement>) => void
-  onReset: () => void
-}
-
-function Handle({ axis, onStart, onReset }: HandleProps) {
-  return (
-    <div
-      draggable={false}
-      onPointerDown={onStart}
-      onDragStart={(e) => e.preventDefault()}
-      onDoubleClick={(e) => {
-        e.stopPropagation()
-        onReset()
-      }}
-      className={cn(
-        'absolute rounded bg-[hsl(var(--wb-selection))]',
-        axis === 'x'
-          ? '-right-1 top-1/2 h-[26px] w-[7px] -translate-y-1/2 cursor-ew-resize'
-          : '-bottom-1 left-1/2 h-[7px] w-[26px] -translate-x-1/2 cursor-ns-resize',
-      )}
-    />
   )
 }

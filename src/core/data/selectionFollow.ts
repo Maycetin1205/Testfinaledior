@@ -2,7 +2,11 @@ import { structuredProperty, type Property } from '../block/property'
 import type { Unread } from '../unread'
 import { completePairs, keyPairsFrom, type KeyPair } from './extraSources'
 
+// What a block follows: the chosen row of another block, the open document or
+// a form field. A pair reads the giver's chosen row unless it names the
+// document or a form field, like the key of a helper source.
 export interface SelectionFollow {
+  // Empty when every pair reads the open document or a form field.
   giverId: string
 
   pairs: KeyPair[]
@@ -15,7 +19,7 @@ export const followsSelectionProperty: Property<SelectionFollow[]> = structuredP
     ? { ok: true, value: selectionFollowsFrom(raw) }
     : { ok: false }),
   toAttribute: (value) => JSON.stringify(value),
-  fromAttribute: (raw, fallback) => (raw === null ? fallback : selectionFollowsFrom(parseOrEmpty(raw))),
+  fromAttribute: (raw, fallback) => (raw === null ? fallback : followsFromText(raw)),
 }, {
   default: [],
   label: 'Folgt der Auswahl',
@@ -23,16 +27,17 @@ export const followsSelectionProperty: Property<SelectionFollow[]> = structuredP
   attribute: 'followsselection',
 })
 
-function parseOrEmpty(raw: string): unknown {
+export function followsFromText(raw: string): SelectionFollow[] {
   try {
-    return JSON.parse(raw)
+    return selectionFollowsFrom(JSON.parse(raw))
   } catch {
     return []
   }
 }
 
 export function followUsable(f: SelectionFollow): boolean {
-  return f.giverId !== '' && completePairs(f).length > 0
+  const pairs = completePairs(f)
+  return pairs.length > 0 && (f.giverId !== '' || pairs.every((p) => p.from !== undefined))
 }
 
 export function selectionFollowsFrom(raw: unknown): SelectionFollow[] {

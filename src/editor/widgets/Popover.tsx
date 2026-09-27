@@ -127,7 +127,8 @@ export function Popover({
         zIndex: level,
       }}
       className={cn(
-        'overflow-y-auto rounded border border-line bg-panel p-1 text-ink shadow-overlay',
+        // A column, so a part that allows it can shrink and scroll on its own.
+        'flex flex-col overflow-y-auto rounded border border-line bg-panel p-1 text-ink shadow-overlay',
 
         slot === null && 'opacity-0',
       )}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Property } from '../../../core/block/property'
+import type { Property } from '../../core/block/property'
 import { useInputSession } from './useInputSession'
 import { NumberInput } from '@/editor/widgets/NumberInput'
 import { Row } from '@/editor/widgets/Row'

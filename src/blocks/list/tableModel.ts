@@ -156,16 +156,14 @@ export function recordText(args: {
   visible: number
   total: number
   searchesActive: boolean
-  selectionActive?: boolean
 }): string {
   if (!args.showsRows) return '— Datensätze'
-  const extra = args.selectionActive ? ' · durch Auswahl gefiltert' : ''
 
   const word = (n: number): string => (n === 1 ? 'Datensatz' : 'Datensätze')
   const wordDative = (n: number): string => (n === 1 ? 'Datensatz' : 'Datensätzen')
   if (!args.searchesActive) {
-    return (args.total === 0 ? 'Keine Datensätze' : `${args.total} ${word(args.total)}`) + extra
+    return args.total === 0 ? 'Keine Datensätze' : `${args.total} ${word(args.total)}`
   }
-  if (args.visible === 0) return `Kein Treffer von ${args.total} ${wordDative(args.total)}` + extra
-  return `${args.visible} von ${args.total} ${wordDative(args.total)}` + extra
+  if (args.visible === 0) return `Kein Treffer von ${args.total} ${wordDative(args.total)}`
+  return `${args.visible} von ${args.total} ${wordDative(args.total)}`
 }

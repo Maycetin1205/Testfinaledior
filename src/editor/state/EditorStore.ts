@@ -1,7 +1,7 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
 import { newSubtree } from '../../core/block/newBlock'
 import { mayContain, blockType } from '../../core/block/registry'
-import { gridMetricsOf } from '../../core/block/grid'
+import { gridMetricsOf, type GridSlot } from '../../core/block/grid'
 import type { LookupWindow } from '../../core/block/capability'
 import { type ActionChains } from '../../core/data/steps/steps'
 import { type DataSource } from '../../core/data/dataSources'
@@ -9,14 +9,9 @@ import { type SourceInReach } from '../../core/data/extraSources'
 import { DataSourceStore } from './DataSourceStore'
 import { firstSourceInReach, sourcesInReach } from '../../core/block/sourcesInReach'
 import { gestureBracket, History, type EditorSnapshot, type GestureBracket } from './history'
-import {
-  usedRelationIds,
-  usedSourceIds,
-  type MaskContent,
-} from './maskFile'
+import { packMask, type MaskContent } from './maskFile'
 import { addOn } from './libraryFile'
 import { FileOnDisk } from './fileOnDisk'
-import { readSections, writeSections, type SectionName } from './inspectorSections'
 import {
   carriedLibrary,
   emptyMask,
@@ -49,7 +44,7 @@ import {
   slotOn,
   moveInContainer,
   cellMoveIn,
-  cellsSize,
+  slotResize,
 } from '../../core/block/gridArea'
 import { selectionOnPage, selectionTarget } from '../../core/block/selection'
 import { deepClone } from '../../core/deepClone'
@@ -77,14 +72,13 @@ export class EditorStore extends Subject<EditorStore> {
   readonly maskOnDisk = new FileOnDisk()
   readonly libraryOnDisk = new FileOnDisk()
 
-  // What the editor shows besides the mask: the open windows and the unfolded
-  // inspector sections. That is no change to the mask, so it has its own
-  // signal and plans no save.
+  // What the editor shows besides the mask: the open windows. That is no
+  // change to the mask, so it has its own signal and plans no save.
   readonly view = new Subject<EditorStore>()
   private _viewVersion = 0
   private _calculationsFor: string | null = null
   private _lookupWindow: OpenLookup | null = null
-  private _sections = readSections()
+  private _followPickFor: string | null = null
 
   private _planner = new SavePlanner(() => this.persist(), SAVE_DEBOUNCE_MS)
   private _hydrated = false
@@ -309,6 +303,7 @@ export class EditorStore extends Subject<EditorStore> {
   selectBlock(id: string | null): void {
     if (this._selectedId === id) return
     this._selectedId = id
+    this.pickFollowFor(null)
     this.notify(this)
   }
 
@@ -344,9 +339,14 @@ export class EditorStore extends Subject<EditorStore> {
 
     if (Object.is(node.values[name], value)) return true
     this.pushHistory()
+    // What this value presets, like color and size of a text by its role,
+    // follows it again.
+    const presets = Object.entries(def?.properties ?? {})
+      .filter(([, other]) => other.preset?.by === name)
+      .map(([key, other]) => [key, other.default])
     const next: MaskTree = {
       ...this._tree,
-      [id]: { ...node, values: { ...node.values, [name]: value } },
+      [id]: { ...node, values: { ...node.values, ...Object.fromEntries(presets), [name]: value } },
     }
 
     if (declared.onlyUnderSiblings && value === true && node.parentId) {
@@ -415,8 +415,8 @@ export class EditorStore extends Subject<EditorStore> {
     this.notify(this)
   }
 
-  resizeNodeToCells(id: string, axis: 'x' | 'y', value: number): void {
-    const next = cellsSize(this._tree, id, axis, value)
+  resizeNodeToSlot(id: string, slot: GridSlot): void {
+    const next = slotResize(this._tree, id, slot)
     if (!next) return
     this.pushHistory()
     this._tree = next
@@ -433,19 +433,22 @@ export class EditorStore extends Subject<EditorStore> {
     return res.node
   }
 
-  clear(): void {
-    if (this.blockCount === 0) return
+  // „Neu": a mask of its own. The file picked for the one before stays as it
+  // was; the next „Speichern" asks for a file again.
+  newMask(): void {
     this.pushHistory()
-
-    const empty = emptyTree()
-    empty[ROOT_ID] = { ...empty[ROOT_ID], values: { ...this._tree[ROOT_ID].values } }
-    this._tree = empty
+    this.maskOnDisk.forget()
+    this._tree = emptyTree()
     this._selectedId = null
+    this._activePageId = ROOT_ID
     this.notify(this)
   }
 
+  // The file it came from gets no handle, so the file picked for the mask
+  // before is not written over; the next „Speichern" asks for a file again.
   replaceMask(content: MaskContent): void {
     this.pushHistory()
+    this.maskOnDisk.forget()
     this.setLibraries({
       dataSources: addOn(this.dataSources.list, content.dataSources).list,
       relation: addOn(this.relation.list, content.relation).list,
@@ -473,18 +476,18 @@ export class EditorStore extends Subject<EditorStore> {
 
   get lookupWindow(): OpenLookup | null { return this._lookupWindow }
 
-  setLookupWindow(open: OpenLookup | null): void {
-    if (this._lookupWindow === open) return
-    this._lookupWindow = open
+  // The block that waits for a click on the block whose selection it follows.
+  get followPickFor(): string | null { return this._followPickFor }
+
+  pickFollowFor(blockId: string | null): void {
+    if (this._followPickFor === blockId) return
+    this._followPickFor = blockId
     this.viewChanged()
   }
 
-  sectionOpen(name: SectionName): boolean { return this._sections[name] ?? false }
-
-  setSection(name: SectionName, open: boolean): void {
-    if (this.sectionOpen(name) === open) return
-    this._sections = { ...this._sections, [name]: open }
-    writeSections(this._sections)
+  setLookupWindow(open: OpenLookup | null): void {
+    if (this._lookupWindow === open) return
+    this._lookupWindow = open
     this.viewChanged()
   }
 
@@ -493,10 +496,9 @@ export class EditorStore extends Subject<EditorStore> {
       tree: this._tree,
       selectedId: this._selectedId,
       activePageId: this.activePageId,
-      sourceIds: usedSourceIds(this._tree, this.dataSources.list),
-      relationIds: usedRelationIds(this._tree, this.dataSources.list, this.relation.list),
     }
-    void this.maskOnDisk.writeAgain(persistMask(mask))
+    persistMask(mask)
+    void this.maskOnDisk.writeAgain(packMask(this._tree, this.dataSources.list, this.relation.list))
     void this.libraryOnDisk.writeAgain(persistLibrary({
       dataSources: this.dataSources.list,
       relation: this.relation.list,

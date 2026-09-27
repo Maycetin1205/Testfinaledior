@@ -80,6 +80,7 @@
   --se-fs-lg:    14px;    /* html, body */
   --se-fs-name:  15px;    /* .vkarte-name */
   --se-fs-title: 16px;    /* .vmodal-titel */
+  --se-fs-xl:    19px;    /* .vakte-titel strong */
 
   --se-lh:       1.45;  /* html, body */
   --se-lh-tight: 1.25;  /* .vuhr */

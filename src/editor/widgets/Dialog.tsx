@@ -10,8 +10,6 @@ interface DialogProps {
 
   besideTitle?: ReactNode
 
-  actions?: ReactNode
-
   narrow?: boolean
 
   edgeless?: boolean
@@ -24,7 +22,6 @@ interface DialogProps {
 export function Dialog({
   title,
   besideTitle,
-  actions,
   narrow = false,
   edgeless = false,
   foot,
@@ -54,7 +51,6 @@ export function Dialog({
             <span className="ml-2 text-ui font-normal text-muted">{besideTitle}</span>
           )}
         </h2>
-        {actions}
         <Button onlyIcon aria-label="Schließen" title="Schließen (Esc)" onClick={onClose}>
           <X size={15} />
         </Button>

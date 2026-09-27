@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DIALOG_EDGE, DIALOG_CLOSE_EVENT } from '../../blocks/dialog/DialogFrame'
 import { blockType } from '../../core/block/registry'
 import { useEditor } from '../state/useEditor'
@@ -8,10 +8,11 @@ import { isNewBlockDrag } from './dnd'
 import { commitDrop, useDnd } from './dndState'
 import { gridTarget } from './gridDnd'
 import { areaUnderPointer } from './gridArea'
-import { dragSize } from './dragSize'
+import { axesOf, dragSize, type Axis } from './dragSize'
+import { Grip } from './Grip'
+import { GRIPS } from './useBlockResize'
 
-const POPUP_MIN_WIDTH = 240
-const POPUP_MIN_HEIGHT = 160
+const POPUP_SIZE: Record<Axis, 'popupWidth' | 'popupHeight'> = { width: 'popupWidth', height: 'popupHeight' }
 
 function popupNumber(v: unknown, fallback: number): number {
   const n = Number(v)
@@ -49,22 +50,6 @@ export function PopupPage({ popupId }: { popupId: string }) {
   const visibleWidth = stage ? Math.min(width, Math.max(40, stage.b - DIALOG_EDGE)) : width
   const visibleHeight = stage ? Math.min(height, Math.max(40, stage.h - DIALOG_EDGE)) : height
 
-  const startResize = (
-    e: ReactPointerEvent<HTMLDivElement>,
-    prop: 'popupWidth' | 'popupHeight',
-    start: number,
-    min: number,
-  ) => {
-    dragSize(ed, e, {
-      axis: prop === 'popupWidth' ? 'x' : 'y',
-      prop,
-      getId: () => node.id,
-      start,
-      min,
-      factor: 2,
-    })
-  }
-
   const def = blockType(node.type)
   const declared = def?.properties ?? {}
 
@@ -100,53 +85,27 @@ export function PopupPage({ popupId }: { popupId: string }) {
         <NodeList parentId={node.id} direction="column" grid />
       </BlockHost>
 
+      {/* The window stays in the middle; every edge and corner pulls its size. */}
       {selected && (
-        <>
-          <div
-            draggable={false}
-            data-ff-editor-helper
-            onPointerDown={(e) => startResize(e, 'popupWidth', visibleWidth, POPUP_MIN_WIDTH)}
-            onDragStart={(e) => e.preventDefault()}
-            onDoubleClick={(e) => {
-              e.stopPropagation()
-              ed.updateProperty(node.id, 'popupWidth', declared.popupWidth?.default ?? 520)
-            }}
-            style={{
-              position: 'absolute',
-              left: `calc(50% + ${visibleWidth / 2}px - 3px)`,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: 7,
-              height: 26,
-              borderRadius: 'var(--radius)',
-              background: 'hsl(var(--wb-selection))',
-              cursor: 'ew-resize',
-              zIndex: 20,
-            }}
-          />
-          <div
-            draggable={false}
-            data-ff-editor-helper
-            onPointerDown={(e) => startResize(e, 'popupHeight', visibleHeight, POPUP_MIN_HEIGHT)}
-            onDragStart={(e) => e.preventDefault()}
-            onDoubleClick={(e) => {
-              e.stopPropagation()
-              ed.updateProperty(node.id, 'popupHeight', declared.popupHeight?.default ?? 380)
-            }}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: `calc(50% + ${visibleHeight / 2}px - 3px)`,
-              transform: 'translateX(-50%)',
-              width: 26,
-              height: 7,
-              borderRadius: 'var(--radius)',
-              background: 'hsl(var(--wb-selection))',
-              cursor: 'ns-resize',
-              zIndex: 20,
-            }}
-          />
-        </>
+        <div
+          data-ff-editor-helper
+          className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"
+          style={{ width: visibleWidth, height: visibleHeight }}
+        >
+          {GRIPS.map((edge) => (
+            <Grip
+              key={edge}
+              edge={edge}
+              onStart={(e) => dragSize(ed, e, edge, { width: visibleWidth, height: visibleHeight },
+                (axis, value) => ed.updateProperty(node.id, POPUP_SIZE[axis], value))}
+              onReset={() => ed.transaction(() => {
+                for (const axis of axesOf(edge)) {
+                  ed.updateProperty(node.id, POPUP_SIZE[axis], declared[POPUP_SIZE[axis]]?.default)
+                }
+              })}
+            />
+          ))}
+        </div>
       )}
     </div>
   )

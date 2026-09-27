@@ -5,6 +5,13 @@ import type { Unread } from '../unread'
 export interface KeyPair {
   fromField: string
   toField: string
+
+  // Where the key comes from when not from the partner: a field of the open
+  // document (fromField its code, fromSourceId the document), or a form field
+  // (fromField its block, fromProp its value).
+  from?: 'document' | 'formField'
+  fromSourceId?: string
+  fromProp?: string
 }
 
 export const MAX_KEY_PAIRS = 3
@@ -13,13 +20,24 @@ export function completePairs(carrier: { pairs: readonly KeyPair[] }): KeyPair[]
   return carrier.pairs.filter((p) => p.fromField.trim() !== '' && p.toField.trim() !== '')
 }
 
+export function keyPairFrom(raw: unknown): KeyPair | null {
+  if (!raw || typeof raw !== 'object') return null
+  const pair: Unread<KeyPair> = raw
+  if (typeof pair.fromField !== 'string' || typeof pair.toField !== 'string') return null
+  const text = (v: unknown): string => (typeof v === 'string' ? v : '')
+  const outside: Partial<KeyPair> = pair.from === 'document' && text(pair.fromSourceId) !== ''
+    ? { from: 'document', fromSourceId: text(pair.fromSourceId) }
+    : pair.from === 'formField'
+      ? { from: 'formField', ...(text(pair.fromProp) !== '' ? { fromProp: text(pair.fromProp) } : {}) }
+      : {}
+  return { fromField: pair.fromField, toField: pair.toField, ...outside }
+}
+
 export function keyPairsFrom(raw: unknown): KeyPair[] {
   const pairs: KeyPair[] = []
   for (const p of Array.isArray(raw) ? raw : []) {
-    if (!p || typeof p !== 'object') continue
-    const pair: Unread<KeyPair> = p
-    if (typeof pair.fromField !== 'string' || typeof pair.toField !== 'string') continue
-    pairs.push({ fromField: pair.fromField, toField: pair.toField })
+    const pair = keyPairFrom(p)
+    if (pair) pairs.push(pair)
   }
   return pairs.slice(0, MAX_KEY_PAIRS)
 }

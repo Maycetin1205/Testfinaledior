@@ -2,8 +2,6 @@ import type { ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
 interface ListDetailProps {
-  areas?: ReactNode
-
   listHead?: ReactNode
   list: ReactNode
   detail: ReactNode
@@ -12,15 +10,10 @@ interface ListDetailProps {
 }
 
 export function ListDetail({
-  areas, listHead, list, detail, listWithoutEdge = false,
+  listHead, list, detail, listWithoutEdge = false,
 }: ListDetailProps) {
   return (
     <>
-      {areas !== undefined && (
-        <nav className="flex w-44 shrink-0 flex-col gap-0.5 border-r border-line bg-panel p-2">
-          {areas}
-        </nav>
-      )}
       <div className="flex w-64 shrink-0 flex-col border-r border-line">
         {listHead !== undefined && (
           <div className="flex shrink-0 flex-col gap-1.5 border-b border-line p-2">

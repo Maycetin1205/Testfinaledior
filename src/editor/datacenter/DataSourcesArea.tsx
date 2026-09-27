@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useRef, useState } from 'react'
 import { FileUp, Plus, TriangleAlert } from '@/editor/icons/icon'
 import { Group } from '@/editor/widgets/Group'
 import { Button } from '@/editor/widgets/Button'
@@ -28,7 +28,7 @@ function copyName(name: string, taken: readonly string[]): string {
   return `${name} (Kopie ${n})`
 }
 
-export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
+export function DataSourcesArea() {
   const store = useDataSources()
   const ed = useEditor()
   const [selectionId, setSelectionId] = useState<string | null>(store.list[0]?.id ?? null)
@@ -79,7 +79,6 @@ export function DataSourcesArea({ areas }: { areas?: ReactNode }) {
   return (
     <>
       <ListDetail
-        areas={areas}
         listHead={(
           <>
           <Button className="w-full" onClick={() => setMode('new')}>

@@ -28,8 +28,7 @@ function findOnlyHit(
 }
 
 function recordFitsSelection(el: HTMLElement, record: unknown): boolean {
-  const { rows, filtered } = rowsToSelection(el, [record])
-  return !filtered || rows.length > 0
+  return rowsToSelection(el, [record]).length > 0
 }
 
 type LeaveAction = 'nothing' | 'clear' | 'back'
