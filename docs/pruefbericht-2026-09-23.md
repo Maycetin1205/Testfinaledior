@@ -974,11 +974,15 @@ unlogisch und werden in Schritt 2 neu geordnet.
    dem eigenen Kopf. Nie über anderen Bausteinen, nie über Inhalt. Sind es
    mehr als sieben, liegen die Schalter im Fenster „Anzeige". Jedes Fenster
    an der Leiste schließt beim Klick daneben.
-2. Kanban neu nach dem Zweigmodell: ein Baustein, Spalten mit Plätzen,
-   Karten mit Tiersymbol, im Editor sichtbar. Zimmer gibt es seit Schema 18
-   nicht mehr; `places.ts` ist nur die Ablagemarke. Chip-Farbe folgt einem
-   Feld, einstellbar, welcher Wert welchen Ton bekommt. Die Spalte zeigt
-   ihren Wert als „FELDNAME = Wert".
+2. Kanban neu nach dem Zweigmodell, auf `claude/kanban-ein-baustein`
+   (abgezweigt vom Stand, der mit PR #1 in master kam), nicht in SoftEngine
+   geprüft. Fertig: 1 Ein Baustein zeichnet Spalten und Karten selbst, die
+   Karte steht im Editor in Maskenform, die Spalten bedienen sich am Kopf wie
+   bei der Tabelle, Schema 23 hebt alte Masken (38200b9); 2 Plätze in den
+   Spalten, Wert je Platz, Auffangspalte an der Spalte (74fba76). Offen:
+   3 Tiersymbol auf der Karte; 4 Chip-Farbe folgt einem Feld, einstellbar,
+   welcher Wert welchen Ton bekommt. Versteckte Plätze („Erledigt") nur auf
+   Wunsch des Nutzers.
 3. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
    Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile
    in `src/blocks/register.ts`; das Symbol gehört noch in die Deklaration
