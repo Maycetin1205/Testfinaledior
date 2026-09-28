@@ -111,22 +111,23 @@ export function ColumnControls({
     const text = head?.querySelector<HTMLElement>('.head-text') ?? head
     if (!s || !text) return
     startRename(text, (typed, original) => {
-      if (typed === original) return true
+      if (typed === original) return
       const entries = binding.entries(block.values[binding.prop])
       const entry = entries[s.path.index]
-      if (entry === undefined) return false
+      if (entry === undefined) return
       const at = s.path.inner
       if (at === undefined) {
         const next = [...entries]
         next[s.path.index] = binding.withTypedTitle(entry, typed === '' ? listDefaultTitle(binding, s.path.index) : typed)
-        return editor.updateProperty(block.id, binding.prop, next)
+        editor.updateProperty(block.id, binding.prop, next)
+        return
       }
       const inner = binding.inner
       const list = inner ? [...inner.of(entry)] : []
       const own = list[at]
-      if (!inner || own === undefined) return false
+      if (!inner || own === undefined) return
       list[at] = inner.binding.withTypedTitle(own, typed === '' ? listDefaultTitle(inner.binding, at) : typed)
-      return editor.updateProperty(block.id, binding.prop, withInner(binding, entries, s.path.index, list))
+      editor.updateProperty(block.id, binding.prop, withInner(binding, entries, s.path.index, list))
     })
   }
 

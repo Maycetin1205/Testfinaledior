@@ -16,8 +16,6 @@ interface PropChangeDetail {
   value: unknown
 
   gesture?: 'start' | 'end'
-
-  rejected?: boolean
 }
 
 interface LitElementArgs {
@@ -73,8 +71,7 @@ export function useLitElement({
         bracket.current = editor.openGesture()
       }
       bracket.current?.open()
-      const adopted = editor.updateProperty(blockRef.current.id, detail.attr, detail.value)
-      if (!adopted) detail.rejected = true
+      editor.updateProperty(blockRef.current.id, detail.attr, detail.value)
       if (detail.gesture === 'end') {
         bracket.current?.close()
         bracket.current = null

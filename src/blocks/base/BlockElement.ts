@@ -111,15 +111,12 @@ export abstract class BlockElement extends LitElement {
     event.stopPropagation()
     event.preventDefault()
     startRename(target, (text, original) => {
-      if (text === original) return true
-      const detail: { attr: string; value: string; rejected?: boolean } = { attr, value: text }
+      if (text === original) return
       this.dispatchEvent(new CustomEvent('ff-prop-change', {
-        detail,
+        detail: { attr, value: text },
         bubbles: true,
         composed: true,
       }))
-
-      return detail.rejected !== true
     })
   }
 }
