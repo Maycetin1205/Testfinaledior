@@ -951,50 +951,64 @@ Größenwahl in Stufen der Empfangsmaske (Vorschlag, Nutzer entscheidet). Die
 „Arten" (Feldtypen oder Quellenarten, der Nutzer sagt welche) sind
 unlogisch und werden in Schritt 2 neu geordnet.
 
-### Offen, in dieser Reihenfolge
+### Offen, in dieser Reihenfolge (Stand 28.09.)
 
-1. Bedienung (Schritt 2) ist fertig auf `claude/erp-editor-audit-89bmva`, ein
-   Commit je Punkt, nichts davon in SoftEngine geprüft: 1 Kopfzeile
-   (1ad6913), 2 Palette als dunkler Streifen (4c2c96d, 8738d38), 3 Ziehen an
-   vier Kanten (ea42748), 4 Leiste am Baustein (57acab5, 766f411, 3de3945,
-   87344dc), 5 Daten als Seitenleiste (4ee693b), 6 Eine Datei zum Laden
-   (3f2bc88), 7 Text mit Farbe und Größe (9221fb1), 8 Feld, Schema 22
-   (90a210e), 9 Suchfenster und Popup ziehen (6dcba5f), 10 Tabelle mit
-   Spaltenleiste (ab3befa), 11 Erfassung (16b31c9), 12 Wertherkunft
-   (8764260), 13 Aktionen als Sätze (0adbba0), 14 Folgt der Auswahl
-   (f086f44). Danach, nicht in SoftEngine geprüft: 15 Folgt auch dem Beleg
-   oder einem Formularfeld (e156f1a), 16 Wer folgt, zeigt ohne Vorgabe
-   nichts (5642ce5), 17 Sortieren per Klick (9e81fbe), 18 Pflicht je Spalte
-   und je Feld (2247a4a). Die Wertherkunft bietet je Stelle, was die Stelle
-   lesen kann: Hilfsquelle Spalte dieser Zeile und Feld einer Hilfsquelle,
-   Berechnung dazu den festen Wert, Aktionen alle fünf, Folgt der Auswahl die
-   gewählte Zeile des Gebers, den Beleg und die Formularfelder.
-   Regel für die Leiste: eine Zeile, höchstens sieben Elemente, über dem
-   Baustein; passt es dort nicht, unter dem Baustein; erst dann innen auf
-   dem eigenen Kopf. Nie über anderen Bausteinen, nie über Inhalt. Sind es
-   mehr als sieben, liegen die Schalter im Fenster „Anzeige". Jedes Fenster
-   an der Leiste schließt beim Klick daneben.
-2. Kanban neu nach dem Zweigmodell, auf `claude/kanban-ein-baustein`
-   (abgezweigt vom Stand, der mit PR #1 in master kam), nicht in SoftEngine
-   geprüft. Fertig: 1 Ein Baustein zeichnet Spalten und Karten selbst, die
-   Karte steht im Editor in Maskenform, die Spalten bedienen sich am Kopf wie
-   bei der Tabelle, Schema 23 hebt alte Masken (38200b9); 2 Plätze in den
-   Spalten, Wert je Platz, Auffangspalte an der Spalte (74fba76); 3 Avatar
-   auf der Karte, Tiersymbol in der Artfarbe des Empfangs oder Bild, per
-   Klick gebunden. Offen: 4 Chip-Farbe folgt einem Feld, einstellbar,
-   welcher Wert welchen Ton bekommt. Versteckte Plätze („Erledigt") nur auf
-   Wunsch des Nutzers.
-3. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
-   Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile
-   in `src/blocks/register.ts`; das Symbol gehört noch in die Deklaration
-   statt nach `src/editor/blockIcons.ts`.
-4. Quellenarten neu ordnen (Was lesen, nicht Wie liefern), wenn der Inhalt
-   der Daten-Seitenleiste drankommt.
-5. Zum Schluss: Echttest in SoftEngine mit frischen Daten, die Fehler F2, F3,
-   F6 der Erfassung, Berechnung komplett neu (vorher mit dem Nutzer
-   festlegen), Antwort-Schlüssel in `softengine/data.ts`, Formular für die
-   Feldcodes der Hol-Relation, Aufräumdurchgang (Löschvormerkung der Erfassung ohne Bedienung, tote Widgets, ungenutzte
-   Exporte, alte Namen).
+Große Dateien werden geteilt, wenn ein Schritt sie ohnehin anfasst, nie in
+einer eigenen Aufräumaktion.
+
+1. Bedienfehler aus der Durchsicht vom 28.09., fertig auf
+   `claude/kanban-ein-baustein`, nicht in SoftEngine geprüft: Tippen auf der
+   Fläche zeigt den Text einmal, auch im Knopf (f4f2626); die Leiste liegt
+   über dem Baustein, sonst darunter, erst dann auf ihm (3be9721).
+2. Schreiben ins ERP. F2: die neue Satznummer kommt je erfasster Zeile, nicht
+   einmal je Kette (`sectionsOf` in `src/core/data/steps/chains.ts`). Dann
+   prüft der Nutzer in SoftEngine mit zwei erfassten Zeilen, danach F3 und F6
+   nach seinem Ergebnis. Dabei die Erfassung (`src/blocks/capture/ledger.ts`,
+   eine Klasse mit 1.094 Zeilen) entlang ihrer fünf Abschnitte teilen. Eine
+   Prüfung, die zwei Zeilen durchspielt, nur wenn der Nutzer Tests freigibt.
+3. Kanban Schritt 1 bis 3 auf `claude/kanban-ein-baustein` (38200b9, 74fba76,
+   aa76efb) in SoftEngine prüfen und nach master übernehmen. Danach Schritt
+   4: Chip-Farbe folgt einem Feld, einstellbar, welcher Wert welchen Ton
+   bekommt. Versteckte Plätze („Erledigt") nur auf Wunsch.
+4. Übersetzer alter Masken (`src/editor/state/maskSchema.ts`): der Nutzer
+   importiert keine alten Masken (28.09.). Die Stufen bis 20, rund 660 Zeilen,
+   fallen nach seiner Zusage weg. Die Stufen 21 bis 23 und der Mechanismus
+   bleiben, damit heute gespeicherte Masken nach jeder Formänderung weiter
+   laden. Ob der Übersetzer der Kundendatei für die Sicherungen vom 14. und
+   15.09. bleibt, entscheidet der Nutzer.
+5. Feste Zielgröße der Fläche. Heute fließt die Maske mit der Fensterbreite,
+   und die Daten-Seitenleiste quetscht sie.
+6. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
+   Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile in
+   `src/blocks/register.ts`; das Symbol gehört in die Deklaration statt nach
+   `src/editor/blockIcons.ts`. Dabei `src/editor/canvas/useFieldBinding.tsx`
+   teilen.
+7. Quellenarten neu ordnen (Was lesen, nicht Wie liefern), wenn der Inhalt der
+   Daten-Seitenleiste drankommt. Dabei das Quellenformular
+   (`src/editor/datacenter/DataSourceForm.tsx`) je Quellenart teilen, das
+   Formular für die Feldcodes der Hol-Relation, die Antwort-Schlüssel in
+   `src/softengine/data.ts`, und `src/softengine/relations.ts` teilen in
+   Antwort lesen, Senden und Warten, Werte zusammensuchen.
+8. Berechnung komplett neu, vorher mit dem Nutzer festlegen;
+   `src/core/data/calculation.ts` entsteht dabei neu.
+9. Aufräumdurchgang: Löschvormerkung der Erfassung ohne Bedienung, tote
+   Widgets, ungenutzte Exporte (etwa `GRID.columnPx`), alte Namen.
+
+Fertig und mit PR #1 in master (1d8437a), nicht in SoftEngine geprüft:
+Bedienung, ein Commit je Punkt: 1 Kopfzeile (1ad6913), 2 Palette als dunkler
+Streifen (4c2c96d, 8738d38), 3 Ziehen an vier Kanten (ea42748), 4 Leiste am
+Baustein (57acab5, 766f411, 3de3945, 87344dc), 5 Daten als Seitenleiste
+(4ee693b), 6 Eine Datei zum Laden (3f2bc88), 7 Text mit Farbe und Größe
+(9221fb1), 8 Feld, Schema 22 (90a210e), 9 Suchfenster und Popup ziehen
+(6dcba5f), 10 Tabelle mit Spaltenleiste (ab3befa), 11 Erfassung (16b31c9),
+12 Wertherkunft (8764260), 13 Aktionen als Sätze (0adbba0), 14 Folgt der
+Auswahl (f086f44), 15 Folgt auch dem Beleg oder einem Formularfeld (e156f1a),
+16 Wer folgt, zeigt ohne Vorgabe nichts (5642ce5), 17 Sortieren per Klick
+(9e81fbe), 18 Pflicht je Spalte und je Feld (2247a4a). Die Wertherkunft
+bietet je Stelle, was die Stelle lesen kann: Hilfsquelle Spalte dieser Zeile
+und Feld einer Hilfsquelle, Berechnung dazu den festen Wert, Aktionen alle
+fünf, Folgt der Auswahl die gewählte Zeile des Gebers, den Beleg und die
+Formularfelder.
 
 ### Bedienmodell für Schritt 2 (24.09., vom Nutzer als Auftrag gelesen)
 
@@ -1015,9 +1029,10 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   Löschen. Was mehr ist, wird gebündelt: Schalter eines Bausteins in ein
   Pop-up „Anzeige“, Quelle und Tag-Feld in ein Pop-up „Quelle“, alles
   Weitere als Knopf mit Symbol, der sein kleines Fenster öffnet. Passt die
-  Leiste nicht über den Baustein, liegt sie innen an seinem oberen Rand.
-  Nie über einem anderen Baustein, nie über der eigenen Kopfzeile. Am
-  Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der angeklickten
+  Leiste nicht über den Baustein, liegt sie darunter, erst dann innen an
+  seinem oberen Rand. Jedes Fenster an der Leiste schließt beim Klick
+  daneben. Nie über einem anderen Baustein, nie über der eigenen Kopfzeile.
+  Am Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der angeklickten
   Stelle. Keine Statuszeile.
 
 Grundregeln für alle Bausteine:
