@@ -13,7 +13,6 @@ import { packMask, type MaskContent } from './maskFile'
 import { addOn } from './libraryFile'
 import { FileOnDisk } from './fileOnDisk'
 import {
-  carriedLibrary,
   emptyMask,
   loadFromStorage,
   loadLibraryFromStorage,
@@ -88,11 +87,8 @@ export class EditorStore extends Subject<EditorStore> {
     super()
     const library = loadLibraryFromStorage()
     const persisted = loadFromStorage() ?? emptyMask()
-    const carried = carriedLibrary()
-    this.dataSources = new DataSourceStore(
-      addOn(library.dataSources, carried.dataSources).list,
-    )
-    this.relation = new RelationStore(addOn(library.relation, carried.relation).list)
+    this.dataSources = new DataSourceStore(library.dataSources)
+    this.relation = new RelationStore(library.relation)
     this._tree = persisted.tree
     this._activePageId = persisted.activePageId
     this._selectedId = this.selectionOnActivePage(persisted.selectedId)

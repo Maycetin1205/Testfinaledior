@@ -85,7 +85,8 @@ function unpack(text: string): UnpackResult {
     return { ok: false }
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false }
-  const o = liftState(raw) as Record<string, unknown>
+  const o = liftState(raw)
+  if (o === null) return { ok: false }
 
   const state = checkTreeState({ tree: o.tree })
   if (state === null) return { ok: false }

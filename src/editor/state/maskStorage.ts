@@ -1,7 +1,7 @@
 import { ROOT_ID, type MaskTree } from '../../core/block/tree'
 import { emptyTree } from '../../core/block/treeOps'
-import { checkDataSources, type DataSource } from '../../core/data/dataSources'
-import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
+import type { DataSource } from '../../core/data/dataSources'
+import type { RelationTemplate } from '../../core/data/relations'
 import { packLibrary, packLibraryFrom } from './libraryFile'
 import { checkTreeState } from './checkTreeState'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
@@ -13,8 +13,8 @@ const STORAGE_KEY = 'aufbau_editor_mask'
 
 const LIBRARY_KEY = 'aufbau_editor_library'
 
-const FORMER_STORAGE_KEY = 'aufbau_editor_mvp_v1'
-
+// The customer file moves from the key it had before 23.09.: data sources
+// always come along.
 const FORMER_LIBRARY_KEY = 'aufbau_editor_datencenter'
 export const SAVE_DEBOUNCE_MS = 500
 
@@ -29,10 +29,10 @@ export interface StoredLibrary {
   relation: readonly RelationTemplate[]
 }
 
-function read(key: string, formerKey: string): string | null {
+function read(key: string, formerKey?: string): string | null {
   try {
     if (typeof localStorage === 'undefined') return null
-    return readMoved(key, formerKey)
+    return formerKey === undefined ? localStorage.getItem(key) : readMoved(key, formerKey)
   } catch {
     return null
   }
@@ -64,40 +64,8 @@ export function loadLibraryFromStorage(): StoredLibrary {
 }
 
 export function loadFromStorage(): StoredMask | null {
-  const raw = read(STORAGE_KEY, FORMER_STORAGE_KEY)
+  const raw = read(STORAGE_KEY)
   return raw === null ? null : readState(raw)
-}
-
-// A mask saved before the split still carries its sources; they belong in the
-// customer file now.
-export function carriedLibrary(): StoredLibrary {
-  const raw = read(STORAGE_KEY, FORMER_STORAGE_KEY)
-  return raw === null ? { dataSources: [], relation: [] } : libraryInMask(raw)
-}
-
-function libraryInMask(raw: string): StoredLibrary {
-  const empty: StoredLibrary = { dataSources: [], relation: [] }
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    return empty
-  }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return empty
-  const state = liftState(parsed) as Record<string, unknown>
-  if (!Array.isArray(state.dataSources) && !Array.isArray(state.relation)) return empty
-  // What the mask's own lift brought up to date must not be lifted a second time.
-  if (state !== parsed) {
-    return {
-      dataSources: checkDataSources(state.dataSources),
-      relation: checkRelationTemplates(state.relation),
-    }
-  }
-  const packed = packLibraryFrom(JSON.stringify({
-    dataSources: state.dataSources ?? [],
-    relation: state.relation ?? [],
-  }))
-  return packed.ok ? packed.content : empty
 }
 
 function readState(raw: string): StoredMask | null {
@@ -107,9 +75,9 @@ function readState(raw: string): StoredMask | null {
   } catch {
     return null
   }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
   try {
-    const state = liftState(parsed) as Record<string, unknown>
+    const state = liftState(parsed)
+    if (state === null) return null
     const tree = checkTreeState({ tree: state.tree, selectedId: state.selectedId })
     if (tree === null) return null
     return {

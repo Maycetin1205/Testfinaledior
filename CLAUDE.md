@@ -45,8 +45,10 @@ hinfaellig.
 
 - `npm run dev`: Port 5300, fest. `build:runtime` laeuft vor `dev`, `build`
   und `test` und schreibt nach `src/export/generated/`.
-- Vor jedem Commit: `npm run check` und `npm test`, beide gruen. Gespeicherte
-  Masken und Kundendateien muessen danach weiter laden.
+- Vor jedem Commit: `npm run check` und `npm test`, beide gruen. Masken ab
+  Schema 20 (seit 24.09.) und Kundendateien jeder Fassung muessen danach
+  weiter laden. Der Uebersetzer der Kundendatei
+  (`src/editor/state/librarySchema.ts`) verliert nie eine Stufe.
 - Aendert sich der Export gewollt: `REFERENCE_REFRESH=1 npm test` und im
   Commit sagen, was sich aenderte.
 - Git: kein force-push. `se-quelle/` ist fremd und bleibt draussen.
