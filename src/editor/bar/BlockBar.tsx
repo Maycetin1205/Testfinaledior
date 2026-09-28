@@ -88,9 +88,10 @@ function headDepth(el: HTMLElement, element: HTMLElement | null, head: string | 
 }
 
 // Above the top edge, where no other block and no edge is in the way; else
-// inside on the block's own top edge, below the column heads of a table. Flush
-// with the given left edge, like a column's, else flush left, else flush right,
-// whichever touches no other block.
+// below the bottom edge; else inside on the block's own top edge, below the
+// column heads of a table. A bar aligned to a column stays at its head, above
+// or inside, never below the whole block. Flush with the given left edge, like
+// a column's, else flush left, else flush right, whichever touches no other block.
 function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: number): { top: number; left: number } {
   const room = roomOf(el)
   bar.style.maxWidth = `${Math.max(0, room.right - room.left)}px`
@@ -107,6 +108,11 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: numbe
   const above = r.top - GAP - h
   const aboveLeft = lefts.find((left) => free(above, left))
   if (aboveLeft !== undefined) return { top: above, left: aboveLeft }
+  if (align === undefined) {
+    const below = r.bottom + GAP
+    const belowLeft = lefts.find((left) => free(below, left))
+    if (belowLeft !== undefined) return { top: below, left: belowLeft }
+  }
   const inside = r.top + depth
   return { top: inside, left: lefts.find((left) => free(inside, left)) ?? lefts[0] }
 }
