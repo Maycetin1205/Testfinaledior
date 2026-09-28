@@ -970,12 +970,15 @@ einer eigenen Aufräumaktion.
    aa76efb) in SoftEngine prüfen und nach master übernehmen. Danach Schritt
    4: Chip-Farbe folgt einem Feld, einstellbar, welcher Wert welchen Ton
    bekommt. Versteckte Plätze („Erledigt") nur auf Wunsch.
-4. Übersetzer alter Masken (`src/editor/state/maskSchema.ts`): der Nutzer
-   importiert keine alten Masken (28.09.). Die Stufen bis 20, rund 660 Zeilen,
-   fallen nach seiner Zusage weg. Die Stufen 21 bis 23 und der Mechanismus
-   bleiben, damit heute gespeicherte Masken nach jeder Formänderung weiter
-   laden. Ob der Übersetzer der Kundendatei für die Sicherungen vom 14. und
-   15.09. bleibt, entscheidet der Nutzer.
+4. Übersetzer, fertig (9c94910): der Nutzer importiert keine alten Masken,
+   Datenquellen aber immer (28.09.). `src/editor/state/maskSchema.ts` liest
+   Masken ab Schema 20 (seit 24.09.), ältere und neuere nicht. Der Übersetzer
+   der Kundendatei steht allein in `src/editor/state/librarySchema.ts` und
+   behält jede Stufe: Daten, Reiter „Bibliothek", „Bibliothek laden…"
+   importiert Kundendateien jeder Fassung. Die Sicherungen vom 14.09.
+   (`masken/bibliothek-wiederherstellung.json`, 15 Quellen) und 15.09.
+   (`Desktop/aufbau-bibliothek-rettung-2026-09-15-0952.json`, 22 Quellen)
+   tragen Quellen, die in `Desktop/bibliothek.json` (2 Quellen) fehlen.
 5. Feste Zielgröße der Fläche. Heute fließt die Maske mit der Fensterbreite,
    und die Daten-Seitenleiste quetscht sie.
 6. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
