@@ -37,24 +37,21 @@ Arbeitsprozess, nicht der Kern.
 1. Die Vorgabedatei `library/default.json` beschreibt die Belegposition
    mit Kopfsatz und Hol-Relation zugleich und ohne Satznummer. Damit kommen
    in der Belegerfassung nie Positionen an, und Ändern/Löschen sind aus.
-2. „Satz anlegen“ holt die neue Satznummer einmal je Kette statt einmal je
-   Zeile. Zwei erfasste Zeilen bekommen dieselbe Nummer, die zweite
-   überschreibt die erste.
-3. Nach einem Schreiben bestellt die Maske keine frischen Daten; ob das ERP
+2. Nach einem Schreiben bestellt die Maske keine frischen Daten; ob das ERP
    den Wert angenommen hat, sieht niemand. Die Ankunftsprüfung läuft bei jeder
    Lieferung und kann Zeilen zurück in die Vormerkung werfen, also doppelt
    schreiben.
-4. Die Statusfarben der Erfassung sind tot: der Code setzt englische
+3. Die Statusfarben der Erfassung sind tot: der Code setzt englische
    Klassennamen, der Stil erwartet die deutschen. Kein Punkt, kein Rot, kein
    Pulsieren.
-5. Die Kundendatei kann still verloren gehen: eine neu angelegte holende
+4. Die Kundendatei kann still verloren gehen: eine neu angelegte holende
    Quelle wird unvollständig gespeichert, beim nächsten Start gilt die ganze
    Datei als beschädigt, der Editor startet leer und überschreibt sie.
-6. Maskendateien aus der deutschen Zeit (04. bis 15.09.) laden nicht mehr:
+5. Maskendateien aus der deutschen Zeit (04. bis 15.09.) laden nicht mehr:
    „Das ist keine Maskendatei des Aufbau-Editors.“ Selbst ausprobiert mit
    `masken/mustermaske.json`.
 
-Alle sechs sind eng begrenzt und einzeln behebbar.
+Alle fünf sind eng begrenzt und einzeln behebbar.
 
 **Umfang in Zahlen**
 
@@ -170,9 +167,6 @@ ein Abfragen alle 100 ms. Ob SoftEngine eine Kennung anbietet, ist offen.
   eine Funktion `ReloadInputJSON`, die es nicht gibt, und tut dann nichts).
   Die Ankunft wird erst geprüft, wenn SoftEngine von selbst liefert. Ob das
   nach einem PUT passiert, ist an keiner Maske belegt.
-- Neue Satznummer: GET 640 als Schritt mit Ergebnisname `PINDEX`; der Editor
-  verlangt genau das. Aber der GET läuft einmal je Kette, die PUT-Schritte je
-  Zeile mit demselben Ergebnis (F2).
 - Löschen: keine eigene Relation, nur `DROP_PINDEX` als Wert; welche Relation
   löscht, ist Kundendaten.
 - MASKENEVENT (der am 18.09. belegte Schreibweg in den Beleg) kommt im Code
@@ -216,7 +210,6 @@ B = blockiert oder Datenverlust, S = sichtbar, K = Kleinkram.
 | Nr | Schwere | Befund | Wo |
 |---|---|---|---|
 | F1 | S | Statusfarben, Durchstreichen, Zellenlayout, Zahlen rechts, Vorschlagsstil tot (englische Klassen gegen deutschen Stil) | `ledger.ts:49-57` gegen `captureStyle.ts:74-83`; `body.ts:152`, `:20`, `:108`; `row.ts:72`; `tableBody.ts:178`; `suggestionList.ts:137` |
-| F2 | B | Neue Satznummer einmal je Kette statt je Zeile | `actions.ts:423-440`, `events.ts:266-311` |
 | F3 | B (Vermutung) | Ankunftsprüfung bei jeder Lieferung ohne Bezug zum Schreiben; Zeilen fallen zurück und gehen doppelt hinaus | `sourceRows.ts:96-99`, `arrival.ts:11-39`, `ledger.ts:1126-1130` |
 | F4 | B (bei Spaltenwahl) | Enter/Tab bleiben an einer vom Bediener ausgeblendeten Spalte hängen | `ledger.ts:351-358`, `row.ts:155-164` |
 | F5 | S | Klick in eine Änderungszelle schaltet die Zeilenauswahl um, Kette „Zeile gewählt“ läuft bei jedem Klick | `tableBody.ts:145-147` |
@@ -236,7 +229,7 @@ B = blockiert oder Datenverlust, S = sichtbar, K = Kleinkram.
 Ledger, Nachschlagen, Vormerken und Ankunft sind fachlich sorgfältig gedacht
 und tragen. Die Klasse ist entlang ihrer vier Abschnitte teilbar; das
 dreifache „einfügen an der Korrekturstelle oder anhängen“ gehört einmal
-hinein. Unbrauchbar ist der Weg ins ERP (F2, F6, F3, F1): vier begrenzte
+hinein. Unbrauchbar ist der Weg ins ERP (F6, F3, F1): drei begrenzte
 Stellen, keine Neubau-Gründe. Die Erfassung hängt an zwölf Modulen aus
 `behavior/`, darunter der Import des Bausteins Tabelle aus dem Nachschlagen
 heraus (Abhängigkeit falsch herum).
@@ -279,7 +272,6 @@ Karte verschoben.
 | DATASET-Block | Definition ja, Block nein | ja, Lieferform geraten | dein Echttest |
 | GET_RELATION-Block in den SEvariablen | Form in JsonBeleg | nein | mittel |
 | CONCAT-Schlüssel, Feldreferenzen als Parameter | Form in JsonBeleg | nur als fester Text | klein, Bedienung fehlt |
-| Satz anlegen (GET 640, ein PUT je Feld, Querverweis) | ja | von Hand als Kette, keine Vorlage; F2 | klein nach F2 |
 | RELOADHTML, ESCAPEHTML | aus dem Programm gelesen | nein | klein |
 | FREISELEKT-Filter | ja, langsamer | nein | klein |
 | Parser-Direktiven (Weg 1, nur Anzeige) | Wiki | nein, bewusst | anderer Mechanismus |
@@ -619,8 +611,8 @@ Laufzeit-Bau als ein Bundle, ein Popover statt drei, `useFieldBinding` und
 Belegt (Echttest von dir, kontrakte.md): Dateiform mit Brücken-Skriptzeile;
 Anmeldung `basisHTML_REGISTER`; Feldcodes pos_len mit Tabellenvorsatz;
 SEFILELOOP mit expliziter Feldliste; Reihenfolge Kopfsatz zuletzt; Kopfsatz
-braucht VAR; PUT_RELATION mit sechs Parametern, relId ohne IDB; Satznummer
-per GET 640 und Satz anlegen mit einem PUT je Feld; Hol-Relation 69 seriell
+braucht VAR; PUT_RELATION mit sechs Parametern, relId ohne IDB, je erfasster Zeile
+ein eigener PUT (29.09.); Hol-Relation 69 seriell
 mit 255er-Schnitt; ERPAPICALL als Nachricht nach dem Öffnen (21.09.);
 MASKENEVENT-Schreiben in den Beleg, nicht in Positionen (18.09.);
 Fokus-Handschlag; DataSet-Definition; Edge WebView2.
@@ -635,13 +627,12 @@ Was nur du in SoftEngine klären kannst, bevor gebaut wird:
 1. Liefert SoftEngine nach einem PUT_RELATION von selbst neue Daten? Wenn
    nicht: welche ID verlangt `ReloadInputJSON`? Davon hängen Ankunftsprüfung
    und Frischdaten ab (F3, F6).
-2. Ergeben zwei erfasste Zeilen zwei Sätze, sobald F2 behoben ist?
-3. Tragen ERPAPICALL-Zeilen eine Satznummer (etwa `POS_645_10`), sodass man
+2. Tragen ERPAPICALL-Zeilen eine Satznummer (etwa `POS_645_10`), sodass man
    aus einer nachgeladenen Liste schreiben kann? Davon hängt die Bauweise
    „schlank bestellen, nachladen, schreiben“ ab.
-4. Liefert der DATASET-Block unter `Daten.Tabellen`?
-5. Kommt REFRESH auch für Zeilen einer SEFILELOOP-Liste?
-6. Läuft statisches Markup im `body` auch im Web-Client? Der Empfang setzt
+3. Liefert der DATASET-Block unter `Daten.Tabellen`?
+4. Kommt REFRESH auch für Zeilen einer SEFILELOOP-Liste?
+5. Läuft statisches Markup im `body` auch im Web-Client? Der Empfang setzt
    sein Markup per `innerHTML`, weil der Web-Client statisches Markup zerlegt
    (Zeile 557 der Empfangsmaske); der Export schreibt statisches Markup. In
    WinUI läuft es.
@@ -714,7 +705,7 @@ Notfallkopie auch für die Kundendatei wählbar. Danach lädt jede Datei seit
 dem 04.09. wieder.
 
 **Schritt 1: Erfassung bis ins ERP (mittel, dein wichtigster Fall).**
-F2 (Satznummer je Zeile), F1 (Klassennamen), F12 (`default.json`:
+F1 (Klassennamen), F12 (`default.json`:
 Belegposition mit Kopfsatz und Satznummer, ohne Hol-Relation in der
 Belegerfassung), F7 (kein PUT mit leerem Pflichtwert), F8 (Kettenabschnitt
 beendbar), F4, F5, F17. Dann dein Echttest 1 und 2 aus Abschnitt 7; danach
@@ -960,12 +951,11 @@ einer eigenen Aufräumaktion.
    `claude/kanban-ein-baustein`, nicht in SoftEngine geprüft: Tippen auf der
    Fläche zeigt den Text einmal, auch im Knopf (f4f2626); die Leiste liegt
    über dem Baustein, sonst darunter, erst dann auf ihm (3be9721).
-2. Schreiben ins ERP. F2: die neue Satznummer kommt je erfasster Zeile, nicht
-   einmal je Kette (`sectionsOf` in `src/core/data/steps/chains.ts`). Dann
-   prüft der Nutzer in SoftEngine mit zwei erfassten Zeilen, danach F3 und F6
-   nach seinem Ergebnis. Dabei die Erfassung (`src/blocks/capture/ledger.ts`,
-   eine Klasse mit 1.094 Zeilen) entlang ihrer fünf Abschnitte teilen. Eine
-   Prüfung, die zwei Zeilen durchspielt, nur wenn der Nutzer Tests freigibt.
+2. Schreiben ins ERP läuft (Nutzer, 29.09.): je erfasster Zeile ein eigener
+   PUT_RELATION, keine Satznummer vorab, Relation 640 hat damit nichts zu
+   tun. Kein Bau. Die Erfassung (`src/blocks/capture/ledger.ts`, eine Klasse
+   mit 1.094 Zeilen) wird beim nächsten Eingriff dort entlang ihrer fünf
+   Abschnitte geteilt.
 3. Kanban Schritt 1 bis 3 auf `claude/kanban-ein-baustein` (38200b9, 74fba76,
    aa76efb) in SoftEngine prüfen und nach master übernehmen. Danach Schritt
    4: Chip-Farbe folgt einem Feld, einstellbar, welcher Wert welchen Ton

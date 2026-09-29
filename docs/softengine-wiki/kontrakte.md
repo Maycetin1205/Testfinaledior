@@ -206,9 +206,9 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
 - ⚠ **`relId` OHNE `IDB`-Präfix** (`ID0001`, nicht `IDBID0001`) — die
   SEvariablen derselben Maske sagen `IDBID0001`, der PUT nicht.
 - Standard-PUT NR 174 ist nur die mitgelieferte Vorlage, keine Konstante.
-- `pindex` ist die **Satznummer** des Zielsatzes. Für einen neuen Satz erst
-  `GET_RELATION[640!<IDBID>]` (liefert die Satznummer), dann
-  `PUT_RELATION[174!…!<Satznr>!…]`.
+- `pindex` ist die **Satznummer** des Zielsatzes beim Ändern. Neue Zeilen:
+  je erfasster Zeile ein eigener PUT_RELATION, keine Satznummer vorab;
+  Relation 640 hat damit nichts zu tun (Nutzer, 29.09.).
 - Belegter Fehlerfall: schickt man Feldnamen statt Werte, landen sie als
   INHALTE in SoftEngine — `PUT_RELATION[82!0!L!…!STSPALTE!!TEXT!!EPREIS!…]`.
 - ⚠ Frische Daten nach dem Schreiben: `ReloadInputJSON` gibt es nur als
