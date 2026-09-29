@@ -950,7 +950,9 @@ einer eigenen Aufräumaktion.
 1. Bedienfehler aus der Durchsicht vom 28.09., fertig auf
    `claude/kanban-ein-baustein`, nicht in SoftEngine geprüft: Tippen auf der
    Fläche zeigt den Text einmal, auch im Knopf (f4f2626); die Leiste liegt
-   über dem Baustein, sonst darunter, erst dann auf ihm (3be9721).
+   über dem Baustein, sonst darunter, erst dann auf ihm (3be9721); die
+   Erfassung zeigt den Zeilenzustand nur als Ton, Punkt und Einrückung weg
+   (f008bd7, 29.09.).
 2. Schreiben ins ERP läuft (Nutzer, 29.09.): je erfasster Zeile ein eigener
    PUT_RELATION, keine Satznummer vorab, Relation 640 hat damit nichts zu
    tun. Kein Bau. Die Erfassung (`src/blocks/capture/ledger.ts`, eine Klasse
