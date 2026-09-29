@@ -971,22 +971,20 @@ einer eigenen Aufräumaktion.
    (`masken/bibliothek-wiederherstellung.json`, 15 Quellen) und 15.09.
    (`Desktop/aufbau-bibliothek-rettung-2026-09-15-0952.json`, 22 Quellen)
    tragen Quellen, die in `Desktop/bibliothek.json` (2 Quellen) fehlen.
-5. Feste Zielgröße der Fläche. Heute fließt die Maske mit der Fensterbreite,
-   und die Daten-Seitenleiste quetscht sie.
-6. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
+5. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
    Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile in
    `src/blocks/register.ts`; das Symbol gehört in die Deklaration statt nach
    `src/editor/blockIcons.ts`. Dabei `src/editor/canvas/useFieldBinding.tsx`
    teilen.
-7. Quellenarten neu ordnen (Was lesen, nicht Wie liefern), wenn der Inhalt der
+6. Quellenarten neu ordnen (Was lesen, nicht Wie liefern), wenn der Inhalt der
    Daten-Seitenleiste drankommt. Dabei das Quellenformular
    (`src/editor/datacenter/DataSourceForm.tsx`) je Quellenart teilen, das
    Formular für die Feldcodes der Hol-Relation, die Antwort-Schlüssel in
    `src/softengine/data.ts`, und `src/softengine/relations.ts` teilen in
    Antwort lesen, Senden und Warten, Werte zusammensuchen.
-8. Berechnung komplett neu, vorher mit dem Nutzer festlegen;
+7. Berechnung komplett neu, vorher mit dem Nutzer festlegen;
    `src/core/data/calculation.ts` entsteht dabei neu.
-9. Aufräumdurchgang: Löschvormerkung der Erfassung ohne Bedienung, tote
+8. Aufräumdurchgang: Löschvormerkung der Erfassung ohne Bedienung, tote
    Widgets, ungenutzte Exporte (etwa `GRID.columnPx`), alte Namen.
 
 Fertig und mit PR #1 in master (1d8437a), nicht in SoftEngine geprüft:
