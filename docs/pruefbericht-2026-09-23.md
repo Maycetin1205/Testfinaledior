@@ -971,21 +971,38 @@ einer eigenen Aufräumaktion.
    (`masken/bibliothek-wiederherstellung.json`, 15 Quellen) und 15.09.
    (`Desktop/aufbau-bibliothek-rettung-2026-09-15-0952.json`, 22 Quellen)
    tragen Quellen, die in `Desktop/bibliothek.json` (2 Quellen) fehlen.
-5. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
-   Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile in
-   `src/blocks/register.ts`; das Symbol gehört in die Deklaration statt nach
-   `src/editor/blockIcons.ts`. Dabei `src/editor/canvas/useFieldBinding.tsx`
-   teilen.
-6. Quellenarten neu ordnen (Was lesen, nicht Wie liefern), wenn der Inhalt der
-   Daten-Seitenleiste drankommt. Dabei das Quellenformular
-   (`src/editor/datacenter/DataSourceForm.tsx`) je Quellenart teilen, das
-   Formular für die Feldcodes der Hol-Relation, die Antwort-Schlüssel in
-   `src/softengine/data.ts`, und `src/softengine/relations.ts` teilen in
-   Antwort lesen, Senden und Warten, Werte zusammensuchen.
-7. Berechnung komplett neu, vorher mit dem Nutzer festlegen;
-   `src/core/data/calculation.ts` entsteht dabei neu.
-8. Aufräumdurchgang: Löschvormerkung der Erfassung ohne Bedienung, tote
-   Widgets, ungenutzte Exporte (etwa `GRID.columnPx`), alte Namen.
+5. Quellenarten nach Inhalt: erst Adressstamm, Artikelstamm, Beleg,
+   Belegpositionen, darunter „Andere“ und erst dort die Technik (IDB-Tabelle,
+   DataSet, ERP-Abfrage, ERP-Maske, Wert per Relation, Datei). Vorlage plus
+   Adapter bleiben. Dabei das Quellenformular
+   (`src/editor/datacenter/DataSourceForm.tsx`) je Quellenart teilen und
+   `src/softengine/relations.ts` teilen in Antwort lesen, Senden und Warten,
+   Werte zusammensuchen.
+6. Bauteile der Empfangsmaske, ohne neuen Baustein, wo ein Aussehen reicht:
+   der Bereich bekommt „Aussehen“ Frei, Kasten (`.vstat`), Kopfzeile
+   (`.vkopf`); der Text bekommt die Rolle Chip mit Ton (`.vflag`), und „Ton
+   folgt einem Feld“ (Kanban Schritt 4) wird einmal als Eigenschaftsart
+   gebaut und gilt für jeden Chip; das Popup bekommt „Lage“ Mitte oder Rechts
+   (`.vkartei`). Neu nur Bild (fest oder gebunden, Technik vom
+   Kanban-Avatar) und Datenliste: der Kartenteil des Kanban
+   (`src/blocks/kanban/`) wird herausgelöst, beide nutzen ihn. Später:
+   Zähler braucht die Wertherkunft „Anzahl Zeilen einer Quelle“; Navigation
+   braucht Ansichten (im Empfang Tafel, Termine, Kunden), ob Masken mehrere
+   Ansichten bekommen, entscheidet der Nutzer. Das Symbol bleibt in
+   `src/editor/blockIcons.ts`, es ist Editor-Sache. Dabei
+   `src/editor/canvas/useFieldBinding.tsx` teilen.
+7. Berechnung neu und klein: ein Satz am Kopf der Ergebnisspalte („Betrag =
+   Menge mal Preis, gerundet auf 2 Stellen“), jedes Wort anklickbar, getippt
+   nur die Zahl. Eigenschaft der Ergebnisspalte, nicht Liste am Baustein;
+   vier Rechenarten, Rabatt in Prozent, Summe am Spaltenkopf, Rundung; keine
+   Einheiten und Dimensionen. `src/core/data/units.ts`,
+   `src/editor/bar/CalculationDialog.tsx` und
+   `src/editor/canvas/CalculationsWindow.tsx` fallen weg,
+   `src/core/data/calculation.ts` entsteht neu (etwa 150 statt 560 Zeilen).
+   Vor dem Bau mit dem Nutzer nur festlegen: die Rechenarten und die Summe.
+8. Aufräumen nebenbei: wer eine Datei anfasst, räumt sie auf. Eigens nur:
+   Löschvormerkung der Erfassung ohne Bedienung, tote Widgets, ungenutzte
+   Exporte (etwa `GRID.columnPx`), alte Namen.
 
 Fertig und mit PR #1 in master (1d8437a), nicht in SoftEngine geprüft:
 Bedienung, ein Commit je Punkt: 1 Kopfzeile (1ad6913), 2 Palette als dunkler
