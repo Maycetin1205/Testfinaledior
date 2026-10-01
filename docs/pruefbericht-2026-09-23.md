@@ -1033,7 +1033,8 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   Keine Suche, keine Gruppenüberschriften.
 - Mitte die Maske in echter Größe auf neutralem Grau.
 - Daten als Fenster in der Mitte über der Maske: Quellen, Relationen,
-  als Reiter, Bibliothek speichern und laden im Kopf. Zu, bis „Daten“
+  als Reiter im Kopf, daneben Import (DTK), Bibliothek speichern und
+  laden. Zu, bis „Daten“
   geklickt wird; nie modal, nie
   Vollbild.
   Quellen als Liste Name und Tabelle, rechts daneben Einstellungen und
@@ -1070,9 +1071,11 @@ Grundregeln für alle Bausteine:
 - Aktionen: je Ereignis die Schritte als Zeilen. Ein Klick auf einen
   Schritt oder auf „Schritt hinzufügen“ öffnet das Schrittfenster in der
   Mitte, wie die Klammerauflösung in SoftEngine: Reiter GET Relation, PUT
-  Relation, Werkzeug, Popup; Stellen als Raster Nr., Bezeichnung, Eingabe, Herkunft, belegte
-  oben, leere eingeklappt; Eingabe leer mit dem Namen als
-  Hintergrundschrift, leer bleibt leer; rechts das Ergebnis. Erst
+  Relation, Werkzeug, Popup; so groß wie das Datenfenster; alle Stellen
+  als Raster Nr., Bezeichnung, Herkunft, Eingabe. Erst die Herkunft aus
+  einer kurzen Liste (Fest, Ereignis, was in der Maske steht, Quellen),
+  dann bietet Eingabe nur deren Felder; Fest wird getippt, leer mit dem
+  Namen als Hintergrundschrift, leer bleibt leer; rechts das Ergebnis. Erst
   „Übernehmen“ schreibt in den Baustein (1.10., ersetzt die Sätze aus
   0adbba0).
 - „Folgt der Auswahl“: in der Leiste anklicken, dann auf den gebenden
