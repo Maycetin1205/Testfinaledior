@@ -283,7 +283,9 @@ export function openLookup(args: LookupArgs): void {
   const dialog = holder.querySelector<DialogFrame>(DIALOG_FRAME_TAG)
   table.addEventListener(ROW_ACTIVATED_EVENT, (event) => {
     const detail = (event as CustomEvent<RowActivatedDetail>).detail
-    const entry = found[detail.rawIndex]
+    // By the row, not by its index: a click on the entry chosen last time
+    // takes the table's choice away and so arrives without an index.
+    const entry = found.find((e) => e.record === detail.rawRow)
     if (!entry) return
     close()
     args.onAdopt(entry.display, entry.value, entry.record)
