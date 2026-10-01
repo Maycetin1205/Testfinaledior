@@ -35,7 +35,8 @@ export function areaColumnsStyle(node: BlockNode): Record<string, number> {
   return isInnerArea(node) ? { [AREA_COLUMNS]: gridSlotRead(node.values).w } : {}
 }
 
-// What an area holds stays inside it when it gets narrower.
+// What an area holds stays inside it when it gets narrower, down to the areas
+// inside it.
 function keptInside(tree: MaskTree, areaId: string, columns: number): MaskTree {
   const area = tree[areaId]
   if (!isInnerArea(area)) return tree
@@ -47,7 +48,7 @@ function keptInside(tree: MaskTree, areaId: string, columns: number): MaskTree {
     const x = Math.min(pos.x, columns - 1)
     const w = Math.min(pos.w, columns - x)
     if (x === pos.x && w === pos.w) continue
-    next = { ...next, [childId]: { ...child, values: { ...child.values, gridX: x, gridW: w } } }
+    next = keptInside({ ...next, [childId]: { ...child, values: { ...child.values, gridX: x, gridW: w } } }, childId, w)
   }
   return next
 }
@@ -222,7 +223,7 @@ export function cellMoveIn(
     parentId: parentId,
     values: { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: h },
   }
-  return growersEndAbove(next, id)
+  return growersEndAbove(keptInside(next, id, w), id)
 }
 
 // A new place and size in the same area, kept inside the columns.
