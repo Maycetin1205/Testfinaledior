@@ -29,6 +29,9 @@ export interface BlockLookupWindow {
   storageFieldProp?: string
   storageTitleProp?: string
 
+  // The property the window is titled by.
+  titleProp?: string
+
   spot?: string
   when?: Condition
 }

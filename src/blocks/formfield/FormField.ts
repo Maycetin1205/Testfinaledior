@@ -227,6 +227,7 @@ defineBlock(FormField, {
         sourceProp: 'lookupSource',
         storageFieldProp: 'storageField',
         storageTitleProp: 'storageTitle',
+        titleProp: 'label',
         spot: '.magnifier',
         when: ONLY_LOOKUP,
       },
