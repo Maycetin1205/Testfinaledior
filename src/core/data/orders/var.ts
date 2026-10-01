@@ -9,7 +9,6 @@ export const varOrder: OrderAdapter<'var'> = {
   kind: 'var',
   read: () => ({ kind: 'var' }),
   needsTable: true,
-  allFields: () => false,
   sheet: (sources, fields) => ({
     VAR: sources.map((s) => ({ ID: s.tableId, FELDER: fields(s, false) })),
   }),

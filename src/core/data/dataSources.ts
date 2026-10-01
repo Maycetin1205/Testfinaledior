@@ -30,7 +30,7 @@ export interface DataSource {
 
   name: string
 
-  // The data center shows the form of this preset; the export never reads it.
+  // The data window shows the settings of this preset; the export never reads it.
   preset: PresetId
 
   // SoftEngine's id of what the source reads: table, query, DataSet or mask.
@@ -132,10 +132,6 @@ export function orderedFields(
   const codes = onlyUsed(front, used)
 
   return codes.every((code) => POS_LEN.test(code)) ? codes.join(',') : '*'
-}
-
-export function allFieldsDelivered(source: DataSource): boolean {
-  return orderAdapter(source.order.kind).allFields(source.order)
 }
 
 export function choiceOf(source: DataSource): SourceChoice {

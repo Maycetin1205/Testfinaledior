@@ -34,7 +34,6 @@ export const sefileloop: OrderAdapter<'sefileloop'> = {
     }
   },
   needsTable: true,
-  allFields: (order) => order.wildcard,
   sheet(sources, fields) {
     // A loop under a header fails on its own and SoftEngine then drops every
     // loop after it, so those come last.

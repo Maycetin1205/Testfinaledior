@@ -9,6 +9,5 @@ export const noOrder: OrderAdapter<'none'> = {
   kind: 'none',
   read: () => ({ kind: 'none' }),
   needsTable: false,
-  allFields: () => false,
   sheet: () => ({}),
 }

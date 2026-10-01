@@ -1,5 +1,4 @@
-import { ACTION_PLACEHOLDER } from '../actions'
-import { placeholderInsert, unknownPlaceholder } from '../relations'
+import { placeholderInsert } from '../relations'
 import type { Unread } from '../../unread'
 import type { StepAdapter, StepBase } from './stepAdapter'
 
@@ -20,7 +19,6 @@ function toolFields(raw: Unread<RuntimeStartToolStep>): { toolNumber: string; to
 
 export const startTool: StepAdapter<'START_TOOL'> = {
   kind: 'START_TOOL',
-  name: 'START_TOOL',
   answers: false,
   read(raw, base) {
     const fields = toolFields(raw)
@@ -38,43 +36,11 @@ export const startTool: StepAdapter<'START_TOOL'> = {
       toolParameter: [...step.toolParameter],
     }
   },
-  check(step) {
-    if (step.toolNumber.trim() === '') return 'Schritt "START_TOOL" hat keine Nummer.'
-    if (step.toolParameter.some((param) => param.trim() === '')) {
-      return 'Schritt "START_TOOL" hat einen leeren Parameter.'
-    }
-    const unknown = step.toolParameter.flatMap((param) => unknownPlaceholder(param, ACTION_PLACEHOLDER))
-    if (unknown.length > 0) return 'Schritt "START_TOOL" hat einen unbekannten Platzhalter.'
-    return null
-  },
   run(step, run) {
     const sent = run.host.sendStartTool(
       step.toolNumber, placeholderInsert({ parameter: step.toolParameter }, run.values),
     )
     return Promise.resolve({ failed: !sent })
-  },
-  summary(step) {
-    return {
-      what: 'START_TOOL',
-      detail: step.toolNumber.trim() !== '' ? ` — Nr. ${step.toolNumber}` : '',
-      target: '',
-      origin: '',
-      table: '',
-    }
-  },
-  form: {
-    fields: ['toolNumber'],
-    values: (step) => ({ toolNumber: step.toolNumber }),
-    step(id, values, before) {
-      const old = before?.kind === 'START_TOOL' ? before : undefined
-      return {
-        id,
-        kind: 'START_TOOL',
-        resultName: old?.resultName ?? '',
-        toolNumber: values.toolNumber.trim(),
-        toolParameter: old ? [...old.toolParameter] : [],
-      }
-    },
   },
   bindings: () => [],
   withBindings: (step) => step,

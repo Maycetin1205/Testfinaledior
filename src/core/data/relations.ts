@@ -135,13 +135,6 @@ export function parameterRole(raw: string): ParameterRole | null {
   return null
 }
 
-export function isUnnamedTemplate(entry: RelationTemplate): boolean {
-  const name = entry.name.trim()
-  return name === ''
-    || name === relationSyntaxAsText(entry)
-    || name.startsWith(`${entry.verb}[`)
-}
-
 export function relationSyntaxRead(input: string): RelationSyntax | null {
   const raw = input.trim()
   const head = /^(GET_RELATION|PUTADD_RELATION|PUT_RELATION)\[/i.exec(raw)
@@ -204,14 +197,6 @@ export function placeholderInsert(
       String(context[key] ?? ''),
     ),
   )
-}
-
-export function unknownPlaceholder(param: string, known: readonly string[]): string[] {
-  const acc: string[] = []
-  for (const m of param.matchAll(/\{([A-Z_]+)\}/g)) {
-    if (!known.includes(m[1])) acc.push(m[1])
-  }
-  return acc
 }
 
 export function checkRelationTemplates(raw: unknown): RelationTemplate[] {

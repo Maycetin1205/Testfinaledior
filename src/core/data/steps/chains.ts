@@ -2,7 +2,6 @@ import type { PendingKind } from '../../block/capability'
 import { CELLS_PARAM_SOURCES } from '../actions'
 import type { RelationTemplate } from '../relations'
 import { isUnread } from '../../unread'
-import type { CheckWorld } from './stepAdapter'
 import { isStepKind, stepAdapter, type ActionChains, type RuntimeStep, type Step } from './steps'
 
 export function chainsClean(
@@ -135,7 +134,7 @@ export function sectionsOf(steps: readonly (Step | RuntimeStep)[]): Section[] {
   return out
 }
 
-export function stepsBefore(
+function stepsBefore(
   chain: readonly Step[],
   stepId: string | undefined,
 ): readonly Step[] {
@@ -174,19 +173,4 @@ export function resultStepsBefore(
     })
   }
   return out
-}
-
-export function stepProblem(step: Step, world: Omit<CheckWorld, 'section'>): string | null {
-  const section = world.before === undefined
-    ? undefined
-    : sectionsOf([...world.before, step]).at(-1)?.kind
-  return stepAdapter(step.kind).check(step, section === undefined ? world : { ...world, section })
-}
-
-// The step whose result this one reads; the list sets it underneath.
-export function anchorStepId(step: Step): string {
-  for (const b of stepAdapter(step.kind).bindings(step)) {
-    if (b.source === 'stepResult' && b.value !== '') return b.value
-  }
-  return ''
 }

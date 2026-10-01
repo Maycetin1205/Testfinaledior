@@ -13,7 +13,6 @@ export const mask: OrderAdapter<'mask'> = {
     return area === '' ? null : { kind: 'mask', area }
   },
   needsTable: true,
-  allFields: () => true,
   sheet: (sources) => ({
     MASKE: sources.map((s) => ({
       ID: s.tableId,
