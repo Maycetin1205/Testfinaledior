@@ -1159,3 +1159,89 @@ Später, vor dem Bau besprechen:
   Bau mit ihm festgelegt (Vorschlag: ein Satz am Spaltenkopf).
 - Chip-Farbe der Karte: folgt einem Feld, aber einstellbar, welches Feld
   und welcher Wert welchen Ton bekommt. Kommt mit dem neuen Kanban.
+
+## Code-Prüfung 01.10. (Stand dfed591)
+
+16 Prüfer haben den ganzen Code gelesen, jeder Befund wurde von einem
+zweiten gegengeprüft. Zwei Querschnitts-Prüfer (Aufbau, Fehleranfälligkeit)
+wurden abgebrochen. Urteil: **6 von 10.** Das Fundament ist gut, die
+Ausführung trägt die Reste vieler Umbauten.
+
+Gut: eine schlanke Basisklasse für alle neun Bausteine, gemeinsames
+Verhalten über kleine Helfer statt tiefer Vererbung; jede Eigenschaft
+einmal deklariert, daraus Inspector, Export und Laden; der Editor zeigt
+die echten Bausteine; ein Store mit Rückgängig; nur `src/softengine`
+spricht mit SoftEngine.
+
+### Fehler, die man beim Bedienen merkt
+
+- Ankreuzfeld: der Haken liegt in privatem Zustand, Aktionen und „Wert
+  geändert" lesen immer leer (`blocks/formfield/FormField.ts:48`).
+- Nachschlage-Feld lädt beim Auswählen nicht nach: Attributtext „true"
+  wird mit Ja verglichen (`runtime/fetchingSources.ts:31`).
+- Erfassung: während des Schreibens bleibt die Zeile bearbeitbar, doppelt
+  gebucht oder Änderung verloren (`blocks/capture/ledger.ts:668`);
+  ausgeblendete Spalten stören Enter/Tab und die Pflichtprüfung
+  (`blocks/capture/row.ts:149`); Escape und Korrektur lassen
+  Hilfsdatensätze und Rechnung schief (`ledger.ts:280`, `ledger.ts:563`).
+- Doppelklick wählt eine Zeile an und gleich wieder ab
+  (`blocks/list/tableBody.ts:135`); im wieder geöffneten Nachschlagen tut
+  der zuletzt gewählte Eintrag nichts (`blocks/list/rowActivation.ts:147`);
+  Escape in der Spaltenwahl schließt das ganze Fenster
+  (`blocks/list/columnPicker.ts:110`).
+- Editor verliert Daten: eine gespeicherte Maske, die er nicht lesen kann,
+  wird leer ersetzt und beim ersten Klick überschrieben
+  (`editor/state/EditorStore.ts:90`); Laden einer Maske überschreibt
+  neuere Einträge der Kundendatei (`EditorStore.ts:433`).
+- Datenfenster: „Wert per Relation" lässt sich nicht umbenennen
+  (`editor/data/SourcesTab.tsx:46`); Feld-Vorsatz und Bereich schreiben
+  beim Verlassen alten Text zurück und heben Rückgängig auf
+  (`editor/data/SourceSettings.tsx:169`); ein Klick neben das Schrittfenster
+  verwirft alle Eingaben (`editor/actions/ActionsSection.tsx:45`).
+- Lieferung „per GET" erzeugt eine Quelle, die die Maske ablehnt
+  (`core/data/dataSources.ts:212`).
+- Quelle wechseln lässt alte Bindungen stehen
+  (`editor/bar/BarControl.tsx:146`); eine kaputte Bindung sieht im Editor
+  leer aus, im Export ist die Beschriftung leer
+  (`editor/canvas/useLitElement.ts:111`).
+- Bereich schmaler schieben: Kinder bleiben draußen
+  (`core/block/gridArea.ts:37`); Kanban: eine verschobene Karte springt bei
+  jedem Neuzeichnen zurück (`blocks/kanban/board.ts:98`).
+- Editor und Maske verschieden: Titel des Nachschlagens
+  (`editor/canvas/lookupWindowState.ts:63`); Tabelle ohne Quelle zeigt in
+  der Maske Strichzeilen (`blocks/list/recordList.ts:80`); Berechnungs-
+  Vorschau liest Zahlen anders als die Maske (`core/data/calculation.ts:25`).
+
+### Toter Code
+
+Drei ganze Teile laufen nie: das alte Fluss-Layout von vor dem Raster
+(`core/block/flow.ts`, `editor/canvas/NodeList.tsx:107`,
+`export/nodeStyle.ts:27`, Eigenschaft `width` in jeder Maske); das Löschen
+gebuchter Zeilen, abgeschaltet in 16b31c9, Code in fünf Schichten
+(`ledger.ts:883`, `core/block/capability.ts:65`); die Meldungstexte der
+Berechnung, nie angezeigt, aber in jedem Export (`calculation.ts:239`).
+Dazu: Vorschlags-Sortierung (`blocks/lookup/suggestionList.ts:22`),
+`NumberControl`, `Row`, zehn Icons in `editor/icons/icon.ts`.
+
+### Doppelt geschrieben
+
+Eigenschaft „Quelle" viermal von Hand (`blocks/*/properties.ts`); Listen-
+Eigenschaften siebenmal gleich gelesen (`core/data/extraSources.ts:57`);
+zwei Systeme „woher kommt ein Wert", schon auseinander
+(`core/data/valueOrigin.ts`, `editor/actions/placeChoices.ts:84`); die
+Maske liest Eigenschaften per Namensregel statt aus der Deklaration
+(`runtime/source.ts:11`, `runtime/pairList.ts:12`); Bindung zu Feldname
+drei- bis fünfmal (`useFieldBinding.tsx:67`, `useLitElement.ts:103`).
+
+### Aufbau
+
+`CaptureLedger` (1.100 Zeilen) macht fünf Dinge auf einmal;
+`useFieldBinding` ist ein Hook mit 390 Zeilen, der eine ganze Leiste
+zeichnet; Fenster öffnen auf drei Wegen; zwei React-Teile reden über
+DOM-Ereignisse. Gegen die eigenen Regeln: roter „fehlt"-Hinweis und
+Platzhaltersatz (`editor/controls/PickerControl.tsx:42`), die Berechnung
+als Vollbild-Dialog (schon zum Neubau vorgemerkt).
+
+Reihenfolge: Datenverlust und Doppelbuchung zuerst, dann die übrigen
+Bedienfehler, dann die drei toten Teile raus, dann Doppeltes
+zusammenlegen.
