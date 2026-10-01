@@ -23,7 +23,6 @@ export function listProperties(sortsByClick: boolean) {
       label: 'Suchzeile',
       place: 'display',
       attribute: 'search',
-      needsSource: true,
     }),
     paging: booleanProperty({
       default: true,
