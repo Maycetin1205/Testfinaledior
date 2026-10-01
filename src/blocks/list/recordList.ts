@@ -60,8 +60,6 @@ interface ListShowQuestion {
 
   rowsFrom: RowsFrom
 
-  sourceId: string
-
   columns: readonly Column[]
 
   rowCount: number
@@ -74,11 +72,10 @@ interface ListShows {
   empty: boolean
 }
 
-// Rows of blanks are as empty as no rows at all.
+// Rows of blanks are as empty as no rows at all, and a list without a source
+// has none.
 function listEmptyState(question: ListShowQuestion): ListShows {
-  const sourceId = question.sourceId.trim()
-  const rows = !question.preview && (question.rowsFrom === 'handed' || sourceId !== '')
-  if (!rows) return { rows: false, empty: false }
+  if (question.preview) return { rows: false, empty: false }
 
   const anyColumnBound = question.columns.some((column) => column.field.trim() !== '')
   const empty = question.rowCount === 0
@@ -227,7 +224,6 @@ export class RecordList implements ReactiveController {
     const shows = listEmptyState({
       preview: el.preview,
       rowsFrom: this._rowsFrom,
-      sourceId: el.source,
       columns,
       rowCount: el.dataRows.length,
     })
