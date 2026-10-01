@@ -132,7 +132,11 @@ function rowTpl(
       ? String(rawIndex === placement.selectionIndex)
       : nothing}
     style=${styleMap(placement.cols)}
-    @click=${() => {
+    @click=${(e: MouseEvent) => {
+      // The second click of a double-click, or a click into a cell, goes on
+      // with the chosen row and leaves it chosen.
+      const chosen = rawIndex !== null && rawIndex === placement.selectionIndex
+      if (chosen && (e.detail > 1 || (e.target as HTMLElement).closest('.cell-input'))) return
       act.activateRow(rawIndex, viewIndex)
     }}
     @dblclick=${(e: MouseEvent) => {
