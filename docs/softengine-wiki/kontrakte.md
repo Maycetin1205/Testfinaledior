@@ -385,18 +385,26 @@ steht hier nur als Wissen:
   dort liegt sie unter `JS/JS/` (belegt 2026-07-28 und 2026-09-15, WinUI); die
   Kopie unter `selib/2.0.0/` ist byte-gleich. Fehlt die Brücke, meldet die
   Maske „SoftEngine-Anschluss nicht gefunden".
-- **Den Tastaturfokus gibt dem WebView nur SoftEngine selbst.** Bei der
-  Nachricht `WWFOC` ruft `basis.html.interface.js` `basisHTML_DoSetFocusToHTML()`;
-  antwortet die Maske `true` („erledigt"), überspringt die Brücke
-  `basis_HTML_DoSetAutoFocus()` — die Funktion, die ein unsichtbares
-  `<input id="AFELM">` anlegt und zweimal fokussiert. Ohne diesen Griff hat der
-  WebView keine Tastatur: ein Klick landet in keinem Feld, in keinem Baustein,
-  und erst Öffnen und Schließen der Entwicklerkonsole holt ihn nach. Die Maske
-  antwortet darum nur `true`, wenn die Schreibmarke schon auf ihr steht
-  (`softengine/bridge.ts` `fokusBeiUns`, durch alle Schatten-Wurzeln). Echttest
-  2026-09-15, Layoutrahmen 00001 in der Belegerfassung: mit der Antwort `false`
-  klickt es, mit `true` nicht. Eine Maske ohne Layoutrahmen (STDERFASSUNG 990)
-  war nie betroffen — dort fragt niemand nach dem Fokus.
+- **Den Tastaturfokus gibt dem WebView nur SoftEngine selbst; die Maske kann
+  ihn nicht holen.** Gemessen 2026-09-30 und 2026-10-01 mit einer
+  Fensteraufzeichnung (GetGUIThreadInfo, 30 ms Takt) an Layoutrahmen 00001 und
+  00002, Revision 130288: `SeErpWinUi.exe` ist ein natives Win32-Programm mit
+  WebView2 über `ICoreWebView2Controller`. Der WebView des Layoutrahmens hängt
+  im namenlosen Hauptfenster (Klasse BWWORK), bei 00001 wie bei 00002; die
+  Positionserfassung ist ein eigenes Fenster. Nach dem Öffnen eines Belegs und
+  nach jedem Fensterwechsel rechnet SoftEngine 2 bis 9 Sekunden
+  (Positionskalkulation BPK, Stammkalkulation STKBELERF010, Artikelbild über
+  Relation 1911). Solange landet ein Klick in die Maske nicht dort, sondern im
+  Hauptfenster oder in SoftEngines Eingabefeld `BwBuiltinEdit`, und getippte
+  Buchstaben gehen in dessen Artikelfeld. Fällt die Last auf null, bleibt der
+  erste Klick, und danach geht der Fokus nicht mehr verloren. Alt+Tab hilft
+  nicht, es verbraucht nur Zeit. Eine leere Maske ohne jede Bestellung wartet
+  genauso lange wie die echte; die Rechenphase ist SoftEngines eigene.
+  `WWFOC` hat SoftEngine in keinem Lauf gesendet, `basisHTML_DoSetFocusToHTML`
+  wird nie gerufen; 450 Griffe mit unsichtbarem Eingabefeld aus der Seite
+  blieben ohne Wirkung. Die Antwort `focusOnUs()` in `softengine/bridge.ts`
+  bleibt stehen, sie ist folgenlos. STDERFASSUNG ohne Layoutrahmen: nicht
+  nachgemessen.
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
   und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie
