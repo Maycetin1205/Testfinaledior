@@ -57,6 +57,9 @@ const STEP_NAMES: Record<StepKind, string> = {
   BW_LINK: 'BW-Befehl',
 }
 
+// What a new step can be; a BW command in a saved mask stays as it is.
+const OFFERED_KINDS = STEP_KINDS.filter((kind) => kind !== 'BW_LINK')
+
 const EMPTY_VALUES: StepFormValues = {
   toolNumber: '',
   command: '',
@@ -533,7 +536,7 @@ function AddStep({ onAdd }: { onAdd: (kind: StepKind) => void }) {
       {open && (
         <Popover name="Schritt" anchor={button} width={220} onClose={() => setOpen(false)}>
           <List
-            groups={[{ key: 'kinds', entries: STEP_KINDS.map((kind) => ({ value: kind, name: STEP_NAMES[kind] })) }]}
+            groups={[{ key: 'kinds', entries: OFFERED_KINDS.map((kind) => ({ value: kind, name: STEP_NAMES[kind] })) }]}
             value=""
             onChoose={(kind) => {
               onAdd(kind as StepKind)
