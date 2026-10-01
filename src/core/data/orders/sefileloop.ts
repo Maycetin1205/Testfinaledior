@@ -22,6 +22,21 @@ function varOfHeaderKey(source: OrderedSource<'sefileloop'>): VarEntry[] {
   return parts ? [{ ID: parts[1], FELDER: parts[2] }] : []
 }
 
+// SoftEngine is asked for bare codes (`3_8`); the rows still come back with the
+// table's prefix (`BEL_3_8`), so a code typed with it reads the same.
+function withoutTablePrefix(felder: string, tableId: string): string {
+  if (felder === '*' || tableId === '') return felder
+  const prefix = `${tableId}_`
+  const codes: string[] = []
+  for (const code of felder.split(',')) {
+    const bare = code.startsWith(prefix) && /^\d+_\d+$/.test(code.slice(prefix.length))
+      ? code.slice(prefix.length)
+      : code
+    if (!codes.includes(bare)) codes.push(bare)
+  }
+  return codes.join(',')
+}
+
 export const sefileloop: OrderAdapter<'sefileloop'> = {
   kind: 'sefileloop',
   read(raw) {
@@ -49,7 +64,7 @@ export const sefileloop: OrderAdapter<'sefileloop'> = {
           ALIAS: s.name,
           ID: s.tableId,
           ...(headerKey !== '' ? { KOPFSATZ_INDEX: headerKey } : {}),
-          FELDER: fields(s, s.order.wildcard),
+          FELDER: withoutTablePrefix(fields(s, s.order.wildcard), s.tableId),
         }
       }),
       VAR: ordered.flatMap(varOfHeaderKey),
