@@ -63,8 +63,9 @@ export class Board {
   }
 
   // A card keeps its key across deliveries: the record number where it is
-  // unique, else the content, so the choice survives a delivery.
-  hydrate(): void {
+  // unique, else the content, so the choice survives a delivery. A moved card
+  // stays where it was put until data arrives; a new choice is no data.
+  hydrate(delivery: boolean): void {
     const el = this.el
     const preamble = readDataPreamble(el)
     if (!preamble) {
@@ -95,7 +96,7 @@ export class Board {
         values: el.cardValues(row, preamble.read),
       }
     })
-    if (!this.writes) this.moved.clear()
+    if (delivery && !this.writes) this.moved.clear()
     if (!this.cards.some((card) => card.key === this.dragging)) this.endDrag()
     const hit = relocateSelection(giverIdOf(el), this.cards, (card) => card.row, (card) => card.key)
     this.chosen = hit.length > 0 ? this.cards[hit[0]].key : ''
@@ -177,7 +178,7 @@ export class Board {
 }
 
 const link = makeDataLink<BoardElement & { board: Board }>({
-  hydrate: (el) => { el.board.hydrate() },
+  hydrate: (el, delivery) => { el.board.hydrate(delivery) },
 })
 
 export const boardRegister = link.connect
