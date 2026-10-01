@@ -22,19 +22,19 @@ export function Strip({ children, right }: { children: ReactNode; right?: ReactN
 const leavesLine = (e: FocusEvent<HTMLElement>): boolean =>
   !(e.currentTarget.closest('tr')?.contains(e.relatedTarget as Node | null) ?? false)
 
-// A line of two typed cells: Enter or leaving the line saves, Esc takes back.
+// A line of typed cells: Enter or leaving the line saves, Esc takes back.
 // What does not read stays red and is not saved.
 export function Line({ cells, names, mono, valid, active = false, onSelect, onSave, onRemove }: {
-  cells: readonly [string, string]
-  names: readonly [string, string]
-  mono: readonly [boolean, boolean]
-  valid: (v: readonly [string, string]) => boolean
+  cells: readonly string[]
+  names: readonly string[]
+  mono: readonly boolean[]
+  valid: (v: readonly string[]) => boolean
   active?: boolean
   onSelect?: () => void
-  onSave: (v: readonly [string, string]) => void
+  onSave: (v: readonly string[]) => void
   onRemove: () => void
 }) {
-  const [v, setV] = useState<readonly [string, string]>(cells)
+  const [v, setV] = useState<readonly string[]>(cells)
   const ok = valid(v)
   const commit = () => { if (ok) onSave(v) }
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -46,19 +46,15 @@ export function Line({ cells, names, mono, valid, active = false, onSelect, onSa
       onClick={onSelect}
       className={cn(active ? 'bg-accent-soft' : 'hover:bg-control/60')}
     >
-      {[0, 1].map((k) => (
+      {names.map((name, k) => (
         <td key={k} className={cn(TD, k === 0 && active && 'shadow-mark')}>
           <input
-            aria-label={names[k]}
-            value={v[k]}
+            aria-label={name}
+            value={v[k] ?? ''}
             spellCheck={false}
-            className={cn(CELL, mono[k] && 'font-mono text-dense', !ok && 'text-error')}
+            className={cn(CELL, mono[k] === true && 'font-mono text-dense', !ok && 'text-error')}
             onFocus={onSelect}
-            onChange={(e) => {
-              const next: [string, string] = [v[0], v[1]]
-              next[k] = e.currentTarget.value
-              setV(next)
-            }}
+            onChange={(e) => setV(v.map((x, i) => (i === k ? e.currentTarget.value : x)))}
             onKeyDown={onKey}
             onBlur={(e) => { if (leavesLine(e)) commit() }}
           />
@@ -67,7 +63,7 @@ export function Line({ cells, names, mono, valid, active = false, onSelect, onSa
       <td className={cn(TD, 'text-center')}>
         <button
           type="button"
-          aria-label={`${cells[0]} löschen`}
+          aria-label={`${cells[0] ?? ''} löschen`}
           title="Löschen"
           onClick={(e) => { e.stopPropagation(); onRemove() }}
           className="inline-flex h-[28px] items-center px-[8px] text-muted hover:text-error"
@@ -79,37 +75,34 @@ export function Line({ cells, names, mono, valid, active = false, onSelect, onSa
   )
 }
 
-// The empty last line: first cell, Tab, second cell, Enter.
+// The empty last line: one cell after the other with Tab, then Enter.
 export function NewLine({ names, mono, valid, onAdd }: {
-  names: readonly [string, string]
-  mono: readonly [boolean, boolean]
-  valid: (v: readonly [string, string]) => boolean
-  onAdd: (v: readonly [string, string]) => boolean
+  names: readonly string[]
+  mono: readonly boolean[]
+  valid: (v: readonly string[]) => boolean
+  onAdd: (v: readonly string[]) => boolean
 }) {
-  const [v, setV] = useState<readonly [string, string]>(['', ''])
+  const empty = names.map(() => '')
+  const [v, setV] = useState<readonly string[]>(empty)
   const ok = valid(v)
   const commit = () => {
-    if (v[0].trim() === '' && v[1].trim() === '') return
-    if (onAdd(v)) setV(['', ''])
+    if (v.every((x) => x.trim() === '')) return
+    if (onAdd(v)) setV(empty)
   }
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') commit()
-    if (e.key === 'Escape') { setV(['', '']); e.currentTarget.blur() }
+    if (e.key === 'Escape') { setV(empty); e.currentTarget.blur() }
   }
   return (
     <tr>
-      {[0, 1].map((k) => (
+      {names.map((name, k) => (
         <td key={k} className={TD}>
           <input
-            aria-label={names[k]}
-            value={v[k]}
+            aria-label={name}
+            value={v[k] ?? ''}
             spellCheck={false}
-            className={cn(CELL, mono[k] && 'font-mono text-dense', !ok && 'text-error')}
-            onChange={(e) => {
-              const next: [string, string] = [v[0], v[1]]
-              next[k] = e.currentTarget.value
-              setV(next)
-            }}
+            className={cn(CELL, mono[k] === true && 'font-mono text-dense', !ok && 'text-error')}
+            onChange={(e) => setV(v.map((x, i) => (i === k ? e.currentTarget.value : x)))}
             onKeyDown={onKey}
             onBlur={(e) => { if (leavesLine(e)) commit() }}
           />

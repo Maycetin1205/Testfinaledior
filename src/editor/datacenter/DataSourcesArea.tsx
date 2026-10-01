@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { FileUp, X } from '@/editor/icons/icon'
+import { FileUp } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { SOURCES_DIVIDER } from '../../core/block/blockType'
@@ -7,6 +7,7 @@ import {
   aliasOf,
   choiceOf,
   keyDisplay,
+  LENGTH_MAX,
   type DataField,
   type DataSource,
 } from '../../core/data/dataSources'
@@ -87,15 +88,30 @@ function sourceWith(s: DataSource, change: Partial<Pick<DataSource, 'name' | 'pr
 const fieldCodeOk = (code: string): boolean =>
   code !== '' && !code.includes(',') && !code.includes(SOURCES_DIVIDER)
 
-// The sources as two lists: above the sources with name and table, below the
-// fields of the marked one with code and name. Typed in the line; the last
-// line of each list is empty for a new one.
+// The most a field may hold; empty when the field takes what it gets.
+const lengthOk = (raw: string): boolean => {
+  const t = raw.trim()
+  if (t === '') return true
+  const n = Number(t)
+  return Number.isInteger(n) && n >= 1 && n <= LENGTH_MAX
+}
+
+function fieldFrom(code: string, name: string, length: string): DataField {
+  const t = length.trim()
+  return { code: code.trim(), name: name.trim(), ...(t === '' ? {} : { length: Number(t) }) }
+}
+
+// The sources side by side with their fields: on the left the sources with
+// name and table, on the right always the fields of the marked one with
+// code, name and the most characters. Typed in the line; the last line of
+// each list is empty for a new one.
 export function DataSourcesArea() {
   const store = useDataSources()
   const [selectionId, setSelectionId] = useState<string | null>(null)
   const [importing, setImporting] = useState<{ fileName: string; tables: DtkTable[] } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
-  const selection = store.list.find((s) => s.id === selectionId)
+  // One source is always marked, so its fields always stand there.
+  const selection = store.list.find((s) => s.id === selectionId) ?? store.list[0]
 
   async function dtkChosen(file: File) {
     let tables: DtkTable[]
@@ -146,6 +162,8 @@ export function DataSourcesArea() {
     store.update(s.id, sourceWith(s, { fields }))
   }
 
+  const at = (v: readonly string[], k: number): string => v[k] ?? ''
+
   return (
     <div className="flex min-h-0 flex-1">
       <input
@@ -162,111 +180,102 @@ export function DataSourcesArea() {
           }
         }}
       />
-      <div className="flex min-w-0 flex-1 flex-col">
-      <Strip right={(
-        <Button className="h-[22px] px-[8px] text-dense" onClick={() => fileRef.current?.click()}>
-          <FileUp size={13} /> Aus DTK-Datei
-        </Button>
-      )}
-      >
-        Quellen
-      </Strip>
-      {/* A click below the lines lets go of the marked source. */}
-      <div
-        className="min-h-0 flex-1 overflow-y-auto"
-        onClick={(e) => { if (e.target === e.currentTarget) setSelectionId(null) }}
-      >
-        <table className="w-full border-collapse text-ui">
-          <thead className="sticky top-0 z-[1]">
-            <tr>
-              <th className={TH}>Name</th>
-              <th className={cn(TH, 'w-[150px]')}>Tabelle</th>
-              <th className={cn(TH, 'w-control')} />
-            </tr>
-          </thead>
-          <tbody>
-            {store.list.map((s) => (
-              <Line
-                key={`${s.id}:${s.name}:${s.tableId}`}
-                cells={[s.name, tableText(s)]}
-                names={['Name', 'Tabelle']}
+      <div className="flex w-[420px] shrink-0 flex-col border-r border-line">
+        <Strip right={(
+          <Button className="h-[22px] px-[8px] text-dense" onClick={() => fileRef.current?.click()}>
+            <FileUp size={13} /> Aus DTK-Datei
+          </Button>
+        )}
+        >
+          Quellen
+        </Strip>
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <table className="w-full table-fixed border-collapse text-ui">
+            <thead className="sticky top-0 z-[1]">
+              <tr>
+                <th className={TH}>Name</th>
+                <th className={cn(TH, 'w-[130px]')}>Tabelle</th>
+                <th className={cn(TH, 'w-control')} />
+              </tr>
+            </thead>
+            <tbody>
+              {store.list.map((s) => (
+                <Line
+                  key={`${s.id}:${s.name}:${s.tableId}`}
+                  cells={[s.name, tableText(s)]}
+                  names={['Name', 'Tabelle']}
+                  mono={[false, true]}
+                  valid={(v) => at(v, 0).trim() !== '' && !nameTaken(at(v, 0), s.id) && tableKind(at(v, 1), s) !== null}
+                  active={selection?.id === s.id}
+                  onSelect={() => setSelectionId(s.id)}
+                  onSave={(v) => saveSource(s, at(v, 0), at(v, 1))}
+                  onRemove={() => store.remove(s.id)}
+                />
+              ))}
+              <NewLine
+                names={['Neue Quelle, Name', 'Neue Quelle, Tabelle']}
                 mono={[false, true]}
-                valid={(v) => v[0].trim() !== '' && !nameTaken(v[0], s.id) && tableKind(v[1], s) !== null}
-                active={selection?.id === s.id}
-                onSelect={() => setSelectionId(s.id)}
-                onSave={(v) => saveSource(s, v[0], v[1])}
-                onRemove={() => {
-                  store.remove(s.id)
-                  if (selectionId === s.id) setSelectionId(null)
-                }}
+                valid={(v) => at(v, 0).trim() === ''
+                  || (!nameTaken(at(v, 0)) && (at(v, 1).trim() === '' || tableKind(at(v, 1), undefined) !== null))}
+                onAdd={(v) => addSource(at(v, 0), at(v, 1))}
               />
-            ))}
-            <NewLine
-              names={['Neue Quelle, Name', 'Neue Quelle, Tabelle']}
-              mono={[false, true]}
-              valid={(v) => v[0].trim() === '' || (!nameTaken(v[0]) && (v[1].trim() === '' || tableKind(v[1], undefined) !== null))}
-              onAdd={(v) => addSource(v[0], v[1])}
-            />
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      </div>
-
-      {selection && (
-        <div className="flex w-[520px] shrink-0 flex-col border-l border-line">
-          <Strip right={(
-            <Button onlyIcon className="h-[22px] w-[22px]" aria-label="Felder schließen" title="Schließen" onClick={() => setSelectionId(null)}>
-              <X size={13} />
-            </Button>
-          )}
-          >
-            Felder von {selection.name}
-          </Strip>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <table className="w-full border-collapse text-ui">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Strip right={selection ? `${selection.fields.length} Felder` : undefined}>
+          {selection ? `Felder von ${selection.name}` : 'Felder'}
+        </Strip>
+        {selection && (
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+            <table className="w-full table-fixed border-collapse text-ui">
               <thead className="sticky top-0 z-[1]">
                 <tr>
-                  <th className={cn(TH, 'w-[150px]')}>Code</th>
+                  <th className={cn(TH, 'w-[140px]')}>Code</th>
                   <th className={TH}>Name</th>
+                  <th className={cn(TH, 'w-[110px]')}>Max. Länge</th>
                   <th className={cn(TH, 'w-control')} />
                 </tr>
               </thead>
               <tbody>
                 {selection.fields.map((f, i) => (
                   <Line
-                    key={`${i}:${f.code}:${f.name}`}
-                    cells={[f.code, f.name]}
-                    names={['Code', 'Name']}
-                    mono={[true, false]}
-                    valid={(v) => fieldCodeOk(v[0].trim()) && v[1].trim() !== ''
-                      && !selection.fields.some((o, k) => k !== i && o.code === v[0].trim())}
+                    key={`${selection.id}:${i}:${f.code}:${f.name}:${f.length ?? ''}`}
+                    cells={[f.code, f.name, f.length === undefined ? '' : String(f.length)]}
+                    names={['Code', 'Name', 'Max. Länge']}
+                    mono={[true, false, true]}
+                    valid={(v) => fieldCodeOk(at(v, 0).trim()) && at(v, 1).trim() !== '' && lengthOk(at(v, 2))
+                      && !selection.fields.some((o, k) => k !== i && o.code === at(v, 0).trim())}
                     onSave={(v) => {
-                      const code = v[0].trim()
-                      const name = v[1].trim()
-                      if (code === f.code && name === f.name) return
-                      setFields(selection, selection.fields.map((o, k) => (k === i ? { ...o, code, name } : o)))
+                      const next = fieldFrom(at(v, 0), at(v, 1), at(v, 2))
+                      if (next.code === f.code && next.name === f.name && next.length === f.length) return
+                      setFields(selection, selection.fields.map((o, k) => (k === i ? next : o)))
                     }}
                     onRemove={() => setFields(selection, selection.fields.filter((_, k) => k !== i))}
                   />
                 ))}
                 <NewLine
-                  names={['Neues Feld, Code', 'Neues Feld, Name']}
-                  mono={[true, false]}
-                  valid={(v) => v[0].trim() === '' || (fieldCodeOk(v[0].trim()) && !selection.fields.some((o) => o.code === v[0].trim()))}
+                  key={selection.id}
+                  names={['Neues Feld, Code', 'Neues Feld, Name', 'Neues Feld, Max. Länge']}
+                  mono={[true, false, true]}
+                  valid={(v) => at(v, 0).trim() === ''
+                    || (fieldCodeOk(at(v, 0).trim()) && lengthOk(at(v, 2))
+                      && !selection.fields.some((o) => o.code === at(v, 0).trim()))}
                   onAdd={(v) => {
-                    const code = v[0].trim()
-                    const name = v[1].trim()
-                    if (!fieldCodeOk(code) || name === '' || selection.fields.some((o) => o.code === code)) return false
-                    setFields(selection, [...selection.fields, { code, name }])
+                    const next = fieldFrom(at(v, 0), at(v, 1), at(v, 2))
+                    if (!fieldCodeOk(next.code) || next.name === '' || !lengthOk(at(v, 2))
+                      || selection.fields.some((o) => o.code === next.code)) return false
+                    setFields(selection, [...selection.fields, next])
                     return true
                   }}
                 />
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

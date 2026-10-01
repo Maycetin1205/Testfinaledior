@@ -9,9 +9,9 @@ import { useRelations } from '../state/useRelations'
 import { DataSourcesArea } from './DataSourcesArea'
 import { RelationArea } from './RelationArea'
 
-type Area = 'dataSources' | 'relation' | 'library'
+type Area = 'dataSources' | 'relation'
 
-// The data as a window: sources, relations, the library, each a tab.
+// The data as a window: sources and relations as tabs, the library at the top.
 export function DataCenter({ onClose }: { onClose: () => void }) {
   const [area, setArea] = useState<Area>('dataSources')
   const sources = useDataSources()
@@ -20,14 +20,36 @@ export function DataCenter({ onClose }: { onClose: () => void }) {
   const tabs: ReadonlyArray<{ key: Area; name: string; count?: number }> = [
     { key: 'dataSources', name: 'Quellen', count: sources.list.length },
     { key: 'relation', name: 'Relationen', count: relation.list.length },
-    { key: 'library', name: 'Bibliothek' },
   ]
+  const ed = useEditor()
+  const fileRef = useRef<HTMLInputElement>(null)
 
   return (
     <section aria-label="Daten" data-ff-data-panel className="flex h-full min-h-0 flex-col">
       <header className="flex h-[44px] shrink-0 items-center gap-[14px] border-b border-line px-[14px]">
         <h2 className="text-title font-semibold text-ink">Daten</h2>
         <div className="flex-1" />
+        {/* The library is the customer file: saved and loaded from here. */}
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".json,application/json"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            try {
+              if (file) void loadLibraryFromFile(ed, file)
+            } finally {
+              e.target.value = ''
+            }
+          }}
+        />
+        <Button onClick={() => saveLibraryAsFile(ed)}>
+          <Save size={14} /> Bibliothek speichern
+        </Button>
+        <Button onClick={() => fileRef.current?.click()}>
+          <FolderOpen size={14} /> Bibliothek laden
+        </Button>
         <Button onlyIcon aria-label="Daten schließen" title="Schließen" onClick={onClose}>
           <X size={15} />
         </Button>
@@ -54,38 +76,7 @@ export function DataCenter({ onClose }: { onClose: () => void }) {
       <div className="flex min-h-0 flex-1">
         {area === 'dataSources' && <DataSourcesArea />}
         {area === 'relation' && <RelationArea />}
-        {area === 'library' && <LibraryArea />}
       </div>
     </section>
-  )
-}
-
-function LibraryArea() {
-  const ed = useEditor()
-  const fileRef = useRef<HTMLInputElement>(null)
-
-  return (
-    <div className="flex flex-col items-start gap-2 p-[12px]">
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".json,application/json"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          try {
-            if (file) void loadLibraryFromFile(ed, file)
-          } finally {
-            e.target.value = ''
-          }
-        }}
-      />
-      <Button onClick={() => saveLibraryAsFile(ed)}>
-        <Save size={14} /> Bibliothek speichern
-      </Button>
-      <Button onClick={() => fileRef.current?.click()}>
-        <FolderOpen size={14} /> Bibliothek laden…
-      </Button>
-    </div>
   )
 }

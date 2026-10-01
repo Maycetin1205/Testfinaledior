@@ -1032,7 +1032,8 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   Keine Suche, keine Gruppenüberschriften.
 - Mitte die Maske in echter Größe auf neutralem Grau.
 - Daten als Fenster in der Mitte über der Maske: Quellen, Relationen,
-  Bibliothek als Reiter. Zu, bis „Daten“ geklickt wird; nie modal, nie
+  als Reiter, Bibliothek speichern und laden im Kopf. Zu, bis „Daten“
+  geklickt wird; nie modal, nie
   Vollbild.
   Quellen als Liste Name und Tabelle, darunter die Felder der markierten
   Quelle als Liste Code und Name; Relationen als Liste Syntax und

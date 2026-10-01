@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Search, X } from '@/editor/icons/icon'
-import { Button } from '@/editor/widgets/Button'
+import { Search } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { relationIdsOf } from '../../core/block/treeQuery'
 import { blockName } from '../../core/block/blockName'
@@ -26,7 +25,8 @@ export function RelationArea() {
   const [selectionId, setSelectionId] = useState<string | null>(null)
 
   const hits = store.list.filter((r) => relationFitsToSearch(r, search))
-  const selection = hits.find((r) => r.id === selectionId) ?? null
+  // One relation is always marked, so it always stands on the right.
+  const selection = hits.find((r) => r.id === selectionId) ?? hits[0] ?? null
 
   const usageOf = (id: string): string[] =>
     Object.values(ed.tree)
@@ -48,8 +48,8 @@ export function RelationArea() {
     }
   }
 
-  const reads = (v: readonly [string, string]): boolean =>
-    relationSyntaxRead(v[0]) !== null && v[1].trim() !== ''
+  const reads = (v: readonly string[]): boolean =>
+    relationSyntaxRead(v[0] ?? '') !== null && (v[1] ?? '').trim() !== ''
 
   return (
     <div className="flex min-h-0 flex-1">
@@ -65,11 +65,7 @@ export function RelationArea() {
           />
         </span>
       </Strip>
-      {/* A click below the lines lets go of the marked relation. */}
-      <div
-        className="min-h-0 flex-1 overflow-y-auto"
-        onClick={(e) => { if (e.target === e.currentTarget) setSelectionId(null) }}
-      >
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
         <table className="w-full table-fixed border-collapse text-ui">
           <thead className="sticky top-0 z-[1]">
             <tr>
@@ -89,7 +85,7 @@ export function RelationArea() {
                 active={selection?.id === r.id}
                 onSelect={() => setSelectionId(r.id)}
                 onSave={(v) => {
-                  const next = data(r, v[0], v[1])
+                  const next = data(r, v[0] ?? '', v[1] ?? '')
                   if (!next) return
                   if (relationSyntaxAsText(next) === relationSyntaxAsText(r) && next.name === r.name) return
                   store.update(r.id, next)
@@ -100,9 +96,9 @@ export function RelationArea() {
             <NewLine
               names={['Neue Relation, Syntax', 'Neue Relation, Bezeichnung']}
               mono={[true, false]}
-              valid={(v) => v[0].trim() === '' || relationSyntaxRead(v[0]) !== null}
+              valid={(v) => (v[0] ?? '').trim() === '' || relationSyntaxRead(v[0] ?? '') !== null}
               onAdd={(v) => {
-                const next = data(undefined, v[0], v[1])
+                const next = data(undefined, v[0] ?? '', v[1] ?? '')
                 if (!next) return false
                 setSelectionId(store.add(next).id)
                 return true
@@ -114,16 +110,10 @@ export function RelationArea() {
 
       </div>
 
+      <div className="flex w-[400px] shrink-0 flex-col border-l border-line">
       {selection && (
-        <div className="flex w-[400px] shrink-0 flex-col border-l border-line">
-          <Strip right={(
-            <Button onlyIcon className="h-[22px] w-[22px]" aria-label="Relation schließen" title="Schließen" onClick={() => setSelectionId(null)}>
-              <X size={13} />
-            </Button>
-          )}
-          >
-            {selection.name}
-          </Strip>
+        <>
+          <Strip>{selection.name}</Strip>
           <div className="break-all border-b border-line px-[12px] py-[8px] font-mono text-dense text-ink">
             {relationSyntaxAsText(selection)}
           </div>
@@ -146,8 +136,9 @@ export function RelationArea() {
               <div className="px-[12px] py-[8px] text-dense">{usageOf(selection.id).join(', ')}</div>
             </>
           )}
-        </div>
+        </>
       )}
+      </div>
     </div>
   )
 }
