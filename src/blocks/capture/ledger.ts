@@ -113,6 +113,10 @@ interface CapturedRow {
 
   values: string[]
 
+  // The helper records the row was captured with; a correction takes them back.
+  chosen: ReadonlyMap<string, unknown>
+  byHand: ReadonlySet<string>
+
   written?: { record: string }
 }
 
@@ -286,6 +290,7 @@ export class CaptureLedger {
     const target = targetIn(context, index)
     if (target.sourceId !== '' && this.chosen.has(target.sourceId)) {
       this.choose(context, target.sourceId, undefined)
+      this.syncChosen(context)
     }
     this.list.restart()
     this.host.report()
@@ -568,11 +573,13 @@ export class CaptureLedger {
     }
   }
 
-  private adoptValues(context: CaptureContext, values: readonly string[]): void {
+  private adoptRow(context: CaptureContext, row: CapturedRow): void {
     this.clearCaptureRow()
-    values.forEach((value, index) => {
+    row.values.forEach((value, index) => {
       if (value !== '') this.typed.set(index, value)
     })
+    for (const [sourceId, record] of row.chosen) this.choose(context, sourceId, record)
+    for (const sourceId of row.byHand) this.byHand.add(sourceId)
     this.yieldToComputed(context)
     this.compute(context)
   }
@@ -656,16 +663,20 @@ export class CaptureLedger {
     if (back) {
       this.rows = [
         ...this.rows.slice(0, back.slot),
-        { key: back.key, values },
+        { key: back.key, values, ...this.helpersNow() },
         ...this.rows.slice(back.slot),
       ]
       this.correction = null
     } else {
-      this.rows = [...this.rows, { key: this.topKey, values }]
+      this.rows = [...this.rows, { key: this.topKey, values, ...this.helpersNow() }]
       this.nextKey += 1
     }
     this.clearCaptureRow()
     return 'captured'
+  }
+
+  private helpersNow(): Pick<CapturedRow, 'chosen' | 'byHand'> {
+    return { chosen: new Map(this.chosen), byHand: new Set(this.byHand) }
   }
 
   // A captured row goes back into the capture row. What stands there is captured
@@ -683,7 +694,7 @@ export class CaptureLedger {
     if (now === -1) return
     this.rows = this.rows.filter((_, i) => i !== now)
     this.correction = { key: row.key, slot: now }
-    this.adoptValues(context, row.values)
+    this.adoptRow(context, row)
     this.host.report()
     this.host.focusCell(this.firstCell)
   }
