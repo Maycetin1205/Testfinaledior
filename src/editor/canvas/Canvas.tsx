@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, type DragEvent } from 'react'
 import { ROOT_FLOW } from '../../core/block/flow'
 import { gridAreaStyle } from '../../core/block/grid'
+import { pageRowsTemplate } from '../../core/block/gridArea'
 import { useEditor } from '../state/useEditor'
 import { NodeList } from './NodeList'
 import { isNewBlockDrag } from './dnd'
@@ -28,6 +29,8 @@ export function Canvas() {
       setDropTarget(null)
     },
   }), [dragId, dropTarget, setDropTarget])
+
+  const rows = pageRowsTemplate(ed.tree)
 
   const mainPage = ed.pages.find((p) => p.id === ed.activePageId)?.isMainPage ?? true
 
@@ -66,6 +69,7 @@ export function Canvas() {
             className="h-full min-h-0 overflow-auto"
             style={{
               ...gridAreaStyle(),
+              ...(rows ? { gridTemplateRows: rows } : {}),
               padding: ROOT_FLOW.padding,
               boxSizing: 'border-box',
               background: 'var(--se-bg)',

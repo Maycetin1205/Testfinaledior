@@ -8,7 +8,7 @@ import {
   type FlowWidth,
 } from '../core/block/flow'
 import { gridSlotRead, gridSlotStyle } from '../core/block/grid'
-import { areaColumnsStyle } from '../core/block/gridArea'
+import { areaColumnsStyle, growMinHeightStyle } from '../core/block/gridArea'
 import { styleAsCss } from '../core/block/styleCss'
 import { escapeHtmlAttr } from './serializer'
 
@@ -23,7 +23,11 @@ export function styleAttr(
   if (isPage) {
     style = {}
   } else if (gridLevel) {
-    style = { ...gridSlotStyle(gridSlotRead(node.values)), ...areaColumnsStyle(node) }
+    style = {
+      ...gridSlotStyle(gridSlotRead(node.values)),
+      ...growMinHeightStyle(node),
+      ...areaColumnsStyle(node),
+    }
   } else {
     style = {
       ...flowWidthStyle(flowWidthRead(node.values.width), parentDirection, lockedWidth),

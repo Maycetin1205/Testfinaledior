@@ -16,6 +16,8 @@ export interface GridMetrics {
   minWidth: number
   minHeight: number
   widthDraggable: boolean
+  // A list on the page grows with the window in height.
+  grows: boolean
 }
 
 const GRID_FALLBACK: GridMetrics = {
@@ -24,6 +26,7 @@ const GRID_FALLBACK: GridMetrics = {
   minWidth: 2,
   minHeight: 1,
   widthDraggable: true,
+  grows: false,
 }
 
 const cell = (label: string, fallback: number): Property<number> => numberProperty({
@@ -89,6 +92,39 @@ export function gridSlotStyle(pos: GridSlot): Record<string, string | number> {
     minWidth: 0,
     minHeight: 0,
   }
+}
+
+const GROW_ROW = 'minmax(0, 1fr)'
+
+// The rows of the page: a row that only growing blocks cover shares the
+// height the window has left, every other row stays one fixed step. Null
+// when nothing grows.
+export function growRowsTemplate(
+  slots: readonly { slot: GridSlot; grows: boolean }[],
+): string | null {
+  const rows = nextFreeRow(slots.map((s) => s.slot))
+  const grows = Array.from({ length: rows }, () => false)
+  const fixed = Array.from({ length: rows }, () => false)
+  for (const { slot, grows: g } of slots) {
+    for (let r = slot.y; r < slot.y + slot.h; r++) (g ? grows : fixed)[r] = true
+  }
+  const tracks = grows.map((g, r) => (g && !fixed[r] ? GROW_ROW : `${GRID.rowPx}px`))
+  if (!tracks.includes(GROW_ROW)) return null
+  const runs: string[] = []
+  for (let r = 0; r < tracks.length;) {
+    let n = 1
+    while (r + n < tracks.length && tracks[r + n] === tracks[r]) n++
+    runs.push(n === 1 ? tracks[r] : `repeat(${n}, ${tracks[r]})`)
+    r += n
+  }
+  return runs.join(' ')
+}
+
+// How short a growing block may get in a small window: its least rows, never
+// more than drawn.
+export function growMinHeightPx(minRows: number, drawnRows: number): number {
+  const rows = Math.max(1, Math.min(minRows, drawnRows))
+  return rows * GRID.rowPx + (rows - 1) * GRID.gapPx
 }
 
 export function nextFreeRow(positions: readonly GridSlot[]): number {

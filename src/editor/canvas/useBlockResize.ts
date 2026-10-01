@@ -6,6 +6,7 @@ import { columnsOf, freeRowOn } from '../../core/block/gridArea'
 import type { EditorStore } from '../state/EditorStore'
 import { areaOf, heightInBox, capacityOf, rowsCapacity } from './gridArea'
 import { swallowNextClick } from './dragPosition'
+import { cellFromPointer } from './gridDnd'
 
 // The edge or corner a size is pulled at, by compass point.
 export type Edge = 'n' | 'e' | 's' | 'w' | 'ne' | 'se' | 'sw' | 'nw'
@@ -33,7 +34,6 @@ export function useBlockResize(
     const spec = gridMetricsOf(blockType(node.type))
     const rect = el.getBoundingClientRect()
     const stepX = (rect.width + GRID.gapPx) / start.w
-    const stepY = (rect.height + GRID.gapPx) / start.h
 
     const area = el.parentElement ? areaOf(el.parentElement) : null
     const capacity = area && node.parentId
@@ -45,16 +45,23 @@ export function useBlockResize(
     const minW = Math.max(1, spec.minWidth)
     const minH = Math.max(1, spec.minHeight, content)
 
-    const slotAt = (dx: number, dy: number): GridSlot => {
+    // Rows can differ in height where a list grows, so the row under the
+    // pointer is read from the real tracks.
+    const grabRow = edge.includes('s') ? start.y + start.h - 1 : start.y
+    const rowAt = (ev: PointerEvent): number => area
+      ? cellFromPointer(area, ev.clientX, ev.clientY).y
+      : grabRow + Math.round((ev.clientY - e.clientY) / (GRID.rowPx + GRID.gapPx))
+
+    const slotAt = (dx: number, row: number): GridSlot => {
       let { x, y, w, h } = start
       if (edge.includes('e')) w = clamp(start.w + dx, minW, columnsOf(editor.tree, node.parentId) - start.x)
       if (edge.includes('w')) {
         x = clamp(start.x + dx, 0, start.x + start.w - minW)
         w = start.w + start.x - x
       }
-      if (edge.includes('s')) h = heightInBox(capacity, start.y, Math.max(minH, start.h + dy))
+      if (edge.includes('s')) h = heightInBox(capacity, start.y, Math.max(minH, row - start.y + 1))
       if (edge.includes('n')) {
-        y = clamp(start.y + dy, 0, start.y + start.h - minH)
+        y = clamp(row, 0, start.y + start.h - minH)
         h = start.h + start.y - y
       }
       return { x, y, w, h }
@@ -65,7 +72,7 @@ export function useBlockResize(
     const onMove = (ev: PointerEvent) => {
       const next = slotAt(
         Math.round((ev.clientX - e.clientX) / stepX),
-        Math.round((ev.clientY - e.clientY) / stepY),
+        edge.includes('n') || edge.includes('s') ? rowAt(ev) : grabRow,
       )
       if (next.x === last.x && next.y === last.y && next.w === last.w && next.h === last.h) return
       last = next

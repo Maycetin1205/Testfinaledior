@@ -23,7 +23,7 @@ import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
 import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
 import { pagesOfMask } from '../core/block/pages'
-import { isGridArea } from '../core/block/gridArea'
+import { isGridArea, pageRowsTemplate } from '../core/block/gridArea'
 import {
   directionOfChildren,
   ROOT_FLOW,
@@ -207,6 +207,7 @@ export function exportMask(
     }))) + ';',
   ))
 
+  const rows = pageRowsTemplate(tree)
   const rootPadding = `${ROOT_FLOW.padding}px`
 
   const html = [
@@ -226,7 +227,7 @@ export function exportMask(
     `.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto;`
       + ` background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs);`
       + ` line-height: var(--se-lh); color: var(--se-ink);`
-      + ` ${gridAreaCss()}; padding: ${rootPadding}; }`,
+      + ` ${gridAreaCss()};${rows ? ` grid-template-rows: ${rows};` : ''} padding: ${rootPadding}; }`,
     '.ff-root * { font-family: inherit; font-size: inherit; }',
     '</style>',
     '</head>',

@@ -8,6 +8,8 @@ import {
   gridSlotRead,
   GRID,
   gridMetricsOf,
+  growMinHeightPx,
+  growRowsTemplate,
   type GridSlot,
 } from './grid'
 import { isPagesBlock, childrenInFlow, pageOf } from './pages'
@@ -46,6 +48,41 @@ function keptInside(tree: MaskTree, areaId: string, columns: number): MaskTree {
     const w = Math.min(pos.w, columns - x)
     if (x === pos.x && w === pos.w) continue
     next = { ...next, [childId]: { ...child, values: { ...child.values, gridX: x, gridW: w } } }
+  }
+  return next
+}
+
+const growsOnPage = (node: BlockNode): boolean =>
+  node.parentId === ROOT_ID && gridMetricsOf(blockType(node.type)).grows
+
+// The rows of the page, so a list on it fills the window downward.
+export function pageRowsTemplate(tree: MaskTree): string | null {
+  return growRowsTemplate(childrenInFlow(tree, ROOT_ID).map((n) => ({
+    slot: gridSlotRead(n.values),
+    grows: growsOnPage(n),
+  })))
+}
+
+// The least height of a list that grows on the page.
+export function growMinHeightStyle(node: BlockNode): Record<string, string> {
+  if (!growsOnPage(node)) return {}
+  const spec = gridMetricsOf(blockType(node.type))
+  return { minHeight: `${growMinHeightPx(spec.minHeight, gridSlotRead(node.values).h)}px` }
+}
+
+// A block laid on the lower part of a list on the page shortens the list so
+// it ends above the block.
+function growersEndAbove(tree: MaskTree, id: string): MaskTree {
+  const node = tree[id]
+  if (!node || node.parentId !== ROOT_ID || growsOnPage(node)) return tree
+  const pos = gridSlotRead(node.values)
+  let next = tree
+  for (const other of childrenInFlow(tree, ROOT_ID)) {
+    if (other.id === id || !growsOnPage(other)) continue
+    const g = gridSlotRead(other.values)
+    const besideX = pos.x + pos.w <= g.x || g.x + g.w <= pos.x
+    if (besideX || pos.y <= g.y || pos.y >= g.y + g.h) continue
+    next = { ...next, [other.id]: { ...other, values: { ...other.values, gridH: pos.y - g.y } } }
   }
   return next
 }
@@ -185,7 +222,7 @@ export function cellMoveIn(
     parentId: parentId,
     values: { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: h },
   }
-  return next
+  return growersEndAbove(next, id)
 }
 
 // A new place and size in the same area, kept inside the columns.
@@ -230,11 +267,11 @@ export function newBlockOnCell(
   const ny = Math.max(0, y)
   node.values = { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: spec.startHeight }
   return {
-    tree: {
+    tree: growersEndAbove({
       ...tree,
       ...nodes,
       [parent.id]: { ...parent, childIds: [...parent.childIds, node.id] },
-    },
+    }, node.id),
     node,
   }
 }
