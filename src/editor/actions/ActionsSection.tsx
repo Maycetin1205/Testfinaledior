@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { ArrowUp, Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
@@ -12,15 +12,10 @@ import { useInputSession } from '../controls/useInputSession'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
+import { useView } from '../state/useView'
+import type { EditorStore } from '../state/EditorStore'
 import { maskChoices } from './placeChoices'
 import { StepWindow, type StepContext, type StepTab } from './StepWindow'
-
-// The window that is open: for a step of the chain, or for a new one.
-interface Opened {
-  eventKey: string
-  stepId: string | null
-  tab: StepTab
-}
 
 // The tab a step opens on.
 function tabOf(step: Step, relations: readonly RelationTemplate[]): StepTab {
@@ -35,33 +30,42 @@ const VERB_SHORT: Record<RelationTemplate['verb'], string> = {
   PUTADD_RELATION: 'PUTADD',
 }
 
-// The actions of a block: per event its steps as lines. A click on a line or
-// on "Schritt hinzufügen" opens the step window in the middle of the screen.
-export function ActionsSection({ block, events }: { block: BlockNode; events: readonly EventDef[] }) {
+// What the steps of the mask can name: relations, popups and the places of the mask.
+function useStepContext(): StepContext {
   const ed = useEditor()
   const relations = useRelations().list
   const sources = useDataSources().list
   const tree = ed.tree
-  const [opened, setOpened] = useState<Opened | null>(null)
-
-  const context: StepContext = useMemo(() => ({
+  return useMemo(() => ({
     relations,
     popups: pagesOfMask(tree).filter(isWindowPage).map((p) => ({ value: p.id, name: p.name })),
     choices: maskChoices(tree, sources),
   }), [tree, sources, relations])
+}
 
-  const chainOf = (key: string): Step[] => tree[block.id]?.chains?.[key] ?? []
-  const setChain = (key: string, steps: Step[]): void => {
-    const node = ed.tree[block.id]
-    if (!node) return
-    ed.updateBlockEvents(block.id, { ...(node.chains ?? {}), [key]: steps })
-  }
+function chainOf(ed: EditorStore, blockId: string, key: string): Step[] {
+  return ed.tree[blockId]?.chains?.[key] ?? []
+}
+
+function setChain(ed: EditorStore, blockId: string, key: string, steps: Step[]): void {
+  const node = ed.tree[blockId]
+  if (!node) return
+  ed.updateBlockEvents(blockId, { ...(node.chains ?? {}), [key]: steps })
+}
+
+// The actions of a block: per event its steps as lines. A click on a line or
+// on "Schritt hinzufügen" opens the step window in the middle of the screen.
+export function ActionsSection({ block, events }: { block: BlockNode; events: readonly EventDef[] }) {
+  const ed = useEditor()
+  const opened = useView().stepWindow
+  const relations = useRelations().list
+  const context = useStepContext()
 
   return (
     <div className="flex flex-col gap-[10px]">
       {events.map((ev) => {
-        const chain = chainOf(ev.key)
-        const set = (steps: Step[]) => setChain(ev.key, steps)
+        const chain = chainOf(ed, block.id, ev.key)
+        const set = (steps: Step[]) => setChain(ed, block.id, ev.key, steps)
         return (
           <section key={ev.key} className="flex flex-col gap-[4px]">
             <span className="text-dense font-semibold text-muted">{ev.name}</span>
@@ -72,8 +76,8 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
                   nr={i + 1}
                   step={step}
                   context={context}
-                  open={opened?.stepId === step.id}
-                  onOpen={() => setOpened({ eventKey: ev.key, stepId: step.id, tab: tabOf(step, relations) })}
+                  open={opened?.blockId === block.id && opened.stepId === step.id}
+                  onOpen={() => ed.openStep({ blockId: block.id, eventKey: ev.key, stepId: step.id, tab: tabOf(step, relations) })}
                   onChange={(next) => set(chain.map((s) => (s.id === step.id ? next : s)))}
                   onUp={i === 0 ? undefined : () => {
                     const next = [...chain]
@@ -85,33 +89,43 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
               ))}
               <button
                 type="button"
-                onClick={() => setOpened({ eventKey: ev.key, stepId: null, tab: 'PUT' })}
+                onClick={() => ed.openStep({ blockId: block.id, eventKey: ev.key, stepId: null, tab: 'PUT' })}
                 className="flex h-[30px] w-full items-center gap-[8px] px-[8px] text-left text-muted hover:bg-accent-soft hover:text-ink"
               >
                 <Plus size={13} className="text-accent" /> Schritt hinzufügen
               </button>
             </div>
-            {opened?.eventKey === ev.key && (
-              <StepWindow
-                key={opened.stepId ?? 'new'}
-                nr={opened.stepId === null ? chain.length + 1 : chain.findIndex((s) => s.id === opened.stepId) + 1}
-                step={chain.find((s) => s.id === opened.stepId)}
-                tab={opened.tab}
-                chain={chain}
-                context={context}
-                onApply={(next) => {
-                  set(chain.some((s) => s.id === next.id)
-                    ? chain.map((s) => (s.id === next.id ? next : s))
-                    : [...chain, next])
-                  setOpened(null)
-                }}
-                onClose={() => setOpened(null)}
-              />
-            )}
           </section>
         )
       })}
     </div>
+  )
+}
+
+// The open step window, drawn beside the mask so that closing the bar keeps it.
+export function OpenStepWindow() {
+  const ed = useEditor()
+  const opened = useView().stepWindow
+  const context = useStepContext()
+  if (opened === null || ed.tree[opened.blockId] === undefined) return null
+
+  const chain = chainOf(ed, opened.blockId, opened.eventKey)
+  return (
+    <StepWindow
+      key={`${opened.blockId}:${opened.eventKey}:${opened.stepId ?? 'new'}`}
+      nr={opened.stepId === null ? chain.length + 1 : chain.findIndex((s) => s.id === opened.stepId) + 1}
+      step={chain.find((s) => s.id === opened.stepId)}
+      tab={opened.tab}
+      chain={chain}
+      context={context}
+      onApply={(next) => {
+        setChain(ed, opened.blockId, opened.eventKey, chain.some((s) => s.id === next.id)
+          ? chain.map((s) => (s.id === next.id ? next : s))
+          : [...chain, next])
+        ed.openStep(null)
+      }}
+      onClose={() => ed.openStep(null)}
+    />
   )
 }
 

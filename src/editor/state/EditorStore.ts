@@ -47,6 +47,15 @@ import {
 } from '../../core/block/gridArea'
 import { selectionOnPage, selectionTarget } from '../../core/block/selection'
 import { deepClone } from '../../core/deepClone'
+import type { StepTab } from '../actions/StepWindow'
+
+// Which step window is open: for a step of a block's chain, or for a new one.
+export interface OpenStep {
+  blockId: string
+  eventKey: string
+  stepId: string | null
+  tab: StepTab
+}
 
 // Which lookup window the editor shows, and for which spot of which block.
 export interface OpenLookup {
@@ -76,6 +85,7 @@ export class EditorStore extends Subject<EditorStore> {
   readonly view = new Subject<EditorStore>()
   private _viewVersion = 0
   private _calculationsFor: string | null = null
+  private _stepWindow: OpenStep | null = null
   private _lookupWindow: OpenLookup | null = null
   private _followPickFor: string | null = null
 
@@ -462,6 +472,16 @@ export class EditorStore extends Subject<EditorStore> {
   openCalculations(blockId: string | null): void {
     if (this._calculationsFor === blockId) return
     this._calculationsFor = blockId
+    this.viewChanged()
+  }
+
+  get stepWindow(): OpenStep | null { return this._stepWindow }
+
+  // Lives beside the mask, not in the bar: a click on the mask beside the
+  // window closes the bar but keeps what is being typed in the window.
+  openStep(open: OpenStep | null): void {
+    if (this._stepWindow === open) return
+    this._stepWindow = open
     this.viewChanged()
   }
 
