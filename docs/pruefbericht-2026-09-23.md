@@ -1189,10 +1189,9 @@ spricht mit SoftEngine.
   der zuletzt gewählte Eintrag nichts (`blocks/list/rowActivation.ts:147`);
   Escape in der Spaltenwahl schließt das ganze Fenster
   (`blocks/list/columnPicker.ts:110`).
-- Editor verliert Daten: eine gespeicherte Maske, die er nicht lesen kann,
-  wird leer ersetzt und beim ersten Klick überschrieben
-  (`editor/state/EditorStore.ts:90`); Laden einer Maske überschreibt
-  neuere Einträge der Kundendatei (`EditorStore.ts:433`).
+- Editor verliert Daten: behoben in 0d4111f. Unlesbares im Browser bleibt
+  liegen, eine Kundendatei eines neueren Editors wird nicht gelesen, eine
+  geladene Maske ergänzt die Kundendatei nur noch.
 - Datenfenster: „Wert per Relation" lässt sich nicht umbenennen
   (`editor/data/SourcesTab.tsx:46`); Feld-Vorsatz und Bereich schreiben
   beim Verlassen alten Text zurück und heben Rückgängig auf
