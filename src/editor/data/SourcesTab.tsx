@@ -1,13 +1,9 @@
-import { useRef, useState } from 'react'
-import { FileUp } from '@/editor/icons/icon'
-import { Button } from '@/editor/widgets/Button'
+import { useState } from 'react'
 import { Grid, GridLine, GridNewLine, Strip } from '@/editor/widgets/Grid'
 import type { DataSource } from '../../core/data/dataSources'
-import { dtkRead, type DtkTable } from '../../core/data/dtkImport'
 import { sourcePreset } from '../../core/data/presets/presets'
 import { useDataSources } from '../state/useDataSources'
-import { DtkImport } from './DtkImport'
-import { SourceSettings } from './SourceSettings'
+import { SourceBelow, SourceSettings } from './SourceSettings'
 import {
   codeReads,
   fieldFrom,
@@ -27,56 +23,20 @@ const SOURCE_COLUMNS = [
 const at = (v: readonly string[], k: number): string => v[k] ?? ''
 
 // On the left the sources with name and table, on the right the marked one:
-// its settings, then its fields. One source is always marked. Typed in the
-// line; the last line of each list takes a new one.
+// its settings in one line, then its fields; both heads stand at one height.
+// One source is always marked. Typed in the line; the last line of each list
+// takes a new one.
 export function SourcesTab() {
   const store = useDataSources()
   const [markedId, setMarkedId] = useState<string | null>(null)
-  const [importing, setImporting] = useState<{ fileName: string; tables: DtkTable[] } | null>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
   const marked = store.list.find((s) => s.id === markedId) ?? store.list[0]
   const taken = (name: string, except?: string) => nameTaken(store.list, name, except)
 
-  async function dtkChosen(file: File) {
-    let tables: DtkTable[]
-    try {
-      tables = dtkRead(new Uint8Array(await file.arrayBuffer()))
-    } catch {
-      tables = []
-    }
-    setImporting({ fileName: file.name, tables })
-  }
-
-  if (importing) {
-    return <DtkImport fileName={importing.fileName} tables={importing.tables} onClose={() => setImporting(null)} />
-  }
-
   return (
     <>
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".dtk"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          try {
-            if (file) void dtkChosen(file)
-          } finally {
-            e.target.value = ''
-          }
-        }}
-      />
       <div className="flex w-[340px] shrink-0 flex-col border-r border-line">
-        <Strip right={(
-          <Button className="h-[22px] px-[8px] text-dense" onClick={() => fileRef.current?.click()}>
-            <FileUp size={13} /> Aus DTK-Datei
-          </Button>
-        )}
-        >
-          Quellen
-        </Strip>
-        <Grid columns={SOURCE_COLUMNS} bin>
+        <Strip>Quellen</Strip>
+        <Grid columns={SOURCE_COLUMNS}>
           {store.list.map((s) => (
             <GridLine
               key={s.id}
@@ -105,7 +65,9 @@ export function SourcesTab() {
         </Grid>
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        {marked && <SourcePart key={marked.id} source={marked} />}
+        {marked
+          ? <SourcePart key={marked.id} source={marked} />
+          : <Strip>{null}</Strip>}
       </div>
     </>
   )
@@ -121,17 +83,15 @@ function SourcePart({ source }: { source: DataSource }) {
   }
   const codeFree = (code: string, except?: number) => !fields.some((f, k) => k !== except && f.code === code.trim())
   const columns = [
-    { name: sourcePreset(source.preset).columnsLabel || 'Code', width: 110, mono: true },
+    { name: sourcePreset(source.preset).columnsLabel || 'Code', width: 120, mono: true },
     { name: 'Name' },
     { name: 'Max. Länge', width: 90, mono: true, right: true },
   ]
 
   return (
     <>
-      <Strip>{source.name}</Strip>
       <SourceSettings source={source} />
-      <Strip right={fields.length}>Felder</Strip>
-      <Grid columns={columns} bin onEmpty={() => setMarkedAt(null)}>
+      <Grid columns={columns} onEmpty={() => setMarkedAt(null)}>
         {fields.map((f, i) => (
           <GridLine
             key={`${i}:${f.code}`}
@@ -157,6 +117,7 @@ function SourcePart({ source }: { source: DataSource }) {
           }}
         />
       </Grid>
+      <SourceBelow source={source} />
     </>
   )
 }

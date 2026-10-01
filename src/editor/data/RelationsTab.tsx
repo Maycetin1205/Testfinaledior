@@ -65,7 +65,7 @@ export function RelationsTab() {
             className="h-[22px] w-[240px] rounded border border-line bg-panel px-[6px] font-normal text-ui text-ink outline-none focus:border-accent"
           />
         </Strip>
-        <Grid columns={COLUMNS} bin onEmpty={() => setMarkedId(null)}>
+        <Grid columns={COLUMNS} onEmpty={() => setMarkedId(null)}>
           {hits.map((r) => (
             <GridLine
               key={r.id}

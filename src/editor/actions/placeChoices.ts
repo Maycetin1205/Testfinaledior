@@ -111,142 +111,171 @@ export function sourceChoices(sources: readonly DataSource[], exceptId: string):
   }
 }
 
-// What a place shows: the entry in plain words, and where it comes from.
-export interface PlaceText {
-  entry: string
-  origin: string
-}
-
-// fieldName: the field whose position and length stand typed in the places.
-export function placeText(b: Parameter, raw: string, choices: PlaceChoices, fieldName: string | undefined): PlaceText {
+// What stands in a place, in plain words: the typed value, or the name of the
+// field, column or value it reads.
+export function placeEntry(b: Parameter, choices: PlaceChoices): string {
   const rowsOfKind = b.source === 'captureCell' ? choices.captures
     : b.source === 'changeCell' ? choices.changes : choices.deletions
   switch (b.source) {
     case 'fixed':
-      if (b.value.trim() === '') return { entry: '', origin: '' }
-      return { entry: b.value, origin: parameterRole(raw) !== null && fieldName ? `Feld ${fieldName}` : 'fester Wert' }
+    case 'seVariable':
+      return b.value
     case 'context':
-      return { entry: EVENT_VALUES[b.value] ?? b.value, origin: 'Ereignis' }
-    case 'dataField': {
-      const source = choices.dataSources.find((s) => s.id === b.sourceId)
-      return { entry: source?.fields.find((f) => f.code === b.value)?.name ?? b.value, origin: source?.name ?? '' }
-    }
-    case 'blockValue': {
-      const spot = choices.formFields.find((f) => f.blockId === b.blockId && f.prop === b.value)
-      return { entry: spot?.name ?? b.value, origin: 'Formularfeld' }
-    }
-    case 'chosenRow': {
-      const giver = choices.givers.find((g) => g.blockId === b.blockId)
-      return {
-        entry: giver?.fields.find((f) => f.code === b.value)?.name ?? b.value,
-        origin: giver ? `Gewählte Zeile ${giver.name}` : 'Gewählte Zeile',
-      }
-    }
+      return EVENT_VALUES[b.value] ?? b.value
+    case 'dataField':
+      return choices.dataSources.find((s) => s.id === b.sourceId)?.fields.find((f) => f.code === b.value)?.name ?? b.value
+    case 'blockValue':
+      return choices.formFields.find((f) => f.blockId === b.blockId && f.prop === b.value)?.name ?? b.value
+    case 'chosenRow':
+      return choices.givers.find((g) => g.blockId === b.blockId)?.fields.find((f) => f.code === b.value)?.name ?? b.value
     case 'captureCell':
     case 'changeCell':
-    case 'deleteCell': {
-      const column = rowsOfKind.find((r) => r.blockId === b.blockId)?.columns.find((c) => c.key === b.value)
-      const word = b.source === 'captureCell' ? 'Erfasste Zeile'
-        : b.source === 'changeCell' ? 'Geänderte Zeile' : 'Gelöschte Zeile'
-      return { entry: column?.title ?? b.value, origin: word }
-    }
-    case 'stepResult': {
-      const step = choices.steps.find((s) => s.id === b.value)
-      const field = b.resultField ?? ''
-      return {
-        entry: step ? `Schritt ${step.nr}${field === '' ? '' : `, Feld ${field}`}` : '',
-        origin: 'Ergebnis',
-      }
-    }
+    case 'deleteCell':
+      return rowsOfKind.find((r) => r.blockId === b.blockId)?.columns.find((c) => c.key === b.value)?.title ?? b.value
+    case 'stepResult':
+      return b.resultField ? `Feld ${b.resultField}` : 'Antwort'
     case 'previousResult':
-      return { entry: 'Schritt davor', origin: 'Ergebnis' }
-    case 'seVariable':
-      return { entry: b.value, origin: 'VAR' }
+      return 'Antwort'
     case 'omitted':
-      return { entry: '', origin: '' }
+      return ''
   }
 }
 
-// A chosen entry of a place's list: a value for the place, or a field whose
-// position and length fill every place that asks for them.
+// Where a place takes its value from, as a key: fixed, event, a block's rows,
+// the form fields, a step, a source, or a source whose field fills position,
+// length and table. Empty while the place is empty.
+export function originOf(b: Parameter, raw: string, adopted: { sourceId: string } | undefined): string {
+  switch (b.source) {
+    case 'fixed':
+      if (b.value.trim() === '') return ''
+      return parameterRole(raw) !== null && adopted ? `adopt:${adopted.sourceId}` : 'fixed'
+    case 'omitted':
+      return ''
+    case 'context':
+      return 'event'
+    case 'captureCell':
+      return `capture:${b.blockId ?? ''}`
+    case 'changeCell':
+      return `change:${b.blockId ?? ''}`
+    case 'deleteCell':
+      return `delete:${b.blockId ?? ''}`
+    case 'chosenRow':
+      return `giver:${b.blockId ?? ''}`
+    case 'blockValue':
+      return 'formField'
+    case 'stepResult':
+      return `step:${b.value}`
+    case 'dataField':
+      return `source:${b.sourceId ?? ''}`
+    case 'previousResult':
+      return 'previous'
+    case 'seVariable':
+      return 'var'
+  }
+}
+
+const split = (origin: string): [string, string] => {
+  const at = origin.indexOf(':')
+  return at < 0 ? [origin, ''] : [origin.slice(0, at), origin.slice(at + 1)]
+}
+
+// The origin in a few words, as the column "Herkunft" shows it.
+export function originName(origin: string, choices: PlaceChoices, adoptedLabel?: string): string {
+  const [kind, id] = split(origin)
+  const nameIn = (list: readonly { blockId: string; name: string }[]) => list.find((x) => x.blockId === id)?.name ?? ''
+  switch (kind) {
+    case 'fixed': return 'Fest'
+    case 'event': return 'Ereignis'
+    case 'capture': return `Erfasste Zeile: ${nameIn(choices.captures)}`
+    case 'change': return `Geänderte Zeile: ${nameIn(choices.changes)}`
+    case 'delete': return `Gelöschte Zeile: ${nameIn(choices.deletions)}`
+    case 'giver': return `Gewählte Zeile: ${nameIn(choices.givers)}`
+    case 'formField': return 'Formularfeld'
+    case 'step': {
+      const step = choices.steps.find((s) => s.id === id)
+      return step ? `Schritt ${step.nr}: ${step.name}` : 'Schritt'
+    }
+    case 'previous': return 'Schritt davor'
+    case 'var': return 'VAR'
+    case 'source': return choices.dataSources.find((s) => s.id === id)?.name ?? ''
+    case 'adopt': {
+      const source = choices.dataSources.find((s) => s.id === id)?.name ?? ''
+      return adoptedLabel ? `${source}: ${adoptedLabel}` : source
+    }
+    default: return ''
+  }
+}
+
+// What a place can take its value from: a short list of only what this mask
+// has. Position, length and table take a field of a source, which fills all
+// three. The sources stand in a group of their own.
+export function originGroups(raw: string, choices: PlaceChoices): ListGroup[] {
+  const sources = choices.dataSources
+  const entry = (value: string) => ({ value, name: originName(value, choices) })
+  if (parameterRole(raw) !== null) {
+    const fields = adoptFields(sources)
+    return [
+      { key: 'fixed', entries: [entry('fixed')] },
+      {
+        key: 'adopt',
+        name: 'Feld einer Quelle',
+        entries: sources.filter((s) => fields.some((f) => f.sourceId === s.id)).map((s) => entry(`adopt:${s.id}`)),
+      },
+    ].filter((g) => g.entries.length > 0)
+  }
+  const blocks = [
+    ...choices.captures.map((r) => entry(`capture:${r.blockId}`)),
+    ...choices.changes.map((r) => entry(`change:${r.blockId}`)),
+    ...choices.deletions.map((r) => entry(`delete:${r.blockId}`)),
+    ...choices.givers.map((g) => entry(`giver:${g.blockId}`)),
+    ...(choices.formFields.length > 0 ? [entry('formField')] : []),
+    ...choices.steps.map((s) => entry(`step:${s.id}`)),
+  ]
+  return [
+    { key: 'fixed', entries: [entry('fixed'), ...(choices.events ? [entry('event')] : [])] },
+    { key: 'mask', name: 'Maske', entries: blocks },
+    { key: 'sources', name: 'Quelle', entries: sources.filter((s) => s.fields.length > 0).map((s) => entry(`source:${s.id}`)) },
+  ].filter((g) => g.entries.length > 0)
+}
+
+// A chosen entry: a value for the place, or a field whose position and length
+// fill every place that asks for them.
 export type PlacePick = { set: Parameter } | { adopt: { sourceId: string; code: string } }
 
 const pick = (p: PlacePick): string => JSON.stringify(p)
 
 export const placePicked = (value: string): PlacePick => JSON.parse(value) as PlacePick
 
-// What a place can take: for position, length and table a field of a source;
-// else a value of the event, a row of a list, a field of a source, a form
-// field, the result of a step before.
-export function placeGroups(raw: string, choices: PlaceChoices): ListGroup[] {
-  const sources = choices.dataSources
-  if (parameterRole(raw) !== null) {
-    const fields = adoptFields(sources)
-    return sources
-      .map((s) => ({
-        key: `adopt:${s.id}`,
-        name: s.name,
-        entries: fields.filter((f) => f.sourceId === s.id)
-          .map((f) => ({ value: pick({ adopt: { sourceId: s.id, code: f.code } }), name: f.label, badge: f.code })),
-      }))
-      .filter((g) => g.entries.length > 0)
-  }
-  const rows = (word: string, kind: 'captureCell' | 'changeCell' | 'deleteCell', list: readonly Rows[]): ListGroup[] =>
-    list.map((r) => ({
-      key: `${kind}:${r.blockId}`,
-      name: word,
-      badge: r.name,
-      entries: r.columns.map((c) => ({ value: pick({ set: { source: kind, blockId: r.blockId, value: c.key } }), name: c.title || c.key })),
-    }))
-  const groups: ListGroup[] = [
-    ...(choices.events
-      ? [{
-          key: 'event',
-          name: 'Ereignis',
-          entries: ACTION_PLACEHOLDER.map((key) => ({
-            value: pick({ set: { source: 'context', value: key } }),
-            name: EVENT_VALUES[key] ?? key,
-          })),
-        }]
-      : []),
-    ...choices.givers.map((g) => ({
-      key: `chosenRow:${g.blockId}`,
-      name: 'Gewählte Zeile',
-      badge: g.name,
-      entries: g.fields.map((f) => ({
-        value: pick({ set: { source: 'chosenRow', blockId: g.blockId, value: f.code } }),
-        name: f.name || f.code,
-        badge: f.code,
-      })),
-    })),
-    ...rows('Erfasste Zeilen', 'captureCell', choices.captures),
-    ...rows('Geänderte Zeilen', 'changeCell', choices.changes),
-    ...rows('Gelöschte Zeilen', 'deleteCell', choices.deletions),
-    ...sources.map((s) => ({
-      key: `dataField:${s.id}`,
-      name: s.name,
-      entries: s.fields.map((f) => ({
-        value: pick({ set: { source: 'dataField', sourceId: s.id, value: f.code } }),
-        name: f.name || f.code,
-        badge: f.code,
-      })),
-    })),
-    {
-      key: 'formField',
-      name: 'Formularfeld',
-      entries: choices.formFields.map((f) => ({
-        value: pick({ set: { source: 'blockValue', blockId: f.blockId, value: f.prop } }),
-        name: f.name,
-      })),
-    },
-    {
-      key: 'stepResult',
-      name: 'Ergebnis',
-      entries: choices.steps.map((s) => ({
-        value: pick({ set: { source: 'stepResult', value: s.id } }),
-        name: `Schritt ${s.nr}: ${s.name}`,
-      })),
-    },
-  ]
-  return groups.filter((g) => g.entries.length > 0)
+// What one origin offers for the column "Eingabe": only its own fields,
+// columns or values. A step offers its whole answer.
+export function originEntries(origin: string, choices: PlaceChoices): ListGroup[] {
+  const [kind, id] = split(origin)
+  const set = (b: Parameter, name: string, badge?: string) => ({ value: pick({ set: b }), name, ...(badge ? { badge } : {}) })
+  const rows = (list: readonly Rows[], source: 'captureCell' | 'changeCell' | 'deleteCell') =>
+    (list.find((r) => r.blockId === id)?.columns ?? []).map((c) => set({ source, blockId: id, value: c.key }, c.title || c.key))
+  const entries = (() => {
+    switch (kind) {
+      case 'event':
+        return ACTION_PLACEHOLDER.map((key) => set({ source: 'context', value: key }, EVENT_VALUES[key] ?? key))
+      case 'capture': return rows(choices.captures, 'captureCell')
+      case 'change': return rows(choices.changes, 'changeCell')
+      case 'delete': return rows(choices.deletions, 'deleteCell')
+      case 'giver':
+        return (choices.givers.find((g) => g.blockId === id)?.fields ?? [])
+          .map((f) => set({ source: 'chosenRow', blockId: id, value: f.code }, f.name || f.code, f.code))
+      case 'formField':
+        return choices.formFields.map((f) => set({ source: 'blockValue', blockId: f.blockId, value: f.prop }, f.name))
+      case 'step':
+        return [set({ source: 'stepResult', value: id }, 'Antwort')]
+      case 'source':
+        return (choices.dataSources.find((s) => s.id === id)?.fields ?? [])
+          .map((f) => set({ source: 'dataField', sourceId: id, value: f.code }, f.name || f.code, f.code))
+      case 'adopt':
+        return adoptFields(choices.dataSources).filter((f) => f.sourceId === id)
+          .map((f) => ({ value: pick({ adopt: { sourceId: id, code: f.code } }), name: f.label, badge: f.code }))
+      default:
+        return []
+    }
+  })()
+  return entries.length > 0 ? [{ key: origin, entries }] : []
 }

@@ -27,6 +27,7 @@ export function Window<K extends string>({
   onTab,
   width,
   height,
+  tabsInHead = false,
   panel = false,
   level = 40,
   foot,
@@ -39,6 +40,8 @@ export function Window<K extends string>({
   tabs?: readonly WindowTab<K>[]
   tab?: K
   onTab?: (key: K) => void
+  // The tabs stand in the head and the title is only read out.
+  tabsInHead?: boolean
   width: number
   height: number
   panel?: boolean
@@ -62,35 +65,19 @@ export function Window<K extends string>({
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <header className="flex h-[44px] shrink-0 items-center gap-[14px] border-b border-line px-[14px]">
-            <h2 className="shrink-0 text-title font-semibold">{title}</h2>
+          <header className="flex h-[44px] shrink-0 items-stretch gap-[14px] border-b border-line pr-[14px]">
+            {tabsInHead && tabs
+              ? <Tabs tabs={tabs} tab={tab} onTab={onTab} inHead />
+              : <h2 className="flex shrink-0 items-center pl-[14px] text-title font-semibold">{title}</h2>}
             <div className="flex min-w-0 flex-1 items-center">{beside}</div>
-            {buttons}
-            <Button onlyIcon aria-label={`${title} schließen`} title="Schließen" onClick={onClose}>
-              <X size={15} />
-            </Button>
+            <div className="flex shrink-0 items-center gap-[8px]">
+              {buttons}
+              <Button onlyIcon aria-label={`${title} schließen`} title="Schließen" onClick={onClose}>
+                <X size={15} />
+              </Button>
+            </div>
           </header>
-          {tabs && (
-            <nav className="flex shrink-0 border-b border-line bg-control px-[8px]">
-              {tabs.map((t) => (
-                <button
-                  key={t.key}
-                  type="button"
-                  aria-pressed={tab === t.key}
-                  onClick={() => onTab?.(t.key)}
-                  className={cn(
-                    '-mb-px border-b-2 px-[14px] pb-[6px] pt-[7px]',
-                    tab === t.key
-                      ? 'border-x border-x-line border-b-accent bg-panel font-semibold text-ink'
-                      : 'border-b-transparent text-muted hover:text-ink',
-                  )}
-                >
-                  {t.name}
-                  {t.count !== undefined && <span className="ml-[6px] font-normal tabular-nums text-muted">{t.count}</span>}
-                </button>
-              ))}
-            </nav>
-          )}
+          {!tabsInHead && tabs && <Tabs tabs={tabs} tab={tab} onTab={onTab} />}
           <div className="flex min-h-0 flex-1">{children}</div>
           {foot && (
             <footer className="flex shrink-0 justify-end gap-[8px] border-t border-line bg-control px-[14px] py-[8px]">
@@ -101,5 +88,36 @@ export function Window<K extends string>({
         document.body,
       )}
     </FamilyMember>
+  )
+}
+
+// The tabs, on a row of their own or in the head in place of the title.
+function Tabs<K extends string>({ tabs, tab, onTab, inHead = false }: {
+  tabs: readonly WindowTab<K>[]
+  tab?: K
+  onTab?: (key: K) => void
+  inHead?: boolean
+}) {
+  return (
+    <nav className={cn('flex shrink-0 px-[8px]', !inHead && 'border-b border-line bg-control')}>
+      {tabs.map((t) => (
+        <button
+          key={t.key}
+          type="button"
+          aria-pressed={tab === t.key}
+          onClick={() => onTab?.(t.key)}
+          className={cn(
+            '-mb-px border-b-2 px-[14px]',
+            inHead ? 'text-title' : 'pb-[6px] pt-[7px]',
+            tab === t.key
+              ? cn('border-b-accent font-semibold text-ink', !inHead && 'border-x border-x-line bg-panel')
+              : 'border-b-transparent text-muted hover:text-ink',
+          )}
+        >
+          {t.name}
+          {t.count !== undefined && <span className="ml-[6px] text-ui font-normal tabular-nums text-muted">{t.count}</span>}
+        </button>
+      ))}
+    </nav>
   )
 }

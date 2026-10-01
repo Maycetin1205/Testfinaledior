@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Plus, Trash2 } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
-import { Grid, Strip, TD } from '@/editor/widgets/Grid'
+import { Grid, INPUT, Strip, TD } from '@/editor/widgets/Grid'
 import { Segment } from '@/editor/widgets/Segment'
 import { Window } from '@/editor/widgets/Window'
 import { relationParameterDefault } from '../../core/data/actions'
@@ -99,8 +99,8 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, onApply, o
       tabs={TABS.map((t) => ({ ...t, ...(t.key === 'GET' ? { count: reads } : t.key === 'PUT' ? { count: writes } : {}) }))}
       tab={tab}
       onTab={setTab}
-      width={780}
-      height={560}
+      width={1040}
+      height={720}
       level={50}
       foot={(
         <>
@@ -157,7 +157,7 @@ function RelationBody({ step, group, template, relations, choices, onChange }: {
   const used = all.filter((b) => !(b.source === 'omitted' || (b.source === 'fixed' && b.value.trim() === ''))).length
 
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_260px]">
+    <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_280px]">
       <div className="flex min-h-0 flex-col border-r border-line">
         <Strip>Relation</Strip>
         <div className="border-b border-line px-[12px] py-[8px]">
@@ -235,25 +235,24 @@ function ToolBody({ step, onChange }: { step: StartToolStep; onChange: (step: St
         />
       </div>
       <Strip>Parameter</Strip>
-      <Grid columns={[{ name: 'Nr.', width: 44, right: true }, { name: 'Eingabe' }]} bin>
+      <Grid columns={[{ name: 'Nr.', width: 44, right: true }, { name: 'Eingabe' }]}>
         {params.map((p, i) => (
-          <tr key={i} className="group hover:bg-accent-soft">
+          <tr key={i} className="group hover:bg-accent-soft focus-within:bg-panel">
             <td className={cn(TD, 'px-[10px] text-right font-mono text-dense text-muted')}>{i + 1}</td>
-            <td className={cn(TD, 'px-[4px]')}>
+            <td className={cn(TD, 'relative')}>
               <input
                 aria-label={`Parameter ${i + 1}`}
                 value={p}
+                spellCheck={false}
                 onChange={(e) => setAt(i, e.currentTarget.value)}
-                className="h-[24px] w-full rounded border border-transparent bg-transparent px-[6px] outline-none focus:border-accent focus:bg-panel"
+                className={INPUT}
               />
-            </td>
-            <td className={cn(TD, 'text-center')}>
               <button
                 type="button"
                 aria-label={`Parameter ${i + 1} entfernen`}
                 title="Entfernen"
                 onClick={() => onChange({ ...step, toolParameter: params.filter((_, k) => k !== i) })}
-                className="text-muted opacity-0 hover:text-error group-hover:opacity-100"
+                className="absolute inset-y-0 right-0 hidden items-center px-[8px] text-muted hover:text-error group-hover:flex"
               >
                 <Trash2 size={13} />
               </button>
@@ -262,7 +261,7 @@ function ToolBody({ step, onChange }: { step: StartToolStep; onChange: (step: St
         ))}
         <tr className="cursor-pointer text-muted hover:bg-accent-soft" onClick={() => onChange({ ...step, toolParameter: [...params, ''] })}>
           <td className={TD} />
-          <td className={cn(TD, 'px-[10px]')} colSpan={2}>
+          <td className={cn(TD, 'px-[10px]')}>
             <span className="flex items-center gap-[8px]"><Plus size={13} className="text-accent" /> Parameter hinzufügen</span>
           </td>
         </tr>

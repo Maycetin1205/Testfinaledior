@@ -26,10 +26,13 @@ export interface GridColumn {
 export const TH = 'h-[26px] truncate border-b border-r border-line bg-control px-[10px] text-left text-dense font-semibold text-muted last:border-r-0'
 export const TD = 'h-[29px] border-b border-r border-line/70 p-0 last:border-r-0'
 const TEXT = 'block truncate px-[10px]'
-const INPUT = 'h-[28px] w-full min-w-0 bg-transparent px-[10px] text-ui text-ink outline-none focus:bg-panel focus:shadow-cell'
+// A cell typed into looks like any other, only with the cursor, as in the
+// capture of the mask.
+export const INPUT = 'h-[28px] w-full min-w-0 bg-transparent px-[10px] text-ui text-ink outline-none'
 // The marked line, as .is-aktiv: the whole line in the accent, the text white.
 export const MARKED = 'bg-accent text-panel'
-const BIN = 30
+// The line being typed in: white again, so the text reads as in a field.
+const TYPING = 'bg-panel'
 
 export function Strip({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
@@ -40,19 +43,13 @@ export function Strip({ children, right }: { children: ReactNode; right?: ReactN
   )
 }
 
-interface Columns {
-  columns: readonly GridColumn[]
-  bin: boolean
-}
-
-const ColumnsOf = createContext<Columns>({ columns: [], bin: false })
+const ColumnsOf = createContext<readonly GridColumn[]>([])
 
 // The table, as wide as its room; the head stays while the lines scroll. It
 // fills the height left, or stands as high as its lines. A click below the
 // lines lets go of the marked one.
-export function Grid({ columns, bin = false, fill = true, onEmpty, children }: {
+export function Grid({ columns, fill = true, onEmpty, children }: {
   columns: readonly GridColumn[]
-  bin?: boolean
   fill?: boolean
   onEmpty?: () => void
   children: ReactNode
@@ -65,16 +62,14 @@ export function Grid({ columns, bin = false, fill = true, onEmpty, children }: {
       <table className="w-full table-fixed border-collapse text-ui">
         <colgroup>
           {columns.map((c, k) => <col key={k} style={c.width === undefined ? undefined : { width: c.width }} />)}
-          {bin && <col style={{ width: BIN }} />}
         </colgroup>
         <thead className="sticky top-0 z-[1]">
           <tr>
             {columns.map((c, k) => <th key={k} className={cn(TH, c.right && 'text-right')}>{c.name}</th>)}
-            {bin && <th className={TH} />}
           </tr>
         </thead>
         <tbody>
-          <ColumnsOf.Provider value={{ columns, bin }}>{children}</ColumnsOf.Provider>
+          <ColumnsOf.Provider value={columns}>{children}</ColumnsOf.Provider>
         </tbody>
       </table>
     </div>
@@ -84,6 +79,9 @@ export function Grid({ columns, bin = false, fill = true, onEmpty, children }: {
 // Focus that leaves the line, not just the cell.
 const leavesLine = (e: FocusEvent<HTMLElement>): boolean =>
   !(e.currentTarget.closest('tr')?.contains(e.relatedTarget as Node | null) ?? false)
+
+const inputClass = (c: GridColumn, bad: boolean): string =>
+  cn(INPUT, c.mono && 'font-mono text-dense', c.right && 'text-right', bad && 'text-error')
 
 function Inputs({ names, draft, at, bad, onDraft, onEnter, onLeave, onEscape }: {
   names: readonly string[]
@@ -95,7 +93,7 @@ function Inputs({ names, draft, at, bad, onDraft, onEnter, onLeave, onEscape }: 
   onLeave: () => void
   onEscape: () => void
 }) {
-  const { columns } = useContext(ColumnsOf)
+  const columns = useContext(ColumnsOf)
   useCloseOnEscape(onEscape)
   return columns.map((c, k) => (
     <td key={k} className={TD}>
@@ -104,7 +102,7 @@ function Inputs({ names, draft, at, bad, onDraft, onEnter, onLeave, onEscape }: 
         autoFocus={k === at}
         value={draft[k] ?? ''}
         spellCheck={false}
-        className={cn(INPUT, c.mono && 'font-mono text-dense', c.right && 'text-right', bad && 'text-error')}
+        className={inputClass(c, bad)}
         onFocus={(e) => e.currentTarget.select()}
         onChange={(e) => onDraft(draft.map((x, i) => (i === k ? e.currentTarget.value : x)))}
         onKeyDown={(e) => {
@@ -118,25 +116,22 @@ function Inputs({ names, draft, at, bad, onDraft, onEnter, onLeave, onEscape }: 
   ))
 }
 
-function Bin({ name, marked, onRemove }: { name: string; marked: boolean; onRemove?: () => void }) {
+// The bin at the end of the line, while the pointer is on it or it is marked.
+function Bin({ name, marked, onRemove }: { name: string; marked: boolean; onRemove: () => void }) {
   return (
-    <td className={cn(TD, 'text-center')}>
-      {onRemove && (
-        <button
-          type="button"
-          tabIndex={-1}
-          aria-label={name}
-          title="Löschen"
-          onClick={(e) => { e.stopPropagation(); onRemove() }}
-          className={cn(
-            'inline-flex h-[28px] items-center px-[8px] opacity-0 group-hover:opacity-100',
-            marked ? 'text-panel opacity-100 hover:text-error-soft' : 'text-muted hover:text-error',
-          )}
-        >
-          <Trash2 size={13} />
-        </button>
+    <button
+      type="button"
+      tabIndex={-1}
+      aria-label={name}
+      title="Löschen"
+      onClick={(e) => { e.stopPropagation(); onRemove() }}
+      className={cn(
+        'absolute inset-y-0 right-0 flex items-center px-[8px]',
+        marked ? 'bg-accent text-panel hover:text-error-soft' : 'hidden bg-accent-soft text-muted hover:text-error group-hover:flex',
       )}
-    </td>
+    >
+      <Trash2 size={13} />
+    </button>
   )
 }
 
@@ -157,12 +152,13 @@ export function GridLine({ cells, names = [], marked, tips = false, valid, onMar
   onRemove?: () => void
   removeName?: string
 }) {
-  const { columns, bin } = useContext(ColumnsOf)
+  const columns = useContext(ColumnsOf)
   const [draft, setDraft] = useState<readonly string[] | null>(null)
   const [at, setAt] = useState(0)
   const row = useRef<HTMLTableRowElement>(null)
   const ok = draft === null || valid === undefined || valid(draft)
   const changed = draft !== null && draft.some((x, k) => x !== (cells[k] ?? ''))
+  const last = columns.length - 1
 
   const edit = (k: number) => {
     if (!onSave) return
@@ -198,7 +194,7 @@ export function GridLine({ cells, names = [], marked, tips = false, valid, onMar
       onKeyDown={onKey}
       className={cn(
         'group cursor-default outline-none',
-        draft !== null ? 'bg-panel' : marked ? MARKED : 'hover:bg-accent-soft',
+        draft !== null ? TYPING : marked ? MARKED : 'hover:bg-accent-soft',
       )}
     >
       {draft !== null
@@ -217,14 +213,14 @@ export function GridLine({ cells, names = [], marked, tips = false, valid, onMar
         : columns.map((c, k) => (
             <td
               key={k}
-              className={cn(TD, c.mono && 'font-mono text-dense', c.right && 'text-right')}
+              className={cn(TD, c.mono && 'font-mono text-dense', c.right && 'text-right', k === last && 'relative')}
               title={tips ? cells[k] : undefined}
               onDoubleClick={() => edit(k)}
             >
               <span className={TEXT}>{cells[k]}</span>
+              {k === last && onRemove && <Bin name={removeName ?? `${cells[0] ?? ''} löschen`} marked={marked} onRemove={onRemove} />}
             </td>
           ))}
-      {bin && <Bin name={removeName ?? `${cells[0] ?? ''} löschen`} marked={marked && draft === null} onRemove={onRemove} />}
     </tr>
   )
 }
@@ -236,7 +232,7 @@ export function GridNewLine({ names, valid, onAdd }: {
   valid: (v: readonly string[]) => boolean
   onAdd: (v: readonly string[]) => boolean
 }) {
-  const { columns, bin } = useContext(ColumnsOf)
+  const columns = useContext(ColumnsOf)
   const empty = columns.map(() => '')
   const [v, setV] = useState<readonly string[]>(empty)
   const typed = v.some((x) => x.trim() !== '')
@@ -245,21 +241,20 @@ export function GridNewLine({ names, valid, onAdd }: {
     if (typed && onAdd(v)) setV(empty)
   }
   return (
-    <tr>
+    <tr className="hover:bg-accent-soft focus-within:bg-panel">
       {columns.map((c, k) => (
         <td key={k} className={TD}>
           <input
             aria-label={names[k] ?? c.name}
             value={v[k] ?? ''}
             spellCheck={false}
-            className={cn(INPUT, c.mono && 'font-mono text-dense', c.right && 'text-right', !ok && 'text-error')}
+            className={inputClass(c, !ok)}
             onChange={(e) => setV(v.map((x, i) => (i === k ? e.currentTarget.value : x)))}
             onKeyDown={(e) => { if (e.key === 'Enter') add() }}
             onBlur={(e) => { if (leavesLine(e)) add() }}
           />
         </td>
       ))}
-      {bin && <td className={TD} />}
       {typed && <OnEscape run={() => setV(empty)} />}
     </tr>
   )
