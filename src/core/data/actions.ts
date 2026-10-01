@@ -1,5 +1,5 @@
 import type { PendingKind } from '../block/capability'
-import { parameterRole, type RelationTemplate } from './relations'
+import type { RelationTemplate } from './relations'
 import { isUnread } from '../unread'
 
 export const BLOCK_ID_ATTR = 'data-ff-block-id'
@@ -47,19 +47,16 @@ export const RECORD_PLACEHOLDER = ['PINDEX', 'DROP_PINDEX'] as const
 
 export const ACTION_PLACEHOLDER = [...RECORD_PLACEHOLDER, 'VALUE', 'NOW_DATE'] as const
 
-// What the syntax says a place holds: a placeholder of the event, a place the
-// field fills (position, length, table) left open, a name in capitals (BELNR)
-// left open, else the text itself, as the L of the field kind.
+// A placeholder of the event fills itself; every other place starts empty,
+// as SoftEngine shows a relation: the name stands behind the empty entry.
 export function relationParameterDefault(
   relation: Pick<RelationTemplate, 'parameter'>,
 ): Parameter[] {
   return relation.parameter.map((raw) => {
     const placeholder = /^\{([A-Za-z0-9_]+)\}$/.exec(raw)?.[1]
-    if (placeholder && (ACTION_PLACEHOLDER as readonly string[]).includes(placeholder)) {
-      return { source: 'context', value: placeholder }
-    }
-    const open = placeholder !== undefined || parameterRole(raw) !== null || /^[A-Z_]{2,}$/.test(raw.trim())
-    return { source: 'fixed', value: open ? '' : raw.trim() }
+    return placeholder && (ACTION_PLACEHOLDER as readonly string[]).includes(placeholder)
+      ? { source: 'context', value: placeholder }
+      : { source: 'fixed', value: '' }
   })
 }
 

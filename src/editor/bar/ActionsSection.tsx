@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState, type ReactNode } from 'react'
-import { ArrowUp, Plus, X } from '@/editor/icons/icon'
+import { ArrowUp, ChevronDown, Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Field } from '@/editor/widgets/Field'
-import { List } from '@/editor/widgets/List'
+import { List, type ListGroup } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
 import type { BlockNode } from '../../core/block/tree'
 import type { EventDef } from '../../core/block/capability'
@@ -17,19 +17,20 @@ import {
   selectionGiverInTree,
   valueSpotsInTree,
 } from '../../core/block/treeQuery'
-import { relationParameterDefault, type Parameter } from '../../core/data/actions'
+import { ACTION_PLACEHOLDER, relationParameterDefault, type Parameter } from '../../core/data/actions'
 import type { DataSource } from '../../core/data/dataSources'
 import {
   fieldCodeSplit,
   parameterRole,
   relIdFromIdbId,
+  relationSyntaxAsText,
   type RelationTemplate,
 } from '../../core/data/relations'
 import type { RelationStep } from '../../core/data/steps/relation'
 import { resultStepsBefore } from '../../core/data/steps/chains'
 import type { StepFormValues } from '../../core/data/steps/stepAdapter'
 import { STEP_KINDS, stepAdapter, type Step, type StepKind } from '../../core/data/steps/steps'
-import { OriginPicker } from '../controls/OriginPicker'
+import { decodeOrigin, originGroups } from '../controls/originOffer'
 import { PickerControl } from '../controls/PickerControl'
 import { useInputSession } from '../controls/useInputSession'
 import { adoptFields, fieldAdopt } from '../datacenter/fieldAdopt'
@@ -38,14 +39,14 @@ import type { ParameterChoices } from '../datacenter/parameter/choices'
 import {
   blockValueKey,
   captureOptions,
-  placeholderName,
+  PLACEHOLDER_PLAIN_TEXT,
   selectionGiverOptions,
   type BlockValueOption,
 } from '../datacenter/parameterText'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
-import { choosable, originOfParameter, parameterOfOrigin, parameterOffer } from './parameterOrigin'
+import { parameterOfOrigin, parameterOffer } from './parameterOrigin'
 
 // How a step is named.
 const STEP_NAMES: Record<StepKind, string> = {
@@ -71,9 +72,9 @@ interface Context {
   choices: Omit<ParameterChoices, 'steps'>
 }
 
-// The actions of a block under their event, as SoftEngine lists a relation:
-// a line per place, its name on the left, what stands there on the right.
-// Only fixed values are typed.
+// The actions of a block under their event. A relation stands as SoftEngine
+// shows it: a line per place with number, name and entry, the entry typed or
+// chosen, empty when left empty.
 export function ActionsSection({ block, events }: { block: BlockNode; events: readonly EventDef[] }) {
   const ed = useEditor()
   const relations = useRelations().list
@@ -119,7 +120,7 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
         const set = (steps: Step[]) => setChain(ev.key, steps)
         return (
           <section key={ev.key} className="flex flex-col gap-[6px]">
-            <span className="text-label font-semibold uppercase tracking-label text-muted">{ev.name}</span>
+            <span className="font-semibold text-ink">{ev.name}</span>
             {chain.map((step, i) => (
               <StepLines
                 key={step.id}
@@ -147,49 +148,18 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
 
 const NAME_WIDTH = 104
 
-// A line of a step: the name of the place, as .vfeld-label writes it, and
-// what stands there. At the end, if any, the buttons of the line.
+// A line of a step: the name of the place and what stands there. At the end,
+// if any, the buttons of the line.
 function Line({ name, end, children }: { name: string; end?: ReactNode; children: ReactNode }) {
   return (
     <div className="flex min-h-control items-center gap-[8px]">
-      <span
-        className="shrink-0 truncate text-label font-semibold uppercase tracking-label text-muted"
-        style={{ width: NAME_WIDTH }}
-        title={name}
-      >
+      <span className="shrink-0 truncate text-ui text-muted" style={{ width: NAME_WIDTH }} title={name}>
         {name}
       </span>
       <div className="flex min-w-0 flex-1 items-center">{children}</div>
       {end !== undefined && <div className="flex shrink-0 items-center">{end}</div>}
     </div>
   )
-}
-
-// What a place holds without a choice: the relation fills it, or the field
-// line above fills it.
-function Filled({ children }: { children: string }) {
-  return <span className="truncate px-[2px] text-ui text-muted">{children}</span>
-}
-
-// A place named by its role without braces reads as the braced one does.
-const ROLE_NAMES: Record<string, string> = {
-  pos: 'Position',
-  len: 'Länge',
-  relid: 'Tabelle',
-}
-
-// Where a place of the event takes its value from, in a few words.
-const CONTEXT_TEXT: Record<string, string> = {
-  PINDEX: 'vom Ereignis',
-  DROP_PINDEX: 'vom Ereignis',
-  VALUE: 'Ereigniswert',
-  NOW_DATE: 'Heutiges Datum',
-}
-
-function contextText(binding: Parameter, choices: ParameterChoices): string {
-  return binding.source === 'context'
-    ? CONTEXT_TEXT[binding.value] ?? bindingText(binding, choices)
-    : bindingText(binding, choices)
 }
 
 // The lines of one step, a thin line above the second step onwards. The first
@@ -294,9 +264,11 @@ function StepBody({ step, context, choices, end, onChange }: {
   }
 }
 
-// A relation, then its places in the order of its syntax. A place the field
-// line fills (position, length, table) and a place the relation fills itself
-// (the record number) stand as text; every other place is chosen.
+const EMPTY_PARAMETER: Parameter = { source: 'fixed', value: '' }
+
+// A relation: chosen by its syntax, the syntax spelled out, the field that
+// fills position, length and table, then its places as a table: number,
+// name, entry. A relation that ends in "..." takes more lines.
 function RelationLines({ step, context, choices, end, onChange }: {
   step: RelationStep
   context: Context
@@ -305,7 +277,7 @@ function RelationLines({ step, context, choices, end, onChange }: {
   onChange: (step: Step) => void
 }) {
   const template = context.relations.find((r) => r.id === step.relationId)
-  const offer = parameterOffer(choices)
+  const groups = useMemo(() => entryGroups(choices), [choices])
   const byField = template?.parameter.some((p) => parameterRole(p) === 'pos') === true
   const setParam = (list: 'parameter' | 'extraParameter', at: number, binding: Parameter) =>
     onChange({ ...step, [list]: step[list].map((b, x) => (x === at ? binding : b)) })
@@ -316,7 +288,10 @@ function RelationLines({ step, context, choices, end, onChange }: {
         <PickerControl
           name="Relation"
           className="w-full"
-          groups={[{ key: 'relations', entries: context.relations.map((r) => ({ value: r.id, name: r.name, badge: `${r.verb.replace('_RELATION', '')} ${r.nr}` })) }]}
+          groups={[{
+            key: 'relations',
+            entries: context.relations.map((r) => ({ value: r.id, name: relationSyntaxAsText(r), badge: r.name })),
+          }]}
           value={step.relationId}
           placeholder=""
           onChoose={(id) => {
@@ -331,71 +306,145 @@ function RelationLines({ step, context, choices, end, onChange }: {
           }}
         />
       </Line>
+      {template && (
+        <div className="break-all px-[2px] font-mono text-dense text-muted">{relationSyntaxAsText(template)}</div>
+      )}
       {template && byField && (
         <FieldLine step={step} template={template} sources={choices.dataSources} onChange={onChange} />
       )}
-      {template && step.parameter.map((binding, at) => {
-        const raw = template.parameter[at] ?? ''
-        const name = placeholderName(raw) || ROLE_NAMES[parameterRole(raw) ?? ''] || raw || `Stelle ${at + 1}`
-        const filledByField = byField && parameterRole(raw) !== null
-        if (filledByField) {
-          return <Line key={at} name={name}><Filled>{binding.source === 'fixed' ? binding.value : ''}</Filled></Line>
-        }
-        if (!choosable(binding)) {
-          return <Line key={at} name={name}><Filled>{contextText(binding, choices)}</Filled></Line>
-        }
-        return (
-          <Line key={at} name={name}>
-            <OriginPicker
-              name={name}
-              className="w-full"
-              origin={originOfParameter(binding, choices)}
-              shown={binding.source === 'context' ? contextText(binding, choices) : undefined}
-              offer={offer}
-              onChoose={(origin) => {
-                const next = parameterOfOrigin(origin, choices)
-                if (next !== null) setParam('parameter', at, next)
-              }}
-            />
-          </Line>
-        )
-      })}
-      {template?.extraParameterAllowed === true && (
-        <>
-          {step.extraParameter.map((binding, at) => (
-            <Line
-              key={`extra${at}`}
-              name={`Zusatz ${at + 1}`}
-              end={(
-                <Button
-                  onlyIcon
-                  aria-label={`Zusatz ${at + 1} entfernen`}
-                  onClick={() => onChange({ ...step, extraParameter: step.extraParameter.filter((_, x) => x !== at) })}
-                >
-                  <X size={12} />
-                </Button>
-              )}
-            >
-              <OriginPicker
-                name={`Zusatz ${at + 1}`}
-                className="w-full"
-                origin={originOfParameter(binding, choices)}
-                offer={offer}
-                onChoose={(origin) => {
-                  const next = parameterOfOrigin(origin, choices)
-                  if (next !== null) setParam('extraParameter', at, next)
-                }}
+      {template && (
+        <table className="w-full border-collapse text-ui">
+          <thead>
+            <tr className="border-b border-line text-left text-dense text-muted">
+              <th className="w-[28px] px-[4px] py-[2px] text-right font-semibold">Nr.</th>
+              <th className="w-[34%] px-[6px] py-[2px] font-semibold">Bezeichnung</th>
+              <th className="px-[6px] py-[2px] font-semibold">Eingabe</th>
+              <th className="w-control" />
+            </tr>
+          </thead>
+          <tbody>
+            {step.parameter.map((binding, at) => (
+              <PlaceLine
+                key={at}
+                nr={at + 1}
+                name={template.parameter[at] ?? ''}
+                binding={binding}
+                choices={choices}
+                groups={groups}
+                onChange={(b) => setParam('parameter', at, b)}
               />
-            </Line>
-          ))}
-          <Line name="">
-            <Button onClick={() => onChange({ ...step, extraParameter: [...step.extraParameter, { source: 'fixed', value: '' }] })}>
-              <Plus size={12} /> Zusatz
-            </Button>
-          </Line>
-        </>
+            ))}
+            {template.extraParameterAllowed === true && step.extraParameter.map((binding, at) => (
+              <PlaceLine
+                key={`extra${at}`}
+                nr={step.parameter.length + at + 1}
+                name="…"
+                binding={binding}
+                choices={choices}
+                groups={groups}
+                onChange={(b) => setParam('extraParameter', at, b)}
+                onRemove={() => onChange({ ...step, extraParameter: step.extraParameter.filter((_, x) => x !== at) })}
+              />
+            ))}
+          </tbody>
+        </table>
+      )}
+      {template?.extraParameterAllowed === true && (
+        <Button className="self-start" onClick={() => onChange({ ...step, extraParameter: [...step.extraParameter, EMPTY_PARAMETER] })}>
+          <Plus size={12} /> Zeile
+        </Button>
       )}
     </>
+  )
+}
+
+const EVENT_KEY = 'event:'
+
+// What an entry can be chosen from: a value of the event, then the rows,
+// fields and form fields the mask offers. Typed text is the entry itself.
+function entryGroups(choices: ParameterChoices): ListGroup[] {
+  const event: ListGroup = {
+    key: 'event',
+    name: 'Ereignis',
+    entries: ACTION_PLACEHOLDER.map((key) => ({
+      value: `${EVENT_KEY}${key}`,
+      name: PLACEHOLDER_PLAIN_TEXT[key]?.name ?? key,
+    })),
+  }
+  return [event, ...originGroups(parameterOffer(choices))]
+}
+
+function parameterOfEntry(value: string, choices: ParameterChoices): Parameter | null {
+  if (value.startsWith(EVENT_KEY)) return { source: 'context', value: value.slice(EVENT_KEY.length) }
+  return parameterOfOrigin(decodeOrigin(value), choices)
+}
+
+// One place of the relation: typed as it is, the name behind the empty entry;
+// a chosen entry stands as text with its clearing, and a choice opens at the
+// end of the line.
+function PlaceLine({ nr, name, binding, choices, groups, onChange, onRemove }: {
+  nr: number
+  name: string
+  binding: Parameter
+  choices: ParameterChoices
+  groups: readonly ListGroup[]
+  onChange: (binding: Parameter) => void
+  onRemove?: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const button = useRef<HTMLButtonElement>(null)
+  const typed = binding.source === 'fixed'
+  return (
+    <tr className="border-b border-line last:border-b-0">
+      <td className="px-[4px] text-right font-mono text-dense text-muted">{nr}</td>
+      <td className="truncate px-[6px]" title={name}>{name}</td>
+      <td className="px-[2px]">
+        {typed
+          ? <InlineText name={`${nr} ${name}`} value={binding.value} placeholder={name} onChange={(value) => onChange({ source: 'fixed', value })} />
+          : (
+              <span className="flex h-control items-center gap-[4px] px-[6px]">
+                <span className="min-w-0 flex-1 truncate">{bindingText(binding, choices)}</span>
+                <Button onlyIcon aria-label={`${nr} ${name} leeren`} title="Leeren" onClick={() => onChange(EMPTY_PARAMETER)}>
+                  <X size={12} />
+                </Button>
+              </span>
+            )}
+      </td>
+      <td>
+        <span className="flex items-center">
+          <Button
+            ref={button}
+            onlyIcon
+            aria-label={`${nr} ${name} wählen`}
+            title="Wählen"
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={() => setOpen(!open)}
+          >
+            <ChevronDown size={13} />
+          </Button>
+          {onRemove && (
+            <Button onlyIcon aria-label={`Zeile ${nr} entfernen`} title="Entfernen" onClick={onRemove}>
+              <X size={12} />
+            </Button>
+          )}
+        </span>
+        {open && (
+          <Popover name={`${nr} ${name}`} anchor={button} width={300} onClose={() => setOpen(false)}>
+            <List
+              searchable
+              groups={groups}
+              value=""
+              onChoose={(value) => {
+                const next = parameterOfEntry(value, choices)
+                if (next !== null) onChange(next)
+                setOpen(false)
+              }}
+            />
+          </Popover>
+        )}
+      </td>
+    </tr>
   )
 }
 
@@ -450,9 +499,10 @@ function FieldLine({ step, template, sources, onChange }: {
   )
 }
 
-function InlineText({ name, value, onChange }: {
+function InlineText({ name, value, placeholder, onChange }: {
   name: string
   value: string
+  placeholder?: string
   onChange: (value: string) => void
 }) {
   const ed = useEditor()
@@ -462,6 +512,7 @@ function InlineText({ name, value, onChange }: {
       aria-label={name}
       title={name}
       value={value}
+      placeholder={placeholder}
       onChange={(e) => {
         session.begin()
         onChange(e.currentTarget.value)
