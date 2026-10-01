@@ -9,6 +9,7 @@ import type { Parameter } from '../../core/data/actions'
 import type { RelationTemplate } from '../../core/data/relations'
 import { adoptedField, fieldAdopt } from './fieldAdopt'
 import {
+  entryText,
   originEntries,
   originGroups,
   originName,
@@ -128,7 +129,7 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
             binding={b}
             origin={origin}
             originText={originName(origin, choices, adopted?.label)}
-            entry={pending?.at === i ? '' : placeEntry(b, choices)}
+            entry={pending?.at === i ? '' : entryText(b, choices)}
             on={selected === i}
             open={open?.at === i ? open.list : null}
             origins={() => originGroups(raw, choices)}

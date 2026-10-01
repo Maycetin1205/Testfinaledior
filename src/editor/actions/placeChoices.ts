@@ -72,16 +72,24 @@ function rowsOf(carrier: readonly BlockNode[], sources: readonly DataSource[]): 
   })
 }
 
+// Form fields of the same name are told apart by a number behind it.
+function numbered(fields: readonly FormField[]): FormField[] {
+  return fields.map((f) => {
+    const same = fields.filter((o) => o.name === f.name)
+    return same.length > 1 ? { ...f, name: `${f.name} ${same.indexOf(f) + 1}` } : f
+  })
+}
+
 // Everything an action of this mask can read.
 export function maskChoices(tree: MaskTree, sources: readonly DataSource[]): Omit<PlaceChoices, 'steps'> {
   return {
     events: true,
     dataSources: sources,
-    formFields: valueSpotsInTree(tree).map(({ node, spot }) => {
+    formFields: numbered(valueSpotsInTree(tree).map(({ node, spot }) => {
       const name = blockName(node, sources)
       const several = (capability(blockType(node.type), 'actionValue')?.spots.length ?? 0) > 1
       return { blockId: node.id, prop: spot.prop, name: several ? `${name} — ${spot.name}` : name }
-    }),
+    })),
     givers: selectionGiverInTree(tree).map((node) => {
       const source = sources.find((s) => s.id === selectionSourceIdOf(node))
       return {
@@ -141,6 +149,12 @@ export function placeEntry(b: Parameter, choices: PlaceChoices): string {
   }
 }
 
+// What the column "Eingabe" shows: a form field, named in "Herkunft", gives
+// its content.
+export function entryText(b: Parameter, choices: PlaceChoices): string {
+  return b.source === 'blockValue' ? 'Inhalt' : placeEntry(b, choices)
+}
+
 // Where a place takes its value from, as a key: fixed, event, a block's rows,
 // the form fields, a step, a source, or a source whose field fills position,
 // length and table. Empty while the place is empty.
@@ -162,7 +176,7 @@ export function originOf(b: Parameter, raw: string, adopted: { sourceId: string 
     case 'chosenRow':
       return `giver:${b.blockId ?? ''}`
     case 'blockValue':
-      return 'formField'
+      return `formField:${b.blockId ?? ''}:${b.value}`
     case 'stepResult':
       return `step:${b.value}`
     case 'dataField':
@@ -183,6 +197,7 @@ const split = (origin: string): [string, string] => {
 export function originName(origin: string, choices: PlaceChoices, adoptedLabel?: string): string {
   const [kind, id] = split(origin)
   const nameIn = (list: readonly { blockId: string; name: string }[]) => list.find((x) => x.blockId === id)?.name ?? ''
+  const formField = () => choices.formFields.find((f) => `${f.blockId}:${f.prop}` === id)
   switch (kind) {
     case 'fixed': return 'Fest'
     case 'event': return 'Ereignis'
@@ -190,7 +205,7 @@ export function originName(origin: string, choices: PlaceChoices, adoptedLabel?:
     case 'change': return `Geänderte Zeile: ${nameIn(choices.changes)}`
     case 'delete': return `Gelöschte Zeile: ${nameIn(choices.deletions)}`
     case 'giver': return `Gewählte Zeile: ${nameIn(choices.givers)}`
-    case 'formField': return 'Formularfeld'
+    case 'formField': return formField()?.name ?? ''
     case 'step': {
       const step = choices.steps.find((s) => s.id === id)
       return step ? `Schritt ${step.nr}: ${step.name}` : 'Schritt'
@@ -207,8 +222,9 @@ export function originName(origin: string, choices: PlaceChoices, adoptedLabel?:
 }
 
 // What a place can take its value from: a short list of only what this mask
-// has. Position, length and table take a field of a source, which fills all
-// three. The sources stand in a group of their own.
+// has, each form field by its own name. Position, length and table take a
+// field of a source, which fills all three. The sources stand in a group of
+// their own.
 export function originGroups(raw: string, choices: PlaceChoices): ListGroup[] {
   const sources = choices.dataSources
   const entry = (value: string) => ({ value, name: originName(value, choices) })
@@ -228,12 +244,12 @@ export function originGroups(raw: string, choices: PlaceChoices): ListGroup[] {
     ...choices.changes.map((r) => entry(`change:${r.blockId}`)),
     ...choices.deletions.map((r) => entry(`delete:${r.blockId}`)),
     ...choices.givers.map((g) => entry(`giver:${g.blockId}`)),
-    ...(choices.formFields.length > 0 ? [entry('formField')] : []),
     ...choices.steps.map((s) => entry(`step:${s.id}`)),
   ]
   return [
     { key: 'fixed', entries: [entry('fixed'), ...(choices.events ? [entry('event')] : [])] },
     { key: 'mask', name: 'Maske', entries: blocks },
+    { key: 'formFields', name: 'Formularfelder', entries: choices.formFields.map((f) => entry(`formField:${f.blockId}:${f.prop}`)) },
     { key: 'sources', name: 'Quelle', entries: sources.filter((s) => s.fields.length > 0).map((s) => entry(`source:${s.id}`)) },
   ].filter((g) => g.entries.length > 0)
 }
@@ -264,7 +280,8 @@ export function originEntries(origin: string, choices: PlaceChoices): ListGroup[
         return (choices.givers.find((g) => g.blockId === id)?.fields ?? [])
           .map((f) => set({ source: 'chosenRow', blockId: id, value: f.code }, f.name || f.code, f.code))
       case 'formField':
-        return choices.formFields.map((f) => set({ source: 'blockValue', blockId: f.blockId, value: f.prop }, f.name))
+        return choices.formFields.filter((f) => `${f.blockId}:${f.prop}` === id)
+          .map((f) => set({ source: 'blockValue', blockId: f.blockId, value: f.prop }, 'Inhalt'))
       case 'step':
         return [set({ source: 'stepResult', value: id }, 'Antwort')]
       case 'source':
