@@ -47,12 +47,12 @@ function fieldsBehindCut(
 
 // The fields of the chosen document row and the end of its positions, as
 // kontrakte.md §8 has them. The editor has no place to type them, so an empty
-// one always means these.
+// one always means these. Year and archive stay empty: read from the row they
+// came as the document kind (user's log 2026-10-01, `69!L!0!255!20262010!L!N`)
+// and SoftEngine answered nothing; empty finds the current number range.
 const LOAD_DEFAULTS = {
   documentKindField: '2_1',
   documentNumberField: '3_8',
-  yearField: '0_1',
-  archiveField: '1_1',
   endFields: ['11_6', '18_25'],
 } as const
 
@@ -61,8 +61,6 @@ export function withLoadDefaults<T extends LoadRelation>(load: T): T {
     ...load,
     documentKindField: load.documentKindField.trim() || LOAD_DEFAULTS.documentKindField,
     documentNumberField: load.documentNumberField.trim() || LOAD_DEFAULTS.documentNumberField,
-    yearField: load.yearField.trim() || LOAD_DEFAULTS.yearField,
-    archiveField: load.archiveField.trim() || LOAD_DEFAULTS.archiveField,
     endFields: load.endFields.length > 0 ? load.endFields : [...LOAD_DEFAULTS.endFields],
   }
 }
