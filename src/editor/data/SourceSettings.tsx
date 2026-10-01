@@ -166,15 +166,20 @@ function TextCell({ name, value, valid, onSave }: {
   valid: (text: string) => boolean
   onSave: (text: string) => void
 }) {
-  const [text, setText] = useState(value)
+  // What is typed while the cell is being edited; otherwise it shows what is stored.
+  const [draft, setDraft] = useState<string | null>(null)
+  const text = draft ?? value
   const ok = valid(text)
-  const commit = () => { if (ok && text !== value) onSave(text) }
+  const commit = () => {
+    if (draft !== null && ok && draft !== value) onSave(draft)
+    setDraft(null)
+  }
   return (
     <input
       aria-label={name}
       value={text}
       spellCheck={false}
-      onChange={(e) => setText(e.currentTarget.value)}
+      onChange={(e) => setDraft(e.currentTarget.value)}
       onKeyDown={(e) => {
         if (e.key === 'Enter') { commit(); e.currentTarget.blur() }
       }}

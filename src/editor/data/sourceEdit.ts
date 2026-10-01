@@ -41,11 +41,14 @@ const IDB = /^(?:IDB)?(?:ID)?(\d{1,4})$/
 // another file. A source of another kind keeps its kind and reads the key.
 export function tableKind(raw: string, current?: DataSource): Kind | null {
   const t = raw.trim().toUpperCase().replace(/\s+/g, '')
-  if (t === '') return null
   if (current && !BY_TABLE.has(current.preset)) {
-    const key = sourcePreset(current.preset).key(raw)
+    const preset = sourcePreset(current.preset)
+    // A kind that fixes its table or needs none takes no typed one.
+    if (preset.keyLabel === '') return { preset: current.preset, tableId: preset.tableId }
+    const key = preset.key(raw)
     return key === '' ? null : { preset: current.preset, tableId: key }
   }
+  if (t === '') return null
   const fixed = TABLE_KINDS[t]
   if (fixed) return { preset: fixed, tableId: t }
   const idb = IDB.exec(t)
