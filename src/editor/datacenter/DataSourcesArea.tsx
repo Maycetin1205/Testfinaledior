@@ -214,16 +214,10 @@ export function DataSourcesArea() {
         </div>
       </div>
 
-      {selection && (
-        <div className="w-[380px] shrink-0 overflow-y-auto border-r border-line">
-          <SourceSettings key={selection.id} source={selection} writeFor={writeFor} />
-        </div>
-      )}
-
       <div className="flex min-w-0 flex-1 flex-col">
-        <Strip right={selection ? `${selection.fields.length} Felder` : undefined}>
-          {selection ? `Felder von ${selection.name}` : 'Felder'}
-        </Strip>
+        <Strip>{selection ? selection.name : 'Quelle'}</Strip>
+        {selection && <SourceSettings key={selection.id} source={selection} writeFor={writeFor} />}
+        <Strip right={selection ? `${selection.fields.length}` : undefined}>Felder</Strip>
         {selection && (
           <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
             <table className="w-full table-fixed border-collapse text-ui">

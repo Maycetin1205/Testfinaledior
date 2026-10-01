@@ -21,7 +21,6 @@ import { useDataSources } from '../state/useDataSources'
 import { useRelations } from '../state/useRelations'
 import type { ParameterChoices } from './parameter/choices'
 import { ParameterRow } from './ParameterRow'
-import { Strip } from './GridLines'
 import { POSITIONS_UNDER } from './sourceWrite'
 
 // The settings of one source, each a line: its kind, what it delivers, where
@@ -79,13 +78,12 @@ export function SourceSettings({ source, writeFor }: {
   const getters = relations.filter((r) => r.verb === 'GET_RELATION')
 
   return (
-    <div className="flex flex-col">
-      <Strip>Einstellungen</Strip>
-      <div className="flex flex-col gap-[6px] px-[12px] py-[8px]">
+    <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[6px] border-b border-line px-[12px] py-[8px]">
+      <div className="contents">
         <Row name="Art">
           <PickerControl
             name="Art"
-            className="w-full"
+            className="w-[170px]"
             groups={[{ key: 'kinds', entries: PRESET_IDS.map((id) => ({ value: id, name: sourcePreset(id).name })) }]}
             value={source.preset}
             onChoose={(v) => choosePreset(v as PresetId)}
@@ -192,11 +190,13 @@ export function SourceSettings({ source, writeFor }: {
   )
 }
 
-function Row({ name, children }: { name: string; children: ReactNode }) {
+// One setting: its name, then its control, side by side with the next.
+// A wide one takes a line of its own.
+function Row({ name, wide = false, children }: { name: string; wide?: boolean; children: ReactNode }) {
   return (
-    <div className="grid min-h-control grid-cols-[96px_minmax(0,1fr)] items-center gap-[8px]">
-      <span className="truncate text-dense text-muted" title={name}>{name}</span>
-      <div className="flex min-w-0 items-center">{children}</div>
+    <div className={`flex min-h-control items-center gap-[8px] ${wide ? 'basis-full' : ''}`}>
+      <span className="shrink-0 text-dense text-muted">{name}</span>
+      <div className={`flex min-w-0 items-center ${wide ? 'flex-1' : ''}`}>{children}</div>
     </div>
   )
 }
@@ -224,7 +224,7 @@ function TextCell({ name, value, mono = false, valid, onSave }: {
         if (e.key === 'Escape') { setText(value); e.currentTarget.blur() }
       }}
       onBlur={commit}
-      className={`h-control w-full rounded border border-line bg-panel px-[8px] text-ui outline-none focus:border-accent ${mono ? 'font-mono text-dense' : ''} ${ok ? 'text-ink' : 'text-error'}`}
+      className={`h-control w-[130px] rounded border border-line bg-panel px-[8px] text-ui outline-none focus:border-accent ${mono ? 'font-mono text-dense' : ''} ${ok ? 'text-ink' : 'text-error'}`}
     />
   )
 }
@@ -237,7 +237,7 @@ function RelationChoice({ relations, value, onChoose }: {
   return (
     <PickerControl
       name="Relation"
-      className="w-full"
+      className="w-[280px]"
       groups={[{ key: 'relations', entries: relations.map((r) => ({ value: r.id, name: r.name, badge: relationSyntaxAsText(r) })) }]}
       value={value}
       placeholder=""
@@ -283,8 +283,8 @@ function ValueRelation({ source, getters, value, onChange }: {
         />
       </Row>
       {template && template.parameter.map((raw, i) => (
+        <div key={i} className="basis-full">
         <ParameterRow
-          key={i}
           number={i + 1}
           template={raw}
           binding={value.parameter[i] ?? { source: 'fixed', value: '' }}
@@ -292,6 +292,7 @@ function ValueRelation({ source, getters, value, onChange }: {
           placeholder={raw}
           onChange={(b) => onChange({ relationId: value.relationId, parameter: template.parameter.map((_, k) => (k === i ? b : value.parameter[k] ?? { source: 'fixed', value: '' })) })}
         />
+        </div>
       ))}
     </>
   )
@@ -301,7 +302,7 @@ function ValueRelation({ source, getters, value, onChange }: {
 function MaskFields({ onRead }: { onRead: (fields: DataField[], prefix: string) => void }) {
   const [text, setText] = useState('')
   return (
-    <Row name="Felder einlesen">
+    <Row name="Felder einlesen" wide>
       <div className="flex w-full flex-col gap-[4px]">
         <textarea
           aria-label="Felder einlesen"
