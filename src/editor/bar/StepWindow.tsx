@@ -40,7 +40,7 @@ export interface StepContext {
 const TABS: readonly { key: StepTab; name: string }[] = [
   { key: 'GET', name: 'GET Relation' },
   { key: 'PUT', name: 'PUT Relation' },
-  { key: 'TOOL', name: 'Werkzeug' },
+  { key: 'TOOL', name: 'START_TOOL' },
   { key: 'POPUP', name: 'Popup' },
 ]
 
@@ -573,7 +573,7 @@ function PlaceLine({ nr, raw, binding, text, on, extra, choices, onSelect, onCha
 function ToolBody({ step, onChange }: { step: StartToolStep; onChange: (step: StartToolStep) => void }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <Strip>Werkzeug</Strip>
+      <Strip>START_TOOL</Strip>
       <div className="grid grid-cols-[112px_160px] items-center gap-[8px] border-b border-line px-[12px] py-[8px]">
         <span className="text-dense text-muted">Nummer</span>
         <input

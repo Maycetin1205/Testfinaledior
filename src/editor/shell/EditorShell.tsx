@@ -43,7 +43,7 @@ export function EditorShell() {
       {dataOpen && (
         <aside
           aria-label="Daten"
-          className="fixed left-1/2 top-1/2 z-40 flex h-[min(640px,88vh)] w-[min(920px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded border border-line bg-panel shadow-overlay"
+          className="fixed left-1/2 top-1/2 z-40 flex h-[min(780px,92vh)] w-[min(1240px,96vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded border border-line bg-panel shadow-overlay"
         >
           <DataCenter onClose={() => setDataOpen(false)} />
         </aside>

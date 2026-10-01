@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { FileUp } from '@/editor/icons/icon'
+import { FileUp, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { SOURCES_DIVIDER } from '../../core/block/blockType'
@@ -92,7 +92,7 @@ const fieldCodeOk = (code: string): boolean =>
 // line of each list is empty for a new one.
 export function DataSourcesArea() {
   const store = useDataSources()
-  const [selectionId, setSelectionId] = useState<string | null>(store.list[0]?.id ?? null)
+  const [selectionId, setSelectionId] = useState<string | null>(null)
   const [importing, setImporting] = useState<{ fileName: string; tables: DtkTable[] } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const selection = store.list.find((s) => s.id === selectionId)
@@ -147,7 +147,7 @@ export function DataSourcesArea() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1">
       <input
         ref={fileRef}
         type="file"
@@ -162,6 +162,7 @@ export function DataSourcesArea() {
           }
         }}
       />
+      <div className="flex min-w-0 flex-1 flex-col">
       <Strip right={(
         <Button className="h-[22px] px-[8px] text-dense" onClick={() => fileRef.current?.click()}>
           <FileUp size={13} /> Aus DTK-Datei
@@ -170,7 +171,11 @@ export function DataSourcesArea() {
       >
         Quellen
       </Strip>
-      <div className="max-h-[45%] shrink-0 overflow-y-auto border-b border-line">
+      {/* A click below the lines lets go of the marked source. */}
+      <div
+        className="min-h-0 flex-1 overflow-y-auto"
+        onClick={(e) => { if (e.target === e.currentTarget) setSelectionId(null) }}
+      >
         <table className="w-full border-collapse text-ui">
           <thead className="sticky top-0 z-[1]">
             <tr>
@@ -206,9 +211,18 @@ export function DataSourcesArea() {
         </table>
       </div>
 
+      </div>
+
       {selection && (
-        <>
-          <Strip right={`${selection.fields.length} Felder`}>Felder von {selection.name}</Strip>
+        <div className="flex w-[520px] shrink-0 flex-col border-l border-line">
+          <Strip right={(
+            <Button onlyIcon className="h-[22px] w-[22px]" aria-label="Felder schließen" title="Schließen" onClick={() => setSelectionId(null)}>
+              <X size={13} />
+            </Button>
+          )}
+          >
+            Felder von {selection.name}
+          </Strip>
           <div className="min-h-0 flex-1 overflow-y-auto">
             <table className="w-full border-collapse text-ui">
               <thead className="sticky top-0 z-[1]">
@@ -251,7 +265,7 @@ export function DataSourcesArea() {
               </tbody>
             </table>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

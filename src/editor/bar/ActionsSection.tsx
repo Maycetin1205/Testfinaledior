@@ -154,7 +154,7 @@ function stepWords(step: Step, context: StepContext): { words: string; short: st
       return { words: t?.name ?? 'Relation', short: t ? `${VERB_SHORT[t.verb]} ${t.nr}` : '', known: t !== undefined }
     }
     case 'START_TOOL':
-      return { words: 'Werkzeug starten', short: step.toolNumber, known: step.toolNumber !== '' }
+      return { words: 'START_TOOL', short: step.toolNumber, known: step.toolNumber !== '' }
     case 'POPUP_OPEN':
     case 'POPUP_CLOSE': {
       const name = context.popups.find((p) => p.value === step.popupId)?.name

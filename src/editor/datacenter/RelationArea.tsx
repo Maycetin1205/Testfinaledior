@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Search } from '@/editor/icons/icon'
+import { Search, X } from '@/editor/icons/icon'
+import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { relationIdsOf } from '../../core/block/treeQuery'
 import { blockName } from '../../core/block/blockName'
@@ -51,7 +52,8 @@ export function RelationArea() {
     relationSyntaxRead(v[0]) !== null && v[1].trim() !== ''
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1">
+      <div className="flex min-w-0 flex-1 flex-col">
       <Strip right={hits.length}>
         <span className="flex items-center gap-[8px]">
           <Search size={13} aria-hidden />
@@ -63,7 +65,11 @@ export function RelationArea() {
           />
         </span>
       </Strip>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      {/* A click below the lines lets go of the marked relation. */}
+      <div
+        className="min-h-0 flex-1 overflow-y-auto"
+        onClick={(e) => { if (e.target === e.currentTarget) setSelectionId(null) }}
+      >
         <table className="w-full table-fixed border-collapse text-ui">
           <thead className="sticky top-0 z-[1]">
             <tr>
@@ -106,15 +112,40 @@ export function RelationArea() {
         </table>
       </div>
 
+      </div>
+
       {selection && (
-        <div className="shrink-0 border-t border-line">
-          <Strip>{selection.name}</Strip>
-          <div className="px-[12px] py-[8px]">
-            <div className="break-all font-mono text-dense text-ink">{relationSyntaxAsText(selection)}</div>
-            {usageOf(selection.id).length > 0 && (
-              <div className="mt-[4px] text-dense text-muted">{usageOf(selection.id).join(', ')}</div>
-            )}
+        <div className="flex w-[400px] shrink-0 flex-col border-l border-line">
+          <Strip right={(
+            <Button onlyIcon className="h-[22px] w-[22px]" aria-label="Relation schließen" title="Schließen" onClick={() => setSelectionId(null)}>
+              <X size={13} />
+            </Button>
+          )}
+          >
+            {selection.name}
+          </Strip>
+          <div className="break-all border-b border-line px-[12px] py-[8px] font-mono text-dense text-ink">
+            {relationSyntaxAsText(selection)}
           </div>
+          <Strip right={selection.parameter.length}>Stellen</Strip>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <table className="w-full border-collapse text-ui">
+              <tbody>
+                {selection.parameter.map((name, i) => (
+                  <tr key={i}>
+                    <td className="h-[26px] w-[44px] border-b border-r border-line/70 px-[10px] text-right font-mono text-dense text-muted">{i + 1}</td>
+                    <td className="h-[26px] border-b border-line/70 px-[10px] font-mono text-dense">{name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {usageOf(selection.id).length > 0 && (
+            <>
+              <div className="border-t border-line"><Strip>Benutzt von</Strip></div>
+              <div className="px-[12px] py-[8px] text-dense">{usageOf(selection.id).join(', ')}</div>
+            </>
+          )}
         </div>
       )}
     </div>
