@@ -1,11 +1,9 @@
 import { useState, type ReactNode } from 'react'
 import { Button } from '@/editor/widgets/Button'
-import { Segment } from '@/editor/widgets/Segment'
 import { relationParameterDefault, type Parameter } from '../../core/data/actions'
 import {
   choiceOf,
   fieldPrefixFromInput,
-  headerKeyFromInput,
   keyDisplay,
   type DataField,
   type DataSource,
@@ -40,7 +38,10 @@ export function SourceSettings({ source, writeFor }: {
   const save = (next: { preset?: PresetId; tableId?: string; choice?: Partial<SourceChoice>; fields?: DataField[]; fieldPrefix?: string }) => {
     const id = next.preset ?? source.preset
     const p = sourcePreset(id)
-    const c: SourceChoice = { ...choice, ...next.choice }
+    const merged: SourceChoice = { ...choice, ...next.choice }
+    // Positions always hang under the document's header record, also after
+    // they were fetched by a relation for a while.
+    const c: SourceChoice = id === 'documentItem' && merged.headerKey === '' ? { ...merged, headerKey: POSITIONS_UNDER } : merged
     const fields = next.fields ?? source.fields
     const prefix = next.fieldPrefix ?? source.fieldPrefix ?? ''
     const { id: _id, fieldPrefix: _prefix, ...rest } = source
@@ -68,82 +69,63 @@ export function SourceSettings({ source, writeFor }: {
     })
   }
 
-  const openRecord = choice.openRecord
+  // What the source delivers, in one choice so nothing moves: all records
+  // when the mask opens, the open record, or the rows a GET relation fetches.
   const fetches = choice.load !== null
-  const underHeader = listed.order.kind === 'sefileloop' && listed.order.underHeader
+  const loaders = relations.filter((r) => r.positions !== undefined)
+  const delivers = [
+    { value: 'list', name: 'alle Sätze beim Öffnen' },
+    ...(preset.openRecord !== undefined ? [{ value: 'open', name: 'den offenen Satz' }] : []),
+    ...(preset.fetches ? loaders.map((r) => ({ value: `get:${r.id}`, name: `per GET: ${r.name}` })) : []),
+  ]
+  const delivered = fetches && choice.load ? `get:${choice.load.relationId}` : choice.openRecord ? 'open' : 'list'
+  const chooseDelivery = (v: string) => {
+    if (v === delivered) return
+    if (v.startsWith('get:')) {
+      const keep = choice.load
+      save({
+        choice: {
+          openRecord: false,
+          load: {
+            relationId: v.slice('get:'.length),
+            documentKindField: keep?.documentKindField ?? '',
+            documentNumberField: keep?.documentNumberField ?? '',
+            yearField: keep?.yearField ?? '',
+            archiveField: keep?.archiveField ?? '',
+            endFields: keep?.endFields ?? [],
+          },
+        },
+      })
+      return
+    }
+    save({ choice: { openRecord: v === 'open', load: null } })
+  }
   const fetchesValue = listed.delivery.kind === 'relationValue'
   const asksArea = listed.order.kind === 'mask'
   const asksPrefix = preset.prefixed || (source.fieldPrefix ?? '') !== ''
-  const loaders = relations.filter((r) => r.positions !== undefined)
   const getters = relations.filter((r) => r.verb === 'GET_RELATION')
 
   return (
-    <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[6px] border-b border-line px-[12px] py-[8px]">
+    <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[6px] border-b border-line px-[12px] py-[6px]">
       <div className="contents">
         <Row name="Art">
           <PickerControl
             name="Art"
-            className="w-[170px]"
+            className="h-[24px] w-[170px] text-dense"
             groups={[{ key: 'kinds', entries: PRESET_IDS.map((id) => ({ value: id, name: sourcePreset(id).name })) }]}
             value={source.preset}
             onChoose={(v) => choosePreset(v as PresetId)}
           />
         </Row>
 
-        {preset.openRecord !== undefined && !fetches && (
+        {delivers.length > 1 && (
           <Row name="Liefert">
-            <Segment
+            <PickerControl
               name="Liefert"
-              options={[{ value: 'list', name: 'alle Sätze' }, { value: 'open', name: 'den offenen Satz' }]}
-              value={openRecord ? 'open' : 'list'}
-              onChoose={(v) => save({ choice: { openRecord: v === 'open' } })}
-            />
-          </Row>
-        )}
-
-        {preset.fetches && !openRecord && (
-          <>
-            <Row name="Zeilen">
-              <Segment
-                name="Zeilen"
-                options={[{ value: 'pushed', name: 'beim Öffnen' }, { value: 'fetch', name: 'per GET holen' }]}
-                value={fetches ? 'fetch' : 'pushed'}
-                onChoose={(v) => save({
-                  choice: {
-                    load: v === 'fetch'
-                      ? {
-                          relationId: loaders[0]?.id ?? '',
-                          documentKindField: '',
-                          documentNumberField: '',
-                          yearField: '',
-                          archiveField: '',
-                          endFields: [],
-                        }
-                      : null,
-                  },
-                })}
-              />
-            </Row>
-            {fetches && choice.load && (
-              <Row name="Relation">
-                <RelationChoice
-                  relations={loaders}
-                  value={choice.load.relationId}
-                  onChoose={(relationId) => choice.load && save({ choice: { load: { ...choice.load, relationId } } })}
-                />
-              </Row>
-            )}
-          </>
-        )}
-
-        {underHeader && !fetches && (
-          <Row name="Gehört zu">
-            <TextCell
-              name="Gehört zu"
-              value={choice.headerKey}
-              mono
-              valid={(t) => t.trim() === '' || headerKeyFromInput(t) !== ''}
-              onSave={(t) => save({ choice: { headerKey: headerKeyFromInput(t) } })}
+              className="h-[24px] w-[260px] text-dense"
+              groups={[{ key: 'delivers', entries: delivers }]}
+              value={delivered}
+              onChoose={chooseDelivery}
             />
           </Row>
         )}
@@ -194,7 +176,7 @@ export function SourceSettings({ source, writeFor }: {
 // A wide one takes a line of its own.
 function Row({ name, wide = false, children }: { name: string; wide?: boolean; children: ReactNode }) {
   return (
-    <div className={`flex min-h-control items-center gap-[8px] ${wide ? 'basis-full' : ''}`}>
+    <div className={`flex min-h-[26px] items-center gap-[8px] ${wide ? 'basis-full' : ''}`}>
       <span className="shrink-0 text-dense text-muted">{name}</span>
       <div className={`flex min-w-0 items-center ${wide ? 'flex-1' : ''}`}>{children}</div>
     </div>
@@ -224,7 +206,7 @@ function TextCell({ name, value, mono = false, valid, onSave }: {
         if (e.key === 'Escape') { setText(value); e.currentTarget.blur() }
       }}
       onBlur={commit}
-      className={`h-control w-[130px] rounded border border-line bg-panel px-[8px] text-ui outline-none focus:border-accent ${mono ? 'font-mono text-dense' : ''} ${ok ? 'text-ink' : 'text-error'}`}
+      className={`h-[24px] w-[120px] rounded border border-line bg-panel px-[8px] text-ui outline-none focus:border-accent ${mono ? 'font-mono text-dense' : ''} ${ok ? 'text-ink' : 'text-error'}`}
     />
   )
 }
@@ -237,7 +219,7 @@ function RelationChoice({ relations, value, onChoose }: {
   return (
     <PickerControl
       name="Relation"
-      className="w-[280px]"
+      className="h-[24px] w-[280px] text-dense"
       groups={[{ key: 'relations', entries: relations.map((r) => ({ value: r.id, name: r.name, badge: relationSyntaxAsText(r) })) }]}
       value={value}
       placeholder=""

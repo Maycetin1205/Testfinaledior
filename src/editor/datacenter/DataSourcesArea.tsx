@@ -220,11 +220,12 @@ export function DataSourcesArea() {
         <Strip right={selection ? `${selection.fields.length}` : undefined}>Felder</Strip>
         {selection && (
           <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-            <table className="w-full table-fixed border-collapse text-ui">
+            {/* As wide as its columns, not as the window. */}
+            <table className="w-[480px] table-fixed border-collapse border-r border-line text-ui">
               <thead className="sticky top-0 z-[1]">
                 <tr>
                   <th className={cn(TH, 'w-[110px]')}>{sourcePreset(selection.preset).columnsLabel || 'Code'}</th>
-                  <th className={TH}>Name</th>
+                  <th className={cn(TH, 'w-[250px]')}>Name</th>
                   <th className={cn(TH, 'w-[90px]')}>Max. Länge</th>
                   <th className={cn(TH, 'w-control')} />
                 </tr>
