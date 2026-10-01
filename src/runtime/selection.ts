@@ -147,8 +147,12 @@ export function rowsToSelection(el: HTMLElement, rows: unknown[]): unknown[] {
   const host = maskState.host
   let out = rows
   for (const follow of followsFromAttribute(el)) {
-    const selection = follow.giverId === '' ? undefined : selectionFor(follow.giverId)
-    if (follow.giverId !== '' && selection === undefined) return []
+    // Only a pair that reads the giver's row, or a follow without pairs, needs
+    // a chosen row there; a form field or the open document does not.
+    const needsRow = follow.giverId !== ''
+      && (follow.pairs.length === 0 || follow.pairs.some((p) => p.from === undefined))
+    const selection = needsRow ? selectionFor(follow.giverId) : undefined
+    if (needsRow && selection === undefined) return []
 
     // A pair reads the giver's chosen row, the open document or a form field.
     const expected = follow.pairs.map((p) => outsideValue(p, el) ?? host.readField(selection, p.fromField))

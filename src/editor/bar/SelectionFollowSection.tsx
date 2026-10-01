@@ -64,8 +64,11 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
     ? outsidePair(origin, pair.toField, formFields)
     : { fromField: origin.value, toField: pair.toField })
 
+  // Once every pair reads a form field or the open document, the block no
+  // longer follows a giver's row.
   function set(next: SelectionFollow[]): void {
-    ed.updateProperty(block.id, SELECTION_FOLLOW_PROP, next)
+    ed.updateProperty(block.id, SELECTION_FOLLOW_PROP, next.map((f) =>
+      f.pairs.length > 0 && f.pairs.every((p) => p.from !== undefined) ? { ...f, giverId: '' } : f))
   }
 
   return (
