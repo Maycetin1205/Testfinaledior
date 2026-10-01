@@ -3,7 +3,7 @@ import { Button } from '@/editor/widgets/Button'
 import { Choice, type ChoiceOption } from '@/editor/widgets/Choice'
 import { X } from '@/editor/icons/icon'
 import { bindingWithSource, splitBinding } from '../../core/block/binding'
-import { newFactor, numberStrict, numberText, DECIMALS_MAX, type Factor } from '../../core/data/calculation'
+import { asNumber, newFactor, numberText, DECIMALS_MAX, type Factor } from '../../core/data/calculation'
 import { UNITS } from '../../core/data/units'
 import type { SourceInReach } from '../../core/data/extraSources'
 import type { ValueOrigin } from '../../core/data/valueOrigin'
@@ -39,7 +39,7 @@ function withOrigin(factor: Factor, origin: ValueOrigin): Factor | null {
     return { kind: 'dataField', key, unit, name, field: bindingWithSource(origin.sourceId ?? '', origin.value) }
   }
   if (origin.kind !== 'fixed') return null
-  const number = numberStrict(origin.value)
+  const number = asNumber(origin.value)
   return number === null ? null : { kind: 'number', key, unit, name, number }
 }
 

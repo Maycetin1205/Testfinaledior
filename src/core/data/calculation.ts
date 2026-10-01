@@ -22,12 +22,18 @@ const ROUND_DEFAULT: Rounding = { decimals: 3, direction: 'nearest' }
 
 export const DECIMALS_MAX = 6
 
-const STRICT = /^-?\d+(,\d+)?$|^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/
+const NUMBER = /^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$|^-?\d+(,\d+)?$|^-?\d+(\.\d+)?$/
 
-export function numberStrict(text: string): number | null {
-  const t = text.trim()
-  if (t === '' || !STRICT.test(t)) return null
-  const n = Number(t.replace(/\./g, '').replace(',', '.'))
+// The one reading of a number, in the editor and in the mask: 1.234,5 and
+// 1234,5 the German way, 1234.5 as a delivery may hold it.
+export function asNumber(value: string): number | null {
+  const t = value.trim()
+  if (t === '' || !NUMBER.test(t)) return null
+
+  const norm = t.includes(',')
+    ? t.replace(/\./g, '').replace(',', '.')
+    : /^-?[1-9]\d{0,2}(\.\d{3})+$/.test(t) ? t.replace(/\./g, '') : t
+  const n = Number(norm)
   return Number.isFinite(n) ? n : null
 }
 

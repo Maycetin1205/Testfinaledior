@@ -1,5 +1,5 @@
 import type { Delivery } from '../../core/block/capability'
-import { numberStrict } from '../../core/data/calculation'
+import { asNumber } from '../../core/data/calculation'
 import type { Column } from '../list/columns'
 
 interface SentRow {
@@ -12,8 +12,8 @@ export function valueEquals(a: string, b: string): boolean {
   const x = a.trim()
   const y = b.trim()
   if (x === y) return true
-  const number = numberStrict(x)
-  return number !== null && number === numberStrict(y)
+  const number = asNumber(x)
+  return number !== null && number === asNumber(y)
 }
 
 export function arrivalCheck(

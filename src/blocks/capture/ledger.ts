@@ -16,7 +16,7 @@ import {
   suggestionsInWindowState,
   type Entry,
 } from '../lookup/lookup'
-import { asNumber } from '../list/sorting'
+import { asNumber } from '../../core/data/calculation'
 import { rowsIndexOf } from '../list/sourceRows'
 import { SuggestionState, type KeyAction } from '../lookup/suggestionState'
 import { SUGGESTIONS_MAX } from '../lookup/suggestionList'

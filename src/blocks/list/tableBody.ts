@@ -2,7 +2,7 @@ import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { columnsChoiceTpl, type ColumnsChoiceAct, type ColumnsChoicePlacement } from './columnPicker'
 import { markHit } from './textSearch'
-import { asNumber } from './sorting'
+import { asNumber } from '../../core/data/calculation'
 import {
   CELL_PLACEHOLDER,
   type Column,

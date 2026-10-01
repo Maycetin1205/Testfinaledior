@@ -13,7 +13,7 @@ import {
   newFactor,
   computeCalculation,
   directionAsText,
-  numberStrict,
+  asNumber,
   DECIMALS_MAX,
   type Calculation,
   type Factor,
@@ -52,7 +52,7 @@ function Step({ number, title, children }: {
 function previewState(text: string | undefined): FactorState {
   const t = (text ?? '').trim()
   if (t === '') return { kind: 'empty' }
-  const number = numberStrict(t)
+  const number = asNumber(t)
   return number === null ? { kind: 'invalid', text: t } : { kind: 'number', number }
 }
 

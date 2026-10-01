@@ -1,21 +1,9 @@
+import { asNumber } from '../../core/data/calculation'
 import { isUnread } from '../../core/unread'
 import { readDate } from '../../runtime/chosenDay'
 import { makeOperatorState } from './operatorState'
 
 const EMPTY_LAST = 1
-
-const NUMBER = /^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$|^-?\d+(,\d+)?$|^-?\d+(\.\d+)?$/
-
-export function asNumber(value: string): number | null {
-  const t = value.trim()
-  if (t === '' || !NUMBER.test(t)) return null
-
-  const norm = t.includes(',')
-    ? t.replace(/\./g, '').replace(',', '.')
-    : /^-?[1-9]\d{0,2}(\.\d{3})+$/.test(t) ? t.replace(/\./g, '') : t
-  const n = Number(norm)
-  return Number.isFinite(n) ? n : null
-}
 
 function asDate(value: string): number | null {
   return readDate(value)?.getTime() ?? null

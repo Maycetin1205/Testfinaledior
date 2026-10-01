@@ -9,7 +9,7 @@ import {
   type DataPreamble,
 } from '../../runtime/source'
 import { addRow, type Calculation } from '../../core/data/calculation'
-import { asNumber } from './sorting'
+import { asNumber } from '../../core/data/calculation'
 import { columnWithKey, type Column } from './columns'
 
 // Where a list takes its rows from: it reads them from its own data source, or
