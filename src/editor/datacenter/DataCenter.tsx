@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { FolderOpen, Save, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
-import { Tabs } from '@/editor/widgets/Tabs'
+import { cn } from '@/editor/widgets/cn'
 import { loadLibraryFromFile, saveLibraryAsFile } from '../state/libraryFile'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
@@ -11,8 +11,7 @@ import { RelationArea } from './RelationArea'
 
 type Area = 'dataSources' | 'relation' | 'library'
 
-// The data at the right of the canvas: sources, relations, the library. It is
-// no window over the mask; the mask stays at hand beside it.
+// The data as a window: sources, relations, the library, each a tab.
 export function DataCenter({ onClose }: { onClose: () => void }) {
   const [area, setArea] = useState<Area>('dataSources')
   const sources = useDataSources()
@@ -26,18 +25,31 @@ export function DataCenter({ onClose }: { onClose: () => void }) {
 
   return (
     <section aria-label="Daten" data-ff-data-panel className="flex h-full min-h-0 flex-col">
-      <header className="flex h-[40px] shrink-0 items-center gap-0.5 border-b border-line px-[6px]">
-        {tabs.map(({ key, name, count }) => (
-          <Tabs key={key} active={area === key} onClick={() => setArea(key)}>
-            {name}
-            {count !== undefined && <span className="ml-1.5 tabular-nums opacity-70">{count}</span>}
-          </Tabs>
-        ))}
+      <header className="flex h-[44px] shrink-0 items-center gap-[14px] border-b border-line px-[14px]">
+        <h2 className="text-title font-semibold text-ink">Daten</h2>
         <div className="flex-1" />
         <Button onlyIcon aria-label="Daten schließen" title="Schließen" onClick={onClose}>
           <X size={15} />
         </Button>
       </header>
+      <nav className="flex shrink-0 border-b border-line bg-control px-[8px]">
+        {tabs.map(({ key, name, count }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setArea(key)}
+            className={cn(
+              '-mb-px border-b-2 px-[14px] pb-[6px] pt-[7px]',
+              area === key
+                ? 'border-x border-x-line border-b-accent bg-panel font-semibold text-ink'
+                : 'border-b-transparent text-muted hover:text-ink',
+            )}
+          >
+            {name}
+            {count !== undefined && <span className="ml-[6px] font-normal tabular-nums text-muted">{count}</span>}
+          </button>
+        ))}
+      </nav>
 
       <div className="flex min-h-0 flex-1">
         {area === 'dataSources' && <DataSourcesArea />}

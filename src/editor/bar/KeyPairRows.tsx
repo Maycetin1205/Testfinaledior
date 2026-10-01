@@ -41,7 +41,7 @@ export function KeyPairRows({
     onChoose: (code: string) => void,
   ) => (
     <PickerControl
-      className="flex-1"
+      className="w-full"
       name={name}
       groups={[{
         key: 'fields',
@@ -58,28 +58,33 @@ export function KeyPairRows({
       <span className="text-dense text-muted">{question}</span>
 
       {pairs.map((pair, at) => (
-        <div key={at} className="flex flex-col gap-1 rounded border border-line p-1.5">
-          <div className="flex items-center gap-1.5">
-            <span className="min-w-0 flex-1 truncate text-dense text-muted">
-              {leftName(at)}
-            </span>
-            {pairs.length > 1 && (
-              <Button
-                onlyIcon
-                aria-label={removeName(at)}
-                onClick={() => onChange(pairs.filter((_, x) => x !== at))}
-              >
-                <X size={13} />
-              </Button>
-            )}
+        // Both lines of a pair alike: the name on the left, the choice in
+        // the same width on the right, the bin at the end of the first.
+        <div key={at} className="grid grid-cols-[112px_minmax(0,1fr)_28px] items-center gap-x-[8px] gap-y-[4px] rounded border border-line p-[6px]">
+          <span className="truncate text-dense text-muted" title={leftName(at)}>{leftName(at)}</span>
+          <div className="flex min-w-0 [&>*]:w-full [&>*]:flex-1">
+            {left
+              ? left(pair, at)
+              : fieldPicker(leftName(at), leftFields, pair.fromField,
+                (code) => setPair(at, { fromField: code }))}
           </div>
-          {left
-            ? left(pair, at)
-            : fieldPicker(leftName(at), leftFields, pair.fromField,
-              (code) => setPair(at, { fromField: code }))}
-          <span className="text-dense text-muted">{rightName(at)}</span>
-          {fieldPicker(rightName(at), rightFields, pair.toField,
-            (code) => setPair(at, { toField: code }))}
+          {pairs.length > 1
+            ? (
+                <Button
+                  onlyIcon
+                  aria-label={removeName(at)}
+                  onClick={() => onChange(pairs.filter((_, x) => x !== at))}
+                >
+                  <X size={13} />
+                </Button>
+              )
+            : <span />}
+          <span className="truncate text-dense text-muted" title={rightName(at)}>{rightName(at)}</span>
+          <div className="flex min-w-0 [&>*]:w-full [&>*]:flex-1">
+            {fieldPicker(rightName(at), rightFields, pair.toField,
+              (code) => setPair(at, { toField: code }))}
+          </div>
+          <span />
         </div>
       ))}
       {pairs.length < MAX_KEY_PAIRS && (

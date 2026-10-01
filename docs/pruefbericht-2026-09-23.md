@@ -1031,8 +1031,9 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   die Bausteine als Symbole mit Namen, anklicken oder auf die Fläche ziehen.
   Keine Suche, keine Gruppenüberschriften.
 - Mitte die Maske in echter Größe auf neutralem Grau.
-- Rechts die Seitenleiste für Daten: Quellen, Relationen, Bibliothek. Zu,
-  bis „Daten“ geklickt wird; bleibt dann offen, nie modal, nie Vollbild.
+- Daten als Fenster in der Mitte über der Maske: Quellen, Relationen,
+  Bibliothek als Reiter. Zu, bis „Daten“ geklickt wird; nie modal, nie
+  Vollbild.
   Quellen als Liste Name und Tabelle, darunter die Felder der markierten
   Quelle als Liste Code und Name; Relationen als Liste Syntax und
   Bezeichnung. Getippt in der Zeile, die letzte Zeile ist leer. Die Tabelle
@@ -1061,11 +1062,10 @@ Grundregeln für alle Bausteine:
 - Text immer direkt auf der Fläche: Doppelklick, tippen.
 - Feld binden: Klick auf die Stelle, Feldliste der Quelle erscheint dort.
   Gebundene Stellen gepunktet unterstrichen.
-- Aktionen: je Ereignis die Schritte als Zeilen, „Schritt hinzufügen“ mit
-  Relation, Werkzeug starten, Popup öffnen, Popup schließen. Popups wählt
-  man in der Zeile. Relation und Werkzeug öffnen das Schrittfenster wie die
-  Klammerauflösung in SoftEngine: Reiter GET Relation, PUT Relation,
-  Werkzeug; Stellen als Raster Nr., Bezeichnung, Eingabe, Herkunft, belegte
+- Aktionen: je Ereignis die Schritte als Zeilen. Ein Klick auf einen
+  Schritt oder auf „Schritt hinzufügen“ öffnet das Schrittfenster in der
+  Mitte, wie die Klammerauflösung in SoftEngine: Reiter GET Relation, PUT
+  Relation, Werkzeug, Popup; Stellen als Raster Nr., Bezeichnung, Eingabe, Herkunft, belegte
   oben, leere eingeklappt; Eingabe leer mit dem Namen als
   Hintergrundschrift, leer bleibt leer; rechts das Ergebnis. Erst
   „Übernehmen“ schreibt in den Baustein (1.10., ersetzt die Sätze aus

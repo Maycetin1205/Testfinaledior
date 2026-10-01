@@ -1,10 +1,8 @@
-import { useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { ArrowUp, Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { Field } from '@/editor/widgets/Field'
-import { List } from '@/editor/widgets/List'
-import { Popover } from '@/editor/widgets/Popover'
 import type { BlockNode } from '../../core/block/tree'
 import type { EventDef } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
@@ -20,7 +18,6 @@ import {
 } from '../../core/block/treeQuery'
 import type { RelationTemplate } from '../../core/data/relations'
 import type { Step } from '../../core/data/steps/steps'
-import { PickerControl } from '../controls/PickerControl'
 import { useInputSession } from '../controls/useInputSession'
 import {
   blockValueKey,
@@ -34,25 +31,22 @@ import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
 import { StepWindow, type StepContext, type StepTab } from './StepWindow'
 
-// What "+ Schritt" offers. A relation and a tool open the step window; a
-// popup step is one line.
-const NEW_KINDS = [
-  { value: 'RELATION', name: 'Relation' },
-  { value: 'START_TOOL', name: 'Werkzeug starten' },
-  { value: 'POPUP_OPEN', name: 'Popup öffnen' },
-  { value: 'POPUP_CLOSE', name: 'Popup schließen' },
-] as const
-
 // The window that is open: for a step of the chain, or for a new one.
 interface Opened {
   eventKey: string
   stepId: string | null
   tab: StepTab
-  anchor: RefObject<HTMLElement | null>
 }
 
-// The actions of a block: per event its steps as lines. A relation or a tool
-// opens its window on a click; a popup is chosen in its line.
+// The tab a step opens on.
+function tabOf(step: Step, relations: readonly RelationTemplate[]): StepTab {
+  if (step.kind === 'START_TOOL') return 'TOOL'
+  if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') return 'POPUP'
+  return relations.find((r) => step.kind === 'RELATION' && r.id === step.relationId)?.verb === 'GET_RELATION' ? 'GET' : 'PUT'
+}
+
+// The actions of a block: per event its steps as lines. A click on a line or
+// on "Schritt hinzufügen" opens the step window in the middle of the screen.
 export function ActionsSection({ block, events }: { block: BlockNode; events: readonly EventDef[] }) {
   const ed = useEditor()
   const relations = useRelations().list
@@ -73,6 +67,7 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
     })
     return {
       relations,
+      popups: pagesOfMask(tree).filter(isWindowPage).map((p) => ({ value: p.id, name: p.name })),
       choices: {
         dataSources: sources,
         blockValues,
@@ -83,7 +78,6 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
       },
     }
   }, [tree, sources, relations])
-  const popups = pagesOfMask(tree).filter(isWindowPage).map((p) => ({ value: p.id, name: p.name }))
 
   const chainOf = (key: string): Step[] => tree[block.id]?.chains?.[key] ?? []
   const setChain = (key: string, steps: Step[]): void => {
@@ -106,10 +100,9 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
                   key={step.id}
                   nr={i + 1}
                   step={step}
-                  relations={relations}
-                  popups={popups}
+                  context={context}
                   open={opened?.stepId === step.id}
-                  onOpen={(anchor, tab) => setOpened({ eventKey: ev.key, stepId: step.id, tab, anchor })}
+                  onOpen={() => setOpened({ eventKey: ev.key, stepId: step.id, tab: tabOf(step, relations) })}
                   onChange={(next) => set(chain.map((s) => (s.id === step.id ? next : s)))}
                   onUp={i === 0 ? undefined : () => {
                     const next = [...chain]
@@ -119,10 +112,13 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
                   onRemove={() => set(chain.filter((s) => s.id !== step.id))}
                 />
               ))}
-              <AddStep
-                onWindow={(anchor, tab) => setOpened({ eventKey: ev.key, stepId: null, tab, anchor })}
-                onPopup={(kind) => set([...chain, { id: crypto.randomUUID(), kind, resultName: '', popupId: '' }])}
-              />
+              <button
+                type="button"
+                onClick={() => setOpened({ eventKey: ev.key, stepId: null, tab: 'PUT' })}
+                className="flex h-[30px] w-full items-center gap-[8px] px-[8px] text-left text-muted hover:bg-control hover:text-ink"
+              >
+                <Plus size={13} className="text-accent" /> Schritt hinzufügen
+              </button>
             </div>
             {opened?.eventKey === ev.key && (
               <StepWindow
@@ -132,7 +128,6 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
                 tab={opened.tab}
                 chain={chain}
                 context={context}
-                anchor={opened.anchor}
                 onApply={(next) => {
                   set(chain.some((s) => s.id === next.id)
                     ? chain.map((s) => (s.id === next.id ? next : s))
@@ -151,20 +146,38 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
 
 const LINE = 'group flex h-[30px] items-center gap-[8px] border-b border-line/70 px-[8px]'
 
+// What a step does, in a few words, and its short form on the right.
+function stepWords(step: Step, context: StepContext): { words: string; short: string; known: boolean } {
+  switch (step.kind) {
+    case 'RELATION': {
+      const t = context.relations.find((r) => r.id === step.relationId)
+      return { words: t?.name ?? 'Relation', short: t ? `${VERB_SHORT[t.verb]} ${t.nr}` : '', known: t !== undefined }
+    }
+    case 'START_TOOL':
+      return { words: 'Werkzeug starten', short: step.toolNumber, known: step.toolNumber !== '' }
+    case 'POPUP_OPEN':
+    case 'POPUP_CLOSE': {
+      const name = context.popups.find((p) => p.value === step.popupId)?.name
+      const verb = step.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'
+      return { words: name ? `Popup ${name} ${verb}` : `Popup ${verb}`, short: '', known: name !== undefined }
+    }
+    case 'BW_LINK':
+      return { words: 'BW-Befehl', short: '', known: true }
+  }
+}
+
 // One step as a line: its number, what it does, on the right its short form,
 // and while the pointer is on it, up and remove.
-function StepLine({ nr, step, relations, popups, open, onOpen, onChange, onUp, onRemove }: {
+function StepLine({ nr, step, context, open, onOpen, onChange, onUp, onRemove }: {
   nr: number
   step: Step
-  relations: readonly RelationTemplate[]
-  popups: readonly { value: string; name: string }[]
+  context: StepContext
   open: boolean
-  onOpen: (anchor: RefObject<HTMLElement | null>, tab: StepTab) => void
+  onOpen: () => void
   onChange: (step: Step) => void
   onUp?: () => void
   onRemove: () => void
 }) {
-  const ref = useRef<HTMLDivElement>(null)
   const ends = (
     <span className="ml-auto flex shrink-0 items-center opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
       {onUp && (
@@ -179,73 +192,34 @@ function StepLine({ nr, step, relations, popups, open, onOpen, onChange, onUp, o
   )
   const number = <span className="w-[16px] shrink-0 text-right font-mono text-dense text-muted">{nr}</span>
 
-  switch (step.kind) {
-    case 'RELATION': {
-      const template = relations.find((r) => r.id === step.relationId)
-      const tab: StepTab = template?.verb === 'GET_RELATION' ? 'GET' : 'PUT'
-      return (
-        <Clickable refEl={ref} open={open} onClick={() => onOpen(ref, tab)}>
-          {number}
-          <span className={cn('min-w-0 truncate', !template && 'text-muted')}>{template?.name ?? 'Relation'}</span>
-          {template && (
-            <span className="shrink-0 border-l border-line pl-[8px] font-mono text-dense text-muted">
-              {VERB_SHORT[template.verb]} {template.nr}
-            </span>
-          )}
-          {ends}
-        </Clickable>
-      )
-    }
-    case 'START_TOOL':
-      return (
-        <Clickable refEl={ref} open={open} onClick={() => onOpen(ref, 'TOOL')}>
-          {number}
-          <span className="min-w-0 truncate">Werkzeug starten</span>
-          {step.toolNumber !== '' && (
-            <span className="shrink-0 border-l border-line pl-[8px] font-mono text-dense text-muted">{step.toolNumber}</span>
-          )}
-          {ends}
-        </Clickable>
-      )
-    case 'POPUP_OPEN':
-    case 'POPUP_CLOSE':
-      return (
-        <div className={LINE}>
-          {number}
-          <span className="shrink-0">Popup</span>
-          <PickerControl
-            name="Popup"
-            className="h-[24px] w-[150px]"
-            groups={[{ key: 'popups', entries: popups }]}
-            value={step.popupId}
-            placeholder=""
-            onChoose={(popupId) => onChange({ ...step, popupId })}
-          />
-          <span className="shrink-0">{step.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'}</span>
-          {ends}
-        </div>
-      )
-    case 'BW_LINK':
-      return (
-        <div className={LINE}>
-          {number}
-          <span className="shrink-0">BW-Befehl</span>
-          <InlineText name="Befehl" value={step.command} onChange={(command) => onChange({ ...step, command })} />
-          {ends}
-        </div>
-      )
+  // A BW command of an older mask stays as it was: typed in its line.
+  if (step.kind === 'BW_LINK') {
+    return (
+      <div className={LINE}>
+        {number}
+        <span className="shrink-0">BW-Befehl</span>
+        <InlineText name="Befehl" value={step.command} onChange={(command) => onChange({ ...step, command })} />
+        {ends}
+      </div>
+    )
   }
+
+  const { words, short, known } = stepWords(step, context)
+  return (
+    <Clickable open={open} onClick={onOpen}>
+      {number}
+      <span className={cn('min-w-0 truncate', !known && 'text-muted')}>{words}</span>
+      {short !== '' && (
+        <span className="shrink-0 border-l border-line pl-[8px] font-mono text-dense text-muted">{short}</span>
+      )}
+      {ends}
+    </Clickable>
+  )
 }
 
-function Clickable({ refEl, open, onClick, children }: {
-  refEl: RefObject<HTMLDivElement | null>
-  open: boolean
-  onClick: () => void
-  children: ReactNode
-}) {
+function Clickable({ open, onClick, children }: { open: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <div
-      ref={refEl}
       role="button"
       tabIndex={0}
       aria-expanded={open}
@@ -277,41 +251,5 @@ function InlineText({ name, value, onChange }: {
       }}
       onBlur={session.finish}
     />
-  )
-}
-
-function AddStep({ onWindow, onPopup }: {
-  onWindow: (anchor: RefObject<HTMLElement | null>, tab: StepTab) => void
-  onPopup: (kind: 'POPUP_OPEN' | 'POPUP_CLOSE') => void
-}) {
-  const [open, setOpen] = useState(false)
-  const button = useRef<HTMLButtonElement>(null)
-  return (
-    <>
-      <button
-        ref={button}
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-        className="flex h-[30px] w-full items-center gap-[8px] px-[8px] text-left text-muted hover:bg-control hover:text-ink"
-      >
-        <Plus size={13} className="text-accent" /> Schritt hinzufügen
-      </button>
-      {open && (
-        <Popover name="Schritt" anchor={button} width={200} onClose={() => setOpen(false)}>
-          <List
-            groups={[{ key: 'kinds', entries: NEW_KINDS.map((k) => ({ value: k.value, name: k.name })) }]}
-            value=""
-            onChoose={(kind) => {
-              setOpen(false)
-              if (kind === 'RELATION') onWindow(button, 'PUT')
-              else if (kind === 'START_TOOL') onWindow(button, 'TOOL')
-              else onPopup(kind as 'POPUP_OPEN' | 'POPUP_CLOSE')
-            }}
-          />
-        </Popover>
-      )}
-    </>
   )
 }

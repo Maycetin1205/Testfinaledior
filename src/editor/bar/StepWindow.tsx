@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { ChevronDown, Plus, Trash2, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
+import { Segment } from '@/editor/widgets/Segment'
 import { ACTION_PLACEHOLDER, relationParameterDefault, type Parameter } from '../../core/data/actions'
 import type { DataSource } from '../../core/data/dataSources'
 import {
@@ -16,6 +17,8 @@ import {
 } from '../../core/data/relations'
 import type { RelationStep } from '../../core/data/steps/relation'
 import type { StartToolStep } from '../../core/data/steps/startTool'
+import type { PopupOpenStep } from '../../core/data/steps/popupOpen'
+import type { PopupCloseStep } from '../../core/data/steps/popupClose'
 import { resultStepsBefore } from '../../core/data/steps/chains'
 import type { Step } from '../../core/data/steps/steps'
 import { decodeOrigin, originGroups } from '../controls/originOffer'
@@ -26,10 +29,11 @@ import type { ParameterChoices } from '../datacenter/parameter/choices'
 import { PLACEHOLDER_PLAIN_TEXT } from '../datacenter/parameterText'
 import { parameterOfOrigin, parameterOffer } from './parameterOrigin'
 
-export type StepTab = 'GET' | 'PUT' | 'TOOL'
+export type StepTab = 'GET' | 'PUT' | 'TOOL' | 'POPUP'
 
 export interface StepContext {
   relations: readonly RelationTemplate[]
+  popups: readonly { value: string; name: string }[]
   choices: Omit<ParameterChoices, 'steps'>
 }
 
@@ -37,6 +41,7 @@ const TABS: readonly { key: StepTab; name: string }[] = [
   { key: 'GET', name: 'GET Relation' },
   { key: 'PUT', name: 'PUT Relation' },
   { key: 'TOOL', name: 'Werkzeug' },
+  { key: 'POPUP', name: 'Popup' },
 ]
 
 const WIDTH = 780
@@ -48,19 +53,22 @@ const emptyRelation = (id: string): RelationStep =>
 const emptyTool = (id: string): StartToolStep =>
   ({ id, kind: 'START_TOOL', resultName: '', toolNumber: '', toolParameter: [] })
 
+type PopupStep = PopupOpenStep | PopupCloseStep
+const emptyPopup = (id: string): PopupStep =>
+  ({ id, kind: 'POPUP_OPEN', resultName: '', popupId: '' })
+
 const isEmpty = (b: Parameter | undefined): boolean =>
   !b || b.source === 'omitted' || (b.source === 'fixed' && b.value.trim() === '')
 
 // The window of one step, as SoftEngine resolves a relation: tabs for the
 // kind, the places as a grid of number, name, entry and origin, the result on
 // the right. Nothing reaches the step before "Übernehmen".
-export function StepWindow({ nr, step, tab: firstTab, chain, context, anchor, onApply, onClose }: {
+export function StepWindow({ nr, step, tab: firstTab, chain, context, onApply, onClose }: {
   nr: number
   step: Step | undefined
   tab: StepTab
   chain: readonly Step[]
   context: StepContext
-  anchor: RefObject<HTMLElement | null>
   onApply: (step: Step) => void
   onClose: () => void
 }) {
@@ -74,21 +82,30 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, anchor, on
   const [get, setGet] = useState<RelationStep>(() => own('read'))
   const [put, setPut] = useState<RelationStep>(() => own('write'))
   const [tool, setTool] = useState<StartToolStep>(() => (step?.kind === 'START_TOOL' ? step : emptyTool(id)))
+  const [popup, setPopup] = useState<PopupStep>(() =>
+    (step?.kind === 'POPUP_OPEN' || step?.kind === 'POPUP_CLOSE' ? step : emptyPopup(id)))
 
   const choices: ParameterChoices = useMemo(() => ({
     ...context.choices,
     steps: resultStepsBefore(chain, id, context.relations),
   }), [context, chain, id])
 
-  const draft = tab === 'GET' ? get : tab === 'PUT' ? put : tool
+  const draft: Step = tab === 'GET' ? get : tab === 'PUT' ? put : tab === 'TOOL' ? tool : popup
   const template = draft.kind === 'RELATION' ? context.relations.find((r) => r.id === draft.relationId) : undefined
-  const ready = draft.kind === 'RELATION' ? template !== undefined : draft.toolNumber.trim() !== ''
-  const head = draft.kind === 'RELATION'
-    ? (template ? relationSyntaxAsText(template) : '')
-    : (draft.toolNumber.trim() !== '' ? `START_TOOL ${draft.toolNumber.trim()}` : '')
+  const popupName = context.popups.find((p) => p.value === popup.popupId)?.name ?? ''
+  const { ready, head } = draft.kind === 'RELATION'
+    ? { ready: template !== undefined, head: template ? relationSyntaxAsText(template) : '' }
+    : draft.kind === 'START_TOOL'
+      ? { ready: draft.toolNumber.trim() !== '', head: draft.toolNumber.trim() !== '' ? `START_TOOL ${draft.toolNumber.trim()}` : '' }
+      : { ready: popupName !== '', head: popupName !== '' ? `Popup ${popupName} ${draft.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'}` : '' }
+  // In the middle of the screen.
+  const at = {
+    top: Math.max(8, (window.innerHeight - HEIGHT) / 2),
+    left: Math.max(8, (window.innerWidth - WIDTH) / 2),
+  }
 
   return (
-    <Popover name={`Schritt ${nr}`} anchor={anchor} width={WIDTH} maxHeight={HEIGHT + 8} level={60} onClose={onClose}>
+    <Popover name={`Schritt ${nr}`} at={at} width={WIDTH} maxHeight={HEIGHT + 8} level={60} onClose={onClose}>
       <div className="-m-1 flex flex-col text-ui" style={{ height: HEIGHT }}>
         <header className="flex h-[44px] shrink-0 items-center gap-[14px] border-b border-line px-[14px]">
           <h2 className="shrink-0 text-title font-semibold text-ink">Schritt {nr}</h2>
@@ -126,7 +143,9 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, anchor, on
                 onChange={tab === 'GET' ? setGet : setPut}
               />
             )
-          : <ToolBody step={draft} onChange={setTool} />}
+          : draft.kind === 'START_TOOL'
+            ? <ToolBody step={draft} onChange={setTool} />
+            : <PopupBody step={popup} popups={context.popups} onChange={setPopup} />}
 
         <footer className="flex shrink-0 justify-end gap-[8px] border-t border-line bg-control px-[14px] py-[8px]">
           <Button onClick={onClose}>Abbrechen</Button>
@@ -607,6 +626,37 @@ function ToolBody({ step, onChange }: { step: StartToolStep; onChange: (step: St
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  )
+}
+
+// A popup: open or close, and which one.
+function PopupBody({ step, popups, onChange }: {
+  step: PopupStep
+  popups: readonly { value: string; name: string }[]
+  onChange: (step: PopupStep) => void
+}) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <Strip>Popup</Strip>
+      <div className="grid grid-cols-[112px_260px] items-center gap-[8px] px-[12px] py-[8px]">
+        <span className="text-dense text-muted">Aktion</span>
+        <Segment
+          name="Aktion"
+          options={[{ value: 'POPUP_OPEN', name: 'öffnen' }, { value: 'POPUP_CLOSE', name: 'schließen' }]}
+          value={step.kind}
+          onChoose={(kind) => onChange({ ...step, kind: kind === 'POPUP_CLOSE' ? 'POPUP_CLOSE' : 'POPUP_OPEN' })}
+        />
+        <span className="text-dense text-muted">Popup</span>
+        <PickerControl
+          name="Popup"
+          className="w-full"
+          groups={[{ key: 'popups', entries: popups }]}
+          value={step.popupId}
+          placeholder=""
+          onChoose={(popupId) => onChange({ ...step, popupId })}
+        />
       </div>
     </div>
   )

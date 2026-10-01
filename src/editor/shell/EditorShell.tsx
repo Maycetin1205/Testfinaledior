@@ -12,7 +12,7 @@ import { Toolbar } from './Toolbar'
 export function EditorShell() {
   useKeyboardShortcuts()
 
-  // The data stay closed until „Daten" is clicked, then open beside the mask.
+  // The data stay closed until „Daten" is clicked, then open as a window.
   const [dataOpen, setDataOpen] = useState(false)
 
   useEffect(() => onDataCenterRequest(() => setDataOpen(true)), [])
@@ -36,13 +36,18 @@ export function EditorShell() {
           <Canvas />
         </main>
 
-        {/* As wide as .vmodal. */}
-        {dataOpen && (
-          <aside className="w-[560px] shrink-0 overflow-hidden border-l border-line bg-panel">
-            <DataCenter onClose={() => setDataOpen(false)} />
-          </aside>
-        )}
       </div>
+
+      {/* A window in the middle over the mask, not docked and not modal:
+          the mask stays at hand around it. */}
+      {dataOpen && (
+        <aside
+          aria-label="Daten"
+          className="fixed left-1/2 top-1/2 z-40 flex h-[min(640px,88vh)] w-[min(920px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded border border-line bg-panel shadow-overlay"
+        >
+          <DataCenter onClose={() => setDataOpen(false)} />
+        </aside>
+      )}
 
       <LookupColumns />
       <CalculationsWindow />
