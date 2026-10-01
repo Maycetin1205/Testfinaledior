@@ -87,10 +87,12 @@ function headDepth(el: HTMLElement, element: HTMLElement | null, head: string | 
   return part ? Math.max(0, part.getBoundingClientRect().bottom - el.getBoundingClientRect().top) : 0
 }
 
-// Always flush with the block's left edge, or with its column: above the top
-// edge, where no other block and no edge is in the way; else, for a low block,
-// below it; else inside on the block's own top edge, below the column heads of
-// a table. Never at the far end of the block.
+// Where no other block and no edge is in the way, flush with the block's left
+// edge or with its column. A table, a board, a capture: above its top edge,
+// else above it just past what stands in the way, else inside below its
+// column heads. A low block like a field never lies under its own bar: above
+// it, else below it, else beside it on the right or the left, else above it
+// over its neighbour.
 function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: number): { top: number; left: number } {
   const room = roomOf(el)
   bar.style.maxWidth = `${Math.max(0, room.right - room.left)}px`
@@ -98,17 +100,36 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: numbe
   const h = bar.offsetHeight
   const r = el.getBoundingClientRect()
   const others = otherBlocks(el)
-  const left = Math.max(room.left, Math.min(align ?? r.left, room.right - w))
-  const free = (top: number) => {
-    const box = { top, bottom: top + h, left, right: left + w }
+  const inRoom = (left: number) => Math.max(room.left, Math.min(left, room.right - w))
+  const left = inRoom(align ?? r.left)
+  const free = (top: number, at = left) => {
+    const box = { top, bottom: top + h, left: at, right: at + w }
     return box.top >= room.top && box.bottom <= room.bottom && !others.some((o) => overlaps(box, o))
+      && (at === left || !overlaps(box, r))
   }
   const above = r.top - GAP - h
   if (free(above)) return { top: above, left }
-  // Below a tall block the bar would stand far from where one works.
+  const low = align === undefined && r.height <= 3 * h
+  if (!low) {
+    // Above the block, just past what is in the way, not at its far end.
+    const past = align === undefined
+      ? others
+          .filter((o) => o.top < above + h && o.bottom > above)
+          .map((o) => inRoom(o.right + GAP))
+          .filter((x) => x > left && x < r.right)
+          .sort((a, b) => a - b)
+          .find((x) => free(above, x))
+      : undefined
+    return past === undefined ? { top: r.top + depth, left } : { top: above, left: past }
+  }
   const below = r.bottom + GAP
-  if (align === undefined && r.height <= 3 * h && free(below)) return { top: below, left }
-  return { top: r.top + depth, left }
+  if (free(below)) return { top: below, left }
+  const middle = r.top + (r.height - h) / 2
+  const right = r.right + GAP
+  if (right + w <= room.right && free(middle, right)) return { top: middle, left: right }
+  const leftOf = r.left - GAP - w
+  if (leftOf >= room.left && free(middle, leftOf)) return { top: middle, left: leftOf }
+  return { top: Math.max(room.top, above), left }
 }
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
@@ -123,7 +144,8 @@ function Group({ name, children }: { name: string; children: ReactNode }) {
       <div className="flex h-[28px] items-center border-y border-line bg-control px-[10px] text-dense font-semibold text-muted">
         {name}
       </div>
-      <div className="flex flex-col gap-[6px] px-[10px] py-[8px]">{children}</div>
+      {/* Each control on a line of its own, the ticks of switches side by side. */}
+      <div className="flex flex-wrap items-center gap-x-[14px] gap-y-[4px] px-[10px] py-[6px] [&>:not([data-switch])]:basis-full">{children}</div>
     </section>
   )
 }
@@ -279,6 +301,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
                 label="Einstellungen"
                 width={SETTINGS_WIDTH}
                 flush
+                beside={host}
                 defaultOpen={followSeen !== '' && followSeen !== openedWith}
                 onOpen={() => setOpenedWith(followSeen)}
               >
@@ -378,21 +401,47 @@ function EscapeEnds({ onEscape }: { onEscape: () => void }) {
   return null
 }
 
+// Beside the block and its bar, at the block's top: on the right, else on the
+// left; where neither has room, as beside a table, below the button that
+// opens it.
+function besideOf(
+  block: HTMLElement | null | undefined,
+  button: HTMLElement | null,
+  width: number,
+): { top: number; left: number } | undefined {
+  if (!block) return undefined
+  const r = block.getBoundingClientRect()
+  const bar = button?.closest('[data-ff-editor-helper]')?.getBoundingClientRect()
+  const right = Math.max(r.right, bar?.right ?? r.right)
+  const left = Math.min(r.left, bar?.left ?? r.left)
+  if (right + GAP + width <= window.innerWidth - GAP) return { top: r.top, left: right + GAP }
+  if (left - GAP - width >= GAP) return { top: r.top, left: left - GAP - width }
+  return undefined
+}
+
 // A button in the bar that opens a small window beside it; with a sign, the
 // sign alone stands in the bar.
-export function BarWindow({ label, icon, width = 340, defaultOpen = false, flush = false, onOpen, children }: {
+export function BarWindow({ label, icon, width = 340, defaultOpen = false, flush = false, beside, onOpen, children }: {
   label: string
   icon?: Icon
   width?: number
   defaultOpen?: boolean
   // The content reaches the window's edges, as strips with lines do.
   flush?: boolean
+  // The block the window opens beside, so it does not cover it.
+  beside?: RefObject<HTMLElement | null>
   onOpen?: () => void
   children: (close: () => void) => ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
   useEffect(() => { if (open) onOpen?.() }, [open, onOpen])
   const button = useRef<HTMLButtonElement>(null)
+  // Where it opens, taken when it is opened by a click.
+  const [at, setAt] = useState<{ top: number; left: number } | undefined>(undefined)
+  const toggle = () => {
+    if (!open) setAt(besideOf(beside?.current, button.current, width))
+    setOpen(!open)
+  }
   const pressed = open ? 'border-accent bg-accent-soft text-ink' : undefined
   return (
     <>
@@ -406,7 +455,7 @@ export function BarWindow({ label, icon, width = 340, defaultOpen = false, flush
               aria-haspopup="dialog"
               aria-expanded={open}
               className={pressed}
-              onClick={() => setOpen(!open)}
+              onClick={toggle}
             >
               {createElement(icon, { size: 15 })}
             </Button>
@@ -417,13 +466,13 @@ export function BarWindow({ label, icon, width = 340, defaultOpen = false, flush
               aria-haspopup="dialog"
               aria-expanded={open}
               className={pressed}
-              onClick={() => setOpen(!open)}
+              onClick={toggle}
             >
               {label}
             </Button>
           )}
       {open && (
-        <Popover name={label} anchor={button} width={width} maxHeight={480} onClose={() => setOpen(false)}>
+        <Popover name={label} anchor={button} at={at} width={width} maxHeight={480} onClose={() => setOpen(false)}>
           <LabelsShown.Provider value>
             <div className={flush ? undefined : "p-[6px]"}>{children(() => setOpen(false))}</div>
           </LabelsShown.Provider>

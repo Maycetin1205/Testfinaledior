@@ -75,6 +75,23 @@ export function Labeled({ label, detail = '', children }: {
   )
 }
 
+// A switch: in the bar a tile with its name, in a window a small tick with its
+// name beside it, so several stand side by side.
+export function Switch({ label, on, onToggle }: { label: string; on: boolean; onToggle: (on: boolean) => void }) {
+  if (!useContext(LabelsShown)) return <Tile label={label} on={on} onToggle={onToggle} />
+  return (
+    <label data-switch className="flex h-[24px] shrink-0 cursor-pointer items-center gap-[6px] text-ui text-ink">
+      <input
+        type="checkbox"
+        className="h-[14px] w-[14px] shrink-0 accent-accent"
+        checked={on}
+        onChange={(e) => onToggle(e.currentTarget.checked)}
+      />
+      {label}
+    </label>
+  )
+}
+
 // One declared property as a control in the bar at the block.
 export function BarControl({
   block,
@@ -197,7 +214,7 @@ export function BarControl({
 
   switch (kind) {
     case 'boolean':
-      return <Tile label={property.label} on={value === true} onToggle={set} />
+      return <Switch label={property.label} on={value === true} onToggle={set} />
     case 'text': {
       // A value that belongs to a field of the parent (the column's value for
       // the board's sorting field) reads as "STATUS =", and while the parent

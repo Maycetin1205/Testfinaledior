@@ -2,7 +2,6 @@ import { createElement, useEffect, useMemo, useRef, useState, type RefObject } f
 import { ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
-import { Tile } from '@/editor/widgets/Tile'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { BlockNode } from '../../core/block/tree'
 import type { Property } from '../../core/block/property'
@@ -11,7 +10,7 @@ import { propertiesFor } from '../../core/block/propertyPlace'
 import { FieldPicker, type PickerField, type PickerGroup, type SourcesChoice } from '../canvas/FieldPicker'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { BarControl, Labeled, type EntryAccess } from './BarControl'
+import { BarControl, Labeled, Switch, type EntryAccess } from './BarControl'
 import { BarFrame, BarSign, BarWindow } from './BlockBar'
 import { controlShown } from './controlShown'
 
@@ -109,7 +108,7 @@ export function ColumnBar({
           entry={access}
         />
       ))}
-      {switches.map((s) => <Tile key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
+      {switches.map((s) => <Switch key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
       {choices.map(({ key, property }) => (
         <BarControl
           key={key}
@@ -140,7 +139,7 @@ export function ColumnBar({
       {parts > BAR_PARTS
         ? (
             <BarWindow label="Anzeige">
-              {() => <div className="flex flex-col items-start gap-[6px]">{shows}</div>}
+              {() => <div className="flex flex-wrap items-center gap-x-[14px] gap-y-[4px] [&>:not([data-switch])]:basis-full">{shows}</div>}
             </BarWindow>
           )
         : shows}

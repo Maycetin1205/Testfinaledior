@@ -24,6 +24,7 @@ import {
   outsidePair,
 } from '../controls/outsideOrigin'
 import { PickerControl } from '../controls/PickerControl'
+import { Labeled } from './BarControl'
 import { KeyPairRows } from './KeyPairRows'
 
 interface SourceListProps {
@@ -118,9 +119,10 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
   }
 
   const sourcesSelection = (value: string, title: string, onValue: (v: string) => void) => (
-    <PickerControl
-      label={title}
+    <Labeled label={title}>
+      <PickerControl
       name={title}
+      className="w-full"
       groups={[{
         key: 'sources',
         entries: options(value).map((s) => ({
@@ -132,7 +134,8 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
       value={value}
       emptyText="Keine"
       onChoose={onValue}
-    />
+      />
+    </Labeled>
   )
 
   if (library.length === 0) {
