@@ -59,8 +59,10 @@ export function loadRowsPerRelation(
     documentKind: fieldRead(giverRow, load.documentKindField),
     documentNumber: fieldRead(giverRow, load.documentNumberField),
 
-    year: load.yearField === '' ? '' : fieldRead(giverRow, load.yearField),
-    archive: load.archiveField === '' ? '' : fieldRead(giverRow, load.archiveField),
+    // Without a field the current year (0) and not archived (N), as the
+    // document key 0NL… and the user's PUT 82 have them (user, 2026-10-01).
+    year: load.yearField === '' ? '0' : fieldRead(giverRow, load.yearField),
+    archive: load.archiveField === '' ? 'N' : fieldRead(giverRow, load.archiveField),
   }
 
   const template = relationFromList(seWindow().FF_RELATIONS, load.relationId)
