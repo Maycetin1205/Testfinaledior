@@ -48,8 +48,8 @@ export const RECORD_PLACEHOLDER = ['PINDEX', 'DROP_PINDEX'] as const
 export const ACTION_PLACEHOLDER = [...RECORD_PLACEHOLDER, 'VALUE', 'NOW_DATE'] as const
 
 // What the syntax says a place holds: a placeholder of the event, a place the
-// field fills (position, length, table) left open, else the text itself, as
-// the L of the field kind.
+// field fills (position, length, table) left open, a name in capitals (BELNR)
+// left open, else the text itself, as the L of the field kind.
 export function relationParameterDefault(
   relation: Pick<RelationTemplate, 'parameter'>,
 ): Parameter[] {
@@ -58,7 +58,7 @@ export function relationParameterDefault(
     if (placeholder && (ACTION_PLACEHOLDER as readonly string[]).includes(placeholder)) {
       return { source: 'context', value: placeholder }
     }
-    const open = placeholder !== undefined || parameterRole(raw) !== null
+    const open = placeholder !== undefined || parameterRole(raw) !== null || /^[A-Z_]{2,}$/.test(raw.trim())
     return { source: 'fixed', value: open ? '' : raw.trim() }
   })
 }

@@ -171,6 +171,13 @@ function Filled({ children }: { children: string }) {
   return <span className="truncate px-[2px] text-ui text-muted">{children}</span>
 }
 
+// A place named by its role without braces reads as the braced one does.
+const ROLE_NAMES: Record<string, string> = {
+  pos: 'Position',
+  len: 'Länge',
+  relid: 'Tabelle',
+}
+
 // Where a place of the event takes its value from, in a few words.
 const CONTEXT_TEXT: Record<string, string> = {
   PINDEX: 'vom Ereignis',
@@ -329,7 +336,7 @@ function RelationLines({ step, context, choices, end, onChange }: {
       )}
       {template && step.parameter.map((binding, at) => {
         const raw = template.parameter[at] ?? ''
-        const name = placeholderName(raw) || `Stelle ${at + 1}`
+        const name = placeholderName(raw) || ROLE_NAMES[parameterRole(raw) ?? ''] || raw || `Stelle ${at + 1}`
         const filledByField = byField && parameterRole(raw) !== null
         if (filledByField) {
           return <Line key={at} name={name}><Filled>{binding.source === 'fixed' ? binding.value : ''}</Filled></Line>
