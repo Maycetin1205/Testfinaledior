@@ -7,20 +7,21 @@ import { choiceOf, fieldPrefixFromInput, type DataSource } from '../../core/data
 import { getValueSourceAllowed } from '../../core/data/deliveries/relationValue'
 import { readMaskFields } from '../../core/data/maskFields'
 import { PRESET_IDS, sourcePreset, type PresetId } from '../../core/data/presets/presets'
-import { relationSyntaxAsText, type RelationTemplate } from '../../core/data/relations'
+import { POSITIONS_RELATION, relationSyntaxAsText, type RelationTemplate } from '../../core/data/relations'
 import { sourceChoices } from '../actions/placeChoices'
 import { Places } from '../actions/Places'
 import { PickerControl } from '../controls/PickerControl'
 import { useDataSources } from '../state/useDataSources'
 import { useRelations } from '../state/useRelations'
-import { deliveries, deliveryOf, withDelivery, withPreset, withSettings, type SourceData } from './sourceEdit'
+import { deliveries, deliveryOf, NEW_POSITIONS, withDelivery, withPreset, withSettings, type SourceData } from './sourceEdit'
 
 const EMPTY: Parameter = { source: 'fixed', value: '' }
 const PICKER = 'h-[24px] text-dense'
 
 function useSource(source: DataSource) {
   const store = useDataSources()
-  const relations = useRelations().list
+  const relationStore = useRelations()
+  const relations = relationStore.list
   const choice = choiceOf(source)
   const listed = sourcePreset(source.preset).list(choice)
   const getters = relations.filter((r) => r.verb === 'GET_RELATION')
@@ -28,6 +29,7 @@ function useSource(source: DataSource) {
   const valued = listed.delivery.kind === 'relationValue'
   return {
     store,
+    relationStore,
     relations,
     choice,
     listed,
@@ -45,7 +47,7 @@ function useSource(source: DataSource) {
 // delivers, the prefix of its fields, the area of a mask, the relation that
 // fetches its value. Every change is saved at once.
 export function SourceSettings({ source }: { source: DataSource }) {
-  const { relations, choice, listed, getters, getValue, valued, save, saveValue } = useSource(source)
+  const { relationStore, relations, choice, listed, getters, getValue, valued, save, saveValue } = useSource(source)
   const preset = sourcePreset(source.preset)
   const delivers = deliveries(source, relations)
 
@@ -68,7 +70,11 @@ export function SourceSettings({ source }: { source: DataSource }) {
             className={cn(PICKER, 'w-[240px]')}
             groups={[{ key: 'delivers', entries: delivers }]}
             value={deliveryOf(source)}
-            onChoose={(v) => { if (v !== deliveryOf(source)) save(withDelivery(source, v)) }}
+            onChoose={(v) => {
+              if (v === deliveryOf(source)) return
+              const value = v === NEW_POSITIONS ? `get:${relationStore.add(POSITIONS_RELATION).id}` : v
+              save(withDelivery(source, value))
+            }}
           />
         </Setting>
       )}
