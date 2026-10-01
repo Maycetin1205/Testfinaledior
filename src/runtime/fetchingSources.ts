@@ -29,12 +29,12 @@ function sourcesAttrFor(el: Element, def: BlockType): string {
   let active = true
   if (choice.when) {
     const name = choice.when.key
-    const raw = el.getAttribute(name.toLowerCase())
     const declared = def.properties[name]
-    const value = raw ?? declared?.default
+    const value = declared?.type.fromAttribute(el.getAttribute(declared.attribute), declared.default)
     active = propertyVisible(choice.when, { [name]: value as PropertyValue })
   }
-  return (active ? choice.sourceProp ?? SOURCE_PROP : SOURCE_PROP).toLowerCase()
+  const prop = active ? choice.sourceProp ?? SOURCE_PROP : SOURCE_PROP
+  return def.properties[prop]?.attribute ?? ''
 }
 
 function chosenRowOfSource(
