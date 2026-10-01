@@ -1175,41 +1175,35 @@ spricht mit SoftEngine.
 
 ### Fehler, die man beim Bedienen merkt
 
+Behoben am 01.10.: Datenverlust im Browser und beim Laden einer Maske
+(0d4111f), Nachschlage-Feld lädt nach (660975a), Doppelklick und Klick in
+eine Zelle wählen nicht ab (63d874a), zuletzt gewählter Eintrag im
+Nachschlagen (d01bc44), Kanban-Karte springt nicht zurück (a4d80f2),
+Tabelle ohne Quelle bleibt leer (ee76f10), Fenstertitel wie in der Maske
+(fd60b98), eine Lesart für Zahlen (6676ff9), Enter/Tab und Pflichtfelder
+nur über sichtbare Spalten (663ae42), Escape und Korrektur lassen die
+Rechnung richtig (2b4167f), Bereich hält seine Bausteine drin (e27c583),
+Quelle wechseln nimmt die Feldbindungen mit (561faca), Datenfenster: Wert
+per Relation umbenennen und Einstellungen (779d5a1), Schrittfenster bleibt
+bei einem Klick daneben (bec2bb9).
+
+Vom Nutzer gestrichen: doppeltes Buchen während eines Schreiblaufs
+(`blocks/capture/ledger.ts:668`), weil die Abhilfe ein Schutz wäre.
+
+Offen:
+
 - Ankreuzfeld: der Haken liegt in privatem Zustand, Aktionen und „Wert
-  geändert" lesen immer leer (`blocks/formfield/FormField.ts:48`).
-- Nachschlage-Feld lädt beim Auswählen nicht nach: Attributtext „true"
-  wird mit Ja verglichen (`runtime/fetchingSources.ts:31`).
-- Erfassung: während des Schreibens bleibt die Zeile bearbeitbar, doppelt
-  gebucht oder Änderung verloren (`blocks/capture/ledger.ts:668`);
-  ausgeblendete Spalten stören Enter/Tab und die Pflichtprüfung
-  (`blocks/capture/row.ts:149`); Escape und Korrektur lassen
-  Hilfsdatensätze und Rechnung schief (`ledger.ts:280`, `ledger.ts:563`).
-- Doppelklick wählt eine Zeile an und gleich wieder ab
-  (`blocks/list/tableBody.ts:135`); im wieder geöffneten Nachschlagen tut
-  der zuletzt gewählte Eintrag nichts (`blocks/list/rowActivation.ts:147`);
-  Escape in der Spaltenwahl schließt das ganze Fenster
-  (`blocks/list/columnPicker.ts:110`).
-- Editor verliert Daten: behoben in 0d4111f. Unlesbares im Browser bleibt
-  liegen, eine Kundendatei eines neueren Editors wird nicht gelesen, eine
-  geladene Maske ergänzt die Kundendatei nur noch.
-- Datenfenster: „Wert per Relation" lässt sich nicht umbenennen
-  (`editor/data/SourcesTab.tsx:46`); Feld-Vorsatz und Bereich schreiben
-  beim Verlassen alten Text zurück und heben Rückgängig auf
-  (`editor/data/SourceSettings.tsx:169`); ein Klick neben das Schrittfenster
-  verwirft alle Eingaben (`editor/actions/ActionsSection.tsx:45`).
+  geändert" lesen immer leer (`blocks/formfield/FormField.ts:48`). Es
+  fehlt die Angabe, was ein Haken an SoftEngine schickt (1, J oder anderes).
+- Escape in der Spaltenwahl schließt das ganze Fenster
+  (`blocks/list/columnPicker.ts:110`); der Fensterrahmen fängt Escape vor
+  allen anderen ab.
 - Lieferung „per GET" erzeugt eine Quelle, die die Maske ablehnt
-  (`core/data/dataSources.ts:212`).
-- Quelle wechseln lässt alte Bindungen stehen
-  (`editor/bar/BarControl.tsx:146`); eine kaputte Bindung sieht im Editor
-  leer aus, im Export ist die Beschriftung leer
+  (`core/data/dataSources.ts:212`); berührt die Relation 69, nur mit Ja
+  des Nutzers.
+- Eine Bindung, deren Feld die Quelle nicht mehr hat, sieht im Editor leer
+  aus, im Export ist die Beschriftung leer
   (`editor/canvas/useLitElement.ts:111`).
-- Bereich schmaler schieben: Kinder bleiben draußen
-  (`core/block/gridArea.ts:37`); Kanban: eine verschobene Karte springt bei
-  jedem Neuzeichnen zurück (`blocks/kanban/board.ts:98`).
-- Editor und Maske verschieden: Titel des Nachschlagens
-  (`editor/canvas/lookupWindowState.ts:63`); Tabelle ohne Quelle zeigt in
-  der Maske Strichzeilen (`blocks/list/recordList.ts:80`); Berechnungs-
-  Vorschau liest Zahlen anders als die Maske (`core/data/calculation.ts:25`).
 
 ### Toter Code
 
@@ -1219,8 +1213,8 @@ Drei ganze Teile laufen nie: das alte Fluss-Layout von vor dem Raster
 gebuchter Zeilen, abgeschaltet in 16b31c9, Code in fünf Schichten
 (`ledger.ts:883`, `core/block/capability.ts:65`); die Meldungstexte der
 Berechnung, nie angezeigt, aber in jedem Export (`calculation.ts:239`).
-Dazu: Vorschlags-Sortierung (`blocks/lookup/suggestionList.ts:22`),
-`NumberControl`, `Row`, zehn Icons in `editor/icons/icon.ts`.
+Die Vorschlags-Sortierung und zehn Symbole sind raus (7148112); offen
+sind noch `NumberControl` und `Row`.
 
 ### Doppelt geschrieben
 
