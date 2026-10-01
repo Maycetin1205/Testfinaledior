@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { cn } from '@/editor/widgets/cn'
 import { Checkbox } from '@/editor/widgets/Checkbox'
 import { Button } from '@/editor/widgets/Button'
-import { Field } from '@/editor/widgets/Field'
-import { Row } from '@/editor/widgets/Row'
-import { keyDisplay } from '../../core/data/dataSources'
+import { aliasOf, keyDisplay } from '../../core/data/dataSources'
 import { sourcePreset } from '../../core/data/presets/presets'
 import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
 import type { DtkTable } from '../../core/data/dtkImport'
@@ -33,9 +31,6 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
       ),
   )
 
-  const [recordField, setRecordField] = useState('')
-  const recordFieldMissing = recordField.trim() === ''
-
   function toggle(key: string) {
     setTicked((old) => {
       const next = new Set(old)
@@ -46,14 +41,17 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
   }
 
   function adopt() {
-    if (recordFieldMissing) return
     for (const t of tables) {
       if (!ticked.has(t.key) || present.has(t.key)) continue
       store.add({
         name: t.name !== '' ? t.name : keyDisplay(t.key),
         preset: 'idb',
         tableId: t.key,
-        ...descriptorFor(sourcePreset('idb'), { ...EMPTY_CHOICE, recordField }),
+        // The record number is the field named so.
+        ...descriptorFor(sourcePreset('idb'), {
+          ...EMPTY_CHOICE,
+          recordField: t.fields.find((f) => aliasOf(f.name) === 'satznummer')?.code ?? '',
+        }),
         fields: t.fields,
       })
     }
@@ -96,21 +94,10 @@ export function DtkImportForm({ fileName, tables, onClose }: DtkImportFormProps)
             })}
           </div>
         )}
-        {tables.length > 0 && (
-          <Row label="Satzfeld">
-            {(f) => (
-              <Field
-                {...f}
-                value={recordField}
-                onChange={(e) => setRecordField(e.target.value)}
-              />
-            )}
-          </Row>
-        )}
         <div className="flex justify-end gap-2 border-t border-line pt-3">
           <Button onClick={onClose}>Abbrechen</Button>
           {tables.length > 0 && (
-            <Button kind="primary" disabled={count === 0 || recordFieldMissing} onClick={adopt}>
+            <Button kind="primary" disabled={count === 0} onClick={adopt}>
               {count === 1 ? '1 Tabelle übernehmen' : `${count} Tabellen übernehmen`}
             </Button>
           )}

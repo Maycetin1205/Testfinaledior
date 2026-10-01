@@ -1033,7 +1033,12 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
 - Mitte die Maske in echter Größe auf neutralem Grau.
 - Rechts die Seitenleiste für Daten: Quellen, Relationen, Bibliothek. Zu,
   bis „Daten“ geklickt wird; bleibt dann offen, nie modal, nie Vollbild.
-  Inhalt und Formulare bleiben zunächst, wie sie sind.
+  Quellen als Liste Name und Tabelle, darunter die Felder der markierten
+  Quelle als Liste Code und Name; Relationen als Liste Syntax und
+  Bezeichnung. Getippt in der Zeile, die letzte Zeile ist leer. Die Tabelle
+  bestimmt die Art (BEL, POS, ADR, ART, IDB-Nummer, sonst andere Datei);
+  ein Feld namens „Satznummer“ ist die Satznummer zum Schreiben. Lesen,
+  Schreiben und Satznummer stehen nicht mehr zur Wahl (1.10.).
 - Am markierten Baustein eine kleine Leiste direkt über der Oberkante: eine
   Zeile, höchstens sieben Elemente, Symbol und Name, dann die Wahlen, rechts
   Löschen. Was mehr ist, steht in einem Fenster „Einstellungen“ mit Gruppen
@@ -1056,15 +1061,15 @@ Grundregeln für alle Bausteine:
 - Text immer direkt auf der Fläche: Doppelklick, tippen.
 - Feld binden: Klick auf die Stelle, Feldliste der Quelle erscheint dort.
   Gebundene Stellen gepunktet unterstrichen.
-- Aktionen unter dem Ereignis wie SoftEngine eine Relation zeigt
-  (Klammerauflösung): die Relation nach ihrer Syntax gewählt, die Syntax als
-  Zeile, dann je Stelle eine Zeile mit Nr., Bezeichnung und Eingabe. Die
-  Eingabe ist leer und tippbar, die Bezeichnung steht als Hintergrundschrift;
-  leer bleibt leer. Ein Pfeil am Zeilenende bietet Satznummer, Wert, Zeile,
-  Feld, Formularfeld. Relationen mit „…“ bekommen Zeilen dazu. Schrittarten:
-  Relation, Popup öffnen, Popup schließen, Werkzeug starten (1.10., ersetzt
-  die Sätze aus 0adbba0). Relationen werden unter Daten als Liste angelegt:
-  Syntax und Bezeichnung je Zeile, die letzte Zeile ist leer.
+- Aktionen: je Ereignis die Schritte als Zeilen, „Schritt hinzufügen“ mit
+  Relation, Werkzeug starten, Popup öffnen, Popup schließen. Popups wählt
+  man in der Zeile. Relation und Werkzeug öffnen das Schrittfenster wie die
+  Klammerauflösung in SoftEngine: Reiter GET Relation, PUT Relation,
+  Werkzeug; Stellen als Raster Nr., Bezeichnung, Eingabe, Herkunft, belegte
+  oben, leere eingeklappt; Eingabe leer mit dem Namen als
+  Hintergrundschrift, leer bleibt leer; rechts das Ergebnis. Erst
+  „Übernehmen“ schreibt in den Baustein (1.10., ersetzt die Sätze aus
+  0adbba0).
 - „Folgt der Auswahl“: in der Leiste anklicken, dann auf den gebenden
   Baustein klicken. Feldpaare nur, wenn nötig, als zweite Zeile.
 - Der Inspector fällt weg; die Sonderfenster (Nachschlagen, Auswahl folgt,

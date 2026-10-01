@@ -65,6 +65,8 @@ export default {
         focus: '0 0 0 3px color-mix(in oklab, hsl(var(--wb-accent)) 18%, transparent)', // .vinput:focus
         // The marked line of a list: a stroke on its left edge.
         mark: 'inset 3px 0 0 hsl(var(--wb-accent))',
+        // A cell being typed in: a fine edge inside it.
+        cell: 'inset 0 0 0 1px hsl(var(--wb-accent))',
       },
       transitionDuration: {
         DEFAULT: '120ms', // .vbtn
