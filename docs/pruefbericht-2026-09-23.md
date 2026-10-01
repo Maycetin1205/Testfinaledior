@@ -1050,10 +1050,17 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   Zeile, höchstens sieben Elemente, Symbol und Name, dann die Wahlen, rechts
   Löschen. Was mehr ist, steht in einem Fenster „Einstellungen“ mit Gruppen
   untereinander: Quelle, Hilfsquelle, Anzeige, Suchfenster, Folgt der
-  Auswahl, Aktionen (1.10., ersetzt die drei Pop-ups). Passt die
-  Leiste nicht über den Baustein, liegt sie darunter, erst dann innen an
-  seinem oberen Rand. Jedes Fenster an der Leiste schließt beim Klick
-  daneben. Nie über einem anderen Baustein, nie über der eigenen Kopfzeile.
+  Auswahl, Aktionen (1.10., ersetzt die drei Pop-ups). Die Leiste steht am
+  linken Rand des Bausteins. Passt sie nicht darüber, liegt sie bei Feld,
+  Knopf, Datum darunter, sonst rechts oder links daneben, nie auf dem
+  Baustein; bei Tabelle, Kanban, Erfassung darüber gleich hinter dem
+  Hindernis, sonst innen unter den Spaltenköpfen. Das Fenster
+  „Einstellungen“ öffnet neben Baustein und Leiste, kompakt: Name links,
+  Wahl rechts, Schalter als Haken. Jedes Fenster an der Leiste schließt
+  beim Klick daneben.
+- Bereich: innen das Raster der Seite, so viele Spalten, wie er breit ist;
+  ohne Innenabstand, nichts ragt über den Rahmen, er wächst nicht mit
+  (1.10., Schema 24).
   Am Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der angeklickten
   Stelle. Keine Statuszeile.
 
