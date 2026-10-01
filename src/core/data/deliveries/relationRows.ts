@@ -45,40 +45,17 @@ function fieldsBehindCut(
   })
 }
 
-// The fields of the chosen document row and the end of its positions, as
-// kontrakte.md §8 has them. The editor has no place to type them, so an empty
-// one always means these. Year and archive stay empty: read from the row they
-// came as the document kind (user's log 2026-10-01, `69!L!0!255!20262010!L!N`)
-// and SoftEngine answered nothing; empty finds the current number range.
-const LOAD_DEFAULTS = {
-  documentKindField: '2_1',
-  documentNumberField: '3_8',
-  endFields: ['11_6', '18_25'],
-} as const
-
-export function withLoadDefaults<T extends LoadRelation>(load: T): T {
-  return {
-    ...load,
-    documentKindField: load.documentKindField.trim() || LOAD_DEFAULTS.documentKindField,
-    documentNumberField: load.documentNumberField.trim() || LOAD_DEFAULTS.documentNumberField,
-    endFields: load.endFields.length > 0 ? load.endFields : [...LOAD_DEFAULTS.endFields],
-  }
-}
-
 export function checkLoadRelation(raw: unknown): LoadRelation | null {
   if (!isUnread<LoadRelation>(raw)) return null
   const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
   const relationId = text(raw.relationId)
-  const { documentKindField, documentNumberField, yearField, archiveField, endFields } = withLoadDefaults({
-    relationId,
-    documentKindField: text(raw.documentKindField),
-    documentNumberField: text(raw.documentNumberField),
-    yearField: text(raw.yearField),
-    archiveField: text(raw.archiveField),
-    endFields: Array.isArray(raw.endFields)
-      ? raw.endFields.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
-      : [],
-  })
+  const documentKindField = text(raw.documentKindField)
+  const documentNumberField = text(raw.documentNumberField)
+  const yearField = text(raw.yearField)
+  const archiveField = text(raw.archiveField)
+  const endFields = Array.isArray(raw.endFields)
+    ? raw.endFields.filter((f): f is string => typeof f === 'string' && POS_LEN.test(f))
+    : []
   if (relationId === '') return null
   if (!POS_LEN.test(documentKindField) || !POS_LEN.test(documentNumberField)) return null
   if (yearField !== '' && !POS_LEN.test(yearField)) return null
@@ -95,8 +72,7 @@ export const relationRows: DeliveryAdapter<'relationRows'> = {
   },
   needsTable: false,
   fetchOn: 'selection',
-  export(stored, _, context) {
-    const delivery = withLoadDefaults(stored)
+  export(delivery, _, context) {
     const answerLength = context.relations.find((r) => r.id === delivery.relationId)?.positions?.answerLength
     return {
       loadRelation: {
@@ -121,8 +97,7 @@ export const relationRows: DeliveryAdapter<'relationRows'> = {
   },
   relationIds: (delivery) => [delivery.relationId],
   bindings: () => [],
-  giverFields: (stored) => {
-    const delivery = withLoadDefaults(stored)
-    return [delivery.documentKindField, delivery.documentNumberField, delivery.yearField, delivery.archiveField]
-  },
+  giverFields: (delivery) => [
+    delivery.documentKindField, delivery.documentNumberField, delivery.yearField, delivery.archiveField,
+  ],
 }

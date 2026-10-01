@@ -9,7 +9,7 @@ import {
 } from '../../core/data/dataSources'
 import { sourcePreset, type PresetId } from '../../core/data/presets/presets'
 import { EMPTY_CHOICE, descriptorFor, type SourceChoice } from '../../core/data/presets/sourcePreset'
-import { POSITIONS_RELATION, type RelationTemplate } from '../../core/data/relations'
+import type { RelationTemplate } from '../../core/data/relations'
 import { keyFromInput } from '../../core/data/sourceInput'
 import type { Write } from '../../core/data/writes/writes'
 
@@ -148,18 +148,10 @@ export function deliveries(s: DataSource, relations: readonly RelationTemplate[]
   return [
     { value: 'list', name: 'alle Sätze beim Öffnen' },
     ...(preset.openRecord !== undefined ? [{ value: 'open', name: 'den offenen Satz' }] : []),
-    ...(preset.fetches ? fetchingEntries(relations) : []),
+    ...(preset.fetches
+      ? relations.filter((r) => r.positions !== undefined).map((r) => ({ value: `get:${r.id}`, name: `per GET: ${r.name}` }))
+      : []),
   ]
-}
-
-// The choice that first lays relation 69 into the catalog, while none there
-// fetches positions yet.
-export const NEW_POSITIONS = 'get:'
-
-function fetchingEntries(relations: readonly RelationTemplate[]): { value: string; name: string }[] {
-  const fetching = relations.filter((r) => r.positions !== undefined)
-  if (fetching.length === 0) return [{ value: NEW_POSITIONS, name: `per GET: ${POSITIONS_RELATION.name}` }]
-  return fetching.map((r) => ({ value: `get:${r.id}`, name: `per GET: ${r.name}` }))
 }
 
 export function deliveryOf(s: DataSource): string {
