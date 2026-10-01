@@ -51,7 +51,7 @@ export function suggestionsInWindowState<T extends Suggestion & { record: unknow
   el?: HTMLElement, spot?: string,
 ): T[] {
   const hit = typed.trim() === '' ? [...entries]
-    : fittingSuggestions(entries, typed, Infinity, true)
+    : fittingSuggestions(entries, typed)
   const state = el === undefined ? null : rememberedSorting.read(el, lookupKey(el, spot))
   const column = state === null ? undefined
     : lookupColumns(columns).find((s) => s.key === state.key)

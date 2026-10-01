@@ -1,6 +1,6 @@
 import { css, html, nothing, type TemplateResult } from 'lit'
 import { ref } from 'lit/directives/ref.js'
-import { plainText, rowFits } from '../list/textSearch'
+import { rowFits } from '../list/textSearch'
 
 export const SUGGESTIONS_MAX = 8
 
@@ -10,40 +10,8 @@ export interface Suggestion {
   value: string
 }
 
-const textCompare = new Intl.Collator('de', { numeric: true, sensitivity: 'base' })
-
-function beginsWith(entry: Suggestion, typed: string): boolean {
-  const t = plainText(typed.trim())
-  if (t === '') return false
-  return plainText(entry.display.trim()).startsWith(t)
-    || plainText(entry.value.trim()).startsWith(t)
-}
-
-function orderSuggestions<T extends Suggestion>(
-  hit: readonly T[],
-  typed: string,
-): T[] {
-  return [...hit].sort((a, b) => {
-    const aBegins = beginsWith(a, typed)
-    const bBegins = beginsWith(b, typed)
-    if (aBegins !== bBegins) return aBegins ? -1 : 1
-    return textCompare.compare(a.display.trim(), b.display.trim())
-  })
-}
-
-export function fittingSuggestions<T extends Suggestion>(
-  entries: readonly T[],
-  typed: string,
-  max: number = SUGGESTIONS_MAX,
-  orderKeep = false,
-): T[] {
-  if (typed.trim() === '') return []
-
-  const hit: T[] = []
-  for (const entry of entries) {
-    if (rowFits([entry.display, entry.value], typed)) hit.push(entry)
-  }
-  return (orderKeep ? hit : orderSuggestions(hit, typed)).slice(0, max)
+export function fittingSuggestions<T extends Suggestion>(entries: readonly T[], typed: string): T[] {
+  return entries.filter((entry) => rowFits([entry.display, entry.value], typed))
 }
 
 function areaLimits(el: HTMLElement): { left: number; right: number } {
