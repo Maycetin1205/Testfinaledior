@@ -2,7 +2,7 @@ import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
 import { newSubtree } from '../../core/block/newBlock'
 import { mayContain, blockType } from '../../core/block/registry'
 import { gridMetricsOf, type GridSlot } from '../../core/block/grid'
-import type { LookupWindow } from '../../core/block/capability'
+import { capability, type LookupWindow } from '../../core/block/capability'
 import { type ActionChains } from '../../core/data/steps/steps'
 import { type DataSource } from '../../core/data/dataSources'
 import { type SourceInReach } from '../../core/data/extraSources'
@@ -331,14 +331,24 @@ export class EditorStore extends Subject<EditorStore> {
 
     if (Object.is(node.values[name], value)) return true
     this.pushHistory()
+    const properties = def?.properties ?? {}
     // What this value presets, like color and size of a text by its role,
-    // follows it again.
-    const presets = Object.entries(def?.properties ?? {})
-      .filter(([, other]) => other.preset?.by === name)
-      .map(([key, other]) => [key, other.default])
+    // follows it again. What was picked from a source starts empty with a new
+    // one: its fields, their plain names and the entries of its list.
+    const dependents = Object.entries(properties).flatMap(([key, other]) => {
+      if (other.preset?.by === name) return [[key, other.default]]
+      if (other.sourceProp !== name) return []
+      const plain = other.plainNameProp
+      return plain === undefined || properties[plain] === undefined
+        ? [[key, other.default]]
+        : [[key, other.default], [plain, properties[plain].default]]
+    })
+    const list = capability(def, 'list')?.binding
+    const entries = list?.sourceProp === name ? node.values[list.prop] : undefined
+    if (list && Array.isArray(entries) && entries.length > 0) dependents.push([list.prop, []])
     const next: MaskTree = {
       ...this._tree,
-      [id]: { ...node, values: { ...node.values, ...Object.fromEntries(presets), [name]: value } },
+      [id]: { ...node, values: { ...node.values, ...Object.fromEntries(dependents), [name]: value } },
     }
 
     const cleaned = withoutColumnsPointer(

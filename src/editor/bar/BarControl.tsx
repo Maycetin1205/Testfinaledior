@@ -2,7 +2,6 @@ import { useContext, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
-import { capability } from '../../core/block/capability'
 import type { ChoiceOption, Property } from '../../core/block/property'
 import type { DeclaredProperty } from '../../core/block/propertyPlace'
 import { fieldPlainName, sourcesKey, type DataSource } from '../../core/data/dataSources'
@@ -104,7 +103,6 @@ export function BarControl({
   const ed = useEditor()
 
   const sources = useDataSources()
-  const def = blockType(block.type)
 
   const value = entry ? entry.values[propertyKey] : block.values[propertyKey]
   const kind = property.type.control
@@ -141,26 +139,7 @@ export function BarControl({
           value: typeof value === 'string' ? value : '',
           emptyText: 'Keine',
           onChoose: (newId) => {
-            if (newId === String(value ?? '')) return
-
-            ed.transaction(() => {
-              set(newId)
-
-              for (const [otherKey, other] of Object.entries(def?.properties ?? {})) {
-                if (other.sourceProp !== propertyKey) continue
-                ed.updateProperty(block.id, otherKey, '')
-                if (other.plainNameProp) {
-                  ed.updateProperty(block.id, other.plainNameProp, '')
-                }
-              }
-
-              const list = capability(def, 'list')?.binding
-              const oldList = list ? block.values[list.prop] : undefined
-              if (list?.sourceProp === propertyKey
-                && Array.isArray(oldList) && oldList.length > 0) {
-                ed.updateProperty(block.id, list.prop, [])
-              }
-            })
+            if (newId !== String(value ?? '')) set(newId)
           },
         }
 
