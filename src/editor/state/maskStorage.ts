@@ -38,7 +38,7 @@ function read(key: string, formerKey?: string): string | null {
   }
 }
 
-export function readMoved(key: string, formerKey: string): string | null {
+function readMoved(key: string, formerKey: string): string | null {
   const text = localStorage.getItem(key)
   if (text !== null) return text
   const former = localStorage.getItem(formerKey)
@@ -56,16 +56,45 @@ function write(key: string, text: string): void {
   }
 }
 
+// One key of the browser store. Text this editor cannot read there, written
+// by a newer editor or another branch on the same port, is never written over:
+// the editor then starts empty and keeps its work in memory and in the picked
+// file, and the other editor finds its work again.
+class Slot {
+  private readonly key: string
+  private readonly formerKey: string | undefined
+  private foreign = false
+
+  constructor(key: string, formerKey?: string) {
+    this.key = key
+    this.formerKey = formerKey
+  }
+
+  read<T>(parse: (raw: string) => T | null): T | null {
+    const raw = read(this.key, this.formerKey)
+    if (raw === null) return null
+    const value = parse(raw)
+    this.foreign = value === null
+    return value
+  }
+
+  write(text: string): void {
+    if (!this.foreign) write(this.key, text)
+  }
+}
+
+const maskSlot = new Slot(STORAGE_KEY)
+const librarySlot = new Slot(LIBRARY_KEY, FORMER_LIBRARY_KEY)
+
 export function loadLibraryFromStorage(): StoredLibrary {
-  const raw = read(LIBRARY_KEY, FORMER_LIBRARY_KEY)
-  if (raw === null) return { dataSources: [], relation: [] }
-  const result = packLibraryFrom(raw)
-  return result.ok ? result.content : { dataSources: [], relation: [] }
+  return librarySlot.read((raw) => {
+    const result = packLibraryFrom(raw)
+    return result.ok ? result.content : null
+  }) ?? { dataSources: [], relation: [] }
 }
 
 export function loadFromStorage(): StoredMask | null {
-  const raw = read(STORAGE_KEY)
-  return raw === null ? null : readState(raw)
+  return maskSlot.read(readState)
 }
 
 function readState(raw: string): StoredMask | null {
@@ -98,7 +127,7 @@ export function emptyMask(): StoredMask {
 }
 
 export function persistMask(mask: StoredMask): void {
-  write(STORAGE_KEY, JSON.stringify({
+  maskSlot.write(JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: mask.tree,
     selectedId: mask.selectedId,
@@ -111,6 +140,6 @@ export function persistLibrary(library: StoredLibrary): string {
     dataSources: [...library.dataSources],
     relation: [...library.relation],
   })
-  write(LIBRARY_KEY, text)
+  librarySlot.write(text)
   return text
 }

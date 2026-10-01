@@ -10,7 +10,7 @@ import { DataSourceStore } from './DataSourceStore'
 import { firstSourceInReach, sourcesInReach } from '../../core/block/sourcesInReach'
 import { gestureBracket, History, type EditorSnapshot, type GestureBracket } from './history'
 import { packMask, type MaskContent } from './maskFile'
-import { addOn } from './libraryFile'
+import { missingOn } from './libraryFile'
 import { FileOnDisk } from './fileOnDisk'
 import {
   emptyMask,
@@ -431,8 +431,8 @@ export class EditorStore extends Subject<EditorStore> {
     this.pushHistory()
     this.maskOnDisk.forget()
     this.setLibraries({
-      dataSources: addOn(this.dataSources.list, content.dataSources).list,
-      relation: addOn(this.relation.list, content.relation).list,
+      dataSources: missingOn(this.dataSources.list, content.dataSources),
+      relation: missingOn(this.relation.list, content.relation),
     })
     this._tree = content.tree
     this._selectedId = null

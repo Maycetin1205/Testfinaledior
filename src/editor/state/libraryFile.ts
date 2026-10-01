@@ -51,6 +51,10 @@ export function packLibraryFrom(text: string): LibraryResult {
     return { ok: false }
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false }
+  // A newer editor wrote it: what this one cannot read of it would be gone
+  // with the next save.
+  const version = (raw as Record<string, unknown>).schemaVersion
+  if (typeof version === 'number' && version > LIBRARY_SCHEMA_VERSION) return { ok: false }
   const o = liftLibrary(raw as Record<string, unknown>)
 
   return {
@@ -88,6 +92,17 @@ export function addOn<T extends { id: string }>(
     replaced++
   }
   return { list: added + replaced === 0 ? old : list, added, replaced }
+}
+
+// What a mask file brings that the customer file lacks. An entry the customer
+// file holds already stays as it is: the copy in the mask may be older.
+export function missingOn<T extends { id: string }>(
+  old: readonly T[],
+  fromMask: readonly T[],
+): readonly T[] {
+  const known = new Set(old.map((e) => e.id))
+  const missing = fromMask.filter((e) => !known.has(e.id))
+  return missing.length === 0 ? old : [...old, ...missing]
 }
 
 export async function loadLibraryFromFile(editor: EditorStore, file: File): Promise<void> {
