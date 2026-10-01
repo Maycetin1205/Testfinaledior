@@ -40,6 +40,7 @@ import {
   isGridArea,
   newBlockOnCell,
   slotOn,
+  columnsOf,
   moveInContainer,
   cellMoveIn,
   slotResize,
@@ -249,7 +250,8 @@ export class EditorStore extends Subject<EditorStore> {
     node.parentId = parent.id
 
     if (slot) {
-      node.values = { ...node.values, gridX: slot.x, gridY: slot.y, gridW: spec.startWidth, gridH: spec.startHeight }
+      const w = Math.min(spec.startWidth, columnsOf(this._tree, parent.id))
+      node.values = { ...node.values, gridX: slot.x, gridY: slot.y, gridW: w, gridH: spec.startHeight }
     }
     const childIds = [...parent.childIds]
     const at = index === undefined

@@ -2,9 +2,9 @@
 // from the one it was saved in. A mask before version 20, the format since
 // 24.09., is not read; its data sources live in the customer file, whose
 // steps all stay (librarySchema).
-export const CURRENT_SCHEMA_VERSION = 23
+export const CURRENT_SCHEMA_VERSION = 24
 
-const LIFTABLE = [20, 21, 22]
+const LIFTABLE = [20, 21, 22, 23]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -101,6 +101,41 @@ function liftTo23(tree: unknown): void {
   }
 }
 
+// ---- version 24: an area has as many columns as it is wide on the page ----
+
+// Up to 23 an area split itself into 48 columns of its own, whatever its
+// width. What it holds is carried over to its new columns at the same size.
+const OLD_AREA_COLUMNS = 48
+
+function cellOf(values: Record<string, unknown>, key: string, fallback: number): number {
+  const v = values[key]
+  return typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : fallback
+}
+
+function liftTo24(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  // From the outside in: an area inside an area gets its width first.
+  const carry = (id: unknown): void => {
+    const node = typeof id === 'string' ? tree[id] : undefined
+    if (!isPlainObject(node) || !Array.isArray(node.childIds)) return
+    if (node.type === 'area' && isPlainObject(node.values)) {
+      const columns = Math.max(1, cellOf(node.values, 'gridW', OLD_AREA_COLUMNS))
+      for (const childId of node.childIds) {
+        const child = typeof childId === 'string' ? tree[childId] : undefined
+        if (!isPlainObject(child) || !isPlainObject(child.values)) continue
+        const x = Math.min(columns - 1, Math.round(cellOf(child.values, 'gridX', 0) * columns / OLD_AREA_COLUMNS))
+        const w = Math.max(1, Math.round(cellOf(child.values, 'gridW', OLD_AREA_COLUMNS) * columns / OLD_AREA_COLUMNS))
+        child.values.gridX = x
+        child.values.gridW = Math.min(w, columns - x)
+      }
+    }
+    node.childIds.forEach(carry)
+  }
+  Object.entries(tree)
+    .filter(([, node]) => isPlainObject(node) && (node.parentId === null || node.parentId === undefined))
+    .forEach(([id]) => carry(id))
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -109,6 +144,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 21) liftTo21(lifted.tree)
   if (raw.schemaVersion < 22) liftTo22(lifted.tree)
   if (raw.schemaVersion < 23) liftTo23(lifted.tree)
+  if (raw.schemaVersion < 24) liftTo24(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

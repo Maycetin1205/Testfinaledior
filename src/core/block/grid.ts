@@ -61,11 +61,15 @@ export function gridMetricsOf(
   return { ...GRID_FALLBACK, ...(def?.grid ?? {}) }
 }
 
-export function gridAreaStyle(): Record<string, string | number> {
+// The number of columns of an area inside the mask, as wide as it stands on
+// the grid of the page: its blocks keep the page's columns.
+export const AREA_COLUMNS = '--area-columns'
+
+export function gridAreaStyle(columns: number | string = GRID.columns): Record<string, string | number> {
   return {
     display: 'grid',
 
-    gridTemplateColumns: `repeat(${GRID.columns}, 1fr)`,
+    gridTemplateColumns: `repeat(${columns}, 1fr)`,
 
     gridAutoRows: `${GRID.rowPx}px`,
     gap: `${GRID.gapPx}px`,
@@ -74,8 +78,8 @@ export function gridAreaStyle(): Record<string, string | number> {
   }
 }
 
-export function gridAreaCss(): string {
-  return styleAsCss(gridAreaStyle())
+export function gridAreaCss(columns: number | string = GRID.columns): string {
+  return styleAsCss(gridAreaStyle(columns))
 }
 
 export function gridSlotStyle(pos: GridSlot): Record<string, string | number> {
@@ -96,12 +100,13 @@ export function firstGap(
   w: number,
   h: number,
   rows: number | null,
+  columns: number = GRID.columns,
 ): { x: number; y: number } | null {
   if (rows === null) return { x: 0, y: nextFreeRow(taken) }
   const free = (x: number, y: number) => taken.every((p) =>
     x + w <= p.x || p.x + p.w <= x || y + h <= p.y || p.y + p.h <= y)
   for (let y = 0; y + h <= rows; y++) {
-    for (let x = 0; x + w <= GRID.columns; x++) {
+    for (let x = 0; x + w <= columns; x++) {
       if (free(x, y)) return { x, y }
     }
   }

@@ -43,8 +43,6 @@ interface BlockHostProps {
 
 const NO_SOURCES: readonly SourceInReach[] = []
 
-const GRAB_EDGE = 10
-
 export function BlockHost({ block, selected, onSelect, grid = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
   const follower = useView().followPickFor
@@ -174,7 +172,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
               }
             : null),
 
-          ...(isContainer && grid ? { padding: GRAB_EDGE, boxSizing: 'border-box' as const } : null),
         }}
       >
         {element && isContainer && children != null

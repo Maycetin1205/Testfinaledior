@@ -4,6 +4,7 @@ import { GRID, gridMetricsOf } from '../../core/block/grid'
 import type { useEditor } from '../state/useEditor'
 import { newBlockDragType } from './dnd'
 import type { DndState, DropTarget } from './dndState'
+import { columnsOf } from '../../core/block/gridArea'
 import { rowsCapacity, rowInBox } from './gridArea'
 
 export function cellFromPointer(
@@ -32,7 +33,7 @@ export function cellFromPointer(
     edgeX += columns[x] + columnsGap
     x++
   }
-  x = Math.max(0, Math.min(GRID.columns - 1, x))
+  x = Math.max(0, Math.min(columns.length - 1, x))
 
   const tracks = style.gridTemplateRows
     .split(' ')
@@ -83,8 +84,10 @@ export function gridTarget(
   const size = draggedSize(ed, dnd, e.dataTransfer, parentId)
   if (!size) return null
   const cell = cellFromPointer(gridEl, e.clientX, e.clientY)
-  const x = Math.max(0, Math.min(cell.x, GRID.columns - size.w))
+  const columns = columnsOf(ed.tree, parentId)
+  const w = Math.min(size.w, columns)
+  const x = Math.max(0, Math.min(cell.x, columns - w))
   const capacity = rowsCapacity(ed.tree, parentId, gridEl)
   const y = rowInBox(capacity, cell.y, size.h)
-  return { kind: 'grid', parentId, x, y, w: size.w, h: size.h }
+  return { kind: 'grid', parentId, x, y, w, h: size.h }
 }

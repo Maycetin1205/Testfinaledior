@@ -2,7 +2,7 @@ import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
 import { GRID, gridSlotRead, gridMetricsOf, type GridSlot } from '../../core/block/grid'
-import { freeRowOn } from '../../core/block/gridArea'
+import { columnsOf, freeRowOn } from '../../core/block/gridArea'
 import type { EditorStore } from '../state/EditorStore'
 import { areaOf, heightInBox, capacityOf, rowsCapacity } from './gridArea'
 import { swallowNextClick } from './dragPosition'
@@ -47,7 +47,7 @@ export function useBlockResize(
 
     const slotAt = (dx: number, dy: number): GridSlot => {
       let { x, y, w, h } = start
-      if (edge.includes('e')) w = clamp(start.w + dx, minW, GRID.columns - start.x)
+      if (edge.includes('e')) w = clamp(start.w + dx, minW, columnsOf(editor.tree, node.parentId) - start.x)
       if (edge.includes('w')) {
         x = clamp(start.x + dx, 0, start.x + start.w - minW)
         w = start.w + start.x - x

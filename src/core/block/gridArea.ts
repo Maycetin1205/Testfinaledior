@@ -2,6 +2,7 @@ import { ROOT_ID, type BlockNode, type MaskTree } from './tree'
 import { newSubtree } from './newBlock'
 import { mayContain, blockType } from './registry'
 import {
+  AREA_COLUMNS,
   firstGap,
   nextFreeRow,
   gridSlotRead,
@@ -9,12 +10,44 @@ import {
   gridMetricsOf,
   type GridSlot,
 } from './grid'
-import { isPagesBlock, childrenInFlow } from './pages'
+import { isPagesBlock, childrenInFlow, pageOf } from './pages'
 import { subtreeIds } from './treeOps'
 
 export function isGridArea(node: BlockNode): boolean {
   return node.id === ROOT_ID || isPagesBlock(node)
     || blockType(node.type)?.gridArea === true
+}
+
+// An area inside a page, like a box: as many columns as it is wide on the
+// page, so what it holds keeps the page's grid.
+const isInnerArea = (node: BlockNode | undefined): node is BlockNode =>
+  node !== undefined && node.id !== ROOT_ID && !isPagesBlock(node) && blockType(node.type)?.gridArea === true
+
+export function columnsOf(tree: MaskTree, parentId: string | null | undefined): number {
+  const parent = parentId ? tree[parentId] : undefined
+  return isInnerArea(parent) ? gridSlotRead(parent.values).w : GRID.columns
+}
+
+// The style that tells an inner area how many columns it has.
+export function areaColumnsStyle(node: BlockNode): Record<string, number> {
+  return isInnerArea(node) ? { [AREA_COLUMNS]: gridSlotRead(node.values).w } : {}
+}
+
+// What an area holds stays inside it when it gets narrower.
+function keptInside(tree: MaskTree, areaId: string, columns: number): MaskTree {
+  const area = tree[areaId]
+  if (!isInnerArea(area)) return tree
+  let next = tree
+  for (const childId of area.childIds) {
+    const child = next[childId]
+    if (!child) continue
+    const pos = gridSlotRead(child.values)
+    const x = Math.min(pos.x, columns - 1)
+    const w = Math.min(pos.w, columns - x)
+    if (x === pos.x && w === pos.w) continue
+    next = { ...next, [childId]: { ...child, values: { ...child.values, gridX: x, gridW: w } } }
+  }
+  return next
 }
 
 export function freeRowOn(tree: MaskTree, parentId: string): number {
@@ -31,11 +64,13 @@ export function slotOn(
   h: number,
   rows: number | null,
 ): { x: number; y: number } | null {
+  const columns = columnsOf(tree, parentId)
   return firstGap(
     childrenInFlow(tree, parentId).map((n) => gridSlotRead(n.values)),
-    w,
+    Math.min(w, columns),
     h,
     rows,
+    columns,
   )
 }
 
@@ -53,7 +88,7 @@ export function freePositionForCopy(
     if (!slot) return null
     return {
       ...copy,
-      values: { ...copy.values, gridX: slot.x, gridY: slot.y, gridW: pos.w, gridH: pos.h },
+      values: { ...copy.values, gridX: slot.x, gridY: slot.y, gridW: Math.min(pos.w, columnsOf(tree, parentId)), gridH: pos.h },
     }
   }
   const y = freeRowOn(tree, parentId)
@@ -101,7 +136,8 @@ export function moveInContainer(
     if (isGridArea(newParent)) {
       const pos = gridSlotRead(node.values)
       const y = freeRowOn(tree, newParentId)
-      next[id] = { ...next[id], values: { ...node.values, gridX: 0, gridY: y, gridW: pos.w, gridH: pos.h } }
+      const w = Math.min(pos.w, columnsOf(tree, newParentId))
+      next[id] = { ...next[id], values: { ...node.values, gridX: 0, gridY: y, gridW: w, gridH: pos.h } }
     }
   }
   return next
@@ -124,9 +160,13 @@ export function cellMoveIn(
   const sameArea = node.parentId === parentId
   const cur = gridSlotRead(node.values)
   const spec = gridMetricsOf(blockType(node.type))
-  const w = sameArea ? cur.w : spec.startWidth
-  const h = sameArea ? cur.h : spec.startHeight
-  const nx = Math.max(0, Math.min(x, GRID.columns - w))
+  // Within a page every area has the page's grid, so a block keeps its size;
+  // into another page it starts anew.
+  const samePage = sameArea || (node.parentId !== null && pageOf(tree, node.parentId) === pageOf(tree, parentId))
+  const columns = columnsOf(tree, parentId)
+  const w = Math.min(samePage ? cur.w : spec.startWidth, columns)
+  const h = samePage ? cur.h : spec.startHeight
+  const nx = Math.max(0, Math.min(x, columns - w))
   const ny = Math.max(0, y)
 
   if (sameArea && nx === cur.x && ny === cur.y && w === cur.w && h === cur.h) return null
@@ -159,15 +199,16 @@ export function slotResize(
   const parent = tree[node.parentId]
   if (!parent || !isGridArea(parent)) return null
   const cur = gridSlotRead(node.values)
-  const x = Math.max(0, Math.min(slot.x, GRID.columns - 1))
-  const w = Math.max(1, Math.min(slot.w, GRID.columns - x))
+  const columns = columnsOf(tree, node.parentId)
+  const x = Math.max(0, Math.min(slot.x, columns - 1))
+  const w = Math.max(1, Math.min(slot.w, columns - x))
   const y = Math.max(0, slot.y)
   const h = Math.max(1, slot.h)
   if (x === cur.x && y === cur.y && w === cur.w && h === cur.h) return null
-  return {
+  return keptInside({
     ...tree,
     [id]: { ...node, values: { ...node.values, gridX: x, gridY: y, gridW: w, gridH: h } },
-  }
+  }, id, w)
 }
 
 export function newBlockOnCell(
@@ -183,9 +224,11 @@ export function newBlockOnCell(
   const node = nodes[rootId]
   node.parentId = parent.id
   const spec = gridMetricsOf(blockType(type))
-  const nx = Math.max(0, Math.min(x, GRID.columns - spec.startWidth))
+  const columns = columnsOf(tree, parentId)
+  const w = Math.min(spec.startWidth, columns)
+  const nx = Math.max(0, Math.min(x, columns - w))
   const ny = Math.max(0, y)
-  node.values = { ...node.values, gridX: nx, gridY: ny, gridW: spec.startWidth, gridH: spec.startHeight }
+  node.values = { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: spec.startHeight }
   return {
     tree: {
       ...tree,
