@@ -63,13 +63,14 @@ export function Labeled({ label, detail = '', children }: {
   children: ReactNode
 }) {
   if (!useContext(LabelsShown)) return <>{children}</>
+  // A line of a window: the name on the left, the control on the right.
   return (
-    <span className="flex min-w-0 items-center gap-[6px]">
-      <span className="shrink-0 text-label font-semibold uppercase tracking-label text-muted">
-        {label}
+    <span className="grid min-h-control w-full min-w-0 grid-cols-[112px_minmax(0,1fr)] items-center gap-[8px]">
+      <span className="truncate text-dense text-muted" title={label}>{label}</span>
+      <span className="flex min-w-0 items-center gap-[6px]">
+        {detail !== '' && <span className="shrink-0 font-semibold text-ink">{detail}</span>}
+        {children}
       </span>
-      {detail !== '' && <span className="shrink-0 font-semibold text-ink">{detail}</span>}
-      {children}
     </span>
   )
 }
@@ -405,7 +406,7 @@ export function FontChoice({ block, fonts }: { block: BlockNode; fonts: readonly
               const shown = shownOf(d)
               return (
                 <div key={d.key} className="flex flex-col gap-[4px]">
-                  <span className="text-label font-semibold uppercase tracking-label text-muted">
+                  <span className="text-dense font-semibold text-muted">
                     {d.property.label}
                   </span>
                   {options.every((o) => o.color !== undefined)

@@ -30,7 +30,7 @@ import { useEditor } from '../state/useEditor'
 import { ActionsSection } from './ActionsSection'
 import { BarControl, FontChoice } from './BarControl'
 import { controlShown } from './controlShown'
-import { followOf, followOffered, followOnDocument } from './followOffer'
+import { followKey, followOf, followOffered, followOnDocument } from './followOffer'
 import { openDocumentOf } from '../controls/outsideOrigin'
 import { useView } from '../state/useView'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
@@ -119,15 +119,17 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: numbe
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
-// The one window of a block wants room for a relation and its places.
-const SETTINGS_WIDTH = 420
+const SETTINGS_WIDTH = 380
 
-// A group of the settings window: its name, a line under it, its controls.
+// A group of the settings window: its name on a strip with a line above and
+// below, then its controls.
 function Group({ name, children }: { name: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-[6px]">
-      <span className="border-b border-line pb-[2px] font-semibold text-ink">{name}</span>
-      {children}
+    <section className="flex flex-col">
+      <div className="flex h-[28px] items-center border-y border-line bg-control px-[10px] text-dense font-semibold text-muted">
+        {name}
+      </div>
+      <div className="flex flex-col gap-[6px] px-[10px] py-[8px]">{children}</div>
     </section>
   )
 }
@@ -250,6 +252,12 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
     && propertyVisible(searchWindow.when, block.values)
   const events = capability(def, 'events')?.list ?? []
   const helpersApart = capability(def, 'source')?.helpersApart === true && carriesOwnSource(block)
+  // What the block followed when the bar came up: a different one means a
+  // giver was just clicked.
+  const [openedWith, setOpenedWith] = useState(() => {
+    const f = followOf(block)
+    return f ? followKey(f) : ''
+  })
 
   return (
     <BarFrame host={host} element={element} head={def?.head}>
@@ -266,12 +274,22 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
         const hasSearch = windowShown || lookupProps.length > 0
         const hasFollow = follow !== undefined && ed.followPickFor !== block.id
         const groups = [hasSource, hasHelpers, shows.length > 0, hasSearch, hasFollow, events.length > 0]
+        // A click on the giver changes what the block follows; the window
+        // then opens anew and shows it.
+        const followSeen = hasFollow ? followKey(follow) : ''
         return (
           <>
             {groups.some(Boolean) && (
-              <BarWindow label="Einstellungen" width={SETTINGS_WIDTH}>
+              <BarWindow
+                key={`settings:${followSeen}`}
+                label="Einstellungen"
+                width={SETTINGS_WIDTH}
+                flush
+                defaultOpen={followSeen !== '' && followSeen !== openedWith}
+                onOpen={() => setOpenedWith(followSeen)}
+              >
                 {(close) => (
-                  <div className="flex flex-col gap-[10px]">
+                  <div className="-m-1 flex flex-col">
                     {hasSource && (
                       <Group name="Quelle">
                         {carriesOwnSource(block) && <SourceList block={block} part={helpersApart ? 'own' : 'all'} />}
@@ -368,14 +386,18 @@ function EscapeEnds({ onEscape }: { onEscape: () => void }) {
 
 // A button in the bar that opens a small window beside it; with a sign, the
 // sign alone stands in the bar.
-export function BarWindow({ label, icon, width = 340, defaultOpen = false, children }: {
+export function BarWindow({ label, icon, width = 340, defaultOpen = false, flush = false, onOpen, children }: {
   label: string
   icon?: Icon
   width?: number
   defaultOpen?: boolean
+  // The content reaches the window's edges, as strips with lines do.
+  flush?: boolean
+  onOpen?: () => void
   children: (close: () => void) => ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
+  useEffect(() => { if (open) onOpen?.() }, [open, onOpen])
   const button = useRef<HTMLButtonElement>(null)
   const pressed = open ? 'border-accent bg-accent-soft text-ink' : undefined
   return (
@@ -409,7 +431,7 @@ export function BarWindow({ label, icon, width = 340, defaultOpen = false, child
       {open && (
         <Popover name={label} anchor={button} width={width} maxHeight={480} onClose={() => setOpen(false)}>
           <LabelsShown.Provider value>
-            <div className="p-[6px]">{children(() => setOpen(false))}</div>
+            <div className={flush ? undefined : "p-[6px]"}>{children(() => setOpen(false))}</div>
           </LabelsShown.Provider>
         </Popover>
       )}

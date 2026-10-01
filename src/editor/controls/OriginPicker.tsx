@@ -53,7 +53,7 @@ export function OriginPicker({ name, origin, offer, shown, className, onChoose }
             />
             {offer.fixed === true && (
               <div className="flex shrink-0 flex-col gap-1 px-1.5 pb-1">
-                <span className="text-label font-semibold uppercase tracking-label text-muted">
+                <span className="text-dense font-semibold text-muted">
                   {ORIGIN_KINDS.fixed}
                 </span>
                 <Field

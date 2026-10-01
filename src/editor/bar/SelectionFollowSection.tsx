@@ -71,7 +71,7 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
   return (
     <div className="flex flex-col gap-2">
       <div className="flex min-h-control items-center gap-1.5">
-        <span className="shrink-0 text-label font-semibold uppercase tracking-label text-muted">
+        <span className="shrink-0 text-dense font-semibold text-muted">
           Folgt
         </span>
         <span className="min-w-0 flex-1 truncate font-semibold text-ink">
