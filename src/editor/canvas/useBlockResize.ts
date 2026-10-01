@@ -45,11 +45,10 @@ export function useBlockResize(
     const minW = Math.max(1, spec.minWidth)
     const minH = Math.max(1, spec.minHeight, content)
 
-    // Rows can differ in height where a list grows, so the row under the
-    // pointer is read from the real tracks. A growing list stretches its own
-    // rows; its edges count in fixed rows, so that they follow the pointer.
+    // Every row of the editor is one fixed step; only the mask stretches a
+    // list's rows to the window. The row under the pointer comes from the tracks.
     const grabRow = edge.includes('s') ? start.y + start.h - 1 : start.y
-    const rowAt = (ev: PointerEvent): number => area && !spec.grows
+    const rowAt = (ev: PointerEvent): number => area
       ? cellFromPointer(area, ev.clientX, ev.clientY).y
       : grabRow + Math.round((ev.clientY - e.clientY) / (GRID.rowPx + GRID.gapPx))
 

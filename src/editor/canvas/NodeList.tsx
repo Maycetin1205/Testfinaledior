@@ -10,7 +10,7 @@ import {
   type Direction,
 } from '../../core/block/flow'
 import { gridSlotRead, gridSlotStyle, type GridSlot } from '../../core/block/grid'
-import { areaColumnsStyle, growMinHeightStyle, isGridArea } from '../../core/block/gridArea'
+import { areaColumnsStyle, isGridArea } from '../../core/block/gridArea'
 import { useEditor } from '../state/useEditor'
 import { BlockHost } from './BlockHost'
 import { isNewBlockDrag, newBlockDragType } from './dnd'
@@ -176,7 +176,6 @@ function CanvasNode({ node, index, parentId, listDirection, grid = false }: Canv
         style={{
           opacity: dnd.dragId === node.id ? 0.4 : 1,
           ...gridSlotStyle(gridSlotRead(node.values)),
-          ...growMinHeightStyle(node),
           ...areaColumnsStyle(node),
         }}
       >
