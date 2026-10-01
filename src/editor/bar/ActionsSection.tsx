@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { ArrowUp, Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Field } from '@/editor/widgets/Field'
@@ -30,7 +30,6 @@ import { resultStepsBefore } from '../../core/data/steps/chains'
 import type { StepFormValues } from '../../core/data/steps/stepAdapter'
 import { STEP_KINDS, stepAdapter, type Step, type StepKind } from '../../core/data/steps/steps'
 import { OriginPicker } from '../controls/OriginPicker'
-import type { OriginOffer } from '../controls/originOffer'
 import { PickerControl } from '../controls/PickerControl'
 import { useInputSession } from '../controls/useInputSession'
 import { adoptFields, fieldAdopt } from '../datacenter/fieldAdopt'
@@ -46,10 +45,9 @@ import {
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
-import { Labeled } from './BarControl'
 import { choosable, originOfParameter, parameterOfOrigin, parameterOffer } from './parameterOrigin'
 
-// How a step reads in its sentence.
+// How a step is named.
 const STEP_NAMES: Record<StepKind, string> = {
   RELATION: 'Relation',
   POPUP_OPEN: 'Popup öffnen',
@@ -73,8 +71,9 @@ interface Context {
   choices: Omit<ParameterChoices, 'steps'>
 }
 
-// The actions of a block as sentences under their event: a step a line, every
-// part of it a small choice, only fixed values typed.
+// The actions of a block under their event, as SoftEngine lists a relation:
+// a line per place, its name on the left, what stands there on the right.
+// Only fixed values are typed.
 export function ActionsSection({ block, events }: { block: BlockNode; events: readonly EventDef[] }) {
   const ed = useEditor()
   const relations = useRelations().list
@@ -119,13 +118,12 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
         const chain = chainOf(ev.key)
         const set = (steps: Step[]) => setChain(ev.key, steps)
         return (
-          <section key={ev.key} className="flex flex-col gap-[4px]">
+          <section key={ev.key} className="flex flex-col gap-[6px]">
             <span className="text-label font-semibold uppercase tracking-label text-muted">{ev.name}</span>
             {chain.map((step, i) => (
-              <StepLine
+              <StepLines
                 key={step.id}
                 step={step}
-                first={i === 0}
                 chain={chain}
                 context={context}
                 onChange={(next) => set(chain.map((s) => (s.id === step.id ? next : s)))}
@@ -147,9 +145,50 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
   )
 }
 
-function StepLine({ step, first, chain, context, onChange, onUp, onRemove }: {
+const NAME_WIDTH = 104
+
+// A line of a step: the name of the place, as .vfeld-label writes it, and
+// what stands there. At the end, if any, the buttons of the line.
+function Line({ name, end, children }: { name: string; end?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="flex min-h-control items-center gap-[8px]">
+      <span
+        className="shrink-0 truncate text-label font-semibold uppercase tracking-label text-muted"
+        style={{ width: NAME_WIDTH }}
+        title={name}
+      >
+        {name}
+      </span>
+      <div className="flex min-w-0 flex-1 items-center">{children}</div>
+      {end !== undefined && <div className="flex shrink-0 items-center">{end}</div>}
+    </div>
+  )
+}
+
+// What a place holds without a choice: the relation fills it, or the field
+// line above fills it.
+function Filled({ children }: { children: string }) {
+  return <span className="truncate px-[2px] text-ui text-muted">{children}</span>
+}
+
+// Where a place of the event takes its value from, in a few words.
+const CONTEXT_TEXT: Record<string, string> = {
+  PINDEX: 'vom Ereignis',
+  DROP_PINDEX: 'vom Ereignis',
+  VALUE: 'Ereigniswert',
+  NOW_DATE: 'Heutiges Datum',
+}
+
+function contextText(binding: Parameter, choices: ParameterChoices): string {
+  return binding.source === 'context'
+    ? CONTEXT_TEXT[binding.value] ?? bindingText(binding, choices)
+    : bindingText(binding, choices)
+}
+
+// The lines of one step, a thin line above the second step onwards. The first
+// line carries the step's buttons: up and remove.
+function StepLines({ step, chain, context, onChange, onUp, onRemove }: {
   step: Step
-  first: boolean
   chain: readonly Step[]
   context: Context
   onChange: (step: Step) => void
@@ -161,12 +200,8 @@ function StepLine({ step, first, chain, context, onChange, onUp, onRemove }: {
     steps: resultStepsBefore(chain, step.id, context.relations),
   }), [context, chain, step.id])
 
-  return (
-    <div className="flex items-start gap-[4px]">
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-[6px] gap-y-[4px] text-ui text-ink">
-        {!first && <span className="text-muted">dann</span>}
-        <Sentence step={step} context={context} choices={choices} onChange={onChange} />
-      </div>
+  const end = (
+    <>
       {onUp && (
         <Button onlyIcon aria-label="Schritt nach oben" title="Nach oben" onClick={onUp}>
           <ArrowUp size={12} />
@@ -175,165 +210,185 @@ function StepLine({ step, first, chain, context, onChange, onUp, onRemove }: {
       <Button onlyIcon aria-label="Schritt entfernen" title="Entfernen" onClick={onRemove}>
         <X size={13} />
       </Button>
+    </>
+  )
+
+  return (
+    <div className="flex flex-col gap-[3px] border-t border-line pt-[4px] first-of-type:border-t-0 first-of-type:pt-0">
+      <StepBody step={step} context={context} choices={choices} end={end} onChange={onChange} />
     </div>
   )
 }
 
-function Sentence({ step, context, choices, onChange }: {
+function StepBody({ step, context, choices, end, onChange }: {
   step: Step
   context: Context
   choices: ParameterChoices
+  end: ReactNode
   onChange: (step: Step) => void
 }) {
   switch (step.kind) {
-    case 'RELATION': {
-      const template = context.relations.find((r) => r.id === step.relationId)
-      const offer = parameterOffer(choices)
-      const setParam = (list: 'parameter' | 'extraParameter', at: number, binding: Parameter) =>
-        onChange({ ...step, [list]: step[list].map((b, x) => (x === at ? binding : b)) })
-      return (
-        <>
-          <PickerControl
-            name="Relation"
-            className="w-auto max-w-[220px]"
-            groups={[{ key: 'relations', entries: context.relations.map((r) => ({ value: r.id, name: r.name, badge: `${r.verb.replace('_RELATION', '')} ${r.nr}` })) }]}
-            value={step.relationId}
-            placeholder={STEP_NAMES.RELATION}
-            onChoose={(id) => {
-              const chosen = context.relations.find((r) => r.id === id)
-              if (!chosen) return
-              onChange({
-                ...step,
-                relationId: id,
-                parameter: relationParameterDefault(chosen),
-                extraParameter: chosen.extraParameterAllowed ? step.extraParameter : [],
-              })
-            }}
-          />
-          {template?.parameter.some((p) => parameterRole(p) === 'pos') === true && (
-            <FieldPart step={step} template={template} sources={choices.dataSources} onChange={onChange} />
-          )}
-          {template && step.parameter.length > 0 && <span className="text-muted">mit</span>}
-          {template && step.parameter.map((binding, at) => (
-            <ParameterPart
-              key={at}
-              name={placeholderName(template.parameter[at] ?? '') || template.parameter[at] || `Parameter ${at + 1}`}
-              binding={binding}
-              choices={choices}
-              offer={offer}
-              onChange={(b) => setParam('parameter', at, b)}
-            />
-          ))}
-          {template?.extraParameterAllowed === true && (
-            <>
-              {step.extraParameter.map((binding, at) => (
-                <span key={`extra${at}`} className="flex items-center">
-                  <ParameterPart
-                    name={`Zusatz ${at + 1}`}
-                    binding={binding}
-                    choices={choices}
-                    offer={offer}
-                    onChange={(b) => setParam('extraParameter', at, b)}
-                  />
-                  <Button
-                    onlyIcon
-                    aria-label={`Zusatz ${at + 1} entfernen`}
-                    onClick={() => onChange({ ...step, extraParameter: step.extraParameter.filter((_, x) => x !== at) })}
-                  >
-                    <X size={12} />
-                  </Button>
-                </span>
-              ))}
-              <Button
-                onlyIcon
-                aria-label="Zusatz anfügen"
-                title="Zusatz anfügen"
-                onClick={() => onChange({ ...step, extraParameter: [...step.extraParameter, { source: 'fixed', value: '' }] })}
-              >
-                <Plus size={12} />
-              </Button>
-            </>
-          )}
-        </>
-      )
-    }
+    case 'RELATION':
+      return <RelationLines step={step} context={context} choices={choices} end={end} onChange={onChange} />
     case 'POPUP_OPEN':
     case 'POPUP_CLOSE':
       return (
-        <>
-          <span>Popup</span>
+        <Line name={STEP_NAMES[step.kind]} end={end}>
           <PickerControl
             name="Popup"
-            className="w-auto max-w-[180px]"
+            className="w-full"
             groups={[{ key: 'popups', entries: context.popups.map((p) => ({ value: p.id, name: p.name })) }]}
             value={step.popupId}
             placeholder=""
             onChoose={(popupId) => onChange({ ...step, popupId })}
           />
-          <span>{step.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'}</span>
-        </>
+        </Line>
       )
     case 'START_TOOL':
       return (
         <>
-          <span>Werkzeug</span>
-          <InlineText name="Werkzeugnummer" value={step.toolNumber} onChange={(toolNumber) => onChange({ ...step, toolNumber })} />
-          <span>starten</span>
-          {step.toolParameter.length > 0 && <span className="text-muted">mit</span>}
+          <Line name={STEP_NAMES.START_TOOL} end={end}>
+            <InlineText name="Werkzeugnummer" value={step.toolNumber} onChange={(toolNumber) => onChange({ ...step, toolNumber })} />
+          </Line>
           {step.toolParameter.map((p, at) => (
-            <InlineText
+            <Line
               key={at}
               name={`Parameter ${at + 1}`}
-              value={p}
-              onChange={(value) => onChange({ ...step, toolParameter: step.toolParameter.map((q, x) => (x === at ? value : q)) })}
-            />
+              end={(
+                <Button
+                  onlyIcon
+                  aria-label={`Parameter ${at + 1} entfernen`}
+                  onClick={() => onChange({ ...step, toolParameter: step.toolParameter.filter((_, x) => x !== at) })}
+                >
+                  <X size={12} />
+                </Button>
+              )}
+            >
+              <InlineText
+                name={`Parameter ${at + 1}`}
+                value={p}
+                onChange={(value) => onChange({ ...step, toolParameter: step.toolParameter.map((q, x) => (x === at ? value : q)) })}
+              />
+            </Line>
           ))}
-          <Button
-            onlyIcon
-            aria-label="Parameter anfügen"
-            title="Parameter anfügen"
-            onClick={() => onChange({ ...step, toolParameter: [...step.toolParameter, ''] })}
-          >
-            <Plus size={12} />
-          </Button>
+          <Line name="">
+            <Button onClick={() => onChange({ ...step, toolParameter: [...step.toolParameter, ''] })}>
+              <Plus size={12} /> Parameter
+            </Button>
+          </Line>
         </>
       )
     case 'BW_LINK':
       return (
-        <>
-          <span>{STEP_NAMES.BW_LINK}</span>
-          <InlineText name="Befehl" wide value={step.command} onChange={(command) => onChange({ ...step, command })} />
-        </>
+        <Line name={STEP_NAMES.BW_LINK} end={end}>
+          <InlineText name="Befehl" value={step.command} onChange={(command) => onChange({ ...step, command })} />
+        </Line>
       )
   }
 }
 
-// A parameter of a relation: where its value comes from, or what the relation
-// fills itself, like the record number of the event.
-function ParameterPart({ name, binding, choices, offer, onChange }: {
-  name: string
-  binding: Parameter
+// A relation, then its places in the order of its syntax. A place the field
+// line fills (position, length, table) and a place the relation fills itself
+// (the record number) stand as text; every other place is chosen.
+function RelationLines({ step, context, choices, end, onChange }: {
+  step: RelationStep
+  context: Context
   choices: ParameterChoices
-  offer: OriginOffer
-  onChange: (binding: Parameter) => void
+  end: ReactNode
+  onChange: (step: Step) => void
 }) {
-  if (!choosable(binding)) {
-    return <span className="rounded border border-line px-[6px] leading-[26px] text-muted" title={name}>{bindingText(binding, choices)}</span>
-  }
+  const template = context.relations.find((r) => r.id === step.relationId)
+  const offer = parameterOffer(choices)
+  const byField = template?.parameter.some((p) => parameterRole(p) === 'pos') === true
+  const setParam = (list: 'parameter' | 'extraParameter', at: number, binding: Parameter) =>
+    onChange({ ...step, [list]: step[list].map((b, x) => (x === at ? binding : b)) })
+
   return (
-    <Labeled label={name}>
-      <OriginPicker
-        name={name}
-        className="w-auto max-w-[220px]"
-        origin={originOfParameter(binding, choices)}
-        shown={binding.source === 'context' ? bindingText(binding, choices) : undefined}
-        offer={offer}
-        onChoose={(origin) => {
-          const next = parameterOfOrigin(origin, choices)
-          if (next !== null) onChange(next)
-        }}
-      />
-    </Labeled>
+    <>
+      <Line name={STEP_NAMES.RELATION} end={end}>
+        <PickerControl
+          name="Relation"
+          className="w-full"
+          groups={[{ key: 'relations', entries: context.relations.map((r) => ({ value: r.id, name: r.name, badge: `${r.verb.replace('_RELATION', '')} ${r.nr}` })) }]}
+          value={step.relationId}
+          placeholder=""
+          onChoose={(id) => {
+            const chosen = context.relations.find((r) => r.id === id)
+            if (!chosen) return
+            onChange({
+              ...step,
+              relationId: id,
+              parameter: relationParameterDefault(chosen),
+              extraParameter: chosen.extraParameterAllowed ? step.extraParameter : [],
+            })
+          }}
+        />
+      </Line>
+      {template && byField && (
+        <FieldLine step={step} template={template} sources={choices.dataSources} onChange={onChange} />
+      )}
+      {template && step.parameter.map((binding, at) => {
+        const raw = template.parameter[at] ?? ''
+        const name = placeholderName(raw) || `Stelle ${at + 1}`
+        const filledByField = byField && parameterRole(raw) !== null
+        if (filledByField) {
+          return <Line key={at} name={name}><Filled>{binding.source === 'fixed' ? binding.value : ''}</Filled></Line>
+        }
+        if (!choosable(binding)) {
+          return <Line key={at} name={name}><Filled>{contextText(binding, choices)}</Filled></Line>
+        }
+        return (
+          <Line key={at} name={name}>
+            <OriginPicker
+              name={name}
+              className="w-full"
+              origin={originOfParameter(binding, choices)}
+              shown={binding.source === 'context' ? contextText(binding, choices) : undefined}
+              offer={offer}
+              onChoose={(origin) => {
+                const next = parameterOfOrigin(origin, choices)
+                if (next !== null) setParam('parameter', at, next)
+              }}
+            />
+          </Line>
+        )
+      })}
+      {template?.extraParameterAllowed === true && (
+        <>
+          {step.extraParameter.map((binding, at) => (
+            <Line
+              key={`extra${at}`}
+              name={`Zusatz ${at + 1}`}
+              end={(
+                <Button
+                  onlyIcon
+                  aria-label={`Zusatz ${at + 1} entfernen`}
+                  onClick={() => onChange({ ...step, extraParameter: step.extraParameter.filter((_, x) => x !== at) })}
+                >
+                  <X size={12} />
+                </Button>
+              )}
+            >
+              <OriginPicker
+                name={`Zusatz ${at + 1}`}
+                className="w-full"
+                origin={originOfParameter(binding, choices)}
+                offer={offer}
+                onChoose={(origin) => {
+                  const next = parameterOfOrigin(origin, choices)
+                  if (next !== null) setParam('extraParameter', at, next)
+                }}
+              />
+            </Line>
+          ))}
+          <Line name="">
+            <Button onClick={() => onChange({ ...step, extraParameter: [...step.extraParameter, { source: 'fixed', value: '' }] })}>
+              <Plus size={12} /> Zusatz
+            </Button>
+          </Line>
+        </>
+      )}
+    </>
   )
 }
 
@@ -341,7 +396,7 @@ const FIELD_KEY = '::'
 
 // A relation that names position and length of a field takes them, and the
 // table, from one field of a source.
-function FieldPart({ step, template, sources, onChange }: {
+function FieldLine({ step, template, sources, onChange }: {
   step: RelationStep
   template: RelationTemplate
   sources: readonly DataSource[]
@@ -367,10 +422,10 @@ function FieldPart({ step, template, sources, onChange }: {
     .filter((g) => g.entries.length > 0)
 
   return (
-    <Labeled label="Feld">
+    <Line name="Feld">
       <PickerControl
         name="Feld"
-        className="w-auto max-w-[220px]"
+        className="w-full"
         groups={bySource}
         value={current ? `${current.sourceId}${FIELD_KEY}${current.code}` : ''}
         placeholder=""
@@ -384,14 +439,13 @@ function FieldPart({ step, template, sources, onChange }: {
           onChange({ ...step, parameter: params })
         }}
       />
-    </Labeled>
+    </Line>
   )
 }
 
-function InlineText({ name, value, wide = false, onChange }: {
+function InlineText({ name, value, onChange }: {
   name: string
   value: string
-  wide?: boolean
   onChange: (value: string) => void
 }) {
   const ed = useEditor()
@@ -401,7 +455,6 @@ function InlineText({ name, value, wide = false, onChange }: {
       aria-label={name}
       title={name}
       value={value}
-      className={wide ? 'w-40' : 'w-20'}
       onChange={(e) => {
         session.begin()
         onChange(e.currentTarget.value)

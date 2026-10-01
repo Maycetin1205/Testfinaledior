@@ -1056,10 +1056,12 @@ Grundregeln für alle Bausteine:
 - Text immer direkt auf der Fläche: Doppelklick, tippen.
 - Feld binden: Klick auf die Stelle, Feldliste der Quelle erscheint dort.
   Gebundene Stellen gepunktet unterstrichen.
-- Aktionen als Sätze unter dem Ereignis („Beim Klick: Relation
-  Standard-Schreiben mit Bezeichnung der gewählten Zeile, dann Popup
-  Hinweis öffnen“), jeder Schritt eine Zeile, Plus für den nächsten, jede
-  Stelle im Satz anklickbar mit kurzer Auswahl. Getippt werden nur Festwerte.
+- Aktionen unter dem Ereignis wie SoftEngine eine Relation zeigt: je Stelle
+  eine Zeile, Name links, Wert rechts, in der Reihenfolge der Syntax. Was das
+  Feld füllt (Position, Länge, Tabelle) und was die Relation selbst füllt
+  (Satznummer) steht als Text, alles andere als kurze Auswahl. Plus für den
+  nächsten Schritt. Getippt werden nur Festwerte (1.10., ersetzt die Sätze
+  aus 0adbba0).
 - „Folgt der Auswahl“: in der Leiste anklicken, dann auf den gebenden
   Baustein klicken. Feldpaare nur, wenn nötig, als zweite Zeile.
 - Der Inspector fällt weg; die Sonderfenster (Nachschlagen, Auswahl folgt,

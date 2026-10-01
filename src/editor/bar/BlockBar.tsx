@@ -120,7 +120,7 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: numbe
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
 // The sentences of the actions want room for a relation and its values.
-const ACTIONS_WIDTH = 520
+const ACTIONS_WIDTH = 420
 
 interface BarFrameProps {
   host: RefObject<HTMLElement | null>

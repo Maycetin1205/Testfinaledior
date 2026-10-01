@@ -1,5 +1,5 @@
 import type { PendingKind } from '../block/capability'
-import type { RelationTemplate } from './relations'
+import { parameterRole, type RelationTemplate } from './relations'
 import { isUnread } from '../unread'
 
 export const BLOCK_ID_ATTR = 'data-ff-block-id'
@@ -47,14 +47,19 @@ export const RECORD_PLACEHOLDER = ['PINDEX', 'DROP_PINDEX'] as const
 
 export const ACTION_PLACEHOLDER = [...RECORD_PLACEHOLDER, 'VALUE', 'NOW_DATE'] as const
 
+// What the syntax says a place holds: a placeholder of the event, a place the
+// field fills (position, length, table) left open, else the text itself, as
+// the L of the field kind.
 export function relationParameterDefault(
   relation: Pick<RelationTemplate, 'parameter'>,
 ): Parameter[] {
   return relation.parameter.map((raw) => {
     const placeholder = /^\{([A-Za-z0-9_]+)\}$/.exec(raw)?.[1]
-    return placeholder && (ACTION_PLACEHOLDER as readonly string[]).includes(placeholder)
-      ? { source: 'context', value: placeholder }
-      : { source: 'fixed', value: '' }
+    if (placeholder && (ACTION_PLACEHOLDER as readonly string[]).includes(placeholder)) {
+      return { source: 'context', value: placeholder }
+    }
+    const open = placeholder !== undefined || parameterRole(raw) !== null
+    return { source: 'fixed', value: open ? '' : raw.trim() }
   })
 }
 
