@@ -1036,9 +1036,9 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   Inhalt und Formulare bleiben zunächst, wie sie sind.
 - Am markierten Baustein eine kleine Leiste direkt über der Oberkante: eine
   Zeile, höchstens sieben Elemente, Symbol und Name, dann die Wahlen, rechts
-  Löschen. Was mehr ist, wird gebündelt: Schalter eines Bausteins in ein
-  Pop-up „Anzeige“, Quelle und Tag-Feld in ein Pop-up „Quelle“, alles
-  Weitere als Knopf mit Symbol, der sein kleines Fenster öffnet. Passt die
+  Löschen. Was mehr ist, steht in einem Fenster „Einstellungen“ mit Gruppen
+  untereinander: Quelle, Hilfsquelle, Anzeige, Suchfenster, Folgt der
+  Auswahl, Aktionen (1.10., ersetzt die drei Pop-ups). Passt die
   Leiste nicht über den Baustein, liegt sie darunter, erst dann innen an
   seinem oberen Rand. Jedes Fenster an der Leiste schließt beim Klick
   daneben. Nie über einem anderen Baustein, nie über der eigenen Kopfzeile.
@@ -1056,12 +1056,15 @@ Grundregeln für alle Bausteine:
 - Text immer direkt auf der Fläche: Doppelklick, tippen.
 - Feld binden: Klick auf die Stelle, Feldliste der Quelle erscheint dort.
   Gebundene Stellen gepunktet unterstrichen.
-- Aktionen unter dem Ereignis wie SoftEngine eine Relation zeigt: je Stelle
-  eine Zeile, Name links, Wert rechts, in der Reihenfolge der Syntax. Was das
-  Feld füllt (Position, Länge, Tabelle) und was die Relation selbst füllt
-  (Satznummer) steht als Text, alles andere als kurze Auswahl. Plus für den
-  nächsten Schritt. Getippt werden nur Festwerte (1.10., ersetzt die Sätze
-  aus 0adbba0).
+- Aktionen unter dem Ereignis wie SoftEngine eine Relation zeigt
+  (Klammerauflösung): die Relation nach ihrer Syntax gewählt, die Syntax als
+  Zeile, dann je Stelle eine Zeile mit Nr., Bezeichnung und Eingabe. Die
+  Eingabe ist leer und tippbar, die Bezeichnung steht als Hintergrundschrift;
+  leer bleibt leer. Ein Pfeil am Zeilenende bietet Satznummer, Wert, Zeile,
+  Feld, Formularfeld. Relationen mit „…“ bekommen Zeilen dazu. Schrittarten:
+  Relation, Popup öffnen, Popup schließen, Werkzeug starten (1.10., ersetzt
+  die Sätze aus 0adbba0). Relationen werden unter Daten als Liste angelegt:
+  Syntax und Bezeichnung je Zeile, die letzte Zeile ist leer.
 - „Folgt der Auswahl“: in der Leiste anklicken, dann auf den gebenden
   Baustein klicken. Feldpaare nur, wenn nötig, als zweite Zeile.
 - Der Inspector fällt weg; die Sonderfenster (Nachschlagen, Auswahl folgt,

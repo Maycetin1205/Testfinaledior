@@ -9,7 +9,7 @@ import {
   type RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Component, FileText, Link2, Search, Trash2, Zap, type Icon } from '@/editor/icons/icon'
+import { Component, FileText, Link2, Trash2, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Popover } from '@/editor/widgets/Popover'
 import { Separator } from '@/editor/widgets/Separator'
@@ -30,7 +30,7 @@ import { useEditor } from '../state/useEditor'
 import { ActionsSection } from './ActionsSection'
 import { BarControl, FontChoice } from './BarControl'
 import { controlShown } from './controlShown'
-import { followKey, followOf, followOffered, followOnDocument } from './followOffer'
+import { followOf, followOffered, followOnDocument } from './followOffer'
 import { openDocumentOf } from '../controls/outsideOrigin'
 import { useView } from '../state/useView'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
@@ -119,8 +119,18 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: numbe
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
 
-// The sentences of the actions want room for a relation and its values.
-const ACTIONS_WIDTH = 420
+// The one window of a block wants room for a relation and its places.
+const SETTINGS_WIDTH = 420
+
+// A group of the settings window: its name, a line under it, its controls.
+function Group({ name, children }: { name: string; children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-[6px]">
+      <span className="border-b border-line pb-[2px] font-semibold text-ink">{name}</span>
+      {children}
+    </section>
+  )
+}
 
 interface BarFrameProps {
   host: RefObject<HTMLElement | null>
@@ -248,59 +258,58 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
       {(choices.length > 0 || fonts.length > 0) && <Separator vertical />}
       {withFonts(controls(choices), choices, fonts, block)}
 
-      {shows.length > 0 && (
-        <BarWindow label="Anzeige">
-          {() => <div className="flex flex-col items-start gap-[6px]">{controls(shows)}</div>}
-        </BarWindow>
-      )}
-      {(carriesOwnSource(block) || sourceProps.length > 0) && (
-        <BarWindow label="Quelle">
-          {() => (
-            <div className="flex flex-col gap-[8px]">
-              {carriesOwnSource(block) && <SourceList block={block} part={helpersApart ? 'own' : 'all'} />}
-              {controls(sourceProps)}
-            </div>
-          )}
-        </BarWindow>
-      )}
-      {helpersApart && String(block.values[SOURCE_PROP] ?? '') !== '' && (
-        <BarWindow label="Hilfsquelle">
-          {() => <SourceList block={block} part="helpers" />}
-        </BarWindow>
-      )}
-      {(windowShown || lookupProps.length > 0) && (
-        <BarWindow label="Suchfenster" icon={Search}>
-          {() => (
-            <div className="flex flex-col gap-[8px]">
-              {controls(lookupProps)}
-              {windowShown && <LookupWindowSection block={block} window={searchWindow} />}
-            </div>
-          )}
-        </BarWindow>
-      )}
-      {maySelectionFollows(block) && followOffered(ed.tree, block, library) && (() => {
-        const follow = followOf(block)
-        if (follow === undefined || ed.followPickFor === block.id) return <FollowPick block={block} />
-        const open = follow.pairs.some((p) => p.fromField === '' || p.toField === '')
+      {(() => {
+        const follows = maySelectionFollows(block) && followOffered(ed.tree, block, library)
+        const follow = follows ? followOf(block) : undefined
+        const hasSource = carriesOwnSource(block) || sourceProps.length > 0
+        const hasHelpers = helpersApart && String(block.values[SOURCE_PROP] ?? '') !== ''
+        const hasSearch = windowShown || lookupProps.length > 0
+        const hasFollow = follow !== undefined && ed.followPickFor !== block.id
+        const groups = [hasSource, hasHelpers, shows.length > 0, hasSearch, hasFollow, events.length > 0]
         return (
-          <BarWindow key={`follow:${followKey(follow)}`} label="Folgt der Auswahl" icon={Link2} defaultOpen={open}>
-            {(close) => (
-              <SelectionFollowSection
-                block={block}
-                onPick={() => {
-                  close()
-                  ed.pickFollowFor(block.id)
-                }}
-              />
+          <>
+            {groups.some(Boolean) && (
+              <BarWindow label="Einstellungen" width={SETTINGS_WIDTH}>
+                {(close) => (
+                  <div className="flex flex-col gap-[10px]">
+                    {hasSource && (
+                      <Group name="Quelle">
+                        {carriesOwnSource(block) && <SourceList block={block} part={helpersApart ? 'own' : 'all'} />}
+                        {controls(sourceProps)}
+                      </Group>
+                    )}
+                    {hasHelpers && (
+                      <Group name="Hilfsquelle"><SourceList block={block} part="helpers" /></Group>
+                    )}
+                    {shows.length > 0 && <Group name="Anzeige">{controls(shows)}</Group>}
+                    {hasSearch && (
+                      <Group name="Suchfenster">
+                        {controls(lookupProps)}
+                        {windowShown && <LookupWindowSection block={block} window={searchWindow} />}
+                      </Group>
+                    )}
+                    {hasFollow && (
+                      <Group name="Folgt der Auswahl">
+                        <SelectionFollowSection
+                          block={block}
+                          onPick={() => {
+                            close()
+                            ed.pickFollowFor(block.id)
+                          }}
+                        />
+                      </Group>
+                    )}
+                    {events.length > 0 && (
+                      <Group name="Aktionen"><ActionsSection block={block} events={events} /></Group>
+                    )}
+                  </div>
+                )}
+              </BarWindow>
             )}
-          </BarWindow>
+            {follows && (follow === undefined || ed.followPickFor === block.id) && <FollowPick block={block} />}
+          </>
         )
       })()}
-      {events.length > 0 && (
-        <BarWindow label="Aktionen" icon={Zap} width={ACTIONS_WIDTH}>
-          {() => <ActionsSection block={block} events={events} />}
-        </BarWindow>
-      )}
 
       {onRemove && (
         <>
