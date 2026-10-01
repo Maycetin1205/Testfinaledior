@@ -25,8 +25,7 @@ export function RelationArea() {
   const [selectionId, setSelectionId] = useState<string | null>(null)
 
   const hits = store.list.filter((r) => relationFitsToSearch(r, search))
-  // One relation is always marked, so it always stands on the right.
-  const selection = hits.find((r) => r.id === selectionId) ?? hits[0] ?? null
+  const selection = hits.find((r) => r.id === selectionId) ?? null
 
   const usageOf = (id: string): string[] =>
     Object.values(ed.tree)
@@ -65,7 +64,12 @@ export function RelationArea() {
           />
         </span>
       </Strip>
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+      {/* A click below the lines lets go of the marked relation; the side
+          stays and stands empty. */}
+      <div
+        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
+        onClick={(e) => { if (e.target === e.currentTarget) setSelectionId(null) }}
+      >
         <table className="w-full table-fixed border-collapse text-ui">
           <thead className="sticky top-0 z-[1]">
             <tr>
@@ -111,6 +115,7 @@ export function RelationArea() {
       </div>
 
       <div className="flex w-[400px] shrink-0 flex-col border-l border-line">
+      {!selection && <Strip>Relation</Strip>}
       {selection && (
         <>
           <Strip>{selection.name}</Strip>

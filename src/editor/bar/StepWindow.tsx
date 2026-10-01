@@ -10,6 +10,7 @@ import type { DataSource } from '../../core/data/dataSources'
 import {
   fieldCodeSplit,
   parameterRole,
+  relationFitsToSearch,
   relationGroup,
   relationSyntaxAsText,
   relIdFromIdbId,
@@ -73,7 +74,12 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, onApply, o
   onClose: () => void
 }) {
   const [id] = useState(() => step?.id ?? crypto.randomUUID())
-  const [tab, setTab] = useState<StepTab>(firstTab)
+  const reads = context.relations.filter((r) => relationGroup(r) === 'read').length
+  const writes = context.relations.length - reads
+  // A new step opens where the relations are.
+  const [tab, setTab] = useState<StepTab>(() =>
+    (step === undefined && firstTab === 'PUT' && writes === 0 && reads > 0 ? 'GET' : firstTab))
+  const counts: Partial<Record<StepTab, number>> = { GET: reads, PUT: writes }
   const own = (group: 'read' | 'write'): RelationStep => {
     if (step?.kind !== 'RELATION') return emptyRelation(id)
     const t = context.relations.find((r) => r.id === step.relationId)
@@ -127,6 +133,9 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, onApply, o
               )}
             >
               {t.name}
+              {counts[t.key] !== undefined && (
+                <span className="ml-[6px] font-normal tabular-nums text-muted">{counts[t.key]}</span>
+              )}
             </button>
           ))}
         </nav>
@@ -264,16 +273,10 @@ function RelationBody({ step, group, template, relations, choices, onChange }: {
     setSelected(null)
   }
 
-  if (!template) {
-    return (
-      <div className="flex min-h-0 flex-1 flex-col">
-        <Strip>Relation</Strip>
-        <div className="border-b border-line px-[12px] py-[8px]">
-          <RelationChoice relations={offered} value="" onChoose={choose} />
-        </div>
-      </div>
-    )
-  }
+  // Without a relation the window lists them all, as SoftEngine's choice of
+  // variables does: syntax and name, a search above, a click takes one.
+  if (!template) return <RelationList relations={offered} onChoose={choose} />
+
 
   const { hasTable, field } = relationBody(template, step, sources)
   const all = [...step.parameter, ...step.extraParameter]
@@ -390,6 +393,45 @@ function RelationBody({ step, group, template, relations, choices, onChange }: {
         </div>
         <Strip>Bezeichnung</Strip>
         <div className="px-[12px] py-[9px]">{template.name}</div>
+      </div>
+    </div>
+  )
+}
+
+function RelationList({ relations, onChoose }: {
+  relations: readonly RelationTemplate[]
+  onChoose: (id: string) => void
+}) {
+  const [search, setSearch] = useState('')
+  const hits = relations.filter((r) => relationFitsToSearch(r, search))
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <Strip right={hits.length}>
+        <input
+          aria-label="Relationen durchsuchen"
+          autoFocus
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          className="h-[22px] w-[260px] rounded border border-line bg-panel px-[6px] font-normal text-ui text-ink outline-none focus:border-accent"
+        />
+      </Strip>
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+        <table className="w-full table-fixed border-collapse">
+          <thead className="sticky top-0 z-[1]">
+            <tr>
+              <th className={cn(TH, 'w-[60%]')}>Syntax</th>
+              <th className={TH}>Bezeichnung</th>
+            </tr>
+          </thead>
+          <tbody>
+            {hits.map((r) => (
+              <tr key={r.id} className="cursor-pointer hover:bg-accent-soft" onClick={() => onChoose(r.id)}>
+                <td className={cn(TD, 'truncate font-mono text-dense')} title={relationSyntaxAsText(r)}>{relationSyntaxAsText(r)}</td>
+                <td className={cn(TD, 'truncate')}>{r.name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   )

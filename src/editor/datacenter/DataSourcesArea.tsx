@@ -15,10 +15,11 @@ import { dtkRead, type DtkTable } from '../../core/data/dtkImport'
 import { sourcePreset, type PresetId } from '../../core/data/presets/presets'
 import { EMPTY_CHOICE, descriptorFor } from '../../core/data/presets/sourcePreset'
 import { keyFromInput } from '../../core/data/sourceInput'
-import type { Write } from '../../core/data/writes/writes'
 import { useDataSources } from '../state/useDataSources'
 import { DtkImportForm } from './DtkImportForm'
 import { Line, NewLine, Strip, TH } from './GridLines'
+import { SourceSettings } from './SourceSettings'
+import { POSITIONS_UNDER, writeFor } from './sourceWrite'
 
 // The kinds a table names by itself; every other kind keeps what it is.
 const TABLE_KINDS: Readonly<Record<string, PresetId>> = {
@@ -30,8 +31,6 @@ const TABLE_KINDS: Readonly<Record<string, PresetId>> = {
 const BY_TABLE = new Set<PresetId>(['document', 'documentItem', 'addressMaster', 'itemMaster', 'idb', 'file'])
 const IDB = /^(?:IDB)?(?:ID)?(\d{1,4})$/
 
-// Positions hang under the document's header record, as SoftEngine lists them.
-const POSITIONS_UNDER = 'BEL_0_11'
 
 // What a typed table stands for: BEL, POS, ADR, ART, an IDB number, else
 // another file. A source of another kind keeps its kind.
@@ -51,15 +50,6 @@ function tableKind(raw: string, current: DataSource | undefined): { preset: Pres
 }
 
 const tableText = (s: DataSource): string => keyDisplay(s.tableId)
-
-// The record number is the field named so; a source that knows one keeps it.
-function writeFor(preset: PresetId, fields: readonly DataField[], before: Write): Write {
-  if (!sourcePreset(preset).writes) return { kind: 'none' }
-  const named = fields.find((f) => aliasOf(f.name) === 'satznummer')
-  if (named) return { kind: 'putRelation', recordField: named.code }
-  if (before.kind === 'putRelation' && fields.some((f) => f.code === before.recordField)) return before
-  return before.kind === 'putRelation' && fields.length === 0 ? before : { kind: 'none' }
-}
 
 function sourceWith(s: DataSource, change: Partial<Pick<DataSource, 'name' | 'preset' | 'tableId' | 'fields'>>): Omit<DataSource, 'id'> {
   const preset = change.preset ?? s.preset
@@ -180,7 +170,7 @@ export function DataSourcesArea() {
           }
         }}
       />
-      <div className="flex w-[420px] shrink-0 flex-col border-r border-line">
+      <div className="flex w-[360px] shrink-0 flex-col border-r border-line">
         <Strip right={(
           <Button className="h-[22px] px-[8px] text-dense" onClick={() => fileRef.current?.click()}>
             <FileUp size={13} /> Aus DTK-Datei
@@ -194,7 +184,7 @@ export function DataSourcesArea() {
             <thead className="sticky top-0 z-[1]">
               <tr>
                 <th className={TH}>Name</th>
-                <th className={cn(TH, 'w-[130px]')}>Tabelle</th>
+                <th className={cn(TH, 'w-[120px]')}>Tabelle</th>
                 <th className={cn(TH, 'w-control')} />
               </tr>
             </thead>
@@ -224,6 +214,12 @@ export function DataSourcesArea() {
         </div>
       </div>
 
+      {selection && (
+        <div className="w-[380px] shrink-0 overflow-y-auto border-r border-line">
+          <SourceSettings key={selection.id} source={selection} writeFor={writeFor} />
+        </div>
+      )}
+
       <div className="flex min-w-0 flex-1 flex-col">
         <Strip right={selection ? `${selection.fields.length} Felder` : undefined}>
           {selection ? `Felder von ${selection.name}` : 'Felder'}
@@ -233,9 +229,9 @@ export function DataSourcesArea() {
             <table className="w-full table-fixed border-collapse text-ui">
               <thead className="sticky top-0 z-[1]">
                 <tr>
-                  <th className={cn(TH, 'w-[140px]')}>Code</th>
+                  <th className={cn(TH, 'w-[110px]')}>{sourcePreset(selection.preset).columnsLabel || 'Code'}</th>
                   <th className={TH}>Name</th>
-                  <th className={cn(TH, 'w-[110px]')}>Max. Länge</th>
+                  <th className={cn(TH, 'w-[90px]')}>Max. Länge</th>
                   <th className={cn(TH, 'w-control')} />
                 </tr>
               </thead>
