@@ -23,7 +23,7 @@ import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { widthFromLength, lengthOf } from './fieldWidth'
 import { openLookupInEditor } from './lookupWindowState'
-import { openDataCenter } from '../datacenter/openDataCenter'
+import { openData } from '../data/openData'
 import { Calculator, ListPlus, Search } from '@/editor/icons/icon'
 import { ColumnBar } from '../bar/ColumnBar'
 import { FieldPicker, type PickerGroup } from './FieldPicker'
@@ -162,11 +162,11 @@ export function useFieldBinding({
 
   const sourcesChoice = !libraryOffer ? undefined : {
     entries: library.map((s) => ({ value: s.id, name: s.name, badge: sourcesKey(s) })),
-    // The data center covers the canvas; a picker left open would float above it.
-    onDataCenter: () => {
+    // The data window lies over the canvas; a picker left open would float above it.
+    onData: () => {
       closePicker()
       closeListPicker()
-      openDataCenter()
+      openData()
     },
     onChoose: (sourceId: string) => {
       const carrier = sourcesCarrier(editor.tree, blockRef.current.id)

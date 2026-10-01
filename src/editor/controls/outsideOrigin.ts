@@ -4,8 +4,10 @@ import { valueSpotsInTree } from '../../core/block/treeQuery'
 import type { DataSource } from '../../core/data/dataSources'
 import type { KeyPair } from '../../core/data/extraSources'
 import type { ValueOrigin } from '../../core/data/valueOrigin'
-import { blockValueKey } from '../datacenter/parameterText'
 import type { OfferEntry, OriginOffer } from './originOffer'
+
+const blockValueKey = (blockId: string, prop: string): string =>
+  `${encodeURIComponent(blockId)}:${encodeURIComponent(prop)}`
 
 // Where a key takes its value from outside the row: a field of the open
 // document or the value of a form field. The key of a helper source and the

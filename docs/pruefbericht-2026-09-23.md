@@ -974,10 +974,10 @@ einer eigenen Aufräumaktion.
 5. Quellenarten nach Inhalt: erst Adressstamm, Artikelstamm, Beleg,
    Belegpositionen, darunter „Andere“ und erst dort die Technik (IDB-Tabelle,
    DataSet, ERP-Abfrage, ERP-Maske, Wert per Relation, Datei). Vorlage plus
-   Adapter bleiben. Dabei das Quellenformular
-   (`src/editor/datacenter/DataSourceForm.tsx`) je Quellenart teilen und
-   `src/softengine/relations.ts` teilen in Antwort lesen, Senden und Warten,
-   Werte zusammensuchen.
+   Adapter bleiben. Die Wahl „Art“ steht in
+   `src/editor/data/SourceSettings.tsx`, wie eine Quelle daraus entsteht in
+   `src/editor/data/sourceEdit.ts`. Dabei `src/softengine/relations.ts`
+   teilen in Antwort lesen, Senden und Warten, Werte zusammensuchen.
 6. Bauteile der Empfangsmaske, ohne neuen Baustein, wo ein Aussehen reicht:
    der Bereich bekommt „Aussehen“ Frei, Kasten (`.vstat`), Kopfzeile
    (`.vkopf`); der Text bekommt die Rolle Chip mit Ton (`.vflag`), und „Ton
@@ -1001,8 +1001,9 @@ einer eigenen Aufräumaktion.
    `src/core/data/calculation.ts` entsteht neu (etwa 150 statt 560 Zeilen).
    Vor dem Bau mit dem Nutzer nur festlegen: die Rechenarten und die Summe.
 8. Aufräumen nebenbei: wer eine Datei anfasst, räumt sie auf. Eigens nur:
-   Löschvormerkung der Erfassung ohne Bedienung, tote Widgets, ungenutzte
-   Exporte (etwa `GRID.columnPx`), alte Namen.
+   Löschvormerkung der Erfassung ohne Bedienung, ungenutzte Felder in
+   Objekten (etwa `GRID.columnPx`), alte Namen. Tote Dateien und ungenutzte
+   Exporte sind seit dem Umbau von Daten und Aktionen (1.10.) keine mehr da.
 
 Fertig und mit PR #1 in master (1d8437a), nicht in SoftEngine geprüft:
 Bedienung, ein Commit je Punkt: 1 Kopfzeile (1ad6913), 2 Palette als dunkler
@@ -1035,9 +1036,12 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   als Reiter, Bibliothek speichern und laden im Kopf. Zu, bis „Daten“
   geklickt wird; nie modal, nie
   Vollbild.
-  Quellen als Liste Name und Tabelle, darunter die Felder der markierten
-  Quelle als Liste Code und Name; Relationen als Liste Syntax und
-  Bezeichnung. Getippt in der Zeile, die letzte Zeile ist leer. Die Tabelle
+  Quellen als Liste Name und Tabelle, rechts daneben Einstellungen und
+  Felder der markierten Quelle (Code, Name, Max. Länge); Relationen als
+  Liste Syntax und
+  Bezeichnung. Ein Klick markiert die ganze Zeile, ein Doppelklick tippt
+  hinein; die letzte Zeile ist leer für Neues. Die Felder füllen die Breite
+  neben den Quellen. Die Tabelle
   bestimmt die Art (BEL, POS, ADR, ART, IDB-Nummer, sonst andere Datei);
   ein Feld namens „Satznummer“ ist die Satznummer zum Schreiben. Lesen,
   Schreiben und Satznummer stehen nicht mehr zur Wahl (1.10.).

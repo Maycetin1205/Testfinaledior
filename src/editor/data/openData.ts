@@ -1,10 +1,10 @@
-const EVENT = 'ff-datacenter-open'
+const EVENT = 'ff-data-open'
 
-export function openDataCenter(): void {
+export function openData(): void {
   document.dispatchEvent(new CustomEvent(EVENT))
 }
 
-export function onDataCenterRequest(fn: () => void): () => void {
+export function onDataRequest(fn: () => void): () => void {
   document.addEventListener(EVENT, fn)
   return () => document.removeEventListener(EVENT, fn)
 }

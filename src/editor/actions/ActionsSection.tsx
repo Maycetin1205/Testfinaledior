@@ -3,32 +3,16 @@ import { ArrowUp, Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { Field } from '@/editor/widgets/Field'
-import type { BlockNode } from '../../core/block/tree'
 import type { EventDef } from '../../core/block/capability'
-import { blockType } from '../../core/block/registry'
-import { capability } from '../../core/block/capability'
-import { blockName } from '../../core/block/blockName'
 import { isWindowPage, pagesOfMask } from '../../core/block/pages'
-import {
-  captureCarrierInTree,
-  changeCarrierInTree,
-  deleteCarrierInTree,
-  selectionGiverInTree,
-  valueSpotsInTree,
-} from '../../core/block/treeQuery'
+import type { BlockNode } from '../../core/block/tree'
 import type { RelationTemplate } from '../../core/data/relations'
 import type { Step } from '../../core/data/steps/steps'
 import { useInputSession } from '../controls/useInputSession'
-import {
-  blockValueKey,
-  captureOptions,
-  selectionGiverOptions,
-  VERB_SHORT,
-  type BlockValueOption,
-} from '../datacenter/parameterText'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
+import { maskChoices } from './placeChoices'
 import { StepWindow, type StepContext, type StepTab } from './StepWindow'
 
 // The window that is open: for a step of the chain, or for a new one.
@@ -45,6 +29,12 @@ function tabOf(step: Step, relations: readonly RelationTemplate[]): StepTab {
   return relations.find((r) => step.kind === 'RELATION' && r.id === step.relationId)?.verb === 'GET_RELATION' ? 'GET' : 'PUT'
 }
 
+const VERB_SHORT: Record<RelationTemplate['verb'], string> = {
+  GET_RELATION: 'GET',
+  PUT_RELATION: 'PUT',
+  PUTADD_RELATION: 'PUTADD',
+}
+
 // The actions of a block: per event its steps as lines. A click on a line or
 // on "Schritt hinzufügen" opens the step window in the middle of the screen.
 export function ActionsSection({ block, events }: { block: BlockNode; events: readonly EventDef[] }) {
@@ -54,30 +44,11 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
   const tree = ed.tree
   const [opened, setOpened] = useState<Opened | null>(null)
 
-  const context: StepContext = useMemo(() => {
-    const blockValues: BlockValueOption[] = valueSpotsInTree(tree).map(({ node, spot }) => {
-      const name = blockName(node, sources)
-      const severalSpots = (capability(blockType(node.type), 'actionValue')?.spots.length ?? 0) > 1
-      return {
-        key: blockValueKey(node.id, spot.prop),
-        blockId: node.id,
-        prop: spot.prop,
-        label: severalSpots ? `${name} — ${spot.name}` : name,
-      }
-    })
-    return {
-      relations,
-      popups: pagesOfMask(tree).filter(isWindowPage).map((p) => ({ value: p.id, name: p.name })),
-      choices: {
-        dataSources: sources,
-        blockValues,
-        giver: selectionGiverOptions(selectionGiverInTree(tree), sources),
-        captures: captureOptions(captureCarrierInTree(tree), sources),
-        changes: captureOptions(changeCarrierInTree(tree), sources),
-        deletions: captureOptions(deleteCarrierInTree(tree), sources),
-      },
-    }
-  }, [tree, sources, relations])
+  const context: StepContext = useMemo(() => ({
+    relations,
+    popups: pagesOfMask(tree).filter(isWindowPage).map((p) => ({ value: p.id, name: p.name })),
+    choices: maskChoices(tree, sources),
+  }), [tree, sources, relations])
 
   const chainOf = (key: string): Step[] => tree[block.id]?.chains?.[key] ?? []
   const setChain = (key: string, steps: Step[]): void => {
@@ -115,7 +86,7 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
               <button
                 type="button"
                 onClick={() => setOpened({ eventKey: ev.key, stepId: null, tab: 'PUT' })}
-                className="flex h-[30px] w-full items-center gap-[8px] px-[8px] text-left text-muted hover:bg-control hover:text-ink"
+                className="flex h-[30px] w-full items-center gap-[8px] px-[8px] text-left text-muted hover:bg-accent-soft hover:text-ink"
               >
                 <Plus size={13} className="text-accent" /> Schritt hinzufügen
               </button>
@@ -167,7 +138,7 @@ function stepWords(step: Step, context: StepContext): { words: string; short: st
 }
 
 // One step as a line: its number, what it does, on the right its short form,
-// and while the pointer is on it, up and remove.
+// and while the pointer is on it, up and remove. The open one is marked whole.
 function StepLine({ nr, step, context, open, onOpen, onChange, onUp, onRemove }: {
   nr: number
   step: Step
@@ -190,7 +161,7 @@ function StepLine({ nr, step, context, open, onOpen, onChange, onUp, onRemove }:
       </Button>
     </span>
   )
-  const number = <span className="w-[16px] shrink-0 text-right font-mono text-dense text-muted">{nr}</span>
+  const number = <span className="w-[16px] shrink-0 text-right font-mono text-dense opacity-70">{nr}</span>
 
   // A BW command of an older mask stays as it was: typed in its line.
   if (step.kind === 'BW_LINK') {
@@ -208,9 +179,9 @@ function StepLine({ nr, step, context, open, onOpen, onChange, onUp, onRemove }:
   return (
     <Clickable open={open} onClick={onOpen}>
       {number}
-      <span className={cn('min-w-0 truncate', !known && 'text-muted')}>{words}</span>
+      <span className={cn('min-w-0 truncate', !known && 'opacity-60')}>{words}</span>
       {short !== '' && (
-        <span className="shrink-0 border-l border-line pl-[8px] font-mono text-dense text-muted">{short}</span>
+        <span className="shrink-0 border-l border-line pl-[8px] font-mono text-dense opacity-70">{short}</span>
       )}
       {ends}
     </Clickable>
@@ -225,7 +196,7 @@ function Clickable({ open, onClick, children }: { open: boolean; onClick: () => 
       aria-expanded={open}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter') onClick() }}
-      className={cn(LINE, 'cursor-pointer hover:bg-control', open && 'bg-accent-soft shadow-mark')}
+      className={cn(LINE, 'cursor-pointer', open ? 'bg-accent text-panel' : 'hover:bg-accent-soft')}
     >
       {children}
     </div>

@@ -5,7 +5,7 @@ import type { GetValue } from '../deliveries/relationValue'
 import type { Write } from '../writes/writes'
 import type { PresetId } from './presets'
 
-// What the data center form holds about how a source is ordered and delivered.
+// What the data window holds about how a source is ordered and delivered.
 export interface SourceChoice {
   headerKey: string
   area: string
@@ -34,7 +34,7 @@ interface SourceDescriptor extends OrderAndDelivery {
   write: Write
 }
 
-// A kind of source the data center offers. It fills in the descriptor; the
+// A kind of source the data window offers. It fills in the descriptor; the
 // export and the mask read only the descriptor.
 export interface SourcePreset<P extends PresetId> {
   id: P

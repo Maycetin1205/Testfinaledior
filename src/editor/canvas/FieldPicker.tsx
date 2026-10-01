@@ -33,7 +33,7 @@ export interface SourcesChoice {
   entries: readonly { value: string; name: string; badge?: string }[]
   onChoose: (sourceId: string) => void
 
-  onDataCenter?: () => void
+  onData?: () => void
 }
 
 interface FieldPickerProps {
@@ -155,8 +155,8 @@ export function FieldPicker({
         {sourcesChoice ? (
           sourcesChoice.entries.length === 0 ? (
             <div className="flex shrink-0 flex-col gap-2 px-1.5 pb-1">
-              {sourcesChoice.onDataCenter && (
-                <Button kind="primary" className="self-start" onClick={sourcesChoice.onDataCenter}>
+              {sourcesChoice.onData && (
+                <Button kind="primary" className="self-start" onClick={sourcesChoice.onData}>
                   Daten öffnen
                 </Button>
               )}

@@ -5,8 +5,8 @@ import { CalculationsWindow } from '../canvas/CalculationsWindow'
 import { LookupColumns } from '../canvas/LookupColumns'
 import { PageBar } from '../canvas/PageBar'
 import { BlockPalette } from '../sidebar/BlockPalette'
-import { DataCenter } from '../datacenter/DataCenter'
-import { onDataCenterRequest } from '../datacenter/openDataCenter'
+import { DataWindow } from '../data/DataWindow'
+import { onDataRequest } from '../data/openData'
 import { Toolbar } from './Toolbar'
 
 export function EditorShell() {
@@ -15,7 +15,7 @@ export function EditorShell() {
   // The data stay closed until „Daten" is clicked, then open as a window.
   const [dataOpen, setDataOpen] = useState(false)
 
-  useEffect(() => onDataCenterRequest(() => setDataOpen(true)), [])
+  useEffect(() => onDataRequest(() => setDataOpen(true)), [])
 
   return (
     <div className="flex h-screen w-screen flex-col bg-ground text-ink">
@@ -38,16 +38,7 @@ export function EditorShell() {
 
       </div>
 
-      {/* A window in the middle over the mask, not docked and not modal:
-          the mask stays at hand around it. */}
-      {dataOpen && (
-        <aside
-          aria-label="Daten"
-          className="fixed left-1/2 top-1/2 z-40 flex h-[min(780px,92vh)] w-[min(1240px,96vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded border border-line bg-panel shadow-overlay"
-        >
-          <DataCenter onClose={() => setDataOpen(false)} />
-        </aside>
-      )}
+      {dataOpen && <DataWindow onClose={() => setDataOpen(false)} />}
 
       <LookupColumns />
       <CalculationsWindow />
