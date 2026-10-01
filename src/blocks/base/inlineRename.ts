@@ -11,6 +11,10 @@ export function startRename(
   const own = Array.from(target.childNodes)
   target.replaceChildren(...own.map((n) => n.cloneNode(true)))
   target.setAttribute('contenteditable', 'plaintext-only')
+  // Typed in place, the text looks as before, only with the cursor: no frame
+  // of the browser around it.
+  const outline = target.style.outline
+  target.style.outline = 'none'
   target.focus()
   const selection = window.getSelection()
   const area = document.createRange()
@@ -45,6 +49,7 @@ export function startRename(
     if (done) return
     done = true
     target.removeAttribute('contenteditable')
+    target.style.outline = outline
     target.removeEventListener('blur', onBlur)
     target.removeEventListener('keydown', onKey)
     if (commit) adopt((target.textContent ?? '').trim(), original)

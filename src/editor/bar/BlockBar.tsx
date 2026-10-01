@@ -87,11 +87,10 @@ function headDepth(el: HTMLElement, element: HTMLElement | null, head: string | 
   return part ? Math.max(0, part.getBoundingClientRect().bottom - el.getBoundingClientRect().top) : 0
 }
 
-// Above the top edge, where no other block and no edge is in the way; else
-// below the bottom edge; else inside on the block's own top edge, below the
-// column heads of a table. A bar aligned to a column always stands at that
-// column, above its head or inside below it, never elsewhere along the block.
-// A block's bar is flush left, else flush right, whichever touches no other block.
+// Always flush with the block's left edge, or with its column: above the top
+// edge, where no other block and no edge is in the way; else, for a low block,
+// below it; else inside on the block's own top edge, below the column heads of
+// a table. Never at the far end of the block.
 function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: number): { top: number; left: number } {
   const room = roomOf(el)
   bar.style.maxWidth = `${Math.max(0, room.right - room.left)}px`
@@ -99,22 +98,17 @@ function spotFor(bar: HTMLElement, el: HTMLElement, depth: number, align?: numbe
   const h = bar.offsetHeight
   const r = el.getBoundingClientRect()
   const others = otherBlocks(el)
-  const inRoom = (left: number) => Math.max(room.left, Math.min(left, room.right - w))
-  const lefts = align === undefined ? [inRoom(r.left), inRoom(r.right - w)] : [inRoom(align)]
-  const free = (top: number, left: number) => {
+  const left = Math.max(room.left, Math.min(align ?? r.left, room.right - w))
+  const free = (top: number) => {
     const box = { top, bottom: top + h, left, right: left + w }
     return box.top >= room.top && box.bottom <= room.bottom && !others.some((o) => overlaps(box, o))
   }
   const above = r.top - GAP - h
-  const aboveLeft = lefts.find((left) => free(above, left))
-  if (aboveLeft !== undefined) return { top: above, left: aboveLeft }
-  if (align === undefined) {
-    const below = r.bottom + GAP
-    const belowLeft = lefts.find((left) => free(below, left))
-    if (belowLeft !== undefined) return { top: below, left: belowLeft }
-  }
-  const inside = r.top + depth
-  return { top: inside, left: lefts.find((left) => free(inside, left)) ?? lefts[0] }
+  if (free(above)) return { top: above, left }
+  // Below a tall block the bar would stand far from where one works.
+  const below = r.bottom + GAP
+  if (align === undefined && r.height <= 3 * h && free(below)) return { top: below, left }
+  return { top: r.top + depth, left }
 }
 
 const hold = (e: { stopPropagation: () => void }): void => e.stopPropagation()
