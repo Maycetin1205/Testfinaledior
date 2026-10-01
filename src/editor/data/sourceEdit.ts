@@ -175,13 +175,11 @@ export function withDelivery(s: DataSource, value: string): SourceData {
       openRecord: false,
       load: {
         relationId: value.slice('get:'.length),
-        // The fields of the chosen document row and the end of its
-        // positions, as kontrakte.md §8 has them.
-        documentKindField: keep?.documentKindField ?? '2_1',
-        documentNumberField: keep?.documentNumberField ?? '3_8',
-        yearField: keep?.yearField ?? '0_1',
-        archiveField: keep?.archiveField ?? '1_1',
-        endFields: keep?.endFields ?? ['11_6', '18_25'],
+        documentKindField: keep?.documentKindField ?? '',
+        documentNumberField: keep?.documentNumberField ?? '',
+        yearField: keep?.yearField ?? '',
+        archiveField: keep?.archiveField ?? '',
+        endFields: keep?.endFields ?? [],
       },
     },
   })
