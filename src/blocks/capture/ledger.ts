@@ -143,6 +143,9 @@ interface CaptureHost {
 
   columns: () => readonly CaptureColumn[]
 
+  // The columns the operator sees, by their place among all columns.
+  shown: () => readonly number[]
+
   calculations: () => readonly Calculation[]
 
   sourceId: () => string
@@ -319,7 +322,12 @@ export class CaptureLedger {
   }
 
   neighbour(from: number, direction: 1 | -1): number {
-    return neighbourSlot(this.host.columns(), from, direction)
+    return neighbourSlot(this.host.shown(), from, direction)
+  }
+
+  // The first cell of the capture row the operator sees.
+  get firstCell(): number {
+    return this.host.shown()[0] ?? 0
   }
 
   focusCell(index: number): void {
@@ -643,7 +651,7 @@ export class CaptureLedger {
       this.clearCaptureRow()
       return 'captured'
     }
-    const missing = missingRequired(context.columns, values)
+    const missing = missingRequired(context.columns, values, this.host.shown())
     if (missing !== -1) return { missing }
     if (back) {
       this.rows = [
@@ -677,7 +685,7 @@ export class CaptureLedger {
     this.correction = { key: row.key, slot: now }
     this.adoptValues(context, row.values)
     this.host.report()
-    this.host.focusCell(0)
+    this.host.focusCell(this.firstCell)
   }
 
   removeCaptured(index: number): void {
@@ -869,7 +877,7 @@ export class CaptureLedger {
     let target = now + step
     if (target > fields.length - 1) {
       if (enterMode) {
-        this.host.focusCell(0)
+        this.host.focusCell(this.firstCell)
         return
       }
       target = fields.length - 1

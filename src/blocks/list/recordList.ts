@@ -105,8 +105,7 @@ export class RecordList implements ReactiveController {
     this.hooks = hooks
     this._widths = new WidthsState({
       preview: () => el.preview,
-      fullSlot: (rendered) =>
-        columnsView(el.listColumns(), el.preview, this._choice.away()).slots[rendered] ?? rendered,
+      fullSlot: (rendered) => this.shownSlots()[rendered] ?? rendered,
       columnsList: () => [...el.listColumns()],
       writeColumns: (columns) => sendColumnsChange(el, columns),
       report: () => el.requestUpdate(),
@@ -145,6 +144,12 @@ export class RecordList implements ReactiveController {
     this._rowsChoice.forget()
     this._view.invalidate()
     el.requestUpdate()
+  }
+
+  // The columns the operator sees, by their place among all columns.
+  shownSlots(): readonly number[] {
+    const el = this.el
+    return columnsView(el.listColumns(), el.preview, this._choice.away()).slots
   }
 
   reset(): void {

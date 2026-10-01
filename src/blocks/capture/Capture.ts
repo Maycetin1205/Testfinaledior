@@ -55,9 +55,10 @@ export class Capture extends BlockElement
 
   @property({ attribute: false }) rawRows: unknown[] = []
 
-  private readonly _ledger = new CaptureLedger({
+  private readonly _ledger: CaptureLedger = new CaptureLedger({
     block: this,
     columns: () => this.listColumns(),
+    shown: () => this._list.shownSlots(),
     calculations: () => this.listCalculations(),
     sourceId: () => this.source,
     rawRows: () => this.rawRows,
@@ -66,12 +67,12 @@ export class Capture extends BlockElement
     focusCell: (index) => this.focusCaptureCell(index),
     captured: () => {
       this.requestUpdate()
-      this.focusCaptureCell(0)
+      this.focusCaptureCell(this._ledger.firstCell)
       this.showLastCaptured()
     },
   })
 
-  private readonly _list = new RecordList(this, {
+  private readonly _list: RecordList = new RecordList(this, {
     cellValue: (rawIndex, slot) => this._ledger.cellValue(rawIndex, slot),
     decoration: () => this.rowsDecoration(),
     bottom: () => this.underRows(),
@@ -179,7 +180,7 @@ export class Capture extends BlockElement
     const responsible = all.find((t) => path.includes(t)) ?? all[0]
     if (responsible !== this) return
     e.preventDefault()
-    this.focusCaptureCell(0)
+    this.focusCaptureCell(this._ledger.firstCell)
   }
 
   override connectedCallback(): void {

@@ -144,24 +144,23 @@ export function targetIn(context: CaptureContext, index: number): CellTarget {
   return cellTargetOf(context.columns[index], context.sourceId)
 }
 
-// The next column left or right that the operator can see; a hidden one is
-// stepped over.
-export function neighbourSlot(
-  columns: readonly CaptureColumn[],
-  from: number,
-  direction: 1 | -1,
-): number {
-  for (let i = from + direction; i >= 0 && i < columns.length; i += direction) {
-    if (columns[i]?.hidden !== true) return i
-  }
-  return -1
+// The next column left or right that the operator sees, by its place among
+// all columns; -1 when there is none.
+export function neighbourSlot(shown: readonly number[], from: number, direction: 1 | -1): number {
+  const next = direction === 1
+    ? shown.find((slot) => slot > from)
+    : shown.findLast((slot) => slot < from)
+  return next ?? -1
 }
 
-// The first column the operator can step to that must hold a value and is
-// empty; -1 when there is none.
-export function missingRequired(columns: readonly CaptureColumn[], values: readonly string[]): number {
-  return columns.findIndex((column, i) =>
-    column.required === true && column.hidden !== true && (values[i] ?? '').trim() === '')
+// The first column the operator sees that must hold a value and is empty; -1
+// when there is none.
+export function missingRequired(
+  columns: readonly CaptureColumn[],
+  values: readonly string[],
+  shown: readonly number[],
+): number {
+  return shown.find((slot) => columns[slot]?.required === true && (values[slot] ?? '').trim() === '') ?? -1
 }
 
 export function linkedSourcesIn(context: CaptureContext): string[] {
