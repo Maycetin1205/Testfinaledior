@@ -58,17 +58,19 @@ export interface RelationTemplate {
   positions?: PositionFetch
 }
 
-// Relation 69 as it ran in the user's test: one field of one position of the
-// document chosen at the giver per question (docs/softengine-wiki/kontrakte.md §8).
+// Relation 69: one field of one position of the document chosen at the giver
+// per question (docs/softengine-wiki/kontrakte.md, section 8). The position
+// counter goes to I3, where SoftEngine's own formula puts it; year and archive
+// stay empty, since the document row carries no year (SE log 2026-10-02).
 export const POSITIONS_RELATION: Omit<RelationTemplate, 'id'> = {
   name: 'Positionen holen (Relation 69)',
   verb: 'GET_RELATION',
   nr: '69',
-  parameter: ['BELART', 'POS', 'LEN', 'BELNR', 'JAHR', 'ARCHIV', '', 'POSNR', '', '', '', ''],
+  parameter: ['BELART', 'POS', 'LEN', 'BELNR', '', '', '', '', 'POSNR', '', '', ''],
   positions: {
     slots: [
-      'documentKind', 'position', 'length', 'documentNumber', 'year', 'archive',
-      'empty', 'positionNumber', 'empty', 'empty', 'empty', 'empty',
+      'documentKind', 'position', 'length', 'documentNumber', 'empty', 'empty',
+      'empty', 'empty', 'positionNumber', 'empty', 'empty', 'empty',
     ],
     answerLength: 255,
   },
