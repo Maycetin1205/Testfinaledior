@@ -58,6 +58,22 @@ export interface RelationTemplate {
   positions?: PositionFetch
 }
 
+// Relation 69 as it ran in the user's test: one field of one position of the
+// document chosen at the giver per question (docs/softengine-wiki/kontrakte.md §8).
+export const POSITIONS_RELATION: Omit<RelationTemplate, 'id'> = {
+  name: 'Positionen holen (Relation 69)',
+  verb: 'GET_RELATION',
+  nr: '69',
+  parameter: ['BELART', 'POS', 'LEN', 'BELNR', 'JAHR', 'ARCHIV', '', 'POSNR', '', '', '', ''],
+  positions: {
+    slots: [
+      'documentKind', 'position', 'length', 'documentNumber', 'year', 'archive',
+      'empty', 'positionNumber', 'empty', 'empty', 'empty', 'empty',
+    ],
+    answerLength: 255,
+  },
+}
+
 export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter' | 'positions'>
 
 interface PositionAsk {

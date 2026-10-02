@@ -9,7 +9,7 @@ import {
 } from '../../core/data/dataSources'
 import { sourcePreset, type PresetId } from '../../core/data/presets/presets'
 import { EMPTY_CHOICE, descriptorFor, type SourceChoice } from '../../core/data/presets/sourcePreset'
-import type { RelationTemplate } from '../../core/data/relations'
+import { POSITIONS_RELATION, type RelationTemplate } from '../../core/data/relations'
 import { keyFromInput } from '../../core/data/sourceInput'
 import type { Write } from '../../core/data/writes/writes'
 
@@ -151,10 +151,18 @@ export function deliveries(s: DataSource, relations: readonly RelationTemplate[]
   return [
     { value: 'list', name: 'alle Sätze beim Öffnen' },
     ...(preset.openRecord !== undefined ? [{ value: 'open', name: 'den offenen Satz' }] : []),
-    ...(preset.fetches
-      ? relations.filter((r) => r.positions !== undefined).map((r) => ({ value: `get:${r.id}`, name: `per GET: ${r.name}` }))
-      : []),
+    ...(preset.fetches ? fetchingEntries(relations) : []),
   ]
+}
+
+// The choice that first lays relation 69 into the catalog, while none there
+// fetches positions yet.
+export const NEW_POSITIONS = 'get:'
+
+function fetchingEntries(relations: readonly RelationTemplate[]): { value: string; name: string }[] {
+  const fetching = relations.filter((r) => r.positions !== undefined)
+  if (fetching.length === 0) return [{ value: NEW_POSITIONS, name: `per GET: ${POSITIONS_RELATION.name}` }]
+  return fetching.map((r) => ({ value: `get:${r.id}`, name: `per GET: ${r.name}` }))
 }
 
 export function deliveryOf(s: DataSource): string {
@@ -170,11 +178,13 @@ export function withDelivery(s: DataSource, value: string): SourceData {
       openRecord: false,
       load: {
         relationId: value.slice('get:'.length),
-        documentKindField: keep?.documentKindField ?? '',
-        documentNumberField: keep?.documentNumberField ?? '',
-        yearField: keep?.yearField ?? '',
-        archiveField: keep?.archiveField ?? '',
-        endFields: keep?.endFields ?? [],
+        // The fields of the chosen document row and the end of its
+        // positions, as kontrakte.md §8 has them.
+        documentKindField: keep?.documentKindField ?? '2_1',
+        documentNumberField: keep?.documentNumberField ?? '3_8',
+        yearField: keep?.yearField ?? '0_1',
+        archiveField: keep?.archiveField ?? '1_1',
+        endFields: keep?.endFields ?? ['11_6', '18_25'],
       },
     },
   })
