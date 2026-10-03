@@ -181,10 +181,17 @@ export function getKeyPerGiver(
   sources: readonly DataSource[],
 ): Map<string, string[]> {
   const perGiver = new Map<string, string[]>()
+  // The key fields are position and length; a giver whose fields carry a
+  // prefix, like an ERP query, orders them with that prefix.
   const remember = (giverId: string, codes: readonly string[]): void => {
     if (giverId === '') return
+    const prefix = sources.find((s) => s.id === giverId)?.fieldPrefix ?? ''
     const list = perGiver.get(giverId) ?? []
-    for (const code of codes) if (code !== '' && !list.includes(code)) list.push(code)
+    for (const raw of codes) {
+      if (raw === '') continue
+      const code = prefix !== '' && !raw.startsWith(prefix) ? `${prefix}${raw}` : raw
+      if (!list.includes(code)) list.push(code)
+    }
     perGiver.set(giverId, list)
   }
   const visit = (node: BlockNode | undefined): void => {
