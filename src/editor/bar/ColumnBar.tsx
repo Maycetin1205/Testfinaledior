@@ -225,7 +225,11 @@ function FieldChoice({ field, groups, sourcesChoice, nameOf }: {
         }}
         className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
       >
-        {field.current !== '' && <span className="max-w-[220px] truncate">{nameOf(field.current)}</span>}
+        {/* An empty button carries its name: two bare chevrons side by side
+            tell nothing apart. */}
+        {field.current !== ''
+          ? <span className="max-w-[220px] truncate">{nameOf(field.current)}</span>
+          : <span className="text-muted">{field.label}</span>}
         <ChevronDown size={13} aria-hidden className="text-muted" />
       </button>
       {at !== null && (
