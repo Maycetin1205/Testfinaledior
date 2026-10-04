@@ -172,54 +172,73 @@ export const tableStyle = css`
         border-left: var(--se-border) solid var(--se-line-soft);
       }
 
-      .row > div.number,
-      .sub > div.number {
+      .row > div.number {
         text-align: right;
         font-variant-numeric: tabular-nums;
       }
-      .head > div.number,
-      .head .sub > div.number { justify-content: flex-end; text-align: right; }
+      .head > div.number { justify-content: flex-end; text-align: right; }
+      .head-line { display: flex; align-items: center; min-width: 0; }
 
-      /* The grey line under a row: its own columns in their own widths, under
-         a second, grey head line. */
-      .head.subline { grid-template-rows: var(--row-height) var(--sub-height); }
-      .row.subline {
-        height: calc(var(--row-height) + var(--sub-height));
-        grid-template-rows: var(--row-height) var(--sub-height);
-      }
-      .head > .sub,
-      .row > .sub {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        display: grid;
-        padding: 0;
-        overflow: visible;
-        white-space: normal;
+      /* A row with sublines is two text lines high: the value of the column
+         on top, under it, small and faint, the values of the subline
+         columns anchored to it. The head carries their titles the same way. */
+      .head.subline { min-height: calc(var(--row-height) + var(--sub-height)); }
+      .row.subline { height: calc(var(--row-height) + var(--sub-height)); }
+      .head.subline > div,
+      .row.subline > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
         line-height: normal;
-        cursor: default;
-        border-left: 0;
+        white-space: normal;
       }
-      .sub > div {
+      .row.subline > div > .line {
+        display: block;
         min-width: 0;
-        padding: 0 var(--se-cell-x);
-        line-height: calc(var(--sub-height) - var(--se-border));
+        line-height: calc(var(--row-height) - var(--se-border));
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: var(--se-fs-sm);
-        color: var(--se-muted);
       }
-      .head .sub > div {
-        position: relative;
+      .row > div > .subs {
         display: flex;
-        align-items: center;
-        cursor: pointer;
-        user-select: none;
-        font-size: var(--se-fs-xs);
+        gap: 6px;
+        min-width: 0;
+        line-height: var(--sub-height);
+        font-size: var(--se-fs-sm);
+        color: var(--se-faint);
+        white-space: nowrap;
+        overflow: hidden;
       }
-      .head .sub > [role='columnheader'] + [role='columnheader'],
-      .sub > [role='cell'] + [role='cell'] {
-        border-left: var(--se-border) solid var(--se-line-soft);
+      .row.subline > div.number > .subs { justify-content: flex-end; }
+      .subs > .part {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .subs > .part:not(.typable) + .part:not(.typable)::before { content: '· '; }
+      .head.subline > div > .head-line { min-height: var(--row-height); }
+      .head.subline > div.number > .head-line,
+      .head.subline > div.number > .head-sub { justify-content: flex-end; }
+      .head-sub {
+        display: flex;
+        gap: 6px;
+        min-width: 0;
+        line-height: var(--sub-height);
+        font-size: var(--se-fs-xs);
+        font-weight: 400;
+        letter-spacing: 0;
+        text-transform: none;
+        color: var(--se-faint);
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .head-sub-text {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
       }
 
       /* Two title lines fit exactly one tick: the page count takes the head for

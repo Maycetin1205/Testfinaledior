@@ -70,17 +70,29 @@ export const captureStyle = css`
 
       /* A typable cell hands its padding to its input, so the text keeps the
          edge of every other cell, and lets the suggestion list hang out. */
-      .row div.typable,
+      .row > div.typable,
       .row.capture [role='cell'] {
-        display: flex;
-        align-items: center;
         overflow: visible;
         padding: 0 calc(var(--se-cell-x) - var(--se-input-x) - var(--se-border));
       }
+      .row:not(.subline) > div.typable,
+      .row.capture:not(.subline) [role='cell'] {
+        display: flex;
+        align-items: center;
+      }
 
-      /* In the grey line the input is as small as the line. */
-      .sub .cell-input {
-        height: calc(var(--sub-height) - 6px);
+      /* In a two-line row the input sits in its line, the inputs of the
+         second line share it, each as small as the line. */
+      .row.subline > div > .line { display: flex; align-items: center; overflow: visible; }
+      .row.subline > div > .subs { overflow: visible; }
+      .subs > .part.typable {
+        display: flex;
+        align-items: center;
+        flex: 1 1 0;
+        overflow: visible;
+      }
+      .subs > .part.typable .cell-input {
+        height: calc(var(--sub-height) - 4px);
         font-size: var(--se-fs-sm);
       }
 `

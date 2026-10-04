@@ -26,6 +26,8 @@ export interface ListBinding<E = unknown> {
 
   entryFieldChoice?: readonly EntryFieldChoice<E>[]
 
+  entryPlace?: readonly EntryPlaceChoice<E>[]
+
   entrySpots?: string
 
   entries(raw: unknown): E[]
@@ -83,6 +85,25 @@ export function withInner<E>(b: ListBinding<E>, entries: readonly E[], index: nu
   const next = [...entries]
   next[index] = b.inner.with(entry, inner)
   return next
+}
+
+// Where an entry stands among its siblings, chosen from them: the column a
+// subline column stands under.
+export interface EntryPlaceChoice<E> {
+  key: string
+
+  name: string
+
+  // Only an entry this applies to shows the choice.
+  shown(entry: E): boolean
+
+  // The siblings that can be chosen, by key and title.
+  options(entries: readonly E[], index: number): readonly { value: string; name: string }[]
+
+  // The chosen sibling, or the one that stands in without a choice.
+  valueOf(entries: readonly E[], index: number): string
+
+  withValue(entry: E, value: string): E
 }
 
 export interface EntryFieldChoice<E> {

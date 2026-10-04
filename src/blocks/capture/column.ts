@@ -3,6 +3,7 @@ import {
   listForExport,
   withEntryValue,
   type EntryFieldChoice,
+  type EntryPlaceChoice,
   type EntrySwitch,
   type ListBinding,
 } from '../../core/block/listBinding'
@@ -15,8 +16,11 @@ export type CaptureColumn = Column & {
 
   required?: boolean
 
-  // The column stands in the grey line under the row, not in the row itself.
+  // The column stands in the grey second line of the row, in the cell of
+  // the column named by its key; without one, under the nearest column to
+  // its left.
   subline?: boolean
+  under?: string
 
   fillField?: string
 
@@ -29,13 +33,15 @@ export type CaptureColumn = Column & {
 
 function capturePart(raw: unknown): Partial<CaptureColumn> {
   if (!isUnread<CaptureColumn>(raw)) return {}
-  const { editable, required, subline, fillField, windowColumns, windowWidth, windowHeight } = raw
+  const { editable, required, subline, under, fillField, windowColumns, windowWidth, windowHeight } = raw
   return {
     ...(typeof editable === 'boolean' ? { editable } : {}),
 
     ...(typeof required === 'boolean' ? { required } : {}),
 
     ...(typeof subline === 'boolean' ? { subline } : {}),
+
+    ...(typeof under === 'string' && under.trim() !== '' ? { under: under.trim() } : {}),
 
     ...(typeof fillField === 'string' && fillField.trim() !== ''
       ? { fillField: fillField.trim() }
@@ -87,7 +93,36 @@ const SUBLINE: EntrySwitch<CaptureColumn> = {
   name: 'In der Unterzeile',
   short: 'Unterzeile',
   valueOf: (column) => column.subline,
-  withValue: (column, on) => withEntryValue(column, 'subline', on),
+  // Off takes the anchor along.
+  withValue: (column, on) => withEntryValue(
+    withEntryValue(column, 'subline', on),
+    'under',
+    on === true ? column.under : undefined,
+  ),
+}
+
+// The key of the column a subline column stands under: the chosen one when
+// it is a column of the row, else the nearest row column to its left, else
+// the first. Empty when the row has no column.
+export function anchorKeyOf(columns: readonly CaptureColumn[], index: number): string {
+  const own = columns[index]
+  if (own === undefined || own.subline !== true) return ''
+  const inRow = (c: CaptureColumn): boolean => c.subline !== true
+  const chosen = columns.find((c) => inRow(c) && c.key === own.under)
+  if (chosen) return chosen.key
+  const left = columns.slice(0, index).reverse().find(inRow)
+  return (left ?? columns.find(inRow))?.key ?? ''
+}
+
+const UNDER: EntryPlaceChoice<CaptureColumn> = {
+  key: 'under',
+  name: 'Unter',
+  shown: (column) => column.subline === true,
+  options: (columns) => columns
+    .filter((c) => c.subline !== true)
+    .map((c) => ({ value: c.key, name: c.title })),
+  valueOf: (columns, index) => anchorKeyOf(columns, index),
+  withValue: (column, value) => withEntryValue(column, 'under', value === '' ? undefined : value),
 }
 
 const FILL_FIELD: EntryFieldChoice<CaptureColumn> = {
@@ -106,6 +141,8 @@ export const CAPTURE_COLUMNS_BINDING: ListBinding<CaptureColumn> = {
     .flatMap((s): EntrySwitch<CaptureColumn>[] => (s.key === 'total' ? [s, EDITABLE, REQUIRED, SUBLINE] : [s])),
 
   entryFieldChoice: [FILL_FIELD],
+
+  entryPlace: [UNDER],
 }
 
 // A field of a helper source is looked up, never typed: the switch does not

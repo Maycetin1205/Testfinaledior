@@ -131,16 +131,14 @@ export class WidthsState {
     this._widths.clear()
   }
 
-  private full(change: readonly WidthsChange[], offset: number): WidthsChange[] {
-    return change.map((a) => ({ index: this.host.fullSlot(a.index + offset), width: a.width }))
+  private full(change: readonly WidthsChange[]): WidthsChange[] {
+    return change.map((a) => ({ index: this.host.fullSlot(a.index), width: a.width }))
   }
 
-  // The handles of one head line; the subline's handles count on from the
-  // last column of the row above.
-  hostForDrag(offset = 0): WidthsHost {
+  hostForDrag(): WidthsHost {
     return {
       show: (raw) => {
-        const change = this.full(raw, offset)
+        const change = this.full(raw)
         if (this._beforeDrag === null) {
           this._beforeDrag = new Map(change.map((a) => [a.index, this._widths.get(a.index)]))
         }
@@ -148,7 +146,7 @@ export class WidthsState {
         this.host.report()
       },
       adopt: (raw) => {
-        const change = this.full(raw, offset)
+        const change = this.full(raw)
         this._beforeDrag = null
         if (!this.host.preview()) {
           for (const a of change) this._widths.set(a.index, a.width)

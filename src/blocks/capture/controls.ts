@@ -2,6 +2,7 @@ import type { TemplateResult } from 'lit'
 import { openLookup } from '../lookup/lookup'
 import { keyOf } from '../lookup/suggestionState'
 import type { ColumnView } from '../list/columns'
+import type { RowLayout } from '../list/tableBody'
 import type { CaptureLedger } from './ledger'
 import { captureRowTpl } from './row'
 
@@ -80,8 +81,7 @@ export function captureRowFor(
   placement: CaptureRowPlacement,
   view: ColumnView,
   cols: Readonly<Record<string, string>>,
-  sub: ColumnView,
-  subCols: Readonly<Record<string, string>>,
+  layout: RowLayout,
   listToTop: boolean,
 ): TemplateResult {
   const ledger = placement.ledger
@@ -89,8 +89,7 @@ export function captureRowFor(
   return captureRowTpl({
     columns: view.columns,
     slots: view.slots,
-    sub,
-    subCols,
+    layout,
     sourceId: placement.sourceId,
     cols,
     preview: placement.preview,

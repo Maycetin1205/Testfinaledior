@@ -76,8 +76,8 @@ export const cellsInputStyle = css`
 
       /* Left while typing: a number typed up to its comma is no number yet,
          and the text would jump. */
-      .number > .cell-holder > .cell-input { text-align: right; }
-      .number > .cell-holder > .cell-input:focus { text-align: left; }
+      .number .cell-holder > .cell-input { text-align: right; }
+      .number .cell-holder > .cell-input:focus { text-align: left; }
 
       .cell-input::placeholder { color: transparent; }
       .row.capture .cell-input::placeholder { color: var(--se-faint); }

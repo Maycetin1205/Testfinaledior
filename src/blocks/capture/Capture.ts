@@ -28,6 +28,7 @@ import type { Sublines, RowDecoration } from '../list/tableBody'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
 import {
+  anchorKeyOf,
   CAPTURE_COLUMNS_BINDING,
   coerceCaptureColumns,
   type CaptureColumn,
@@ -77,6 +78,7 @@ export class Capture extends BlockElement
     decoration: () => this.rowsDecoration(),
     required: (slot) => this.listColumns()[slot]?.required === true,
     inSubline: (slot) => this.listColumns()[slot]?.subline === true,
+    anchorOf: (slot) => anchorKeyOf(this.listColumns(), slot),
     bottom: () => this.underRows(),
   })
 
@@ -144,14 +146,13 @@ export class Capture extends BlockElement
     const captured = this._ledger.capturedValues
     return {
       count: 1 + captured.length,
-      render: ({ view, cols, sub, subCols, rulerTicks }) => {
+      render: ({ view, cols, layout, rulerTicks }) => {
         const correctionSlot = this._ledger.correctionSlot
         return capturedRowsTpl({
           columns: view.columns,
           slots: view.slots,
           cols,
-          sub,
-          subCols,
+          layout,
           captured,
           capturedState: (index) => this._ledger.capturedStatus(index),
           correctionSlot,
@@ -166,8 +167,7 @@ export class Capture extends BlockElement
             },
             view,
             cols,
-            sub,
-            subCols,
+            layout,
             correctionSlot === null && (rulerTicks ?? 1) <= 0,
           ),
         }, {

@@ -5,7 +5,8 @@ import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
 import { asNumber } from '../../core/data/calculation'
-import { FIELD_KEY_PREFIX, type Column, type ColumnView } from '../list/columns'
+import { FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import { sublineTpl, type RowLayout } from '../list/tableBody'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -17,9 +18,7 @@ interface CapturePlacement {
   columns: readonly Column[]
   slots: readonly number[]
 
-  // The columns of the grey line under the row, with their own grid.
-  sub: ColumnView
-  subCols: Readonly<Record<string, string>>
+  layout: RowLayout
 
   sourceId: string
 
@@ -58,22 +57,22 @@ export function captureRowTpl(
   placement: CapturePlacement,
   act: CaptureAct,
 ): TemplateResult {
-  const sub = placement.sub
-  const cell = (column: Column, slot: number): TemplateResult => captureCellTpl(placement, act, column, slot)
-  return html`<div class="row capture${sub.columns.length > 0 ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
-    ${placement.columns.map((column, i) => cell(column, placement.slots[i]))}
-    ${sub.columns.length === 0 ? nothing : html`<div class="sub" role="presentation" style=${styleMap(placement.subCols)}>
-      ${sub.columns.map((column, i) => cell(column, sub.slots[i]))}
-    </div>`}
+  const layout = placement.layout
+  return html`<div class="row capture${layout.hasSubs ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+    ${placement.columns.map((column, i) => captureCellTpl(placement, act, column, placement.slots[i]))}
   </div>`
 }
 
+// A cell of the capture row: the input of its column and, under it, the
+// inputs of the subline columns anchored to it.
 function captureCellTpl(
   placement: CapturePlacement,
   act: CaptureAct,
   column: Column,
   slot: number,
 ): TemplateResult {
+  const layout = placement.layout
+  const subs = layout.subsOf(slot)
   if (placement.preview) {
     return html`<div
       class=${column.hidden === true ? 'hidden' : nothing}
@@ -81,14 +80,32 @@ function captureCellTpl(
     ><span class="cell-label"></span></div>`
   }
 
+  const value = placement.value(slot)
+  const main = captureInputTpl(placement, act, column, slot)
+  if (!layout.hasSubs) {
+    return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell">${main}</div>`
+  }
+  return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell"
+    ><span class="line">${main}</span>${subs.columns.length === 0
+      ? nothing
+      : sublineTpl(subs.columns.map((c, i) => ({
+          content: captureInputTpl(placement, act, c, subs.slots[i]),
+          typable: true,
+        })))
+    }</div>`
+}
+
+function captureInputTpl(
+  placement: CapturePlacement,
+  act: CaptureAct,
+  column: Column,
+  slot: number,
+): TemplateResult {
   const free = cellTargetOf(column, placement.sourceId).kind === 'free'
   const list = !free && placement.typingColumn === slot
   const value = placement.value(slot)
 
-  return html`<div
-    class=${asNumber(value) !== null ? 'number' : nothing}
-    role="cell"
-  >${inputSpotTpl({
+  return html`${inputSpotTpl({
     value,
     title: column.title,
     placeholder: '',
@@ -108,7 +125,7 @@ function captureCellTpl(
     leave: () => act.leave(slot),
     chooseSuggestion: (i2) => act.chooseSuggestion(i2),
     setMark: (i2) => act.setMark(i2),
-  })}</div>`
+  })}`
 }
 
 type CellKind = 'free' | 'own' | 'linked'

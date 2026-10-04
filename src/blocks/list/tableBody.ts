@@ -19,6 +19,7 @@ export interface RowDecoration {
 
   className: string
 
+  // What a cell shows in place of its text, like the input of a typable cell.
   cell: (slot: number, column: Column, value: string) => TemplateResult | null
 
   right: TemplateResult | typeof nothing
@@ -34,16 +35,25 @@ export const WITHOUT_DECORATION: RowDecoration = {
   key: () => false,
 }
 
+// The columns of the row, and under each the columns of its grey second
+// line: a subline column stands in the cell of the column it is anchored to.
+export interface RowLayout {
+  main: ColumnView
+
+  hasSubs: boolean
+
+  subsOf: (mainSlot: number) => ColumnView
+}
+
+export const WITHOUT_SUBS: ColumnView = { columns: [], slots: [] }
+
 export interface Sublines {
   count: number
 
   render: (placement: {
     view: ColumnView
     cols: ColumnsGrid
-
-    // The columns of the grey line under each row, with their own grid.
-    sub: ColumnView
-    subCols: ColumnsGrid
+    layout: RowLayout
     rulerTicks: number | null
   }) => TemplateResult
 }
@@ -55,8 +65,7 @@ interface BodyPlacement {
 
   cols: ColumnsGrid
 
-  sub: ColumnView
-  subCols: ColumnsGrid
+  layout: RowLayout
 
   editable: boolean
 
@@ -97,8 +106,6 @@ interface BodyAct {
 
   widths: WidthsHost
 
-  subWidths: WidthsHost
-
   clickHead: (index: number) => void
 
   openColumnPicker: (e: MouseEvent) => void
@@ -123,6 +130,40 @@ function ruler(placement: BodyPlacement): TemplateResult | typeof nothing {
         </div>`
 }
 
+interface CellPart {
+  value: string
+
+  content: TemplateResult | string
+
+  typable: boolean
+}
+
+function partOf(
+  placement: BodyPlacement,
+  decoration: RowDecoration,
+  rawIndex: number | null,
+  column: Column,
+  slot: number,
+): CellPart {
+  const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : CELL_PLACEHOLDER
+  const own = rawIndex === null ? null : decoration.cell(slot, column, value)
+  return {
+    value,
+    content: own ?? markHit(value, placement.searchText),
+    typable: own !== null,
+  }
+}
+
+// The second line of a cell: the values of the subline columns anchored to
+// it, side by side, each one a part.
+export function sublineTpl(
+  parts: readonly { content: TemplateResult | string; typable: boolean }[],
+): TemplateResult {
+  return html`<span class="subs">${parts.map((p) => html`<span
+    class=${p.typable ? 'part typable' : 'part'}
+  >${p.content}</span>`)}</span>`
+}
+
 function cellTpl(
   placement: BodyPlacement,
   decoration: RowDecoration,
@@ -130,18 +171,21 @@ function cellTpl(
   s: Column,
   slot: number,
 ): TemplateResult {
-  const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : CELL_PLACEHOLDER
-  const own = rawIndex === null ? null : decoration.cell(slot, s, value)
-  if (own !== null) return own
-
+  const main = partOf(placement, decoration, rawIndex, s, slot)
+  const subs = placement.layout.subsOf(slot)
   const classes = [
     s.hidden === true ? 'hidden' : '',
-    rawIndex !== null && asNumber(value) !== null ? 'number' : '',
+    rawIndex !== null && asNumber(main.value) !== null ? 'number' : '',
+    main.typable ? 'typable' : '',
   ].filter((k) => k !== '').join(' ')
-  return html`<div
-    class=${classes === '' ? nothing : classes}
-    role="cell"
-  >${markHit(value, placement.searchText)}</div>`
+  if (!placement.layout.hasSubs) {
+    return html`<div class=${classes === '' ? nothing : classes} role="cell">${main.content}</div>`
+  }
+  return html`<div class=${classes === '' ? nothing : classes} role="cell"
+    ><span class="line">${main.content}</span>${subs.columns.length === 0
+      ? nothing
+      : sublineTpl(subs.columns.map((c, i) => partOf(placement, decoration, rawIndex, c, subs.slots[i])))
+    }</div>`
 }
 
 function rowTpl(
@@ -152,12 +196,11 @@ function rowTpl(
 ): TemplateResult {
   const activatable = rawIndex !== null
   const decoration = placement.decoration(rawIndex)
-  const sub = placement.sub
   return html`<div
     class="row${
       rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
-      sub.columns.length > 0 ? ' subline' : ''}${
+      placement.layout.hasSubs ? ' subline' : ''}${
       decoration.className === '' ? '' : ' ' + decoration.className}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}
@@ -196,13 +239,20 @@ function rowTpl(
     }}
   >
     ${placement.columns.map((s, i) => cellTpl(placement, decoration, rawIndex, s, placement.slots[i]))}
-    ${sub.columns.length === 0 ? nothing : html`<div class="sub" role="presentation" style=${styleMap(placement.subCols)}>
-      ${sub.columns.map((s, i) => cellTpl(placement, decoration, rawIndex, s, sub.slots[i]))}
-    </div>`}
     ${decoration.right}
   </div>`
 }
 
+function headTitleTpl(placement: BodyPlacement, s: Column, slot: number): TemplateResult {
+  return html`<span class="head-text">${s.title}</span>${placement.required(slot)
+    ? html`<em class="required">*</em>`
+    : nothing}${!placement.editable && placement.sortColumn === slot
+    ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
+    : ''}`
+}
+
+// A head cell: the title of the column and, small under it, the titles of
+// the subline columns anchored to it, each one a head of its own.
 function headCellTpl(
   placement: BodyPlacement,
   act: BodyAct,
@@ -210,6 +260,7 @@ function headCellTpl(
   slot: number,
   i: number,
 ): TemplateResult {
+  const subs = placement.layout.subsOf(slot)
   return html`<div
     class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'number' : '']
       .filter((k) => k !== '').join(' ') || nothing}
@@ -221,11 +272,18 @@ function headCellTpl(
     @contextmenu=${placement.columnPickerOn
       ? (e: MouseEvent) => act.openColumnPicker(e)
       : nothing}
-  ><span class="head-text">${s.title}</span>${placement.required(slot)
-    ? html`<em class="required">*</em>`
-    : nothing}${!placement.editable && placement.sortColumn === slot
-    ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
-    : ''}</div>`
+  ><span class="head-line">${headTitleTpl(placement, s, slot)}</span>${subs.columns.length === 0
+    ? nothing
+    : html`<span class="head-sub">${subs.columns.map((c, k) => html`<span
+        class="head-sub-text"
+        data-ff-editable
+        data-ff-entry=${placement.preview ? subs.slots[k] : nothing}
+        @click=${(e: MouseEvent) => {
+          e.stopPropagation()
+          act.clickHead(subs.slots[k])
+        }}
+      >${c.title}${placement.required(subs.slots[k]) ? html`<em class="required">*</em>` : nothing}</span>`)}</span>`
+  }</div>`
 }
 
 export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResult {
@@ -247,13 +305,9 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
         </div>
       </div>` : ''}
       <div class="body" role=${placement.empty ? nothing : 'table'} tabindex="-1">
-      <div class="head${placement.sub.columns.length > 0 ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+      <div class="head${placement.layout.hasSubs ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
         ${placement.columns.map((s, i) => headCellTpl(placement, act, s, placement.slots[i], i))}
         ${widthsHandles(placement.columns.length, act.widths)}
-        ${placement.sub.columns.length === 0 ? nothing : html`<div class="sub" role="presentation" style=${styleMap(placement.subCols)}>
-          ${placement.sub.columns.map((s, i) => headCellTpl(placement, act, s, placement.sub.slots[i], i))}
-          ${widthsHandles(placement.sub.columns.length, act.subWidths)}
-        </div>`}
       </div>
         ${placement.empty ? nothing : html`
         ${placement.rows.map((rawIndex, viewIndex) => html`${
