@@ -93,6 +93,7 @@ export function captureRowFor(
     preview: placement.preview,
     value: (i) => cells[i]?.value ?? '',
     automatic: (i) => cells[i]?.automatic === true,
+    held: (i) => ledger.heldAt(i),
     typingColumn: ledger.typingColumn,
     suggestions: ledger.suggestions,
     mark: ledger.mark,

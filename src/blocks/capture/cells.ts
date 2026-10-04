@@ -70,6 +70,10 @@ export const cellsInputStyle = css`
       /* A cell being typed into looks like any other, only with the cursor. */
       .cell-input:focus { outline: none; }
 
+      /* The required cell that held the row back keeps its red edge until
+         it gets a value. */
+      .cell-input.held { border-color: var(--se-danger); }
+
       /* Left while typing: a number typed up to its comma is no number yet,
          and the text would jump. */
       .number > .cell-holder > .cell-input { text-align: right; }

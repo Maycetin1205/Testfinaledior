@@ -79,6 +79,9 @@ interface BodyPlacement {
 
   decoration: (rawIndex: number | null) => RowDecoration
 
+  // A column that must hold a value before a row is captured.
+  required: (slot: number) => boolean
+
   bottom: TemplateResult | typeof nothing
 }
 
@@ -212,7 +215,9 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
             @contextmenu=${placement.columnPickerOn
               ? (e: MouseEvent) => act.openColumnPicker(e)
               : nothing}
-          ><span class="head-text">${s.title}</span>${!placement.editable && placement.sortColumn === placement.slots[i]
+          ><span class="head-text">${s.title}</span>${placement.required(placement.slots[i])
+            ? html`<em class="required">*</em>`
+            : nothing}${!placement.editable && placement.sortColumn === placement.slots[i]
             ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
             : ''}</div>`,
         )}

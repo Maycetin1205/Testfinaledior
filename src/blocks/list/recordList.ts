@@ -52,6 +52,8 @@ interface ListHooks {
 
   decoration: () => (rawIndex: number | null) => RowDecoration
 
+  required: (slot: number) => boolean
+
   bottom: () => Sublines | null
 }
 
@@ -279,6 +281,7 @@ export class RecordList implements ReactiveController {
         selectionIndex: this._rowsChoice.slotIn(el.rawRows),
         empty: view.empty,
         decoration,
+        required: (slot) => this.hooks?.required(slot) ?? false,
         bottom: bottom === null
           ? nothing
           : bottom.render({ view: visible, cols: view.cols, rulerTicks: view.rulerTicks }),

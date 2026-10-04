@@ -75,6 +75,7 @@ export class Capture extends BlockElement
   private readonly _list: RecordList = new RecordList(this, {
     cellValue: (rawIndex, slot) => this._ledger.cellValue(rawIndex, slot),
     decoration: () => this.rowsDecoration(),
+    required: (slot) => this.listColumns()[slot]?.required === true,
     bottom: () => this.underRows(),
   })
 

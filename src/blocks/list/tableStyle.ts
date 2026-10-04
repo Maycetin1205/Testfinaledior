@@ -190,6 +190,13 @@ export const tableStyle = css`
 
         position: relative;
       }
+      /* The star of a required column, as the reception mask marks its fields. */
+      .head > div > .required {
+        flex: none;
+        margin-left: 3px;
+        color: var(--se-danger);
+        font-style: normal;
+      }
       /* Breaks only between words; a word too long for the column is cut off. */
       .head-text {
         display: -webkit-box;

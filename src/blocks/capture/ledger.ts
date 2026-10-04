@@ -181,6 +181,9 @@ export class CaptureLedger {
 
   private computed = new Map<number, string>()
 
+  // The required cell that held the row back, framed until it gets a value.
+  private missing = -1
+
   private cursorColumn = -1
 
   private listColumn = -1
@@ -256,8 +259,13 @@ export class CaptureLedger {
     return record === undefined ? '' : maskState.host.readField(record, target.code)
   }
 
+  heldAt(index: number): boolean {
+    return index === this.missing
+  }
+
   type(index: number, text: string): void {
     this.typed.set(index, text)
+    if (index === this.missing && text.trim() !== '') this.missing = -1
     this.cursorColumn = index
     this.list.restart()
     this.host.report()
@@ -388,6 +396,7 @@ export class CaptureLedger {
       }
     }
     this.syncChosen(context)
+    if (index === this.missing && this.valueIn(context, index) !== '') this.missing = -1
     this.cursorColumn = -1
     this.list.idle()
     this.host.report()
@@ -603,6 +612,7 @@ export class CaptureLedger {
     this.chosen.clear()
     this.byHand.clear()
     this.computed.clear()
+    this.missing = -1
     this.cursorColumn = -1
     this.listColumn = -1
     this.list.idle()
@@ -659,6 +669,7 @@ export class CaptureLedger {
       return 'captured'
     }
     const missing = missingRequired(context.columns, values, this.host.shown())
+    this.missing = missing
     if (missing !== -1) return { missing }
     if (back) {
       this.rows = [
