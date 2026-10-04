@@ -111,9 +111,7 @@ function cellText(entry: SuggestionRow, column: Column): string {
 
 // The marked row stays in sight while the mark walks through a long list.
 function keepInSight(el: Element | undefined): void {
-  if (el instanceof (globalThis.HTMLElement ?? Object) && typeof (el as HTMLElement).scrollIntoView === 'function') {
-    (el as HTMLElement).scrollIntoView({ block: 'nearest' })
-  }
+  el?.scrollIntoView({ block: 'nearest' })
 }
 
 // The hits as a small table under the field: the columns of the lookup
