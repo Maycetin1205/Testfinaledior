@@ -51,7 +51,9 @@ export function BarFrame({ host, element, head, align, children }: BarFrameProps
     <div
       ref={barRef}
       data-ff-editor-helper
-      className="fixed z-20 flex w-max items-center gap-[4px] overflow-hidden whitespace-nowrap rounded border border-line bg-panel p-px text-ui text-ink"
+      // Above the grips on the block's edges (z-30), which the bar touches
+      // when it stands right above the block; below the dialogs (z-40).
+      className="fixed z-[35] flex w-max items-center gap-[4px] overflow-hidden whitespace-nowrap rounded border border-line bg-panel p-px text-ui text-ink"
       style={{ top: -9999, left: -9999 }}
       onPointerDown={hold}
       onClick={hold}
