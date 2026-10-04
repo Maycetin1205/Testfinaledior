@@ -261,18 +261,25 @@ function headCellTpl(
   i: number,
 ): TemplateResult {
   const subs = placement.layout.subsOf(slot)
+  // With sublines the editor's spot is the title line alone, not the whole
+  // two-line cell: the subline titles below have spots of their own.
+  const onLine = placement.layout.hasSubs
   return html`<div
     class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'number' : '']
       .filter((k) => k !== '').join(' ') || nothing}
     role="columnheader"
-    data-ff-editable
-    data-ff-entry=${placement.preview ? slot : nothing}
+    data-ff-editable=${onLine ? nothing : ''}
+    data-ff-entry=${placement.preview && !onLine ? slot : nothing}
     style="grid-row: 1; grid-column: ${i + 1}"
     @click=${() => act.clickHead(slot)}
     @contextmenu=${placement.columnPickerOn
       ? (e: MouseEvent) => act.openColumnPicker(e)
       : nothing}
-  ><span class="head-line">${headTitleTpl(placement, s, slot)}</span>${subs.columns.length === 0
+  ><span
+    class="head-line"
+    data-ff-editable=${onLine ? '' : nothing}
+    data-ff-entry=${placement.preview && onLine ? slot : nothing}
+  >${headTitleTpl(placement, s, slot)}</span>${subs.columns.length === 0
     ? nothing
     : html`<span class="head-sub">${subs.columns.map((c, k) => html`<span
         class="head-sub-text"

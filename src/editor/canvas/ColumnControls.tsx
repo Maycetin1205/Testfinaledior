@@ -68,21 +68,40 @@ export function ColumnControls({
   useEffect(() => {
     const el = element
     const frame = host.current
-    if (!el || !frame || !el.shadowRoot) return
-    const remeasure = (): void => setSpots(measure(el, frame, selector))
+    if (!el || !frame) return
+    let stopped = false
+    let ro: ResizeObserver | null = null
+    let mo: MutationObserver | null = null
+    const remeasure = (): void => {
+      if (!stopped) setSpots(measure(el, frame, selector))
+    }
 
-    const ro = new ResizeObserver(remeasure)
-    ro.observe(el)
-    const mo = new MutationObserver(remeasure)
-    mo.observe(el.shadowRoot, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['style', 'class', 'data-ff-entry'],
-    })
+    // The block may still be upgrading when this runs, and it may have drawn
+    // already: watch it once it has a shadow root, and measure right away
+    // and again after its next drawing.
+    const attach = (): void => {
+      const root = el.shadowRoot
+      if (stopped || !root) return
+      ro = new ResizeObserver(remeasure)
+      ro.observe(el)
+      mo = new MutationObserver(remeasure)
+      mo.observe(root, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['style', 'class', 'data-ff-entry'],
+      })
+      remeasure()
+      const drawn = (el as { updateComplete?: Promise<unknown> }).updateComplete
+      if (drawn) void drawn.then(remeasure)
+    }
+    if (el.shadowRoot) attach()
+    else void customElements.whenDefined(el.localName).then(attach)
+
     return () => {
-      ro.disconnect()
-      mo.disconnect()
+      stopped = true
+      ro?.disconnect()
+      mo?.disconnect()
     }
   }, [element, host, selector])
 
