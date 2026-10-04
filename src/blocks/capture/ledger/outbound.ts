@@ -4,7 +4,6 @@ export type RowsStatus =
   | 'booked'
   | 'captured'
   | 'changed'
-  | 'deletion'
   | 'writes'
 
   | 'written'

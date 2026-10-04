@@ -6,7 +6,6 @@ import type { BlockNode, MaskTree } from '../../core/block/tree'
 import {
   captureCarrierInTree,
   changeCarrierInTree,
-  deleteCarrierInTree,
   selectionGiverInTree,
   selectionSourceIdOf,
   valueSpotsInTree,
@@ -45,7 +44,6 @@ export interface PlaceChoices {
   givers: readonly Giver[]
   captures: readonly Rows[]
   changes: readonly Rows[]
-  deletions: readonly Rows[]
   steps: readonly ResultStep[]
 }
 
@@ -100,7 +98,6 @@ export function maskChoices(tree: MaskTree, sources: readonly DataSource[]): Omi
     }),
     captures: rowsOf(captureCarrierInTree(tree), sources),
     changes: rowsOf(changeCarrierInTree(tree), sources),
-    deletions: rowsOf(deleteCarrierInTree(tree), sources),
   }
 }
 
@@ -114,7 +111,6 @@ export function sourceChoices(sources: readonly DataSource[], exceptId: string):
     givers: [],
     captures: [],
     changes: [],
-    deletions: [],
     steps: [],
   }
 }
@@ -122,8 +118,7 @@ export function sourceChoices(sources: readonly DataSource[], exceptId: string):
 // What stands in a place, in plain words: the typed value, or the name of the
 // field, column or value it reads.
 export function placeEntry(b: Parameter, choices: PlaceChoices): string {
-  const rowsOfKind = b.source === 'captureCell' ? choices.captures
-    : b.source === 'changeCell' ? choices.changes : choices.deletions
+  const rowsOfKind = b.source === 'captureCell' ? choices.captures : choices.changes
   switch (b.source) {
     case 'fixed':
     case 'seVariable':
@@ -138,7 +133,6 @@ export function placeEntry(b: Parameter, choices: PlaceChoices): string {
       return choices.givers.find((g) => g.blockId === b.blockId)?.fields.find((f) => f.code === b.value)?.name ?? b.value
     case 'captureCell':
     case 'changeCell':
-    case 'deleteCell':
       return rowsOfKind.find((r) => r.blockId === b.blockId)?.columns.find((c) => c.key === b.value)?.title ?? b.value
     case 'stepResult':
       return b.resultField ? `Feld ${b.resultField}` : 'Antwort'
@@ -171,8 +165,6 @@ export function originOf(b: Parameter, raw: string, adopted: { sourceId: string 
       return `capture:${b.blockId ?? ''}`
     case 'changeCell':
       return `change:${b.blockId ?? ''}`
-    case 'deleteCell':
-      return `delete:${b.blockId ?? ''}`
     case 'chosenRow':
       return `giver:${b.blockId ?? ''}`
     case 'blockValue':
@@ -203,7 +195,6 @@ export function originName(origin: string, choices: PlaceChoices, adoptedLabel?:
     case 'event': return 'Ereignis'
     case 'capture': return `Erfasste Zeile: ${nameIn(choices.captures)}`
     case 'change': return `Geänderte Zeile: ${nameIn(choices.changes)}`
-    case 'delete': return `Gelöschte Zeile: ${nameIn(choices.deletions)}`
     case 'giver': return `Gewählte Zeile: ${nameIn(choices.givers)}`
     case 'formField': return formField()?.name ?? ''
     case 'step': {
@@ -242,7 +233,6 @@ export function originGroups(raw: string, choices: PlaceChoices): ListGroup[] {
   const blocks = [
     ...choices.captures.map((r) => entry(`capture:${r.blockId}`)),
     ...choices.changes.map((r) => entry(`change:${r.blockId}`)),
-    ...choices.deletions.map((r) => entry(`delete:${r.blockId}`)),
     ...choices.givers.map((g) => entry(`giver:${g.blockId}`)),
     ...choices.steps.map((s) => entry(`step:${s.id}`)),
   ]
@@ -267,7 +257,7 @@ export const placePicked = (value: string): PlacePick => JSON.parse(value) as Pl
 export function originEntries(origin: string, choices: PlaceChoices): ListGroup[] {
   const [kind, id] = split(origin)
   const set = (b: Parameter, name: string, badge?: string) => ({ value: pick({ set: b }), name, ...(badge ? { badge } : {}) })
-  const rows = (list: readonly Rows[], source: 'captureCell' | 'changeCell' | 'deleteCell') =>
+  const rows = (list: readonly Rows[], source: 'captureCell' | 'changeCell') =>
     (list.find((r) => r.blockId === id)?.columns ?? []).map((c) => set({ source, blockId: id, value: c.key }, c.title || c.key))
   const entries = (() => {
     switch (kind) {
@@ -275,7 +265,6 @@ export function originEntries(origin: string, choices: PlaceChoices): ListGroup[
         return ACTION_PLACEHOLDER.map((key) => set({ source: 'context', value: key }, EVENT_VALUES[key] ?? key))
       case 'capture': return rows(choices.captures, 'captureCell')
       case 'change': return rows(choices.changes, 'changeCell')
-      case 'delete': return rows(choices.deletions, 'deleteCell')
       case 'giver':
         return (choices.givers.find((g) => g.blockId === id)?.fields ?? [])
           .map((f) => set({ source: 'chosenRow', blockId: id, value: f.code }, f.name || f.code, f.code))

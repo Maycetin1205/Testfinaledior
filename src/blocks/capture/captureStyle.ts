@@ -33,7 +33,6 @@ export const captureStyle = css`
       .row[data-status="captured"],
       .row[data-status="writes"] { background: var(--se-accent-soft); }
       .row[data-status="changed"] { background: var(--se-warning-soft); }
-      .row[data-status="deletion"],
       .row[data-status="error"] { background: var(--se-danger-soft); }
       .row[data-status="writes"] { animation: se-writing 1.1s ease-in-out infinite; }
       .row[data-status="written"] { color: var(--se-muted); }

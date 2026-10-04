@@ -63,23 +63,12 @@ function rowsOfList(carrier: RowsCarrier, kind: PendingKind): ListRun | undefine
       })),
     }
   }
-  if (kind === 'changed') {
-    const change = contractOf(carrier, 'change')
-    return change && { report: change, rows: bookedRows(change.changedRows) }
-  }
-  const deletion = contractOf(carrier, 'delete')
-  return deletion && { report: deletion, rows: bookedRows(deletion.deletedRows) }
+  const change = contractOf(carrier, 'change')
+  return change && { report: change, rows: bookedRows(change.changedRows) }
 }
 
-function rowsContext(
-  context: PlaceholderValues,
-  kind: PendingKind,
-  row: RunRow,
-): PlaceholderValues {
+function rowsContext(context: PlaceholderValues, row: RunRow): PlaceholderValues {
   if (row.record === '') return context
-  if (kind === 'deleted') {
-    return { ...context, PINDEX: row.record, DROP_PINDEX: row.record }
-  }
   return { ...context, PINDEX: row.record }
 }
 
@@ -223,7 +212,7 @@ export async function runEvent(
       for (const row of list.rows) {
         list.report.rowWrites(section.kind, row.key)
 
-        const result = await runSteps(el, steps, rowsContext(context, section.kind, row),
+        const result = await runSteps(el, steps, rowsContext(context, row),
           (blockId, columnsIndex) =>
             (blockId === section.blockId ? String(row.values[columnsIndex] ?? '') : ''),
           section.slots, transcript)

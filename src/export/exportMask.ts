@@ -8,7 +8,6 @@ import {
   SOURCE_PROP,
   carriesChanges,
   carriesOwnSource,
-  carriesDeletions,
 } from '../core/block/treeQuery'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { chainsForExport } from '../core/data/steps/chains'
@@ -125,7 +124,6 @@ function nodeToHtml(
   const addressable = (capability(def, 'actionValue')?.spots.length ?? 0) > 0
     || applies(capability(def, 'capture'), node.values)
     || carriesChanges(node)
-    || carriesDeletions(node)
     || isSelectionGiver(node)
   const keyAttr = addressable ? ` ${BLOCK_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
 

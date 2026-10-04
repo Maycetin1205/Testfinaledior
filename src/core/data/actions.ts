@@ -14,8 +14,6 @@ export const PARAMETER_SOURCES = [
   'captureCell',
 
   'changeCell',
-
-  'deleteCell',
   'previousResult',
   'stepResult',
   'seVariable',
@@ -26,7 +24,6 @@ const SAVED_PARAM_SOURCES = [...PARAMETER_SOURCES, 'omitted'] as const
 export const CELLS_PARAM_SOURCES: Record<string, PendingKind> = {
   captureCell: 'captured',
   changeCell: 'changed',
-  deleteCell: 'deleted',
 }
 
 export type ParameterSource = (typeof SAVED_PARAM_SOURCES)[number]

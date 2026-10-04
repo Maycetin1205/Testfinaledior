@@ -36,9 +36,7 @@ export function parameterResolve(
     return fieldFromAnswer(values.stepRawResults?.[idx], field)
   }
   if (binding.source === 'blockValue') return resolveBlockValue(binding, runtime)
-  if (binding.source === 'captureCell'
-    || binding.source === 'changeCell'
-    || binding.source === 'deleteCell') {
+  if (binding.source === 'captureCell' || binding.source === 'changeCell') {
     const index = Number(binding.value)
     if (!Number.isInteger(index) || index < 0) return ''
     return values.rowsCell?.(binding.blockId ?? '', index) ?? ''

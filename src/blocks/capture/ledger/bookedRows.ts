@@ -7,7 +7,7 @@ import {
 } from '../../../core/data/calculation'
 import { columnWithKey } from '../../list/columns'
 import { rowsIndexOf } from '../../list/sourceRows'
-import { changeArrived, deletionArrived, valueEquals } from '../arrival'
+import { changeArrived, valueEquals } from '../arrival'
 import { cellsFields, enterCell } from '../cells'
 import type { CaptureColumn } from '../column'
 import type { RowState, RowsStatus } from './outbound'
@@ -44,8 +44,8 @@ interface BookedRowsHost {
 
 type Status = (kind: PendingKind, key: string, base: RowsStatus) => RowState
 
-// The booked rows of the document: the cells changed in them, the deletion
-// marks, and what of that is out with the document.
+// The booked rows of the document: the cells changed in them, and what of
+// that is out with the document.
 export class BookedRows {
   private readonly host: BookedRowsHost
 
@@ -57,10 +57,6 @@ export class BookedRows {
 
   private readonly previous: Cells = new Map()
 
-  private readonly deleted = new Set<string>()
-
-  private readonly sentDeletion = new Set<string>()
-
   constructor(host: BookedRowsHost, status: Status) {
     this.host = host
     this.status = status
@@ -68,10 +64,6 @@ export class BookedRows {
 
   get changedRows(): readonly { record: string; values: readonly string[] }[] {
     return this.rowsOf(recordsIn(this.changes))
-  }
-
-  get deletedRows(): readonly { record: string; values: readonly string[] }[] {
-    return this.rowsOf([...this.deleted])
   }
 
   private rowsOf(records: readonly string[]): { record: string; values: readonly string[] }[] {
@@ -108,19 +100,12 @@ export class BookedRows {
   statusOf(rawIndex: number): RowState {
     const record = this.recordOf(rawIndex)
     if (record === '') return { status: 'booked' }
-    if (this.deleted.has(record)) return this.status('deleted', record, 'deletion')
-    if (this.sentDeletion.has(record)) return this.status('deleted', record, 'written')
     const columns = this.host.columns()
     if (columns.some((_, column) => cellIn(this.changes, record, column) !== undefined)) {
       return this.status('changed', record, 'changed')
     }
     const inFlight = columns.some((_, column) => cellIn(this.sent, record, column) !== undefined)
     return this.status('changed', record, inFlight ? 'written' : 'booked')
-  }
-
-  isDeleted(rawIndex: number): boolean {
-    const record = this.recordOf(rawIndex)
-    return record !== '' && (this.deleted.has(record) || this.sentDeletion.has(record))
   }
 
   isChanged(rawIndex: number, columnsIndex: number): boolean {
@@ -242,21 +227,6 @@ export class BookedRows {
     enterCell(field)
   }
 
-  toggleDeletion(rawIndex: number): void {
-    const record = this.recordOf(rawIndex)
-    if (record === '') return
-    if (this.deleted.has(record)) this.deleted.delete(record)
-
-    else if (this.sentDeletion.has(record)) this.sentDeletion.delete(record)
-    else {
-      this.deleted.add(record)
-      dropRecord(this.changes, record)
-
-      this.forgetWaiting(record)
-    }
-    this.host.report()
-  }
-
   private forgetWaiting(record: string): void {
     dropRecord(this.sent, record)
     dropRecord(this.previous, record)
@@ -264,76 +234,52 @@ export class BookedRows {
 
   // A written row leaves the pending marks and waits for the document to show
   // it; the value before the write stays for the arrival check.
-  takeOut(kind: PendingKind, keys: readonly string[]): void {
+  takeOut(keys: readonly string[]): void {
     let away = false
-    const slots = kind === 'changed' ? this.recordSlots() : undefined
+    const slots = this.recordSlots()
     for (const record of keys) {
-      if (kind === 'changed') {
-        const rawIndex = slots?.get(record)
-        this.host.columns().forEach((_, column) => {
-          const value = cellIn(this.changes, record, column)
-          if (value === undefined) return
-          const before = rawIndex === undefined
-            ? ''
-            : this.host.dataRows()[rawIndex]?.[column] ?? ''
+      const rawIndex = slots.get(record)
+      this.host.columns().forEach((_, column) => {
+        const value = cellIn(this.changes, record, column)
+        if (value === undefined) return
+        const before = rawIndex === undefined
+          ? ''
+          : this.host.dataRows()[rawIndex]?.[column] ?? ''
 
-          if (valueEquals(value, before)) return
-          setCell(this.sent, record, column, value)
-          setCell(this.previous, record, column, before)
-        })
-        away = dropRecord(this.changes, record) || away
-      } else if (this.deleted.delete(record)) {
-        this.sentDeletion.add(record)
-        away = true
-      }
+        if (valueEquals(value, before)) return
+        setCell(this.sent, record, column, value)
+        setCell(this.previous, record, column, before)
+      })
+      away = dropRecord(this.changes, record) || away
     }
     if (away) this.host.report()
   }
 
   hasInFlight(): boolean {
-    return this.sent.size > 0 || this.sentDeletion.size > 0
+    return this.sent.size > 0
   }
 
   // The document closed without an answer: nothing waits any more.
   dropInFlight(): void {
     this.sent.clear()
     this.previous.clear()
-    this.sentDeletion.clear()
   }
 
   // The document answered: what it shows is through, what it does not show
-  // comes back as a change or a deletion mark and is named as missing.
-  arrival(delivery: Delivery): {
-    changeMissing: string[]
-    deletionMissing: string[]
-    moved: boolean
-  } {
-    if (!this.hasInFlight()) {
-      return { changeMissing: [], deletionMissing: [], moved: false }
-    }
+  // comes back as a change and is named as missing.
+  arrival(delivery: Delivery): { missing: string[]; moved: boolean } {
+    if (!this.hasInFlight()) return { missing: [], moved: false }
 
-    const deletionMissing: string[] = []
-    for (const record of this.sentDeletion) {
-      if (deletionArrived(record, delivery)) continue
-      deletionMissing.push(record)
-    }
-    this.sentDeletion.clear()
-    for (const record of deletionMissing) this.deleted.add(record)
-
-    const changeMissing: string[] = []
+    const missing: string[] = []
     for (const record of recordsIn(this.sent)) {
-      if (this.deleted.has(record)) {
-        this.forgetWaiting(record)
-        continue
-      }
       if (changeArrived(record, this.sentCells(record), delivery)) {
         this.forgetWaiting(record)
         continue
       }
-      changeMissing.push(record)
+      missing.push(record)
     }
 
-    for (const record of changeMissing) {
+    for (const record of missing) {
       this.host.columns().forEach((_, column) => {
         const value = cellIn(this.sent, record, column)
         if (value !== undefined && cellIn(this.changes, record, column) === undefined) {
@@ -343,7 +289,7 @@ export class BookedRows {
       this.forgetWaiting(record)
     }
 
-    return { changeMissing, deletionMissing, moved: true }
+    return { missing, moved: true }
   }
 
   private sentCells(record: string): { field: string; before: string }[] {

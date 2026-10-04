@@ -69,7 +69,3 @@ export function changeArrived(
   if (changed.length === 0) return true
   return changed.every((f) => !valueEquals(delivery.read(row, f.field), f.before))
 }
-
-export function deletionArrived(record: string, delivery: Delivery): boolean {
-  return !delivery.rows.some((z) => valueEquals(delivery.recordOf(z), record))
-}

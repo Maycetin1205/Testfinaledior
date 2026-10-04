@@ -95,14 +95,6 @@ export function captureCarrierInTree(tree: MaskTree): BlockNode[] {
   return nodesWhere(tree, (node) => applies(capability(blockType(node.type), 'capture'), node.values))
 }
 
-export function deleteCarrierInTree(tree: MaskTree): BlockNode[] {
-  return nodesWhere(tree, carriesDeletions)
-}
-
-export function carriesDeletions(node: BlockNode): boolean {
-  return applies(capability(blockType(node.type), 'delete'), node.values)
-}
-
 export function carriesChanges(node: BlockNode): boolean {
   const def = blockType(node.type)
   const key = capability(def, 'change')?.key

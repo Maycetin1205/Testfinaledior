@@ -36,8 +36,8 @@ interface CaptureHost {
 }
 
 // Everything the capture holds, in four parts: the capture row, the rows
-// captured but not yet booked, the booked rows with their changes and
-// deletion marks, and what is out with the document. The ledger hands each
+// captured but not yet booked, the booked rows with their changes, and
+// what is out with the document. The ledger hands each
 // question to its part and joins them where the document answers.
 export class CaptureLedger {
   private readonly host: CaptureHost
@@ -141,11 +141,7 @@ export class CaptureLedger {
 
   get changedRows(): readonly { record: string; values: readonly string[] }[] { return this.booked.changedRows }
 
-  get deletedRows(): readonly { record: string; values: readonly string[] }[] { return this.booked.deletedRows }
-
   statusOf(rawIndex: number): RowState { return this.booked.statusOf(rawIndex) }
-
-  isDeleted(rawIndex: number): boolean { return this.booked.isDeleted(rawIndex) }
 
   isChanged(rawIndex: number, columnsIndex: number): boolean { return this.booked.isChanged(rawIndex, columnsIndex) }
 
@@ -157,16 +153,14 @@ export class CaptureLedger {
 
   keyCell(rawIndex: number, columnsIndex: number, e: KeyboardEvent): void { this.booked.keyCell(rawIndex, columnsIndex, e) }
 
-  toggleDeletion(rawIndex: number): void { this.booked.toggleDeletion(rawIndex) }
-
   // ----- what is out with the document -----
 
   writes(kind: PendingKind, key: string): void { this.outbound.writes(kind, key) }
 
   failed(kind: PendingKind, key: string): void { this.outbound.failed(kind, key) }
 
-  // A run is through: captured rows carry their record now, changes and
-  // deletion marks wait for the document to show them.
+  // A run is through: captured rows carry their record now, changes wait
+  // for the document to show them.
   runDone(kind: PendingKind, written: readonly WrittenRow[]): void {
     const keys = written.map((z) => z.key)
     this.outbound.done(kind, keys)
@@ -174,7 +168,7 @@ export class CaptureLedger {
       if (this.captured.markWritten(written)) this.host.report()
       return
     }
-    this.booked.takeOut(kind, keys)
+    this.booked.takeOut(keys)
   }
 
   // ----- the answer of the document -----
@@ -190,8 +184,7 @@ export class CaptureLedger {
     const captured = this.captured.arrival(delivery)
     const booked = this.booked.arrival(delivery)
     for (const key of captured.missing) this.outbound.failed('captured', key)
-    for (const record of booked.changeMissing) this.outbound.failed('changed', record)
-    for (const record of booked.deletionMissing) this.outbound.failed('deleted', record)
+    for (const record of booked.missing) this.outbound.failed('changed', record)
 
     if (captured.moved || booked.moved) this.host.report()
   }

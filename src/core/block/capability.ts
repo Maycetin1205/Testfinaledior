@@ -65,7 +65,6 @@ export type Capability =
   | { kind: 'lookupWindow'; window: LookupWindow }
 
   | { kind: 'capture'; when?: Condition }
-  | { kind: 'delete'; when?: Condition }
 
   | { kind: 'change'; key: string }
 
@@ -136,15 +135,11 @@ export function actionValue<Props>(spots: ValueSpotsFor<Props>): CapabilityOf<'a
   return { kind: 'actionValue', spots }
 }
 
-export type PendingKind = 'captured' | 'changed' | 'deleted'
+export type PendingKind = 'captured' | 'changed'
 
 export interface CaptureCarrier {
   capturedRows: readonly (readonly string[])[]
   capturedKey: readonly string[]
-}
-
-export interface DeleteCarrier {
-  deletedRows: readonly { record: string; values: readonly string[] }[]
 }
 
 export interface ChangeCarrier {
@@ -183,7 +178,6 @@ export interface RuntimeContracts {
   actionValue: ValueCarrier
   capture: CaptureCarrier & RunReportElement
   change: ChangeCarrier & RunReportElement
-  delete: DeleteCarrier & RunReportElement
   holdsSent: SentRowsElement
 }
 
