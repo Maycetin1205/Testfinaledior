@@ -1,6 +1,6 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import type { Suggestion } from '../lookup/suggestionList'
+import type { SuggestionRow } from '../lookup/suggestionList'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
@@ -31,8 +31,12 @@ interface CapturePlacement {
   held: (index: number) => boolean
 
   typingColumn: number
-  suggestions: readonly Suggestion[]
+  suggestions: readonly SuggestionRow[]
   mark: number
+
+  typed: (index: number) => string
+
+  windowColumns: (index: number) => readonly Column[]
 
   listToTop: boolean
 }
@@ -77,6 +81,8 @@ export function captureRowTpl(
         marksOnEntering: true,
         slot,
         suggestions: list ? placement.suggestions : [],
+        columns: list ? placement.windowColumns(slot) : [],
+        typed: placement.typed(slot),
         mark: placement.mark,
         listToTop: placement.listToTop,
       }, {

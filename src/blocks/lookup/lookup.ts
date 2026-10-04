@@ -9,7 +9,6 @@ import {
   WINDOW_WIDTH,
   type DialogFrame,
 } from '../dialog/DialogFrame'
-import { rememberedSorting, sortIndices } from '../list/sorting'
 import { LOOKUP_KEY_PART } from '../list/operatorState'
 import {
   coerceColumns,
@@ -18,7 +17,6 @@ import {
   FIELD_KEY_PREFIX,
   type Column,
 } from '../list/columns'
-import { fittingSuggestions, SUGGESTIONS_MAX, type Suggestion } from './suggestionList'
 import {
   ROW_ACTIVATED_EVENT,
   type RowActivatedDetail,
@@ -44,23 +42,6 @@ function lookupKey(el: HTMLElement, spot = 'field'): string {
 
 function lookupColumns(columns: readonly Column[]): Column[] {
   return coerceColumns(columns.map((s) => ({ ...s, key: s.key || `${FIELD_KEY_PREFIX}${s.field}` })))
-}
-
-export function suggestionsInWindowState<T extends Suggestion & { record: unknown }>(
-  entries: readonly T[], typed: string, columns: readonly Column[],
-  el?: HTMLElement, spot?: string,
-): T[] {
-  const hit = typed.trim() === '' ? [...entries]
-    : fittingSuggestions(entries, typed)
-  const state = el === undefined ? null : rememberedSorting.read(el, lookupKey(el, spot))
-  const column = state === null ? undefined
-    : lookupColumns(columns).find((s) => s.key === state.key)
-
-  if (column !== undefined && state !== null) {
-    const values = hit.map((e) => [maskState.host.readField(e.record, column.field)])
-    return sortIndices(values, 0, state.ascending).slice(0, SUGGESTIONS_MAX).map((i) => hit[i])
-  }
-  return hit.slice(0, SUGGESTIONS_MAX)
 }
 
 const WINDOW_MIN = 120

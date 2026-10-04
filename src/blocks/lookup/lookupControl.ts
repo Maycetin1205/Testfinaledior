@@ -6,12 +6,14 @@ import {
   fetchEntries,
   openLookup,
   closeLookupFor,
-  suggestionsInWindowState,
   type Entry,
 } from './lookup'
 import type { Column } from '../list/columns'
 import { keyOf, SuggestionState } from './suggestionState'
+import { orderedSuggestions } from './suggestionList'
 import { inputSpotTpl } from './inputSpot'
+import { rowFits } from '../list/textSearch'
+import { maskState } from '../../runtime/maskState'
 
 export function magnifierIcon(): TemplateResult {
   return html`<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
@@ -102,6 +104,8 @@ export class LookupControl implements ReactiveController {
       inputClass,
       holderClass: 'lookup',
       suggestions: this.list.hit,
+      columns: this.windowColumns(),
+      typed: this.typed ?? '',
       mark: this.list.mark,
       beside: html`<button
         class="magnifier"
@@ -154,13 +158,18 @@ export class LookupControl implements ReactiveController {
     const result = this.entries()
     if (!result.ok) return []
 
+    // The typed words are looked for in every column of the window.
+    const columns = this.windowColumns()
+    const texts = (e: Entry): string[] => [
+      e.display, e.value, ...columns.map((s) => (s.field === '' ? '' : maskState.host.readField(e.record, s.field))),
+    ]
+    const hit = typed.trim() === '' ? result.entries : result.entries.filter((e) => rowFits(texts(e), typed))
+    return orderedSuggestions(hit, typed, texts)
+  }
+
+  private windowColumns(): readonly Column[] {
     const own = this.host.columns()
-    return suggestionsInWindowState(
-      result.entries,
-      typed,
-      own.length > 0 ? own : this.automatic(),
-      this.host.block,
-    )
+    return own.length > 0 ? own : this.automatic()
   }
 
   private entries(): ReturnType<typeof fetchEntries> {

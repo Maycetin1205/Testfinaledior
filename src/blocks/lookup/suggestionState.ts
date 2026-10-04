@@ -1,8 +1,14 @@
-import type { Suggestion } from './suggestionList'
+import { SUGGESTIONS_PAGE, type Suggestion } from './suggestionList'
 
 function movedMark(mark: number, count: number, step: 1 | -1): number {
   if (count <= 0) return 0
   return (((mark + step) % count) + count) % count
+}
+
+// A page key moves the mark by one page and stops at the ends.
+function pagedMark(mark: number, count: number, step: 1 | -1): number {
+  if (count <= 0) return 0
+  return Math.min(count - 1, Math.max(0, mark + step * SUGGESTIONS_PAGE))
 }
 
 function validMark(mark: number, count: number): number {
@@ -13,6 +19,8 @@ function validMark(mark: number, count: number): number {
 export type KeyAction =
   | 'markUp'
   | 'markDown'
+  | 'pageUp'
+  | 'pageDown'
   | 'adopt'
   | 'closeList'
   | 'openList'
@@ -62,6 +70,8 @@ function keyAction(key: string, l: KeysPlacement & {
     return l.lookupable && l.hasRecords() ? 'openList' : 'nothing'
   }
   if (key === 'ArrowUp') return l.listOpen ? 'markUp' : 'nothing'
+  if (key === 'PageDown') return l.listOpen ? 'pageDown' : 'nothing'
+  if (key === 'PageUp') return l.listOpen ? 'pageUp' : 'nothing'
   if (key !== 'Enter') return 'nothing'
 
   // A row that jumps takes the marked hit of the list, else goes one column on.
@@ -142,6 +152,9 @@ export class SuggestionState<T extends Suggestion = Suggestion> {
     })
     if (action === 'markUp' || action === 'markDown') {
       this._mark = movedMark(this._mark, this._hit.length, action === 'markUp' ? -1 : 1)
+      this._markByHand = true
+    } else if (action === 'pageUp' || action === 'pageDown') {
+      this._mark = pagedMark(this._mark, this._hit.length, action === 'pageUp' ? -1 : 1)
       this._markByHand = true
     } else if (action === 'closeList') this._closed = true
     return action

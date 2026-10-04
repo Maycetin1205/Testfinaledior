@@ -97,6 +97,8 @@ export function captureRowFor(
     typingColumn: ledger.typingColumn,
     suggestions: ledger.suggestions,
     mark: ledger.mark,
+    typed: (i) => ledger.typedAt(i),
+    windowColumns: (i) => ledger.windowColumnsAt(i),
     listToTop,
   }, {
     typing: (i, text) => ledger.type(i, text),

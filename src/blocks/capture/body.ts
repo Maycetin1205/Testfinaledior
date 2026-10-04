@@ -27,6 +27,8 @@ function typingCellTpl(
     marksOnEntering: true,
     slot,
     suggestions: [],
+    columns: [],
+    typed: '',
     mark: 0,
   }, {
     typing: (text) => ledger.typeCell(rawIndex, slot, text),

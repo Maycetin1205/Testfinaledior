@@ -11,15 +11,15 @@ import {
 } from '../../core/data/calculation'
 import { columnWithKey, type Column } from '../list/columns'
 import {
+  automaticColumns,
   lookupEntries,
   sourcesRows,
-  suggestionsInWindowState,
   type Entry,
 } from '../lookup/lookup'
 import { asNumber } from '../../core/data/calculation'
 import { rowsIndexOf } from '../list/sourceRows'
 import { SuggestionState, type KeyAction } from '../lookup/suggestionState'
-import { SUGGESTIONS_MAX } from '../lookup/suggestionList'
+import { orderedSuggestions } from '../lookup/suggestionList'
 import { plainText, rowFits } from '../list/textSearch'
 import { maskState } from '../../runtime/maskState'
 import { outsideValue } from '../../runtime/foreignSources'
@@ -424,7 +424,7 @@ export class CaptureLedger {
   }
 
   // The typed words are looked for in every column of the same source; what
-  // equals the typed text stands on top.
+  // equals the typed text stands on top, then what begins with it.
   private suggestionsFor(context: CaptureContext): Entry[] {
     const index = this.cursorColumn
     if (this.list.closed || targetIn(context, index).kind === 'free') return []
@@ -436,11 +436,20 @@ export class CaptureLedger {
     ]
     const entries = this.entriesIn(context, index)
     const hit = typed.trim() === '' ? entries : entries.filter((e) => rowFits(texts(e), typed))
-    const wanted = plainText(typed.trim())
-    const exact = (e: Entry): boolean => wanted !== '' && texts(e).some((t) => plainText(t.trim()) === wanted)
-    const rest = suggestionsInWindowState(hit.filter((e) => !exact(e)), '',
-      windowColumnsIn(context, index), context.block, context.columns[index]?.key)
-    return [...hit.filter(exact), ...rest].slice(0, SUGGESTIONS_MAX)
+    return orderedSuggestions(hit, typed, texts)
+  }
+
+  typedAt(index: number): string {
+    return this.typed.get(index) ?? ''
+  }
+
+  // The columns the hits of a cell stand in: those of its lookup window.
+  windowColumnsAt(index: number): Column[] {
+    const context = this.context()
+    const own = windowColumnsIn(context, index)
+    if (own.length > 0) return own
+    const target = targetIn(context, index)
+    return automaticColumns({ storageField: target.code, storageTitle: context.columns[index]?.title ?? '' })
   }
 
   private compute(context: CaptureContext): void {
