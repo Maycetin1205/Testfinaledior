@@ -1,5 +1,5 @@
 import type { Delivery } from '../../core/block/capability'
-import { asNumber } from '../../core/data/calculation'
+import { asNumber } from '../../core/data/number'
 import type { Column } from '../list/columns'
 
 interface SentRow {

@@ -1,12 +1,4 @@
-import { splitBinding } from '../../../core/block/binding'
-import {
-  asNumber,
-  calculationFlaws,
-  computeRow,
-  resultSlots,
-  type Factor,
-  type FactorState,
-} from '../../../core/data/calculation'
+import { columnSlots, rowValues } from '../../../core/data/calculation'
 import type { KeyPair } from '../../../core/data/extraSources'
 import { outsideValue } from '../../../runtime/foreignSources'
 import { maskState } from '../../../runtime/maskState'
@@ -67,13 +59,6 @@ interface CaptureRowHost {
   focusCell: (index: number) => void
 }
 
-function textState(raw: string): FactorState {
-  const t = raw.trim()
-  if (t === '') return { kind: 'empty' }
-  const number = asNumber(t)
-  return number === null ? { kind: 'invalid', text: t } : { kind: 'number', number }
-}
-
 // The row being typed: what stands in its cells, which helper records it
 // chose, the suggestion list under the cursor and the calculations.
 export class CaptureRow {
@@ -127,8 +112,13 @@ export class CaptureRow {
   valueIn(context: CaptureContext, index: number): string {
     const typed = this.typed.get(index)
     if (typed !== undefined && typed !== '') return typed
-    const computed = this.computed.get(index)
-    if (computed !== undefined) return computed
+    return this.computed.get(index) ?? this.givenIn(context, index)
+  }
+
+  // What the cell holds before any sentence: the typed text, or the field of
+  // the record chosen for its source.
+  private givenIn(context: CaptureContext, index: number): string {
+    const typed = this.typed.get(index)
     if (typed !== undefined) return typed
     const target = targetIn(context, index)
     if (target.sourceId === '' || target.code === '') return ''
@@ -319,45 +309,18 @@ export class CaptureRow {
     return automaticColumns({ storageField: target.code, storageTitle: context.columns[index]?.title ?? '' })
   }
 
+  // The sentences run over the row as the operator gave it; a helper field
+  // reads from the record chosen for that source.
   compute(context: CaptureContext): void {
-    const titleOf = (key: string): string | null => {
-      const i = columnWithKey(context.columns, key)
-      return i === -1 ? null : (context.columns[i].title || key)
-    }
-    const row = computeRow(
+    this.computed = rowValues(
       context.calculations,
       (key) => columnWithKey(context.columns, key),
-      (factor) => this.factorState(context, factor),
-
-      (b) => calculationFlaws(b, titleOf, (field) => (field === '' ? null : field)),
-      (key) => titleOf(key) ?? '',
+      (slot) => this.givenIn(context, slot),
+      (sourceId, field) => {
+        const record = this.chosen.get(sourceId ?? context.sourceId)
+        return record === undefined ? '' : maskState.host.readField(record, field)
+      },
     )
-    this.computed = new Map([...row.values].map(([slot, value]) => [slot, value.text]))
-  }
-
-  private factorState(context: CaptureContext, factor: Factor): FactorState {
-    if (factor.kind === 'number') return { kind: 'number', number: factor.number }
-    if (factor.kind === 'dataField') {
-      const { sourceId, code } = splitBinding(factor.field)
-      const id = sourceId === '' ? context.sourceId : sourceId
-      if (id === '' || code === '') return { kind: 'empty' }
-      const record = this.chosen.get(id)
-      if (record === undefined) {
-        return sourcesRows(id) === null ? { kind: 'notLoaded' } : { kind: 'withoutRecord' }
-      }
-      return textState(maskState.host.readField(record, code))
-    }
-    const slot = columnWithKey(context.columns, factor.column)
-    if (slot === -1) return { kind: 'empty' }
-    const typed = this.typed.get(slot)
-    if (typed !== undefined && typed.trim() !== '') return textState(typed)
-
-    if (typed !== undefined) return { kind: 'empty' }
-    const target = targetIn(context, slot)
-    if (target.sourceId === '' || target.code === '') return { kind: 'empty' }
-    const record = this.chosen.get(target.sourceId)
-    if (record === undefined) return { kind: 'empty' }
-    return textState(maskState.host.readField(record, target.code))
   }
 
   private choose(context: CaptureContext, sourceId: string, record: unknown): void {
@@ -472,7 +435,7 @@ export class CaptureRow {
   }
 
   private yieldToComputed(context: CaptureContext): void {
-    const slots = resultSlots(
+    const slots = columnSlots(
       context.calculations,
       (key) => columnWithKey(context.columns, key),
     )

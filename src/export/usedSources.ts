@@ -11,7 +11,7 @@ import {
   carriesOwnSource,
 } from '../core/block/treeQuery'
 import { SELECTION_FOLLOW_PROP, selectionFollowsFrom, followUsable } from '../core/data/selectionFollow'
-import { dataFieldsFrom } from '../core/data/calculation'
+import { fieldBindingsFrom } from '../core/data/calculation'
 import type { DataSource } from '../core/data/dataSources'
 import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import {
@@ -115,7 +115,7 @@ export function usedFieldsPerSource(
 
     const compute = capability(def, 'compute')
     if (compute) {
-      for (const field of dataFieldsFrom(node.values[compute.prop])) {
+      for (const field of fieldBindingsFrom(node.values[compute.prop])) {
         rememberBinding(field)
       }
     }

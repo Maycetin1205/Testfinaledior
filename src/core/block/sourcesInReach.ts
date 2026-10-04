@@ -4,7 +4,7 @@ import { propertyVisible } from './property'
 import { capability } from './capability'
 import { splitBinding } from './binding'
 import { SOURCE_PROP, sourcesIdsInChainsOf, carriesOwnSource, maySelectionFollows } from './treeQuery'
-import { dataFieldsFrom } from '../data/calculation'
+import { fieldBindingsFrom } from '../data/calculation'
 import type { DataSource } from '../data/dataSources'
 import { SELECTION_FOLLOW_PROP, selectionFollowsFrom } from '../data/selectionFollow'
 import {
@@ -59,7 +59,7 @@ export function sourceIdsUsedBy(node: BlockNode): string[] {
   }
   const compute = capability(def, 'compute')
   if (compute) {
-    for (const field of dataFieldsFrom(node.values[compute.prop])) add(splitBinding(field).sourceId)
+    for (const field of fieldBindingsFrom(node.values[compute.prop])) add(splitBinding(field).sourceId)
   }
   for (const id of sourcesIdsInChainsOf(node)) add(id)
   return ids

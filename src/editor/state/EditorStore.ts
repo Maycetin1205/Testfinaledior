@@ -340,10 +340,6 @@ export class EditorStore extends Subject<EditorStore> {
     this.view.notify(this)
   }
 
-  get calculationsFor(): string | null { return this._shows.calculationsFor }
-
-  openCalculations(blockId: string | null): void { this._shows.openCalculations(blockId) }
-
   get stepWindow(): OpenStep | null { return this._shows.stepWindow }
 
   openStep(open: OpenStep | null): void { this._shows.openStep(open) }

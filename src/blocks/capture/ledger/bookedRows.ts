@@ -1,10 +1,5 @@
 import type { Delivery, PendingKind } from '../../../core/block/capability'
-import {
-  addRow,
-  asNumber,
-  resultSlots,
-  type Calculation,
-} from '../../../core/data/calculation'
+import { columnSlots, rowValues, type Calculation } from '../../../core/data/calculation'
 import { columnWithKey } from '../../list/columns'
 import { rowsIndexOf } from '../../list/sourceRows'
 import { changeArrived, valueEquals } from '../arrival'
@@ -136,20 +131,15 @@ export class BookedRows {
     const calculations = this.host.calculations()
     const columns = this.host.columns()
     const slotOf = (key: string): number => columnWithKey(columns, key)
-    if (!resultSlots(calculations, slotOf).has(columnsIndex)) return null
-    const leadSlots = new Set(calculations.map((b) => slotOf(b.lead.column)))
+    if (!columnSlots(calculations, slotOf).has(columnsIndex)) return null
+    // A change in the row computes the lead of the sentence anew.
+    const leadSlots = new Set(calculations.map((b) => slotOf(b.lead)))
     const row = this.host.dataRows()[rawIndex]
-    const computed = addRow(
-      calculations,
-      slotOf,
-      (slot) => {
-        const own = cellIn(this.changes, record, slot) ?? cellIn(this.sent, record, slot)
-
-        return own ?? (leadSlots.has(slot) ? '' : row?.[slot] ?? '')
-      },
-      asNumber,
-    )
-    return computed.get(columnsIndex)?.text ?? null
+    const computed = rowValues(calculations, slotOf, (slot) => {
+      const own = cellIn(this.changes, record, slot) ?? cellIn(this.sent, record, slot)
+      return own ?? (leadSlots.has(slot) ? '' : row?.[slot] ?? '')
+    })
+    return computed.get(columnsIndex) ?? null
   }
 
   typeCell(rawIndex: number, columnsIndex: number, text: string): void {

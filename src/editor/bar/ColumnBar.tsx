@@ -1,4 +1,4 @@
-import { createElement, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { createElement, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { ArrowRight, ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
@@ -33,6 +33,15 @@ export interface ColumnAction {
   onOpen: () => void
 }
 
+// A small window of the column's own, opened from an icon in the bar, like
+// the sentence of its calculation.
+export interface ColumnWindow {
+  label: string
+  icon: Icon
+  width: number
+  render: () => ReactNode
+}
+
 // A choice among the column's siblings, like the column a subline stands under.
 export interface ColumnPlace {
   key: string
@@ -61,6 +70,7 @@ interface ColumnBarProps {
   switches: readonly ColumnSwitch[]
   places?: readonly ColumnPlace[]
   actions: readonly ColumnAction[]
+  windows?: readonly ColumnWindow[]
 
   // What the entry itself declares, like the tone of a board's column, each
   // group with the entry it reads and writes.
@@ -78,7 +88,7 @@ interface ColumnBarProps {
 // fields, its switches, what the list chooses at its heads, and the bin.
 export function ColumnBar({
   block, host, element, align, name, fields, groups, sourcesChoice, nameOf,
-  switches, places = [], actions, entries = [], removeLabel, onRemove, onClose,
+  switches, places = [], actions, windows = [], entries = [], removeLabel, onRemove, onClose,
 }: ColumnBarProps) {
   const ed = useEditor()
   const library = useDataSources().list
@@ -106,7 +116,8 @@ export function ColumnBar({
   const own = entries.flatMap(({ properties, access }, group) => properties
     .filter(([, property]) => controlShown(property, block, sourceInReach, library))
     .map(([key, property]) => ({ key: `${group}:${key}`, propertyKey: key, property, access })))
-  const parts = 1 + fields.length + own.length + switches.length + places.length + choices.length + actions.length + (onRemove ? 1 : 0)
+  const parts = 1 + fields.length + own.length + switches.length + places.length + choices.length
+    + actions.length + windows.length + (onRemove ? 1 : 0)
   const fieldsFrom = fields.filter((field) => field.onlyForeignSources === true)
   const fieldsTo = fields.filter((field) => field.onlyForeignSources !== true)
 
@@ -187,6 +198,11 @@ export function ColumnBar({
         <Button key={a.label} onlyIcon aria-label={a.label} title={a.label} onClick={a.onOpen}>
           {createElement(a.icon, { size: 15 })}
         </Button>
+      ))}
+      {windows.map((w) => (
+        <BarWindow key={w.label} label={w.label} icon={w.icon} width={w.width} beside={host}>
+          {() => w.render()}
+        </BarWindow>
       ))}
 
       {onRemove && (

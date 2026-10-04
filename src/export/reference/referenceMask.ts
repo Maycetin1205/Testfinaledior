@@ -111,14 +111,13 @@ export function referenceTree(): MaskTree {
         { key: 'sp-doppelt', title: 'Doppelt', field: '' },
       ],
       calculations: [{
-        key: 'b1',
-        name: 'Doppelt',
-        lead: { kind: 'column', key: 'f0', column: 'sp-doppelt', unit: 'count', result: true, round: { decimals: 2, direction: 'nearest' } },
-        numerator: [
-          { kind: 'column', key: 'f1', column: 'sp-menge', unit: 'count', result: false, round: { decimals: 3, direction: 'nearest' } },
-          { kind: 'number', key: 'f2', name: '2', number: 2, unit: 'count' },
+        key: 'c1',
+        lead: 'sp-doppelt',
+        terms: [
+          { kind: 'row', value: 'sp-menge', divides: false },
+          { kind: 'fixed', value: '2', divides: false },
         ],
-        denominator: [],
+        decimals: 2,
       }],
     }),
     t2: node('t2', 'table', ROOT_ID, {

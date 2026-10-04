@@ -1,566 +1,278 @@
-import {
-  fromBase,
-  dimensionsText,
-  dimensionsEqual,
-  dimensionsWith,
-  UNIT_DEFAULT,
-  unitShort,
-  NO_DIMENSIONS,
-  inBase,
-  type Dimensions,
-} from './units'
-import type { Unread } from '../unread'
+import { bindingWithSource } from '../block/binding'
+import { isUnread } from '../unread'
+import { asNumber, numberText, roundTo } from './number'
+import type { ValueOrigin } from './valueOrigin'
 
-export type RoundingDirection = 'up' | 'down' | 'nearest'
+// A calculation is one sentence at a column head: the column equals its
+// terms, each one multiplied or divided. In a row, the one column of the
+// sentence that stands empty is computed from the others; a row with none
+// or with two empty columns is left alone.
 
-interface Rounding {
-  decimals: number
-  direction: RoundingDirection
+export interface UnitPair {
+  first: string
+  second: string
+  factor: number
 }
 
-const ROUND_DEFAULT: Rounding = { decimals: 3, direction: 'nearest' }
+// A term takes its value from a column of the row, a field of a helper
+// source or a typed number; or it is the factor a table gives for the two
+// units the row holds, 1 when no pair of the table fits.
+export type Term =
+  | (ValueOrigin & { divides: boolean })
+  | UnitsTerm
 
-export const DECIMALS_MAX = 6
-
-const NUMBER = /^-?[1-9]\d{0,2}(\.\d{3})+(,\d+)?$|^-?\d+(,\d+)?$|^-?\d+(\.\d+)?$/
-
-// The one reading of a number, in the editor and in the mask: 1.234,5 and
-// 1234,5 the German way, 1234.5 as a delivery may hold it.
-export function asNumber(value: string): number | null {
-  const t = value.trim()
-  if (t === '' || !NUMBER.test(t)) return null
-
-  const norm = t.includes(',')
-    ? t.replace(/\./g, '').replace(',', '.')
-    : /^-?[1-9]\d{0,2}(\.\d{3})+$/.test(t) ? t.replace(/\./g, '') : t
-  const n = Number(norm)
-  return Number.isFinite(n) ? n : null
+export interface UnitsTerm {
+  kind: 'units'
+  first?: ValueOrigin
+  second?: ValueOrigin
+  table: UnitPair[]
+  divides: boolean
 }
-
-function roundValue(value: number, round: Rounding): number {
-  const f = Math.pow(10, Math.max(0, round.decimals))
-  const x = value * f
-
-  const coarse = round.direction === 'up'
-    ? Math.ceil(x - 1e-9)
-    : round.direction === 'down' ? Math.floor(x + 1e-9) : Math.round(x)
-  return coarse / f
-}
-
-export function numberText(value: number, decimals: number): string {
-  return value.toLocaleString('de-DE', {
-    useGrouping: false,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: Math.max(0, decimals),
-  })
-}
-
-function asRounding(raw: unknown): Rounding {
-  if (!raw || typeof raw !== 'object') return { ...ROUND_DEFAULT }
-  const o: Unread<Rounding> = raw
-  const decimals = typeof o.decimals === 'number' && Number.isInteger(o.decimals)
-    && o.decimals >= 0 && o.decimals <= DECIMALS_MAX
-    ? o.decimals
-    : ROUND_DEFAULT.decimals
-  const direction = o.direction === 'up' || o.direction === 'down' || o.direction === 'nearest'
-    ? o.direction
-    : ROUND_DEFAULT.direction
-  return { decimals, direction }
-}
-
-export interface ColumnsFactor {
-  kind: 'column'
-  key: string
-
-  column: string
-  unit: string
-
-  result: boolean
-
-  round: Rounding
-}
-
-interface DataFactor {
-  kind: 'dataField'
-  key: string
-
-  name: string
-
-  field: string
-  unit: string
-}
-
-interface NumberFactor {
-  kind: 'number'
-  key: string
-  name: string
-  number: number
-  unit: string
-}
-
-export type Factor = ColumnsFactor | DataFactor | NumberFactor
 
 export interface Calculation {
   key: string
-  name: string
 
-  lead: ColumnsFactor
-  numerator: readonly Factor[]
-  denominator: readonly Factor[]
+  // The column the sentence is told from.
+  lead: string
+
+  terms: Term[]
+
+  decimals: number
 }
 
 export const CALCULATIONS_PROP = 'calculations'
 
-export function allFactors(b: Calculation): Factor[] {
-  return [b.lead, ...b.numerator, ...b.denominator]
+export const DECIMALS_MAX = 6
+
+const DECIMALS_DEFAULT = 2
+
+// ----- computing -----
+
+// What a term reads in a row; '' when the place is empty or not there.
+type Read = (origin: ValueOrigin) => string
+
+interface Member {
+  left: boolean
+  value: number
 }
 
-function sides(b: Calculation): { left: Factor[]; right: Factor[] } {
-  return { left: [b.lead, ...b.denominator], right: [...b.numerator] }
+const product = (members: readonly Member[]): number => members.reduce((a, m) => a * m.value, 1)
+
+function unitFactor(term: UnitsTerm, read: Read): number {
+  const first = term.first === undefined ? '' : read(term.first).trim()
+  const second = term.second === undefined ? '' : read(term.second).trim()
+  return term.table.find((p) => p.first === first && p.second === second)?.factor ?? 1
 }
 
-function resultFactors(b: Calculation): ColumnsFactor[] {
-  return allFactors(b).filter(
-    (f): f is ColumnsFactor => f.kind === 'column' && f.result && f.column !== '',
-  )
-}
-
-export function factorName(f: Factor, columnsTitle: (key: string) => string): string {
-  if (f.kind !== 'column') return f.name === '' ? '?' : f.name
-  const title = columnsTitle(f.column)
-  return title === '' ? '?' : title
-}
-
-export function directionAsText(
-  b: Calculation,
-  key: string,
-  columnsTitle: (key: string) => string,
-): string {
-  const { left, right } = sides(b)
-  const target = allFactors(b).find((f) => f.key === key)
-  if (target === undefined) return ''
-  const own = left.some((f) => f.key === key) ? left : right
-  const other = own === left ? right : left
-  const name = (f: Factor): string => factorName(f, columnsTitle)
-  const top = other.map(name).join(' × ')
-  const bottom = own.filter((f) => f.key !== key).map(name)
-  const rest = bottom.length === 0 ? '' : ` ÷ ${bottom.join(' ÷ ')}`
-  return `${name(target)} = ${top}${rest}`
-}
-
-export type FactorState =
-  | { kind: 'number'; number: number }
-  | { kind: 'empty' }
-  | { kind: 'invalid'; text: string }
-
-  | { kind: 'withoutRecord' }
-
-  | { kind: 'notLoaded' }
-
-type CalculationPlacement =
-
-  | { kind: 'result'; key: string; column: string; number: number; text: string }
-
-  | { kind: 'open' }
-
-  | { kind: 'consistent' }
-
-  | { kind: 'contradiction'; text: string }
-
-  | { kind: 'incomplete'; text: string }
-
-const NEAR_ZERO = 1e-12
-
-function product(values: readonly number[]): number {
-  return values.reduce((a, b) => a * b, 1)
-}
-
-function unitsProbe(b: Calculation): string {
-  const { left, right } = sides(b)
-  const dimensionsOf = (factors: readonly Factor[]): Dimensions | null => {
-    let dimensions: Dimensions | null = NO_DIMENSIONS
-    for (const f of factors) {
-      if (dimensions === null) return null
-      dimensions = dimensionsWith(dimensions, f.unit, 1)
-    }
-    return dimensions
-  }
-  const l = dimensionsOf(left)
-  const r = dimensionsOf(right)
-  if (l === null || r === null) return 'Eine Einheit ist unbekannt.'
-  if (dimensionsEqual(l, r)) return ''
-  return `Die Einheiten passen nicht zusammen: links ${dimensionsText(l)}, rechts ${dimensionsText(r)}.`
-}
-
-interface Weighted {
-  factor: Factor
-  side: 'left' | 'right'
-  state: FactorState
-
-  base: number | null
-}
-
-function weigh(b: Calculation, stateOf: (f: Factor) => FactorState): Weighted[] | string {
-  const { left, right } = sides(b)
-  const out: Weighted[] = []
-  for (const [side, factors] of [['left', left], ['right', right]] as const) {
-    for (const factor of factors) {
-      const state = stateOf(factor)
-      if (state.kind === 'number') {
-        const base = inBase(state.number, factor.unit)
-        if (base === null) return `Die Einheit von „${factor.key}" ist unbekannt.`
-        out.push({ factor, side, state, base })
-      } else {
-        out.push({ factor, side, state, base: null })
-      }
-    }
-  }
-  return out
-}
-
-function fault(g: Weighted, name: (f: Factor) => string): string {
-  if (g.state.kind === 'invalid') {
-    return `„${name(g.factor)}" ist keine Zahl: ${g.state.text}`
-  }
-  if (g.state.kind === 'withoutRecord') {
-    return `Für „${name(g.factor)}" ist kein Datensatz zugeordnet.`
-  }
-  if (g.state.kind === 'notLoaded') {
-    return `„${name(g.factor)}" ist noch nicht geladen.`
-  }
-  return ''
-}
-
-function resolve(all: readonly Weighted[], target: Weighted): number | 'divisionByZero' | null {
-  const withoutTarget = all.filter((g) => g !== target)
-  if (withoutTarget.some((g) => g.base === null)) return null
-  const own = withoutTarget.filter((g) => g.side === target.side).map((g) => g.base as number)
-  const other = withoutTarget.filter((g) => g.side !== target.side).map((g) => g.base as number)
-  const divider = product(own)
-  if (Math.abs(divider) < NEAR_ZERO) return 'divisionByZero'
-  const value = product(other) / divider
-  return Number.isFinite(value) ? value : null
-}
-
-export function computeCalculation(
-  b: Calculation,
-  stateOf: (f: Factor) => FactorState,
-  columnsTitle: (key: string) => string,
-  flaws: readonly string[] = [],
-): CalculationPlacement {
-  const name = (f: Factor): string => factorName(f, columnsTitle)
-  if (flaws.length > 0) return { kind: 'incomplete', text: flaws[0] }
-  const probe = unitsProbe(b)
-  if (probe !== '') return { kind: 'incomplete', text: probe }
-
-  const weighted = weigh(b, stateOf)
-  if (typeof weighted === 'string') return { kind: 'incomplete', text: weighted }
-
-  for (const g of weighted) {
-    const text = fault(g, name)
-    if (text !== '') return { kind: 'incomplete', text }
-  }
-
-  const gaps = weighted.filter((g) => g.base === null)
-  if (gaps.length > 1) return { kind: 'open' }
-
-  if (gaps.length === 1) {
-    const target = gaps[0]
-    const f = target.factor
-    if (f.kind !== 'column' || !f.result) return { kind: 'open' }
-    const base = resolve(weighted, target)
-    if (base === 'divisionByZero') {
-      return { kind: 'incomplete', text: `„${name(f)}" ließe sich nur durch Teilen durch null berechnen.` }
-    }
-    if (base === null) return { kind: 'open' }
-    const value = fromBase(base, f.unit)
-    if (value === null || !Number.isFinite(value)) {
-      return { kind: 'incomplete', text: `„${name(f)}" ergibt keine brauchbare Zahl.` }
-    }
-    const rounded = roundValue(value, f.round)
-    return {
-      kind: 'result',
-      key: f.key,
-      column: f.column,
-      number: rounded,
-      text: numberText(rounded, f.round.decimals),
-    }
-  }
-
-  const checkable = weighted.filter((g) => g.factor.kind === 'column' && g.factor.result)
-  if (checkable.length === 0) return { kind: 'consistent' }
-  const deviations: string[] = []
-  for (const g of checkable) {
-    const f = g.factor as ColumnsFactor
-    const base = resolve(weighted, g)
-    if (base === 'divisionByZero' || base === null) continue
-    const expected = fromBase(base, f.unit)
-    if (expected === null || !Number.isFinite(expected)) continue
-    const actual = fromBase(g.base as number, f.unit) as number
-    const step = Math.pow(10, -Math.max(0, f.round.decimals))
-    if (Math.abs(expected - actual) <= step / 2 + 1e-9) return { kind: 'consistent' }
-    deviations.push(
-      `${name(f)} ${numberText(actual, f.round.decimals)} statt ${numberText(roundValue(expected, f.round), f.round.decimals)} ${unitShort(f.unit)}`.trim(),
-    )
-  }
-  if (deviations.length === 0) return { kind: 'consistent' }
-  return {
-    kind: 'contradiction',
-    text: `Die Werte passen nicht zusammen (${b.name}): ${deviations.join('; ')}.`,
-  }
-}
-
-interface RowValue {
-  number: number
+interface Solved {
+  slot: number
   text: string
 }
 
-interface RowMath {
-  values: ReadonlyMap<number, RowValue>
-
-  placements: ReadonlyMap<string, CalculationPlacement>
+// The lead stands on the left, a dividing term beside it, a multiplying term
+// on the right: lead × dividers = multipliers. The one empty column is the
+// other side divided by the rest of its own. Null when no column or more
+// than one stands empty, or another value is missing or no number.
+function solve(b: Calculation, slotOf: (column: string) => number, read: Read): Solved | null {
+  const members: Member[] = []
+  const places: { origin: ValueOrigin; left: boolean }[] = [{ origin: { kind: 'row', value: b.lead }, left: true }]
+  for (const term of b.terms) {
+    if (term.kind === 'units') members.push({ left: term.divides, value: unitFactor(term, read) })
+    else places.push({ origin: term, left: term.divides })
+  }
+  let gap: { slot: number; left: boolean } | null = null
+  for (const { origin, left } of places) {
+    const text = read(origin).trim()
+    if (text !== '') {
+      const number = asNumber(text)
+      if (number === null) return null
+      members.push({ left, value: number })
+      continue
+    }
+    const slot = origin.kind === 'row' ? slotOf(origin.value) : -1
+    if (slot === -1 || gap !== null) return null
+    gap = { slot, left }
+  }
+  if (gap === null) return null
+  const { slot, left } = gap
+  const own = product(members.filter((m) => m.left === left))
+  const other = product(members.filter((m) => m.left !== left))
+  const value = roundTo(other / own, b.decimals)
+  if (!Number.isFinite(value)) return null
+  return { slot, text: numberText(value, b.decimals) }
 }
 
-export function computeRow(
+// The computed cells of a row, by slot. A cell reads as the row gives it, a
+// helper field as the row's record for that source gives it; one sentence's
+// result feeds the next.
+export function rowValues(
   calculations: readonly Calculation[],
-  slotOf: (columnsKey: string) => number,
-  stateOf: (f: Factor) => FactorState,
-  flawsOf: (b: Calculation) => readonly string[],
-  columnsTitle: (key: string) => string,
-): RowMath {
-  const values = new Map<number, RowValue>()
-  const placements = new Map<string, CalculationPlacement>()
-  const state = (f: Factor): FactorState => {
-    if (f.kind === 'column') {
-      const value = values.get(slotOf(f.column))
-      if (value !== undefined) return { kind: 'number', number: value.number }
+  slotOf: (column: string) => number,
+  cell: (slot: number) => string,
+  helper: (sourceId: string | undefined, field: string) => string = () => '',
+): Map<number, string> {
+  const values = new Map<number, string>()
+  const read: Read = (origin) => {
+    switch (origin.kind) {
+      case 'row': {
+        const slot = slotOf(origin.value)
+        return slot === -1 ? '' : values.get(slot) ?? cell(slot)
+      }
+      case 'helper': return helper(origin.sourceId, origin.value)
+      case 'fixed': return origin.value
+      default: return ''
     }
-    return stateOf(f)
   }
-  for (let round = 0; round <= calculations.length; round++) {
+  for (let round = 0; round < calculations.length; round++) {
     let filled = false
     for (const b of calculations) {
-      if (placements.get(b.key)?.kind === 'result') continue
-      const placement = computeCalculation(b, state, columnsTitle, flawsOf(b))
-      if (placement.kind === 'result') {
-        const slot = slotOf(placement.column)
-        if (slot !== -1 && !values.has(slot)) {
-          values.set(slot, { number: placement.number, text: placement.text })
-          filled = true
-        }
-      }
-      placements.set(b.key, placement)
+      const solved = solve(b, slotOf, read)
+      if (solved === null) continue
+      values.set(solved.slot, solved.text)
+      filled = true
     }
     if (!filled) break
   }
-  return { values, placements }
+  return values
 }
 
-export function addRow(
-  calculations: readonly Calculation[],
-  slotOf: (columnsKey: string) => number,
-  given: (slot: number) => string,
-  numberOf: (text: string) => number | null,
-): ReadonlyMap<number, RowValue> {
-  if (calculations.length === 0) return new Map()
-  return computeRow(
-    calculations,
-    slotOf,
-    (f) => {
-      if (f.kind === 'number') return { kind: 'number', number: f.number }
-      if (f.kind === 'dataField') return { kind: 'withoutRecord' }
-      const slot = slotOf(f.column)
-      const text = slot === -1 ? '' : given(slot).trim()
-      if (text === '') return { kind: 'empty' }
-      const number = numberOf(text)
-      return number === null ? { kind: 'invalid', text } : { kind: 'number', number }
-    },
-    () => [],
-    () => '',
-  ).values
+// ----- what a sentence names -----
+
+// The columns of a sentence: the lead and every term that is a column.
+function columnsOf(b: Calculation): string[] {
+  return [b.lead, ...b.terms.flatMap((t) => (t.kind === 'row' ? [t.value] : []))]
 }
 
-export function resultSlots(
+export function columnSlots(
   calculations: readonly Calculation[],
-  slotOf: (columnsKey: string) => number,
+  slotOf: (column: string) => number,
 ): Set<number> {
   const out = new Set<number>()
   for (const b of calculations) {
-    for (const f of resultFactors(b)) {
-      const slot = slotOf(f.column)
+    for (const column of columnsOf(b)) {
+      const slot = slotOf(column)
       if (slot !== -1) out.add(slot)
     }
   }
   return out
 }
 
-function text(v: unknown): string {
-  return typeof v === 'string' ? v.trim() : ''
+function originsOf(b: Calculation): ValueOrigin[] {
+  return b.terms.flatMap((t) => (t.kind === 'units'
+    ? [t.first, t.second].filter((o): o is ValueOrigin => o !== undefined)
+    : [t]))
 }
 
-function asFactor(raw: unknown, index: number): Factor | null {
-  if (!raw || typeof raw !== 'object') return null
-  const o: Unread<Factor> = raw
-  const key = text(o.key) === '' ? `f${index}` : text(o.key)
-  const unit = text(o.unit) === '' ? UNIT_DEFAULT : text(o.unit)
-  if (o.kind === 'dataField') {
-    return { kind: 'dataField', key, name: text(o.name), field: text(o.field), unit }
-  }
-  if (o.kind === 'number') {
-    const number = typeof o.number === 'number' && Number.isFinite(o.number) ? o.number : 1
-    return { kind: 'number', key, name: text(o.name), number, unit }
-  }
-  return {
-    kind: 'column',
-    key,
-    column: text(o.column),
-    unit,
-    result: o.result !== false,
-    round: asRounding(o.round),
-  }
-}
-
-function asLead(raw: unknown, index: number): ColumnsFactor {
-  const factor = asFactor(raw, index)
-
-  if (factor === null || factor.kind !== 'column') {
-    return {
-      kind: 'column',
-      key: `f${index}`,
-      column: '',
-      unit: UNIT_DEFAULT,
-      result: true,
-      round: { ...ROUND_DEFAULT },
+// The fields of helper sources the sentences read, as bindings.
+export function fieldBindingsFrom(raw: unknown): string[] {
+  const out: string[] = []
+  for (const b of calculationsFrom(raw)) {
+    for (const o of originsOf(b)) {
+      if (o.kind !== 'helper') continue
+      const binding = bindingWithSource(o.sourceId ?? '', o.value)
+      if (!out.includes(binding)) out.push(binding)
     }
   }
-  return { ...factor, result: true }
-}
-
-function asList(raw: unknown, offset: number): Factor[] {
-  if (!Array.isArray(raw)) return []
-  const out: Factor[] = []
-  raw.forEach((entry, i) => {
-    const factor = asFactor(entry, offset + i)
-    if (factor !== null) out.push(factor)
-  })
   return out
 }
 
-function withUniqueKeys(b: Calculation): Calculation {
-  const taken = new Set<string>()
-  let counter = 0
-  const unique = <T extends Factor>(f: T): T => {
-    let key = f.key
-    while (key === '' || taken.has(key)) key = `f${++counter}`
-    taken.add(key)
-    return key === f.key ? f : { ...f, key }
+// The same sentence told from another of its columns: the lead moves into
+// the terms, the column moves out, what multiplies comes first. Null when
+// the column is not in it.
+export function toldFrom(b: Calculation, column: string): Calculation | null {
+  if (b.lead === column) return b
+  const at = b.terms.findIndex((t) => t.kind === 'row' && t.value === column)
+  if (at === -1) return null
+  const own = b.terms[at]
+  const rest = b.terms
+    .filter((_, i) => i !== at)
+    .map((t) => (own.divides ? t : { ...t, divides: !t.divides }))
+  const terms: Term[] = [{ kind: 'row', value: b.lead, divides: own.divides }, ...rest]
+  return { ...b, lead: column, terms: [...terms.filter((t) => !t.divides), ...terms.filter((t) => t.divides)] }
+}
+
+export function newCalculation(present: readonly Calculation[], lead: string): Calculation {
+  const taken = new Set(present.map((b) => b.key))
+  let n = present.length + 1
+  while (taken.has(`c${n}`)) n++
+  return { key: `c${n}`, lead, terms: [], decimals: DECIMALS_DEFAULT }
+}
+
+// ----- reading and writing -----
+
+const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
+
+const ORIGIN_KINDS = ['row', 'helper', 'fixed'] as const
+
+function originFrom(raw: unknown): ValueOrigin | undefined {
+  if (!isUnread<ValueOrigin>(raw)) return undefined
+  const kind = ORIGIN_KINDS.find((k) => k === raw.kind)
+  const value = text(raw.value)
+  if (kind === undefined || value === '') return undefined
+  const sourceId = text(raw.sourceId)
+  return sourceId === '' ? { kind, value } : { kind, sourceId, value }
+}
+
+function unitPairsFrom(raw: unknown): UnitPair[] {
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((entry): UnitPair[] => {
+    if (!isUnread<UnitPair>(entry)) return []
+    const factor = typeof entry.factor === 'number' && Number.isFinite(entry.factor) ? entry.factor : 1
+    return [{ first: text(entry.first), second: text(entry.second), factor }]
+  })
+}
+
+function termFrom(raw: unknown): Term | undefined {
+  if (!isUnread<Term>(raw)) return undefined
+  const divides = raw.divides === true
+  if (raw.kind === 'units') {
+    const first = originFrom(raw.first)
+    const second = originFrom(raw.second)
+    return {
+      kind: 'units',
+      ...(first === undefined ? {} : { first }),
+      ...(second === undefined ? {} : { second }),
+      table: unitPairsFrom(raw.table),
+      divides,
+    }
   }
-  return {
-    ...b,
-    lead: unique(b.lead),
-    numerator: b.numerator.map(unique),
-    denominator: b.denominator.map(unique),
-  }
+  const origin = originFrom(raw)
+  return origin === undefined ? undefined : { ...origin, divides }
+}
+
+function decimalsFrom(raw: unknown): number {
+  return typeof raw === 'number' && Number.isInteger(raw) && raw >= 0 && raw <= DECIMALS_MAX
+    ? raw
+    : DECIMALS_DEFAULT
 }
 
 export function calculationsFrom(raw: unknown): Calculation[] {
   if (!Array.isArray(raw)) return []
-  const out: Calculation[] = []
-  raw.forEach((entry, i) => {
-    if (!entry || typeof entry !== 'object') return
-    const o: Unread<Calculation> = entry
-    const numerator = asList(o.numerator, 100)
-    const denominator = asList(o.denominator, 200)
-    out.push(withUniqueKeys({
-      key: text(o.key) === '' ? `b${i + 1}` : text(o.key),
-      name: text(o.name) === '' ? `Berechnung ${i + 1}` : text(o.name),
-      lead: asLead(o.lead, 0),
-      numerator,
-      denominator,
-    }))
+  return raw.flatMap((entry, i): Calculation[] => {
+    if (!isUnread<Calculation>(entry)) return []
+    const terms = Array.isArray(entry.terms)
+      ? entry.terms.flatMap((t): Term[] => {
+          const term = termFrom(t)
+          return term === undefined ? [] : [term]
+        })
+      : []
+    const key = text(entry.key)
+    return [{
+      key: key === '' ? `c${i + 1}` : key,
+      lead: text(entry.lead),
+      terms,
+      decimals: decimalsFrom(entry.decimals),
+    }]
   })
-  return out
 }
 
-export function calculationsForExport(calculations: readonly Calculation[]): Calculation[] {
-  return calculations.filter((entry) => calculationsFrom([entry])
-    .some((b) => allFactors(b).some((f) => f.kind === 'column' && f.column !== '')))
-}
-
-export function newFactor(key: string): ColumnsFactor {
-  return {
-    kind: 'column',
-    key,
-    column: '',
-    unit: UNIT_DEFAULT,
-    result: true,
-    round: { ...ROUND_DEFAULT },
-  }
-}
-
-function freeCalculationKey(present: readonly Calculation[]): string {
-  let n = present.length + 1
-  const taken = new Set(present.map((b) => b.key))
-  while (taken.has(`b${n}`)) n++
-  return `b${n}`
-}
-
-export function newCalculation(present: readonly Calculation[]): Calculation {
-  const key = freeCalculationKey(present)
-  return {
-    key,
-    name: `Berechnung ${key.slice(1)}`,
-    lead: newFactor('f0'),
-    numerator: [newFactor('f100')],
-    denominator: [],
-  }
-}
-
-export function freeFactorKey(b: Calculation): string {
-  const taken = new Set(allFactors(b).map((f) => f.key))
-  let n = 1
-  while (taken.has(`f${n}`)) n++
-  return `f${n}`
-}
-
-export function calculationFlaws(
-  b: Calculation,
-  columnsTitle: (key: string) => string | null,
-  fieldName: (field: string) => string | null,
-): string[] {
-  const flaws: string[] = []
-  const name = (f: Factor): string => factorName(f, (k) => columnsTitle(k) ?? '')
-  if (b.numerator.length === 0) flaws.push('Der Berechnung fehlt der rechte Teil der Formel.')
-  for (const f of allFactors(b)) {
-    if (f.kind === 'column') {
-      if (f.column === '') {
-        flaws.push('Eine Größe der Berechnung hat noch keine Spalte.')
-      } else if (columnsTitle(f.column) === null) {
-        flaws.push(`Die Spalte einer Größe der Berechnung gibt es nicht mehr (${f.column}).`)
-      }
-      continue
-    }
-    if (f.kind === 'dataField') {
-      if (f.field === '') flaws.push(`„${name(f)}" hat noch kein Datenfeld.`)
-      else if (fieldName(f.field) === null) {
-        flaws.push(`Das Datenfeld von „${name(f)}" gibt es nicht mehr.`)
-      }
-    }
-  }
-  if (resultFactors(b).length === 0) {
-    flaws.push('Keine Größe der Berechnung darf Ergebnis sein.')
-  }
-  const probe = unitsProbe(b)
-  if (probe !== '') flaws.push(probe)
-  return flaws
-}
-
-export function dataFieldsFrom(raw: unknown): string[] {
-  const out: string[] = []
-  for (const b of calculationsFrom(raw)) {
-    for (const f of allFactors(b)) {
-      if (f.kind === 'dataField' && f.field !== '' && !out.includes(f.field)) out.push(f.field)
-    }
-  }
-  return out
+// Only a sentence with a lead and a term goes out; a term says "divides"
+// only when it does.
+export function calculationsForExport(calculations: readonly Calculation[]): unknown[] {
+  return calculations
+    .filter((b) => b.lead !== '' && b.terms.length > 0)
+    .map((b) => ({
+      ...b,
+      terms: b.terms.map(({ divides, ...term }) => (divides ? { ...term, divides } : term)),
+    }))
 }

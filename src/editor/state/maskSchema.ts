@@ -2,9 +2,12 @@
 // from the one it was saved in. A mask before version 20, the format since
 // 24.09., is not read; its data sources live in the customer file, whose
 // steps all stay (librarySchema).
-export const CURRENT_SCHEMA_VERSION = 24
+import { splitBinding } from '../../core/block/binding'
+import { numberText } from '../../core/data/number'
 
-const LIFTABLE = [20, 21, 22, 23]
+export const CURRENT_SCHEMA_VERSION = 25
+
+const LIFTABLE = [20, 21, 22, 23, 24]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -136,6 +139,45 @@ function liftTo24(tree: unknown): void {
     .forEach(([id]) => carry(id))
 }
 
+// ---- version 25: a calculation is one sentence at a column head ----
+
+// Up to 24 a calculation had a lead factor, a numerator and a denominator,
+// each factor a column, a data field or a number with a unit. The sentence
+// keeps the columns, the fields and the numbers; the units fall away.
+function termFrom25(factor: unknown, divides: boolean): Record<string, unknown> | null {
+  if (!isPlainObject(factor)) return null
+  if (factor.kind === 'column' && typeof factor.column === 'string' && factor.column !== '') {
+    return { kind: 'row', value: factor.column, divides }
+  }
+  if (factor.kind === 'dataField' && typeof factor.field === 'string' && factor.field !== '') {
+    const { sourceId, code } = splitBinding(factor.field)
+    return { kind: 'helper', ...(sourceId === '' ? {} : { sourceId }), value: code, divides }
+  }
+  if (factor.kind === 'number' && typeof factor.number === 'number') {
+    return { kind: 'fixed', value: numberText(factor.number, 6), divides }
+  }
+  return null
+}
+
+function liftTo25(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || !isPlainObject(node.values) || !Array.isArray(node.values.calculations)) continue
+    node.values.calculations = node.values.calculations.flatMap((old: unknown) => {
+      if (!isPlainObject(old) || !isPlainObject(old.lead) || typeof old.lead.column !== 'string') return []
+      const factors = (list: unknown, divides: boolean) =>
+        (Array.isArray(list) ? list : []).flatMap((f) => termFrom25(f, divides) ?? [])
+      const round = isPlainObject(old.lead.round) ? old.lead.round.decimals : undefined
+      return [{
+        key: old.key,
+        lead: old.lead.column,
+        terms: [...factors(old.numerator, false), ...factors(old.denominator, true)],
+        decimals: typeof round === 'number' ? round : 2,
+      }]
+    })
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -145,6 +187,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 22) liftTo22(lifted.tree)
   if (raw.schemaVersion < 23) liftTo23(lifted.tree)
   if (raw.schemaVersion < 24) liftTo24(lifted.tree)
+  if (raw.schemaVersion < 25) liftTo25(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

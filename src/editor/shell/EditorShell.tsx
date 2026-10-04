@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useKeyboardShortcuts } from '../state/useKeyboardShortcuts'
 import { Canvas } from '../canvas/Canvas'
-import { CalculationsWindow } from '../canvas/CalculationsWindow'
 import { OpenStepWindow } from '../actions/ActionsSection'
 import { LookupColumns } from '../canvas/LookupColumns'
 import { PageBar } from '../canvas/PageBar'
@@ -42,7 +41,6 @@ export function EditorShell() {
       {dataOpen && <DataWindow onClose={() => setDataOpen(false)} />}
 
       <LookupColumns />
-      <CalculationsWindow />
       <OpenStepWindow />
     </div>
   )

@@ -11,11 +11,12 @@ import {
   withInner,
   type ListBinding,
 } from '../../core/block/blockType'
-import type { LookupWindow } from '../../core/block/capability'
+import { capability, type LookupWindow } from '../../core/block/capability'
+import { blockType } from '../../core/block/registry'
 import type { BlockNode } from '../../core/block/tree'
-import { canCompute } from '../../core/block/treeQuery'
 import { fieldOf, sourcesKey, type DataSource } from '../../core/data/dataSources'
 import type { SourceInReach } from '../../core/data/extraSources'
+import { CalculationWindow } from '../bar/CalculationWindow'
 import { ColumnBar } from '../bar/ColumnBar'
 import type { EditorStore } from '../state/EditorStore'
 import type { PickerGroup, SourcesChoice } from './FieldPicker'
@@ -172,6 +173,8 @@ export function ListEntryBar({
   // its head shows the inner values first, like the value of a column
   // that has one place.
   const innerAdd = innerBinding?.entryAdd
+  const computeProp = capability(blockType(block.type), 'compute')?.prop
+  const column = listBinding.keyOf?.(entry) ?? ''
   return (
     <ColumnBar
       key={pick.index}
@@ -236,15 +239,25 @@ export function ListEntryBar({
             onClose()
           },
         }]),
-        ...(!canCompute(block) ? [] : [{
-          label: 'Berechnung',
-          icon: Calculator,
-          onOpen: () => {
-            editor.openCalculations(block.id)
-            onClose()
-          },
-        }]),
       ]}
+      windows={computeProp === undefined || column === '' ? [] : [{
+        label: 'Berechnung',
+        icon: Calculator,
+        width: 460,
+        render: () => (
+          <CalculationWindow
+            editor={editor}
+            block={block}
+            prop={computeProp}
+            column={column}
+            columns={list.flatMap((e) => {
+              const key = listBinding.keyOf?.(e) ?? ''
+              return key === '' ? [] : [{ key, title: listBinding.titleOf(e) }]
+            })}
+            sources={sources}
+          />
+        ),
+      }]}
       removeLabel={`${listBinding.defaultTitle.replace(/\s*\{n\}/, '')} entfernen`}
       onRemove={listBinding.entryRemove === undefined ? undefined : () => {
         const next = listBinding.entryRemove?.(entriesOf(), pick.index) ?? null

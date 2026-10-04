@@ -1,4 +1,4 @@
-import { asNumber } from '../../core/data/calculation'
+import { asNumber } from '../../core/data/number'
 import { isUnread } from '../../core/unread'
 import { readDate } from '../../runtime/chosenDay'
 import { makeOperatorState } from './operatorState'

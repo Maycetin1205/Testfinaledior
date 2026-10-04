@@ -22,8 +22,6 @@ export interface OpenLookup {
 export class EditorView {
   private readonly changed: () => void
 
-  private _calculationsFor: string | null = null
-
   private _stepWindow: OpenStep | null = null
 
   private _lookupWindow: OpenLookup | null = null
@@ -32,14 +30,6 @@ export class EditorView {
 
   constructor(changed: () => void) {
     this.changed = changed
-  }
-
-  get calculationsFor(): string | null { return this._calculationsFor }
-
-  openCalculations(blockId: string | null): void {
-    if (this._calculationsFor === blockId) return
-    this._calculationsFor = blockId
-    this.changed()
   }
 
   get stepWindow(): OpenStep | null { return this._stepWindow }

@@ -112,7 +112,3 @@ export function carriesChanges(node: BlockNode): boolean {
 export function changeCarrierInTree(tree: MaskTree): BlockNode[] {
   return nodesWhere(tree, carriesChanges)
 }
-
-export function canCompute(node: BlockNode): boolean {
-  return hasCapability(blockType(node.type), 'compute')
-}

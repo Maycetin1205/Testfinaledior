@@ -991,15 +991,20 @@ einer eigenen Aufräumaktion.
    Ansichten bekommen, entscheidet der Nutzer. Das Symbol bleibt in
    `src/editor/blockIcons.ts`, es ist Editor-Sache. Dabei
    `src/editor/canvas/useFieldBinding.tsx` teilen.
-7. Berechnung neu und klein: ein Satz am Kopf der Ergebnisspalte („Betrag =
-   Menge mal Preis, gerundet auf 2 Stellen“), jedes Wort anklickbar, getippt
-   nur die Zahl. Eigenschaft der Ergebnisspalte, nicht Liste am Baustein;
-   vier Rechenarten, Rabatt in Prozent, Summe am Spaltenkopf, Rundung; keine
-   Einheiten und Dimensionen. `src/core/data/units.ts`,
-   `src/editor/bar/CalculationDialog.tsx` und
-   `src/editor/canvas/CalculationsWindow.tsx` fallen weg,
-   `src/core/data/calculation.ts` entsteht neu (etwa 150 statt 560 Zeilen).
-   Vor dem Bau mit dem Nutzer nur festlegen: die Rechenarten und die Summe.
+7. Berechnung, fertig (04.10.), nicht in SoftEngine geprüft: ein Satz am
+   Spaltenkopf („Menge = Tiere × Tage × Körpergewicht × Dosierung ÷ KGW ÷
+   Inhalt ÷ Faktor, gerundet auf 2 Stellen“), erreichbar über das
+   Rechner-Symbol in der Spaltenleiste, jedes Wort anklickbar, getippt nur
+   die Zahl. Nur mal und geteilt; die eine leere Spalte des Satzes wird in
+   der Zeile ausgerechnet, bei keiner oder zwei leeren passiert nichts, keine
+   Meldung. Eine Größe ist Spalte der Zeile, Feld einer Hilfsquelle, feste
+   Zahl oder der Faktor aus zwei Einheiten als Tabelle (mg/kg 1000000, g/kg
+   1000, ml/l 1000, mg/g 1000; sonst 1), die Dosierung aus WORKFLOW11111.json
+   ist damit der erste Fall. Am Kopf einer anderen beteiligten Spalte steht
+   derselbe Satz nach ihr umgestellt. `src/core/data/calculation.ts` neu
+   (240 statt 566 Zeilen), Zahlenlesen in `src/core/data/number.ts`,
+   Bedienung in `src/editor/bar/CalculationWindow.tsx`; Einheiten, Dialog
+   und Fenster sind weg. Maskenschema 25 hebt alte Berechnungen in den Satz.
 8. Aufräumen nebenbei: wer eine Datei anfasst, räumt sie auf. Eigens nur:
    Löschvormerkung der Erfassung ohne Bedienung, ungenutzte Felder in
    Objekten (etwa `GRID.columnPx`), alte Namen. Tote Dateien und ungenutzte
