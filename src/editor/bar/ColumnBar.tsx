@@ -1,5 +1,5 @@
 import { createElement, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
+import { ArrowRight, ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
@@ -94,6 +94,8 @@ export function ColumnBar({
     .filter(([, property]) => controlShown(property, block, sourceInReach, library))
     .map(([key, property]) => ({ key: `${group}:${key}`, propertyKey: key, property, access })))
   const parts = 1 + fields.length + own.length + switches.length + choices.length + actions.length + (onRemove ? 1 : 0)
+  const fieldsFrom = fields.filter((field) => field.onlyForeignSources === true)
+  const fieldsTo = fields.filter((field) => field.onlyForeignSources !== true)
 
   const shows = (
     <>
@@ -127,11 +129,25 @@ export function ColumnBar({
       <BarSign type={block.type} name={name} />
       <Separator vertical />
 
-      {fields.map((field) => (
+      {/* Where the value comes from, the arrow, where it goes: the fill field
+          of a helper source stands before the field of the column. */}
+      {fieldsFrom.map((field) => (
         <FieldChoice
           key={field.key}
           field={field}
-          groups={field.onlyForeignSources === true ? groups.filter((g) => g.sourceId !== '') : groups}
+          groups={groups.filter((g) => g.sourceId !== '')}
+          sourcesChoice={sourcesChoice}
+          nameOf={nameOf}
+        />
+      ))}
+      {fieldsFrom.length > 0 && fieldsTo.length > 0 && (
+        <ArrowRight size={13} aria-hidden className="shrink-0 text-muted" />
+      )}
+      {fieldsTo.map((field) => (
+        <FieldChoice
+          key={field.key}
+          field={field}
+          groups={groups}
           sourcesChoice={sourcesChoice}
           nameOf={nameOf}
         />
@@ -185,7 +201,7 @@ function FieldChoice({ field, groups, sourcesChoice, nameOf }: {
         }}
         className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
       >
-        {field.current !== '' && <span className="max-w-[160px] truncate">{nameOf(field.current)}</span>}
+        {field.current !== '' && <span className="max-w-[220px] truncate">{nameOf(field.current)}</span>}
         <ChevronDown size={13} aria-hidden className="text-muted" />
       </button>
       {at !== null && (

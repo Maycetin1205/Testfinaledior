@@ -64,12 +64,20 @@ function pickerGroups(sources: readonly SourceInReach[]): PickerGroup[] {
       }))
 }
 
-function plainNameOf(value: string, sources: readonly SourceInReach[]): string {
-  const { sourceId, code } = splitBinding(value)
-  const source = sourceId === ''
+function sourceOf(value: string, sources: readonly SourceInReach[]): SourceInReach['source'] | undefined {
+  const { sourceId } = splitBinding(value)
+  return sourceId === ''
     ? sources[0]?.source
     : sources.find((q) => q.source.id === sourceId)?.source
-  return source?.fields.find((f) => f.code === code)?.name ?? ''
+}
+
+function plainNameOf(value: string, sources: readonly SourceInReach[]): string {
+  const { code } = splitBinding(value)
+  return sourceOf(value, sources)?.fields.find((f) => f.code === code)?.name ?? ''
+}
+
+function sourceNameOf(value: string, sources: readonly SourceInReach[]): string {
+  return sourceOf(value, sources)?.name ?? ''
 }
 
 export function useFieldBinding({
@@ -246,6 +254,15 @@ export function useFieldBinding({
         const plainName = (fieldValue: string): string => (perSource
           ? (sourceFromProp.fields.find((f) => f.code === fieldValue)?.name ?? '')
           : plainNameOf(fieldValue, sources)) || fieldValue
+        // In the bar the field carries its source: two columns named alike
+        // tell apart by where they read.
+        const sourceName = (fieldValue: string): string => (perSource
+          ? sourceFromProp.name
+          : sourceNameOf(fieldValue, sources))
+        const nameWithSource = (fieldValue: string): string => {
+          const source = sourceName(fieldValue)
+          return source === '' ? plainName(fieldValue) : `${source}: ${plainName(fieldValue)}`
+        }
 
         const pickField = (value: string): void => {
           editor.transaction(() => {
@@ -321,7 +338,7 @@ export function useFieldBinding({
             ]}
             groups={listGroups}
             sourcesChoice={perSource ? undefined : sourcesChoice}
-            nameOf={plainName}
+            nameOf={nameWithSource}
             entries={[
               ...(innerBinding && innerList.length === 1
                 ? [innerGroup(listPicker.index, 0, innerBinding, innerList[0])]

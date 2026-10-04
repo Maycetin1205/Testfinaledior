@@ -22,6 +22,10 @@ export const NODE = {
     ["path", { d: "M2 8h20" }],
     ["path", { d: "M6 4v4" }],
   ],
+  ArrowRight: [
+    ["path", { d: "M5 12h14" }],
+    ["path", { d: "m12 5 7 7-7 7" }],
+  ],
   ArrowUp: [
     ["path", { d: "m5 12 7-7 7 7" }],
     ["path", { d: "M12 19V5" }],
