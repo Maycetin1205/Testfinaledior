@@ -41,12 +41,11 @@ function rowMetrics(
 ): RowMetrics {
   const heads = headRows(headHeight - sub, tick)
   const fit = fittingRows(bodyHeight, heads, tick, sub)
-  const sublines = sub > 0 ? fit + 1 : 0
-  const height = (bodyHeight - sublines * sub) / (fit + heads)
+  // A row with a subline keeps its height: stretched, the main line would
+  // drift away from the subline under it. The room left stays below the rows.
+  if (sub > 0) return { fit, rowsHeight: tick }
+  const height = bodyHeight / (fit + heads)
   if (height < tick) return { fit, rowsHeight: tick }
-  // With sublines whole pixels: two lines per record would otherwise round
-  // up to a body one pixel too tall, and a scrollbar.
-  if (sub > 0) return { fit, rowsHeight: Math.floor(height) }
   return { fit, rowsHeight: Math.floor(height * 100) / 100 }
 }
 
