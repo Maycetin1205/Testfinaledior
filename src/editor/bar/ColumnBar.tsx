@@ -11,7 +11,8 @@ import { FieldPicker, type PickerField, type PickerGroup, type SourcesChoice } f
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { BarControl, Labeled, Switch, type EntryAccess } from './BarControl'
-import { BarFrame, BarSign, BarWindow } from './BlockBar'
+import { BarFrame, BarSign } from './BarFrame'
+import { BarWindow } from './BarWindow'
 import { controlShown } from './controlShown'
 
 // One line holds seven parts at most; more, and the switches share a window.
