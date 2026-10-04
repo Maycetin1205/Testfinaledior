@@ -79,9 +79,11 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     }
   }
 
+  // The block's own source as partner means the row itself, as the runtime
+  // reads it; a helper source never partners with itself.
   function partnerOf(index: number): string {
     const own = extra[index]
-    return !own || own.partnerId === own.sourceId ? '' : own.partnerId
+    return !own || own.partnerId === own.sourceId || own.partnerId === first ? '' : own.partnerId
   }
 
   function originOf(index: number, pair: KeyPair): ValueOrigin | null {
