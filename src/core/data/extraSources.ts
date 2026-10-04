@@ -1,6 +1,7 @@
-import type { DataSource } from './dataSources'
-import { structuredProperty, type Property } from '../block/property'
+import { splitBinding } from '../block/binding'
+import { listProperty, type Property } from '../block/property'
 import type { Unread } from '../unread'
+import { fieldOf, type DataField, type DataSource } from './dataSources'
 
 export interface KeyPair {
   fromField: string
@@ -54,26 +55,12 @@ export const EXTRA_SOURCES_PROP = 'extraSources'
 
 // Edited in its own inspector section, exported so the finished mask orders
 // those sources too.
-export const extraSourcesProperty: Property<ExtraSource[]> = structuredProperty<ExtraSource[]>({
-  read: (raw) => (raw === undefined || Array.isArray(raw)
-    ? { ok: true, value: extraSourcesFrom(raw) }
-    : { ok: false }),
-  toAttribute: (value) => JSON.stringify(value),
-  fromAttribute: (raw, fallback) => (raw === null ? fallback : extraSourcesFrom(safeParse(raw))),
-}, {
+export const extraSourcesProperty: Property<ExtraSource[]> = listProperty<ExtraSource[]>(extraSourcesFrom, {
   default: [],
   label: 'Weitere Quellen',
   place: 'none',
   attribute: 'extrasources',
 })
-
-function safeParse(raw: string): unknown {
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return []
-  }
-}
 
 export function sourceUsable(q: ExtraSource): boolean {
   return q.sourceId !== ''
@@ -102,6 +89,19 @@ export interface SourceInReach {
   pairs?: KeyPair[]
 
   partnerId?: string
+}
+
+// The source a binding names among those in reach: without an id the block's
+// own one, the first.
+export function sourceInReachOf(binding: string, sources: readonly SourceInReach[]): DataSource | undefined {
+  const { sourceId } = splitBinding(binding)
+  return sourceId === ''
+    ? sources[0]?.source
+    : sources.find((q) => q.source.id === sourceId)?.source
+}
+
+export function fieldInReachOf(binding: string, sources: readonly SourceInReach[]): DataField | undefined {
+  return fieldOf(sourceInReachOf(binding, sources), splitBinding(binding).code)
 }
 
 export function sourcesResolve(

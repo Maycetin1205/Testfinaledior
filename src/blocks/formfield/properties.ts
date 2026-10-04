@@ -2,13 +2,14 @@ import {
   booleanProperty,
   choiceProperty,
   fieldProperty,
+  listProperty,
   numberProperty,
   sourceProperty,
-  structuredProperty,
   textProperty,
   type Condition,
   type ValuesOf,
 } from '../../core/block/property'
+import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import type { Column } from '../list/columns'
 import { coerceLookupColumns } from '../lookup/lookup'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
@@ -62,12 +63,7 @@ export const formFieldProperties = {
     attribute: 'options',
     when: { key: 'fieldType', equals: 'select' },
   }),
-  source: sourceProperty({
-    default: '',
-    label: 'Datenquelle',
-    place: 'none',
-    attribute: 'source',
-  }),
+  source: SOURCE_PROPERTY,
   value: textProperty({
     default: '',
     label: 'Wert',
@@ -103,13 +99,7 @@ export const formFieldProperties = {
     place: 'none',
     attribute: 'storagetitle',
   }),
-  lookupColumns: structuredProperty<Column[]>({
-    read: (raw) => (raw === undefined || Array.isArray(raw)
-      ? { ok: true, value: coerceLookupColumns(raw) }
-      : { ok: false }),
-    toAttribute: (value) => JSON.stringify(value),
-    fromAttribute: (raw) => coerceLookupColumns(raw ?? ''),
-  }, {
+  lookupColumns: listProperty<Column[]>(coerceLookupColumns, {
     default: [],
     label: 'Spalten im Fenster',
     place: 'none',

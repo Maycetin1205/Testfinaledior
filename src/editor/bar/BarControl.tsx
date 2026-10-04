@@ -1,7 +1,7 @@
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
 import type { Property } from '../../core/block/property'
-import { fieldPlainName, sourcesKey, type DataSource } from '../../core/data/dataSources'
+import { fieldOf, fieldPlainName, sourcesKey, type DataSource } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import type { ListGroup } from '@/editor/widgets/List'
@@ -121,7 +121,7 @@ export function BarControl({
               set(code)
 
               if (property.plainNameProp) {
-                const plainName = fieldSource?.fields.find((f) => f.code === code)?.name ?? ''
+                const plainName = fieldOf(fieldSource, code)?.name ?? ''
                 ed.updateProperty(block.id, property.plainNameProp, plainName)
               }
             })

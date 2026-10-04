@@ -1,11 +1,13 @@
-import { EXTRA_SOURCES_PROP, type KeyPair } from '../core/data/extraSources'
+import {
+  completePairs,
+  extraSourcesProperty,
+  sourceUsable,
+  type KeyPair,
+} from '../core/data/extraSources'
 import { splitBinding } from '../core/block/blockType'
 import { readActionValue } from '../core/block/registry'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { maskState } from './maskState'
-import { pairListFromAttribute } from './pairList'
-
-const EXTRA_SOURCES_ATTR = EXTRA_SOURCES_PROP.toLowerCase()
 
 export type FieldReader = (row: unknown, value: string) => string
 
@@ -48,11 +50,19 @@ function keyFrom(values: readonly string[]): string {
   return parts.join(KEY_DIVIDER)
 }
 
+// The helper sources of a block, read by the same declaration the editor
+// writes: only usable ones, with complete pairs, a source never its own partner.
 export function extraSourcesOf(
   el: HTMLElement,
 ): { sourceId: string; partnerId: string; pairs: KeyPair[] }[] {
-  return pairListFromAttribute(el, EXTRA_SOURCES_ATTR)
-    .map((e) => ({ sourceId: e.id, partnerId: e.partnerId, pairs: e.pairs }))
+  const { type, attribute } = extraSourcesProperty
+  return type.fromAttribute(el.getAttribute(attribute), [])
+    .filter(sourceUsable)
+    .map((q) => ({
+      sourceId: q.sourceId,
+      partnerId: q.partnerId === q.sourceId ? '' : q.partnerId,
+      pairs: completePairs(q),
+    }))
 }
 
 // Whether a helper source of the block takes its key from this form field.

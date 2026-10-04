@@ -1,5 +1,5 @@
 import { fieldProperty, type Property } from '../core/block/property'
-import { SOURCE_PROP } from '../core/block/sourceProperty'
+import { SOURCE_PROPERTY } from '../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import type { RuntimeSource } from '../core/data/dataSources'
 import { maskState } from './maskState'
@@ -8,27 +8,26 @@ import { keyedByFormField, makeFieldReader, type FieldReader } from './foreignSo
 import { onChosenDay, chosenDay, dayKey } from './chosenDay'
 import { wireFetchingSources } from './fetchingSources'
 
-const SOURCE_ATTR = SOURCE_PROP.toLowerCase()
+// The field a list filters by the chosen day; the lists declare it, the
+// mask reads it by the same declaration.
+const DAY_FIELD: Property<string> = fieldProperty({
+  default: '',
+  label: 'Tag filtern nach',
+  place: 'source',
+  attribute: 'dayfield',
+})
 
-const DAY_FIELD_PROP = 'dayField'
-const DAY_FIELD_ATTR = DAY_FIELD_PROP.toLowerCase()
+export function dayFieldProperty(): Property<string> {
+  return DAY_FIELD
+}
 
 export function sourceIdOf(el: Element): string {
-  return el.getAttribute(SOURCE_ATTR) ?? ''
+  return el.getAttribute(SOURCE_PROPERTY.attribute) ?? ''
 }
 
 // The record number the host knows a row by; empty when the source names none.
 export function recordOf(source: RuntimeSource, row: unknown): string {
   return source.recordField === '' ? '' : maskState.host.readField(row, source.recordField)
-}
-
-export function dayFieldProperty(): Property<string> {
-  return fieldProperty({
-    default: '',
-    label: 'Tag filtern nach',
-    place: 'source',
-    attribute: 'dayfield',
-  })
 }
 
 function rowsAtDay(
@@ -55,7 +54,7 @@ export function readDataPreamble(el: HTMLElement): DataPreamble | null {
   if (!source) return null
   const rows = rowsAtDay(
     maskState.host.rows(source),
-    el.getAttribute(DAY_FIELD_ATTR) ?? '',
+    DAY_FIELD.type.fromAttribute(el.getAttribute(DAY_FIELD.attribute), DAY_FIELD.default),
     chosenDay(),
   )
   return { source, rows, read: makeFieldReader(el) }

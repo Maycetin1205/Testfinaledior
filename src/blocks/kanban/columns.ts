@@ -1,7 +1,7 @@
 import {
   booleanProperty,
+  listProperty,
   readValues,
-  structuredProperty,
   textProperty,
   type Property,
 } from '../../core/block/property'
@@ -95,22 +95,8 @@ export function kanbanColumnsFrom(raw: unknown): KanbanColumn[] {
   return Array.isArray(raw) ? raw.map(columnFrom) : defaultKanbanColumns()
 }
 
-function kanbanColumnsFromText(raw: string): KanbanColumn[] {
-  try {
-    return kanbanColumnsFrom(JSON.parse(raw))
-  } catch {
-    return defaultKanbanColumns()
-  }
-}
-
 export function kanbanColumnsProperty(): Property<KanbanColumn[]> {
-  return structuredProperty<KanbanColumn[]>({
-    read: (raw) => (raw === undefined || Array.isArray(raw)
-      ? { ok: true, value: kanbanColumnsFrom(raw) }
-      : { ok: false }),
-    toAttribute: (value) => JSON.stringify(value),
-    fromAttribute: (raw) => (raw === null ? defaultKanbanColumns() : kanbanColumnsFromText(raw)),
-  }, {
+  return listProperty<KanbanColumn[]>(kanbanColumnsFrom, {
     default: defaultKanbanColumns(),
     label: 'Spalten',
     place: 'block',

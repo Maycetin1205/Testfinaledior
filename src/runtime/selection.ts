@@ -1,9 +1,8 @@
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { completePairs } from '../core/data/extraSources'
 import {
-  followsFromText,
+  followsSelectionProperty,
   followUsable,
-  SELECTION_FOLLOW_PROP,
   type SelectionFollow,
 } from '../core/data/selectionFollow'
 import { outsideValue } from './foreignSources'
@@ -118,15 +117,12 @@ export function clearSelection(giverId: string): void {
   report(false)
 }
 
-const SELECTION_FOLLOW_ATTR = SELECTION_FOLLOW_PROP.toLowerCase()
-
 // The follows as the mask carries them, each with its complete pairs. A
 // follow of a giver counts without pairs as well: its rows are fetched for the
 // chosen row, or it waits for one.
 function followsFromAttribute(el: HTMLElement): SelectionFollow[] {
-  const raw = el.getAttribute(SELECTION_FOLLOW_ATTR) ?? ''
-  if (raw === '') return []
-  return followsFromText(raw)
+  const { type, attribute } = followsSelectionProperty
+  return type.fromAttribute(el.getAttribute(attribute), [])
     .filter((f) => f.giverId !== '' || followUsable(f))
     .map((f) => ({ giverId: f.giverId, pairs: completePairs(f) }))
 }

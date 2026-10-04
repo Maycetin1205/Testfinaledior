@@ -11,7 +11,7 @@ import {
   valueSpotsInTree,
 } from '../../core/block/treeQuery'
 import { ACTION_PLACEHOLDER, type Parameter } from '../../core/data/actions'
-import type { DataField, DataSource } from '../../core/data/dataSources'
+import { fieldOf, type DataField, type DataSource } from '../../core/data/dataSources'
 import { parameterRole } from '../../core/data/relations'
 import type { ResultStep } from '../../core/data/steps/chains'
 import { adoptFields } from './fieldAdopt'
@@ -126,7 +126,7 @@ export function placeEntry(b: Parameter, choices: PlaceChoices): string {
     case 'context':
       return EVENT_VALUES[b.value] ?? b.value
     case 'dataField':
-      return choices.dataSources.find((s) => s.id === b.sourceId)?.fields.find((f) => f.code === b.value)?.name ?? b.value
+      return fieldOf(choices.dataSources.find((s) => s.id === b.sourceId), b.value)?.name ?? b.value
     case 'blockValue':
       return choices.formFields.find((f) => f.blockId === b.blockId && f.prop === b.value)?.name ?? b.value
     case 'chosenRow':

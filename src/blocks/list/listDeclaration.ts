@@ -1,4 +1,5 @@
-import { booleanProperty, sourceProperty, type ValuesOf } from '../../core/block/property'
+import { booleanProperty, type ValuesOf } from '../../core/block/property'
+import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import type { Capability } from '../../core/block/capability'
 import type { ListBinding } from '../../core/block/listBinding'
 import { dayFieldProperty } from '../../runtime/source'
@@ -11,12 +12,7 @@ export const LIST_GRID = { startWidth: 48, startHeight: 14, minWidth: 12, minHei
 // A table sorts by a click on a column head from the start, a capture not.
 export function listProperties(sortsByClick: boolean) {
   return {
-    source: sourceProperty({
-      default: '',
-      label: 'Datenquelle',
-      place: 'none',
-      attribute: 'source',
-    }),
+    source: SOURCE_PROPERTY,
     columns: columnsProperty(),
     search: booleanProperty({
       default: true,

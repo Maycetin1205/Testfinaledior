@@ -14,7 +14,7 @@ import {
 import type { LookupWindow } from '../../core/block/capability'
 import type { BlockNode } from '../../core/block/tree'
 import { canCompute } from '../../core/block/treeQuery'
-import { sourcesKey, type DataSource } from '../../core/data/dataSources'
+import { fieldOf, sourcesKey, type DataSource } from '../../core/data/dataSources'
 import type { SourceInReach } from '../../core/data/extraSources'
 import { ColumnBar } from '../bar/ColumnBar'
 import type { EditorStore } from '../state/EditorStore'
@@ -108,7 +108,7 @@ export function ListEntryBar({
   const titleNow = listBinding.titleOf(entry)
   const defaultTitle = listDefaultTitle(listBinding, pick.index)
   const plainName = (fieldValue: string): string => (perSource
-    ? (sourceFromProp.fields.find((f) => f.code === fieldValue)?.name ?? '')
+    ? (fieldOf(sourceFromProp, fieldValue)?.name ?? '')
     : plainNameOf(fieldValue, sources)) || fieldValue
   // In the bar the field carries its source: two columns named alike
   // tell apart by where they read.
@@ -126,7 +126,7 @@ export function ListEntryBar({
       const target = next[pick.index]
       if (target === undefined) return
       const length = perSource
-        ? sourceFromProp.fields.find((f) => f.code === value)?.length
+        ? fieldOf(sourceFromProp, value)?.length
         : lengthOf(value, sources)
       next[pick.index] = listBinding.withPickedField(
         target,

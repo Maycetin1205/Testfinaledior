@@ -2,10 +2,10 @@ import {
   choiceProperty,
   fieldProperty,
   segmentProperty,
-  sourceProperty,
   textProperty,
   type ValuesOf,
 } from '../../core/block/property'
+import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import { toneOptions } from '../../core/block/tones'
 import { dayFieldProperty } from '../../runtime/source'
 import { kanbanColumnsProperty } from './columns'
@@ -30,12 +30,7 @@ function spotField(label: string, attribute: string) {
 }
 
 export const kanbanProperties = {
-  source: sourceProperty({
-    default: '',
-    label: 'Datenquelle',
-    place: 'none',
-    attribute: 'source',
-  }),
+  source: SOURCE_PROPERTY,
   columnsField: fieldProperty({
     default: '',
     label: 'Einsortieren nach',

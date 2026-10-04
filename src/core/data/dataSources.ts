@@ -57,6 +57,12 @@ export interface RuntimeSource {
   delivery: RuntimeDelivery
 }
 
+// The field of a source by its code; nothing for an empty code or a code the
+// source does not have.
+export function fieldOf(source: DataSource | undefined, code: string): DataField | undefined {
+  return code === '' ? undefined : source?.fields.find((f) => f.code === code)
+}
+
 export function fieldPlainName(
   binding: string,
   ownSourceId: string,
@@ -64,9 +70,7 @@ export function fieldPlainName(
 ): string {
   const { sourceId, code } = splitBinding(binding)
   const wanted = sourceId === '' ? ownSourceId : sourceId
-  if (wanted === '' || code === '') return ''
-  const source = sources.find((s) => s.id === wanted)
-  return source?.fields.find((f) => f.code === code)?.name ?? ''
+  return fieldOf(sources.find((s) => s.id === wanted), code)?.name ?? ''
 }
 
 export function recordNumberOf(source: DataSource): string {

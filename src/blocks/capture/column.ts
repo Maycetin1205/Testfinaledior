@@ -7,7 +7,7 @@ import {
   type EntrySwitch,
   type ListBinding,
 } from '../../core/block/listBinding'
-import { structuredProperty, type Property } from '../../core/block/property'
+import { listProperty, type Property } from '../../core/block/property'
 import { isUnread } from '../../core/unread'
 import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../list/columns'
 
@@ -60,14 +60,6 @@ function capturePart(raw: unknown): Partial<CaptureColumn> {
 export function coerceCaptureColumns(v: unknown): CaptureColumn[] {
   const raw = Array.isArray(v) ? v : []
   return coerceColumns(v).map((column, i) => ({ ...column, ...capturePart(raw[i]) }))
-}
-
-function tryCoerceCaptureColumns(v: string): CaptureColumn[] {
-  try {
-    return coerceCaptureColumns(JSON.parse(v))
-  } catch {
-    return defaultColumns()
-  }
 }
 
 const EDITABLE: EntrySwitch<CaptureColumn> = {
@@ -154,16 +146,10 @@ export function columnEditable(column: CaptureColumn): boolean {
 }
 
 export function captureColumnsProperty(): Property<CaptureColumn[]> {
-  return structuredProperty<CaptureColumn[]>({
-    read: (raw) => (raw === undefined || Array.isArray(raw)
-      ? { ok: true, value: coerceCaptureColumns(raw) }
-      : { ok: false }),
-    toAttribute: (value) => JSON.stringify(listForExport(value, CAPTURE_COLUMNS_BINDING)),
-    fromAttribute: (raw) => (raw === null ? defaultColumns() : tryCoerceCaptureColumns(raw)),
-  }, {
+  return listProperty<CaptureColumn[]>(coerceCaptureColumns, {
     default: defaultColumns(),
     label: 'Spalten',
     place: 'block',
     attribute: 'columns',
-  })
+  }, (value) => listForExport(value, CAPTURE_COLUMNS_BINDING))
 }

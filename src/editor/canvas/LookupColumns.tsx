@@ -11,7 +11,7 @@ import {
   DEFAULT_TITLE,
   type Column,
 } from '../../blocks/list/columns'
-import { sourcesKey } from '../../core/data/dataSources'
+import { fieldOf, sourcesKey } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useView } from '../state/useView'
@@ -267,7 +267,7 @@ function Heads({ open }: { open: OpenLookup }) {
           left={headOfPickers.left}
 
           onPick={(value) => {
-            const field = source?.fields.find((f) => f.code === value)
+            const field = fieldOf(source, value)
             const plainName = field?.name ?? ''
             const width = widthFromLength(field?.length)
             change(chosen, {
