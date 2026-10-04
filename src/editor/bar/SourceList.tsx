@@ -150,12 +150,26 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     <div className="flex flex-col gap-2">
       {part !== 'helpers' && sourcesSelection(first, 'Datenquelle', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
 
+      {/* A card per helper source: the source on top, below it a sentence per
+          key pair, "Artikelnummer = Spalte Artikelnummer". */}
       {part !== 'own' && extra.map((q, i) => (
         <div key={i} className="flex flex-col gap-1.5 rounded border border-line p-2">
-          <div className="flex items-end gap-1">
-            <div className="min-w-0 flex-1">
-              {sourcesSelection(q.sourceId, `Hilfsquelle ${i + 1}`, (v) => change(i, { sourceId: v }))}
-            </div>
+          <div className="flex items-center gap-1">
+            <PickerControl
+              name={`Hilfsquelle ${i + 1}`}
+              className="min-w-0 flex-1"
+              groups={[{
+                key: 'sources',
+                entries: options(q.sourceId).map((s) => ({
+                  value: s.id,
+                  name: s.name,
+                  badge: sourcesKey(s),
+                })),
+              }]}
+              value={q.sourceId}
+              emptyText="Keine"
+              onChoose={(v) => change(i, { sourceId: v })}
+            />
             <Button
               onlyIcon
               aria-label={`Hilfsquelle ${i + 1} entfernen`}
@@ -167,9 +181,7 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
 
           {q.sourceId !== '' && (
             <KeyPairRows
-              question="Verbindende Felder (freiwillig)"
               pairs={q.pairs}
-              leftFields={[]}
               left={(pair, at) => (
                 <OriginPicker
                   name={`Wert ${at + 1}`}
@@ -179,7 +191,6 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
                 />
               )}
               rightFields={fieldsOf(q.sourceId)}
-              leftName={(at) => `Wert ${at + 1}`}
               rightName={(at) => `Feld ${at + 1} der Hilfsquelle ${i + 1}`}
               removeName={(at) => `Zeile ${at + 1} entfernen`}
               onChange={(keyPairs) => change(i, { pairs: keyPairs })}

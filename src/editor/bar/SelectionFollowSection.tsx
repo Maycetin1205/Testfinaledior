@@ -89,9 +89,7 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
       </div>
       {follow.pairs.length > 0 && (
         <KeyPairRows
-          question="Verbindende Felder"
           pairs={follow.pairs}
-          leftFields={[]}
           left={(pair, at) => (
             <OriginPicker
               name={`Wert ${at + 1}`}
@@ -104,7 +102,6 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
             />
           )}
           rightFields={ownSource?.fields ?? []}
-          leftName={(at) => `Wert ${at + 1}`}
           rightName={(at) => `Feld ${at + 1} in diesem Baustein`}
           removeName={(at) => `Feldpaar ${at + 1} entfernen`}
           onChange={(keyPairs) => set([{ ...follow, pairs: keyPairs }])}
