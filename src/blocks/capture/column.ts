@@ -94,16 +94,19 @@ const SUBLINE: EntrySwitch<CaptureColumn> = {
 }
 
 // The key of the column a subline column stands under: the chosen one when
-// it is a column of the row, else the nearest row column to its left, else
-// the first. Empty when the row has no column.
+// it is a column of the row. The subline columns without a choice spread
+// over the row's columns from left to right, one under each, so they do
+// not all pile up under one. Empty when the row has no column.
 export function anchorKeyOf(columns: readonly CaptureColumn[], index: number): string {
   const own = columns[index]
   if (own === undefined || own.subline !== true) return ''
-  const inRow = (c: CaptureColumn): boolean => c.subline !== true
-  const chosen = columns.find((c) => inRow(c) && c.key === own.under)
+  const row = columns.filter((c) => c.subline !== true)
+  if (row.length === 0) return ''
+  const chosenOf = (c: CaptureColumn): CaptureColumn | undefined => row.find((r) => r.key === c.under)
+  const chosen = chosenOf(own)
   if (chosen) return chosen.key
-  const left = columns.slice(0, index).reverse().find(inRow)
-  return (left ?? columns.find(inRow))?.key ?? ''
+  const unplaced = columns.filter((c) => c.subline === true && chosenOf(c) === undefined)
+  return row[unplaced.indexOf(own) % row.length].key
 }
 
 const UNDER: EntryPlaceChoice<CaptureColumn> = {
