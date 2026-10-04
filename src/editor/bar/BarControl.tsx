@@ -1,25 +1,19 @@
-import { useContext, useRef, useState, type ReactNode } from 'react'
-import { ChevronDown } from '@/editor/icons/icon'
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
-import type { ChoiceOption, Property } from '../../core/block/property'
-import type { DeclaredProperty } from '../../core/block/propertyPlace'
+import type { Property } from '../../core/block/property'
 import { fieldPlainName, sourcesKey, type DataSource } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import type { ListGroup } from '@/editor/widgets/List'
 import { Choice } from '@/editor/widgets/Choice'
-import { ColorSwatch } from '@/editor/widgets/ColorSwatch'
 import { Field } from '@/editor/widgets/Field'
-import { Popover } from '@/editor/widgets/Popover'
-import { Segment } from '@/editor/widgets/Segment'
-import { Tile } from '@/editor/widgets/Tile'
 import { NumberControl } from '../controls/NumberControl'
 import { PickerControl } from '../controls/PickerControl'
 import { SegmentControl } from '../controls/SegmentControl'
 import { useInputSession } from '../controls/useInputSession'
 import { controlShown, fieldSourceOf } from './controlShown'
-import { LabelsShown } from './labelsShown'
+import { Labeled, Switch } from './Labeled'
+import { SwatchChoice } from './SwatchChoice'
 
 interface EditCallbacks {
   onBeginEditing: () => void
@@ -53,45 +47,9 @@ interface PickerCase {
   onChoose: (value: string) => void
 }
 
-// The name in front of a control, as .vfeld-label writes it, and what it
-// refers to, like the field a Kanban column sorts by. In the bar itself the
-// control stands alone.
-export function Labeled({ label, detail = '', children }: {
-  label: string
-  detail?: string
-  children: ReactNode
-}) {
-  if (!useContext(LabelsShown)) return <>{children}</>
-  // A line of a window: the name on the left, the control on the right.
-  return (
-    <span className="grid min-h-control w-full min-w-0 grid-cols-[112px_minmax(0,1fr)] items-center gap-[8px]">
-      <span className="truncate text-dense text-muted" title={label}>{label}</span>
-      <span className="flex min-w-0 items-center gap-[6px]">
-        {detail !== '' && <span className="shrink-0 font-semibold text-ink">{detail}</span>}
-        {children}
-      </span>
-    </span>
-  )
-}
-
-// A switch: in the bar a tile with its name, in a window a small tick with its
-// name beside it, so several stand side by side.
-export function Switch({ label, on, onToggle }: { label: string; on: boolean; onToggle: (on: boolean) => void }) {
-  if (!useContext(LabelsShown)) return <Tile label={label} on={on} onToggle={onToggle} />
-  return (
-    <label data-switch className="flex h-[24px] shrink-0 cursor-pointer items-center gap-[6px] text-ui text-ink">
-      <input
-        type="checkbox"
-        className="h-[14px] w-[14px] shrink-0 accent-accent"
-        checked={on}
-        onChange={(e) => onToggle(e.currentTarget.checked)}
-      />
-      {label}
-    </label>
-  )
-}
-
-// One declared property as a control in the bar at the block.
+// One declared property as a control in the bar at the block: the kind of
+// the property picks the control. The name in front of it is Labeled, the
+// colors are SwatchChoice, the type of a text is FontChoice.
 export function BarControl({
   block,
   propertyKey,
@@ -286,146 +244,5 @@ function BarText({
       }}
       onBlur={session.finish}
     />
-  )
-}
-
-const SWATCH_STEP = 30
-
-// A choice of colors: the chosen one in the bar, all of them in a small window.
-function SwatchChoice({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string
-  options: readonly ChoiceOption[]
-  value: string
-  onChange: (value: string) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const button = useRef<HTMLButtonElement>(null)
-  const chosen = options.find((o) => o.value === value) ?? options[0]
-
-  return (
-    <Labeled label={label}>
-      <button
-        ref={button}
-        type="button"
-        aria-label={`${label}: ${chosen?.name ?? ''}`}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-        className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
-      >
-        <span
-          className="h-[14px] w-[14px] rounded border border-line"
-          style={{ backgroundColor: chosen?.color }}
-        />
-        <ChevronDown size={13} aria-hidden className="text-muted" />
-      </button>
-      {open && (
-        <Popover
-          name={label}
-          anchor={button}
-          width={options.length * SWATCH_STEP + 14}
-          onClose={() => setOpen(false)}
-        >
-          <div className="flex flex-wrap gap-[6px] p-[2px]">
-            {options.map((o) => (
-              <ColorSwatch
-                key={o.value}
-                color={o.color}
-                name={o.name}
-                chosen={o.value === value}
-                onChoose={() => {
-                  onChange(o.value)
-                  setOpen(false)
-                }}
-              />
-            ))}
-          </div>
-        </Popover>
-      )}
-    </Labeled>
-  )
-}
-
-const FONT_WIDTH = 264
-
-// Color and size of the type as one button in the bar: it shows both, its
-// small window offers both. While the role presets a value, the button shows
-// the role's, and choosing that one leaves it to the role again.
-export function FontChoice({ block, fonts }: { block: BlockNode; fonts: readonly DeclaredProperty[] }) {
-  const ed = useEditor()
-  const [open, setOpen] = useState(false)
-  const button = useRef<HTMLButtonElement>(null)
-  const name = fonts.map((f) => f.property.label).join(' und ')
-
-  const presetOf = (property: Property<unknown>): string => {
-    const preset = property.preset
-    return preset?.values?.[String(block.values[preset.by] ?? '')] ?? ''
-  }
-  const shownOf = (d: DeclaredProperty): string => {
-    const held = String(block.values[d.key] ?? '')
-    return held !== '' ? held : presetOf(d.property)
-  }
-  const choose = (d: DeclaredProperty, value: string) => {
-    ed.updateProperty(block.id, d.key, value === presetOf(d.property) ? d.property.default : value)
-  }
-
-  return (
-    <>
-      <button
-        ref={button}
-        type="button"
-        aria-label={name}
-        title={name}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-        className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
-      >
-        {fonts.map((d) => {
-          const option = d.property.type.options?.find((o) => o.value === shownOf(d))
-          return option?.color !== undefined
-            ? <span key={d.key} className="h-[14px] w-[14px] rounded border border-line" style={{ backgroundColor: option.color }} />
-            : <span key={d.key} className="tabular-nums">{option?.name ?? ''}</span>
-        })}
-        <ChevronDown size={13} aria-hidden className="text-muted" />
-      </button>
-      {open && (
-        <Popover name={name} anchor={button} width={FONT_WIDTH} onClose={() => setOpen(false)}>
-          <div className="flex flex-col gap-[8px] p-[6px]">
-            {fonts.map((d) => {
-              const options = d.property.type.options ?? []
-              const shown = shownOf(d)
-              return (
-                <div key={d.key} className="flex flex-col gap-[4px]">
-                  <span className="text-dense font-semibold text-muted">
-                    {d.property.label}
-                  </span>
-                  {options.every((o) => o.color !== undefined)
-                    ? (
-                        <span className="flex gap-[6px]">
-                          {options.map((o) => (
-                            <ColorSwatch
-                              key={o.value}
-                              color={o.color}
-                              name={o.name}
-                              chosen={o.value === shown}
-                              onChoose={() => choose(d, o.value)}
-                            />
-                          ))}
-                        </span>
-                      )
-                    : <Segment name={d.property.label} options={options} value={shown} onChoose={(v) => choose(d, v)} />}
-                </div>
-              )
-            })}
-          </div>
-        </Popover>
-      )}
-    </>
   )
 }

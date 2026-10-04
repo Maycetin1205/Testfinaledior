@@ -24,7 +24,7 @@ import {
   outsidePair,
 } from '../controls/outsideOrigin'
 import { PickerControl } from '../controls/PickerControl'
-import { Labeled } from './BarControl'
+import { Labeled } from './Labeled'
 import { KeyPairRows } from './KeyPairRows'
 
 interface SourceListProps {
