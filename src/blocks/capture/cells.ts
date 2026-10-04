@@ -67,8 +67,14 @@ export const cellsInputStyle = css`
         border-radius: var(--se-radius);
       }
 
-      /* A cell being typed into looks like any other, only with the cursor. */
-      .cell-input:focus { outline: none; }
+      /* The cell being typed into is framed in the accent and white, as a
+         field with the focus. */
+      .cell-input:focus {
+        outline: none;
+        background: var(--se-panel);
+        border-color: var(--se-accent);
+        box-shadow: var(--se-focus);
+      }
 
       /* The required cell that held the row back keeps its red edge until
          it gets a value. */

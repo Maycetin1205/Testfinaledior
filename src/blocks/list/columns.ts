@@ -48,8 +48,6 @@ export function columnsView(
   return { columns: shown, slots }
 }
 
-export const CELL_PLACEHOLDER = '—'
-
 export const FIELD_KEY_PREFIX = 'field:'
 
 const COLUMNS_MIN = 1

@@ -4,7 +4,6 @@ import { columnsChoiceTpl, type ColumnsChoiceAct, type ColumnsChoicePlacement } 
 import { markHit } from './textSearch'
 import { asNumber } from '../../core/data/number'
 import {
-  CELL_PLACEHOLDER,
   type Column,
   type ColumnView,
   type ColumnsGrid,
@@ -145,7 +144,7 @@ function partOf(
   column: Column,
   slot: number,
 ): CellPart {
-  const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : CELL_PLACEHOLDER
+  const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : ''
   const own = rawIndex === null ? null : decoration.cell(slot, column, value)
   return {
     value,
@@ -160,7 +159,7 @@ export function sublineTpl(
   parts: readonly { content: TemplateResult | string; typable: boolean }[],
 ): TemplateResult {
   return html`<span class="subs">${parts.map((p) => html`<span
-    class=${p.typable ? 'part typable' : 'part'}
+    class=${p.typable ? 'part typable' : p.content === '' ? 'part empty' : 'part'}
   >${p.content}</span>`)}</span>`
 }
 

@@ -82,13 +82,14 @@ export const tableStyle = css`
         top: 0;
         z-index: 1;
         flex: none;
-        background: var(--se-panel);
-        border-bottom: var(--se-border) solid var(--se-line-soft);
-        font-size: var(--se-fs-xs);
+        background: var(--se-panel-2);
+        /* The head stands apart: dark type, a firm line under it. */
+        border-bottom: var(--se-border) solid var(--se-muted);
+        font-size: var(--se-fs-sm);
         font-weight: 700;
-        letter-spacing: .04em;
+        letter-spacing: .02em;
         text-transform: uppercase;
-        color: var(--se-muted);
+        color: var(--se-ink);
       }
 
       .body {
@@ -207,7 +208,7 @@ export const tableStyle = css`
         min-width: 0;
         line-height: var(--sub-height);
         font-size: var(--se-fs-sm);
-        color: var(--se-faint);
+        color: var(--se-muted);
         white-space: nowrap;
         overflow: hidden;
       }
@@ -217,7 +218,8 @@ export const tableStyle = css`
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .subs > .part:not(.typable) + .part:not(.typable)::before { content: '· '; }
+      /* A dot between two values; an empty part stands without one. */
+      .subs > .part:not(.typable):not(.empty) + .part:not(.typable):not(.empty)::before { content: '· '; }
       .head.subline > div > .head-line { min-height: var(--row-height); }
       .head.subline > div.number > .head-line,
       .head.subline > div.number > .head-sub { justify-content: flex-end; }
@@ -230,7 +232,7 @@ export const tableStyle = css`
         font-weight: 400;
         letter-spacing: 0;
         text-transform: none;
-        color: var(--se-faint);
+        color: var(--se-muted);
         white-space: nowrap;
         overflow: hidden;
       }

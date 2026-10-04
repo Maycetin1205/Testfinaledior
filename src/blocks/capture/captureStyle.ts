@@ -12,10 +12,12 @@ export const captureStyle = css`
         z-index: 1;
       }
 
+      /* The capture row stands apart from the booked rows: a firm line above
+         it, the light ground of a field. */
       .row.capture {
         flex: none;
-        background: var(--se-panel);
-        border-top: var(--se-border) solid var(--se-line);
+        background: var(--se-panel-2);
+        border-top: var(--se-border) solid var(--se-muted);
       }
 
       /* In the editor the column titles stand where the mask shows its
