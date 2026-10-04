@@ -175,7 +175,7 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
 }
 
 // A cell that opens a short list: what it shows, and a chevron on the marked line.
-function ChoiceCell({ label, on, open, groups, value, cellRef, onOpen, onChoose }: {
+export function ChoiceCell({ label, on, open, groups, value, cellRef, onOpen, onChoose }: {
   label: ReactNode
   on: boolean
   open: boolean

@@ -32,9 +32,9 @@ import {
   inSubtree,
   propertyUpdated,
 } from './editorStore/treeEdits'
-import { EditorView, type OpenLookup, type OpenStep } from './editorStore/viewState'
+import { EditorView, type OpenCalculation, type OpenLookup, type OpenStep } from './editorStore/viewState'
 
-export type { OpenLookup, OpenStep } from './editorStore/viewState'
+export type { OpenCalculation, OpenLookup, OpenStep } from './editorStore/viewState'
 
 // The one truth of the editor: the mask tree with its selection and page,
 // the sources and relations, and the history over all of it. The edits of
@@ -343,6 +343,10 @@ export class EditorStore extends Subject<EditorStore> {
   get stepWindow(): OpenStep | null { return this._shows.stepWindow }
 
   openStep(open: OpenStep | null): void { this._shows.openStep(open) }
+
+  get calculationWindow(): OpenCalculation | null { return this._shows.calculationWindow }
+
+  openCalculation(open: OpenCalculation | null): void { this._shows.openCalculation(open) }
 
   get lookupWindow(): OpenLookup | null { return this._shows.lookupWindow }
 

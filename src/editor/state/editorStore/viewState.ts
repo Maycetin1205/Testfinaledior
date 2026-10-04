@@ -9,6 +9,12 @@ export interface OpenStep {
   tab: StepTab
 }
 
+// Which column's calculation the editor shows, in the window in the middle.
+export interface OpenCalculation {
+  blockId: string
+  column: string
+}
+
 // Which lookup window the editor shows, and for which spot of which block.
 export interface OpenLookup {
   blockId: string
@@ -23,6 +29,8 @@ export class EditorView {
   private readonly changed: () => void
 
   private _stepWindow: OpenStep | null = null
+
+  private _calculationWindow: OpenCalculation | null = null
 
   private _lookupWindow: OpenLookup | null = null
 
@@ -39,6 +47,14 @@ export class EditorView {
   openStep(open: OpenStep | null): void {
     if (this._stepWindow === open) return
     this._stepWindow = open
+    this.changed()
+  }
+
+  get calculationWindow(): OpenCalculation | null { return this._calculationWindow }
+
+  openCalculation(open: OpenCalculation | null): void {
+    if (this._calculationWindow === open) return
+    this._calculationWindow = open
     this.changed()
   }
 

@@ -993,9 +993,11 @@ einer eigenen Aufräumaktion.
    `src/editor/canvas/useFieldBinding.tsx` teilen.
 7. Berechnung, fertig (04.10.), nicht in SoftEngine geprüft: ein Satz am
    Spaltenkopf („Menge = Tiere × Tage × Körpergewicht × Dosierung ÷ KGW ÷
-   Inhalt ÷ Faktor, gerundet auf 2 Stellen“), erreichbar über das
-   Rechner-Symbol in der Spaltenleiste, jedes Wort anklickbar, getippt nur
-   die Zahl. Nur mal und geteilt; die eine leere Spalte des Satzes wird in
+   Inhalt ÷ Faktor, gerundet auf 2 Stellen“). Das Rechner-Symbol in der
+   Spaltenleiste öffnet das Fenster in der Bildschirmmitte, gebaut wie das
+   Schritt-Fenster: je Größe eine Zeile mit Nummer, Zeichen, Herkunft und
+   Eingabe, rechts Ergebnis, Rundung und die Einheiten-Tabelle, unten
+   Abbrechen und Übernehmen. Nur mal und geteilt; die eine leere Spalte des Satzes wird in
    der Zeile ausgerechnet, bei keiner oder zwei leeren passiert nichts, keine
    Meldung. Eine Größe ist Spalte der Zeile, Feld einer Hilfsquelle, feste
    Zahl oder der Faktor aus zwei Einheiten als Tabelle (mg/kg 1000000, g/kg
