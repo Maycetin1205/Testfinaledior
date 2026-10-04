@@ -4,7 +4,6 @@ import type { BlockDeclaration } from '../../core/block/blockType'
 import { hasCapability } from '../../core/block/capability'
 import type { PropertyMap, PropertyValue } from '../../core/block/property'
 import { registerBlockType } from '../../core/block/registry'
-import { widthProperty } from '../../core/block/flow'
 import { GRID_PROPERTIES } from '../../core/block/grid'
 import { deepClone } from '../../core/deepClone'
 import { followsSelectionProperty } from '../../core/data/selectionFollow'
@@ -27,7 +26,6 @@ interface BlockElementClass {
 function allProperties(shape: BlockShape): PropertyMap {
   const capable = { capabilities: shape.capabilities ?? [] }
   return {
-    width: widthProperty,
     ...GRID_PROPERTIES,
     ...(hasCapability(capable, 'source') ? { extraSources: extraSourcesProperty } : null),
     ...(hasCapability(capable, 'followsSelection')

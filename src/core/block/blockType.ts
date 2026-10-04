@@ -1,5 +1,4 @@
 import type { Capability, ContractClasses } from './capability'
-import type { Direction, FlowWidth } from './flow'
 import type { GridMetrics } from './grid'
 import type { PropertyMap, PropertyValue } from './property'
 
@@ -47,8 +46,6 @@ export interface BlockDeclaration {
 
   allowedChildren?: readonly string[]
   allowedParent?: readonly string[]
-  fixedWidth?: FlowWidth
-  childDirection?: Direction
   inPalette?: boolean
 
   // A selector in the shadow root: the part at the top that stays free when the

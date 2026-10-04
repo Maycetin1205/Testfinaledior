@@ -22,12 +22,7 @@ import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
 import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
 import { pagesOfMask } from '../core/block/pages'
-import { isGridArea, pageRowsTemplate } from '../core/block/gridArea'
-import {
-  directionOfChildren,
-  ROOT_FLOW,
-  type Direction,
-} from '../core/block/flow'
+import { pageRowsTemplate, ROOT_PADDING } from '../core/block/gridArea'
 import { gridAreaCss } from '../core/block/grid'
 import tokensCssRaw from '../design/mask.css?raw'
 import {
@@ -71,7 +66,6 @@ function columnsIndexFor(tree: MaskTree): (blockId: string, key: string) => stri
 function nodeToHtml(
   tree: MaskTree,
   node: BlockNode,
-  parentDirection: Direction,
   depth: number,
 
   popupName: (id: string) => string,
@@ -79,8 +73,6 @@ function nodeToHtml(
   columnsIndex: (blockId: string, key: string) => string,
 
   sources: readonly DataSource[],
-
-  gridLevel = false,
 ): string {
   const def = blockType(node.type)
   if (!def) return ''
@@ -127,21 +119,19 @@ function nodeToHtml(
     || isSelectionGiver(node)
   const keyAttr = addressable ? ` ${BLOCK_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
 
-  const fillsAttr = gridLevel && def.page !== true ? ' fills' : ''
+  const fillsAttr = def.page !== true ? ' fills' : ''
 
   const pagesAttr = node.parentId === ROOT_ID && !def.page ? ' data-ff-main' : ''
-  const open = `${pad}<${def.tag}${attrs}${actionsAttr}${keyAttr}${pagesAttr}${fillsAttr}${styleAttr(node, parentDirection, def.fixedWidth, gridLevel, def.page === true)}>`
+  const open = `${pad}<${def.tag}${attrs}${actionsAttr}${keyAttr}${pagesAttr}${fillsAttr}${styleAttr(node, def.page === true)}>`
   if (!def.takesChildren || node.childIds.length === 0) {
     return `${open}</${def.tag}>`
   }
-
-  const childDirection = directionOfChildren(def, node.values)
 
   const children = node.childIds
     .map((id) => tree[id])
     .filter((c): c is BlockNode => Boolean(c))
 
-    .map((c) => nodeToHtml(tree, c, childDirection, depth + 1, popupName, columnsIndex, sources, isGridArea(node)))
+    .map((c) => nodeToHtml(tree, c, depth + 1, popupName, columnsIndex, sources))
     .filter((html) => html !== '')
     .join('\n')
   return children === ''
@@ -166,7 +156,7 @@ export function exportMask(
   const blocks = (root?.childIds ?? [])
     .map((id) => tree[id])
     .filter((n): n is BlockNode => Boolean(n))
-    .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, columnsIndex, sources, true))
+    .map((n) => nodeToHtml(tree, n, 2, popupName, columnsIndex, sources))
     .join('\n')
 
   const used = withUniqueNames(collectDataSources(tree, sources))
@@ -206,7 +196,7 @@ export function exportMask(
   ))
 
   const rows = pageRowsTemplate(tree)
-  const rootPadding = `${ROOT_FLOW.padding}px`
+  const rootPadding = `${ROOT_PADDING}px`
 
   const html = [
     '<!DOCTYPE html>',

@@ -1,40 +1,17 @@
 import type { BlockNode } from '../core/block/tree'
-import {
-  flowHeightStyle,
-  flowWidthStyle,
-  flowHeightRead,
-  flowWidthRead,
-  type Direction,
-  type FlowWidth,
-} from '../core/block/flow'
 import { gridSlotRead, gridSlotStyle } from '../core/block/grid'
 import { areaColumnsStyle, growMinHeightStyle } from '../core/block/gridArea'
 import { styleAsCss } from '../core/block/styleCss'
 import { escapeHtmlAttr } from './serializer'
 
-export function styleAttr(
-  node: BlockNode,
-  parentDirection: Direction,
-  lockedWidth: FlowWidth | undefined,
-  gridLevel: boolean,
-  isPage: boolean,
-): string {
-  let style: Record<string, string | number>
-  if (isPage) {
-    style = {}
-  } else if (gridLevel) {
-    style = {
-      ...gridSlotStyle(gridSlotRead(node.values)),
-      ...growMinHeightStyle(node),
-      ...areaColumnsStyle(node),
-    }
-  } else {
-    style = {
-      ...flowWidthStyle(flowWidthRead(node.values.width), parentDirection, lockedWidth),
-
-      ...flowHeightStyle(flowHeightRead(node.values.height), parentDirection),
-    }
-  }
-  const css = styleAsCss(style)
+// The inline style of a block in the export: its place on the grid. A page
+// has none, it is the grid.
+export function styleAttr(node: BlockNode, isPage: boolean): string {
+  if (isPage) return ''
+  const css = styleAsCss({
+    ...gridSlotStyle(gridSlotRead(node.values)),
+    ...growMinHeightStyle(node),
+    ...areaColumnsStyle(node),
+  })
   return css ? ` style="${escapeHtmlAttr(css)}"` : ''
 }

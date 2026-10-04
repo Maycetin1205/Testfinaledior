@@ -95,7 +95,7 @@ export function dragPosition(
     const capacity = rowsCapacity(editor.tree, target.parentId, target.area)
     const y = rowInBox(capacity, cell.y, pos.h)
     last = { target, x, y }
-    dnd.setDropTarget({ kind: 'grid', parentId: target.parentId, x, y, w, h: pos.h })
+    dnd.setDropTarget({ parentId: target.parentId, x, y, w, h: pos.h })
   }
 
   const onUp = (): void => {

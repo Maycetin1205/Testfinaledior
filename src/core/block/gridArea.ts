@@ -15,6 +15,10 @@ import {
 import { isPagesBlock, childrenInFlow, pageOf } from './pages'
 import { subtreeIds } from './treeOps'
 
+// The room between the edge of the page and its grid, in the editor as in
+// the mask.
+export const ROOT_PADDING = 16
+
 export function isGridArea(node: BlockNode): boolean {
   return node.id === ROOT_ID || isPagesBlock(node)
     || blockType(node.type)?.gridArea === true
@@ -135,50 +139,6 @@ export function freePositionForCopy(
     ...copy,
     values: { ...copy.values, gridX: pos.x, gridY: y, gridW: pos.w, gridH: pos.h },
   }
-}
-
-export function moveInContainer(
-  tree: MaskTree,
-  id: string,
-  newParentId: string,
-  index: number,
-): MaskTree | null {
-  const node = tree[id]
-  const newParent = tree[newParentId]
-  if (!node || !newParent || id === ROOT_ID) return null
-
-  if (subtreeIds(tree, id).includes(newParentId)) return null
-
-  if (!mayContain(newParent.type, node.type)) return null
-  const oldParentId = node.parentId
-  if (!oldParentId) return null
-  const oldParent = tree[oldParentId]
-  if (!oldParent) return null
-
-  const next: MaskTree = { ...tree }
-
-  if (oldParentId === newParentId) {
-    const arr = oldParent.childIds.filter((c) => c !== id)
-    const oldIndex = oldParent.childIds.indexOf(id)
-    let target = oldIndex < index ? index - 1 : index
-    target = Math.max(0, Math.min(target, arr.length))
-    arr.splice(target, 0, id)
-    next[oldParentId] = { ...oldParent, childIds: arr }
-  } else {
-    next[oldParentId] = { ...oldParent, childIds: oldParent.childIds.filter((c) => c !== id) }
-    const arr = [...newParent.childIds]
-    const target = Math.max(0, Math.min(index, arr.length))
-    arr.splice(target, 0, id)
-    next[newParentId] = { ...newParent, childIds: arr }
-    next[id] = { ...node, parentId: newParentId }
-    if (isGridArea(newParent)) {
-      const pos = gridSlotRead(node.values)
-      const y = freeRowOn(tree, newParentId)
-      const w = Math.min(pos.w, columnsOf(tree, newParentId))
-      next[id] = { ...next[id], values: { ...node.values, gridX: 0, gridY: y, gridW: w, gridH: pos.h } }
-    }
-  }
-  return next
 }
 
 export function cellMoveIn(

@@ -21,7 +21,7 @@ import {
   pagesOfMask,
   type PagesEntry,
 } from '../../core/block/pages'
-import { newBlockOnCell, moveInContainer, cellMoveIn, slotResize } from '../../core/block/gridArea'
+import { newBlockOnCell, cellMoveIn, slotResize } from '../../core/block/gridArea'
 import { selectionOnPage, selectionTarget } from '../../core/block/selection'
 import { deepClone } from '../../core/deepClone'
 import { EditorPersistence } from './editorStore/persistence'
@@ -286,11 +286,6 @@ export class EditorStore extends Subject<EditorStore> {
     this._selectedId = res.copyId
     this.notify(this)
     return res.tree[res.copyId]
-  }
-
-  moveNode(id: string, newParentId: string, index: number): void {
-    const next = moveInContainer(this._tree, id, newParentId, index)
-    if (next) this.apply(next)
   }
 
   moveNodeToCell(id: string, parentId: string, x: number, y: number): void {

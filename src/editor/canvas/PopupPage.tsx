@@ -82,7 +82,7 @@ export function PopupPage({ popupId }: { popupId: string }) {
         selected={selected}
         onSelect={() => ed.selectBlock(node.id)}
       >
-        <NodeList parentId={node.id} direction="column" grid />
+        <NodeList parentId={node.id} />
       </BlockHost>
 
       {/* The window stays in the middle; every edge and corner pulls its size. */}

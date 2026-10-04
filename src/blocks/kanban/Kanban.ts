@@ -192,6 +192,5 @@ defineBlock(Kanban, {
       ],
     },
   ],
-  fixedWidth: 'fill',
   grid: { startWidth: 48, startHeight: 20, minWidth: 12, minHeight: 8, grows: true },
 })

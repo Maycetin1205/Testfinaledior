@@ -80,7 +80,7 @@ export function gridTarget(
   dnd: DndState,
   parentId: string,
   gridEl: HTMLElement,
-): Extract<DropTarget, { kind: 'grid' }> | null {
+): DropTarget | null {
   const size = draggedSize(ed, dnd, e.dataTransfer, parentId)
   if (!size) return null
   const cell = cellFromPointer(gridEl, e.clientX, e.clientY)
@@ -89,5 +89,5 @@ export function gridTarget(
   const x = Math.max(0, Math.min(cell.x, columns - w))
   const capacity = rowsCapacity(ed.tree, parentId, gridEl)
   const y = rowInBox(capacity, cell.y, size.h)
-  return { kind: 'grid', parentId, x, y, w, h: size.h }
+  return { parentId, x, y, w, h: size.h }
 }
