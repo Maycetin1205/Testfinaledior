@@ -1,5 +1,8 @@
 export const ROWS_HEIGHT = 28
 
+// The grey line under a row, smaller than the row itself.
+export const SUBLINE_HEIGHT = 22
+
 export const WITHOUT_MEASUREMENT = 10
 
 const PLACEHOLDER_WITHOUT_MEASUREMENT = 4
@@ -12,12 +15,16 @@ function headRows(headHeight: number, tick: number): number {
   return Math.max(1, Math.floor(headHeight / tick))
 }
 
+// A record takes a row and, with sublines, the line under it; the head
+// takes its rows and one subline as well.
 function fittingRows(
   bodyHeight: number,
   heads: number,
   rowsHeight: number,
+  sub: number,
 ): number {
-  return Math.max(1, Math.floor(bodyHeight / rowsHeight) - heads)
+  const headSub = sub > 0 ? sub : 0
+  return Math.max(1, Math.floor((bodyHeight - heads * rowsHeight - headSub) / (rowsHeight + sub)))
 }
 
 export interface RowMetrics {
@@ -30,11 +37,16 @@ function rowMetrics(
   bodyHeight: number,
   headHeight: number,
   tick: number,
+  sub: number,
 ): RowMetrics {
-  const heads = headRows(headHeight, tick)
-  const fit = fittingRows(bodyHeight, heads, tick)
-  const height = bodyHeight / (fit + heads)
+  const heads = headRows(headHeight - sub, tick)
+  const fit = fittingRows(bodyHeight, heads, tick, sub)
+  const sublines = sub > 0 ? fit + 1 : 0
+  const height = (bodyHeight - sublines * sub) / (fit + heads)
   if (height < tick) return { fit, rowsHeight: tick }
+  // With sublines whole pixels: two lines per record would otherwise round
+  // up to a body one pixel too tall, and a scrollbar.
+  if (sub > 0) return { fit, rowsHeight: Math.floor(height) }
   return { fit, rowsHeight: Math.floor(height * 100) / 100 }
 }
 
@@ -116,11 +128,11 @@ export function headHeight(target: MeasureTarget): number {
   return head instanceof HTMLElement ? head.offsetHeight : 0
 }
 
-export function measuredMetrics(target: MeasureTarget, tick: number): BodyMeasure {
+export function measuredMetrics(target: MeasureTarget, tick: number, sub = 0): BodyMeasure {
   const height = bodyHeight(target)
   if (height === WITHOUT_BODY) return { metrics: null, height, head: 0 }
   const head = headHeight(target)
-  return { metrics: rowMetrics(height, head, tick), height, head }
+  return { metrics: rowMetrics(height, head, tick, sub), height, head }
 }
 
 export function observeBody(target: MeasureTarget, onChange: () => void): ResizeObserver | null {

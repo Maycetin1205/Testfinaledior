@@ -78,16 +78,19 @@ function key(placement: CaptureRowPlacement, index: number, e: KeyboardEvent): v
 
 export function captureRowFor(
   placement: CaptureRowPlacement,
-  cols: Readonly<Record<string, string>>,
-  listToTop: boolean,
-
   view: ColumnView,
+  cols: Readonly<Record<string, string>>,
+  sub: ColumnView,
+  subCols: Readonly<Record<string, string>>,
+  listToTop: boolean,
 ): TemplateResult {
   const ledger = placement.ledger
   const cells = ledger.rowView()
   return captureRowTpl({
     columns: view.columns,
     slots: view.slots,
+    sub,
+    subCols,
     sourceId: placement.sourceId,
     cols,
     preview: placement.preview,

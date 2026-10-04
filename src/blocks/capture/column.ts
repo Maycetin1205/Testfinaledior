@@ -15,6 +15,9 @@ export type CaptureColumn = Column & {
 
   required?: boolean
 
+  // The column stands in the grey line under the row, not in the row itself.
+  subline?: boolean
+
   fillField?: string
 
   windowColumns?: Column[]
@@ -26,11 +29,13 @@ export type CaptureColumn = Column & {
 
 function capturePart(raw: unknown): Partial<CaptureColumn> {
   if (!isUnread<CaptureColumn>(raw)) return {}
-  const { editable, required, fillField, windowColumns, windowWidth, windowHeight } = raw
+  const { editable, required, subline, fillField, windowColumns, windowWidth, windowHeight } = raw
   return {
     ...(typeof editable === 'boolean' ? { editable } : {}),
 
     ...(typeof required === 'boolean' ? { required } : {}),
+
+    ...(typeof subline === 'boolean' ? { subline } : {}),
 
     ...(typeof fillField === 'string' && fillField.trim() !== ''
       ? { fillField: fillField.trim() }
@@ -77,6 +82,14 @@ const REQUIRED: EntrySwitch<CaptureColumn> = {
   withValue: (column, on) => withEntryValue(column, 'required', on),
 }
 
+const SUBLINE: EntrySwitch<CaptureColumn> = {
+  key: 'subline',
+  name: 'In der Unterzeile',
+  short: 'Unterzeile',
+  valueOf: (column) => column.subline,
+  withValue: (column, on) => withEntryValue(column, 'subline', on),
+}
+
 const FILL_FIELD: EntryFieldChoice<CaptureColumn> = {
   key: 'fillField',
   name: 'Füllfeld',
@@ -90,7 +103,7 @@ export const CAPTURE_COLUMNS_BINDING: ListBinding<CaptureColumn> = {
   entries: coerceCaptureColumns,
 
   entryFlag: (COLUMNS_BINDING.entryFlag ?? [])
-    .flatMap((s): EntrySwitch<CaptureColumn>[] => (s.key === 'total' ? [s, EDITABLE, REQUIRED] : [s])),
+    .flatMap((s): EntrySwitch<CaptureColumn>[] => (s.key === 'total' ? [s, EDITABLE, REQUIRED, SUBLINE] : [s])),
 
   entryFieldChoice: [FILL_FIELD],
 }

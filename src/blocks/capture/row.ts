@@ -5,7 +5,7 @@ import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
 import { asNumber } from '../../core/data/calculation'
-import { FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import { FIELD_KEY_PREFIX, type Column, type ColumnView } from '../list/columns'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -16,6 +16,10 @@ import { maskState } from '../../runtime/maskState'
 interface CapturePlacement {
   columns: readonly Column[]
   slots: readonly number[]
+
+  // The columns of the grey line under the row, with their own grid.
+  sub: ColumnView
+  subCols: Readonly<Record<string, string>>
 
   sourceId: string
 
@@ -54,46 +58,57 @@ export function captureRowTpl(
   placement: CapturePlacement,
   act: CaptureAct,
 ): TemplateResult {
-  return html`<div class="row capture" role="row" style=${styleMap(placement.cols)}>
-    ${placement.columns.map((column, i) => {
-      if (placement.preview) {
-        return html`<div
-          class=${column.hidden === true ? 'hidden' : nothing}
-          role="cell"
-        ><span class="cell-label"></span></div>`
-      }
-      const slot = placement.slots[i]
-
-      const free = cellTargetOf(column, placement.sourceId).kind === 'free'
-      const list = !free && placement.typingColumn === slot
-      const value = placement.value(slot)
-
-      return html`<div
-        class=${asNumber(value) !== null ? 'number' : nothing}
-        role="cell"
-      >${inputSpotTpl({
-        value,
-        title: column.title,
-        placeholder: '',
-        inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet')
-          + (placement.held(slot) ? ' held' : ''),
-        holderClass: 'cell-holder',
-        marksOnEntering: true,
-        slot,
-        suggestions: list ? placement.suggestions : [],
-        columns: list ? placement.windowColumns(slot) : [],
-        typed: placement.typed(slot),
-        mark: placement.mark,
-        listToTop: placement.listToTop,
-      }, {
-        typing: (text) => act.typing(slot, text),
-        key: (e) => act.key(slot, e),
-        leave: () => act.leave(slot),
-        chooseSuggestion: (i2) => act.chooseSuggestion(i2),
-        setMark: (i2) => act.setMark(i2),
-      })}</div>`
-    })}
+  const sub = placement.sub
+  const cell = (column: Column, slot: number): TemplateResult => captureCellTpl(placement, act, column, slot)
+  return html`<div class="row capture${sub.columns.length > 0 ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+    ${placement.columns.map((column, i) => cell(column, placement.slots[i]))}
+    ${sub.columns.length === 0 ? nothing : html`<div class="sub" role="presentation" style=${styleMap(placement.subCols)}>
+      ${sub.columns.map((column, i) => cell(column, sub.slots[i]))}
+    </div>`}
   </div>`
+}
+
+function captureCellTpl(
+  placement: CapturePlacement,
+  act: CaptureAct,
+  column: Column,
+  slot: number,
+): TemplateResult {
+  if (placement.preview) {
+    return html`<div
+      class=${column.hidden === true ? 'hidden' : nothing}
+      role="cell"
+    ><span class="cell-label"></span></div>`
+  }
+
+  const free = cellTargetOf(column, placement.sourceId).kind === 'free'
+  const list = !free && placement.typingColumn === slot
+  const value = placement.value(slot)
+
+  return html`<div
+    class=${asNumber(value) !== null ? 'number' : nothing}
+    role="cell"
+  >${inputSpotTpl({
+    value,
+    title: column.title,
+    placeholder: '',
+    inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet')
+      + (placement.held(slot) ? ' held' : ''),
+    holderClass: 'cell-holder',
+    marksOnEntering: true,
+    slot,
+    suggestions: list ? placement.suggestions : [],
+    columns: list ? placement.windowColumns(slot) : [],
+    typed: placement.typed(slot),
+    mark: placement.mark,
+    listToTop: placement.listToTop,
+  }, {
+    typing: (text) => act.typing(slot, text),
+    key: (e) => act.key(slot, e),
+    leave: () => act.leave(slot),
+    chooseSuggestion: (i2) => act.chooseSuggestion(i2),
+    setMark: (i2) => act.setMark(i2),
+  })}</div>`
 }
 
 type CellKind = 'free' | 'own' | 'linked'

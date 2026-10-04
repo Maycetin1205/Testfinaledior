@@ -20,7 +20,7 @@ export const captureStyle = css`
 
       /* In the editor the column titles stand where the mask shows its
          placeholders, in their color. */
-      :host([preview]) .row.capture > div { color: var(--se-faint); }
+      :host([preview]) .row.capture [role='cell'] { color: var(--se-faint); }
 
       .row.captured { flex: none; }
       :host(:not([preview])) .row.captured { cursor: pointer; }
@@ -70,11 +70,17 @@ export const captureStyle = css`
 
       /* A typable cell hands its padding to its input, so the text keeps the
          edge of every other cell, and lets the suggestion list hang out. */
-      .row > div.typable,
-      .row.capture > div {
+      .row div.typable,
+      .row.capture [role='cell'] {
         display: flex;
         align-items: center;
         overflow: visible;
         padding: 0 calc(var(--se-cell-x) - var(--se-input-x) - var(--se-border));
+      }
+
+      /* In the grey line the input is as small as the line. */
+      .sub .cell-input {
+        height: calc(var(--sub-height) - 6px);
+        font-size: var(--se-fs-sm);
       }
 `

@@ -76,6 +76,7 @@ export class Capture extends BlockElement
     cellValue: (rawIndex, slot) => this._ledger.cellValue(rawIndex, slot),
     decoration: () => this.rowsDecoration(),
     required: (slot) => this.listColumns()[slot]?.required === true,
+    inSubline: (slot) => this.listColumns()[slot]?.subline === true,
     bottom: () => this.underRows(),
   })
 
@@ -143,12 +144,14 @@ export class Capture extends BlockElement
     const captured = this._ledger.capturedValues
     return {
       count: 1 + captured.length,
-      render: ({ view, cols, rulerTicks }) => {
+      render: ({ view, cols, sub, subCols, rulerTicks }) => {
         const correctionSlot = this._ledger.correctionSlot
         return capturedRowsTpl({
           columns: view.columns,
           slots: view.slots,
           cols,
+          sub,
+          subCols,
           captured,
           capturedState: (index) => this._ledger.capturedStatus(index),
           correctionSlot,
@@ -161,10 +164,11 @@ export class Capture extends BlockElement
               windowWidth: validMetrics(this.windowWidth, WINDOW_WIDTH),
               windowHeight: validMetrics(this.windowHeight, WINDOW_HEIGHT),
             },
-            cols,
-
-            correctionSlot === null && (rulerTicks ?? 1) <= 0,
             view,
+            cols,
+            sub,
+            subCols,
+            correctionSlot === null && (rulerTicks ?? 1) <= 0,
           ),
         }, {
           takeCapturedRow: (index) => this._ledger.removeCaptured(index),

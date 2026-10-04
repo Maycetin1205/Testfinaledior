@@ -8,8 +8,15 @@ import {
 import { styleMap } from 'lit/directives/style-map.js'
 import { ViewChoices } from './viewChoices'
 import { giverIdOf } from '../../runtime/selection'
-import type { MeasureTarget } from './pageSize'
-import { columnsView, sendColumnsChange, type Column } from './columns'
+import { SUBLINE_HEIGHT, type MeasureTarget } from './pageSize'
+import {
+  columnsTemplate,
+  columnsView,
+  sendColumnsChange,
+  type Column,
+  type ColumnView,
+  type ColumnsGrid,
+} from './columns'
 import { WidthsState } from './columnWidth'
 import { ColumnsChoiceState } from './columnPicker'
 import { tableRenderModel } from './tableModel'
@@ -53,6 +60,9 @@ interface ListHooks {
   decoration: () => (rawIndex: number | null) => RowDecoration
 
   required: (slot: number) => boolean
+
+  // A column that stands in the grey line under the row.
+  inSubline: (slot: number) => boolean
 
   bottom: () => Sublines | null
 }
@@ -112,7 +122,7 @@ export class RecordList implements ReactiveController {
       writeColumns: (columns) => sendColumnsChange(el, columns),
       report: () => el.requestUpdate(),
     })
-    this._view = new ViewChoices(el, () => el.listColumns())
+    this._view = new ViewChoices(el, () => el.listColumns(), () => this.subHeight())
     this._choice = new ColumnsChoiceState({
       block: el,
       on: () => this.columnPickerOn,
@@ -148,10 +158,37 @@ export class RecordList implements ReactiveController {
     el.requestUpdate()
   }
 
-  // The columns the operator sees, by their place among all columns.
-  shownSlots(): readonly number[] {
+  private visibleView(): ColumnView {
     const el = this.el
-    return columnsView(el.listColumns(), el.preview, this._choice.away()).slots
+    return columnsView(el.listColumns(), el.preview, this._choice.away())
+  }
+
+  // The row and the grey line under it, each with its own columns.
+  private splitView(visible: ColumnView): { main: ColumnView; sub: ColumnView } {
+    const hooks = this.hooks
+    if (!hooks || !visible.slots.some((slot) => hooks.inSubline(slot))) {
+      return { main: visible, sub: { columns: [], slots: [] } }
+    }
+    const main: { columns: Column[]; slots: number[] } = { columns: [], slots: [] }
+    const sub: { columns: Column[]; slots: number[] } = { columns: [], slots: [] }
+    visible.columns.forEach((column, i) => {
+      const slot = visible.slots[i]
+      const into = hooks.inSubline(slot) ? sub : main
+      into.columns.push(column)
+      into.slots.push(slot)
+    })
+    return { main, sub }
+  }
+
+  private subHeight(): number {
+    return this.splitView(this.visibleView()).sub.columns.length > 0 ? SUBLINE_HEIGHT : 0
+  }
+
+  // The columns the operator sees, by their place among all columns: first
+  // those of the row, then those of the line under it. Tab walks them so.
+  shownSlots(): readonly number[] {
+    const { main, sub } = this.splitView(this.visibleView())
+    return [...main.slots, ...sub.slots]
   }
 
   reset(): void {
@@ -225,7 +262,11 @@ export class RecordList implements ReactiveController {
   render(): TemplateResult {
     const el = this.el
     const columns = el.listColumns()
-    const visible = columnsView(columns, el.preview, this._choice.away())
+    const { main: visible, sub } = this.splitView(this.visibleView())
+    const subCols: ColumnsGrid = {
+      gridTemplateColumns: columnsTemplate(sub.columns, (j) => this._widths.widthOf(sub.slots[j] ?? j)),
+    }
+    const subHeight = sub.columns.length > 0 ? SUBLINE_HEIGHT : 0
     const bottom = this.hooks?.bottom() ?? null
     const decoration = this.hooks?.decoration() ?? ((): RowDecoration => WITHOUT_DECORATION)
     const shows = listEmptyState({
@@ -255,11 +296,15 @@ export class RecordList implements ReactiveController {
     return html`<div class="table" style=${styleMap({
       '--tick': `${view.tick}px`,
       '--row-height': `${view.rowsHeight}px`,
+      '--sub-height': `${subHeight}px`,
+      '--record-height': `${view.rowsHeight + subHeight}px`,
     })}>
       ${tableBody({
         columns: visible.columns,
         slots: visible.slots,
         cols: view.cols,
+        sub,
+        subCols,
         editable: el.editable,
         preview: el.preview,
         columnPickerOn: this.columnPickerOn,
@@ -284,7 +329,7 @@ export class RecordList implements ReactiveController {
         required: (slot) => this.hooks?.required(slot) ?? false,
         bottom: bottom === null
           ? nothing
-          : bottom.render({ view: visible, cols: view.cols, rulerTicks: view.rulerTicks }),
+          : bottom.render({ view: visible, cols: view.cols, sub, subCols, rulerTicks: view.rulerTicks }),
       }, {
         setSearchText: (text) => this._view.setSearchText(text),
         openColumnPicker: (e) => this.openColumnPicker(e),
@@ -294,6 +339,7 @@ export class RecordList implements ReactiveController {
           close: () => this._choice.close(),
         },
         widths: this._widths.hostForDrag(),
+        subWidths: this._widths.hostForDrag(visible.columns.length),
         clickHead: (i) => this._view.clickSort(i),
         activateRow: (rawIndex, viewIndex) => {
           activateRow(el, this._rowsChoice, el.rawRows, rawIndex, viewIndex)

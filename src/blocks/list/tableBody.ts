@@ -40,6 +40,10 @@ export interface Sublines {
   render: (placement: {
     view: ColumnView
     cols: ColumnsGrid
+
+    // The columns of the grey line under each row, with their own grid.
+    sub: ColumnView
+    subCols: ColumnsGrid
     rulerTicks: number | null
   }) => TemplateResult
 }
@@ -50,6 +54,9 @@ interface BodyPlacement {
   slots: readonly number[]
 
   cols: ColumnsGrid
+
+  sub: ColumnView
+  subCols: ColumnsGrid
 
   editable: boolean
 
@@ -90,6 +97,8 @@ interface BodyAct {
 
   widths: WidthsHost
 
+  subWidths: WidthsHost
+
   clickHead: (index: number) => void
 
   openColumnPicker: (e: MouseEvent) => void
@@ -107,11 +116,32 @@ function ruler(placement: BodyPlacement): TemplateResult | typeof nothing {
     : {
         ...placement.cols,
         flex: '0 1 auto',
-        height: `calc(var(--row-height) * ${placement.rulerTicks})`,
+        height: `calc(var(--record-height) * ${placement.rulerTicks})`,
       }
   return html`<div class="ruler" role="presentation" style=${styleMap(style)}>
           ${placement.columns.map(() => html`<div></div>`)}
         </div>`
+}
+
+function cellTpl(
+  placement: BodyPlacement,
+  decoration: RowDecoration,
+  rawIndex: number | null,
+  s: Column,
+  slot: number,
+): TemplateResult {
+  const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : CELL_PLACEHOLDER
+  const own = rawIndex === null ? null : decoration.cell(slot, s, value)
+  if (own !== null) return own
+
+  const classes = [
+    s.hidden === true ? 'hidden' : '',
+    rawIndex !== null && asNumber(value) !== null ? 'number' : '',
+  ].filter((k) => k !== '').join(' ')
+  return html`<div
+    class=${classes === '' ? nothing : classes}
+    role="cell"
+  >${markHit(value, placement.searchText)}</div>`
 }
 
 function rowTpl(
@@ -122,10 +152,12 @@ function rowTpl(
 ): TemplateResult {
   const activatable = rawIndex !== null
   const decoration = placement.decoration(rawIndex)
+  const sub = placement.sub
   return html`<div
     class="row${
       rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
+      sub.columns.length > 0 ? ' subline' : ''}${
       decoration.className === '' ? '' : ' ' + decoration.className}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}
@@ -163,23 +195,37 @@ function rowTpl(
       act.activateRow(rawIndex, viewIndex)
     }}
   >
-    ${placement.columns.map((s, i) => {
-      const slot = placement.slots[i]
-      const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : CELL_PLACEHOLDER
-      const own = rawIndex === null ? null : decoration.cell(slot, s, value)
-      if (own !== null) return own
-
-      const classes = [
-        s.hidden === true ? 'hidden' : '',
-        rawIndex !== null && asNumber(value) !== null ? 'number' : '',
-      ].filter((k) => k !== '').join(' ')
-      return html`<div
-        class=${classes === '' ? nothing : classes}
-        role="cell"
-      >${markHit(value, placement.searchText)}</div>`
-    })}
+    ${placement.columns.map((s, i) => cellTpl(placement, decoration, rawIndex, s, placement.slots[i]))}
+    ${sub.columns.length === 0 ? nothing : html`<div class="sub" role="presentation" style=${styleMap(placement.subCols)}>
+      ${sub.columns.map((s, i) => cellTpl(placement, decoration, rawIndex, s, sub.slots[i]))}
+    </div>`}
     ${decoration.right}
   </div>`
+}
+
+function headCellTpl(
+  placement: BodyPlacement,
+  act: BodyAct,
+  s: Column,
+  slot: number,
+  i: number,
+): TemplateResult {
+  return html`<div
+    class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'number' : '']
+      .filter((k) => k !== '').join(' ') || nothing}
+    role="columnheader"
+    data-ff-editable
+    data-ff-entry=${placement.preview ? slot : nothing}
+    style="grid-row: 1; grid-column: ${i + 1}"
+    @click=${() => act.clickHead(slot)}
+    @contextmenu=${placement.columnPickerOn
+      ? (e: MouseEvent) => act.openColumnPicker(e)
+      : nothing}
+  ><span class="head-text">${s.title}</span>${placement.required(slot)
+    ? html`<em class="required">*</em>`
+    : nothing}${!placement.editable && placement.sortColumn === slot
+    ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
+    : ''}</div>`
 }
 
 export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResult {
@@ -201,27 +247,13 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
         </div>
       </div>` : ''}
       <div class="body" role=${placement.empty ? nothing : 'table'} tabindex="-1">
-      <div class="head" role="row" style=${styleMap(placement.cols)}>
-        ${
-          placement.columns.map(
-          (s, i) => html`<div
-            class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'number' : '']
-              .filter((k) => k !== '').join(' ') || nothing}
-            role="columnheader"
-            data-ff-editable
-            data-ff-entry=${placement.preview ? placement.slots[i] : nothing}
-            style="grid-row: 1; grid-column: ${i + 1}"
-            @click=${() => act.clickHead(placement.slots[i])}
-            @contextmenu=${placement.columnPickerOn
-              ? (e: MouseEvent) => act.openColumnPicker(e)
-              : nothing}
-          ><span class="head-text">${s.title}</span>${placement.required(placement.slots[i])
-            ? html`<em class="required">*</em>`
-            : nothing}${!placement.editable && placement.sortColumn === placement.slots[i]
-            ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
-            : ''}</div>`,
-        )}
+      <div class="head${placement.sub.columns.length > 0 ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+        ${placement.columns.map((s, i) => headCellTpl(placement, act, s, placement.slots[i], i))}
         ${widthsHandles(placement.columns.length, act.widths)}
+        ${placement.sub.columns.length === 0 ? nothing : html`<div class="sub" role="presentation" style=${styleMap(placement.subCols)}>
+          ${placement.sub.columns.map((s, i) => headCellTpl(placement, act, s, placement.sub.slots[i], i))}
+          ${widthsHandles(placement.sub.columns.length, act.subWidths)}
+        </div>`}
       </div>
         ${placement.empty ? nothing : html`
         ${placement.rows.map((rawIndex, viewIndex) => html`${

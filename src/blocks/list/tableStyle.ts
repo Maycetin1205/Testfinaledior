@@ -112,9 +112,9 @@ export const tableStyle = css`
           repeating-linear-gradient(
             to bottom,
             transparent 0,
-            transparent calc(var(--row-height) - 1px),
-            var(--se-line-soft) calc(var(--row-height) - 1px),
-            var(--se-line-soft) var(--row-height)
+            transparent calc(var(--record-height) - 1px),
+            var(--se-line-soft) calc(var(--record-height) - 1px),
+            var(--se-line-soft) var(--record-height)
           );
         background-position: 0 0;
 
@@ -172,11 +172,55 @@ export const tableStyle = css`
         border-left: var(--se-border) solid var(--se-line-soft);
       }
 
-      .row > div.number {
+      .row > div.number,
+      .sub > div.number {
         text-align: right;
         font-variant-numeric: tabular-nums;
       }
-      .head > div.number { justify-content: flex-end; text-align: right; }
+      .head > div.number,
+      .head .sub > div.number { justify-content: flex-end; text-align: right; }
+
+      /* The grey line under a row: its own columns in their own widths, under
+         a second, grey head line. */
+      .head.subline { grid-template-rows: var(--row-height) var(--sub-height); }
+      .row.subline {
+        height: calc(var(--row-height) + var(--sub-height));
+        grid-template-rows: var(--row-height) var(--sub-height);
+      }
+      .head > .sub,
+      .row > .sub {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        display: grid;
+        padding: 0;
+        overflow: visible;
+        white-space: normal;
+        line-height: normal;
+        cursor: default;
+        border-left: 0;
+      }
+      .sub > div {
+        min-width: 0;
+        padding: 0 var(--se-cell-x);
+        line-height: calc(var(--sub-height) - var(--se-border));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: var(--se-fs-sm);
+        color: var(--se-muted);
+      }
+      .head .sub > div {
+        position: relative;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        font-size: var(--se-fs-xs);
+      }
+      .head .sub > [role='columnheader'] + [role='columnheader'],
+      .sub > [role='cell'] + [role='cell'] {
+        border-left: var(--se-border) solid var(--se-line-soft);
+      }
 
       /* Two title lines fit exactly one tick: the page count takes the head for
          one row, anything taller would scroll the body. */
