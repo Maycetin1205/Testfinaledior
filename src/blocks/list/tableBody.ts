@@ -199,7 +199,7 @@ function rowTpl(
     class="row${
       rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
-      placement.layout.hasSubs ? ' subline' : ''}${
+      rawIndex !== null && placement.layout.hasSubs ? ' subline' : ''}${
       decoration.className === '' ? '' : ' ' + decoration.className}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}

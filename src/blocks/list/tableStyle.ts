@@ -105,6 +105,8 @@ export const tableStyle = css`
 
       .body > .row { flex: none; }
 
+      /* The room under the records: a line per row height, as an empty list
+         draws it, whatever height a record takes. */
       .ruler {
         flex: 1 1 auto;
         min-height: 0;
@@ -113,9 +115,9 @@ export const tableStyle = css`
           repeating-linear-gradient(
             to bottom,
             transparent 0,
-            transparent calc(var(--record-height) - 1px),
-            var(--se-line-soft) calc(var(--record-height) - 1px),
-            var(--se-line-soft) var(--record-height)
+            transparent calc(var(--row-height) - 1px),
+            var(--se-line-soft) calc(var(--row-height) - 1px),
+            var(--se-line-soft) var(--row-height)
           );
         background-position: 0 0;
 
@@ -180,9 +182,10 @@ export const tableStyle = css`
       .head > div.number { justify-content: flex-end; text-align: right; }
       .head-line { display: flex; align-items: center; min-width: 0; }
 
-      /* A row with sublines is two text lines high: the value of the column
+      /* A record with sublines is two text lines high: the value of the column
          on top, under it, small and faint, the values of the subline
-         columns anchored to it. The head carries their titles the same way. */
+         columns anchored to it. The head carries their titles the same way.
+         A row without a record stays one line high. */
       .head.subline { min-height: calc(var(--row-height) + var(--sub-height)); }
       .row.subline { height: calc(var(--row-height) + var(--sub-height)); }
       .head.subline > div,

@@ -134,7 +134,9 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
     page,
     rows,
 
-    rulerTicks: rulerTicks(free, rows.length),
+    // In the editor the placeholder rows are one line high each, so the
+    // ruler fills whatever they leave.
+    rulerTicks: showsRows ? rulerTicks(free, rows.length) : null,
 
     totals: totalsOf(question, allVisible),
   }
