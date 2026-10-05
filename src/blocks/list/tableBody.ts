@@ -368,7 +368,7 @@ export function tableFoot(
       </span>`)}
     </div>`}
     <div class="foot-right">
-      ${!placement.paging ? nothing : html`<div class="page-nav">
+      ${!placement.paging || placement.pageCount <= 1 ? nothing : html`<div class="page-nav">
         <button
           aria-label="Seite zurück"
           ?disabled=${placement.page <= 0}
