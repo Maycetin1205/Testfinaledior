@@ -24,9 +24,19 @@ export interface QueryAnswer {
   rows?: unknown[]
 }
 
+// What narrows the question, resolved: the kind of document and the address
+// whose documents are asked for; empty asks for all.
+export interface QueryKeys {
+  documentKind: string
+  address: string
+}
+
+export const ALL_RECORDS: QueryKeys = { documentKind: '', address: '' }
+
 interface QueryJob {
   query: RuntimeQuery
   name: string
+  keys: QueryKeys
   resolve: (answer: QueryAnswer) => void
 }
 
@@ -209,20 +219,24 @@ function sendQuery(job: QueryJob): void {
       done()
       return
     }
+    // The keys SoftEngine's own masks give BELEG.GET.
+    const { documentKind, address } = job.keys
     g.basisHTML_SND_MSG('ERPAPICALL', {
       ID: job.query.id,
       ALIAS: job.name,
       FELDER: job.query.fields,
+      ...(documentKind === '' ? {} : { BELART: documentKind }),
+      ...(address === '' ? {} : { VON_ADRNR: address, BIS_ADRNR: address }),
     })
   } catch {
     done()
   }
 }
 
-export function queryRun(query: RuntimeQuery, name: string): Promise<QueryAnswer> {
+export function queryRun(query: RuntimeQuery, name: string, keys: QueryKeys = ALL_RECORDS): Promise<QueryAnswer> {
   startSe()
   return new Promise((resolve) => {
-    hostCalls.queue.push({ query, name, resolve })
+    hostCalls.queue.push({ query, name, keys, resolve })
     nextCall()
   })
 }

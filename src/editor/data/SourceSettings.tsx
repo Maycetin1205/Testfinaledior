@@ -3,6 +3,7 @@ import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { Strip } from '@/editor/widgets/Grid'
 import { relationParameterDefault, type Parameter } from '../../core/data/actions'
+import { splitBinding } from '../../core/block/blockType'
 import { choiceOf, fieldPrefixFromInput, type DataSource } from '../../core/data/dataSources'
 import { getValueSourceAllowed } from '../../core/data/deliveries/relationValue'
 import { readMaskFields } from '../../core/data/maskFields'
@@ -11,6 +12,7 @@ import { POSITIONS_RELATION, relationSyntaxAsText, type RelationTemplate } from 
 import { sourceChoices } from '../actions/placeChoices'
 import { Places } from '../actions/Places'
 import { PickerControl } from '../controls/PickerControl'
+import type { ListGroup } from '@/editor/widgets/List'
 import { useDataSources } from '../state/useDataSources'
 import { useRelations } from '../state/useRelations'
 import { deliveries, deliveryOf, NEW_POSITIONS, withDelivery, withPreset, withSettings, type SourceData } from './sourceEdit'
@@ -47,9 +49,12 @@ function useSource(source: DataSource) {
 // delivers, the prefix of its fields, the area of a mask, the relation that
 // fetches its value. Every change is saved at once.
 export function SourceSettings({ source }: { source: DataSource }) {
-  const { relationStore, relations, choice, listed, getters, getValue, valued, save, saveValue } = useSource(source)
+  const { store, relationStore, relations, choice, listed, getters, getValue, valued, save, saveValue } = useSource(source)
   const preset = sourcePreset(source.preset)
   const delivers = deliveries(source, relations)
+  const restriction = choice.restriction
+  const saveRestriction = (change: Partial<typeof restriction>) =>
+    save(withSettings(source, { choice: { restriction: { ...restriction, ...change } } }))
 
   return (
     <div className="flex h-[30px] shrink-0 items-center gap-[18px] overflow-hidden border-b border-line bg-control px-[12px]">
@@ -88,6 +93,32 @@ export function SourceSettings({ source }: { source: DataSource }) {
             onSave={(t) => save(withSettings(source, { fieldPrefix: fieldPrefixFromInput(t) }))}
           />
         </Setting>
+      )}
+
+      {listed.delivery.kind === 'message' && (
+        <>
+          <Setting name="Belegart">
+            <TextCell
+              name="Belegart"
+              value={restriction.documentKind}
+              valid={() => true}
+              onSave={(t) => saveRestriction({ documentKind: t.trim() })}
+            />
+          </Setting>
+          <Setting name="Adresse">
+            <PickerControl
+              name="Adresse"
+              className={cn(PICKER, 'w-[200px]')}
+              groups={openRecordFields(store.list, source.id)}
+              value={restriction.address ? `${restriction.address.sourceId}::${restriction.address.code}` : ''}
+              emptyText="alle"
+              onChoose={(v) => {
+                const { sourceId, code } = splitBinding(v)
+                saveRestriction({ address: v === '' ? null : { sourceId, code } })
+              }}
+            />
+          </Setting>
+        </>
       )}
 
       {listed.order.kind === 'mask' && (
@@ -153,6 +184,18 @@ function RelationChoice({ getters, value, onChoose }: {
       }}
     />
   )
+}
+
+// The fields of every source that delivers the open record, as groups of a
+// list: where an ERP query reads the address whose documents it asks for.
+function openRecordFields(sources: readonly DataSource[], ownId: string): ListGroup[] {
+  return sources
+    .filter((s) => s.id !== ownId && choiceOf(s).openRecord && s.fields.length > 0)
+    .map((s) => ({
+      key: s.id,
+      name: s.name,
+      entries: s.fields.map((f) => ({ value: `${s.id}::${f.code}`, name: f.name })),
+    }))
 }
 
 // One setting: its name, then its control.
