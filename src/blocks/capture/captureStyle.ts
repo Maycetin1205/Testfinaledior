@@ -86,6 +86,9 @@ export const captureStyle = css`
          second line share it, each as small as the line. */
       .row.subline > div > .line { display: flex; align-items: center; overflow: visible; }
       .row.subline > div > .subs { overflow: visible; }
+      /* The second line of the capture row shows as a line: a hairline
+         above it, where the booked rows show their grey values. */
+      .row.capture > div > .subs { border-top: var(--se-border) solid var(--se-line-soft); }
       .subs > .part.typable {
         display: flex;
         align-items: center;

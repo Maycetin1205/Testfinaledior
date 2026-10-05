@@ -2,8 +2,8 @@ import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { columnsChoiceTpl, type ColumnsChoiceAct, type ColumnsChoicePlacement } from './columnPicker'
 import { markHit } from './textSearch'
-import { asNumber } from '../../core/data/number'
 import {
+  columnStandsRight,
   type Column,
   type ColumnView,
   type ColumnsGrid,
@@ -174,7 +174,7 @@ function cellTpl(
   const subs = placement.layout.subsOf(slot)
   const classes = [
     s.hidden === true ? 'hidden' : '',
-    rawIndex !== null && asNumber(main.value) !== null ? 'number' : '',
+    columnStandsRight(s) ? 'number' : '',
     main.typable ? 'typable' : '',
   ].filter((k) => k !== '').join(' ')
   if (!placement.layout.hasSubs) {
@@ -264,7 +264,7 @@ function headCellTpl(
   // two-line cell: the subline titles below have spots of their own.
   const onLine = placement.layout.hasSubs
   return html`<div
-    class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'number' : '']
+    class=${[s.hidden === true ? 'hidden' : '', columnStandsRight(s) ? 'number' : '']
       .filter((k) => k !== '').join(' ') || nothing}
     role="columnheader"
     data-ff-editable=${onLine ? nothing : ''}

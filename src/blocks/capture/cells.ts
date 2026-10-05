@@ -67,23 +67,14 @@ export const cellsInputStyle = css`
         border-radius: var(--se-radius);
       }
 
-      /* The cell being typed into is framed in the accent and white, as a
-         field with the focus. */
-      .cell-input:focus {
-        outline: none;
-        background: var(--se-panel);
-        border-color: var(--se-accent);
-        box-shadow: var(--se-focus);
-      }
+      /* A cell being typed into looks like any other, only with the cursor. */
+      .cell-input:focus { outline: none; }
 
       /* The required cell that held the row back keeps its red edge until
          it gets a value. */
       .cell-input.held { border-color: var(--se-danger); }
 
-      /* Left while typing: a number typed up to its comma is no number yet,
-         and the text would jump. */
       .number .cell-holder > .cell-input { text-align: right; }
-      .number .cell-holder > .cell-input:focus { text-align: left; }
 
       .cell-input::placeholder { color: transparent; }
       .row.capture .cell-input::placeholder { color: var(--se-faint); }

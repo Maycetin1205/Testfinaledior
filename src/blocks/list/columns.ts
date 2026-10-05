@@ -50,6 +50,13 @@ export function columnsView(
 
 export const FIELD_KEY_PREFIX = 'field:'
 
+// A column stands right when it carries a sum: the one fact of a column that
+// says it holds numbers. Everything else stands left, a value that merely
+// looks like a number too, so a column never mixes its edges.
+export function columnStandsRight(column: Column): boolean {
+  return column.total === true
+}
+
 const COLUMNS_MIN = 1
 
 export const COLUMNS_MAX = 16

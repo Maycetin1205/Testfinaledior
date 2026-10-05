@@ -4,8 +4,7 @@ import type { SuggestionRow } from '../lookup/suggestionList'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
-import { asNumber } from '../../core/data/number'
-import { FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import { columnStandsRight, FIELD_KEY_PREFIX, type Column } from '../list/columns'
 import { sublineTpl, type RowLayout } from '../list/tableBody'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
@@ -80,12 +79,12 @@ function captureCellTpl(
     ><span class="cell-label"></span></div>`
   }
 
-  const value = placement.value(slot)
   const main = captureInputTpl(placement, act, column, slot)
+  const number = columnStandsRight(column) ? 'number' : nothing
   if (!layout.hasSubs) {
-    return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell">${main}</div>`
+    return html`<div class=${number} role="cell">${main}</div>`
   }
-  return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell"
+  return html`<div class=${number} role="cell"
     ><span class="line">${main}</span>${subs.columns.length === 0
       ? nothing
       : sublineTpl(subs.columns.map((c, i) => ({

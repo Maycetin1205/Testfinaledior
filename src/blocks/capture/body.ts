@@ -3,8 +3,7 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
-import { asNumber } from '../../core/data/number'
-import type { Column } from '../list/columns'
+import { columnStandsRight, type Column } from '../list/columns'
 import { sublineTpl, WITHOUT_DECORATION, type RowDecoration, type RowLayout } from '../list/tableBody'
 import type { CaptureLedger, RowState } from './ledger'
 
@@ -65,9 +64,9 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
     const state = placement.capturedState(rowsIndex)
 
     const fixed = state.status === 'written'
-    const cell = (slot: number): TemplateResult => {
+    const cell = (column: Column, slot: number): TemplateResult => {
       const value = values[slot] ?? ''
-      const number = asNumber(value) !== null ? 'number' : nothing
+      const number = columnStandsRight(column) ? 'number' : nothing
       if (!layout.hasSubs) return html`<div class=${number} role="cell">${value}</div>`
       const subs = layout.subsOf(slot)
       return html`<div class=${number} role="cell"><span class="line">${value}</span>${subs.columns.length === 0
@@ -81,7 +80,7 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
       style=${styleMap(placement.cols)}
       @click=${fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
     >
-      ${placement.columns.map((_s, i) => cell(placement.slots[i]))}
+      ${placement.columns.map((column, i) => cell(column, placement.slots[i]))}
       <button
         class="row-remove"
         type="button"
