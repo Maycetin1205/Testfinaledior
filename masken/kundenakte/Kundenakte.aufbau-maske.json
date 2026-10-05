@@ -1,0 +1,1080 @@
+{
+  "kind": "aufbau-editor-maske",
+  "fileVersion": 4,
+  "schemaVersion": 25,
+  "tree": {
+    "root": {
+      "id": "root",
+      "type": "root",
+      "parentId": null,
+      "values": {
+        "maskName": "Kundenakte",
+        "documentFrame": "10000"
+      },
+      "childIds": [
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000001",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000002",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000003",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000004",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000007",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000008",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000009",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000010",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000011",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000012",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000014",
+        "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a01",
+        "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a02",
+        "b7d2c4e8-5f61-4a3b-8c9d-000000000013"
+      ]
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000001": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000001",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 16,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "color": "",
+        "size": "",
+        "align": "left",
+        "text": "Kunde",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000002": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000002",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 1,
+        "gridW": 16,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "title",
+        "color": "",
+        "size": "19",
+        "align": "left",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "107_30"
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000003": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000003",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 17,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "color": "",
+        "size": "",
+        "align": "left",
+        "text": "Kunden-Nr.",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000004": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000004",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 17,
+        "gridY": 1,
+        "gridW": 5,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "body",
+        "color": "",
+        "size": "14",
+        "align": "left",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "11_8"
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000007": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000007",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 37,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "color": "",
+        "size": "",
+        "align": "right",
+        "text": "Offener Beleg",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000008": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000008",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 37,
+        "gridY": 1,
+        "gridW": 5,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "body",
+        "color": "",
+        "size": "14",
+        "align": "right",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "3_8"
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000009": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000009",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 43,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "color": "",
+        "size": "",
+        "align": "right",
+        "text": "Belegdatum",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000010": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000010",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 43,
+        "gridY": 1,
+        "gridW": 5,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "body",
+        "color": "",
+        "size": "14",
+        "align": "right",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "19_10"
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000011": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000011",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 4,
+        "gridW": 18,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "heading",
+        "color": "",
+        "size": "14",
+        "align": "left",
+        "text": "Belege des Kunden",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000012": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000012",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 19,
+        "gridY": 4,
+        "gridW": 3,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "heading",
+        "color": "",
+        "size": "14",
+        "align": "left",
+        "text": "Positionen",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000014": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000014",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 22,
+        "gridY": 4,
+        "gridW": 6,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a01",
+            "pairs": [
+              {
+                "fromField": "BEL_3_8",
+                "toField": "BEL_3_8"
+              }
+            ]
+          }
+        ],
+        "variant": "muted",
+        "color": "",
+        "size": "14",
+        "align": "left",
+        "text": "",
+        "source": "5c6c3be6-dbed-44d6-92cf-24ba89e59c31",
+        "textField": "BEL_3_8"
+      },
+      "childIds": []
+    },
+    "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a01": {
+      "id": "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a01",
+      "type": "table",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 18,
+        "gridH": 40,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "BEL_11_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "fromField": "2_1",
+                "toField": "BEL_2_1",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ],
+        "source": "5c6c3be6-dbed-44d6-92cf-24ba89e59c31",
+        "columns": [
+          {
+            "key": "s1",
+            "title": "Datum",
+            "field": "BEL_19_10",
+            "width": 90
+          },
+          {
+            "key": "s3",
+            "title": "Beleg-Nr.",
+            "field": "BEL_3_8",
+            "width": 90
+          },
+          {
+            "key": "s5",
+            "title": "Netto",
+            "field": "BEL_1610_12",
+            "width": 110,
+            "total": true
+          },
+          {
+            "key": "s6",
+            "title": "Brutto",
+            "field": "BEL_8204_12",
+            "width": 110,
+            "total": true
+          }
+        ],
+        "search": false,
+        "paging": false,
+        "sortByClick": true,
+        "columnPicker": false,
+        "dayField": ""
+      },
+      "childIds": []
+    },
+    "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a02": {
+      "id": "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a02",
+      "type": "table",
+      "parentId": "root",
+      "values": {
+        "gridX": 19,
+        "gridY": 6,
+        "gridW": 29,
+        "gridH": 40,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a01",
+            "pairs": []
+          }
+        ],
+        "source": "0879b91f-63ed-48b1-9beb-310cff2f36f7",
+        "columns": [
+          {
+            "key": "s1",
+            "title": "Artikel-Nr.",
+            "field": "18_25",
+            "width": 110
+          },
+          {
+            "key": "s2",
+            "title": "Bezeichnung",
+            "field": "45_60",
+            "width": 300
+          },
+          {
+            "key": "s3",
+            "title": "Menge",
+            "field": "164_8",
+            "width": 70
+          },
+          {
+            "key": "s4",
+            "title": "Einzelpreis",
+            "field": "246_9",
+            "width": 90
+          },
+          {
+            "key": "s5",
+            "title": "Gesamtpreis",
+            "field": "280_12",
+            "width": 100,
+            "total": true
+          }
+        ],
+        "search": false,
+        "paging": false,
+        "sortByClick": true,
+        "columnPicker": false,
+        "dayField": ""
+      },
+      "childIds": []
+    },
+    "b7d2c4e8-5f61-4a3b-8c9d-000000000013": {
+      "id": "b7d2c4e8-5f61-4a3b-8c9d-000000000013",
+      "type": "button",
+      "parentId": "root",
+      "values": {
+        "gridX": 41,
+        "gridY": 46,
+        "gridW": 7,
+        "gridH": 2,
+        "label": "Position übernehmen",
+        "variant": "primary"
+      },
+      "childIds": [],
+      "chains": {
+        "onClick": [
+          {
+            "id": "st-put82",
+            "kind": "RELATION",
+            "resultName": "",
+            "relationId": "9c5d2276-c003-4865-ae28-371c84ab6d90",
+            "parameter": [
+              {
+                "source": "fixed",
+                "value": "0"
+              },
+              {
+                "source": "dataField",
+                "value": "2_1",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "dataField",
+                "value": "3_8",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "18_25",
+                "blockId": "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a02"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "164_8",
+                "blockId": "a1c0f7e2-3b4d-4c51-9e6a-0d2f8b7c1a02"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              }
+            ],
+            "extraParameter": []
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": [
+    {
+      "id": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+      "name": "Beleg",
+      "preset": "document",
+      "tableId": "BEL",
+      "order": {
+        "kind": "var"
+      },
+      "delivery": {
+        "kind": "push",
+        "path": "Var"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fields": [
+        {
+          "code": "2_1",
+          "name": "Belegart"
+        },
+        {
+          "code": "3_8",
+          "name": "Belegnummer"
+        },
+        {
+          "code": "0_1",
+          "name": "Jahr"
+        },
+        {
+          "code": "1_1",
+          "name": "Archiv"
+        },
+        {
+          "code": "11_8",
+          "name": "Ad.Nr."
+        },
+        {
+          "code": "107_30",
+          "name": "Firmenname"
+        },
+        {
+          "code": "19_10",
+          "name": "Belegdatum"
+        },
+        {
+          "code": "1313_8",
+          "name": "Vorgang"
+        },
+        {
+          "code": "29_10",
+          "name": "Liefer-/Versanddatum"
+        }
+      ]
+    },
+    {
+      "id": "5c6c3be6-dbed-44d6-92cf-24ba89e59c31",
+      "name": "Belege",
+      "preset": "erpQuery",
+      "tableId": "BELEG.GET",
+      "order": {
+        "kind": "none"
+      },
+      "delivery": {
+        "kind": "message"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fieldPrefix": "BEL_",
+      "fields": [
+        {
+          "code": "BEL_0_11",
+          "name": "Satzschluessel"
+        },
+        {
+          "code": "BEL_107_30",
+          "name": "Firmenname"
+        },
+        {
+          "code": "BEL_3437_3",
+          "name": "FI - Fibu gebucht"
+        },
+        {
+          "code": "BEL_3434_3",
+          "name": "DR - Beleg gedruckt"
+        },
+        {
+          "code": "BEL_3_8",
+          "name": "Beleg-Nr."
+        },
+        {
+          "code": "BEL_11_8",
+          "name": "Ad.Nr."
+        },
+        {
+          "code": "BEL_19_10",
+          "name": "Belegdatum"
+        },
+        {
+          "code": "BEL_3440_60",
+          "name": "Name"
+        },
+        {
+          "code": "BEL_1610_12",
+          "name": "Netto EUR"
+        },
+        {
+          "code": "BEL_7335_12",
+          "name": "Mwst EUR"
+        },
+        {
+          "code": "BEL_8204_12",
+          "name": "Brutto EUR"
+        },
+        {
+          "code": "BEL_1574_12",
+          "name": "Rohertrag EUR"
+        },
+        {
+          "code": "BEL_1313_8",
+          "name": "Vorgang"
+        },
+        {
+          "code": "BEL_29_10",
+          "name": "Liefer-/Versanddatum"
+        },
+        {
+          "code": "BEL_39_8",
+          "name": "Projektnummer"
+        },
+        {
+          "code": "BEL_47_10",
+          "name": "Kurzname"
+        },
+        {
+          "code": "BEL_57_10",
+          "name": "Postleitzahl"
+        },
+        {
+          "code": "BEL_1893_2",
+          "name": "Beleggruppe"
+        },
+        {
+          "code": "BEL_747_8",
+          "name": "Lieferadresse"
+        },
+        {
+          "code": "BEL_631_12",
+          "name": "Belegnummer Lieferant"
+        },
+        {
+          "code": "BEL_2_1",
+          "name": "Belegart"
+        },
+        {
+          "code": "BEL_11_6",
+          "name": "Positionsnummer"
+        },
+        {
+          "code": "BEL_17_1",
+          "name": "Zeilenart"
+        },
+        {
+          "code": "BEL_18_25",
+          "name": "Artikelnummer"
+        },
+        {
+          "code": "BEL_45_60",
+          "name": "Bezeichnung"
+        },
+        {
+          "code": "BEL_164_8",
+          "name": "Menge"
+        },
+        {
+          "code": "BEL_246_9",
+          "name": "Einzelpreis"
+        },
+        {
+          "code": "BEL_280_12",
+          "name": "Gesamtpreis"
+        },
+        {
+          "code": "BEL_372_5",
+          "name": "MwSt-Satz"
+        },
+        {
+          "code": "BEL_645_10",
+          "name": "Satznummer"
+        },
+        {
+          "code": "BEL_689_5",
+          "name": "Mengeneinheit"
+        },
+        {
+          "code": "BEL_1401_12",
+          "name": "Rohertrag"
+        },
+        {
+          "code": "BEL_2558_1",
+          "name": "Farbkennzeichen"
+        },
+        {
+          "code": "BEL_412_30",
+          "name": "Tierart"
+        },
+        {
+          "code": "BEL_900_30",
+          "name": "Dosierung pro Tier"
+        },
+        {
+          "code": "BEL_930_3",
+          "name": "Körpergewicht"
+        },
+        {
+          "code": "BEL_933_3",
+          "name": "Behandlungstage"
+        },
+        {
+          "code": "BEL_936_10",
+          "name": "Anzahl der Tiere (Ausgerechnet)"
+        },
+        {
+          "code": "BEL_946_30",
+          "name": "Abgabemenge"
+        },
+        {
+          "code": "BEL_1536_100",
+          "name": "Dosierung"
+        },
+        {
+          "code": "BEL_1636_5",
+          "name": "Behandlungsdauer"
+        },
+        {
+          "code": "BEL_1641_5",
+          "name": "Behandlungsmenge"
+        },
+        {
+          "code": "BEL_1646_5",
+          "name": "Behandlungseinheit"
+        },
+        {
+          "code": "BEL_1651_5",
+          "name": "Behandlungsintervall"
+        },
+        {
+          "code": "BEL_1656_5",
+          "name": "Behandlungsintervalleinheit"
+        },
+        {
+          "code": "BEL_1661_4",
+          "name": "Dosierungseinheit"
+        },
+        {
+          "code": "BEL_1665_30",
+          "name": "Art der Verabreichung"
+        },
+        {
+          "code": "BEL_1808_30",
+          "name": "Gewicht"
+        }
+      ]
+    },
+    {
+      "id": "0879b91f-63ed-48b1-9beb-310cff2f36f7",
+      "name": "BelegGET",
+      "preset": "documentItem",
+      "tableId": "POS",
+      "order": {
+        "kind": "none"
+      },
+      "delivery": {
+        "kind": "relationRows",
+        "relationId": "positions-69",
+        "documentKindField": "2_1",
+        "documentNumberField": "3_8",
+        "yearField": "0_1",
+        "archiveField": "1_1",
+        "endFields": [
+          "11_6",
+          "18_25"
+        ]
+      },
+      "write": {
+        "kind": "putRelation",
+        "recordField": "645_10"
+      },
+      "fields": [
+        {
+          "code": "2_1",
+          "name": "Belegart",
+          "length": 1
+        },
+        {
+          "code": "3_8",
+          "name": "Belegnummer",
+          "length": 8
+        },
+        {
+          "code": "18_25",
+          "name": "Artikelnummer",
+          "length": 25
+        },
+        {
+          "code": "45_60",
+          "name": "Bezeichnung",
+          "length": 30
+        },
+        {
+          "code": "164_8",
+          "name": "Menge",
+          "length": 3
+        },
+        {
+          "code": "280_12",
+          "name": "Gesamtpreis",
+          "length": 6
+        },
+        {
+          "code": "372_5",
+          "name": "MwSt-Satz",
+          "length": 5
+        },
+        {
+          "code": "645_10",
+          "name": "Satznummer",
+          "length": 5
+        },
+        {
+          "code": "689_5",
+          "name": "Mengeneinheit",
+          "length": 5
+        },
+        {
+          "code": "1401_12",
+          "name": "Rohertrag"
+        },
+        {
+          "code": "2558_1",
+          "name": "Farbkennzeichen"
+        },
+        {
+          "code": "412_30",
+          "name": "Tierart",
+          "length": 15
+        },
+        {
+          "code": "900_30",
+          "name": "Dosierung pro Tier",
+          "length": 8
+        },
+        {
+          "code": "930_3",
+          "name": "Körpergewicht"
+        },
+        {
+          "code": "933_3",
+          "name": "Behandlungstage"
+        },
+        {
+          "code": "936_10",
+          "name": "Anzahl der Tiere (Ausgerechnet)"
+        },
+        {
+          "code": "946_30",
+          "name": "Abgabemenge"
+        },
+        {
+          "code": "1536_100",
+          "name": "Dosierung"
+        },
+        {
+          "code": "1636_5",
+          "name": "Behandlungsdauer"
+        },
+        {
+          "code": "1641_5",
+          "name": "Behandlungsmenge"
+        },
+        {
+          "code": "1646_5",
+          "name": "Behandlungseinheit"
+        },
+        {
+          "code": "1651_5",
+          "name": "Behandlungsintervall"
+        },
+        {
+          "code": "1656_5",
+          "name": "Behandlungsintervalleinheit"
+        },
+        {
+          "code": "1661_4",
+          "name": "Dosierungseinheit"
+        },
+        {
+          "code": "1665_30",
+          "name": "Art der Verabreichung"
+        },
+        {
+          "code": "1808_30",
+          "name": "Gewicht"
+        },
+        {
+          "code": "1695_60",
+          "name": "Chargennummer",
+          "length": 30
+        },
+        {
+          "code": "1268_8",
+          "name": "Stat:Adressnummer",
+          "length": 8
+        },
+        {
+          "code": "350_8",
+          "name": "Lager",
+          "length": 8
+        },
+        {
+          "code": "246_9",
+          "name": "Einzelpreis",
+          "length": 9
+        },
+        {
+          "code": "265_5",
+          "name": "Rabatt %",
+          "length": 5
+        },
+        {
+          "code": "17_1",
+          "name": "S Steuerspalte",
+          "length": 1
+        },
+        {
+          "code": "128_6",
+          "name": "Pos.Nr.",
+          "length": 1
+        }
+      ]
+    }
+  ],
+  "relation": [
+    {
+      "id": "9c5d2276-c003-4865-ae28-371c84ab6d90",
+      "name": "PUT82",
+      "verb": "PUT_RELATION",
+      "nr": "82",
+      "parameter": [
+        "GJ",
+        "BELART",
+        "BELNR",
+        "STSPALTE",
+        "ARTNR",
+        "TEXT",
+        "MENGE",
+        "EPREIS",
+        "PEH",
+        "EK",
+        "RABP",
+        "RABADR",
+        "VTRNR",
+        "EINFUEGE_SNR",
+        "EAPINFO",
+        "EAN",
+        "LANGTEXT",
+        "BUCHUNGSART",
+        "BUDAT",
+        "LAGER",
+        "TIDENT",
+        "SERNR",
+        "CHANR",
+        "PRUEFZ",
+        "KOID",
+        "KOGID",
+        "SACHKONTO",
+        "MARK",
+        "P",
+        "L",
+        "A",
+        "W"
+      ],
+      "extraParameterAllowed": true
+    },
+    {
+      "id": "positions-69",
+      "name": "Positionen holen (Relation 69)",
+      "verb": "GET_RELATION",
+      "nr": "69",
+      "parameter": [
+        "BELART",
+        "POS",
+        "LEN",
+        "BELNR",
+        "",
+        "",
+        "",
+        "",
+        "POSNR",
+        "",
+        "",
+        ""
+      ],
+      "extraParameterAllowed": false,
+      "positions": {
+        "slots": [
+          "documentKind",
+          "position",
+          "length",
+          "documentNumber",
+          "empty",
+          "empty",
+          "empty",
+          "empty",
+          "positionNumber",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        "answerLength": 255
+      }
+    }
+  ]
+}
