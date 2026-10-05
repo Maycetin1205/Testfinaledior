@@ -1,6 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { BlockNode } from '../../core/block/tree'
-import { GRID, gridSlotRead } from '../../core/block/grid'
+import { gridSlotRead } from '../../core/block/grid'
+import { columnsOf } from '../../core/block/gridArea'
 import { mayContain } from '../../core/block/registry'
 import type { EditorStore } from '../state/EditorStore'
 import type { DndState } from './dndState'
@@ -89,11 +90,12 @@ export function dragPosition(
     }
     const target = targetArea(ev.clientX, ev.clientY)
     const cell = cellFromPointer(target.area, ev.clientX - grab.x, ev.clientY - grab.y)
-    const x = Math.max(0, Math.min(cell.x, GRID.columns - pos.w))
+    const w = Math.min(pos.w, columnsOf(editor.tree, target.parentId))
+    const x = Math.max(0, Math.min(cell.x, columnsOf(editor.tree, target.parentId) - w))
     const capacity = rowsCapacity(editor.tree, target.parentId, target.area)
     const y = rowInBox(capacity, cell.y, pos.h)
     last = { target, x, y }
-    dnd.setDropTarget({ kind: 'grid', parentId: target.parentId, x, y, w: pos.w, h: pos.h })
+    dnd.setDropTarget({ parentId: target.parentId, x, y, w, h: pos.h })
   }
 
   const onUp = (): void => {

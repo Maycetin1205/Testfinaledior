@@ -37,24 +37,21 @@ Arbeitsprozess, nicht der Kern.
 1. Die Vorgabedatei `library/default.json` beschreibt die Belegposition
    mit Kopfsatz und Hol-Relation zugleich und ohne Satznummer. Damit kommen
    in der Belegerfassung nie Positionen an, und Ändern/Löschen sind aus.
-2. „Satz anlegen“ holt die neue Satznummer einmal je Kette statt einmal je
-   Zeile. Zwei erfasste Zeilen bekommen dieselbe Nummer, die zweite
-   überschreibt die erste.
-3. Nach einem Schreiben bestellt die Maske keine frischen Daten; ob das ERP
+2. Nach einem Schreiben bestellt die Maske keine frischen Daten; ob das ERP
    den Wert angenommen hat, sieht niemand. Die Ankunftsprüfung läuft bei jeder
    Lieferung und kann Zeilen zurück in die Vormerkung werfen, also doppelt
    schreiben.
-4. Die Statusfarben der Erfassung sind tot: der Code setzt englische
+3. Die Statusfarben der Erfassung sind tot: der Code setzt englische
    Klassennamen, der Stil erwartet die deutschen. Kein Punkt, kein Rot, kein
    Pulsieren.
-5. Die Kundendatei kann still verloren gehen: eine neu angelegte holende
+4. Die Kundendatei kann still verloren gehen: eine neu angelegte holende
    Quelle wird unvollständig gespeichert, beim nächsten Start gilt die ganze
    Datei als beschädigt, der Editor startet leer und überschreibt sie.
-6. Maskendateien aus der deutschen Zeit (04. bis 15.09.) laden nicht mehr:
+5. Maskendateien aus der deutschen Zeit (04. bis 15.09.) laden nicht mehr:
    „Das ist keine Maskendatei des Aufbau-Editors.“ Selbst ausprobiert mit
    `masken/mustermaske.json`.
 
-Alle sechs sind eng begrenzt und einzeln behebbar.
+Alle fünf sind eng begrenzt und einzeln behebbar.
 
 **Umfang in Zahlen**
 
@@ -170,9 +167,6 @@ ein Abfragen alle 100 ms. Ob SoftEngine eine Kennung anbietet, ist offen.
   eine Funktion `ReloadInputJSON`, die es nicht gibt, und tut dann nichts).
   Die Ankunft wird erst geprüft, wenn SoftEngine von selbst liefert. Ob das
   nach einem PUT passiert, ist an keiner Maske belegt.
-- Neue Satznummer: GET 640 als Schritt mit Ergebnisname `PINDEX`; der Editor
-  verlangt genau das. Aber der GET läuft einmal je Kette, die PUT-Schritte je
-  Zeile mit demselben Ergebnis (F2).
 - Löschen: keine eigene Relation, nur `DROP_PINDEX` als Wert; welche Relation
   löscht, ist Kundendaten.
 - MASKENEVENT (der am 18.09. belegte Schreibweg in den Beleg) kommt im Code
@@ -216,7 +210,6 @@ B = blockiert oder Datenverlust, S = sichtbar, K = Kleinkram.
 | Nr | Schwere | Befund | Wo |
 |---|---|---|---|
 | F1 | S | Statusfarben, Durchstreichen, Zellenlayout, Zahlen rechts, Vorschlagsstil tot (englische Klassen gegen deutschen Stil) | `ledger.ts:49-57` gegen `captureStyle.ts:74-83`; `body.ts:152`, `:20`, `:108`; `row.ts:72`; `tableBody.ts:178`; `suggestionList.ts:137` |
-| F2 | B | Neue Satznummer einmal je Kette statt je Zeile | `actions.ts:423-440`, `events.ts:266-311` |
 | F3 | B (Vermutung) | Ankunftsprüfung bei jeder Lieferung ohne Bezug zum Schreiben; Zeilen fallen zurück und gehen doppelt hinaus | `sourceRows.ts:96-99`, `arrival.ts:11-39`, `ledger.ts:1126-1130` |
 | F4 | B (bei Spaltenwahl) | Enter/Tab bleiben an einer vom Bediener ausgeblendeten Spalte hängen | `ledger.ts:351-358`, `row.ts:155-164` |
 | F5 | S | Klick in eine Änderungszelle schaltet die Zeilenauswahl um, Kette „Zeile gewählt“ läuft bei jedem Klick | `tableBody.ts:145-147` |
@@ -236,7 +229,7 @@ B = blockiert oder Datenverlust, S = sichtbar, K = Kleinkram.
 Ledger, Nachschlagen, Vormerken und Ankunft sind fachlich sorgfältig gedacht
 und tragen. Die Klasse ist entlang ihrer vier Abschnitte teilbar; das
 dreifache „einfügen an der Korrekturstelle oder anhängen“ gehört einmal
-hinein. Unbrauchbar ist der Weg ins ERP (F2, F6, F3, F1): vier begrenzte
+hinein. Unbrauchbar ist der Weg ins ERP (F6, F3, F1): drei begrenzte
 Stellen, keine Neubau-Gründe. Die Erfassung hängt an zwölf Modulen aus
 `behavior/`, darunter der Import des Bausteins Tabelle aus dem Nachschlagen
 heraus (Abhängigkeit falsch herum).
@@ -279,7 +272,6 @@ Karte verschoben.
 | DATASET-Block | Definition ja, Block nein | ja, Lieferform geraten | dein Echttest |
 | GET_RELATION-Block in den SEvariablen | Form in JsonBeleg | nein | mittel |
 | CONCAT-Schlüssel, Feldreferenzen als Parameter | Form in JsonBeleg | nur als fester Text | klein, Bedienung fehlt |
-| Satz anlegen (GET 640, ein PUT je Feld, Querverweis) | ja | von Hand als Kette, keine Vorlage; F2 | klein nach F2 |
 | RELOADHTML, ESCAPEHTML | aus dem Programm gelesen | nein | klein |
 | FREISELEKT-Filter | ja, langsamer | nein | klein |
 | Parser-Direktiven (Weg 1, nur Anzeige) | Wiki | nein, bewusst | anderer Mechanismus |
@@ -619,8 +611,8 @@ Laufzeit-Bau als ein Bundle, ein Popover statt drei, `useFieldBinding` und
 Belegt (Echttest von dir, kontrakte.md): Dateiform mit Brücken-Skriptzeile;
 Anmeldung `basisHTML_REGISTER`; Feldcodes pos_len mit Tabellenvorsatz;
 SEFILELOOP mit expliziter Feldliste; Reihenfolge Kopfsatz zuletzt; Kopfsatz
-braucht VAR; PUT_RELATION mit sechs Parametern, relId ohne IDB; Satznummer
-per GET 640 und Satz anlegen mit einem PUT je Feld; Hol-Relation 69 seriell
+braucht VAR; PUT_RELATION mit sechs Parametern, relId ohne IDB, je erfasster Zeile
+ein eigener PUT (29.09.); Hol-Relation 69 seriell
 mit 255er-Schnitt; ERPAPICALL als Nachricht nach dem Öffnen (21.09.);
 MASKENEVENT-Schreiben in den Beleg, nicht in Positionen (18.09.);
 Fokus-Handschlag; DataSet-Definition; Edge WebView2.
@@ -635,13 +627,12 @@ Was nur du in SoftEngine klären kannst, bevor gebaut wird:
 1. Liefert SoftEngine nach einem PUT_RELATION von selbst neue Daten? Wenn
    nicht: welche ID verlangt `ReloadInputJSON`? Davon hängen Ankunftsprüfung
    und Frischdaten ab (F3, F6).
-2. Ergeben zwei erfasste Zeilen zwei Sätze, sobald F2 behoben ist?
-3. Tragen ERPAPICALL-Zeilen eine Satznummer (etwa `POS_645_10`), sodass man
+2. Tragen ERPAPICALL-Zeilen eine Satznummer (etwa `POS_645_10`), sodass man
    aus einer nachgeladenen Liste schreiben kann? Davon hängt die Bauweise
    „schlank bestellen, nachladen, schreiben“ ab.
-4. Liefert der DATASET-Block unter `Daten.Tabellen`?
-5. Kommt REFRESH auch für Zeilen einer SEFILELOOP-Liste?
-6. Läuft statisches Markup im `body` auch im Web-Client? Der Empfang setzt
+3. Liefert der DATASET-Block unter `Daten.Tabellen`?
+4. Kommt REFRESH auch für Zeilen einer SEFILELOOP-Liste?
+5. Läuft statisches Markup im `body` auch im Web-Client? Der Empfang setzt
    sein Markup per `innerHTML`, weil der Web-Client statisches Markup zerlegt
    (Zeile 557 der Empfangsmaske); der Export schreibt statisches Markup. In
    WinUI läuft es.
@@ -714,7 +705,7 @@ Notfallkopie auch für die Kundendatei wählbar. Danach lädt jede Datei seit
 dem 04.09. wieder.
 
 **Schritt 1: Erfassung bis ins ERP (mittel, dein wichtigster Fall).**
-F2 (Satznummer je Zeile), F1 (Klassennamen), F12 (`default.json`:
+F1 (Klassennamen), F12 (`default.json`:
 Belegposition mit Kopfsatz und Satznummer, ohne Hol-Relation in der
 Belegerfassung), F7 (kein PUT mit leerem Pflichtwert), F8 (Kettenabschnitt
 beendbar), F4, F5, F17. Dann dein Echttest 1 und 2 aus Abschnitt 7; danach
@@ -951,45 +942,91 @@ Größenwahl in Stufen der Empfangsmaske (Vorschlag, Nutzer entscheidet). Die
 „Arten" (Feldtypen oder Quellenarten, der Nutzer sagt welche) sind
 unlogisch und werden in Schritt 2 neu geordnet.
 
-### Offen, in dieser Reihenfolge
+### Offen, in dieser Reihenfolge (Stand 28.09.)
 
-1. Bedienung (Schritt 2) ist fertig auf `claude/erp-editor-audit-89bmva`, ein
-   Commit je Punkt, nichts davon in SoftEngine geprüft: 1 Kopfzeile
-   (1ad6913), 2 Palette als dunkler Streifen (4c2c96d, 8738d38), 3 Ziehen an
-   vier Kanten (ea42748), 4 Leiste am Baustein (57acab5, 766f411, 3de3945,
-   87344dc), 5 Daten als Seitenleiste (4ee693b), 6 Eine Datei zum Laden
-   (3f2bc88), 7 Text mit Farbe und Größe (9221fb1), 8 Feld, Schema 22
-   (90a210e), 9 Suchfenster und Popup ziehen (6dcba5f), 10 Tabelle mit
-   Spaltenleiste (ab3befa), 11 Erfassung (16b31c9), 12 Wertherkunft
-   (8764260), 13 Aktionen als Sätze (0adbba0), 14 Folgt der Auswahl
-   (f086f44). Danach, nicht in SoftEngine geprüft: 15 Folgt auch dem Beleg
-   oder einem Formularfeld (e156f1a), 16 Wer folgt, zeigt ohne Vorgabe
-   nichts (5642ce5), 17 Sortieren per Klick (9e81fbe), 18 Pflicht je Spalte
-   und je Feld (2247a4a). Die Wertherkunft bietet je Stelle, was die Stelle
-   lesen kann: Hilfsquelle Spalte dieser Zeile und Feld einer Hilfsquelle,
-   Berechnung dazu den festen Wert, Aktionen alle fünf, Folgt der Auswahl die
-   gewählte Zeile des Gebers, den Beleg und die Formularfelder.
-   Regel für die Leiste: eine Zeile, höchstens sieben Elemente, über dem
-   Baustein; passt es dort nicht, unter dem Baustein; erst dann innen auf
-   dem eigenen Kopf. Nie über anderen Bausteinen, nie über Inhalt. Sind es
-   mehr als sieben, liegen die Schalter im Fenster „Anzeige". Jedes Fenster
-   an der Leiste schließt beim Klick daneben.
-2. Kanban neu nach dem Zweigmodell: ein Baustein, Spalten mit Plätzen,
-   Karten mit Tiersymbol, im Editor sichtbar. Zimmer gibt es seit Schema 18
-   nicht mehr; `places.ts` ist nur die Ablagemarke. Chip-Farbe folgt einem
-   Feld, einstellbar, welcher Wert welchen Ton bekommt. Die Spalte zeigt
-   ihren Wert als „FELDNAME = Wert".
-3. Neue Bausteine: Kopfzeile, Kachel, Datenliste, Zähler, Knopfleiste, Bild,
-   Status-Chip, Seitenleiste, Navigation. Jeder ein Ordner und eine Zeile
-   in `src/blocks/register.ts`; das Symbol gehört noch in die Deklaration
-   statt nach `src/editor/blockIcons.ts`.
-4. Quellenarten neu ordnen (Was lesen, nicht Wie liefern), wenn der Inhalt
-   der Daten-Seitenleiste drankommt.
-5. Zum Schluss: Echttest in SoftEngine mit frischen Daten, die Fehler F2, F3,
-   F6 der Erfassung, Berechnung komplett neu (vorher mit dem Nutzer
-   festlegen), Antwort-Schlüssel in `softengine/data.ts`, Formular für die
-   Feldcodes der Hol-Relation, Aufräumdurchgang (Löschvormerkung der Erfassung ohne Bedienung, tote Widgets, ungenutzte
-   Exporte, alte Namen).
+Große Dateien werden geteilt, wenn ein Schritt sie ohnehin anfasst, nie in
+einer eigenen Aufräumaktion.
+
+1. Bedienfehler aus der Durchsicht vom 28.09., fertig auf
+   `claude/kanban-ein-baustein`, nicht in SoftEngine geprüft: Tippen auf der
+   Fläche zeigt den Text einmal, auch im Knopf (f4f2626); die Leiste liegt
+   über dem Baustein, sonst darunter, erst dann auf ihm (3be9721); die
+   Erfassung zeigt den Zeilenzustand nur als Ton, Punkt und Einrückung weg
+   (f008bd7, 29.09.).
+2. Schreiben ins ERP läuft (Nutzer, 29.09.): je erfasster Zeile ein eigener
+   PUT_RELATION, keine Satznummer vorab, Relation 640 hat damit nichts zu
+   tun. Kein Bau. Die Erfassung (`src/blocks/capture/ledger.ts`, eine Klasse
+   mit 1.094 Zeilen) wird beim nächsten Eingriff dort entlang ihrer fünf
+   Abschnitte geteilt.
+3. Kanban Schritt 1 bis 3 auf `claude/kanban-ein-baustein` (38200b9, 74fba76,
+   aa76efb) in SoftEngine prüfen und nach master übernehmen. Danach Schritt
+   4: Chip-Farbe folgt einem Feld, einstellbar, welcher Wert welchen Ton
+   bekommt. Versteckte Plätze („Erledigt") nur auf Wunsch.
+4. Übersetzer, fertig (9c94910): der Nutzer importiert keine alten Masken,
+   Datenquellen aber immer (28.09.). `src/editor/state/maskSchema.ts` liest
+   Masken ab Schema 20 (seit 24.09.), ältere und neuere nicht. Der Übersetzer
+   der Kundendatei steht allein in `src/editor/state/librarySchema.ts` und
+   behält jede Stufe: Daten, Reiter „Bibliothek", „Bibliothek laden…"
+   importiert Kundendateien jeder Fassung. Die Sicherungen vom 14.09.
+   (`masken/bibliothek-wiederherstellung.json`, 15 Quellen) und 15.09.
+   (`Desktop/aufbau-bibliothek-rettung-2026-09-15-0952.json`, 22 Quellen)
+   tragen Quellen, die in `Desktop/bibliothek.json` (2 Quellen) fehlen.
+5. Quellenarten nach Inhalt: erst Adressstamm, Artikelstamm, Beleg,
+   Belegpositionen, darunter „Andere“ und erst dort die Technik (IDB-Tabelle,
+   DataSet, ERP-Abfrage, ERP-Maske, Wert per Relation, Datei). Vorlage plus
+   Adapter bleiben. Die Wahl „Art“ steht in
+   `src/editor/data/SourceSettings.tsx`, wie eine Quelle daraus entsteht in
+   `src/editor/data/sourceEdit.ts`. Dabei `src/softengine/relations.ts`
+   teilen in Antwort lesen, Senden und Warten, Werte zusammensuchen.
+6. Bauteile der Empfangsmaske, ohne neuen Baustein, wo ein Aussehen reicht:
+   der Bereich bekommt „Aussehen“ Frei, Kasten (`.vstat`), Kopfzeile
+   (`.vkopf`); der Text bekommt die Rolle Chip mit Ton (`.vflag`), und „Ton
+   folgt einem Feld“ (Kanban Schritt 4) wird einmal als Eigenschaftsart
+   gebaut und gilt für jeden Chip; das Popup bekommt „Lage“ Mitte oder Rechts
+   (`.vkartei`). Neu nur Bild (fest oder gebunden, Technik vom
+   Kanban-Avatar) und Datenliste: der Kartenteil des Kanban
+   (`src/blocks/kanban/`) wird herausgelöst, beide nutzen ihn. Später:
+   Zähler braucht die Wertherkunft „Anzahl Zeilen einer Quelle“; Navigation
+   braucht Ansichten (im Empfang Tafel, Termine, Kunden), ob Masken mehrere
+   Ansichten bekommen, entscheidet der Nutzer. Das Symbol bleibt in
+   `src/editor/blockIcons.ts`, es ist Editor-Sache. Dabei
+   `src/editor/canvas/useFieldBinding.tsx` teilen.
+7. Berechnung, fertig (04.10.), nicht in SoftEngine geprüft: ein Satz am
+   Spaltenkopf („Menge = Tiere × Tage × Körpergewicht × Dosierung ÷ KGW ÷
+   Inhalt ÷ Faktor, gerundet auf 2 Stellen“). Das Rechner-Symbol in der
+   Spaltenleiste öffnet das Fenster in der Bildschirmmitte, gebaut wie das
+   Schritt-Fenster: je Größe eine Zeile mit Nummer, Zeichen, Herkunft und
+   Eingabe, rechts Ergebnis, Rundung und die Einheiten-Tabelle, unten
+   Abbrechen und Übernehmen. Nur mal und geteilt; die eine leere Spalte des Satzes wird in
+   der Zeile ausgerechnet, bei keiner oder zwei leeren passiert nichts, keine
+   Meldung. Eine Größe ist Spalte der Zeile, Feld einer Hilfsquelle, feste
+   Zahl oder der Faktor aus zwei Einheiten als Tabelle (mg/kg 1000000, g/kg
+   1000, ml/l 1000, mg/g 1000; sonst 1), die Dosierung aus WORKFLOW11111.json
+   ist damit der erste Fall. Am Kopf einer anderen beteiligten Spalte steht
+   derselbe Satz nach ihr umgestellt. `src/core/data/calculation.ts` neu
+   (240 statt 566 Zeilen), Zahlenlesen in `src/core/data/number.ts`,
+   Bedienung in `src/editor/bar/CalculationWindow.tsx`; Einheiten, Dialog
+   und Fenster sind weg. Maskenschema 25 hebt alte Berechnungen in den Satz.
+8. Aufräumen nebenbei: wer eine Datei anfasst, räumt sie auf. Eigens nur:
+   Löschvormerkung der Erfassung ohne Bedienung, ungenutzte Felder in
+   Objekten (etwa `GRID.columnPx`), alte Namen. Tote Dateien und ungenutzte
+   Exporte sind seit dem Umbau von Daten und Aktionen (1.10.) keine mehr da.
+
+Fertig und mit PR #1 in master (1d8437a), nicht in SoftEngine geprüft:
+Bedienung, ein Commit je Punkt: 1 Kopfzeile (1ad6913), 2 Palette als dunkler
+Streifen (4c2c96d, 8738d38), 3 Ziehen an vier Kanten (ea42748), 4 Leiste am
+Baustein (57acab5, 766f411, 3de3945, 87344dc), 5 Daten als Seitenleiste
+(4ee693b), 6 Eine Datei zum Laden (3f2bc88), 7 Text mit Farbe und Größe
+(9221fb1), 8 Feld, Schema 22 (90a210e), 9 Suchfenster und Popup ziehen
+(6dcba5f), 10 Tabelle mit Spaltenleiste (ab3befa), 11 Erfassung (16b31c9),
+12 Wertherkunft (8764260), 13 Aktionen als Sätze (0adbba0), 14 Folgt der
+Auswahl (f086f44), 15 Folgt auch dem Beleg oder einem Formularfeld (e156f1a),
+16 Wer folgt, zeigt ohne Vorgabe nichts (5642ce5), 17 Sortieren per Klick
+(9e81fbe), 18 Pflicht je Spalte und je Feld (2247a4a). Die Wertherkunft
+bietet je Stelle, was die Stelle lesen kann: Hilfsquelle Spalte dieser Zeile
+und Feld einer Hilfsquelle, Berechnung dazu den festen Wert, Aktionen alle
+fünf, Folgt der Auswahl die gewählte Zeile des Gebers, den Beleg und die
+Formularfelder.
 
 ### Bedienmodell für Schritt 2 (24.09., vom Nutzer als Auftrag gelesen)
 
@@ -1002,17 +1039,36 @@ Wo was erscheint, nach dem Vorbild der Empfangsmaske:
   die Bausteine als Symbole mit Namen, anklicken oder auf die Fläche ziehen.
   Keine Suche, keine Gruppenüberschriften.
 - Mitte die Maske in echter Größe auf neutralem Grau.
-- Rechts die Seitenleiste für Daten: Quellen, Relationen, Bibliothek. Zu,
-  bis „Daten“ geklickt wird; bleibt dann offen, nie modal, nie Vollbild.
-  Inhalt und Formulare bleiben zunächst, wie sie sind.
+- Daten als Fenster in der Mitte über der Maske: Quellen, Relationen,
+  als Reiter im Kopf, daneben Import (DTK), Bibliothek speichern und
+  laden. Zu, bis „Daten“
+  geklickt wird; nie modal, nie
+  Vollbild.
+  Quellen als Liste Name und Tabelle, rechts daneben Einstellungen und
+  Felder der markierten Quelle (Code, Name, Max. Länge); Relationen als
+  Liste Syntax und
+  Bezeichnung. Ein Klick markiert die ganze Zeile, ein Doppelklick tippt
+  hinein; die letzte Zeile ist leer für Neues. Die Felder füllen die Breite
+  neben den Quellen. Die Tabelle
+  bestimmt die Art (BEL, POS, ADR, ART, IDB-Nummer, sonst andere Datei);
+  ein Feld namens „Satznummer“ ist die Satznummer zum Schreiben. Lesen,
+  Schreiben und Satznummer stehen nicht mehr zur Wahl (1.10.).
 - Am markierten Baustein eine kleine Leiste direkt über der Oberkante: eine
   Zeile, höchstens sieben Elemente, Symbol und Name, dann die Wahlen, rechts
-  Löschen. Was mehr ist, wird gebündelt: Schalter eines Bausteins in ein
-  Pop-up „Anzeige“, Quelle und Tag-Feld in ein Pop-up „Quelle“, alles
-  Weitere als Knopf mit Symbol, der sein kleines Fenster öffnet. Passt die
-  Leiste nicht über den Baustein, liegt sie innen an seinem oberen Rand.
-  Nie über einem anderen Baustein, nie über der eigenen Kopfzeile. Am
-  Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der angeklickten
+  Löschen. Was mehr ist, steht in einem Fenster „Einstellungen“ mit Gruppen
+  untereinander: Quelle, Hilfsquelle, Anzeige, Suchfenster, Folgt der
+  Auswahl, Aktionen (1.10., ersetzt die drei Pop-ups). Die Leiste steht am
+  linken Rand des Bausteins. Passt sie nicht darüber, liegt sie bei Feld,
+  Knopf, Datum darunter, sonst rechts oder links daneben, nie auf dem
+  Baustein; bei Tabelle, Kanban, Erfassung darüber gleich hinter dem
+  Hindernis, sonst innen unter den Spaltenköpfen. Das Fenster
+  „Einstellungen“ öffnet neben Baustein und Leiste, kompakt: Name links,
+  Wahl rechts, Schalter als Haken. Jedes Fenster an der Leiste schließt
+  beim Klick daneben.
+- Bereich: innen das Raster der Seite, so viele Spalten, wie er breit ist;
+  ohne Innenabstand, nichts ragt über den Rahmen, er wächst nicht mit
+  (1.10., Schema 24).
+  Am Spaltenkopf die Spaltenleiste. Der Feldwähler genau an der angeklickten
   Stelle. Keine Statuszeile.
 
 Grundregeln für alle Bausteine:
@@ -1026,10 +1082,16 @@ Grundregeln für alle Bausteine:
 - Text immer direkt auf der Fläche: Doppelklick, tippen.
 - Feld binden: Klick auf die Stelle, Feldliste der Quelle erscheint dort.
   Gebundene Stellen gepunktet unterstrichen.
-- Aktionen als Sätze unter dem Ereignis („Beim Klick: Relation
-  Standard-Schreiben mit Bezeichnung der gewählten Zeile, dann Popup
-  Hinweis öffnen“), jeder Schritt eine Zeile, Plus für den nächsten, jede
-  Stelle im Satz anklickbar mit kurzer Auswahl. Getippt werden nur Festwerte.
+- Aktionen: je Ereignis die Schritte als Zeilen. Ein Klick auf einen
+  Schritt oder auf „Schritt hinzufügen“ öffnet das Schrittfenster in der
+  Mitte, wie die Klammerauflösung in SoftEngine: Reiter GET Relation, PUT
+  Relation, Werkzeug, Popup; so groß wie das Datenfenster; alle Stellen
+  als Raster Nr., Bezeichnung, Herkunft, Eingabe. Erst die Herkunft aus
+  einer kurzen Liste (Fest, Ereignis, was in der Maske steht, Quellen),
+  dann bietet Eingabe nur deren Felder; Fest wird getippt, leer mit dem
+  Namen als Hintergrundschrift, leer bleibt leer; rechts das Ergebnis. Erst
+  „Übernehmen“ schreibt in den Baustein (1.10., ersetzt die Sätze aus
+  0adbba0).
 - „Folgt der Auswahl“: in der Leiste anklicken, dann auf den gebenden
   Baustein klicken. Feldpaare nur, wenn nötig, als zweite Zeile.
 - Der Inspector fällt weg; die Sonderfenster (Nachschlagen, Auswahl folgt,
@@ -1104,3 +1166,82 @@ Später, vor dem Bau besprechen:
   Bau mit ihm festgelegt (Vorschlag: ein Satz am Spaltenkopf).
 - Chip-Farbe der Karte: folgt einem Feld, aber einstellbar, welches Feld
   und welcher Wert welchen Ton bekommt. Kommt mit dem neuen Kanban.
+
+## Code-Prüfung 01.10. (Stand dfed591)
+
+16 Prüfer haben den ganzen Code gelesen, jeder Befund wurde von einem
+zweiten gegengeprüft. Zwei Querschnitts-Prüfer (Aufbau, Fehleranfälligkeit)
+wurden abgebrochen. Urteil: **6 von 10.** Das Fundament ist gut, die
+Ausführung trägt die Reste vieler Umbauten.
+
+Gut: eine schlanke Basisklasse für alle neun Bausteine, gemeinsames
+Verhalten über kleine Helfer statt tiefer Vererbung; jede Eigenschaft
+einmal deklariert, daraus Inspector, Export und Laden; der Editor zeigt
+die echten Bausteine; ein Store mit Rückgängig; nur `src/softengine`
+spricht mit SoftEngine.
+
+### Fehler, die man beim Bedienen merkt
+
+Behoben am 01.10.: Datenverlust im Browser und beim Laden einer Maske
+(0d4111f), Nachschlage-Feld lädt nach (660975a), Doppelklick und Klick in
+eine Zelle wählen nicht ab (63d874a), zuletzt gewählter Eintrag im
+Nachschlagen (d01bc44), Kanban-Karte springt nicht zurück (a4d80f2),
+Tabelle ohne Quelle bleibt leer (ee76f10), Fenstertitel wie in der Maske
+(fd60b98), eine Lesart für Zahlen (6676ff9), Enter/Tab und Pflichtfelder
+nur über sichtbare Spalten (663ae42), Escape und Korrektur lassen die
+Rechnung richtig (2b4167f), Bereich hält seine Bausteine drin (e27c583),
+Quelle wechseln nimmt die Feldbindungen mit (561faca), Datenfenster: Wert
+per Relation umbenennen und Einstellungen (779d5a1), Schrittfenster bleibt
+bei einem Klick daneben (bec2bb9).
+
+Vom Nutzer gestrichen: doppeltes Buchen während eines Schreiblaufs
+(`blocks/capture/ledger.ts:668`), weil die Abhilfe ein Schutz wäre.
+
+Offen:
+
+- Ankreuzfeld: der Haken liegt in privatem Zustand, Aktionen und „Wert
+  geändert" lesen immer leer (`blocks/formfield/FormField.ts:48`). Es
+  fehlt die Angabe, was ein Haken an SoftEngine schickt (1, J oder anderes).
+- Escape in der Spaltenwahl schließt das ganze Fenster
+  (`blocks/list/columnPicker.ts:110`); der Fensterrahmen fängt Escape vor
+  allen anderen ab.
+- Lieferung „per GET" erzeugt eine Quelle, die die Maske ablehnt
+  (`core/data/dataSources.ts:212`); berührt die Relation 69, nur mit Ja
+  des Nutzers.
+- Eine Bindung, deren Feld die Quelle nicht mehr hat, sieht im Editor leer
+  aus, im Export ist die Beschriftung leer
+  (`editor/canvas/useLitElement.ts:111`).
+
+### Toter Code
+
+Drei ganze Teile laufen nie: das alte Fluss-Layout von vor dem Raster
+(`core/block/flow.ts`, `editor/canvas/NodeList.tsx:107`,
+`export/nodeStyle.ts:27`, Eigenschaft `width` in jeder Maske); das Löschen
+gebuchter Zeilen, abgeschaltet in 16b31c9, Code in fünf Schichten
+(`ledger.ts:883`, `core/block/capability.ts:65`); die Meldungstexte der
+Berechnung, nie angezeigt, aber in jedem Export (`calculation.ts:239`).
+Die Vorschlags-Sortierung und zehn Symbole sind raus (7148112); offen
+sind noch `NumberControl` und `Row`.
+
+### Doppelt geschrieben
+
+Eigenschaft „Quelle" viermal von Hand (`blocks/*/properties.ts`); Listen-
+Eigenschaften siebenmal gleich gelesen (`core/data/extraSources.ts:57`);
+zwei Systeme „woher kommt ein Wert", schon auseinander
+(`core/data/valueOrigin.ts`, `editor/actions/placeChoices.ts:84`); die
+Maske liest Eigenschaften per Namensregel statt aus der Deklaration
+(`runtime/source.ts:11`, `runtime/pairList.ts:12`); Bindung zu Feldname
+drei- bis fünfmal (`useFieldBinding.tsx:67`, `useLitElement.ts:103`).
+
+### Aufbau
+
+`CaptureLedger` (1.100 Zeilen) macht fünf Dinge auf einmal;
+`useFieldBinding` ist ein Hook mit 390 Zeilen, der eine ganze Leiste
+zeichnet; Fenster öffnen auf drei Wegen; zwei React-Teile reden über
+DOM-Ereignisse. Gegen die eigenen Regeln: roter „fehlt"-Hinweis und
+Platzhaltersatz (`editor/controls/PickerControl.tsx:42`), die Berechnung
+als Vollbild-Dialog (schon zum Neubau vorgemerkt).
+
+Reihenfolge: Datenverlust und Doppelbuchung zuerst, dann die übrigen
+Bedienfehler, dann die drei toten Teile raus, dann Doppeltes
+zusammenlegen.

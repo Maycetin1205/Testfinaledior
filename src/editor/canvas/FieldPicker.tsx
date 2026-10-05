@@ -33,7 +33,7 @@ export interface SourcesChoice {
   entries: readonly { value: string; name: string; badge?: string }[]
   onChoose: (sourceId: string) => void
 
-  onDataCenter?: () => void
+  onData?: () => void
 }
 
 interface FieldPickerProps {
@@ -148,15 +148,15 @@ export function FieldPicker({
       onClose={onClose}
     >
       <div className="flex min-h-0 flex-1 flex-col gap-1.5">
-        <p className="shrink-0 truncate px-1.5 pt-0.5 text-label font-semibold uppercase tracking-label text-muted">
+        <p className="shrink-0 truncate px-1.5 pt-0.5 text-dense font-semibold text-muted">
           {spotLabel}
         </p>
 
         {sourcesChoice ? (
           sourcesChoice.entries.length === 0 ? (
             <div className="flex shrink-0 flex-col gap-2 px-1.5 pb-1">
-              {sourcesChoice.onDataCenter && (
-                <Button kind="primary" className="self-start" onClick={sourcesChoice.onDataCenter}>
+              {sourcesChoice.onData && (
+                <Button kind="primary" className="self-start" onClick={sourcesChoice.onData}>
                   Daten öffnen
                 </Button>
               )}
@@ -180,7 +180,7 @@ export function FieldPicker({
 
         <Separator className="shrink-0" />
 
-        <p className="flex shrink-0 items-baseline gap-2 px-1.5 text-label font-semibold uppercase tracking-label text-muted">
+        <p className="flex shrink-0 items-baseline gap-2 px-1.5 text-dense font-semibold text-muted">
           <span className="min-w-0 truncate">
             Feld wählen
           </span>

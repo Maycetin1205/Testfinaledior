@@ -30,7 +30,7 @@ export interface DataSource {
 
   name: string
 
-  // The data center shows the form of this preset; the export never reads it.
+  // The data window shows the settings of this preset; the export never reads it.
   preset: PresetId
 
   // SoftEngine's id of what the source reads: table, query, DataSet or mask.
@@ -57,6 +57,12 @@ export interface RuntimeSource {
   delivery: RuntimeDelivery
 }
 
+// The field of a source by its code; nothing for an empty code or a code the
+// source does not have.
+export function fieldOf(source: DataSource | undefined, code: string): DataField | undefined {
+  return code === '' ? undefined : source?.fields.find((f) => f.code === code)
+}
+
 export function fieldPlainName(
   binding: string,
   ownSourceId: string,
@@ -64,9 +70,7 @@ export function fieldPlainName(
 ): string {
   const { sourceId, code } = splitBinding(binding)
   const wanted = sourceId === '' ? ownSourceId : sourceId
-  if (wanted === '' || code === '') return ''
-  const source = sources.find((s) => s.id === wanted)
-  return source?.fields.find((f) => f.code === code)?.name ?? ''
+  return fieldOf(sources.find((s) => s.id === wanted), code)?.name ?? ''
 }
 
 export function recordNumberOf(source: DataSource): string {
@@ -132,10 +136,6 @@ export function orderedFields(
   const codes = onlyUsed(front, used)
 
   return codes.every((code) => POS_LEN.test(code)) ? codes.join(',') : '*'
-}
-
-export function allFieldsDelivered(source: DataSource): boolean {
-  return orderAdapter(source.order.kind).allFields(source.order)
 }
 
 export function choiceOf(source: DataSource): SourceChoice {

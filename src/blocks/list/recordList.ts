@@ -8,16 +8,23 @@ import {
 import { styleMap } from 'lit/directives/style-map.js'
 import { ViewChoices } from './viewChoices'
 import { giverIdOf } from '../../runtime/selection'
-import type { MeasureTarget } from './pageSize'
-import { columnsView, sendColumnsChange, type Column } from './columns'
+import { SUBLINE_HEIGHT, type MeasureTarget } from './pageSize'
+import {
+  columnsView,
+  sendColumnsChange,
+  type Column,
+  type ColumnView,
+} from './columns'
 import { WidthsState } from './columnWidth'
 import { ColumnsChoiceState } from './columnPicker'
 import { tableRenderModel } from './tableModel'
 import type { ListSettings } from './listDeclaration'
 import {
   WITHOUT_DECORATION,
+  WITHOUT_SUBS,
   tableFoot,
   tableBody,
+  type RowLayout,
   type Sublines,
   type RowDecoration,
 } from './tableBody'
@@ -52,6 +59,13 @@ interface ListHooks {
 
   decoration: () => (rawIndex: number | null) => RowDecoration
 
+  required: (slot: number) => boolean
+
+  // A column that stands in the grey second line of a row, and the key of
+  // the column whose cell it stands in.
+  inSubline: (slot: number) => boolean
+  anchorOf: (slot: number) => string
+
   bottom: () => Sublines | null
 }
 
@@ -59,8 +73,6 @@ interface ListShowQuestion {
   preview: boolean
 
   rowsFrom: RowsFrom
-
-  sourceId: string
 
   columns: readonly Column[]
 
@@ -74,11 +86,10 @@ interface ListShows {
   empty: boolean
 }
 
-// Rows of blanks are as empty as no rows at all.
+// Rows of blanks are as empty as no rows at all, and a list without a source
+// has none.
 function listEmptyState(question: ListShowQuestion): ListShows {
-  const sourceId = question.sourceId.trim()
-  const rows = !question.preview && (question.rowsFrom === 'handed' || sourceId !== '')
-  if (!rows) return { rows: false, empty: false }
+  if (question.preview) return { rows: false, empty: false }
 
   const anyColumnBound = question.columns.some((column) => column.field.trim() !== '')
   const empty = question.rowCount === 0
@@ -108,13 +119,12 @@ export class RecordList implements ReactiveController {
     this.hooks = hooks
     this._widths = new WidthsState({
       preview: () => el.preview,
-      fullSlot: (rendered) =>
-        columnsView(el.listColumns(), el.preview, this._choice.away()).slots[rendered] ?? rendered,
+      fullSlot: (rendered) => this.shownSlots()[rendered] ?? rendered,
       columnsList: () => [...el.listColumns()],
       writeColumns: (columns) => sendColumnsChange(el, columns),
       report: () => el.requestUpdate(),
     })
-    this._view = new ViewChoices(el, () => el.listColumns())
+    this._view = new ViewChoices(el, () => el.listColumns(), () => this.subHeight())
     this._choice = new ColumnsChoiceState({
       block: el,
       on: () => this.columnPickerOn,
@@ -148,6 +158,55 @@ export class RecordList implements ReactiveController {
     this._rowsChoice.forget()
     this._view.invalidate()
     el.requestUpdate()
+  }
+
+  private visibleView(): ColumnView {
+    const el = this.el
+    return columnsView(el.listColumns(), el.preview, this._choice.away())
+  }
+
+  // The columns of the row, and under each the subline columns anchored to
+  // it. A subline column whose anchor is not shown stands under the nearest
+  // shown column to its left, or the first.
+  private layoutOf(visible: ColumnView): RowLayout {
+    const hooks = this.hooks
+    if (!hooks || !visible.slots.some((slot) => hooks.inSubline(slot))) {
+      return { main: visible, hasSubs: false, subsOf: () => WITHOUT_SUBS }
+    }
+    const main: { columns: Column[]; slots: number[] } = { columns: [], slots: [] }
+    const subs = new Map<number, { columns: Column[]; slots: number[] }>()
+    visible.columns.forEach((column, i) => {
+      if (hooks.inSubline(visible.slots[i])) return
+      main.columns.push(column)
+      main.slots.push(visible.slots[i])
+    })
+    if (main.slots.length === 0) return { main: visible, hasSubs: false, subsOf: () => WITHOUT_SUBS }
+    visible.columns.forEach((column, i) => {
+      const slot = visible.slots[i]
+      if (!hooks.inSubline(slot)) return
+      const key = hooks.anchorOf(slot)
+      const byKey = main.columns.findIndex((c) => c.key === key)
+      const left = main.slots.findLastIndex((s) => s < slot)
+      const at = byKey !== -1 ? byKey : (left !== -1 ? left : 0)
+      const anchor = main.slots[at]
+      const own = subs.get(anchor) ?? { columns: [], slots: [] }
+      own.columns.push(column)
+      own.slots.push(slot)
+      subs.set(anchor, own)
+    })
+    return { main, hasSubs: true, subsOf: (slot) => subs.get(slot) ?? WITHOUT_SUBS }
+  }
+
+  private subHeight(): number {
+    return this.layoutOf(this.visibleView()).hasSubs ? SUBLINE_HEIGHT : 0
+  }
+
+  // The columns the operator sees, by their place among all columns: first
+  // those of the row, then those of the second line, each under its anchor
+  // from left to right. Tab walks them so.
+  shownSlots(): readonly number[] {
+    const layout = this.layoutOf(this.visibleView())
+    return [...layout.main.slots, ...layout.main.slots.flatMap((slot) => layout.subsOf(slot).slots)]
   }
 
   reset(): void {
@@ -221,13 +280,14 @@ export class RecordList implements ReactiveController {
   render(): TemplateResult {
     const el = this.el
     const columns = el.listColumns()
-    const visible = columnsView(columns, el.preview, this._choice.away())
+    const layout = this.layoutOf(this.visibleView())
+    const visible = layout.main
+    const subHeight = layout.hasSubs ? SUBLINE_HEIGHT : 0
     const bottom = this.hooks?.bottom() ?? null
     const decoration = this.hooks?.decoration() ?? ((): RowDecoration => WITHOUT_DECORATION)
     const shows = listEmptyState({
       preview: el.preview,
       rowsFrom: this._rowsFrom,
-      sourceId: el.source,
       columns,
       rowCount: el.dataRows.length,
     })
@@ -252,11 +312,14 @@ export class RecordList implements ReactiveController {
     return html`<div class="table" style=${styleMap({
       '--tick': `${view.tick}px`,
       '--row-height': `${view.rowsHeight}px`,
+      '--sub-height': `${subHeight}px`,
+      '--record-height': `${view.rowsHeight + subHeight}px`,
     })}>
       ${tableBody({
         columns: visible.columns,
         slots: visible.slots,
         cols: view.cols,
+        layout,
         editable: el.editable,
         preview: el.preview,
         columnPickerOn: this.columnPickerOn,
@@ -278,9 +341,10 @@ export class RecordList implements ReactiveController {
         selectionIndex: this._rowsChoice.slotIn(el.rawRows),
         empty: view.empty,
         decoration,
+        required: (slot) => this.hooks?.required(slot) ?? false,
         bottom: bottom === null
           ? nothing
-          : bottom.render({ view: visible, cols: view.cols, rulerTicks: view.rulerTicks }),
+          : bottom.render({ view: visible, cols: view.cols, layout, rulerTicks: view.rulerTicks }),
       }, {
         setSearchText: (text) => this._view.setSearchText(text),
         openColumnPicker: (e) => this.openColumnPicker(e),

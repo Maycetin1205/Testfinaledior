@@ -6,27 +6,25 @@ import { MAX_KEY_PAIRS, type KeyPair } from '../../core/data/extraSources'
 import { PickerControl } from '../controls/PickerControl'
 
 interface KeyPairRowsProps {
-  question: string
   pairs: readonly KeyPair[]
 
-  leftFields: readonly DataField[]
+  // Where the value comes from: the right side of the sentence.
+  left: (pair: KeyPair, at: number) => ReactNode
 
-  // Where the left value comes from, in place of the field list.
-  left?: (pair: KeyPair, at: number) => ReactNode
+  // The fields of the source: the left side of the sentence.
   rightFields: readonly DataField[]
-  leftName: (at: number) => string
   rightName: (at: number) => string
   removeName: (at: number) => string
   onChange: (pairs: KeyPair[]) => void
 }
 
+// One sentence per pair: the field of the source, "=", where its value comes
+// from. The plus at the end of the last sentence adds a pair, the cross takes
+// one away.
 export function KeyPairRows({
-  question,
   pairs,
-  leftFields,
   left,
   rightFields,
-  leftName,
   rightName,
   removeName,
   onChange,
@@ -34,35 +32,34 @@ export function KeyPairRows({
   const setPair = (at: number, part: Partial<KeyPair>) =>
     onChange(pairs.map((p, i) => (i === at ? { ...p, ...part } : p)))
 
-  const fieldPicker = (
-    name: string,
-    fields: readonly DataField[],
-    value: string,
-    onChoose: (code: string) => void,
-  ) => (
-    <PickerControl
-      className="flex-1"
-      name={name}
-      groups={[{
-        key: 'fields',
-        entries: fields.map((f) => ({ value: f.code, name: f.name, badge: f.code })),
-      }]}
-      value={value}
-      emptyText="Nicht gebunden"
-      onChoose={onChoose}
-    />
+  const add = () => onChange([...pairs, { fromField: '', toField: '' }])
+
+  const plus = (
+    <Button onlyIcon aria-label="Feld dazu" title="Feld dazu" onClick={add}>
+      <Plus size={13} />
+    </Button>
   )
+
+  if (pairs.length === 0) return plus
 
   return (
     <>
-      <span className="text-dense text-muted">{question}</span>
-
       {pairs.map((pair, at) => (
-        <div key={at} className="flex flex-col gap-1 rounded border border-line p-1.5">
-          <div className="flex items-center gap-1.5">
-            <span className="min-w-0 flex-1 truncate text-dense text-muted">
-              {leftName(at)}
-            </span>
+        <div key={at} className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-x-[6px]">
+          <PickerControl
+            className="w-full"
+            name={rightName(at)}
+            groups={[{
+              key: 'fields',
+              entries: rightFields.map((f) => ({ value: f.code, name: f.name, badge: f.code })),
+            }]}
+            value={pair.toField}
+            emptyText="Nicht gebunden"
+            onChoose={(code) => setPair(at, { toField: code })}
+          />
+          <span className="text-muted">=</span>
+          <div className="flex min-w-0 [&>*]:w-full [&>*]:flex-1">{left(pair, at)}</div>
+          <span className="flex items-center">
             {pairs.length > 1 && (
               <Button
                 onlyIcon
@@ -72,24 +69,10 @@ export function KeyPairRows({
                 <X size={13} />
               </Button>
             )}
-          </div>
-          {left
-            ? left(pair, at)
-            : fieldPicker(leftName(at), leftFields, pair.fromField,
-              (code) => setPair(at, { fromField: code }))}
-          <span className="text-dense text-muted">{rightName(at)}</span>
-          {fieldPicker(rightName(at), rightFields, pair.toField,
-            (code) => setPair(at, { toField: code }))}
+            {at === pairs.length - 1 && pairs.length < MAX_KEY_PAIRS && plus}
+          </span>
         </div>
       ))}
-      {pairs.length < MAX_KEY_PAIRS && (
-        <Button
-          className="self-start"
-          onClick={() => onChange([...pairs, { fromField: '', toField: '' }])}
-        >
-          <Plus size={13} /> Feld dazu
-        </Button>
-      )}
     </>
   )
 }

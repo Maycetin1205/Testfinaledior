@@ -2,10 +2,10 @@ import {
   choiceProperty,
   fieldProperty,
   segmentProperty,
-  sourceProperty,
   textProperty,
   type ValuesOf,
 } from '../../core/block/property'
+import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 
 // The inks of the reception mask a text may take.
 export const TEXT_COLORS: Readonly<Record<string, { name: string; token: string }>> = {
@@ -81,12 +81,7 @@ export const textProperties = {
     place: 'block',
     attribute: 'text',
   }),
-  source: sourceProperty({
-    default: '',
-    label: 'Datenquelle',
-    place: 'none',
-    attribute: 'source',
-  }),
+  source: SOURCE_PROPERTY,
   textField: fieldProperty({
     default: '',
     label: 'Textfeld',

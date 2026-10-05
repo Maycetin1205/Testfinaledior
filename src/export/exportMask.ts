@@ -4,12 +4,10 @@ import { blockType } from '../core/block/registry'
 import {
   bindableSpotsOf,
   maySelectionFollows,
-  firstDescendantOfType,
   isSelectionGiver,
   SOURCE_PROP,
   carriesChanges,
   carriesOwnSource,
-  carriesDeletions,
 } from '../core/block/treeQuery'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { chainsForExport } from '../core/data/steps/chains'
@@ -24,12 +22,7 @@ import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
 import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
 import { pagesOfMask } from '../core/block/pages'
-import { isGridArea } from '../core/block/gridArea'
-import {
-  directionOfChildren,
-  ROOT_FLOW,
-  type Direction,
-} from '../core/block/flow'
+import { pageRowsTemplate, ROOT_PADDING } from '../core/block/gridArea'
 import { gridAreaCss } from '../core/block/grid'
 import tokensCssRaw from '../design/mask.css?raw'
 import {
@@ -59,12 +52,6 @@ interface MaskExport {
   sevariablen: string
 }
 
-interface TemplateCtx {
-  type: string
-  id: string | undefined
-  direction: Direction
-}
-
 function columnsIndexFor(tree: MaskTree): (blockId: string, key: string) => string {
   return (blockId, key) => {
     const target = tree[blockId]
@@ -79,7 +66,6 @@ function columnsIndexFor(tree: MaskTree): (blockId: string, key: string) => stri
 function nodeToHtml(
   tree: MaskTree,
   node: BlockNode,
-  parentDirection: Direction,
   depth: number,
 
   popupName: (id: string) => string,
@@ -87,19 +73,10 @@ function nodeToHtml(
   columnsIndex: (blockId: string, key: string) => string,
 
   sources: readonly DataSource[],
-  templateCtx?: TemplateCtx,
-
-  gridLevel = false,
 ): string {
   const def = blockType(node.type)
   if (!def) return ''
   const pad = '  '.repeat(depth)
-  if (templateCtx && node.type === templateCtx.type) {
-    if (node.id !== templateCtx.id) return ''
-
-    const inner = nodeToHtml(tree, node, templateCtx.direction, depth + 1, popupName, columnsIndex, sources, undefined, gridLevel)
-    return `${pad}<template data-ff-template>\n${inner}\n${pad}</template>`
-  }
 
   const bindableSpots = bindableSpotsOf(node)
   const bindable = new Set(bindableSpots.map((spot) => spot.prop))
@@ -139,32 +116,22 @@ function nodeToHtml(
   const addressable = (capability(def, 'actionValue')?.spots.length ?? 0) > 0
     || applies(capability(def, 'capture'), node.values)
     || carriesChanges(node)
-    || carriesDeletions(node)
     || isSelectionGiver(node)
   const keyAttr = addressable ? ` ${BLOCK_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
 
-  const fillsAttr = gridLevel && def.page !== true ? ' fills' : ''
+  const fillsAttr = def.page !== true ? ' fills' : ''
 
   const pagesAttr = node.parentId === ROOT_ID && !def.page ? ' data-ff-main' : ''
-  const open = `${pad}<${def.tag}${attrs}${actionsAttr}${keyAttr}${pagesAttr}${fillsAttr}${styleAttr(node, parentDirection, def.fixedWidth, gridLevel, def.page === true)}>`
+  const open = `${pad}<${def.tag}${attrs}${actionsAttr}${keyAttr}${pagesAttr}${fillsAttr}${styleAttr(node, def.page === true)}>`
   if (!def.takesChildren || node.childIds.length === 0) {
     return `${open}</${def.tag}>`
   }
 
-  const childDirection = directionOfChildren(def, node.values)
-
-  const childCtx: TemplateCtx | undefined = def.templateKind
-    ? {
-        type: def.templateKind.type,
-        id: firstDescendantOfType(tree, node.id, def.templateKind.type),
-        direction: def.templateKind.direction ?? childDirection,
-      }
-    : templateCtx
   const children = node.childIds
     .map((id) => tree[id])
     .filter((c): c is BlockNode => Boolean(c))
 
-    .map((c) => nodeToHtml(tree, c, childDirection, depth + 1, popupName, columnsIndex, sources, childCtx, isGridArea(node)))
+    .map((c) => nodeToHtml(tree, c, depth + 1, popupName, columnsIndex, sources))
     .filter((html) => html !== '')
     .join('\n')
   return children === ''
@@ -189,7 +156,7 @@ export function exportMask(
   const blocks = (root?.childIds ?? [])
     .map((id) => tree[id])
     .filter((n): n is BlockNode => Boolean(n))
-    .map((n) => nodeToHtml(tree, n, 'column', 2, popupName, columnsIndex, sources, undefined, true))
+    .map((n) => nodeToHtml(tree, n, 2, popupName, columnsIndex, sources))
     .join('\n')
 
   const used = withUniqueNames(collectDataSources(tree, sources))
@@ -228,7 +195,8 @@ export function exportMask(
     }))) + ';',
   ))
 
-  const rootPadding = `${ROOT_FLOW.padding}px`
+  const rows = pageRowsTemplate(tree)
+  const rootPadding = `${ROOT_PADDING}px`
 
   const html = [
     '<!DOCTYPE html>',
@@ -247,7 +215,7 @@ export function exportMask(
     `.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto;`
       + ` background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs);`
       + ` line-height: var(--se-lh); color: var(--se-ink);`
-      + ` ${gridAreaCss()}; padding: ${rootPadding}; }`,
+      + ` ${gridAreaCss()};${rows ? ` grid-template-rows: ${rows};` : ''} padding: ${rootPadding}; }`,
     '.ff-root * { font-family: inherit; font-size: inherit; }',
     '</style>',
     '</head>',

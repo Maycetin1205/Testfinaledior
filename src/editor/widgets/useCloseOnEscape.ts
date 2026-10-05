@@ -24,3 +24,10 @@ export function useCloseOnEscape(onClose: () => void): void {
     }
   }, [])
 }
+
+// While it stands, Escape runs this first, before any window closes: a line
+// being typed in takes back what was typed.
+export function OnEscape({ run }: { run: () => void }): null {
+  useCloseOnEscape(run)
+  return null
+}

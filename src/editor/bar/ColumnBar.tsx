@@ -1,17 +1,20 @@
 import { createElement, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
+import { ArrowRight, ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
-import { Tile } from '@/editor/widgets/Tile'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { BlockNode } from '../../core/block/tree'
+import type { Property } from '../../core/block/property'
 import { blockType } from '../../core/block/registry'
 import { propertiesFor } from '../../core/block/propertyPlace'
 import { FieldPicker, type PickerField, type PickerGroup, type SourcesChoice } from '../canvas/FieldPicker'
+import { PickerControl } from '../controls/PickerControl'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { BarControl, Labeled } from './BarControl'
-import { BarFrame, BarSign, BarWindow } from './BlockBar'
+import { BarControl, type EntryAccess } from './BarControl'
+import { Labeled, Switch } from './Labeled'
+import { BarFrame, BarSign } from './BarFrame'
+import { BarWindow } from './BarWindow'
 import { controlShown } from './controlShown'
 
 // One line holds seven parts at most; more, and the switches share a window.
@@ -28,6 +31,15 @@ export interface ColumnAction {
   label: string
   icon: Icon
   onOpen: () => void
+}
+
+// A choice among the column's siblings, like the column a subline stands under.
+export interface ColumnPlace {
+  key: string
+  label: string
+  value: string
+  entries: readonly { value: string; name: string }[]
+  onChoose: (value: string) => void
 }
 
 interface ColumnBarProps {
@@ -47,7 +59,15 @@ interface ColumnBarProps {
   nameOf: (value: string) => string
 
   switches: readonly ColumnSwitch[]
+  places?: readonly ColumnPlace[]
   actions: readonly ColumnAction[]
+
+  // What the entry itself declares, like the tone of a board's column, each
+  // group with the entry it reads and writes.
+  entries?: readonly {
+    properties: readonly (readonly [string, Property<unknown>])[]
+    access: EntryAccess
+  }[]
 
   removeLabel: string
   onRemove?: () => void
@@ -58,7 +78,7 @@ interface ColumnBarProps {
 // fields, its switches, what the list chooses at its heads, and the bin.
 export function ColumnBar({
   block, host, element, align, name, fields, groups, sourcesChoice, nameOf,
-  switches, actions, removeLabel, onRemove, onClose,
+  switches, places = [], actions, entries = [], removeLabel, onRemove, onClose,
 }: ColumnBarProps) {
   const ed = useEditor()
   const library = useDataSources().list
@@ -83,11 +103,38 @@ export function ColumnBar({
   const sourceInReach = ed.dataSourceFor(block.id)
   const choices = (def ? propertiesFor(block, def, 'column') : [])
     .filter(({ property }) => controlShown(property, block, sourceInReach, library))
-  const parts = 1 + fields.length + switches.length + choices.length + actions.length + (onRemove ? 1 : 0)
+  const own = entries.flatMap(({ properties, access }, group) => properties
+    .filter(([, property]) => controlShown(property, block, sourceInReach, library))
+    .map(([key, property]) => ({ key: `${group}:${key}`, propertyKey: key, property, access })))
+  const parts = 1 + fields.length + own.length + switches.length + places.length + choices.length + actions.length + (onRemove ? 1 : 0)
+  const fieldsFrom = fields.filter((field) => field.onlyForeignSources === true)
+  const fieldsTo = fields.filter((field) => field.onlyForeignSources !== true)
 
   const shows = (
     <>
-      {switches.map((s) => <Tile key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
+      {own.map(({ key, propertyKey, property, access }) => (
+        <BarControl
+          key={key}
+          block={block}
+          propertyKey={propertyKey}
+          property={property}
+          sourceInReach={sourceInReach}
+          session={session}
+          entry={access}
+        />
+      ))}
+      {switches.map((s) => <Switch key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
+      {places.map((p) => (
+        <Labeled key={p.key} label={p.label}>
+          <PickerControl
+            name={p.label}
+            className="w-full"
+            groups={[{ key: p.key, entries: p.entries.map((e) => ({ value: e.value, name: e.name })) }]}
+            value={p.value}
+            onChoose={p.onChoose}
+          />
+        </Labeled>
+      ))}
       {choices.map(({ key, property }) => (
         <BarControl
           key={key}
@@ -106,11 +153,25 @@ export function ColumnBar({
       <BarSign type={block.type} name={name} />
       <Separator vertical />
 
-      {fields.map((field) => (
+      {/* Where the value comes from, the arrow, where it goes: the fill field
+          of a helper source stands before the field of the column. */}
+      {fieldsFrom.map((field) => (
         <FieldChoice
           key={field.key}
           field={field}
-          groups={field.onlyForeignSources === true ? groups.filter((g) => g.sourceId !== '') : groups}
+          groups={groups.filter((g) => g.sourceId !== '')}
+          sourcesChoice={sourcesChoice}
+          nameOf={nameOf}
+        />
+      ))}
+      {fieldsFrom.length > 0 && fieldsTo.length > 0 && (
+        <ArrowRight size={13} aria-hidden className="shrink-0 text-muted" />
+      )}
+      {fieldsTo.map((field) => (
+        <FieldChoice
+          key={field.key}
+          field={field}
+          groups={groups}
           sourcesChoice={sourcesChoice}
           nameOf={nameOf}
         />
@@ -118,7 +179,7 @@ export function ColumnBar({
       {parts > BAR_PARTS
         ? (
             <BarWindow label="Anzeige">
-              {() => <div className="flex flex-col items-start gap-[6px]">{shows}</div>}
+              {() => <div className="flex flex-wrap items-center gap-x-[14px] gap-y-[4px] [&>:not([data-switch])]:basis-full">{shows}</div>}
             </BarWindow>
           )
         : shows}
@@ -164,7 +225,11 @@ function FieldChoice({ field, groups, sourcesChoice, nameOf }: {
         }}
         className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
       >
-        {field.current !== '' && <span className="max-w-[160px] truncate">{nameOf(field.current)}</span>}
+        {/* An empty button carries its name: two bare chevrons side by side
+            tell nothing apart. */}
+        {field.current !== ''
+          ? <span className="max-w-[220px] truncate">{nameOf(field.current)}</span>
+          : <span className="text-muted">{field.label}</span>}
         <ChevronDown size={13} aria-hidden className="text-muted" />
       </button>
       {at !== null && (

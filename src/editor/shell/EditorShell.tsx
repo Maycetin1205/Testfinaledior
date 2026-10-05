@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react'
 import { useKeyboardShortcuts } from '../state/useKeyboardShortcuts'
 import { Canvas } from '../canvas/Canvas'
-import { CalculationsWindow } from '../canvas/CalculationsWindow'
+import { OpenCalculationWindow } from '../canvas/CalculationWindow'
+import { OpenStepWindow } from '../actions/ActionsSection'
 import { LookupColumns } from '../canvas/LookupColumns'
 import { PageBar } from '../canvas/PageBar'
 import { BlockPalette } from '../sidebar/BlockPalette'
-import { DataCenter } from '../datacenter/DataCenter'
-import { onDataCenterRequest } from '../datacenter/openDataCenter'
+import { DataWindow } from '../data/DataWindow'
+import { onDataRequest } from '../data/openData'
 import { Toolbar } from './Toolbar'
 
 export function EditorShell() {
   useKeyboardShortcuts()
 
-  // The data stay closed until „Daten" is clicked, then open beside the mask.
+  // The data stay closed until „Daten" is clicked, then open as a window.
   const [dataOpen, setDataOpen] = useState(false)
 
-  useEffect(() => onDataCenterRequest(() => setDataOpen(true)), [])
+  useEffect(() => onDataRequest(() => setDataOpen(true)), [])
 
   return (
     <div className="flex h-screen w-screen flex-col bg-ground text-ink">
@@ -36,16 +37,13 @@ export function EditorShell() {
           <Canvas />
         </main>
 
-        {/* As wide as .vmodal. */}
-        {dataOpen && (
-          <aside className="w-[560px] shrink-0 overflow-hidden border-l border-line bg-panel">
-            <DataCenter onClose={() => setDataOpen(false)} />
-          </aside>
-        )}
       </div>
 
+      {dataOpen && <DataWindow onClose={() => setDataOpen(false)} />}
+
       <LookupColumns />
-      <CalculationsWindow />
+      <OpenCalculationWindow />
+      <OpenStepWindow />
     </div>
   )
 }

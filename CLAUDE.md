@@ -18,10 +18,11 @@ hinfaellig.
    bleibt die Stelle leer. Ein abgelehntes Schreiben bleibt unsichtbar.
 3. Keine neuen Funktionen, keine Sicherheitsnetze, keine neuen Tests, bis
    der Nutzer es sagt. Die zwei Tests bleiben: Referenzabzug und Starttest.
-4. Nichts erfinden. Farben, Schrift, Masse, Rundungen und Bauteile kommen
-   aus `docs/chef-maske/empfang/index.basis.source.html`: dicht, Rundung
-   4 px, keine Pillen, keine Luft. Das gilt fuer die Maske und fuer den
-   Editor.
+4. Nichts erfinden. Farben, Schrift, Masse und Rundungen stehen in
+   `src/design/mask.css` und `src/design/editor.css`; neue Werte kommen
+   nicht dazu. Die Maske ist dicht: Rundung 4 px, keine Pillen, keine Luft,
+   keine Rahmen um Zellen. Das gilt fuer die Maske und fuer den Editor.
+   `docs/chef-maske` ist selbst KI-erzeugt und keine Vorlage.
 5. Bedienen statt eintippen: Text direkt auf der Flaeche, Groesse an allen
    vier Kanten ziehen, wenige Wahlmoeglichkeiten in einem kleinen Pop-up am
    Baustein, Feld binden durch Klick auf die Stelle. Kein Vollbild-Dialog.
@@ -45,8 +46,10 @@ hinfaellig.
 
 - `npm run dev`: Port 5300, fest. `build:runtime` laeuft vor `dev`, `build`
   und `test` und schreibt nach `src/export/generated/`.
-- Vor jedem Commit: `npm run check` und `npm test`, beide gruen. Gespeicherte
-  Masken und Kundendateien muessen danach weiter laden.
+- Vor jedem Commit: `npm run check` und `npm test`, beide gruen. Masken ab
+  Schema 20 (seit 24.09.) und Kundendateien jeder Fassung muessen danach
+  weiter laden. Der Uebersetzer der Kundendatei
+  (`src/editor/state/librarySchema.ts`) verliert nie eine Stufe.
 - Aendert sich der Export gewollt: `REFERENCE_REFRESH=1 npm test` und im
   Commit sagen, was sich aenderte.
 - Git: kein force-push. `se-quelle/` ist fremd und bleibt draussen.

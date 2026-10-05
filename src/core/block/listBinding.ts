@@ -1,4 +1,5 @@
 import { splitBinding } from './binding'
+import type { PropertyMap } from './property'
 
 // A list property whose entries each show one field, like the columns of a
 // table. Only the declaring block knows an entry; the rest reads and writes it here.
@@ -9,9 +10,23 @@ export interface ListBinding<E = unknown> {
 
   sourceProp?: string
 
+  // The entries show no field of their own, like the columns of a board.
+  fieldless?: boolean
+
+  // What an entry holds besides its title, declared like the properties of a
+  // block; the bar at the entry's head shows them. The entry keeps each value
+  // under its key.
+  entryProperties?: PropertyMap
+
+  // Each entry holds a list of its own, like the places of a board's column,
+  // handled at their heads the same way, one level down.
+  inner?: InnerList<E>
+
   entryFlag?: readonly EntrySwitch<E>[]
 
   entryFieldChoice?: readonly EntryFieldChoice<E>[]
+
+  entryPlace?: readonly EntryPlaceChoice<E>[]
 
   entrySpots?: string
 
@@ -36,6 +51,59 @@ export interface ListBinding<E = unknown> {
   entryAdd?(entries: readonly E[]): E[] | null
   entryRemove?(entries: readonly E[], index: number): E[] | null
   entryMove?(entries: readonly E[], from: number, to: number): E[] | null
+}
+
+export interface InnerList<E> {
+  binding: ListBinding
+  of(entry: E): readonly unknown[]
+  with(entry: E, inner: readonly unknown[]): E
+}
+
+// Where an entry stands: in the list, or in the inner list of an entry. Its
+// head carries it as "2" or "2.1".
+export interface EntryPath {
+  index: number
+  inner?: number
+}
+
+export function entryPathFrom(raw: string | null, fallback: number): EntryPath {
+  const [outer, inner] = (raw ?? '').split('.')
+  const index = Number(outer)
+  if (outer === '' || !Number.isInteger(index)) return { index: fallback }
+  const at = Number(inner)
+  return inner !== undefined && Number.isInteger(at) ? { index, inner: at } : { index }
+}
+
+export function innerOf<E>(b: ListBinding<E>, entry: E | undefined): readonly unknown[] {
+  return entry === undefined || !b.inner ? [] : b.inner.of(entry)
+}
+
+// The entries with the inner list of one of them replaced.
+export function withInner<E>(b: ListBinding<E>, entries: readonly E[], index: number, inner: readonly unknown[]): E[] {
+  const entry = entries[index]
+  if (!b.inner || entry === undefined) return [...entries]
+  const next = [...entries]
+  next[index] = b.inner.with(entry, inner)
+  return next
+}
+
+// Where an entry stands among its siblings, chosen from them: the column a
+// subline column stands under.
+export interface EntryPlaceChoice<E> {
+  key: string
+
+  name: string
+
+  // Only an entry this applies to shows the choice.
+  shown(entry: E): boolean
+
+  // The siblings that can be chosen, by key and title.
+  options(entries: readonly E[], index: number): readonly { value: string; name: string }[]
+
+  // The chosen sibling, or the one that stands in without a choice.
+  valueOf(entries: readonly E[], index: number): string
+
+  withValue(entry: E, value: string): E
 }
 
 export interface EntryFieldChoice<E> {
@@ -76,6 +144,29 @@ export function withEntryValue<E, K extends keyof E>(entry: E, key: K, value: E[
   if (value === undefined) delete copy[key]
   else copy[key] = value
   return copy
+}
+
+// The declared values of an entry, as the bar at its head reads them.
+export function entryValues<E>(b: ListBinding<E>, entry: E): Record<string, unknown> {
+  return Object.fromEntries(Object.keys(b.entryProperties ?? {})
+    .map((key) => [key, entry !== null && typeof entry === 'object' ? Reflect.get(entry, key) : undefined]))
+}
+
+// The entries with one declared value changed; reading the entries again
+// holds the value to its declaration. A value only one entry may hold, like
+// the catch-all column of a board, goes off at the others.
+export function entriesWithValue<E>(
+  b: ListBinding<E>,
+  entries: readonly E[],
+  index: number,
+  key: string,
+  value: unknown,
+): E[] {
+  const alone = b.entryProperties?.[key]?.onlyUnderSiblings === true && value === true
+  return entries.map((entry, i) => {
+    if (i === index) return { ...entry, [key]: value }
+    return alone && entryValues(b, entry)[key] === true ? { ...entry, [key]: false } : entry
+  })
 }
 
 export function flagOn<E>(flag: EntrySwitch<E>, entry: E): boolean {

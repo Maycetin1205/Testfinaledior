@@ -1,5 +1,6 @@
 import { html, nothing, type TemplateResult } from 'lit'
-import { suggestionListTpl, type Suggestion } from './suggestionList'
+import type { Column } from '../list/columns'
+import { suggestionListTpl, type SuggestionRow } from './suggestionList'
 
 interface InputSpotPlacement {
   value: string
@@ -14,7 +15,13 @@ interface InputSpotPlacement {
 
   slot?: number
 
-  suggestions: readonly Suggestion[]
+  suggestions: readonly SuggestionRow[]
+
+  // The columns of the lookup window; the hits stand in them.
+  columns: readonly Column[]
+
+  // What the operator typed, marked in every hit.
+  typed: string
 
   mark: number
 
@@ -80,6 +87,8 @@ export function inputSpotTpl(
     ${placement.beside ?? nothing}
     ${placement.suggestions.length === 0 ? nothing : suggestionListTpl({
       entries: placement.suggestions,
+      columns: placement.columns,
+      typed: placement.typed,
       mark: placement.mark,
       onChoose: (i) => act.chooseSuggestion(i),
       onMark: (i) => act.setMark(i),

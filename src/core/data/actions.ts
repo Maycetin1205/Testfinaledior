@@ -14,8 +14,6 @@ export const PARAMETER_SOURCES = [
   'captureCell',
 
   'changeCell',
-
-  'deleteCell',
   'previousResult',
   'stepResult',
   'seVariable',
@@ -26,7 +24,6 @@ const SAVED_PARAM_SOURCES = [...PARAMETER_SOURCES, 'omitted'] as const
 export const CELLS_PARAM_SOURCES: Record<string, PendingKind> = {
   captureCell: 'captured',
   changeCell: 'changed',
-  deleteCell: 'deleted',
 }
 
 export type ParameterSource = (typeof SAVED_PARAM_SOURCES)[number]
@@ -47,6 +44,8 @@ export const RECORD_PLACEHOLDER = ['PINDEX', 'DROP_PINDEX'] as const
 
 export const ACTION_PLACEHOLDER = [...RECORD_PLACEHOLDER, 'VALUE', 'NOW_DATE'] as const
 
+// A placeholder of the event fills itself; every other place starts empty,
+// as SoftEngine shows a relation: the name stands behind the empty entry.
 export function relationParameterDefault(
   relation: Pick<RelationTemplate, 'parameter'>,
 ): Parameter[] {

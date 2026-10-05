@@ -58,6 +58,24 @@ export interface RelationTemplate {
   positions?: PositionFetch
 }
 
+// Relation 69: one field of one position of the document chosen at the giver
+// per question (docs/softengine-wiki/kontrakte.md, section 8). The position
+// counter goes to I3, where SoftEngine's own formula puts it; year and archive
+// stay empty, since the document row carries no year (SE log 2026-10-02).
+export const POSITIONS_RELATION: Omit<RelationTemplate, 'id'> = {
+  name: 'Positionen holen (Relation 69)',
+  verb: 'GET_RELATION',
+  nr: '69',
+  parameter: ['BELART', 'POS', 'LEN', 'BELNR', '', '', '', '', 'POSNR', '', '', ''],
+  positions: {
+    slots: [
+      'documentKind', 'position', 'length', 'documentNumber', 'empty', 'empty',
+      'empty', 'empty', 'positionNumber', 'empty', 'empty', 'empty',
+    ],
+    answerLength: 255,
+  },
+}
+
 export type RuntimeRelation = Pick<RelationTemplate, 'id' | 'verb' | 'nr' | 'parameter' | 'positions'>
 
 interface PositionAsk {
@@ -135,13 +153,6 @@ export function parameterRole(raw: string): ParameterRole | null {
   return null
 }
 
-export function isUnnamedTemplate(entry: RelationTemplate): boolean {
-  const name = entry.name.trim()
-  return name === ''
-    || name === relationSyntaxAsText(entry)
-    || name.startsWith(`${entry.verb}[`)
-}
-
 export function relationSyntaxRead(input: string): RelationSyntax | null {
   const raw = input.trim()
   const head = /^(GET_RELATION|PUTADD_RELATION|PUT_RELATION)\[/i.exec(raw)
@@ -204,14 +215,6 @@ export function placeholderInsert(
       String(context[key] ?? ''),
     ),
   )
-}
-
-export function unknownPlaceholder(param: string, known: readonly string[]): string[] {
-  const acc: string[] = []
-  for (const m of param.matchAll(/\{([A-Z_]+)\}/g)) {
-    if (!known.includes(m[1])) acc.push(m[1])
-  }
-  return acc
 }
 
 export function checkRelationTemplates(raw: unknown): RelationTemplate[] {

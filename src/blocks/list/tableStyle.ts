@@ -82,13 +82,13 @@ export const tableStyle = css`
         top: 0;
         z-index: 1;
         flex: none;
-        background: var(--se-panel);
-        border-bottom: var(--se-border) solid var(--se-line-soft);
-        font-size: var(--se-fs-xs);
+        background: var(--se-panel-2);
+        /* The head stands apart: dark bold type, written like the rest of
+           the mask, a firm line under it. */
+        border-bottom: var(--se-border) solid var(--se-muted);
+        font-size: var(--se-fs-sm);
         font-weight: 700;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        color: var(--se-muted);
+        color: var(--se-ink);
       }
 
       .body {
@@ -104,6 +104,8 @@ export const tableStyle = css`
 
       .body > .row { flex: none; }
 
+      /* The room under the records: a line per row height, as an empty list
+         draws it, whatever height a record takes. */
       .ruler {
         flex: 1 1 auto;
         min-height: 0;
@@ -172,11 +174,95 @@ export const tableStyle = css`
         border-left: var(--se-border) solid var(--se-line-soft);
       }
 
-      .row > div.number {
+      /* A column that stands right, with its sum: the figures line up. */
+      .row > div.right {
         text-align: right;
         font-variant-numeric: tabular-nums;
       }
-      .head > div.number { justify-content: flex-end; text-align: right; }
+      .head > div.right { justify-content: flex-end; text-align: right; }
+      .head-line { display: flex; align-items: center; min-width: 0; }
+
+      /* A record with sublines is two text lines high: the value of the column
+         on top, under it, small and faint, the values of the subline
+         columns anchored to it. The head carries their titles the same way.
+         A row without a record stays one line high. */
+      .head.subline { min-height: calc(var(--row-height) + var(--sub-height)); }
+      .row.subline { height: calc(var(--row-height) + var(--sub-height)); }
+      .head.subline > div,
+      .row.subline > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        line-height: normal;
+        white-space: normal;
+      }
+      .row.subline > div > .line {
+        display: block;
+        min-width: 0;
+        line-height: calc(var(--row-height) - var(--se-border));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .row > div > .subs {
+        display: flex;
+        gap: 6px;
+        min-width: 0;
+        line-height: var(--sub-height);
+        font-size: var(--se-fs-sm);
+        color: var(--se-muted);
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .row.subline > div.right > .subs { justify-content: flex-end; }
+      .subs > .part {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      /* A dot between two values; an empty part stands without one. */
+      .subs > .part:not(.typable):not(.empty) + .part:not(.typable):not(.empty)::before { content: '· '; }
+      .head.subline > div > .head-line { min-height: var(--row-height); }
+      .head.subline > div.right > .head-line,
+      .head.subline > div.right > .head-sub { justify-content: flex-end; }
+      .head-sub {
+        display: flex;
+        gap: 6px;
+        min-width: 0;
+        line-height: var(--sub-height);
+        font-size: var(--se-fs-xs);
+        font-weight: 400;
+        color: var(--se-muted);
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .head-sub-text {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+      }
+
+      /* The sublines of the capture: a line that holds an input lets the
+         suggestion list hang out, the inputs of the second line share it,
+         each as small as the line. The capture row shows its second line
+         with a hairline above, where the booked rows show grey values. */
+      .row.capture > div > .line,
+      .row > div.typable > .line { display: flex; align-items: center; overflow: visible; }
+      .row.capture > div > .subs,
+      .row > div.typable > .subs { overflow: visible; }
+      .row.capture > div > .subs { border-top: var(--se-border) solid var(--se-line-soft); }
+      .subs > .part.typable {
+        display: flex;
+        align-items: center;
+        flex: 1 1 0;
+        overflow: visible;
+      }
+      .subs > .part.typable .cell-input {
+        height: calc(var(--sub-height) - 4px);
+        font-size: var(--se-fs-sm);
+      }
 
       /* Two title lines fit exactly one tick: the page count takes the head for
          one row, anything taller would scroll the body. */
@@ -189,6 +275,13 @@ export const tableStyle = css`
         user-select: none;
 
         position: relative;
+      }
+      /* The star of a required column, as the reception mask marks its fields. */
+      .head > div > .required {
+        flex: none;
+        margin-left: 3px;
+        color: var(--se-danger);
+        font-style: normal;
       }
       /* Breaks only between words; a word too long for the column is cut off. */
       .head-text {
@@ -302,11 +395,6 @@ export const tableStyle = css`
         color: var(--se-muted);
         white-space: nowrap;
         overflow: hidden;
-      }
-      .foot--quiet {
-        min-height: 0;
-        height: 6px;
-        padding: 0;
       }
       .page-info { flex: none; }
       .foot-right {

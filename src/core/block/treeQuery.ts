@@ -95,14 +95,6 @@ export function captureCarrierInTree(tree: MaskTree): BlockNode[] {
   return nodesWhere(tree, (node) => applies(capability(blockType(node.type), 'capture'), node.values))
 }
 
-export function deleteCarrierInTree(tree: MaskTree): BlockNode[] {
-  return nodesWhere(tree, carriesDeletions)
-}
-
-export function carriesDeletions(node: BlockNode): boolean {
-  return applies(capability(blockType(node.type), 'delete'), node.values)
-}
-
 export function carriesChanges(node: BlockNode): boolean {
   const def = blockType(node.type)
   const key = capability(def, 'change')?.key
@@ -119,21 +111,6 @@ export function carriesChanges(node: BlockNode): boolean {
 
 export function changeCarrierInTree(tree: MaskTree): BlockNode[] {
   return nodesWhere(tree, carriesChanges)
-}
-
-export function firstDescendantOfType(
-  tree: MaskTree,
-  rootId: string,
-  type: string,
-): string | undefined {
-  for (const cid of tree[rootId]?.childIds ?? []) {
-    const child = tree[cid]
-    if (!child) continue
-    if (child.type === type) return cid
-    const found = firstDescendantOfType(tree, cid, type)
-    if (found) return found
-  }
-  return undefined
 }
 
 export function canCompute(node: BlockNode): boolean {

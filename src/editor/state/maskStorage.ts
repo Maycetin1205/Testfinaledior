@@ -1,7 +1,7 @@
 import { ROOT_ID, type MaskTree } from '../../core/block/tree'
 import { emptyTree } from '../../core/block/treeOps'
-import { checkDataSources, type DataSource } from '../../core/data/dataSources'
-import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
+import type { DataSource } from '../../core/data/dataSources'
+import type { RelationTemplate } from '../../core/data/relations'
 import { packLibrary, packLibraryFrom } from './libraryFile'
 import { checkTreeState } from './checkTreeState'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
@@ -13,8 +13,8 @@ const STORAGE_KEY = 'aufbau_editor_mask'
 
 const LIBRARY_KEY = 'aufbau_editor_library'
 
-const FORMER_STORAGE_KEY = 'aufbau_editor_mvp_v1'
-
+// The customer file moves from the key it had before 23.09.: data sources
+// always come along.
 const FORMER_LIBRARY_KEY = 'aufbau_editor_datencenter'
 export const SAVE_DEBOUNCE_MS = 500
 
@@ -29,16 +29,16 @@ export interface StoredLibrary {
   relation: readonly RelationTemplate[]
 }
 
-function read(key: string, formerKey: string): string | null {
+function read(key: string, formerKey?: string): string | null {
   try {
     if (typeof localStorage === 'undefined') return null
-    return readMoved(key, formerKey)
+    return formerKey === undefined ? localStorage.getItem(key) : readMoved(key, formerKey)
   } catch {
     return null
   }
 }
 
-export function readMoved(key: string, formerKey: string): string | null {
+function readMoved(key: string, formerKey: string): string | null {
   const text = localStorage.getItem(key)
   if (text !== null) return text
   const former = localStorage.getItem(formerKey)
@@ -56,48 +56,45 @@ function write(key: string, text: string): void {
   }
 }
 
+// One key of the browser store. Text this editor cannot read there, written
+// by a newer editor or another branch on the same port, is never written over:
+// the editor then starts empty and keeps its work in memory and in the picked
+// file, and the other editor finds its work again.
+class Slot {
+  private readonly key: string
+  private readonly formerKey: string | undefined
+  private foreign = false
+
+  constructor(key: string, formerKey?: string) {
+    this.key = key
+    this.formerKey = formerKey
+  }
+
+  read<T>(parse: (raw: string) => T | null): T | null {
+    const raw = read(this.key, this.formerKey)
+    if (raw === null) return null
+    const value = parse(raw)
+    this.foreign = value === null
+    return value
+  }
+
+  write(text: string): void {
+    if (!this.foreign) write(this.key, text)
+  }
+}
+
+const maskSlot = new Slot(STORAGE_KEY)
+const librarySlot = new Slot(LIBRARY_KEY, FORMER_LIBRARY_KEY)
+
 export function loadLibraryFromStorage(): StoredLibrary {
-  const raw = read(LIBRARY_KEY, FORMER_LIBRARY_KEY)
-  if (raw === null) return { dataSources: [], relation: [] }
-  const result = packLibraryFrom(raw)
-  return result.ok ? result.content : { dataSources: [], relation: [] }
+  return librarySlot.read((raw) => {
+    const result = packLibraryFrom(raw)
+    return result.ok ? result.content : null
+  }) ?? { dataSources: [], relation: [] }
 }
 
 export function loadFromStorage(): StoredMask | null {
-  const raw = read(STORAGE_KEY, FORMER_STORAGE_KEY)
-  return raw === null ? null : readState(raw)
-}
-
-// A mask saved before the split still carries its sources; they belong in the
-// customer file now.
-export function carriedLibrary(): StoredLibrary {
-  const raw = read(STORAGE_KEY, FORMER_STORAGE_KEY)
-  return raw === null ? { dataSources: [], relation: [] } : libraryInMask(raw)
-}
-
-function libraryInMask(raw: string): StoredLibrary {
-  const empty: StoredLibrary = { dataSources: [], relation: [] }
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    return empty
-  }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return empty
-  const state = liftState(parsed) as Record<string, unknown>
-  if (!Array.isArray(state.dataSources) && !Array.isArray(state.relation)) return empty
-  // What the mask's own lift brought up to date must not be lifted a second time.
-  if (state !== parsed) {
-    return {
-      dataSources: checkDataSources(state.dataSources),
-      relation: checkRelationTemplates(state.relation),
-    }
-  }
-  const packed = packLibraryFrom(JSON.stringify({
-    dataSources: state.dataSources ?? [],
-    relation: state.relation ?? [],
-  }))
-  return packed.ok ? packed.content : empty
+  return maskSlot.read(readState)
 }
 
 function readState(raw: string): StoredMask | null {
@@ -107,9 +104,9 @@ function readState(raw: string): StoredMask | null {
   } catch {
     return null
   }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
   try {
-    const state = liftState(parsed) as Record<string, unknown>
+    const state = liftState(parsed)
+    if (state === null) return null
     const tree = checkTreeState({ tree: state.tree, selectedId: state.selectedId })
     if (tree === null) return null
     return {
@@ -130,7 +127,7 @@ export function emptyMask(): StoredMask {
 }
 
 export function persistMask(mask: StoredMask): void {
-  write(STORAGE_KEY, JSON.stringify({
+  maskSlot.write(JSON.stringify({
     schemaVersion: CURRENT_SCHEMA_VERSION,
     tree: mask.tree,
     selectedId: mask.selectedId,
@@ -143,6 +140,6 @@ export function persistLibrary(library: StoredLibrary): string {
     dataSources: [...library.dataSources],
     relation: [...library.relation],
   })
-  write(LIBRARY_KEY, text)
+  librarySlot.write(text)
   return text
 }

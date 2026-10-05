@@ -1,27 +1,167 @@
-import { html, type CSSResultGroup, type TemplateResult } from 'lit'
-import { property } from 'lit/decorators.js'
+import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { boardRegister, boardUnregister } from './board'
-import { CARD_TYPE } from './places'
-import { KanbanColumn } from './KanbanColumn'
+import { bindable } from '../../core/block/capability'
+import { toneStyle, toneValue } from '../tone/tone'
+import type { DataPreamble } from '../../runtime/source'
+import { animalOf, animalOutline } from './animal'
+import { Board, boardRegister, boardUnregister, type CardData } from './board'
+import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom, type KanbanPlace } from './columns'
+import type { Spot } from './places'
 import { kanbanStyle } from './kanbanStyle'
-import { kanbanProperties, type KanbanValues } from './properties'
+import { AVATAR_SPOT, CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
+
+const COUNT_IN_EDITOR = '—'
 
 export interface Kanban extends KanbanValues {}
 
+// One block draws the columns, their places and the cards. In the editor every
+// place holds the card as the mask draws it; its spots are typed or bound right
+// there.
 export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, kanbanStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, kanbanStyle]
 
-  @property({ attribute: false }) busy = false
+  readonly board = new Board(this)
+
+  // A bound spot shows its field, any other what the builder typed.
+  cardValues(row: unknown, read: DataPreamble['read']): Record<string, string> {
+    const typedOrBound = Object.fromEntries(CARD_SPOTS.map(({ prop }) => {
+      const field = this[`${prop}Field`]
+      return [prop, field === '' ? this[prop] : read(row, field)]
+    }))
+    return { ...typedOrBound, avatar: this.avatarField === '' ? '' : read(row, this.avatarField) }
+  }
+
+  private spot(prop: CardSpot, className: string, values: Readonly<Record<string, string>> | null): TemplateResult {
+    if (values !== null) return html`<span class=${className}>${values[prop]}</span>`
+    return html`<span
+      class=${className}
+      data-ff-editable
+      data-ff-spot=${prop}
+      ?data-ff-bound=${this[`${prop}Field`] !== ''}
+      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, prop)}
+    >${this[prop]}</span>`
+  }
+
+  // The avatar shows its field: the outline of the animal it names, in the
+  // color of that kind, or the picture at the address it holds; a picture that
+  // does not load leaves the avatar empty. In the editor a bound avatar shows
+  // the outline the mask draws for an animal it does not know; a picture only
+  // the mask has.
+  private avatar(values: Readonly<Record<string, string>> | null): TemplateResult {
+    const image = this.avatarKind === 'image'
+    if (values !== null) {
+      if (image) return html`<span class="avatar" style=${`background-image:url(${JSON.stringify(values.avatar)})`}></span>`
+      const animal = animalOf(values.avatar)
+      return html`<span class="avatar" style="color:var(--se-animal-${animal})">${animalOutline(animal)}</span>`
+    }
+    const bound = this.avatarField !== ''
+    return html`<span
+      class="avatar"
+      data-ff-spot=${AVATAR_SPOT.prop}
+      ?data-ff-bound=${bound}
+    >${bound && !image ? animalOutline('paw') : nothing}</span>`
+  }
+
+  // Without values the card is the one the builder shapes: every spot shows.
+  // In the mask a spot without a value falls away.
+  private cardContent(values: Readonly<Record<string, string>> | null): TemplateResult {
+    const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean =>
+      values === null || (values[prop] ?? '').trim() !== ''
+    const main = shows('avatar') || shows('heading') || shows('subline')
+    const foot = shows('heading2') || shows('date') || shows('time') || shows('chip')
+    return html`
+      ${main
+        ? html`<div class="main">
+            ${shows('avatar') ? this.avatar(values) : nothing}
+            <div class="ident">
+              ${shows('heading') ? this.spot('heading', 'name', values) : nothing}
+              ${shows('subline') ? this.spot('subline', 'extra', values) : nothing}
+            </div>
+          </div>`
+        : nothing}
+      ${shows('text') ? this.spot('text', 'text', values) : nothing}
+      ${foot
+        ? html`<div class="foot">
+            ${shows('heading2') ? this.spot('heading2', 'foot-title', values) : nothing}
+            ${shows('date') ? this.spot('date', 'date', values) : nothing}
+            ${shows('time') ? this.spot('time', 'time', values) : nothing}
+            ${shows('chip') ? this.spot('chip', `chip tone-${toneValue(this.chipTone)}`, values) : nothing}
+          </div>`
+        : nothing}`
+  }
+
+  private cardTpl(card: CardData): TemplateResult {
+    const board = this.board
+    const chosen = card.key === board.chosen
+    return html`<div
+      class="card${chosen ? ' chosen' : ''}${card.key === board.dragging ? ' dragging' : ''}"
+      role="button"
+      tabindex="0"
+      aria-pressed=${String(chosen)}
+      draggable=${board.writes ? 'false' : 'true'}
+      @click=${() => board.choose(card)}
+      @keydown=${(e: KeyboardEvent) => {
+        if ((e.key !== 'Enter' && e.key !== ' ') || e.target !== e.currentTarget) return
+        e.preventDefault()
+        board.choose(card)
+      }}
+      @dragstart=${(e: DragEvent) => board.startDrag(e, card)}
+      @dragend=${() => board.endDrag()}
+    >${this.cardContent(card.values)}</div>`
+  }
+
+  private cardsAt(spot: Spot): TemplateResult | TemplateResult[] {
+    if (this.preview) return html`<div class="card">${this.cardContent(null)}</div>`
+    return this.board.cardsAt(spot).map((card) => this.cardTpl(card))
+  }
+
+  private count(cards: readonly CardData[]): string | number {
+    return this.preview ? COUNT_IN_EDITOR : cards.length
+  }
+
+  // A place of a column with more than one, as a box with its name on top.
+  private placeTpl(spot: Spot, place: KanbanPlace): TemplateResult {
+    const board = this.board
+    return html`<div
+      class="place${board.isTarget(spot) ? ' target' : ''}"
+      @dragover=${(e: DragEvent) => board.over(e, spot)}
+      @drop=${(e: DragEvent) => board.drop(e, spot)}
+    >
+      <div class="place-head" data-ff-entry="${spot.column}.${spot.place}">
+        <span class="head-text">${place.name}</span>
+        <span class="place-count">${this.count(board.cardsAt(spot))}</span>
+      </div>
+      <div class="place-body">${this.cardsAt(spot)}</div>
+    </div>`
+  }
 
   override render(): TemplateResult {
-    return html`
-      <div class="board">
-        <slot></slot>
-      </div>`
+    const board = this.board
+    return html`<div class="board" aria-busy=${String(board.writes)} @dragleave=${(e: DragEvent) => board.leave(e)}>
+      ${kanbanColumnsFrom(this.columns).map((column, i) => {
+        const only: Spot = { column: i, place: 0 }
+        const single = column.places.length === 1
+        return html`<div
+          class="column tone-${toneValue(column.tone)}${single && board.isTarget(only) ? ' target' : ''}"
+          @dragover=${single ? (e: DragEvent) => board.over(e, only) : nothing}
+          @drop=${single ? (e: DragEvent) => board.drop(e, only) : nothing}
+        >
+          <div class="head" data-ff-entry=${i}>
+            <span class="dot"></span>
+            <span class="head-text">${column.heading}</span>
+            <span class="count">${this.count(board.cardsIn(i))}</span>
+          </div>
+          <div class="body">
+            ${single
+              ? this.cardsAt(only)
+              : column.places.map((place, p) => this.placeTpl({ column: i, place: p }, place))}
+          </div>
+        </div>`
+      })}
+    </div>`
   }
 
   override connectedCallback(): void {
@@ -42,6 +182,8 @@ defineBlock(Kanban, {
   capabilities: [
     { kind: 'source' },
     { kind: 'recordPick' },
+    { kind: 'list', binding: KANBAN_COLUMNS_BINDING },
+    bindable<typeof kanbanProperties>([...CARD_SPOTS, AVATAR_SPOT]),
     {
       kind: 'events',
       list: [
@@ -50,17 +192,5 @@ defineBlock(Kanban, {
       ],
     },
   ],
-  takesChildren: true,
-  allowedChildren: [CARD_TYPE, KanbanColumn.type],
-  childDirection: 'row',
-  fixedWidth: 'fill',
-  childButton: { name: 'Spalte', childType: KanbanColumn.type },
-  childDefaults: [
-    { type: CARD_TYPE },
-    { type: KanbanColumn.type, values: { heading: 'Offen', tone: 'warning' } },
-    { type: KanbanColumn.type, values: { heading: 'In Arbeit', tone: 'info' } },
-    { type: KanbanColumn.type, values: { heading: 'Fertig', tone: 'success' } },
-  ],
-  templateKind: { type: CARD_TYPE, name: 'Kartenmuster', direction: 'column' },
-  grid: { startWidth: 48, startHeight: 20, minWidth: 12, minHeight: 8 },
+  grid: { startWidth: 48, startHeight: 20, minWidth: 12, minHeight: 8, grows: true },
 })

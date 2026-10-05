@@ -23,6 +23,11 @@ export class ViewChoices {
 
   private readonly columns: () => readonly { key: string }[]
 
+  // The height of the subline under each row, 0 without one.
+  private readonly subHeight: () => number
+
+  private _subMeasured = 0
+
   private _searchText = ''
 
   private _sortColumn = -1
@@ -43,9 +48,10 @@ export class ViewChoices {
   private _focusRow: number | null = null
   private _restoreFocus = false
 
-  constructor(el: ViewElement, columns: () => readonly { key: string }[]) {
+  constructor(el: ViewElement, columns: () => readonly { key: string }[], subHeight: () => number = () => 0) {
     this.el = el
     this.columns = columns
+    this.subHeight = subHeight
   }
 
   get searchText(): string {
@@ -149,7 +155,8 @@ export class ViewChoices {
 
   private measureBody(): void {
     this._tickMeasured = ROWS_HEIGHT
-    const { metrics, height, head } = measuredMetrics(this.el, ROWS_HEIGHT)
+    this._subMeasured = this.subHeight()
+    const { metrics, height, head } = measuredMetrics(this.el, ROWS_HEIGHT, this._subMeasured)
     this._bodyMeasured = height
     this._headMeasured = head
     if (metrics?.fit === this._metrics?.fit && metrics?.rowsHeight === this._metrics?.rowsHeight) return
@@ -165,6 +172,7 @@ export class ViewChoices {
 
   afterRender(): void {
     if (this._tickMeasured !== ROWS_HEIGHT
+      || this._subMeasured !== this.subHeight()
       || this._bodyMeasured !== bodyHeight(this.el)
       || this._headMeasured !== headHeight(this.el)) {
       this.measureBody()

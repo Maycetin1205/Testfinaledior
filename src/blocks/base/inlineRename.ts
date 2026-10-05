@@ -1,12 +1,20 @@
 export function startRename(
   target: HTMLElement,
-  adopt: (text: string, original: string) => boolean,
+  adopt: (text: string, original: string) => void,
 ): void {
   const original = target.textContent ?? ''
 
-  const originalNode = Array.from(target.childNodes)
-  const originalTexts = originalNode.map((n) => n.textContent ?? '')
+  // The browser types into a copy. The element's own nodes wait aside as lit
+  // left them and come back afterwards, so lit writes the adopted text into
+  // them; typed into directly, lit loses track of them and a text shows twice
+  // or not at all.
+  const own = Array.from(target.childNodes)
+  target.replaceChildren(...own.map((n) => n.cloneNode(true)))
   target.setAttribute('contenteditable', 'plaintext-only')
+  // Typed in place, the text looks as before, only with the cursor: no frame
+  // of the browser around it.
+  const outline = target.style.outline
+  target.style.outline = 'none'
   target.focus()
   const selection = window.getSelection()
   const area = document.createRange()
@@ -14,12 +22,7 @@ export function startRename(
   selection?.removeAllRanges()
   selection?.addRange(area)
 
-  const restore = (): void => {
-    target.replaceChildren(...originalNode)
-    originalNode.forEach((n, i) => {
-      if (n.textContent !== originalTexts[i]) n.textContent = originalTexts[i]
-    })
-  }
+  const restore = (): void => target.replaceChildren(...own)
 
   const inButton = target.closest('button') !== null
 
@@ -46,10 +49,11 @@ export function startRename(
     if (done) return
     done = true
     target.removeAttribute('contenteditable')
+    target.style.outline = outline
     target.removeEventListener('blur', onBlur)
     target.removeEventListener('keydown', onKey)
-    const adopted = commit && adopt((target.textContent ?? '').trim(), original)
-    if (!adopted) restore()
+    if (commit) adopt((target.textContent ?? '').trim(), original)
+    restore()
   }
   const onBlur = (): void => finish(true)
   const onKey = (e: KeyboardEvent): void => {

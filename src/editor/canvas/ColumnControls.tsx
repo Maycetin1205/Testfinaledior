@@ -3,7 +3,13 @@ import { Plus } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { startRename } from '../../blocks/base/inlineRename'
 import type { BlockNode } from '../../core/block/tree'
-import { listDefaultTitle, type ListBinding } from '../../core/block/blockType'
+import {
+  entryPathFrom,
+  listDefaultTitle,
+  withInner,
+  type EntryPath,
+  type ListBinding,
+} from '../../core/block/blockType'
 import { useEditorInstance } from '../state/EditorContext'
 
 interface Spot {
@@ -12,7 +18,7 @@ interface Spot {
   width: number
   height: number
 
-  slot: number
+  path: EntryPath
 }
 
 interface ColumnControlsProps {
@@ -42,13 +48,12 @@ function measure(element: HTMLElement, host: HTMLElement, selector: string): Spo
   const reference = host.getBoundingClientRect()
   return Array.from(root.querySelectorAll<HTMLElement>(selector)).map((el, i) => {
     const r = el.getBoundingClientRect()
-    const raw = Number(el.getAttribute('data-ff-entry'))
     return {
       left: r.left - reference.left,
       top: r.top - reference.top,
       width: r.width,
       height: r.height,
-      slot: Number.isInteger(raw) ? raw : i,
+      path: entryPathFrom(el.getAttribute('data-ff-entry'), i),
     }
   })
 }
@@ -63,21 +68,40 @@ export function ColumnControls({
   useEffect(() => {
     const el = element
     const frame = host.current
-    if (!el || !frame || !el.shadowRoot) return
-    const remeasure = (): void => setSpots(measure(el, frame, selector))
+    if (!el || !frame) return
+    let stopped = false
+    let ro: ResizeObserver | null = null
+    let mo: MutationObserver | null = null
+    const remeasure = (): void => {
+      if (!stopped) setSpots(measure(el, frame, selector))
+    }
 
-    const ro = new ResizeObserver(remeasure)
-    ro.observe(el)
-    const mo = new MutationObserver(remeasure)
-    mo.observe(el.shadowRoot, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['style', 'class', 'data-ff-entry'],
-    })
+    // The block may still be upgrading when this runs, and it may have drawn
+    // already: watch it once it has a shadow root, and measure right away
+    // and again after its next drawing.
+    const attach = (): void => {
+      const root = el.shadowRoot
+      if (stopped || !root) return
+      ro = new ResizeObserver(remeasure)
+      ro.observe(el)
+      mo = new MutationObserver(remeasure)
+      mo.observe(root, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['style', 'class', 'data-ff-entry'],
+      })
+      remeasure()
+      const drawn = (el as { updateComplete?: Promise<unknown> }).updateComplete
+      if (drawn) void drawn.then(remeasure)
+    }
+    if (el.shadowRoot) attach()
+    else void customElements.whenDefined(el.localName).then(attach)
+
     return () => {
-      ro.disconnect()
-      mo.disconnect()
+      stopped = true
+      ro?.disconnect()
+      mo?.disconnect()
     }
   }, [element, host, selector])
 
@@ -91,31 +115,45 @@ export function ColumnControls({
     target.dispatchEvent(new CustomEvent('ff-list-bind', {
       detail: {
         prop: binding.prop,
-        index: s.slot,
+        index: s.path.index,
+        inner: s.path.inner,
         top: reference.top + s.top + s.height + 4,
         left: reference.left + s.left,
       },
     }))
   }
 
-  // The title is typed on the head itself.
+  // The title is typed on the head itself, one level down as well.
   const rename = (index: number): void => {
     const s = spots[index]
     const head = element?.shadowRoot?.querySelectorAll<HTMLElement>(selector)[index]
     const text = head?.querySelector<HTMLElement>('.head-text') ?? head
     if (!s || !text) return
     startRename(text, (typed, original) => {
-      if (typed === original) return true
+      if (typed === original) return
       const entries = binding.entries(block.values[binding.prop])
-      const entry = entries[s.slot]
-      if (entry === undefined) return false
-      const next = [...entries]
-      next[s.slot] = binding.withTypedTitle(entry, typed === '' ? listDefaultTitle(binding, s.slot) : typed)
-      return editor.updateProperty(block.id, binding.prop, next)
+      const entry = entries[s.path.index]
+      if (entry === undefined) return
+      const at = s.path.inner
+      if (at === undefined) {
+        const next = [...entries]
+        next[s.path.index] = binding.withTypedTitle(entry, typed === '' ? listDefaultTitle(binding, s.path.index) : typed)
+        editor.updateProperty(block.id, binding.prop, next)
+        return
+      }
+      const inner = binding.inner
+      const list = inner ? [...inner.of(entry)] : []
+      const own = list[at]
+      if (!inner || own === undefined) return
+      list[at] = inner.binding.withTypedTitle(own, typed === '' ? listDefaultTitle(inner.binding, at) : typed)
+      editor.updateProperty(block.id, binding.prop, withInner(binding, entries, s.path.index, list))
     })
   }
 
   const added = binding.entryAdd?.(binding.entries(block.values[binding.prop])) ?? null
+
+  // Only the heads of the list itself move by dragging, side by side.
+  const heads = spots.filter((s) => s.path.inner === undefined)
 
   const onPress = (index: number, e: ReactPointerEvent<HTMLDivElement>): void => {
     if (e.button !== 0) return
@@ -124,9 +162,10 @@ export function ColumnControls({
     if (!frame) return
 
     const wasSelected = editor.selectedId === block.id
+    const inner = spots[index]?.path.inner !== undefined
     const startX = e.clientX
     const referenceLeft = frame.getBoundingClientRect().left
-    const midway = spots.map((s) => referenceLeft + s.left + s.width / 2)
+    const midway = heads.map((s) => referenceLeft + s.left + s.width / 2)
     let drags = false
     let slot = index
     const slotOf = (x: number): number => {
@@ -144,7 +183,7 @@ export function ColumnControls({
     }
     function onMove(ev: PointerEvent): void {
       if (!drags) {
-        if (Math.abs(ev.clientX - startX) < DRAG_THRESHOLD) return
+        if (inner || Math.abs(ev.clientX - startX) < DRAG_THRESHOLD) return
         drags = true
         document.body.style.cursor = 'grabbing'
       }
@@ -163,8 +202,8 @@ export function ColumnControls({
       }
       if (binding.entryMove === undefined) return
 
-      const of = spots[index]?.slot ?? index
-      const toRaw = spots[s]?.slot ?? (spots[spots.length - 1]?.slot ?? 0) + 1
+      const of = spots[index]?.path.index ?? index
+      const toRaw = heads[s]?.path.index ?? (heads[heads.length - 1]?.path.index ?? 0) + 1
       const entries = binding.entries(block.values[binding.prop])
       const next = binding.entryMove(entries, of, toRaw > of ? toRaw - 1 : toRaw)
       if (next !== null) editor.updateProperty(block.id, binding.prop, next)
@@ -184,12 +223,12 @@ export function ColumnControls({
     window.addEventListener('keydown', onKey, true)
   }
 
-  if (spots.length === 0) return null
-  const first = spots[0]
-  const last = spots[spots.length - 1]
+  if (heads.length === 0) return null
+  const first = heads[0]
+  const last = heads[heads.length - 1]
   const line = drag === null
     ? null
-    : drag.slot < spots.length ? spots[drag.slot].left : last.left + last.width
+    : drag.slot < heads.length ? heads[drag.slot].left : last.left + last.width
 
   return (
     <div data-ff-editor-helper className="pointer-events-none absolute inset-0 z-10">

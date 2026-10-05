@@ -1,11 +1,11 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
-import type { Suggestion } from '../lookup/suggestionList'
+import type { SuggestionRow } from '../lookup/suggestionList'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
-import { asNumber } from '../list/sorting'
-import { FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import { columnStandsRight, FIELD_KEY_PREFIX, type Column } from '../list/columns'
+import { sublineTpl, type RowLayout } from '../list/tableBody'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -16,6 +16,8 @@ import { maskState } from '../../runtime/maskState'
 interface CapturePlacement {
   columns: readonly Column[]
   slots: readonly number[]
+
+  layout: RowLayout
 
   sourceId: string
 
@@ -28,8 +30,12 @@ interface CapturePlacement {
   automatic: (index: number) => boolean
 
   typingColumn: number
-  suggestions: readonly Suggestion[]
+  suggestions: readonly SuggestionRow[]
   mark: number
+
+  typed: (index: number) => string
+
+  windowColumns: (index: number) => readonly Column[]
 
   listToTop: boolean
 }
@@ -47,43 +53,71 @@ export function captureRowTpl(
   placement: CapturePlacement,
   act: CaptureAct,
 ): TemplateResult {
-  return html`<div class="row capture" role="row" style=${styleMap(placement.cols)}>
-    ${placement.columns.map((column, i) => {
-      if (placement.preview) {
-        return html`<div
-          class=${column.hidden === true ? 'hidden' : nothing}
-          role="cell"
-        ><span class="cell-label"></span></div>`
-      }
-      const slot = placement.slots[i]
-
-      const free = cellTargetOf(column, placement.sourceId).kind === 'free'
-      const list = !free && placement.typingColumn === slot
-      const value = placement.value(slot)
-
-      return html`<div
-        class=${asNumber(value) !== null ? 'number' : nothing}
-        role="cell"
-      >${inputSpotTpl({
-        value,
-        title: column.title,
-        placeholder: '',
-        inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
-        holderClass: 'cell-holder',
-        marksOnEntering: true,
-        slot,
-        suggestions: list ? placement.suggestions : [],
-        mark: placement.mark,
-        listToTop: placement.listToTop,
-      }, {
-        typing: (text) => act.typing(slot, text),
-        key: (e) => act.key(slot, e),
-        leave: () => act.leave(slot),
-        chooseSuggestion: (i2) => act.chooseSuggestion(i2),
-        setMark: (i2) => act.setMark(i2),
-      })}</div>`
-    })}
+  const layout = placement.layout
+  return html`<div class="row capture${layout.hasSubs ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+    ${placement.columns.map((column, i) => captureCellTpl(placement, act, column, placement.slots[i]))}
   </div>`
+}
+
+// A cell of the capture row: the input of its column and, under it, the
+// inputs of the subline columns anchored to it.
+function captureCellTpl(
+  placement: CapturePlacement,
+  act: CaptureAct,
+  column: Column,
+  slot: number,
+): TemplateResult {
+  const layout = placement.layout
+  const subs = layout.subsOf(slot)
+  if (placement.preview) {
+    return html`<div class=${column.hidden === true ? 'hidden' : nothing} role="cell"></div>`
+  }
+
+  const main = captureInputTpl(placement, act, column, slot)
+  const edge = columnStandsRight(column) ? 'right' : nothing
+  if (!layout.hasSubs) {
+    return html`<div class=${edge} role="cell">${main}</div>`
+  }
+  return html`<div class=${edge} role="cell"
+    ><span class="line">${main}</span>${subs.columns.length === 0
+      ? nothing
+      : sublineTpl(subs.columns.map((c, i) => ({
+          content: captureInputTpl(placement, act, c, subs.slots[i]),
+          typable: true,
+        })))
+    }</div>`
+}
+
+function captureInputTpl(
+  placement: CapturePlacement,
+  act: CaptureAct,
+  column: Column,
+  slot: number,
+): TemplateResult {
+  const free = cellTargetOf(column, placement.sourceId).kind === 'free'
+  const list = !free && placement.typingColumn === slot
+  const value = placement.value(slot)
+
+  return html`${inputSpotTpl({
+    value,
+    title: column.title,
+    placeholder: '',
+    inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
+    holderClass: 'cell-holder',
+    marksOnEntering: true,
+    slot,
+    suggestions: list ? placement.suggestions : [],
+    columns: list ? placement.windowColumns(slot) : [],
+    typed: placement.typed(slot),
+    mark: placement.mark,
+    listToTop: placement.listToTop,
+  }, {
+    typing: (text) => act.typing(slot, text),
+    key: (e) => act.key(slot, e),
+    leave: () => act.leave(slot),
+    chooseSuggestion: (i2) => act.chooseSuggestion(i2),
+    setMark: (i2) => act.setMark(i2),
+  })}`
 }
 
 type CellKind = 'free' | 'own' | 'linked'
@@ -144,24 +178,23 @@ export function targetIn(context: CaptureContext, index: number): CellTarget {
   return cellTargetOf(context.columns[index], context.sourceId)
 }
 
-// The next column left or right that the operator can see; a hidden one is
-// stepped over.
-export function neighbourSlot(
-  columns: readonly CaptureColumn[],
-  from: number,
-  direction: 1 | -1,
-): number {
-  for (let i = from + direction; i >= 0 && i < columns.length; i += direction) {
-    if (columns[i]?.hidden !== true) return i
-  }
-  return -1
+// The next column left or right that the operator sees, by its place among
+// all columns; -1 when there is none.
+export function neighbourSlot(shown: readonly number[], from: number, direction: 1 | -1): number {
+  const next = direction === 1
+    ? shown.find((slot) => slot > from)
+    : shown.findLast((slot) => slot < from)
+  return next ?? -1
 }
 
-// The first column the operator can step to that must hold a value and is
-// empty; -1 when there is none.
-export function missingRequired(columns: readonly CaptureColumn[], values: readonly string[]): number {
-  return columns.findIndex((column, i) =>
-    column.required === true && column.hidden !== true && (values[i] ?? '').trim() === '')
+// The first column the operator sees that must hold a value and is empty; -1
+// when there is none.
+export function missingRequired(
+  columns: readonly CaptureColumn[],
+  values: readonly string[],
+  shown: readonly number[],
+): number {
+  return shown.find((slot) => columns[slot]?.required === true && (values[slot] ?? '').trim() === '') ?? -1
 }
 
 export function linkedSourcesIn(context: CaptureContext): string[] {

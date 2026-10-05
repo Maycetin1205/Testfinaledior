@@ -1,101 +1,33 @@
-import { css, unsafeCSS } from 'lit'
 import { maskState } from '../../runtime/maskState'
-import { Card } from '../card/Card'
+import type { KanbanColumn, KanbanPlace } from './columns'
 
-export const COLUMN_TAG = 'ff-kanban-column'
-const CARD_TAG = Card.tag
-export const CARD_TYPE = Card.type
+// A place of a column, where a card lies.
+export interface Spot {
+  column: number
+  place: number
+}
 
-export const COLUMN_TITLE_DEFAULT = 'Neue Spalte'
+export const sameSpot = (a: Spot, b: Spot): boolean => a.column === b.column && a.place === b.place
 
-export const TARGET_CLASS = 'target'
-export const TARGET_ATTR = 'data-ff-target'
+// What the ERP holds for a place: its own value, else the title of a column
+// with this one place, else the place's name.
+export function placeValue(column: KanbanColumn, place: KanbanPlace): string {
+  const value = place.value.trim()
+  if (value !== '') return value
+  return column.places.length === 1 ? column.heading : place.name
+}
 
-// A column slots the cards and marks their area while a dragged card would land in it.
-export const placeStyle = css`
-  slot { display: contents; }
+const same = (a: string, b: string): boolean => a.trim().toLowerCase() === b.trim().toLowerCase()
 
-  :host([${unsafeCSS(TARGET_ATTR)}]) .${unsafeCSS(TARGET_CLASS)} {
-    background: color-mix(in oklab, var(--tone-strong) 8%, transparent);
-    outline: 2px dashed var(--tone-strong);
-    outline-offset: -2px;
+// Where a record lies: at the place that names its value, else at the first
+// place of the catch-all column, else at the very first place.
+export function spotOf(columns: readonly KanbanColumn[], field: string, row: unknown): Spot {
+  const value = field === '' ? '' : maskState.host.readField(row, field)
+  if (value.trim() !== '') {
+    for (const [c, column] of columns.entries()) {
+      const p = column.places.findIndex((place) => same(placeValue(column, place), value))
+      if (p >= 0) return { column: c, place: p }
+    }
   }
-`
-
-// A column is where cards lie. The board fills it and tells it what to show.
-export interface ColumnPlace extends HTMLElement {
-  cardCount: number
-  catchAll: boolean
-}
-
-export function isColumn(el: EventTarget): el is ColumnPlace {
-  return el instanceof HTMLElement && el.tagName.toLowerCase() === COLUMN_TAG
-}
-
-export function isCard(el: EventTarget): el is HTMLElement {
-  return el instanceof HTMLElement && el.tagName.toLowerCase() === CARD_TAG
-}
-
-function columnsOf(board: HTMLElement): ColumnPlace[] {
-  return Array.from(board.children).filter(isColumn)
-}
-
-export function cardsOf(column: ColumnPlace): HTMLElement[] {
-  return Array.from(column.children).filter(isCard)
-}
-
-function columnTitle(column: HTMLElement): string {
-  return column.getAttribute('heading') ?? COLUMN_TITLE_DEFAULT
-}
-
-// What the ERP holds for a column: its own value, or its title when it has none.
-export function columnValue(column: HTMLElement): string {
-  const value = (column.getAttribute('value') ?? '').trim()
-  return value !== '' ? value : columnTitle(column)
-}
-
-function slotWithValue(value: string, values: readonly string[]): number {
-  const wanted = value.trim().toLowerCase()
-  if (wanted === '') return -1
-  for (let i = 0; i < values.length; i++) {
-    const candidate = values[i].trim().toLowerCase()
-    if (candidate !== '' && candidate === wanted) return i
-  }
-  return -1
-}
-
-// What the board reads once and then asks for every record.
-interface BoardPlan {
-  columns: readonly ColumnPlace[]
-
-  values: readonly string[]
-
-  field: string
-
-  catchAll: number
-}
-
-export function boardPlan(board: HTMLElement, columnsField: string): BoardPlan {
-  const columns = columnsOf(board)
-  return {
-    columns,
-    values: columns.map(columnValue),
-    field: columnsField.trim(),
-    catchAll: columns.findIndex((c) => c.catchAll),
-  }
-}
-
-// Where a card lands whose record names no column: the catch-all, or the first.
-function fallbackColumn(plan: BoardPlan): ColumnPlace {
-  return plan.columns[plan.catchAll >= 0 ? plan.catchAll : 0]
-}
-
-interface Placement {
-  column: ColumnPlace
-}
-
-export function placementOf(plan: BoardPlan, row: unknown): Placement {
-  const value = plan.field === '' ? '' : maskState.host.readField(row, plan.field)
-  const slot = slotWithValue(value, plan.values)
-  return { column: slot >= 0 ? plan.columns[slot] : fallbackColumn(plan) }
+  return { column: Math.max(0, columns.findIndex((c) => c.catchAll)), place: 0 }
 }

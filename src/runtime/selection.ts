@@ -1,9 +1,8 @@
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { completePairs } from '../core/data/extraSources'
 import {
-  followsFromText,
+  followsSelectionProperty,
   followUsable,
-  SELECTION_FOLLOW_PROP,
   type SelectionFollow,
 } from '../core/data/selectionFollow'
 import { outsideValue } from './foreignSources'
@@ -118,15 +117,12 @@ export function clearSelection(giverId: string): void {
   report(false)
 }
 
-const SELECTION_FOLLOW_ATTR = SELECTION_FOLLOW_PROP.toLowerCase()
-
 // The follows as the mask carries them, each with its complete pairs. A
 // follow of a giver counts without pairs as well: its rows are fetched for the
 // chosen row, or it waits for one.
 function followsFromAttribute(el: HTMLElement): SelectionFollow[] {
-  const raw = el.getAttribute(SELECTION_FOLLOW_ATTR) ?? ''
-  if (raw === '') return []
-  return followsFromText(raw)
+  const { type, attribute } = followsSelectionProperty
+  return type.fromAttribute(el.getAttribute(attribute), [])
     .filter((f) => f.giverId !== '' || followUsable(f))
     .map((f) => ({ giverId: f.giverId, pairs: completePairs(f) }))
 }
@@ -147,8 +143,12 @@ export function rowsToSelection(el: HTMLElement, rows: unknown[]): unknown[] {
   const host = maskState.host
   let out = rows
   for (const follow of followsFromAttribute(el)) {
-    const selection = follow.giverId === '' ? undefined : selectionFor(follow.giverId)
-    if (follow.giverId !== '' && selection === undefined) return []
+    // Only a pair that reads the giver's row, or a follow without pairs, needs
+    // a chosen row there; a form field or the open document does not.
+    const needsRow = follow.giverId !== ''
+      && (follow.pairs.length === 0 || follow.pairs.some((p) => p.from === undefined))
+    const selection = needsRow ? selectionFor(follow.giverId) : undefined
+    if (needsRow && selection === undefined) return []
 
     // A pair reads the giver's chosen row, the open document or a form field.
     const expected = follow.pairs.map((p) => outsideValue(p, el) ?? host.readField(selection, p.fromField))

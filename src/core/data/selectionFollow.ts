@@ -1,4 +1,4 @@
-import { structuredProperty, type Property } from '../block/property'
+import { listProperty, type Property } from '../block/property'
 import type { Unread } from '../unread'
 import { completePairs, keyPairsFrom, type KeyPair } from './extraSources'
 
@@ -14,26 +14,12 @@ export interface SelectionFollow {
 
 export const SELECTION_FOLLOW_PROP = 'followsSelection'
 
-export const followsSelectionProperty: Property<SelectionFollow[]> = structuredProperty<SelectionFollow[]>({
-  read: (raw) => (raw === undefined || Array.isArray(raw)
-    ? { ok: true, value: selectionFollowsFrom(raw) }
-    : { ok: false }),
-  toAttribute: (value) => JSON.stringify(value),
-  fromAttribute: (raw, fallback) => (raw === null ? fallback : followsFromText(raw)),
-}, {
+export const followsSelectionProperty: Property<SelectionFollow[]> = listProperty<SelectionFollow[]>(selectionFollowsFrom, {
   default: [],
   label: 'Folgt der Auswahl',
   place: 'none',
   attribute: 'followsselection',
 })
-
-export function followsFromText(raw: string): SelectionFollow[] {
-  try {
-    return selectionFollowsFrom(JSON.parse(raw))
-  } catch {
-    return []
-  }
-}
 
 export function followUsable(f: SelectionFollow): boolean {
   const pairs = completePairs(f)

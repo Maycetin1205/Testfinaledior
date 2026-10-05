@@ -5,7 +5,7 @@ import { splitBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
 import { BlockElement } from '../../blocks/base/BlockElement'
-import type { SourceInReach } from '../../core/data/extraSources'
+import { fieldInReachOf, type SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
 import type { GestureBracket } from '../state/history'
 
@@ -16,8 +16,6 @@ interface PropChangeDetail {
   value: unknown
 
   gesture?: 'start' | 'end'
-
-  rejected?: boolean
 }
 
 interface LitElementArgs {
@@ -73,8 +71,7 @@ export function useLitElement({
         bracket.current = editor.openGesture()
       }
       bracket.current?.open()
-      const adopted = editor.updateProperty(blockRef.current.id, detail.attr, detail.value)
-      if (!adopted) detail.rejected = true
+      editor.updateProperty(blockRef.current.id, detail.attr, detail.value)
       if (detail.gesture === 'end') {
         bracket.current?.close()
         bracket.current = null
@@ -103,14 +100,10 @@ export function useLitElement({
       const value = block.values[bindingProp(spot.prop)]
       if (typeof value !== 'string' || value === '') continue
 
-      const { sourceId, code } = splitBinding(value)
-      const source = sourceId === ''
-        ? sources[0]?.source
-        : sources.find((q) => q.source.id === sourceId)?.source
-      const field = source?.fields.find((f) => f.code === code)
+      const field = fieldInReachOf(value, sources)
       if (field) {
         el.setDeclared(spot.previewProp ?? spot.prop, field.name
-          + (sourceId === '' ? '' : FOREIGN_ICON))
+          + (splitBinding(value).sourceId === '' ? '' : FOREIGN_ICON))
       } else {
         el.setDeclared(bindingProp(spot.prop), '')
       }

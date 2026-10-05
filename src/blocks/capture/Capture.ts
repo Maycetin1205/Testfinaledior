@@ -28,6 +28,7 @@ import type { Sublines, RowDecoration } from '../list/tableBody'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
 import {
+  anchorKeyOf,
   CAPTURE_COLUMNS_BINDING,
   coerceCaptureColumns,
   type CaptureColumn,
@@ -55,9 +56,10 @@ export class Capture extends BlockElement
 
   @property({ attribute: false }) rawRows: unknown[] = []
 
-  private readonly _ledger = new CaptureLedger({
+  private readonly _ledger: CaptureLedger = new CaptureLedger({
     block: this,
     columns: () => this.listColumns(),
+    shown: () => this._list.shownSlots(),
     calculations: () => this.listCalculations(),
     sourceId: () => this.source,
     rawRows: () => this.rawRows,
@@ -66,14 +68,17 @@ export class Capture extends BlockElement
     focusCell: (index) => this.focusCaptureCell(index),
     captured: () => {
       this.requestUpdate()
-      this.focusCaptureCell(0)
+      this.focusCaptureCell(this._ledger.firstCell)
       this.showLastCaptured()
     },
   })
 
-  private readonly _list = new RecordList(this, {
+  private readonly _list: RecordList = new RecordList(this, {
     cellValue: (rawIndex, slot) => this._ledger.cellValue(rawIndex, slot),
     decoration: () => this.rowsDecoration(),
+    required: (slot) => this.listColumns()[slot]?.required === true,
+    inSubline: (slot) => this.listColumns()[slot]?.subline === true,
+    anchorOf: (slot) => anchorKeyOf(this.listColumns(), slot),
     bottom: () => this.underRows(),
   })
 
@@ -141,12 +146,13 @@ export class Capture extends BlockElement
     const captured = this._ledger.capturedValues
     return {
       count: 1 + captured.length,
-      render: ({ view, cols, rulerTicks }) => {
+      render: ({ view, cols, layout, rulerTicks }) => {
         const correctionSlot = this._ledger.correctionSlot
         return capturedRowsTpl({
           columns: view.columns,
           slots: view.slots,
           cols,
+          layout,
           captured,
           capturedState: (index) => this._ledger.capturedStatus(index),
           correctionSlot,
@@ -159,10 +165,10 @@ export class Capture extends BlockElement
               windowWidth: validMetrics(this.windowWidth, WINDOW_WIDTH),
               windowHeight: validMetrics(this.windowHeight, WINDOW_HEIGHT),
             },
-            cols,
-
-            correctionSlot === null && (rulerTicks ?? 1) <= 0,
             view,
+            cols,
+            layout,
+            correctionSlot === null && (rulerTicks ?? 1) <= 0,
           ),
         }, {
           takeCapturedRow: (index) => this._ledger.removeCaptured(index),
@@ -179,7 +185,7 @@ export class Capture extends BlockElement
     const responsible = all.find((t) => path.includes(t)) ?? all[0]
     if (responsible !== this) return
     e.preventDefault()
-    this.focusCaptureCell(0)
+    this.focusCaptureCell(this._ledger.firstCell)
   }
 
   override connectedCallback(): void {

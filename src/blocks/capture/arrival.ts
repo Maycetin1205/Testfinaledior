@@ -1,5 +1,5 @@
 import type { Delivery } from '../../core/block/capability'
-import { numberStrict } from '../../core/data/calculation'
+import { asNumber } from '../../core/data/number'
 import type { Column } from '../list/columns'
 
 interface SentRow {
@@ -12,8 +12,8 @@ export function valueEquals(a: string, b: string): boolean {
   const x = a.trim()
   const y = b.trim()
   if (x === y) return true
-  const number = numberStrict(x)
-  return number !== null && number === numberStrict(y)
+  const number = asNumber(x)
+  return number !== null && number === asNumber(y)
 }
 
 export function arrivalCheck(
@@ -68,8 +68,4 @@ export function changeArrived(
 
   if (changed.length === 0) return true
   return changed.every((f) => !valueEquals(delivery.read(row, f.field), f.before))
-}
-
-export function deletionArrived(record: string, delivery: Delivery): boolean {
-  return !delivery.rows.some((z) => valueEquals(delivery.recordOf(z), record))
 }

@@ -1,4 +1,4 @@
-import { numberProperty, structuredProperty, type ValuesOf } from '../../core/block/property'
+import { listProperty, numberProperty, type ValuesOf } from '../../core/block/property'
 import {
   calculationsForExport,
   calculationsFrom,
@@ -11,25 +11,12 @@ import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 export const captureProperties = {
   ...listProperties(false),
   columns: captureColumnsProperty(),
-  calculations: structuredProperty<Calculation[]>({
-    read: (raw) => (raw === undefined || Array.isArray(raw)
-      ? { ok: true, value: calculationsFrom(raw) }
-      : { ok: false }),
-    toAttribute: (value) => JSON.stringify(calculationsForExport(value)),
-    fromAttribute: (raw) => {
-      if (raw === null) return []
-      try {
-        return calculationsFrom(JSON.parse(raw))
-      } catch {
-        return []
-      }
-    },
-  }, {
+  calculations: listProperty<Calculation[]>(calculationsFrom, {
     default: [],
     label: 'Berechnungen',
     place: 'none',
     attribute: 'calculations',
-  }),
+  }, calculationsForExport),
   windowWidth: numberProperty({
     default: WINDOW_WIDTH,
     label: 'Fensterbreite',

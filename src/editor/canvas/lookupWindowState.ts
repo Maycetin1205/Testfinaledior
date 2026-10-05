@@ -60,7 +60,7 @@ function stateAtBlock(
     sourceId,
     storageField,
     storageTitle,
-    title: 'Nachschlagen',
+    title: String(block.values[window.titleProp ?? ''] ?? ''),
     columns,
     provided: provided.length > 0,
     width: asNumber(block.values[window.widthKey])

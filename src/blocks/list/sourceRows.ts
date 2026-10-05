@@ -8,8 +8,7 @@ import {
   sourceIdOf,
   type DataPreamble,
 } from '../../runtime/source'
-import { addRow, type Calculation } from '../../core/data/calculation'
-import { asNumber } from './sorting'
+import { rowValues, type Calculation } from '../../core/data/calculation'
 import { columnWithKey, type Column } from './columns'
 
 // Where a list takes its rows from: it reads them from its own data source, or
@@ -40,21 +39,15 @@ function checkArrival(el: HTMLElement, preamble: DataPreamble | null): void {
   })
 }
 
+// A row as the list shows it: an empty cell of a sentence is computed from
+// the others.
 function rowComputed(
   columns: readonly Column[],
   calculations: readonly Calculation[],
   given: (slot: number) => string,
 ): string[] {
-  const values = addRow(
-    calculations,
-    (key) => columnWithKey(columns, key),
-    given,
-    asNumber,
-  )
-  return columns.map((_, slot) => {
-    const own = given(slot)
-    return own !== '' ? own : values.get(slot)?.text ?? ''
-  })
+  const values = rowValues(calculations, (key) => columnWithKey(columns, key), given)
+  return columns.map((_, slot) => given(slot) || (values.get(slot) ?? ''))
 }
 
 export function rowsIndexOf(el: HTMLElement, rawRow: unknown): string {

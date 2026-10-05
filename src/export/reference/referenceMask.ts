@@ -111,14 +111,13 @@ export function referenceTree(): MaskTree {
         { key: 'sp-doppelt', title: 'Doppelt', field: '' },
       ],
       calculations: [{
-        key: 'b1',
-        name: 'Doppelt',
-        lead: { kind: 'column', key: 'f0', column: 'sp-doppelt', unit: 'count', result: true, round: { decimals: 2, direction: 'nearest' } },
-        numerator: [
-          { kind: 'column', key: 'f1', column: 'sp-menge', unit: 'count', result: false, round: { decimals: 3, direction: 'nearest' } },
-          { kind: 'number', key: 'f2', name: '2', number: 2, unit: 'count' },
+        key: 'c1',
+        lead: 'sp-doppelt',
+        terms: [
+          { kind: 'row', value: 'sp-menge', divides: false },
+          { kind: 'fixed', value: '2', divides: false },
         ],
-        denominator: [],
+        decimals: 2,
       }],
     }),
     t2: node('t2', 'table', ROOT_ID, {
@@ -139,14 +138,10 @@ export function referenceTree(): MaskTree {
     b1: node('b1', 'button', ROOT_ID, {
       gridX: 26, gridY: 0, gridW: 8, gridH: 3, label: 'Schreiben',
     }),
-    c1: node('c1', 'card', 'k1', {
-      gridX: 0, gridY: 25, gridW: 12, gridH: 12, heading: 'Karte', headingField: '45_60',
-    }),
     k1: node('k1', 'kanban', ROOT_ID, {
       gridX: 18, gridY: 3, gridW: 30, gridH: 22, source: 'q-pos', columnsField: '18_25',
-    }, ['c1', 'ks1']),
-    ks1: node('ks1', 'kanban-column', 'k1', {
-      heading: 'Offen', value: 'ART-B', tone: 'info',
+      columns: [{ heading: 'Offen', tone: 'info', catchAll: false, places: [{ name: 'Offen', value: 'ART-B' }] }],
+      heading: 'Karte', headingField: '45_60',
     }),
     tx1: node('tx1', 'text', ROOT_ID, { gridX: 34, gridY: 0, gridW: 14, gridH: 3 }),
     d1: node('d1', 'date', ROOT_ID, { gridX: 0, gridY: 0, gridW: 10, gridH: 3 }),

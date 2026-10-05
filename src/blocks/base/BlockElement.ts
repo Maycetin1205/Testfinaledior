@@ -4,7 +4,6 @@ import type { BlockDeclaration } from '../../core/block/blockType'
 import { hasCapability } from '../../core/block/capability'
 import type { PropertyMap, PropertyValue } from '../../core/block/property'
 import { registerBlockType } from '../../core/block/registry'
-import { widthProperty } from '../../core/block/flow'
 import { GRID_PROPERTIES } from '../../core/block/grid'
 import { deepClone } from '../../core/deepClone'
 import { followsSelectionProperty } from '../../core/data/selectionFollow'
@@ -27,7 +26,6 @@ interface BlockElementClass {
 function allProperties(shape: BlockShape): PropertyMap {
   const capable = { capabilities: shape.capabilities ?? [] }
   return {
-    width: widthProperty,
     ...GRID_PROPERTIES,
     ...(hasCapability(capable, 'source') ? { extraSources: extraSourcesProperty } : null),
     ...(hasCapability(capable, 'followsSelection')
@@ -111,15 +109,12 @@ export abstract class BlockElement extends LitElement {
     event.stopPropagation()
     event.preventDefault()
     startRename(target, (text, original) => {
-      if (text === original) return true
-      const detail: { attr: string; value: string; rejected?: boolean } = { attr, value: text }
+      if (text === original) return
       this.dispatchEvent(new CustomEvent('ff-prop-change', {
-        detail,
+        detail: { attr, value: text },
         bubbles: true,
         composed: true,
       }))
-
-      return detail.rejected !== true
     })
   }
 }

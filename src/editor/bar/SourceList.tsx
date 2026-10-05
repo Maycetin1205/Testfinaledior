@@ -11,7 +11,7 @@ import {
 } from '../../core/data/extraSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { openDataCenter } from '../datacenter/openDataCenter'
+import { openData } from '../data/openData'
 import type { ValueOrigin } from '../../core/data/valueOrigin'
 import { OriginPicker } from '../controls/OriginPicker'
 import type { OriginOffer } from '../controls/originOffer'
@@ -24,6 +24,7 @@ import {
   outsidePair,
 } from '../controls/outsideOrigin'
 import { PickerControl } from '../controls/PickerControl'
+import { Labeled } from './Labeled'
 import { KeyPairRows } from './KeyPairRows'
 
 interface SourceListProps {
@@ -78,9 +79,11 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     }
   }
 
+  // The block's own source as partner means the row itself, as the runtime
+  // reads it; a helper source never partners with itself.
   function partnerOf(index: number): string {
     const own = extra[index]
-    return !own || own.partnerId === own.sourceId ? '' : own.partnerId
+    return !own || own.partnerId === own.sourceId || own.partnerId === first ? '' : own.partnerId
   }
 
   function originOf(index: number, pair: KeyPair): ValueOrigin | null {
@@ -118,9 +121,10 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
   }
 
   const sourcesSelection = (value: string, title: string, onValue: (v: string) => void) => (
-    <PickerControl
-      label={title}
+    <Labeled label={title}>
+      <PickerControl
       name={title}
+      className="w-full"
       groups={[{
         key: 'sources',
         entries: options(value).map((s) => ({
@@ -132,12 +136,13 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
       value={value}
       emptyText="Keine"
       onChoose={onValue}
-    />
+      />
+    </Labeled>
   )
 
   if (library.length === 0) {
     return (
-      <Button className="self-start" onClick={openDataCenter}>Daten öffnen</Button>
+      <Button className="self-start" onClick={openData}>Daten öffnen</Button>
     )
   }
 
@@ -145,12 +150,26 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     <div className="flex flex-col gap-2">
       {part !== 'helpers' && sourcesSelection(first, 'Datenquelle', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
 
+      {/* A card per helper source: the source on top, below it a sentence per
+          key pair, "Artikelnummer = Spalte Artikelnummer". */}
       {part !== 'own' && extra.map((q, i) => (
         <div key={i} className="flex flex-col gap-1.5 rounded border border-line p-2">
-          <div className="flex items-end gap-1">
-            <div className="min-w-0 flex-1">
-              {sourcesSelection(q.sourceId, `Hilfsquelle ${i + 1}`, (v) => change(i, { sourceId: v }))}
-            </div>
+          <div className="flex items-center gap-1">
+            <PickerControl
+              name={`Hilfsquelle ${i + 1}`}
+              className="min-w-0 flex-1"
+              groups={[{
+                key: 'sources',
+                entries: options(q.sourceId).map((s) => ({
+                  value: s.id,
+                  name: s.name,
+                  badge: sourcesKey(s),
+                })),
+              }]}
+              value={q.sourceId}
+              emptyText="Keine"
+              onChoose={(v) => change(i, { sourceId: v })}
+            />
             <Button
               onlyIcon
               aria-label={`Hilfsquelle ${i + 1} entfernen`}
@@ -162,9 +181,7 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
 
           {q.sourceId !== '' && (
             <KeyPairRows
-              question="Verbindende Felder (freiwillig)"
               pairs={q.pairs}
-              leftFields={[]}
               left={(pair, at) => (
                 <OriginPicker
                   name={`Wert ${at + 1}`}
@@ -174,7 +191,6 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
                 />
               )}
               rightFields={fieldsOf(q.sourceId)}
-              leftName={(at) => `Wert ${at + 1}`}
               rightName={(at) => `Feld ${at + 1} der Hilfsquelle ${i + 1}`}
               removeName={(at) => `Zeile ${at + 1} entfernen`}
               onChange={(keyPairs) => change(i, { pairs: keyPairs })}

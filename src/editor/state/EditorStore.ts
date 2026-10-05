@@ -1,61 +1,46 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
-import { newSubtree } from '../../core/block/newBlock'
-import { mayContain, blockType } from '../../core/block/registry'
-import { gridMetricsOf, type GridSlot } from '../../core/block/grid'
-import type { LookupWindow } from '../../core/block/capability'
+import { blockType } from '../../core/block/registry'
+import { type GridSlot } from '../../core/block/grid'
 import { type ActionChains } from '../../core/data/steps/steps'
 import { type DataSource } from '../../core/data/dataSources'
 import { type SourceInReach } from '../../core/data/extraSources'
 import { DataSourceStore } from './DataSourceStore'
 import { firstSourceInReach, sourcesInReach } from '../../core/block/sourcesInReach'
 import { gestureBracket, History, type EditorSnapshot, type GestureBracket } from './history'
-import { packMask, type MaskContent } from './maskFile'
-import { addOn } from './libraryFile'
-import { FileOnDisk } from './fileOnDisk'
-import {
-  carriedLibrary,
-  emptyMask,
-  loadFromStorage,
-  loadLibraryFromStorage,
-  persistLibrary,
-  persistMask,
-  SAVE_DEBOUNCE_MS,
-  type StoredMask,
-} from './maskStorage'
+import { type MaskContent } from './maskFile'
+import { missingOn } from './libraryFile'
 import { RelationStore } from './RelationStore'
-import { droppedKeys, withoutColumnsPointer } from './columnCleanup'
-import { SavePlanner } from './savePlanner'
 import { Subject } from './Subject'
 import { duplicateSubtree } from './duplicateSubtree'
-import { declaredProperty, subtreeIds, emptyTree } from '../../core/block/treeOps'
-import { isRemoveProtected as isTemplateProtected } from './isRemoveProtected'
+import { emptyTree } from '../../core/block/treeOps'
 import {
   activePagesRoot,
   freePagesName,
   childrenInFlow,
-  writeValue,
   pageOf,
   pagesOfMask,
   type PagesEntry,
 } from '../../core/block/pages'
-import {
-  isGridArea,
-  newBlockOnCell,
-  slotOn,
-  moveInContainer,
-  cellMoveIn,
-  slotResize,
-} from '../../core/block/gridArea'
+import { newBlockOnCell, cellMoveIn, slotResize } from '../../core/block/gridArea'
 import { selectionOnPage, selectionTarget } from '../../core/block/selection'
 import { deepClone } from '../../core/deepClone'
+import { EditorPersistence } from './editorStore/persistence'
+import {
+  blockAdded,
+  blockRemoved,
+  eventsUpdated,
+  inSubtree,
+  propertyUpdated,
+} from './editorStore/treeEdits'
+import { EditorView, type OpenCalculation, type OpenLookup, type OpenStep } from './editorStore/viewState'
 
-// Which lookup window the editor shows, and for which spot of which block.
-export interface OpenLookup {
-  blockId: string
-  window: LookupWindow
-  slot: number
-}
+export type { OpenCalculation, OpenLookup, OpenStep } from './editorStore/viewState'
 
+// The one truth of the editor: the mask tree with its selection and page,
+// the sources and relations, and the history over all of it. The edits of
+// the tree are plain functions in editorStore/treeEdits.ts; what the editor
+// shows besides the mask lives in editorStore/viewState.ts; where the work
+// is kept in editorStore/persistence.ts.
 export class EditorStore extends Subject<EditorStore> {
   readonly dataSources: DataSourceStore
   readonly relation: RelationStore
@@ -67,36 +52,24 @@ export class EditorStore extends Subject<EditorStore> {
   private _version = 0
   private _history = new History()
 
-  // The two files the builder picked on disk. Until then the browser store
-  // alone holds the work.
-  readonly maskOnDisk = new FileOnDisk()
-  readonly libraryOnDisk = new FileOnDisk()
-
-  // What the editor shows besides the mask: the open windows. That is no
-  // change to the mask, so it has its own signal and plans no save.
+  // The open windows report to their own signal and plan no save.
   readonly view = new Subject<EditorStore>()
   private _viewVersion = 0
-  private _calculationsFor: string | null = null
-  private _lookupWindow: OpenLookup | null = null
-  private _followPickFor: string | null = null
+  private readonly _shows = new EditorView(() => this.viewChanged())
 
-  private _planner = new SavePlanner(() => this.persist(), SAVE_DEBOUNCE_MS)
+  private readonly _kept = new EditorPersistence(() => this.snapshot())
   private _hydrated = false
 
   private _restoring = false
 
   constructor() {
     super()
-    const library = loadLibraryFromStorage()
-    const persisted = loadFromStorage() ?? emptyMask()
-    const carried = carriedLibrary()
-    this.dataSources = new DataSourceStore(
-      addOn(library.dataSources, carried.dataSources).list,
-    )
-    this.relation = new RelationStore(addOn(library.relation, carried.relation).list)
-    this._tree = persisted.tree
-    this._activePageId = persisted.activePageId
-    this._selectedId = this.selectionOnActivePage(persisted.selectedId)
+    const { library, mask } = EditorPersistence.load()
+    this.dataSources = new DataSourceStore(library.dataSources)
+    this.relation = new RelationStore(library.relation)
+    this._tree = mask.tree
+    this._activePageId = mask.activePageId
+    this._selectedId = this.selectionOnActivePage(mask.selectedId)
     this._hydrated = true
 
     for (const store of [this.dataSources, this.relation]) {
@@ -108,6 +81,8 @@ export class EditorStore extends Subject<EditorStore> {
       })
     }
   }
+
+  // ----- the mask and its selection -----
 
   get tree(): Readonly<MaskTree> { return this._tree }
 
@@ -133,20 +108,6 @@ export class EditorStore extends Subject<EditorStore> {
     this.notify(this)
   }
 
-  addPage(type: string): BlockNode | null {
-    const def = blockType(type)
-    if (def?.page !== true) return null
-    const name = freePagesName(this.pages.map((p) => p.name), def.name)
-    return this.transaction(() => {
-      const node = this.addBlock(type, ROOT_ID)
-      if (node) {
-        this._activePageId = node.id
-        this.updateProperty(node.id, 'name', name)
-      }
-      return node
-    })
-  }
-
   getNode(id: string): BlockNode | undefined { return this._tree[id] }
 
   childNodesOf(parentId: string): BlockNode[] {
@@ -162,6 +123,32 @@ export class EditorStore extends Subject<EditorStore> {
     return node && node.id !== ROOT_ID ? node : null
   }
 
+  isInSubtree(ancestorId: string, id: string): boolean {
+    return inSubtree(this._tree, ancestorId, id)
+  }
+
+  selectBlock(id: string | null): void {
+    if (this._selectedId === id) return
+    this._selectedId = id
+    this.pickFollowFor(null)
+    this.notify(this)
+  }
+
+  chooseHit(hitId: string): void {
+    const target = selectionTarget(this._tree, hitId)
+    if (target !== null) this.selectBlock(target)
+  }
+
+  dataSourceFor(id: string): DataSource | undefined {
+    return firstSourceInReach(this._tree, id, this.dataSources.list)
+  }
+
+  sourcesFor(id: string): SourceInReach[] {
+    return sourcesInReach(this._tree, id, this.dataSources.list)
+  }
+
+  // ----- the history -----
+
   get version(): number { return this._version }
   get canUndo(): boolean { return this._history.canUndo }
   get canRedo(): boolean { return this._history.canRedo }
@@ -171,7 +158,7 @@ export class EditorStore extends Subject<EditorStore> {
     try {
       super.notify(data)
     } finally {
-      if (this._hydrated) this._planner.plan()
+      if (this._hydrated) this._kept.plan()
     }
   }
 
@@ -235,157 +222,61 @@ export class EditorStore extends Subject<EditorStore> {
     this.notify(this)
   }
 
+  // ----- the edits -----
+
+  // A next tree becomes the mask: recorded in the history, then told.
+  private apply(tree: MaskTree, selectedId: string | null = this._selectedId): void {
+    this.pushHistory()
+    this._tree = tree
+    this._selectedId = selectedId
+    this.notify(this)
+  }
+
   addBlock(
     type: string,
     parentId?: string,
     index?: number,
     rows: number | null = null,
   ): BlockNode | null {
-    const parent = this._tree[parentId ?? this.rootId]
-    if (!parent || !mayContain(parent.type, type)) return null
-    const spec = gridMetricsOf(blockType(type))
-    const slot = isGridArea(parent)
-      ? slotOn(this._tree, parent.id, spec.startWidth, spec.startHeight, rows)
-      : undefined
-    if (slot === null) return null
-    this.pushHistory()
-    const { nodes, rootId } = newSubtree(type)
-    const node = nodes[rootId]
-    node.parentId = parent.id
-
-    if (slot) {
-      node.values = { ...node.values, gridX: slot.x, gridY: slot.y, gridW: spec.startWidth, gridH: spec.startHeight }
-    }
-    const childIds = [...parent.childIds]
-    const at = index === undefined
-      ? childIds.length
-      : Math.max(0, Math.min(index, childIds.length))
-    childIds.splice(at, 0, node.id)
-    this._tree = {
-      ...this._tree,
-      ...nodes,
-      [parent.id]: { ...parent, childIds: childIds },
-    }
-    this._selectedId = node.id
-    this.notify(this)
-    return node
+    const next = blockAdded(this._tree, type, parentId ?? this.rootId, index, rows)
+    if (!next) return null
+    this.apply(next.tree, next.node.id)
+    return next.node
   }
 
-  isInSubtree(ancestorId: string, id: string): boolean {
-    let cur: string | null | undefined = id
-    while (cur) {
-      if (cur === ancestorId) return true
-      cur = this._tree[cur]?.parentId
-    }
-    return false
+  addPage(type: string): BlockNode | null {
+    const def = blockType(type)
+    if (def?.page !== true) return null
+    const name = freePagesName(this.pages.map((p) => p.name), def.name)
+    return this.transaction(() => {
+      const node = this.addBlock(type, ROOT_ID)
+      if (node) {
+        this._activePageId = node.id
+        this.updateProperty(node.id, 'name', name)
+      }
+      return node
+    })
   }
 
   removeBlock(id: string): void {
-    const node = this._tree[id]
-    if (!node || id === ROOT_ID) return
-
-    if (this.isRemoveProtected(id)) return
-    this.pushHistory()
-    const remove = new Set(subtreeIds(this._tree, id))
-    const next: MaskTree = {}
-    for (const [key, value] of Object.entries(this._tree)) {
-      if (!remove.has(key)) next[key] = value
-    }
-    if (node.parentId && next[node.parentId]) {
-      const parent = next[node.parentId]
-      next[node.parentId] = { ...parent, childIds: parent.childIds.filter((c) => c !== id) }
-    }
-    this._tree = next
-    if (this._selectedId && remove.has(this._selectedId)) this._selectedId = null
-    this.notify(this)
+    const next = blockRemoved(this._tree, id)
+    if (!next) return
+    const selected = this._selectedId !== null && next.removed.has(this._selectedId) ? null : this._selectedId
+    this.apply(next.tree, selected)
   }
 
-  selectBlock(id: string | null): void {
-    if (this._selectedId === id) return
-    this._selectedId = id
-    this.pickFollowFor(null)
-    this.notify(this)
-  }
-
-  chooseHit(hitId: string): void {
-    const target = selectionTarget(this._tree, hitId)
-    if (target !== null) this.selectBlock(target)
-  }
-
-  dataSourceFor(id: string): DataSource | undefined {
-    return firstSourceInReach(this._tree, id, this.dataSources.list)
-  }
-
-  sourcesFor(id: string): SourceInReach[] {
-    return sourcesInReach(this._tree, id, this.dataSources.list)
-  }
-
-  isRemoveProtected(id: string): boolean {
-    return isTemplateProtected(this._tree, id)
-  }
-
-  // The tree holds only what a declaration reads, so the element, the export
-  // and the next load all see the same value.
   updateProperty(id: string, name: string, raw: unknown): boolean {
-    const node = this._tree[id]
-    if (!node) return false
-    const declared = declaredProperty(node, name)
-    if (declared === undefined) return false
-    const def = blockType(node.type)
-
-    const read = declared.type.read(writeValue(def, this.pages, id, name, raw))
-    if (!read.ok) return false
-    const value = read.value
-
-    if (Object.is(node.values[name], value)) return true
-    this.pushHistory()
-    // What this value presets, like color and size of a text by its role,
-    // follows it again.
-    const presets = Object.entries(def?.properties ?? {})
-      .filter(([, other]) => other.preset?.by === name)
-      .map(([key, other]) => [key, other.default])
-    const next: MaskTree = {
-      ...this._tree,
-      [id]: { ...node, values: { ...node.values, ...Object.fromEntries(presets), [name]: value } },
-    }
-
-    if (declared.onlyUnderSiblings && value === true && node.parentId) {
-      for (const sibId of this._tree[node.parentId]?.childIds ?? []) {
-        const sib = next[sibId]
-        if (sibId !== id && sib?.type === node.type && sib.values[name] === true) {
-          next[sibId] = { ...sib, values: { ...sib.values, [name]: false } }
-        }
-      }
-    }
-
-    const cleaned = withoutColumnsPointer(
-      next,
-      id,
-      droppedKeys(def, name, node.values[name], value),
-    )
-
-    this._tree = cleaned.tree
-    this.notify(this)
-    return true
+    const outcome = propertyUpdated(this._tree, this.pages, id, name, raw)
+    if (outcome.kind === 'changed') this.apply(outcome.tree)
+    return outcome.kind !== 'refused'
   }
 
   updateBlockEvents(id: string, events: ActionChains): void {
-    const node = this._tree[id]
-    if (!node || id === ROOT_ID) return
-    this.pushHistory()
-    const clean: ActionChains = {}
-    for (const [key, steps] of Object.entries(events)) {
-      if (steps.length > 0) clean[key] = steps
-    }
-    const next: BlockNode = { ...node }
-    if (Object.keys(clean).length > 0) next.chains = clean
-    else delete next.chains
-    this._tree = { ...this._tree, [id]: next }
-    this.notify(this)
+    const next = eventsUpdated(this._tree, id, events)
+    if (next) this.apply(next)
   }
 
   duplicateBlock(id: string, rows: number | null = null): BlockNode | null {
-    if (this.isRemoveProtected(id)) return null
     const res = duplicateSubtree(this._tree, id, rows)
     if (!res) return null
     this.pushHistory()
@@ -397,39 +288,20 @@ export class EditorStore extends Subject<EditorStore> {
     return res.tree[res.copyId]
   }
 
-  moveNode(id: string, newParentId: string, index: number): void {
-    if (this.isRemoveProtected(id)) return
-    const next = moveInContainer(this._tree, id, newParentId, index)
-    if (!next) return
-    this.pushHistory()
-    this._tree = next
-    this.notify(this)
-  }
-
   moveNodeToCell(id: string, parentId: string, x: number, y: number): void {
     const next = cellMoveIn(this._tree, id, parentId, x, y)
-    if (!next) return
-    this.pushHistory()
-    this._tree = next
-    this._selectedId = id
-    this.notify(this)
+    if (next) this.apply(next, id)
   }
 
   resizeNodeToSlot(id: string, slot: GridSlot): void {
     const next = slotResize(this._tree, id, slot)
-    if (!next) return
-    this.pushHistory()
-    this._tree = next
-    this.notify(this)
+    if (next) this.apply(next)
   }
 
   addBlockAtCell(type: string, parentId: string, x: number, y: number): BlockNode | null {
     const res = newBlockOnCell(this._tree, type, parentId, x, y)
     if (!res) return null
-    this.pushHistory()
-    this._tree = res.tree
-    this._selectedId = res.node.id
-    this.notify(this)
+    this.apply(res.tree, res.node.id)
     return res.node
   }
 
@@ -450,14 +322,16 @@ export class EditorStore extends Subject<EditorStore> {
     this.pushHistory()
     this.maskOnDisk.forget()
     this.setLibraries({
-      dataSources: addOn(this.dataSources.list, content.dataSources).list,
-      relation: addOn(this.relation.list, content.relation).list,
+      dataSources: missingOn(this.dataSources.list, content.dataSources),
+      relation: missingOn(this.relation.list, content.relation),
     })
     this._tree = content.tree
     this._selectedId = null
     this._activePageId = ROOT_ID
     this.notify(this)
   }
+
+  // ----- what the editor shows besides the mask -----
 
   get viewVersion(): number { return this._viewVersion }
 
@@ -466,46 +340,29 @@ export class EditorStore extends Subject<EditorStore> {
     this.view.notify(this)
   }
 
-  get calculationsFor(): string | null { return this._calculationsFor }
+  get stepWindow(): OpenStep | null { return this._shows.stepWindow }
 
-  openCalculations(blockId: string | null): void {
-    if (this._calculationsFor === blockId) return
-    this._calculationsFor = blockId
-    this.viewChanged()
-  }
+  openStep(open: OpenStep | null): void { this._shows.openStep(open) }
 
-  get lookupWindow(): OpenLookup | null { return this._lookupWindow }
+  get calculationWindow(): OpenCalculation | null { return this._shows.calculationWindow }
 
-  // The block that waits for a click on the block whose selection it follows.
-  get followPickFor(): string | null { return this._followPickFor }
+  openCalculation(open: OpenCalculation | null): void { this._shows.openCalculation(open) }
 
-  pickFollowFor(blockId: string | null): void {
-    if (this._followPickFor === blockId) return
-    this._followPickFor = blockId
-    this.viewChanged()
-  }
+  get lookupWindow(): OpenLookup | null { return this._shows.lookupWindow }
 
-  setLookupWindow(open: OpenLookup | null): void {
-    if (this._lookupWindow === open) return
-    this._lookupWindow = open
-    this.viewChanged()
-  }
+  setLookupWindow(open: OpenLookup | null): void { this._shows.setLookupWindow(open) }
 
-  private persist(): void {
-    const mask: StoredMask = {
-      tree: this._tree,
-      selectedId: this._selectedId,
-      activePageId: this.activePageId,
-    }
-    persistMask(mask)
-    void this.maskOnDisk.writeAgain(packMask(this._tree, this.dataSources.list, this.relation.list))
-    void this.libraryOnDisk.writeAgain(persistLibrary({
-      dataSources: this.dataSources.list,
-      relation: this.relation.list,
-    }))
-  }
+  get followPickFor(): string | null { return this._shows.followPickFor }
+
+  pickFollowFor(blockId: string | null): void { this._shows.pickFollowFor(blockId) }
+
+  // ----- where the work is kept -----
+
+  get maskOnDisk() { return this._kept.maskOnDisk }
+
+  get libraryOnDisk() { return this._kept.libraryOnDisk }
 
   saveNow(): void {
-    this._planner.now()
+    this._kept.now()
   }
 }

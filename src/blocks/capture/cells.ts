@@ -32,13 +32,6 @@ export function enterCell(field: HTMLInputElement | null | undefined): boolean {
 }
 
 export const cellsInputStyle = css`
-      .cell-label {
-        display: block;
-        min-width: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
       .cell-holder {
         position: relative;
         display: flex;
@@ -70,10 +63,7 @@ export const cellsInputStyle = css`
       /* A cell being typed into looks like any other, only with the cursor. */
       .cell-input:focus { outline: none; }
 
-      /* Left while typing: a number typed up to its comma is no number yet,
-         and the text would jump. */
-      .number > .cell-holder > .cell-input { text-align: right; }
-      .number > .cell-holder > .cell-input:focus { text-align: left; }
+      .right .cell-holder > .cell-input { text-align: right; }
 
       .cell-input::placeholder { color: transparent; }
       .row.capture .cell-input::placeholder { color: var(--se-faint); }

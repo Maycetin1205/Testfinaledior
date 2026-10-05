@@ -92,7 +92,8 @@ export interface Property<V> {
   plainNameProp?: string
 
   // The property of the parent block holding a field; the bar names that field
-  // beside this one.
+  // beside this one. The parent of a list entry, like a board's column, is the
+  // block holding the list.
   nameFromParentField?: string
 
   preset?: Preset
@@ -226,6 +227,30 @@ export function structuredProperty<V>(
   init: Init<V>,
 ): Property<V> {
   return make({ ...type, control: 'structured' }, init)
+}
+
+// A list the block folder reads into its own type, carried in the attribute
+// as JSON. An absent or unreadable attribute means the default; what the
+// export writes may differ from what the tree holds.
+export function listProperty<V>(
+  readList: (raw: unknown) => V,
+  init: Init<V>,
+  forExport: (value: V) => unknown = (value) => value,
+): Property<V> {
+  const parsed = (raw: string): unknown => {
+    try { return JSON.parse(raw) } catch { return undefined }
+  }
+  return structuredProperty<V>({
+    read: (raw) => (raw === undefined || Array.isArray(raw)
+      ? { ok: true, value: readList(raw) }
+      : { ok: false }),
+    toAttribute: (value) => JSON.stringify(forExport(value)),
+    fromAttribute: (raw, fallback) => {
+      if (raw === null) return fallback
+      const value = parsed(raw)
+      return value === undefined ? fallback : readList(value)
+    },
+  }, init)
 }
 
 export function defaultsOf(properties: PropertyMap): Record<string, PropertyValue> {

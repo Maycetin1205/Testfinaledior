@@ -4,7 +4,7 @@ import { propertyVisible } from './property'
 import { capability } from './capability'
 import { splitBinding } from './binding'
 import { SOURCE_PROP, sourcesIdsInChainsOf, carriesOwnSource, maySelectionFollows } from './treeQuery'
-import { dataFieldsFrom } from '../data/calculation'
+import { fieldBindingsFrom } from '../data/calculation'
 import type { DataSource } from '../data/dataSources'
 import { SELECTION_FOLLOW_PROP, selectionFollowsFrom } from '../data/selectionFollow'
 import {
@@ -34,7 +34,7 @@ export function sourcesInReach(
   return sourcesResolve(carrier.values[SOURCE_PROP], carrier.values[EXTRA_SOURCES_PROP], library)
 }
 
-// The data center lists and the export orders exactly these sources.
+// The data window lists and the export orders exactly these sources.
 export function sourceIdsUsedBy(node: BlockNode): string[] {
   const ids: string[] = []
   const add = (id: unknown): void => {
@@ -59,15 +59,10 @@ export function sourceIdsUsedBy(node: BlockNode): string[] {
   }
   const compute = capability(def, 'compute')
   if (compute) {
-    for (const field of dataFieldsFrom(node.values[compute.prop])) add(splitBinding(field).sourceId)
+    for (const field of fieldBindingsFrom(node.values[compute.prop])) add(splitBinding(field).sourceId)
   }
   for (const id of sourcesIdsInChainsOf(node)) add(id)
   return ids
-}
-
-export function blocksWithSource(tree: MaskTree, sourceId: string): BlockNode[] {
-  if (sourceId === '') return []
-  return Object.values(tree).filter((n) => sourceIdsUsedBy(n).includes(sourceId))
 }
 
 export function firstSourceInReach(

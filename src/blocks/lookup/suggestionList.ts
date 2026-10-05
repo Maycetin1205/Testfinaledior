@@ -1,8 +1,13 @@
 import { css, html, nothing, type TemplateResult } from 'lit'
 import { ref } from 'lit/directives/ref.js'
-import { plainText, rowFits } from '../list/textSearch'
+import type { Column } from '../list/columns'
+import { markHit, plainText } from '../list/textSearch'
+import { maskState } from '../../runtime/maskState'
 
-export const SUGGESTIONS_MAX = 8
+export const SUGGESTIONS_MAX = 50
+
+// Rows the list shows at once; a page key moves the mark by this many.
+export const SUGGESTIONS_PAGE = 12
 
 export interface Suggestion {
   display: string
@@ -10,40 +15,28 @@ export interface Suggestion {
   value: string
 }
 
-const textCompare = new Intl.Collator('de', { numeric: true, sensitivity: 'base' })
+export type SuggestionRow = Suggestion & { record: unknown }
 
-function beginsWith(entry: Suggestion, typed: string): boolean {
-  const t = plainText(typed.trim())
-  if (t === '') return false
-  return plainText(entry.display.trim()).startsWith(t)
-    || plainText(entry.value.trim()).startsWith(t)
-}
-
-function orderSuggestions<T extends Suggestion>(
-  hit: readonly T[],
-  typed: string,
-): T[] {
-  return [...hit].sort((a, b) => {
-    const aBegins = beginsWith(a, typed)
-    const bBegins = beginsWith(b, typed)
-    if (aBegins !== bBegins) return aBegins ? -1 : 1
-    return textCompare.compare(a.display.trim(), b.display.trim())
-  })
-}
-
-export function fittingSuggestions<T extends Suggestion>(
+// What equals the typed text comes first, then what begins with it, then the
+// rest; alike ones in alphabetical order. At most SUGGESTIONS_MAX.
+export function orderedSuggestions<T extends Suggestion>(
   entries: readonly T[],
   typed: string,
-  max: number = SUGGESTIONS_MAX,
-  orderKeep = false,
+  texts: (entry: T) => readonly string[] = (entry) => [entry.display, entry.value],
 ): T[] {
-  if (typed.trim() === '') return []
-
-  const hit: T[] = []
-  for (const entry of entries) {
-    if (rowFits([entry.display, entry.value], typed)) hit.push(entry)
+  const wanted = plainText(typed.trim())
+  const rank = (entry: T): number => {
+    if (wanted === '') return 1
+    const own = texts(entry).map((t) => plainText(t.trim()))
+    if (own.some((t) => t === wanted)) return 0
+    return own.some((t) => t.startsWith(wanted)) ? 1 : 2
   }
-  return (orderKeep ? hit : orderSuggestions(hit, typed)).slice(0, max)
+  const label = (entry: T): string => plainText(entry.display !== '' ? entry.display : entry.value)
+  return entries
+    .map((entry, at) => ({ entry, rank: rank(entry), label: label(entry), at }))
+    .sort((a, b) => a.rank - b.rank || a.label.localeCompare(b.label, 'de') || a.at - b.at)
+    .slice(0, SUGGESTIONS_MAX)
+    .map((o) => o.entry)
 }
 
 function areaLimits(el: HTMLElement): { left: number; right: number } {
@@ -111,8 +104,24 @@ function alignSuggestionsFrom(el: HTMLElement): void {
   }
 }
 
+function cellText(entry: SuggestionRow, column: Column): string {
+  if (column.field === '') return entry.display !== '' ? entry.display : entry.value
+  return maskState.host.readField(entry.record, column.field)
+}
+
+// The marked row stays in sight while the mark walks through a long list.
+function keepInSight(el: Element | undefined): void {
+  el?.scrollIntoView({ block: 'nearest' })
+}
+
+// The hits as a small table under the field: the columns of the lookup
+// window, one row per hit, the typed text marked.
 export function suggestionListTpl(args: {
-  entries: readonly Suggestion[]
+  entries: readonly SuggestionRow[]
+
+  columns: readonly Column[]
+
+  typed: string
 
   mark: number
 
@@ -120,8 +129,11 @@ export function suggestionListTpl(args: {
 
   onMark: (index: number) => void
 }): TemplateResult {
-  return html`<ul
+  const columns = args.columns.length > 0 ? args.columns : [{ key: '', title: '', field: '' }]
+  const grid = `grid-template-columns: ${columns.map(() => 'minmax(40px, auto)').join(' ')}`
+  return html`<div
     class="suggestions"
+    role="listbox"
     ${ref((el) => {
       if (el && 'classList' in el && 'style' in el) {
         alignSuggestionsFrom(el as HTMLElement)
@@ -133,19 +145,23 @@ export function suggestionListTpl(args: {
       }
     })}
     @mousedown=${(e: MouseEvent) => e.preventDefault()}
-  >${args.entries.map((entry, i) => html`<li
+  >${columns.some((s) => s.title !== '')
+    ? html`<div class="suggestion-head" role="presentation" style=${grid}>${columns.map((s) => html`<div>${s.title}</div>`)}</div>`
+    : nothing
+  }${args.entries.map((entry, i) => html`<div
       class=${i === args.mark ? 'suggestion marked' : 'suggestion'}
+      role="option"
+      aria-selected=${i === args.mark ? 'true' : 'false'}
+      style=${grid}
+      ${ref((el) => { if (i === args.mark) keepInSight(el) })}
       @click=${() => args.onChoose(i)}
       @mouseenter=${() => args.onMark(i)}
-    ><span class="suggestion-display">${entry.display !== '' ? entry.display : entry.value}</span>${
-      entry.value !== '' && entry.value !== entry.display
-        ? html`<span class="suggestion-value">${entry.value}</span>`
-        : nothing
-    }</li>`)}</ul>`
+    >${columns.map((s) => html`<div>${markHit(cellText(entry, s), args.typed)}</div>`)}</div>`)}</div>`
 }
 
 export const suggestionStyle = css`
   .suggestions {
+    --suggestion-row: 24px;
     position: absolute;
     top: 100%;
     left: 0;
@@ -153,11 +169,11 @@ export const suggestionStyle = css`
     width: max-content;
     min-width: 100%;
     box-sizing: border-box;
-    max-height: 240px;
+    max-height: calc(var(--suggestion-row) * ${SUGGESTIONS_PAGE + 1} + 2 * var(--se-border));
     overflow: auto;
+    scrollbar-width: thin;
     margin: 4px 0 0;
-    padding: 4px;
-    list-style: none;
+    padding: 0;
     background: var(--se-panel);
     border: var(--se-border) solid var(--se-line);
     border-radius: var(--se-radius);
@@ -171,28 +187,44 @@ export const suggestionStyle = css`
     right: 0;
   }
 
+  .suggestion-head,
   .suggestion {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1px;
-    padding: 7px 9px;
-    border-radius: var(--se-radius);
-    white-space: nowrap;
+    display: grid;
+    align-items: center;
+    height: var(--suggestion-row);
     cursor: pointer;
   }
 
-  .suggestion-display {
-    max-width: 100%;
+  .suggestion-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--se-panel);
+    border-bottom: var(--se-border) solid var(--se-line-soft);
+    font-size: var(--se-fs-xs);
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--se-muted);
+    cursor: default;
+  }
+
+  /* The cell padding of the tables, 8px. */
+  .suggestion-head > div,
+  .suggestion > div {
+    min-width: 0;
+    padding: 0 8px;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: 700;
   }
 
-  .suggestion-value {
-    color: var(--se-muted);
-    font-size: var(--se-fs-head);
-  }
+  .suggestion + .suggestion { border-top: var(--se-border) solid var(--se-line-soft); }
 
   .suggestion.marked { background: var(--se-accent-soft); }
+
+  .suggestion mark {
+    background: var(--se-warning-soft);
+    color: inherit;
+  }
 `

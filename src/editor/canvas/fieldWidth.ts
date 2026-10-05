@@ -1,5 +1,4 @@
-import { splitBinding } from '../../core/block/blockType'
-import type { SourceInReach } from '../../core/data/extraSources'
+import { fieldInReachOf, type SourceInReach } from '../../core/data/extraSources'
 
 const CHARACTER_PX = 7
 const PADDING_PX = 20
@@ -13,9 +12,5 @@ export function lengthOf(
   value: string,
   sources: readonly SourceInReach[],
 ): number | undefined {
-  const { sourceId, code } = splitBinding(value)
-  const source = sourceId === ''
-    ? sources[0]?.source
-    : sources.find((q) => q.source.id === sourceId)?.source
-  return source?.fields.find((f) => f.code === code)?.length
+  return fieldInReachOf(value, sources)?.length
 }

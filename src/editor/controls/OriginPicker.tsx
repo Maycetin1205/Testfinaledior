@@ -5,7 +5,7 @@ import { Field, INPUT_EDGE } from '@/editor/widgets/Field'
 import { List } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
 import { ORIGIN_KINDS, type ValueOrigin } from '../../core/data/valueOrigin'
-import { decodeOrigin, encodeOrigin, originGroups, originText, type OriginOffer } from './originOffer'
+import { decodeOrigin, encodeOrigin, offerGroups, originText, type OriginOffer } from './originOffer'
 
 // Chooses where a value comes from: the origin in words, and below it the
 // columns, fields and form fields the place offers, and a fixed value.
@@ -47,13 +47,13 @@ export function OriginPicker({ name, origin, offer, shown, className, onChoose }
           <div className="flex min-h-0 flex-1 flex-col gap-1.5">
             <List
               searchable
-              groups={originGroups(offer)}
+              groups={offerGroups(offer)}
               value={origin === null ? '' : encodeOrigin(origin)}
               onChoose={(v) => take(decodeOrigin(v))}
             />
             {offer.fixed === true && (
               <div className="flex shrink-0 flex-col gap-1 px-1.5 pb-1">
-                <span className="text-label font-semibold uppercase tracking-label text-muted">
+                <span className="text-dense font-semibold text-muted">
                   {ORIGIN_KINDS.fixed}
                 </span>
                 <Field

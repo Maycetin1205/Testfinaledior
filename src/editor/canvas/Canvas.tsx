@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, type DragEvent } from 'react'
-import { ROOT_FLOW } from '../../core/block/flow'
 import { gridAreaStyle } from '../../core/block/grid'
+import { ROOT_PADDING } from '../../core/block/gridArea'
 import { useEditor } from '../state/useEditor'
 import { NodeList } from './NodeList'
 import { isNewBlockDrag } from './dnd'
@@ -66,7 +66,7 @@ export function Canvas() {
             className="h-full min-h-0 overflow-auto"
             style={{
               ...gridAreaStyle(),
-              padding: ROOT_FLOW.padding,
+              padding: ROOT_PADDING,
               boxSizing: 'border-box',
               background: 'var(--se-bg)',
             }}
@@ -81,7 +81,7 @@ export function Canvas() {
               }
             }}
           >
-            {mainPage && <NodeList parentId={ed.rootId} direction="column" grid />}
+            {mainPage && <NodeList parentId={ed.rootId} />}
           </div>
 
           {!mainPage && <PopupPage popupId={ed.activePageId} />}

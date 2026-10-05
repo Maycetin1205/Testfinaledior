@@ -5,7 +5,7 @@ import {
   type EntrySwitch,
   type ListBinding,
 } from '../../core/block/listBinding'
-import { structuredProperty, type Property } from '../../core/block/property'
+import { listProperty, type Property } from '../../core/block/property'
 import { isUnread } from '../../core/unread'
 
 export type Column = {
@@ -48,9 +48,14 @@ export function columnsView(
   return { columns: shown, slots }
 }
 
-export const CELL_PLACEHOLDER = '—'
-
 export const FIELD_KEY_PREFIX = 'field:'
+
+// A column stands right when it carries a sum: the one fact of a column that
+// says it holds numbers. Everything else stands left, a value that merely
+// looks like a number too, so a column never mixes its edges.
+export function columnStandsRight(column: Column): boolean {
+  return column.total === true
+}
 
 const COLUMNS_MIN = 1
 
@@ -136,14 +141,6 @@ export function coerceColumns(v: unknown): Column[] {
 
   if (arr.length < COLUMNS_MIN) arr = [newColumn(0)]
   return withKeys(arr)
-}
-
-function tryCoerceColumns(v: string): Column[] {
-  try {
-    return coerceColumns(JSON.parse(v))
-  } catch {
-    return defaultColumns()
-  }
 }
 
 // The css grid template the head, the rows and the ruler all stand on.
@@ -244,16 +241,10 @@ export const COLUMNS_BINDING: ListBinding<Column> = {
 }
 
 export function columnsProperty(): Property<Column[]> {
-  return structuredProperty<Column[]>({
-    read: (raw) => (raw === undefined || Array.isArray(raw)
-      ? { ok: true, value: coerceColumns(raw) }
-      : { ok: false }),
-    toAttribute: (value) => JSON.stringify(listForExport(value, COLUMNS_BINDING)),
-    fromAttribute: (raw) => (raw === null ? defaultColumns() : tryCoerceColumns(raw)),
-  }, {
+  return listProperty<Column[]>(coerceColumns, {
     default: defaultColumns(),
     label: 'Spalten',
     place: 'block',
     attribute: 'columns',
-  })
+  }, (value) => listForExport(value, COLUMNS_BINDING))
 }

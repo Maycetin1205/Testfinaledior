@@ -22,10 +22,13 @@ export function Tile({ label, on, id, onToggle }: TileProps) {
         'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
         on
           ? 'border-accent bg-accent-soft font-[550] text-ink'
-          : 'border-line bg-panel text-muted hover:border-accent hover:text-ink',
+          : 'border-line bg-panel text-ink hover:border-accent',
       )}
     >
-      <Check size={12} aria-hidden className={cn('shrink-0', !on && 'invisible')} />
+      {/* Off is an empty box, not a greyed tile: the tile is not locked. */}
+      {on
+        ? <Check size={12} aria-hidden className="shrink-0" />
+        : <span aria-hidden className="h-[12px] w-[12px] shrink-0 rounded border border-line" />}
       <span className="min-w-0 truncate">{label}</span>
     </button>
   )

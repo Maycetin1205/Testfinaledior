@@ -3,23 +3,19 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
-import { asNumber } from '../list/sorting'
-import type { Column } from '../list/columns'
-import { WITHOUT_DECORATION, type RowDecoration } from '../list/tableBody'
+import { columnStandsRight, type Column } from '../list/columns'
+import { sublineTpl, WITHOUT_DECORATION, type RowDecoration, type RowLayout } from '../list/tableBody'
 import type { CaptureLedger, RowState } from './ledger'
 
+// The input a booked row's cell shows in place of its text.
 function typingCellTpl(
   ledger: CaptureLedger,
   rawIndex: number,
   slot: number,
   column: Column,
 ): TemplateResult {
-  const value = ledger.cellValue(rawIndex, slot)
-  return html`<div
-    class=${asNumber(value) !== null ? 'typable number' : 'typable'}
-    role="cell"
-  >${inputSpotTpl({
-    value,
+  return inputSpotTpl({
+    value: ledger.cellValue(rawIndex, slot),
     title: column.title,
     placeholder: '',
     inputClass: cellsClass(ledger.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
@@ -27,6 +23,8 @@ function typingCellTpl(
     marksOnEntering: true,
     slot,
     suggestions: [],
+    columns: [],
+    typed: '',
     mark: 0,
   }, {
     typing: (text) => ledger.typeCell(rawIndex, slot, text),
@@ -34,7 +32,7 @@ function typingCellTpl(
     leave: (text) => ledger.leaveCell(rawIndex, slot, text),
     chooseSuggestion: () => {},
     setMark: () => {},
-  })}</div>`
+  })
 }
 
 interface CapturedPlacement {
@@ -42,6 +40,8 @@ interface CapturedPlacement {
   slots: readonly number[]
 
   cols: Readonly<Record<string, string>>
+
+  layout: RowLayout
 
   captured: readonly (readonly string[])[]
 
@@ -59,21 +59,28 @@ interface CapturedAct {
 }
 
 export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct): TemplateResult {
+  const layout = placement.layout
   return html`${placement.captured.map((values, rowsIndex) => {
     const state = placement.capturedState(rowsIndex)
 
     const fixed = state.status === 'written'
+    const cell = (column: Column, slot: number): TemplateResult => {
+      const value = values[slot] ?? ''
+      const edge = columnStandsRight(column) ? 'right' : nothing
+      if (!layout.hasSubs) return html`<div class=${edge} role="cell">${value}</div>`
+      const subs = layout.subsOf(slot)
+      return html`<div class=${edge} role="cell"><span class="line">${value}</span>${subs.columns.length === 0
+        ? nothing
+        : sublineTpl(subs.slots.map((s) => ({ content: values[s] ?? '', typable: false })))}</div>`
+    }
     return html`${rowsIndex === placement.correctionSlot ? placement.capture : nothing}<div
-      class="row captured"
+      class="row captured${layout.hasSubs ? ' subline' : ''}"
       role="row"
       data-status=${state.status}
       style=${styleMap(placement.cols)}
       @click=${fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
     >
-      ${placement.columns.map((_s, i) => {
-        const value = values[placement.slots[i]] ?? ''
-        return html`<div class=${asNumber(value) !== null ? 'number' : nothing} role="cell">${value}</div>`
-      })}
+      ${placement.columns.map((column, i) => cell(column, placement.slots[i]))}
       <button
         class="row-remove"
         type="button"

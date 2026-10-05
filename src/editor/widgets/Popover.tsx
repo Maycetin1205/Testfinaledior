@@ -16,6 +16,14 @@ import { useCloseOnEscape } from './useCloseOnEscape'
 const EDGE = 8
 const Family = createContext<readonly string[]>([])
 
+// A window of its own that belongs to the popover it was opened from: a click
+// in it leaves that popover open, and a popover opened in it belongs to it.
+export function FamilyMember({ children }: { children: (family: string) => ReactNode }) {
+  const id = useId()
+  const family = [...useContext(Family), id]
+  return <Family.Provider value={family}>{children(family.join(' '))}</Family.Provider>
+}
+
 export const LEVEL_OVER_MASK_WINDOW = 2147483647
 
 interface PopoverProps {

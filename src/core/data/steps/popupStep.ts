@@ -1,6 +1,5 @@
 import { blockType } from '../../block/registry'
 import type { Unread } from '../../unread'
-import type { CheckWorld, StepSummary } from './stepAdapter'
 
 export function popupIdRead(raw: Unread<{ popupId: string }>): string | null {
   return typeof raw.popupId === 'string' ? raw.popupId : null
@@ -10,18 +9,6 @@ export function popupIdRead(raw: Unread<{ popupId: string }>): string | null {
 export function popupNameRead(raw: Unread<{ popup: string; popupId: string }>): string | null {
   if (typeof raw.popup === 'string') return raw.popup
   return typeof raw.popupId === 'string' ? '' : null
-}
-
-export function popupProblem(popupId: string, world: CheckWorld): string | null {
-  if (popupId.trim() === '') return 'Der Popup-Schritt hat kein Popup gewählt.'
-  if (world.popupIds && !world.popupIds.includes(popupId)) {
-    return 'Der Popup-Schritt verweist auf eine gelöschte Popup-Seite.'
-  }
-  return null
-}
-
-export function popupSummary(what: string, name: string | undefined): StepSummary {
-  return { what, detail: name ? ` — ${name}` : '', target: '', origin: '', table: '' }
 }
 
 export function applyPopupStep(root: ParentNode, name: string, open: boolean): void {

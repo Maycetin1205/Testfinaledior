@@ -3,12 +3,11 @@ import { contractOf } from '../core/block/registry'
 
 export const PENDING_EVENT = 'ff-pending-change'
 
-const KINDS: readonly PendingKind[] = ['captured', 'changed', 'deleted']
+const KINDS: readonly PendingKind[] = ['captured', 'changed']
 
 export function pendingRows(carrier: HTMLElement, kind: PendingKind): number {
   if (kind === 'captured') return contractOf(carrier, 'capture')?.capturedRows.length ?? 0
-  if (kind === 'changed') return contractOf(carrier, 'change')?.changedRows.length ?? 0
-  return contractOf(carrier, 'delete')?.deletedRows.length ?? 0
+  return contractOf(carrier, 'change')?.changedRows.length ?? 0
 }
 
 const last = new WeakMap<HTMLElement, string>()

@@ -1,13 +1,18 @@
 import type { Capability, ContractClasses } from './capability'
-import type { Direction, FlowWidth } from './flow'
 import type { GridMetrics } from './grid'
 import type { PropertyMap, PropertyValue } from './property'
 
 export {
+  entriesWithValue,
+  entryPathFrom,
+  entryValues,
   fieldChoicesRead,
+  innerOf,
   listDefaultTitle,
   flagOn,
   flagFor,
+  withInner,
+  type EntryPath,
   type ListBinding,
 } from './listBinding'
 
@@ -41,9 +46,6 @@ export interface BlockDeclaration {
 
   allowedChildren?: readonly string[]
   allowedParent?: readonly string[]
-  fixedWidth?: FlowWidth
-  childDefaults?: readonly ChildDefault[]
-  childDirection?: Direction
   inPalette?: boolean
 
   // A selector in the shadow root: the part at the top that stays free when the
@@ -51,10 +53,8 @@ export interface BlockDeclaration {
   // block without one takes the bar on its own top edge.
   head?: string
 
-  templateKind?: { type: string; name: string; direction?: Direction }
   containerFrame?: boolean
 
-  childButton?: { name: string; childType: string; nameFromField?: string }
   page?: boolean
 
   gridArea?: boolean

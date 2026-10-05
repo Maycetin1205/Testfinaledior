@@ -18,7 +18,5 @@ export interface OrderAdapter<K extends OrderKind> {
   read(raw: Unread<OrderOf<K>>): OrderOf<K> | null
   // Without its table id the source orders nothing.
   needsTable: boolean
-  // SoftEngine sends every field of the table without being given a list.
-  allFields(order: OrderOf<K>): boolean
   sheet(sources: readonly OrderedSource<K>[], fields: SheetFields): SheetPart
 }

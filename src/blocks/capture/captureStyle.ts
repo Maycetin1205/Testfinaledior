@@ -12,48 +12,28 @@ export const captureStyle = css`
         z-index: 1;
       }
 
+      /* The capture row stands apart from the booked rows: a firm line above
+         it, the light ground of a field. */
       .row.capture {
         flex: none;
-        background: var(--se-panel);
-        border-top: var(--se-border) solid var(--se-line);
+        background: var(--se-panel-2);
+        border-top: var(--se-border) solid var(--se-muted);
       }
-
-      /* In the editor the column titles stand where the mask shows its
-         placeholders, in their color. */
-      :host([preview]) .row.capture > div { color: var(--se-faint); }
 
       .row.captured { flex: none; }
       :host(:not([preview])) .row.captured { cursor: pointer; }
 
-      /* Room for the status dot before the first cell. */
-      .head > div:first-of-type,
-      .row > div:first-of-type { padding-left: calc(var(--se-cell-x) + 14px); }
-
-      /* Anchor for the status dot and the cross. */
+      /* Anchor for the cross. */
       .row { position: relative; }
-      .row[data-status]::before {
-        position: absolute;
-        left: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        content: '';
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--se-faint);
-        pointer-events: none;
-      }
 
-      .row[data-status="captured"] { background: var(--se-accent-soft); }
-      .row[data-status="captured"]::before,
-      .row[data-status="writes"]::before { background: var(--se-accent); }
-      .row[data-status="changed"]::before,
-      .row[data-status="deletion"]::before { background: var(--se-warning); }
-      .row[data-status="deletion"] { background: var(--se-danger-soft); }
+      /* One sign per row state, the tone: the reception mask tones a table
+         row on hover the same way and shows no dot inside a row. */
+      .row[data-status="captured"],
+      .row[data-status="writes"] { background: var(--se-accent-soft); }
+      .row[data-status="changed"] { background: var(--se-warning-soft); }
+      .row[data-status="error"] { background: var(--se-danger-soft); }
       .row[data-status="writes"] { animation: se-writing 1.1s ease-in-out infinite; }
       .row[data-status="written"] { color: var(--se-muted); }
-      .row[data-status="error"] { background: var(--se-danger-soft); }
-      .row[data-status="error"]::before { background: var(--se-danger); }
       @keyframes se-writing { 50% { opacity: 0.55; } }
       @media (prefers-reduced-motion: reduce) {
         .row[data-status="writes"] { animation: none; }
@@ -88,14 +68,14 @@ export const captureStyle = css`
       /* A typable cell hands its padding to its input, so the text keeps the
          edge of every other cell, and lets the suggestion list hang out. */
       .row > div.typable,
-      .row.capture > div {
-        display: flex;
-        align-items: center;
+      .row.capture [role='cell'] {
         overflow: visible;
         padding: 0 calc(var(--se-cell-x) - var(--se-input-x) - var(--se-border));
       }
-      .row > div.typable:first-of-type,
-      .row.capture > div:first-of-type {
-        padding-left: calc(var(--se-cell-x) + 14px - var(--se-input-x) - var(--se-border));
+      .row:not(.subline) > div.typable,
+      .row.capture:not(.subline) [role='cell'] {
+        display: flex;
+        align-items: center;
       }
+
 `

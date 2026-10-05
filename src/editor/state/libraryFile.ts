@@ -2,14 +2,11 @@ import { checkDataSources, type DataSource } from '../../core/data/dataSources'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
-import { liftKey, liftLibraries, liftSourceNames, liftTo20 } from './maskSchema'
+import { LIBRARY_SCHEMA_VERSION, liftLibrary } from './librarySchema'
 
 const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
 const LIBRARY_FILE_VERSION = 2
-
-// Version 2 stores a data source as preset plus descriptor.
-const LIBRARY_SCHEMA_VERSION = 2
 
 interface LibraryContent {
   dataSources: DataSource[]
@@ -54,6 +51,10 @@ export function packLibraryFrom(text: string): LibraryResult {
     return { ok: false }
   }
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false }
+  // A newer editor wrote it: what this one cannot read of it would be gone
+  // with the next save.
+  const version = (raw as Record<string, unknown>).schemaVersion
+  if (typeof version === 'number' && version > LIBRARY_SCHEMA_VERSION) return { ok: false }
   const o = liftLibrary(raw as Record<string, unknown>)
 
   return {
@@ -63,18 +64,6 @@ export function packLibraryFrom(text: string): LibraryResult {
       relation: checkRelationTemplates(o.relation),
     },
   }
-}
-
-function liftLibrary(raw: Record<string, unknown>): Record<string, unknown> {
-  const version = typeof raw.schemaVersion === 'number' ? raw.schemaVersion : 0
-  if (version >= LIBRARY_SCHEMA_VERSION) return raw
-  const o = version < 1 ? liftKey(raw) : raw
-  if (version < 1) {
-    liftLibraries(o)
-    liftSourceNames(o)
-  }
-  liftTo20(o)
-  return o
 }
 
 function stable(value: unknown): string {
@@ -103,6 +92,17 @@ export function addOn<T extends { id: string }>(
     replaced++
   }
   return { list: added + replaced === 0 ? old : list, added, replaced }
+}
+
+// What a mask file brings that the customer file lacks. An entry the customer
+// file holds already stays as it is: the copy in the mask may be older.
+export function missingOn<T extends { id: string }>(
+  old: readonly T[],
+  fromMask: readonly T[],
+): readonly T[] {
+  const known = new Set(old.map((e) => e.id))
+  const missing = fromMask.filter((e) => !known.has(e.id))
+  return missing.length === 0 ? old : [...old, ...missing]
 }
 
 export async function loadLibraryFromFile(editor: EditorStore, file: File): Promise<void> {

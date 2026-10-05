@@ -2,9 +2,8 @@ import { html, nothing, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { columnsChoiceTpl, type ColumnsChoiceAct, type ColumnsChoicePlacement } from './columnPicker'
 import { markHit } from './textSearch'
-import { asNumber } from './sorting'
 import {
-  CELL_PLACEHOLDER,
+  columnStandsRight,
   type Column,
   type ColumnView,
   type ColumnsGrid,
@@ -19,6 +18,7 @@ export interface RowDecoration {
 
   className: string
 
+  // What a cell shows in place of its text, like the input of a typable cell.
   cell: (slot: number, column: Column, value: string) => TemplateResult | null
 
   right: TemplateResult | typeof nothing
@@ -34,12 +34,25 @@ export const WITHOUT_DECORATION: RowDecoration = {
   key: () => false,
 }
 
+// The columns of the row, and under each the columns of its grey second
+// line: a subline column stands in the cell of the column it is anchored to.
+export interface RowLayout {
+  main: ColumnView
+
+  hasSubs: boolean
+
+  subsOf: (mainSlot: number) => ColumnView
+}
+
+export const WITHOUT_SUBS: ColumnView = { columns: [], slots: [] }
+
 export interface Sublines {
   count: number
 
   render: (placement: {
     view: ColumnView
     cols: ColumnsGrid
+    layout: RowLayout
     rulerTicks: number | null
   }) => TemplateResult
 }
@@ -50,6 +63,8 @@ interface BodyPlacement {
   slots: readonly number[]
 
   cols: ColumnsGrid
+
+  layout: RowLayout
 
   editable: boolean
 
@@ -79,6 +94,9 @@ interface BodyPlacement {
 
   decoration: (rawIndex: number | null) => RowDecoration
 
+  // A column that must hold a value before a row is captured.
+  required: (slot: number) => boolean
+
   bottom: TemplateResult | typeof nothing
 }
 
@@ -104,11 +122,69 @@ function ruler(placement: BodyPlacement): TemplateResult | typeof nothing {
     : {
         ...placement.cols,
         flex: '0 1 auto',
-        height: `calc(var(--row-height) * ${placement.rulerTicks})`,
+        height: `calc(var(--record-height) * ${placement.rulerTicks})`,
       }
   return html`<div class="ruler" role="presentation" style=${styleMap(style)}>
           ${placement.columns.map(() => html`<div></div>`)}
         </div>`
+}
+
+interface CellPart {
+  value: string
+
+  content: TemplateResult | string
+
+  typable: boolean
+}
+
+function partOf(
+  placement: BodyPlacement,
+  decoration: RowDecoration,
+  rawIndex: number | null,
+  column: Column,
+  slot: number,
+): CellPart {
+  const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : ''
+  const own = rawIndex === null ? null : decoration.cell(slot, column, value)
+  return {
+    value,
+    content: own ?? markHit(value, placement.searchText),
+    typable: own !== null,
+  }
+}
+
+// The second line of a cell: the values of the subline columns anchored to
+// it, side by side, each one a part.
+export function sublineTpl(
+  parts: readonly { content: TemplateResult | string; typable: boolean }[],
+): TemplateResult {
+  return html`<span class="subs">${parts.map((p) => html`<span
+    class=${p.typable ? 'part typable' : p.content === '' ? 'part empty' : 'part'}
+  >${p.content}</span>`)}</span>`
+}
+
+function cellTpl(
+  placement: BodyPlacement,
+  decoration: RowDecoration,
+  rawIndex: number | null,
+  s: Column,
+  slot: number,
+): TemplateResult {
+  const main = partOf(placement, decoration, rawIndex, s, slot)
+  const subs = placement.layout.subsOf(slot)
+  const classes = [
+    s.hidden === true ? 'hidden' : '',
+    columnStandsRight(s) ? 'right' : '',
+    main.typable ? 'typable' : '',
+  ].filter((k) => k !== '').join(' ')
+  if (!placement.layout.hasSubs) {
+    return html`<div class=${classes === '' ? nothing : classes} role="cell">${main.content}</div>`
+  }
+  return html`<div class=${classes === '' ? nothing : classes} role="cell"
+    ><span class="line">${main.content}</span>${subs.columns.length === 0
+      ? nothing
+      : sublineTpl(subs.columns.map((c, i) => partOf(placement, decoration, rawIndex, c, subs.slots[i])))
+    }</div>`
 }
 
 function rowTpl(
@@ -123,6 +199,7 @@ function rowTpl(
     class="row${
       rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
+      rawIndex !== null && placement.layout.hasSubs ? ' subline' : ''}${
       decoration.className === '' ? '' : ' ' + decoration.className}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}
@@ -132,7 +209,11 @@ function rowTpl(
       ? String(rawIndex === placement.selectionIndex)
       : nothing}
     style=${styleMap(placement.cols)}
-    @click=${() => {
+    @click=${(e: MouseEvent) => {
+      // The second click of a double-click, or a click into a cell, goes on
+      // with the chosen row and leaves it chosen.
+      const chosen = rawIndex !== null && rawIndex === placement.selectionIndex
+      if (chosen && (e.detail > 1 || (e.target as HTMLElement).closest('.cell-input'))) return
       act.activateRow(rawIndex, viewIndex)
     }}
     @dblclick=${(e: MouseEvent) => {
@@ -156,23 +237,59 @@ function rowTpl(
       act.activateRow(rawIndex, viewIndex)
     }}
   >
-    ${placement.columns.map((s, i) => {
-      const slot = placement.slots[i]
-      const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : CELL_PLACEHOLDER
-      const own = rawIndex === null ? null : decoration.cell(slot, s, value)
-      if (own !== null) return own
-
-      const classes = [
-        s.hidden === true ? 'hidden' : '',
-        rawIndex !== null && asNumber(value) !== null ? 'number' : '',
-      ].filter((k) => k !== '').join(' ')
-      return html`<div
-        class=${classes === '' ? nothing : classes}
-        role="cell"
-      >${markHit(value, placement.searchText)}</div>`
-    })}
+    ${placement.columns.map((s, i) => cellTpl(placement, decoration, rawIndex, s, placement.slots[i]))}
     ${decoration.right}
   </div>`
+}
+
+function headTitleTpl(placement: BodyPlacement, s: Column, slot: number): TemplateResult {
+  return html`<span class="head-text">${s.title}</span>${placement.required(slot)
+    ? html`<em class="required">*</em>`
+    : nothing}${!placement.editable && placement.sortColumn === slot
+    ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
+    : ''}`
+}
+
+// A head cell: the title of the column and, small under it, the titles of
+// the subline columns anchored to it, each one a head of its own.
+function headCellTpl(
+  placement: BodyPlacement,
+  act: BodyAct,
+  s: Column,
+  slot: number,
+  i: number,
+): TemplateResult {
+  const subs = placement.layout.subsOf(slot)
+  // With sublines the editor's spot is the title line alone, not the whole
+  // two-line cell: the subline titles below have spots of their own.
+  const onLine = placement.layout.hasSubs
+  return html`<div
+    class=${[s.hidden === true ? 'hidden' : '', columnStandsRight(s) ? 'right' : '']
+      .filter((k) => k !== '').join(' ') || nothing}
+    role="columnheader"
+    data-ff-editable=${onLine ? nothing : ''}
+    data-ff-entry=${placement.preview && !onLine ? slot : nothing}
+    style="grid-row: 1; grid-column: ${i + 1}"
+    @click=${() => act.clickHead(slot)}
+    @contextmenu=${placement.columnPickerOn
+      ? (e: MouseEvent) => act.openColumnPicker(e)
+      : nothing}
+  ><span
+    class="head-line"
+    data-ff-editable=${onLine ? '' : nothing}
+    data-ff-entry=${placement.preview && onLine ? slot : nothing}
+  >${headTitleTpl(placement, s, slot)}</span>${subs.columns.length === 0
+    ? nothing
+    : html`<span class="head-sub">${subs.columns.map((c, k) => html`<span
+        class="head-sub-text"
+        data-ff-editable
+        data-ff-entry=${placement.preview ? subs.slots[k] : nothing}
+        @click=${(e: MouseEvent) => {
+          e.stopPropagation()
+          act.clickHead(subs.slots[k])
+        }}
+      >${c.title}${placement.required(subs.slots[k]) ? html`<em class="required">*</em>` : nothing}</span>`)}</span>`
+  }</div>`
 }
 
 export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResult {
@@ -194,24 +311,8 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
         </div>
       </div>` : ''}
       <div class="body" role=${placement.empty ? nothing : 'table'} tabindex="-1">
-      <div class="head" role="row" style=${styleMap(placement.cols)}>
-        ${
-          placement.columns.map(
-          (s, i) => html`<div
-            class=${[s.hidden === true ? 'hidden' : '', s.total === true ? 'number' : '']
-              .filter((k) => k !== '').join(' ') || nothing}
-            role="columnheader"
-            data-ff-editable
-            data-ff-entry=${placement.preview ? placement.slots[i] : nothing}
-            style="grid-row: 1; grid-column: ${i + 1}"
-            @click=${() => act.clickHead(placement.slots[i])}
-            @contextmenu=${placement.columnPickerOn
-              ? (e: MouseEvent) => act.openColumnPicker(e)
-              : nothing}
-          ><span class="head-text">${s.title}</span>${!placement.editable && placement.sortColumn === placement.slots[i]
-            ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
-            : ''}</div>`,
-        )}
+      <div class="head${placement.layout.hasSubs ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+        ${placement.columns.map((s, i) => headCellTpl(placement, act, s, placement.slots[i], i))}
         ${widthsHandles(placement.columns.length, act.widths)}
       </div>
         ${placement.empty ? nothing : html`
@@ -252,7 +353,7 @@ export function tableFoot(
   if (placement.empty) return nothing
 
   const saysSomething = placement.pageCount > 1 || placement.searchesActive || placement.totals.length > 0
-  if (!saysSomething) return html`<div class="foot foot--quiet"></div>`
+  if (!saysSomething) return nothing
   return html`<div class="foot">
     <div class="page-info">${recordText({
       showsRows: placement.showsRows,
@@ -267,7 +368,7 @@ export function tableFoot(
       </span>`)}
     </div>`}
     <div class="foot-right">
-      ${!placement.paging ? nothing : html`<div class="page-nav">
+      ${!placement.paging || placement.pageCount <= 1 ? nothing : html`<div class="page-nav">
         <button
           aria-label="Seite zurück"
           ?disabled=${placement.page <= 0}
