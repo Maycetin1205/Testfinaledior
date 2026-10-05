@@ -244,6 +244,26 @@ export const tableStyle = css`
         cursor: pointer;
       }
 
+      /* The sublines of the capture: a line that holds an input lets the
+         suggestion list hang out, the inputs of the second line share it,
+         each as small as the line. The capture row shows its second line
+         with a hairline above, where the booked rows show grey values. */
+      .row.capture > div > .line,
+      .row > div.typable > .line { display: flex; align-items: center; overflow: visible; }
+      .row.capture > div > .subs,
+      .row > div.typable > .subs { overflow: visible; }
+      .row.capture > div > .subs { border-top: var(--se-border) solid var(--se-line-soft); }
+      .subs > .part.typable {
+        display: flex;
+        align-items: center;
+        flex: 1 1 0;
+        overflow: visible;
+      }
+      .subs > .part.typable .cell-input {
+        height: calc(var(--sub-height) - 4px);
+        font-size: var(--se-fs-sm);
+      }
+
       /* Two title lines fit exactly one tick: the page count takes the head for
          one row, anything taller would scroll the body. */
       .head > div {
