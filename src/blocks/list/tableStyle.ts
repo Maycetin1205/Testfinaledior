@@ -174,11 +174,12 @@ export const tableStyle = css`
         border-left: var(--se-border) solid var(--se-line-soft);
       }
 
-      .row > div.number {
+      /* A column that stands right, with its sum: the figures line up. */
+      .row > div.right {
         text-align: right;
         font-variant-numeric: tabular-nums;
       }
-      .head > div.number { justify-content: flex-end; text-align: right; }
+      .head > div.right { justify-content: flex-end; text-align: right; }
       .head-line { display: flex; align-items: center; min-width: 0; }
 
       /* A record with sublines is two text lines high: the value of the column
@@ -214,7 +215,7 @@ export const tableStyle = css`
         white-space: nowrap;
         overflow: hidden;
       }
-      .row.subline > div.number > .subs { justify-content: flex-end; }
+      .row.subline > div.right > .subs { justify-content: flex-end; }
       .subs > .part {
         min-width: 0;
         overflow: hidden;
@@ -223,8 +224,8 @@ export const tableStyle = css`
       /* A dot between two values; an empty part stands without one. */
       .subs > .part:not(.typable):not(.empty) + .part:not(.typable):not(.empty)::before { content: '· '; }
       .head.subline > div > .head-line { min-height: var(--row-height); }
-      .head.subline > div.number > .head-line,
-      .head.subline > div.number > .head-sub { justify-content: flex-end; }
+      .head.subline > div.right > .head-line,
+      .head.subline > div.right > .head-sub { justify-content: flex-end; }
       .head-sub {
         display: flex;
         gap: 6px;

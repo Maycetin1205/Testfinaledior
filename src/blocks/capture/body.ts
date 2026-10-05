@@ -66,10 +66,10 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
     const fixed = state.status === 'written'
     const cell = (column: Column, slot: number): TemplateResult => {
       const value = values[slot] ?? ''
-      const number = columnStandsRight(column) ? 'number' : nothing
-      if (!layout.hasSubs) return html`<div class=${number} role="cell">${value}</div>`
+      const edge = columnStandsRight(column) ? 'right' : nothing
+      if (!layout.hasSubs) return html`<div class=${edge} role="cell">${value}</div>`
       const subs = layout.subsOf(slot)
-      return html`<div class=${number} role="cell"><span class="line">${value}</span>${subs.columns.length === 0
+      return html`<div class=${edge} role="cell"><span class="line">${value}</span>${subs.columns.length === 0
         ? nothing
         : sublineTpl(subs.slots.map((s) => ({ content: values[s] ?? '', typable: false })))}</div>`
     }

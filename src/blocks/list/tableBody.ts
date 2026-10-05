@@ -174,7 +174,7 @@ function cellTpl(
   const subs = placement.layout.subsOf(slot)
   const classes = [
     s.hidden === true ? 'hidden' : '',
-    columnStandsRight(s) ? 'number' : '',
+    columnStandsRight(s) ? 'right' : '',
     main.typable ? 'typable' : '',
   ].filter((k) => k !== '').join(' ')
   if (!placement.layout.hasSubs) {
@@ -264,7 +264,7 @@ function headCellTpl(
   // two-line cell: the subline titles below have spots of their own.
   const onLine = placement.layout.hasSubs
   return html`<div
-    class=${[s.hidden === true ? 'hidden' : '', columnStandsRight(s) ? 'number' : '']
+    class=${[s.hidden === true ? 'hidden' : '', columnStandsRight(s) ? 'right' : '']
       .filter((k) => k !== '').join(' ') || nothing}
     role="columnheader"
     data-ff-editable=${onLine ? nothing : ''}

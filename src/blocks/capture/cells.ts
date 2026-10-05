@@ -74,7 +74,7 @@ export const cellsInputStyle = css`
          it gets a value. */
       .cell-input.held { border-color: var(--se-danger); }
 
-      .number .cell-holder > .cell-input { text-align: right; }
+      .right .cell-holder > .cell-input { text-align: right; }
 
       .cell-input::placeholder { color: transparent; }
       .row.capture .cell-input::placeholder { color: var(--se-faint); }

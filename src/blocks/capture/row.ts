@@ -80,11 +80,11 @@ function captureCellTpl(
   }
 
   const main = captureInputTpl(placement, act, column, slot)
-  const number = columnStandsRight(column) ? 'number' : nothing
+  const edge = columnStandsRight(column) ? 'right' : nothing
   if (!layout.hasSubs) {
-    return html`<div class=${number} role="cell">${main}</div>`
+    return html`<div class=${edge} role="cell">${main}</div>`
   }
-  return html`<div class=${number} role="cell"
+  return html`<div class=${edge} role="cell"
     ><span class="line">${main}</span>${subs.columns.length === 0
       ? nothing
       : sublineTpl(subs.columns.map((c, i) => ({
