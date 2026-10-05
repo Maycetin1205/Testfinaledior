@@ -106,7 +106,6 @@ export class CapturedRows {
       return 'captured'
     }
     const missing = missingRequired(context.columns, values, this.host.shown())
-    this.row.hold(missing)
     if (missing !== -1) return { missing }
     if (back) {
       this.rows = [

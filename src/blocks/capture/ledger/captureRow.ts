@@ -74,9 +74,6 @@ export class CaptureRow {
 
   private computed = new Map<number, string>()
 
-  // The required cell that held the row back, framed until it gets a value.
-  private missing = -1
-
   private cursorColumn = -1
 
   private listColumn = -1
@@ -126,18 +123,8 @@ export class CaptureRow {
     return record === undefined ? '' : maskState.host.readField(record, target.code)
   }
 
-  heldAt(index: number): boolean {
-    return index === this.missing
-  }
-
-  // The required cell left empty that holds the row back; -1 for none.
-  hold(index: number): void {
-    this.missing = index
-  }
-
   type(index: number, text: string): void {
     this.typed.set(index, text)
-    if (index === this.missing && text.trim() !== '') this.missing = -1
     this.cursorColumn = index
     this.list.restart()
     this.host.report()
@@ -253,7 +240,6 @@ export class CaptureRow {
       }
     }
     this.syncChosen(context)
-    if (index === this.missing && this.valueIn(context, index) !== '') this.missing = -1
     this.cursorColumn = -1
     this.list.idle()
     this.host.report()
@@ -458,7 +444,6 @@ export class CaptureRow {
     this.chosen.clear()
     this.byHand.clear()
     this.computed.clear()
-    this.missing = -1
     this.cursorColumn = -1
     this.listColumn = -1
     this.list.idle()

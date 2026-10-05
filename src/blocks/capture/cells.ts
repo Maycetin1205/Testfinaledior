@@ -70,10 +70,6 @@ export const cellsInputStyle = css`
       /* A cell being typed into looks like any other, only with the cursor. */
       .cell-input:focus { outline: none; }
 
-      /* The required cell that held the row back keeps its red edge until
-         it gets a value. */
-      .cell-input.held { border-color: var(--se-danger); }
-
       .right .cell-holder > .cell-input { text-align: right; }
 
       .cell-input::placeholder { color: transparent; }

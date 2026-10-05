@@ -77,8 +77,6 @@ export class CaptureLedger {
 
   rowView(): { value: string; automatic: boolean }[] { return this.row.rowView() }
 
-  heldAt(index: number): boolean { return this.row.heldAt(index) }
-
   type(index: number, text: string): void { this.row.type(index, text) }
 
   leave(index: number): void { this.row.leave(index) }

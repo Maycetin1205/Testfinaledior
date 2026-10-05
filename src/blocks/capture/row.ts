@@ -29,9 +29,6 @@ interface CapturePlacement {
 
   automatic: (index: number) => boolean
 
-  // The required cell left empty that holds the row back.
-  held: (index: number) => boolean
-
   typingColumn: number
   suggestions: readonly SuggestionRow[]
   mark: number
@@ -108,8 +105,7 @@ function captureInputTpl(
     value,
     title: column.title,
     placeholder: '',
-    inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet')
-      + (placement.held(slot) ? ' held' : ''),
+    inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
     holderClass: 'cell-holder',
     marksOnEntering: true,
     slot,
