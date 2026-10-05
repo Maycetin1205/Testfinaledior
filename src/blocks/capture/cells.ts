@@ -32,13 +32,6 @@ export function enterCell(field: HTMLInputElement | null | undefined): boolean {
 }
 
 export const cellsInputStyle = css`
-      .cell-label {
-        display: block;
-        min-width: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
       .cell-holder {
         position: relative;
         display: flex;

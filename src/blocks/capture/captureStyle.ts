@@ -20,10 +20,6 @@ export const captureStyle = css`
         border-top: var(--se-border) solid var(--se-muted);
       }
 
-      /* In the editor the column titles stand where the mask shows its
-         placeholders, in their color. */
-      :host([preview]) .row.capture [role='cell'] { color: var(--se-faint); }
-
       .row.captured { flex: none; }
       :host(:not([preview])) .row.captured { cursor: pointer; }
 

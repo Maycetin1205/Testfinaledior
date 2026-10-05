@@ -70,10 +70,7 @@ function captureCellTpl(
   const layout = placement.layout
   const subs = layout.subsOf(slot)
   if (placement.preview) {
-    return html`<div
-      class=${column.hidden === true ? 'hidden' : nothing}
-      role="cell"
-    ><span class="cell-label"></span></div>`
+    return html`<div class=${column.hidden === true ? 'hidden' : nothing} role="cell"></div>`
   }
 
   const main = captureInputTpl(placement, act, column, slot)
