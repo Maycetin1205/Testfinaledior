@@ -83,12 +83,11 @@ export const tableStyle = css`
         z-index: 1;
         flex: none;
         background: var(--se-panel-2);
-        /* The head stands apart: dark type, a firm line under it. */
+        /* The head stands apart: dark bold type, written like the rest of
+           the mask, a firm line under it. */
         border-bottom: var(--se-border) solid var(--se-muted);
         font-size: var(--se-fs-sm);
         font-weight: 700;
-        letter-spacing: .02em;
-        text-transform: uppercase;
         color: var(--se-ink);
       }
 
@@ -233,8 +232,6 @@ export const tableStyle = css`
         line-height: var(--sub-height);
         font-size: var(--se-fs-xs);
         font-weight: 400;
-        letter-spacing: 0;
-        text-transform: none;
         color: var(--se-muted);
         white-space: nowrap;
         overflow: hidden;
