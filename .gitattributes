@@ -1,3 +1,7 @@
+# One line ending for every text file, on every machine: LF in the repo
+# and in the working copy.
+* text=auto eol=lf
+
 # Byte-compared files: git must never convert their line endings, or the
 # reference snapshot turns red on a freshly checked out Windows repo.
 src/export/reference/reference.html -text
