@@ -396,11 +396,6 @@ export const tableStyle = css`
         white-space: nowrap;
         overflow: hidden;
       }
-      .foot--quiet {
-        min-height: 0;
-        height: 6px;
-        padding: 0;
-      }
       .page-info { flex: none; }
       .foot-right {
         flex: none;

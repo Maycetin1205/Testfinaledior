@@ -353,7 +353,7 @@ export function tableFoot(
   if (placement.empty) return nothing
 
   const saysSomething = placement.pageCount > 1 || placement.searchesActive || placement.totals.length > 0
-  if (!saysSomething) return html`<div class="foot foot--quiet"></div>`
+  if (!saysSomething) return nothing
   return html`<div class="foot">
     <div class="page-info">${recordText({
       showsRows: placement.showsRows,
