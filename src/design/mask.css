@@ -1,5 +1,4 @@
-/* Every value stands in docs/chef-maske/empfang/index.basis.source.html; the
-   comment names where. */
+/* The tokens of the mask; the comment behind a value names its origin. */
 :root {
 
   --se-bg:        #EDF1F4;  /* --bg */

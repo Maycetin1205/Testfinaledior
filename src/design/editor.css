@@ -3,9 +3,8 @@
 @tailwind utilities;
 
 @layer base {
-  /* The editor's own colors, apart from the mask's --se-* tokens, with the
-     values of docs/chef-maske/empfang/index.basis.source.html; the comment
-     names the hex value and where it stands. They hold hsl channels, not
+  /* The editor's own colors, apart from the mask's --se-* tokens; the
+     comment names the hex value and its origin. They hold hsl channels, not
      colors, so both hsl(var(--wb-…)) and Tailwind's opacity use them. */
   :root {
     --wb-ground: 205.7 24.1% 94.3%;   /* #EDF1F4 --bg */
