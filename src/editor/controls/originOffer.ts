@@ -58,7 +58,7 @@ export function originText(origin: ValueOrigin | null, offer: OriginOffer): stri
 }
 
 // The offer as the groups of a list: a group per kind, a group per source.
-export function originGroups(offer: OriginOffer): ListGroup[] {
+export function offerGroups(offer: OriginOffer): ListGroup[] {
   const entries = (fields: readonly OfferEntry[], origin: (value: string) => ValueOrigin) =>
     fields.map((f) => ({ value: encodeOrigin(origin(f.value)), name: f.name, badge: f.badge }))
   const fieldsOf = (kind: 'row' | 'helper' | 'document', s: OfferSource): ListGroup => ({
