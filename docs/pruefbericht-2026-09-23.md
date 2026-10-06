@@ -1007,10 +1007,12 @@ einer eigenen Aufräumaktion.
    (240 statt 566 Zeilen), Zahlenlesen in `src/core/data/number.ts`,
    Bedienung in `src/editor/bar/CalculationWindow.tsx`; Einheiten, Dialog
    und Fenster sind weg. Maskenschema 25 hebt alte Berechnungen in den Satz.
-8. Aufräumen nebenbei: wer eine Datei anfasst, räumt sie auf. Eigens nur:
-   Löschvormerkung der Erfassung ohne Bedienung, ungenutzte Felder in
-   Objekten (etwa `GRID.columnPx`), alte Namen. Tote Dateien und ungenutzte
-   Exporte sind seit dem Umbau von Daten und Aktionen (1.10.) keine mehr da.
+8. Aufräumen nebenbei: wer eine Datei anfasst, räumt sie auf. Erledigt am
+   06.10. (Zweig `claude/aufraeumen-06-10`): `GRID.columnPx`, das Fenster
+   `Dialog.tsx` ohne Nutzer, 38 Exporte ohne Abnehmer, der rote
+   „fehlt“-Hinweis und der Platzhaltersatz der Auswahl, das Dokument-Ereignis
+   fürs Datenfenster. Die Löschvormerkung der Erfassung ist nicht mehr im
+   Code. Tote Dateien und ungenutzte Exporte gibt es keine.
 
 Fertig und mit PR #1 in master (1d8437a), nicht in SoftEngine geprüft:
 Bedienung, ein Commit je Punkt: 1 Kopfzeile (1ad6913), 2 Palette als dunkler
@@ -1235,12 +1237,14 @@ drei- bis fünfmal (`useFieldBinding.tsx:67`, `useLitElement.ts:103`).
 
 ### Aufbau
 
-`CaptureLedger` (1.100 Zeilen) macht fünf Dinge auf einmal;
-`useFieldBinding` ist ein Hook mit 390 Zeilen, der eine ganze Leiste
-zeichnet; Fenster öffnen auf drei Wegen; zwei React-Teile reden über
-DOM-Ereignisse. Gegen die eigenen Regeln: roter „fehlt"-Hinweis und
-Platzhaltersatz (`editor/controls/PickerControl.tsx:42`), die Berechnung
-als Vollbild-Dialog (schon zum Neubau vorgemerkt).
+Stand 06.10.: `CaptureLedger` ist in vier Teile geteilt (`ledger/*`, 182
+Zeilen Verteiler); `useFieldBinding` hat 178 Zeilen; Fenster öffnen auf
+zwei Wegen (`Window` in der Mitte, `Popover` am Anker), `Dialog` ist weg;
+das Datenfenster steht im Store statt in einem DOM-Ereignis; der rote
+„fehlt“-Hinweis und der Platzhaltersatz der Auswahl sind weg; die
+Berechnung ist seit 04.10. neu, kein Vollbild. Offen bleibt die Brücke
+Editor–Baustein (`BlockHost`, `useLitElement`, `useFieldBinding`,
+`ColumnControls`, zusammen rund 800 Zeilen), die ins Shadow-DOM misst.
 
 Reihenfolge: Datenverlust und Doppelbuchung zuerst, dann die übrigen
 Bedienfehler, dann die drei toten Teile raus, dann Doppeltes
