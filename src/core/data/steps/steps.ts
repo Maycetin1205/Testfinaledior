@@ -4,8 +4,9 @@ import { bwLink, type BwLinkStep, type RuntimeBwLinkStep } from './bwLink'
 import { relation, type RelationStep, type RuntimeRelationStep } from './relation'
 import { popupOpen, type PopupOpenStep, type RuntimePopupOpenStep } from './popupOpen'
 import { popupClose, type PopupCloseStep, type RuntimePopupCloseStep } from './popupClose'
+import { maskClose, type MaskCloseStep, type RuntimeMaskCloseStep } from './maskClose'
 
-export type Step = StartToolStep | BwLinkStep | RelationStep | PopupOpenStep | PopupCloseStep
+export type Step = StartToolStep | BwLinkStep | RelationStep | PopupOpenStep | PopupCloseStep | MaskCloseStep
 
 export type RuntimeStep =
   | RuntimeStartToolStep
@@ -13,6 +14,7 @@ export type RuntimeStep =
   | RuntimeRelationStep
   | RuntimePopupOpenStep
   | RuntimePopupCloseStep
+  | RuntimeMaskCloseStep
 
 export type StepKind = Step['kind']
 
@@ -24,6 +26,7 @@ const STEP_ADAPTERS: { [K in StepKind]: StepAdapter<K> } = {
   RELATION: relation,
   POPUP_OPEN: popupOpen,
   POPUP_CLOSE: popupClose,
+  MASK_CLOSE: maskClose,
 }
 
 export const STEP_KINDS: readonly StepKind[] = Object.values(STEP_ADAPTERS).map((a) => a.kind)

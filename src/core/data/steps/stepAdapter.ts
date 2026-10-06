@@ -30,6 +30,8 @@ export interface StepHost {
   runRelation(relation: RuntimeRelation, params: readonly string[]): Promise<RelationAnswer>
   sendStartTool(toolNumber: string, params: readonly string[]): boolean
   sendBwLink(command: string): boolean
+  // Asks the host to close the mask; false when nothing went out.
+  closeMask(): boolean
 }
 
 interface StepRun {
