@@ -218,9 +218,12 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   „ID ist leer“. Welche ID gemeint ist, zeigt keine Vorlage: in beiden
   Installationen ruft keine Maske den Befehl. Die Maske schickt ihn darum
   nicht; `frischeDatenAnfordern` (`softengine/bridge.ts`) ruft eine Funktion,
-  die es nicht gibt, und bestellt nichts. Ob SoftEngine nach einem PUT von
-  selbst neu liefert, ist an KEINER echten Maske belegt (die Handmaske schreibt
-  gar nicht zurück). Aus Auslieferung und Programm gelesen, nicht per Echttest.
+  die es nicht gibt, und bestellt nichts. Aus Auslieferung und Programm
+  gelesen, nicht per Echttest.
+- Belegt 2026-10-06 (Nutzer, Belegerfassung als Rahmen10000, Erfassung auf
+  der SEFILELOOP-Quelle `POS` unter `BEL`): nach dem PUT_RELATION steht die Position im
+  Beleg, und SoftEngine liefert von selbst neu; die neue Zeile erscheint in
+  der Maske ohne Neuöffnen, mit spürbarer Verzögerung.
 - Belegt ist ein anderer Weg: SoftEngines PAN-Layoutrahmen (z. B.
   `PAN/LAYOUTRAHMEN/Rahmen00221`) schicken nach einem Werkzeugstart
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
