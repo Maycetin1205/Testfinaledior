@@ -12,6 +12,7 @@ export const previewHost: MaskHost = {
   rows: () => [],
   readField: () => '',
   writeField: () => false,
+  putField: () => Promise.resolve(false),
 
   relation: () => undefined,
   resolveParameter: () => '',

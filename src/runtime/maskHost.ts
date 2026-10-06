@@ -16,6 +16,10 @@ export interface MaskHost extends StepHost {
   readField(row: unknown, code: string): string
   writeField(row: unknown, code: string, value: string): boolean
 
+  // One field of one record back to the host, with the relation its source
+  // names for it; false when nothing went out.
+  putField(source: RuntimeSource, record: string, code: string, value: string): Promise<boolean>
+
   // After a write: the host delivers the data again.
   requestFreshData(): void
 

@@ -3,6 +3,7 @@ import { sendBwLink, sendStartTool } from '../softengine/commands'
 import { announceEditing } from '../softengine/editing'
 import { fieldRead, fieldWrite } from '../softengine/data'
 import { fetchRows } from '../softengine/fetchRows'
+import { fieldPut } from '../softengine/fieldPut'
 import { parameterResolve, relationRun, runtimeRelation } from '../softengine/relations'
 import { rowsOfSource, runtimeSource, runtimeSources } from '../softengine/runtimeSources'
 import type { MaskHost } from './maskHost'
@@ -18,6 +19,7 @@ export const softEngineHost: MaskHost = {
   rows: rowsOfSource,
   readField: fieldRead,
   writeField: fieldWrite,
+  putField: fieldPut,
 
   relation: runtimeRelation,
   resolveParameter: parameterResolve,

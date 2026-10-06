@@ -11,4 +11,6 @@ export interface WriteAdapter<K extends WriteKind> {
   read(raw: Unread<WriteOf<K>>): WriteOf<K> | null
   // The field that holds the record number of a row, '' when rows have none.
   recordField(write: WriteOf<K>): string
+  // The relation that writes one field of a record, for the export to carry.
+  relationIds(write: WriteOf<K>): string[]
 }

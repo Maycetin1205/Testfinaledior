@@ -1,5 +1,6 @@
 import { chooseSelection, giverIdOf, relocateSelection, traitOf } from '../../runtime/selection'
-import { readDataPreamble, makeDataLink, recordOf, type DataPreamble } from '../../runtime/source'
+import { maskState } from '../../runtime/maskState'
+import { readDataPreamble, makeDataLink, recordOf, sourceIdOf, type DataPreamble } from '../../runtime/source'
 import { runEvent } from '../../runtime/events'
 import { kanbanColumnsFrom, type KanbanColumn } from './columns'
 import { placeValue, sameSpot, spotOf, type Spot } from './places'
@@ -154,26 +155,39 @@ export class Board {
     void this.move(card, spot)
   }
 
-  // The card lies at its new place at once. Fails the action, it lies again
-  // where it came from; the next delivery sorts by the data anyway.
+  // The card lies at its new place at once. The action of the drop runs first;
+  // goes it through, the board writes the field it sorts by itself when its
+  // source names how. Is nothing written, the card lies again where it came
+  // from; the next delivery sorts by the data anyway.
   private async move(card: CardData, spot: Spot): Promise<void> {
     const column = kanbanColumnsFrom(this.el.columns)[spot.column]
     const place = column?.places[spot.place]
     if (this.writes || !column || !place || sameSpot(this.spotOf(card), spot)) return
+    const value = placeValue(column, place)
     this.moved.set(card.key, spot)
     this.writes = true
     this.el.requestUpdate()
-    let back: boolean
+    let acted = false
+    let put = false
     try {
-      const result = await runEvent(this.el, 'onCardDrop', { PINDEX: card.record, VALUE: placeValue(column, place) })
-      back = result.cancelled || !result.ran || !result.written
+      const result = await runEvent(this.el, 'onCardDrop', { PINDEX: card.record, VALUE: value })
+      acted = result.ran && !result.cancelled && result.written
+      if (!result.cancelled && !result.busy) put = await this.putSortField(card, value)
     } catch {
-      back = true
+      // The drop failed; what went out before stays out.
     } finally {
       this.writes = false
     }
-    if (back) this.moved.delete(card.key)
+    if (put && !acted) maskState.host.requestFreshData()
+    if (!put && !acted) this.moved.delete(card.key)
     this.el.requestUpdate()
+  }
+
+  private putSortField(card: CardData, value: string): Promise<boolean> {
+    const field = this.el.columnsField.trim()
+    const source = maskState.host.source(sourceIdOf(this.el))
+    if (field === '' || !source) return Promise.resolve(false)
+    return maskState.host.putField(source, card.record, field, value)
   }
 }
 

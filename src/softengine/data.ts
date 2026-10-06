@@ -19,6 +19,7 @@ export function sourceFromList(list: unknown, id: string): RuntimeSource | undef
       name: entry.name,
       tableId: entry.tableId,
       recordField: typeof entry.recordField === 'string' ? entry.recordField : '',
+      writeRelation: typeof entry.writeRelation === 'string' ? entry.writeRelation : '',
       delivery: runtimeDeliveryFrom(entry),
     }
   }

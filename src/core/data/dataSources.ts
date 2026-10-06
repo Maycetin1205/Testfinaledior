@@ -54,6 +54,9 @@ export interface RuntimeSource {
   tableId: string
   recordField: string
 
+  // The relation that writes one field of a record; '' when the source writes none.
+  writeRelation: string
+
   delivery: RuntimeDelivery
 }
 

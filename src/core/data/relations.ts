@@ -141,10 +141,15 @@ export function fieldCodeSplit(code: string): { pos: string; len: string } | nul
 
 export type ParameterRole = 'pos' | 'len' | 'relid'
 
+// The name a parameter of the syntax carries, bare or in braces.
+function parameterName(raw: string): string {
+  const match = /^(?:([A-Za-z_]+)|\{([A-Za-z_]+)\})$/.exec(raw)
+  return (match?.[1] ?? match?.[2] ?? '').toUpperCase()
+}
+
 // What a parameter of the syntax stands for, read from its name.
 export function parameterRole(raw: string): ParameterRole | null {
-  const match = /^(?:([A-Za-z_]+)|\{([A-Za-z_]+)\})$/.exec(raw)
-  const name = (match?.[1] ?? match?.[2])?.toUpperCase()
+  const name = parameterName(raw)
   if (name === 'POS' || name === 'FELD_POS') return 'pos'
   if (name === 'LEN' || name === 'FELD_LEN') return 'len'
   if (name === 'IDBID' || name === 'RELID') return 'relid'
@@ -204,15 +209,60 @@ export function relationFitsToSearch(
     .some((value) => value.toLocaleLowerCase('de').includes(needle))
 }
 
+function placeholdersFilled(text: string, context: PlaceholderValues): string {
+  return text.replace(/\{([A-Za-z0-9_]+)\}/g, (_, key: string) => String(context[key] ?? ''))
+}
+
 export function placeholderInsert(
   template: Pick<RelationTemplate, 'parameter'>,
   context: PlaceholderValues,
 ): string[] {
-  return template.parameter.map((p) =>
-    p.replace(/\{([A-Za-z0-9_]+)\}/g, (_, key: string) =>
-      String(context[key] ?? ''),
-    ),
-  )
+  return template.parameter.map((p) => placeholdersFilled(p, context))
+}
+
+type FieldWriteRole = ParameterRole | 'record' | 'value'
+
+const FIELD_WRITE_NEEDS: readonly FieldWriteRole[] = ['pos', 'len', 'record', 'value']
+
+function fieldWriteRole(raw: string): FieldWriteRole | null {
+  const role = parameterRole(raw)
+  if (role !== null) return role
+  const name = parameterName(raw)
+  if (name === 'PINDEX') return 'record'
+  if (name === 'VALUE') return 'value'
+  return null
+}
+
+// A PUT relation writes one field of one record when its places name the
+// position, the length, the record and the value; its other places are fixed,
+// like the field type L. A relation that books a whole record, like 82, does not.
+export function writesOneField(template: Pick<RelationTemplate, 'verb' | 'parameter'>): boolean {
+  if (template.verb !== 'PUT_RELATION') return false
+  const roles = template.parameter.map(fieldWriteRole)
+  return FIELD_WRITE_NEEDS.every((need) => roles.includes(need))
+}
+
+// The places of a relation that writes one field of one record: position and
+// length from the field code, behind a prefix such as LFA_; the table from the
+// source; then the record and the value. Null when the relation writes no
+// single field or the code carries no position and length.
+export function fieldWriteParams(
+  template: Pick<RelationTemplate, 'verb' | 'parameter'>,
+  write: { code: string; tableId: string; record: string; value: string },
+): string[] | null {
+  const at = /(?:^|_)(\d+)_(\d+)$/.exec(write.code)
+  if (!at || !writesOneField(template)) return null
+  const filled: Record<FieldWriteRole, string> = {
+    pos: at[1],
+    len: at[2],
+    relid: relIdFromIdbId(write.tableId),
+    record: write.record,
+    value: write.value,
+  }
+  return template.parameter.map((raw) => {
+    const role = fieldWriteRole(raw)
+    return role === null ? placeholdersFilled(raw, {}) : filled[role]
+  })
 }
 
 export function checkRelationTemplates(raw: unknown): RelationTemplate[] {

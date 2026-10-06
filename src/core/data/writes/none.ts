@@ -8,4 +8,5 @@ export const noWrite: WriteAdapter<'none'> = {
   kind: 'none',
   read: () => ({ kind: 'none' }),
   recordField: () => '',
+  relationIds: () => [],
 }

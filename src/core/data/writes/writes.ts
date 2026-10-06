@@ -24,3 +24,8 @@ export function isWriteKind(kind: string): kind is WriteKind {
 export function recordFieldOf(write: Write): string {
   return writeAdapter(write.kind).recordField(write)
 }
+
+// The relation that writes one field of a record; '' when the source writes none.
+export function writeRelationOf(write: Write): string {
+  return writeAdapter(write.kind).relationIds(write)[0] ?? ''
+}

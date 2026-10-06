@@ -229,7 +229,8 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
   lädt er die ganze Maske neu; der Schreibstatus der Zeilen ginge dabei
   verloren. Nicht per Echttest.
-- Gilt in: `core/data/relations.ts`, `runtime/events.ts`.
+- Gilt in: `core/data/relations.ts` (`fieldWriteParams`), `runtime/events.ts`,
+  `softengine/fieldPut.ts`.
 
 ## 7a. Schreiben über die ERP-Maske (MASKENEVENT, Echttest 2026-09-18)
 

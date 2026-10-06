@@ -8,14 +8,29 @@ import { choiceOf, fieldPrefixFromInput, type DataSource } from '../../core/data
 import { getValueSourceAllowed } from '../../core/data/deliveries/relationValue'
 import { readMaskFields } from '../../core/data/maskFields'
 import { PRESET_IDS, sourcePreset, type PresetId } from '../../core/data/presets/presets'
-import { POSITIONS_RELATION, relationSyntaxAsText, type RelationTemplate } from '../../core/data/relations'
+import {
+  POSITIONS_RELATION,
+  relationSyntaxAsText,
+  writesOneField,
+  type RelationTemplate,
+} from '../../core/data/relations'
+import { writeRelationOf } from '../../core/data/writes/writes'
 import { sourceChoices } from '../actions/placeChoices'
 import { Places } from '../actions/Places'
 import { PickerControl } from '../controls/PickerControl'
 import type { ListGroup } from '@/editor/widgets/List'
 import { useDataSources } from '../state/useDataSources'
 import { useRelations } from '../state/useRelations'
-import { deliveries, deliveryOf, NEW_POSITIONS, withDelivery, withPreset, withSettings, type SourceData } from './sourceEdit'
+import {
+  deliveries,
+  deliveryOf,
+  NEW_POSITIONS,
+  withDelivery,
+  withPreset,
+  withSettings,
+  withWriteRelation,
+  type SourceData,
+} from './sourceEdit'
 
 const EMPTY: Parameter = { source: 'fixed', value: '' }
 const PICKER = 'h-[24px] text-dense'
@@ -47,7 +62,8 @@ function useSource(source: DataSource) {
 
 // The settings of a source in one line above its fields: its kind, what it
 // delivers, the prefix of its fields, the area of a mask, the relation that
-// fetches its value. Every change is saved at once.
+// fetches its value, the relation that writes a field. Every change is saved
+// at once.
 export function SourceSettings({ source }: { source: DataSource }) {
   const { store, relationStore, relations, choice, listed, getters, getValue, valued, save, saveValue } = useSource(source)
   const preset = sourcePreset(source.preset)
@@ -141,7 +157,36 @@ export function SourceSettings({ source }: { source: DataSource }) {
           />
         </Setting>
       )}
+
+      {source.write.kind === 'putRelation' && (
+        <Setting name="Schreiben">
+          <WriteChoice
+            puts={relations.filter(writesOneField)}
+            value={writeRelationOf(source.write)}
+            onChoose={(id) => save(withWriteRelation(source, id))}
+          />
+        </Setting>
+      )}
     </div>
+  )
+}
+
+// The relation that writes one field of a record of the source; only
+// relations that write a single field are offered.
+function WriteChoice({ puts, value, onChoose }: {
+  puts: readonly RelationTemplate[]
+  value: string
+  onChoose: (relationId: string) => void
+}) {
+  return (
+    <PickerControl
+      name="Schreiben"
+      className={cn(PICKER, 'w-[280px]')}
+      groups={[{ key: 'puts', entries: puts.map((r) => ({ value: r.id, name: r.name, badge: relationSyntaxAsText(r) })) }]}
+      value={puts.some((r) => r.id === value) ? value : ''}
+      emptyText="keine"
+      onChoose={(id) => { if (id !== value) onChoose(id) }}
+    />
   )
 }
 
