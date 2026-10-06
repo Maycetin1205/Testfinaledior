@@ -26,15 +26,23 @@ export const kanbanPlaceProperties = {
   }),
 }
 
-// A column of the board: its title, typed on its head; its tone; whether it
-// takes the cards whose value no place names; and its places, one at least.
-// A column with one place shows no place of its own.
+// A column of the board: its title, typed on its head; the button under its
+// cards, typed on the card, that moves a card on to the next column, empty
+// for none; its tone; whether it takes the cards whose value no place names;
+// and its places, one at least. A column with one place shows no place of
+// its own.
 export const kanbanColumnProperties = {
   heading: textProperty({
     default: 'Neue Spalte',
     label: 'Titel',
     place: 'block',
     attribute: 'heading',
+  }),
+  button: textProperty({
+    default: '',
+    label: 'Knopf',
+    place: 'block',
+    attribute: 'button',
   }),
   tone: toneProperty(),
   catchAll: booleanProperty({
@@ -53,6 +61,7 @@ export interface KanbanPlace {
 
 export interface KanbanColumn {
   heading: string
+  button: string
   tone: string
   catchAll: boolean
   places: KanbanPlace[]
@@ -61,7 +70,7 @@ export interface KanbanColumn {
 const place = (name: string): KanbanPlace => ({ name, value: '' })
 
 function column(heading: string, tone: string): KanbanColumn {
-  return { heading, tone, catchAll: false, places: [place(heading)] }
+  return { heading, button: '', tone, catchAll: false, places: [place(heading)] }
 }
 
 export function defaultKanbanColumns(): KanbanColumn[] {
@@ -85,6 +94,7 @@ function columnFrom(raw: unknown): KanbanColumn {
   const places = kanbanPlacesFrom(entry.places)
   return {
     heading,
+    button: String(values.button),
     tone: String(values.tone),
     catchAll: values.catchAll === true,
     places: places.length > 0 ? places : [place(heading)],

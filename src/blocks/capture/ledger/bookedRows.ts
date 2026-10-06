@@ -1,8 +1,8 @@
-import type { Delivery, PendingKind } from '../../../core/block/capability'
+import type { PendingKind } from '../../../core/block/capability'
 import { columnSlots, rowValues, type Calculation } from '../../../core/data/calculation'
+import { asNumber } from '../../../core/data/number'
 import { columnWithKey } from '../../list/columns'
 import { rowsIndexOf } from '../../list/sourceRows'
-import { changeArrived, valueEquals } from '../arrival'
 import { cellsFields, enterCell } from '../cells'
 import type { CaptureColumn } from '../column'
 import type { RowState, RowsStatus } from './outbound'
@@ -39,6 +39,15 @@ interface BookedRowsHost {
 
 type Status = (kind: PendingKind, key: string, base: RowsStatus) => RowState
 
+// The same value, also as a number: "3" and "3,00".
+function valueEquals(a: string, b: string): boolean {
+  const x = a.trim()
+  const y = b.trim()
+  if (x === y) return true
+  const number = asNumber(x)
+  return number !== null && number === asNumber(y)
+}
+
 // The booked rows of the document: the cells changed in them, and what of
 // that is out with the document.
 export class BookedRows {
@@ -49,8 +58,6 @@ export class BookedRows {
   private readonly changes: Cells = new Map()
 
   private readonly sent: Cells = new Map()
-
-  private readonly previous: Cells = new Map()
 
   constructor(host: BookedRowsHost, status: Status) {
     this.host = host
@@ -154,7 +161,6 @@ export class BookedRows {
     if (inFlight !== undefined) {
       if (text === inFlight) return
       dropCell(this.sent, record, columnsIndex)
-      dropCell(this.previous, record, columnsIndex)
       if (setCell(this.changes, record, columnsIndex, text)) this.host.report()
       return
     }
@@ -217,13 +223,8 @@ export class BookedRows {
     enterCell(field)
   }
 
-  private forgetWaiting(record: string): void {
-    dropRecord(this.sent, record)
-    dropRecord(this.previous, record)
-  }
-
   // A written row leaves the pending marks and waits for the document to show
-  // it; the value before the write stays for the arrival check.
+  // it.
   takeOut(keys: readonly string[]): void {
     let away = false
     const slots = this.recordSlots()
@@ -238,7 +239,6 @@ export class BookedRows {
 
         if (valueEquals(value, before)) return
         setCell(this.sent, record, column, value)
-        setCell(this.previous, record, column, before)
       })
       away = dropRecord(this.changes, record) || away
     }
@@ -249,45 +249,8 @@ export class BookedRows {
     return this.sent.size > 0
   }
 
-  // The document closed without an answer: nothing waits any more.
+  // The document delivered anew or closed: nothing waits any more.
   dropInFlight(): void {
     this.sent.clear()
-    this.previous.clear()
-  }
-
-  // The document answered: what it shows is through, what it does not show
-  // comes back as a change and is named as missing.
-  arrival(delivery: Delivery): { missing: string[]; moved: boolean } {
-    if (!this.hasInFlight()) return { missing: [], moved: false }
-
-    const missing: string[] = []
-    for (const record of recordsIn(this.sent)) {
-      if (changeArrived(record, this.sentCells(record), delivery)) {
-        this.forgetWaiting(record)
-        continue
-      }
-      missing.push(record)
-    }
-
-    for (const record of missing) {
-      this.host.columns().forEach((_, column) => {
-        const value = cellIn(this.sent, record, column)
-        if (value !== undefined && cellIn(this.changes, record, column) === undefined) {
-          setCell(this.changes, record, column, value)
-        }
-      })
-      this.forgetWaiting(record)
-    }
-
-    return { missing, moved: true }
-  }
-
-  private sentCells(record: string): { field: string; before: string }[] {
-    const out: { field: string; before: string }[] = []
-    this.host.columns().forEach((column, index) => {
-      if (cellIn(this.sent, record, index) === undefined || column.field === '') return
-      out.push({ field: column.field, before: cellIn(this.previous, record, index) ?? '' })
-    })
-    return out
   }
 }

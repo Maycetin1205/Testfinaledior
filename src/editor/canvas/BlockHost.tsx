@@ -195,8 +195,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         <BlockBar
           block={block}
           def={def}
-          host={rootRef}
-          element={element}
           onRemove={() => editor.removeBlock(blockRef.current.id)}
         />
       )}

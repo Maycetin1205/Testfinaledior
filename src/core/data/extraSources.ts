@@ -13,6 +13,10 @@ export interface KeyPair {
   from?: 'document' | 'formField'
   fromSourceId?: string
   fromProp?: string
+
+  // A pair keeps the rows whose field equals the key; an unequal pair drops
+  // them instead.
+  unequal?: true
 }
 
 export const MAX_KEY_PAIRS = 3
@@ -31,7 +35,12 @@ export function keyPairFrom(raw: unknown): KeyPair | null {
     : pair.from === 'formField'
       ? { from: 'formField', ...(text(pair.fromProp) !== '' ? { fromProp: text(pair.fromProp) } : {}) }
       : {}
-  return { fromField: pair.fromField, toField: pair.toField, ...outside }
+  return {
+    fromField: pair.fromField,
+    toField: pair.toField,
+    ...outside,
+    ...(pair.unequal === true ? { unequal: true } : {}),
+  }
 }
 
 export function keyPairsFrom(raw: unknown): KeyPair[] {

@@ -158,6 +158,7 @@ export function choiceOf(source: DataSource): SourceChoice {
       ? { relationId: delivery.relationId, parameter: delivery.parameter }
       : EMPTY_CHOICE.getValue,
     recordField: recordFieldOf(write),
+    restriction: delivery.kind === 'message' && delivery.restriction ? delivery.restriction : EMPTY_CHOICE.restriction,
   }
 }
 

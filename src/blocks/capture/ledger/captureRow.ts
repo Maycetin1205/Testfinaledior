@@ -194,8 +194,13 @@ export class CaptureRow {
     return action
   }
 
+  // Tab and Enter walk the cells the operator has to fill: a cell that
+  // holds a value from the chosen record or from a calculation is skipped,
+  // a click still enters it.
   neighbour(from: number, direction: 1 | -1): number {
-    return neighbourSlot(this.host.shown(), from, direction)
+    const view = this.rowView()
+    const typed = this.host.shown().filter((slot) => view[slot]?.automatic !== true)
+    return neighbourSlot(typed, from, direction)
   }
 
   // The first cell of the capture row the operator sees.

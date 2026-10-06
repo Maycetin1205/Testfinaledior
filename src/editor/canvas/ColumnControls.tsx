@@ -75,6 +75,13 @@ export function ColumnControls({
     const remeasure = (): void => {
       if (!stopped) setSpots(measure(el, frame, selector))
     }
+    // A change in the block's tree reaches the observer while the block is
+    // still drawing: measure now and again once it has finished.
+    const remeasureDrawn = (): void => {
+      remeasure()
+      const drawn = (el as { updateComplete?: Promise<unknown> }).updateComplete
+      if (drawn) void drawn.then(remeasure)
+    }
 
     // The block may still be upgrading when this runs, and it may have drawn
     // already: watch it once it has a shadow root, and measure right away
@@ -84,16 +91,14 @@ export function ColumnControls({
       if (stopped || !root) return
       ro = new ResizeObserver(remeasure)
       ro.observe(el)
-      mo = new MutationObserver(remeasure)
+      mo = new MutationObserver(remeasureDrawn)
       mo.observe(root, {
         subtree: true,
         childList: true,
         attributes: true,
         attributeFilter: ['style', 'class', 'data-ff-entry'],
       })
-      remeasure()
-      const drawn = (el as { updateComplete?: Promise<unknown> }).updateComplete
-      if (drawn) void drawn.then(remeasure)
+      remeasureDrawn()
     }
     if (el.shadowRoot) attach()
     else void customElements.whenDefined(el.localName).then(attach)
@@ -229,6 +234,10 @@ export function ColumnControls({
   const line = drag === null
     ? null
     : drag.slot < heads.length ? heads[drag.slot].left : last.left + last.width
+  // The plus keeps the top right corner of the head row, whichever head is
+  // measured last: with sublines that is a small title under a column.
+  const edge = Math.max(...heads.map((s) => s.left + s.width))
+  const topLine = heads.reduce((a, s) => (s.top < a.top ? s : a), first)
 
   return (
     <div data-ff-editor-helper className="pointer-events-none absolute inset-0 z-10">
@@ -261,8 +270,8 @@ export function ColumnControls({
           title="Spalte anfügen"
           className="pointer-events-auto absolute grid place-items-center rounded border border-line bg-panel text-[hsl(var(--wb-selection))] hover:bg-[hsl(var(--wb-selection)/0.08)]"
           style={{
-            left: last.left + last.width - PLUS_SIZE - 4,
-            top: last.top + (last.height - PLUS_SIZE) / 2,
+            left: edge - PLUS_SIZE - 4,
+            top: topLine.top + (topLine.height - PLUS_SIZE) / 2,
             width: PLUS_SIZE,
             height: PLUS_SIZE,
           }}

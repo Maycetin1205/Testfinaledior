@@ -218,9 +218,12 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   „ID ist leer“. Welche ID gemeint ist, zeigt keine Vorlage: in beiden
   Installationen ruft keine Maske den Befehl. Die Maske schickt ihn darum
   nicht; `frischeDatenAnfordern` (`softengine/bridge.ts`) ruft eine Funktion,
-  die es nicht gibt, und bestellt nichts. Ob SoftEngine nach einem PUT von
-  selbst neu liefert, ist an KEINER echten Maske belegt (die Handmaske schreibt
-  gar nicht zurück). Aus Auslieferung und Programm gelesen, nicht per Echttest.
+  die es nicht gibt, und bestellt nichts. Aus Auslieferung und Programm
+  gelesen, nicht per Echttest.
+- Belegt 2026-10-06 (Nutzer, Belegerfassung als Rahmen10000, Erfassung auf
+  der SEFILELOOP-Quelle `POS` unter `BEL`): nach dem PUT_RELATION steht die Position im
+  Beleg, und SoftEngine liefert von selbst neu; die neue Zeile erscheint in
+  der Maske ohne Neuöffnen, mit spürbarer Verzögerung.
 - Belegt ist ein anderer Weg: SoftEngines PAN-Layoutrahmen (z. B.
   `PAN/LAYOUTRAHMEN/Rahmen00221`) schicken nach einem Werkzeugstart
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
@@ -405,6 +408,32 @@ steht hier nur als Wissen:
   blieben ohne Wirkung. Die Antwort `focusOnUs()` in `softengine/bridge.ts`
   bleibt stehen, sie ist folgenlos. STDERFASSUNG ohne Layoutrahmen: nicht
   nachgemessen.
+  **Nachgemessen 2026-10-06** (Fokus-Mitschrieb, GetGUIThreadInfo, 40 ms Takt,
+  Layoutrahmen 10000, Beleg L00 ohne Positionen, Maske ohne jede Bestellung,
+  CPU von SeErpWinUi bei 3 bis 6 %): nicht die Rechenphase nimmt den Fokus,
+  sondern SoftEngines eigenes Fenster `Positionserfassung / WA-Lieferschein
+  (L00)` (Klasse BWWORK, eigenes Hauptfenster). Ein Klick in die Maske gibt dem
+  WebView den Fokus für 60 bis 80 ms, dann holt sich die Positionserfassung
+  Vordergrund und Fokus zurück; weitere Klicks in den WebView bewegen den
+  Fokus gar nicht mehr. Mal bleibt der erste Klick nach dem Öffnen, mal nicht,
+  bei gleichem Beleg und gleicher Maske. Die Positionskalkulation war dabei
+  nicht die Ursache; sie verlängert nur die Phase, wenn Positionen da sind
+  (Debugprotokoll 2026-10-02: 442 BPK-Formelschritte und Relation 1911 je
+  Position, 1,8 s).
+  **Gelöst 2026-10-06, Echttest bestanden:** SoftEngines eigene Masken melden
+  dem Host das Bearbeiten an, bevor der Cursor ins Feld geht (selib
+  `SEDataList.js`, `StartEditMode`/`StopEditMode`):
+  `basisHTML_SND_MSG('MASKENEVENT', { EVENT: 'KARTEIKARTEN_DEAKTIVIEREN' })`
+  und `{ EVENT: 'BEARBEITUNG_AKTIV' }` vor dem Tippen,
+  `{ EVENT: 'BEARBEITUNG_BEENDET' }` und `{ EVENT: 'KARTEIKARTEN_AKTIVIEREN ' }`
+  (mit Leerzeichen, SoftEngines Schreibweise) danach. Ohne diese Anmeldung
+  gilt die Maske als Anzeige, und die Positionserfassung holt die Tastatur
+  zurück. Die Maske meldet beim Drücken der Maustaste auf ein tippbares
+  Element an, noch vor dem Klick, und meldet nur ab, wenn der Bediener in der
+  Maske auf etwas Nichttippbares klickt; ein verlorener Fensterfokus meldet
+  nichts ab, denn so sieht der Griff der Positionserfassung aus. Darum
+  scheiterte der Versuch vom 22.09. (2051ced): er meldete bei `focusout` ab.
+  Gilt in: `softengine/editing.ts`.
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
   und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie
@@ -419,6 +448,16 @@ steht hier nur als Wissen:
   Maske fragt nach der Brücke und meldet ohne sie, dass nichts hinausging
   (`softengine/befehle.ts`). Aus Auslieferung und Programm gelesen, nicht per
   Echttest.
+  **Echttest 2026-10-06 (Layoutrahmen 10000, WinUI), bestanden:** `HTMLEVENT
+  { art: 'ESCAPEHTML' }` aus einem Knopf der Maske schließt die
+  Positionserfassung, so wie SoftEngines eigenständige Masken es senden
+  (`V2/JS/SEFunctions.js` `CloseHTML`, `STDERFASSUNG/DWTO27`). Ein erster
+  Versuch am selben Tag blieb ohne Wirkung, Ursache nicht geklärt. Gilt in:
+  `core/data/steps/maskClose.ts`, `softengine/commands.ts` (`sendMaskClose`).
+  Nebenbefund: SoftEngines Masken `STDERFASSUNG/MISP16` und
+  `EinAusgangsgespraeche` schicken `sendBWLink("LINKID,HANDLE_ESCAPE_KEY,OFF")`,
+  wenn die Seite einen eigenen Dialog öffnet, und `…,ON`, wenn er zugeht: bei
+  ON behandelt der Host die Esc-Taste selbst. Nicht per Echttest.
 - Ein Skript im Maskenordner (`<script src="fftest.js">`) wird ebenfalls
   geladen (belegt 2026-08-28, als zwoelf Laufzeitdateien belegt 2026-09-08).
   Die Laufzeit steht trotzdem in der Maske selbst: eine HTML plus eine JSON,

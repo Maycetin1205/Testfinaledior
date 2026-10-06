@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode, type RefObject } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { Trash2 } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
@@ -26,9 +26,6 @@ interface BlockBarProps {
   block: BlockNode
   def: BlockType | undefined
 
-  host: RefObject<HTMLElement | null>
-  element: HTMLElement | null
-
   onRemove?: () => void
 }
 
@@ -47,11 +44,10 @@ function withFonts(
   return [...shown.slice(0, at), <FontChoice key="fonts" block={block} fonts={fonts} />, ...shown.slice(at)]
 }
 
-// The small bar at the marked block: its sign and name, what the surface
-// cannot show, and on the right the bin. One line. The frame and its place
-// are BarFrame, the window „Einstellungen" is SettingsWindow, the waiting
-// for a giver is FollowPick.
-export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps) {
+// The bar of the marked block in the strip: its sign, what the surface cannot
+// show, and on the right the bin. One line. The frame is BarFrame, the window
+// „Einstellungen" is SettingsWindow, the waiting for a giver is FollowPick.
+export function BlockBar({ block, def, onRemove }: BlockBarProps) {
   const ed = useEditor()
   const library = useDataSources().list
 
@@ -86,7 +82,7 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
   const waiting = ed.followPickFor === block.id
 
   return (
-    <BarFrame host={host} element={element} head={def?.head}>
+    <BarFrame>
       <BarSign type={block.type} name={def?.name ?? block.type} />
 
       {(choices.length > 0 || fonts.length > 0) && <Separator vertical />}
@@ -94,7 +90,6 @@ export function BlockBar({ block, def, host, element, onRemove }: BlockBarProps)
 
       <SettingsWindow
         block={block}
-        host={host}
         controls={controls}
         sourceProps={at('source')}
         shows={at('display')}

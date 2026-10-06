@@ -18,6 +18,7 @@ export const previewHost: MaskHost = {
   runRelation: () => Promise.resolve({ value: '', raw: undefined, failed: true }),
   sendStartTool: () => false,
   sendBwLink: () => false,
+  closeMask: () => false,
   requestFreshData: () => {},
 
   fetchRows: () => {},

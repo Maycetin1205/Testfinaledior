@@ -20,6 +20,14 @@ export function sendBwLink(command: string): boolean {
     && hostCall(() => g.basisHTML_SND_MSG('HTMLEVENT', { art: 'BWLINK', params: line }))
 }
 
+// What SoftEngine's own masks send on Escape (HTMLEditor/JS/SEEvent.js): the
+// host closes the mask.
+export function sendMaskClose(): boolean {
+  const g = seWindow()
+  return typeof g.basisHTML_SND_MSG === 'function'
+    && hostCall(() => g.basisHTML_SND_MSG('HTMLEVENT', { art: 'ESCAPEHTML' }))
+}
+
 export function sendStartTool(toolNumber: string, params: readonly string[]): boolean {
   if (toolNumber.trim() === '') return false
   const g = seWindow()

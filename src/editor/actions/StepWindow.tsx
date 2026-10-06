@@ -14,6 +14,7 @@ import {
 } from '../../core/data/relations'
 import { resultStepsBefore } from '../../core/data/steps/chains'
 import type { PopupCloseStep } from '../../core/data/steps/popupClose'
+import type { MaskCloseStep } from '../../core/data/steps/maskClose'
 import type { PopupOpenStep } from '../../core/data/steps/popupOpen'
 import type { RelationStep } from '../../core/data/steps/relation'
 import type { StartToolStep } from '../../core/data/steps/startTool'
@@ -30,7 +31,10 @@ export interface StepContext {
   choices: Omit<PlaceChoices, 'steps'>
 }
 
-type PopupStep = PopupOpenStep | PopupCloseStep
+type PopupStep = PopupOpenStep | PopupCloseStep | MaskCloseStep
+
+const isPopupStep = (step: Step | undefined): step is PopupStep =>
+  step?.kind === 'POPUP_OPEN' || step?.kind === 'POPUP_CLOSE' || step?.kind === 'MASK_CLOSE'
 
 const TABS: readonly { key: StepTab; name: string }[] = [
   { key: 'GET', name: 'GET Relation' },
@@ -70,7 +74,7 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, onApply, o
   const [tool, setTool] = useState<StartToolStep>(() => (step?.kind === 'START_TOOL'
     ? step
     : { id, kind: 'START_TOOL', resultName: '', toolNumber: '', toolParameter: [] }))
-  const [popup, setPopup] = useState<PopupStep>(() => (step?.kind === 'POPUP_OPEN' || step?.kind === 'POPUP_CLOSE'
+  const [popup, setPopup] = useState<PopupStep>(() => (isPopupStep(step)
     ? step
     : { id, kind: 'POPUP_OPEN', resultName: '', popupId: '' }))
 
@@ -81,12 +85,14 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, onApply, o
 
   const draft: Step = tab === 'GET' ? get : tab === 'PUT' ? put : tab === 'TOOL' ? tool : popup
   const template = draft.kind === 'RELATION' ? context.relations.find((r) => r.id === draft.relationId) : undefined
-  const popupName = context.popups.find((p) => p.value === popup.popupId)?.name ?? ''
+  const popupName = popup.kind === 'MASK_CLOSE' ? '' : context.popups.find((p) => p.value === popup.popupId)?.name ?? ''
   const { ready, head } = draft.kind === 'RELATION'
     ? { ready: template !== undefined, head: template ? relationSyntaxAsText(template) : '' }
     : draft.kind === 'START_TOOL'
       ? { ready: draft.toolNumber.trim() !== '', head: draft.toolNumber.trim() !== '' ? `START_TOOL ${draft.toolNumber.trim()}` : '' }
-      : { ready: popupName !== '', head: popupName !== '' ? `Popup ${popupName} ${draft.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'}` : '' }
+      : draft.kind === 'MASK_CLOSE'
+        ? { ready: true, head: 'Maske schließen' }
+        : { ready: popupName !== '', head: popupName !== '' ? `Popup ${popupName} ${draft.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'}` : '' }
 
   return (
     <Window
@@ -270,12 +276,18 @@ function ToolBody({ step, onChange }: { step: StartToolStep; onChange: (step: St
   )
 }
 
-// A popup: open or close, and which one.
+// A popup: open or close, and which one; or the mask itself closes.
 function PopupBody({ step, popups, onChange }: {
   step: PopupStep
   popups: readonly { value: string; name: string }[]
   onChange: (step: PopupStep) => void
 }) {
+  const popupId = step.kind === 'MASK_CLOSE' ? '' : step.popupId
+  const base = { id: step.id, resultName: step.resultName, ...(step.note === undefined ? {} : { note: step.note }) }
+  const choose = (kind: string): void => {
+    if (kind === 'MASK_CLOSE') onChange({ ...base, kind: 'MASK_CLOSE' })
+    else onChange({ ...base, kind: kind === 'POPUP_CLOSE' ? 'POPUP_CLOSE' : 'POPUP_OPEN', popupId })
+  }
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <Strip>Popup</Strip>
@@ -283,19 +295,27 @@ function PopupBody({ step, popups, onChange }: {
         <span className="text-dense text-muted">Aktion</span>
         <Segment
           name="Aktion"
-          options={[{ value: 'POPUP_OPEN', name: 'öffnen' }, { value: 'POPUP_CLOSE', name: 'schließen' }]}
+          options={[
+            { value: 'POPUP_OPEN', name: 'öffnen' },
+            { value: 'POPUP_CLOSE', name: 'schließen' },
+            { value: 'MASK_CLOSE', name: 'Maske schließen' },
+          ]}
           value={step.kind}
-          onChoose={(kind) => onChange({ ...step, kind: kind === 'POPUP_CLOSE' ? 'POPUP_CLOSE' : 'POPUP_OPEN' })}
+          onChoose={choose}
         />
-        <span className="text-dense text-muted">Popup</span>
-        <PickerControl
-          name="Popup"
-          className="w-full"
-          groups={[{ key: 'popups', entries: popups }]}
-          value={step.popupId}
-          placeholder=""
-          onChoose={(popupId) => onChange({ ...step, popupId })}
-        />
+        {step.kind !== 'MASK_CLOSE' && (
+          <>
+            <span className="text-dense text-muted">Popup</span>
+            <PickerControl
+              name="Popup"
+              className="w-full"
+              groups={[{ key: 'popups', entries: popups }]}
+              value={step.popupId}
+              placeholder=""
+              onChoose={(id) => onChange({ ...step, popupId: id })}
+            />
+          </>
+        )}
       </div>
     </div>
   )

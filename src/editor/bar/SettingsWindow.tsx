@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type RefObject } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { EventDef, LookupWindow } from '../../core/block/capability'
 import type { DeclaredProperty } from '../../core/block/propertyPlace'
 import type { BlockNode } from '../../core/block/tree'
@@ -30,7 +30,6 @@ function Group({ name, children }: { name: string; children: ReactNode }) {
 
 interface SettingsWindowProps {
   block: BlockNode
-  host: RefObject<HTMLElement | null>
 
   // The controls of the given properties, as the bar draws them.
   controls: (props: DeclaredProperty[]) => ReactNode[]
@@ -54,7 +53,7 @@ interface SettingsWindowProps {
 // The window „Einstellungen" at the bar: what the surface cannot show, in
 // groups. Nothing when the block has nothing to set.
 export function SettingsWindow({
-  block, host, controls, sourceProps, shows, lookupProps, searchWindow, helpersApart, follow, events,
+  block, controls, sourceProps, shows, lookupProps, searchWindow, helpersApart, follow, events,
 }: SettingsWindowProps) {
   const ed = useEditor()
   // What the block followed when the bar came up: a different one means a
@@ -75,7 +74,6 @@ export function SettingsWindow({
       label="Einstellungen"
       width={SETTINGS_WIDTH}
       flush
-      beside={host}
       defaultOpen={followSeen !== '' && followSeen !== openedWith}
       onOpen={() => setOpenedWith(followSeen)}
     >

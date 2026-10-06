@@ -41,6 +41,10 @@ export interface BlockLookupWindow {
 export interface EntryLookupWindow {
   entriesProp: string
 
+  // The fields the window's own columns show, read from the entry: the mask
+  // orders them from the source of the entry's field choice.
+  windowFields: (entry: unknown) => readonly string[]
+
   spot?: string
   when?: Condition
 }
@@ -146,14 +150,9 @@ export interface ChangeCarrier {
   changedRows: readonly { record: string; values: readonly string[] }[]
 }
 
-export interface Delivery {
-  rows: readonly unknown[]
-  recordOf: (row: unknown) => string
-  read: (row: unknown, field: string) => string
-}
-
+// The document delivered anew, or closed: what was written is through.
 export interface SentRowsElement {
-  checkArrival: (delivery: Delivery | null) => void
+  writtenArrived: () => void
 }
 
 export interface WrittenRow {

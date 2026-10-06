@@ -1,0 +1,24 @@
+{
+  "VAR": [
+    {
+      "ID": "BEL",
+      "FELDER": "0_11,2_1,3_8,11_8,107_30,19_10"
+    }
+  ],
+  "SEFILELOOP": [
+    {
+      "INDEX_NR": 0,
+      "ALIAS": "Belege Kunde",
+      "ID": "BEL",
+      "FELDER": "3_8,11_8,19_10,1610_12,2_1,0_1,1_1"
+    },
+    {
+      "INDEX_NR": 0,
+      "ALIAS": "Belegpositionen",
+      "ID": "POS",
+      "KOPFSATZ_INDEX": "BEL_0_11",
+      "FELDER": "645_10,18_25,45_60,164_8,280_12,689_5,1695_60,246_9"
+    }
+  ],
+  "ERPAPICALL": []
+}

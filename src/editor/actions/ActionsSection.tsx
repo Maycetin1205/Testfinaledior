@@ -20,7 +20,7 @@ import { StepWindow, type StepContext, type StepTab } from './StepWindow'
 // The tab a step opens on.
 function tabOf(step: Step, relations: readonly RelationTemplate[]): StepTab {
   if (step.kind === 'START_TOOL') return 'TOOL'
-  if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') return 'POPUP'
+  if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE' || step.kind === 'MASK_CLOSE') return 'POPUP'
   return relations.find((r) => step.kind === 'RELATION' && r.id === step.relationId)?.verb === 'GET_RELATION' ? 'GET' : 'PUT'
 }
 
@@ -146,6 +146,8 @@ function stepWords(step: Step, context: StepContext): { words: string; short: st
       const verb = step.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'
       return { words: name ? `Popup ${name} ${verb}` : `Popup ${verb}`, short: '', known: name !== undefined }
     }
+    case 'MASK_CLOSE':
+      return { words: 'Maske schließen', short: '', known: true }
     case 'BW_LINK':
       return { words: 'BW-Befehl', short: '', known: true }
   }

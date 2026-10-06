@@ -11,9 +11,9 @@ export const areaStyle = css`
     /* clip, not hidden: the box does not scroll even when a field outside of it
        takes the focus. */
     overflow: clip;
-    /* No padding and a frame that takes no room: the columns and rows inside
-       lie on the grid of the page, to the last row at the bottom. */
-    padding: 0;
+    /* One gap of room between the frame and what lies inside; the frame itself
+       takes no room. */
+    padding: var(--se-gap);
     background: var(--se-panel);
     outline: var(--se-border) solid var(--se-line-soft);
     outline-offset: calc(-1 * var(--se-border));

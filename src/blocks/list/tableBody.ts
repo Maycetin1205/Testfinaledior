@@ -90,8 +90,6 @@ interface BodyPlacement {
   showsRows: boolean
   selectionIndex: number
 
-  empty: boolean
-
   decoration: (rawIndex: number | null) => RowDecoration
 
   // A column that must hold a value before a row is captured.
@@ -310,17 +308,16 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
           />
         </div>
       </div>` : ''}
-      <div class="body" role=${placement.empty ? nothing : 'table'} tabindex="-1">
+      <div class="body" role="table" tabindex="-1">
       <div class="head${placement.layout.hasSubs ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
         ${placement.columns.map((s, i) => headCellTpl(placement, act, s, placement.slots[i], i))}
         ${widthsHandles(placement.columns.length, act.widths)}
       </div>
-        ${placement.empty ? nothing : html`
         ${placement.rows.map((rawIndex, viewIndex) => html`${
           viewIndex === firstEmpty ? placement.bottom : nothing
         }${rowTpl(placement, act, rawIndex, viewIndex)}`)}
         ${firstEmpty === -1 ? placement.bottom : nothing}
-        ${ruler(placement)}`}
+        ${ruler(placement)}
       </div>
       ${columnsChoiceTpl(placement.columnPicker, act.columnPicker)}
     `

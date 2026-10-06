@@ -119,7 +119,7 @@ export class RecordList implements ReactiveController {
     this.hooks = hooks
     this._widths = new WidthsState({
       preview: () => el.preview,
-      fullSlot: (rendered) => this.shownSlots()[rendered] ?? rendered,
+      fullSlot: (rendered) => this.layoutOf(this.visibleView()).main.slots[rendered] ?? rendered,
       columnsList: () => [...el.listColumns()],
       writeColumns: (columns) => sendColumnsChange(el, columns),
       report: () => el.requestUpdate(),
@@ -201,12 +201,12 @@ export class RecordList implements ReactiveController {
     return this.layoutOf(this.visibleView()).hasSubs ? SUBLINE_HEIGHT : 0
   }
 
-  // The columns the operator sees, by their place among all columns: first
-  // those of the row, then those of the second line, each under its anchor
-  // from left to right. Tab walks them so.
+  // The columns the operator sees, by their place among all columns: each
+  // column of the row, and right after it the columns of its second line.
+  // Tab walks them so, column by column from left to right.
   shownSlots(): readonly number[] {
     const layout = this.layoutOf(this.visibleView())
-    return [...layout.main.slots, ...layout.main.slots.flatMap((slot) => layout.subsOf(slot).slots)]
+    return layout.main.slots.flatMap((slot) => [slot, ...layout.subsOf(slot).slots])
   }
 
   reset(): void {
@@ -339,7 +339,6 @@ export class RecordList implements ReactiveController {
         rulerTicks: view.rulerTicks,
         showsRows: view.showsRows,
         selectionIndex: this._rowsChoice.slotIn(el.rawRows),
-        empty: view.empty,
         decoration,
         required: (slot) => this.hooks?.required(slot) ?? false,
         bottom: bottom === null

@@ -106,10 +106,19 @@ export function usedFieldsPerSource(
         else remember(ownSource, value)
       }
 
+      const window = capability(def, 'lookupWindow')?.window
+      const windowFields = window?.entriesProp === b.prop ? window.windowFields : () => []
+
       for (const entry of b.entries(node.values[b.prop])) {
         rememberEntryField(b.fieldOf(entry))
 
-        for (const { value } of fieldChoicesRead(b, entry)) rememberEntryField(value)
+        for (const { value } of fieldChoicesRead(b, entry)) {
+          rememberEntryField(value)
+
+          // The columns of the entry's lookup window read the chosen field's source.
+          const { sourceId } = splitBinding(value)
+          for (const code of windowFields(entry)) remember(sourceId !== '' ? sourceId : ownSource ?? '', code)
+        }
       }
     }
 

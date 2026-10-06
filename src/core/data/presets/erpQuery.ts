@@ -1,3 +1,4 @@
+import { restricts } from '../deliveries/message'
 import { keyFromInput } from '../sourceInput'
 import type { SourcePreset } from './sourcePreset'
 
@@ -9,7 +10,10 @@ export const erpQuery: SourcePreset<'erpQuery'> = {
   tableId: '',
   key: (raw) => keyFromInput(raw, true),
   prefixed: true,
-  list: () => ({ order: { kind: 'none' }, delivery: { kind: 'message' } }),
+  list: (choice) => ({
+    order: { kind: 'none' },
+    delivery: { kind: 'message', ...(restricts(choice.restriction) ? { restriction: choice.restriction } : {}) },
+  }),
   fetches: false,
   writes: true,
 }

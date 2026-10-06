@@ -73,6 +73,7 @@
 
   --se-border: 1px;  /* .vinput */
   --se-radius: 4px;  /* .vkarte */
+  --se-control: 28px;  /* .vbtn-aktion */
 
   --se-shadow-pop: 0 18px 60px rgba(16,40,48,.28);  /* --schatten-pop */
   --se-focus: 0 0 0 3px color-mix(in oklab, var(--se-accent) 18%, transparent);  /* .vinput:focus */

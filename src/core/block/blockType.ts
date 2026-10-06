@@ -48,11 +48,6 @@ export interface BlockDeclaration {
   allowedParent?: readonly string[]
   inPalette?: boolean
 
-  // A selector in the shadow root: the part at the top that stays free when the
-  // bar has to lie inside the block, the row of column heads of a table. A
-  // block without one takes the bar on its own top edge.
-  head?: string
-
   containerFrame?: boolean
 
   page?: boolean

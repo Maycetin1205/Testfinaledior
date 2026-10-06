@@ -183,9 +183,9 @@ export const tableStyle = css`
       .head-line { display: flex; align-items: center; min-width: 0; }
 
       /* A record with sublines is two text lines high: the value of the column
-         on top, under it, small and faint, the values of the subline
-         columns anchored to it. The head carries their titles the same way.
-         A row without a record stays one line high. */
+         on top, under it, smaller, grey and set in by one cell padding, the
+         values of the subline columns anchored to it. The head carries their
+         titles the same way. A row without a record stays one line high. */
       .head.subline { min-height: calc(var(--row-height) + var(--sub-height)); }
       .row.subline { height: calc(var(--row-height) + var(--sub-height)); }
       .head.subline > div,
@@ -209,6 +209,7 @@ export const tableStyle = css`
         display: flex;
         gap: 6px;
         min-width: 0;
+        padding-left: var(--se-cell-x);
         line-height: var(--sub-height);
         font-size: var(--se-fs-sm);
         color: var(--se-muted);
@@ -230,6 +231,7 @@ export const tableStyle = css`
         display: flex;
         gap: 6px;
         min-width: 0;
+        padding-left: var(--se-cell-x);
         line-height: var(--sub-height);
         font-size: var(--se-fs-xs);
         font-weight: 400;

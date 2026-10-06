@@ -1,5 +1,6 @@
 import type { Order } from '../orders/orders'
 import type { Delivery } from '../deliveries/deliveries'
+import { WITHOUT_RESTRICTION, type QueryRestriction } from '../deliveries/message'
 import type { LoadRelation } from '../deliveries/relationRows'
 import type { GetValue } from '../deliveries/relationValue'
 import type { Write } from '../writes/writes'
@@ -14,6 +15,8 @@ export interface SourceChoice {
   load: LoadRelation | null
   getValue: GetValue
   recordField: string
+  // What narrows an ERP query.
+  restriction: QueryRestriction
 }
 
 export const EMPTY_CHOICE: SourceChoice = {
@@ -23,6 +26,7 @@ export const EMPTY_CHOICE: SourceChoice = {
   load: null,
   getValue: { relationId: '', parameter: [] },
   recordField: '',
+  restriction: WITHOUT_RESTRICTION,
 }
 
 interface OrderAndDelivery {

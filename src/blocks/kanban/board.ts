@@ -145,6 +145,13 @@ export class Board {
     this.el.requestUpdate()
   }
 
+  // The button under a card: on to the first place of the next column.
+  advance(card: CardData): void {
+    const column = this.spotOf(card).column + 1
+    if (column >= kanbanColumnsFrom(this.el.columns).length) return
+    void this.move(card, { column, place: 0 })
+  }
+
   drop(event: DragEvent, spot: Spot): void {
     const card = this.cards.find((c) => c.key === this.dragging)
     this.endDrag()

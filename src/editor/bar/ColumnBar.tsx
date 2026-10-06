@@ -1,4 +1,4 @@
-import { createElement, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
@@ -44,11 +44,6 @@ export interface ColumnPlace {
 
 interface ColumnBarProps {
   block: BlockNode
-  host: RefObject<HTMLElement | null>
-  element: HTMLElement | null
-
-  // The left edge of the column head.
-  align: number
 
   name: string
 
@@ -77,7 +72,7 @@ interface ColumnBarProps {
 // The bar at a column head, in the place of the block's bar: the column's
 // fields, its switches, what the list chooses at its heads, and the bin.
 export function ColumnBar({
-  block, host, element, align, name, fields, groups, sourcesChoice, nameOf,
+  block, name, fields, groups, sourcesChoice, nameOf,
   switches, places = [], actions, entries = [], removeLabel, onRemove, onClose,
 }: ColumnBarProps) {
   const ed = useEditor()
@@ -149,7 +144,7 @@ export function ColumnBar({
   )
 
   return (
-    <BarFrame host={host} element={element} head={def?.head} align={align}>
+    <BarFrame>
       <BarSign type={block.type} name={name} />
       <Separator vertical />
 

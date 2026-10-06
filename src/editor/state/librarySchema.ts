@@ -164,6 +164,8 @@ function descriptorSource(source: Record<string, unknown>): Record<string, unkno
       getValue: checkGetValue(getValue) ?? EMPTY_CHOICE.getValue,
       // An ERP query could not carry a record number; one left over stays unused.
       recordField: kind === 'erpQuery' ? '' : text(recordField),
+      // Version 1 knew no restriction of an ERP query.
+      restriction: EMPTY_CHOICE.restriction,
     }),
   }
 }

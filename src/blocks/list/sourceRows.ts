@@ -6,7 +6,6 @@ import {
   makeDataLink,
   recordOf,
   sourceIdOf,
-  type DataPreamble,
 } from '../../runtime/source'
 import { rowValues, type Calculation } from '../../core/data/calculation'
 import { columnWithKey, type Column } from './columns'
@@ -29,14 +28,6 @@ export interface RowsElement extends HTMLElement {
 
   listColumns: () => readonly Column[]
   listCalculations: () => readonly Calculation[]
-}
-
-function checkArrival(el: HTMLElement, preamble: DataPreamble | null): void {
-  contractOf(el, 'holdsSent')?.checkArrival(preamble === null ? null : {
-    rows: preamble.rows,
-    recordOf: (row) => recordOf(preamble.source, row),
-    read: preamble.read,
-  })
 }
 
 // A row as the list shows it: an empty cell of a sentence is computed from
@@ -69,7 +60,7 @@ export function hasRecordNumber(el: HTMLElement): boolean {
 function fillRows(el: RowsElement, delivery: boolean): void {
   const preamble = readDataPreamble(el)
 
-  if (delivery) checkArrival(el, preamble)
+  if (delivery) contractOf(el, 'holdsSent')?.writtenArrived()
   if (!preamble) {
     el.rawRows = []
     el.dataRows = []
