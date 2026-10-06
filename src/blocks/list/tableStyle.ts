@@ -246,12 +246,16 @@ export const tableStyle = css`
       /* The sublines of the capture: a line that holds an input lets the
          suggestion list hang out, the inputs of the second line share it,
          each as small as the line. The capture row shows its second line
-         with a hairline above, where the booked rows show grey values. */
+         on a shade darker ground with a hairline above, so the operator
+         sees the second line before typing into it. */
       .row.capture > div > .line,
       .row > div.typable > .line { display: flex; align-items: center; overflow: visible; }
       .row.capture > div > .subs,
       .row > div.typable > .subs { overflow: visible; }
-      .row.capture > div > .subs { border-top: var(--se-border) solid var(--se-line-soft); }
+      .row.capture > div > .subs {
+        background: var(--se-bg);
+        border-top: var(--se-border) solid var(--se-line-soft);
+      }
       .subs > .part.typable {
         display: flex;
         align-items: center;
