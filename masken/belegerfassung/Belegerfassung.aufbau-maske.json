@@ -803,6 +803,13 @@
                 "toField": "11_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "fromField": "3_8",
+                "toField": "3_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+                "unequal": true
               }
             ]
           }
