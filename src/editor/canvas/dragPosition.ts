@@ -1,7 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { BlockNode } from '../../core/block/tree'
-import { gridSlotRead } from '../../core/block/grid'
-import { columnsOf } from '../../core/block/gridArea'
+import { gridSlotRead, nearestFreeSlot } from '../../core/block/grid'
+import { columnsOf, takenOn } from '../../core/block/gridArea'
 import { mayContain } from '../../core/block/registry'
 import type { EditorStore } from '../state/EditorStore'
 import type { DndState } from './dndState'
@@ -90,12 +90,15 @@ export function dragPosition(
     }
     const target = targetArea(ev.clientX, ev.clientY)
     const cell = cellFromPointer(target.area, ev.clientX - grab.x, ev.clientY - grab.y)
-    const w = Math.min(pos.w, columnsOf(editor.tree, target.parentId))
-    const x = Math.max(0, Math.min(cell.x, columnsOf(editor.tree, target.parentId) - w))
+    const columns = columnsOf(editor.tree, target.parentId)
+    const w = Math.min(pos.w, columns)
+    const x = Math.max(0, Math.min(cell.x, columns - w))
     const capacity = rowsCapacity(editor.tree, target.parentId, target.area)
     const y = rowInBox(capacity, cell.y, pos.h)
-    last = { target, x, y }
-    dnd.setDropTarget({ parentId: target.parentId, x, y, w, h: pos.h })
+    const spot = nearestFreeSlot(takenOn(editor.tree, target.parentId, id), { x, y, w, h: pos.h }, columns, capacity)
+    if (!spot) return
+    last = { target, x: spot.x, y: spot.y }
+    dnd.setDropTarget({ parentId: target.parentId, ...spot })
   }
 
   const onUp = (): void => {

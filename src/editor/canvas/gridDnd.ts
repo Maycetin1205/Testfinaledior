@@ -1,10 +1,10 @@
 import type { DragEvent } from 'react'
 import { mayContain, blockType } from '../../core/block/registry'
-import { GRID, gridMetricsOf } from '../../core/block/grid'
+import { GRID, gridMetricsOf, nearestFreeSlot } from '../../core/block/grid'
 import type { useEditor } from '../state/useEditor'
 import { newBlockDragType } from './dnd'
 import type { DndState, DropTarget } from './dndState'
-import { columnsOf } from '../../core/block/gridArea'
+import { columnsOf, takenOn } from '../../core/block/gridArea'
 import { rowsCapacity, rowInBox } from './gridArea'
 
 export function cellFromPointer(
@@ -89,5 +89,6 @@ export function gridTarget(
   const x = Math.max(0, Math.min(cell.x, columns - w))
   const capacity = rowsCapacity(ed.tree, parentId, gridEl)
   const y = rowInBox(capacity, cell.y, size.h)
-  return { parentId, x, y, w, h: size.h }
+  const spot = nearestFreeSlot(takenOn(ed.tree, parentId, dnd.dragId ?? undefined), { x, y, w, h: size.h }, columns, capacity)
+  return spot && { parentId, ...spot }
 }

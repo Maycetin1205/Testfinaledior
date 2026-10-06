@@ -4,6 +4,8 @@ import { mayContain, blockType } from './registry'
 import {
   AREA_COLUMNS,
   firstGap,
+  fitSlot,
+  nearestFreeSlot,
   nextFreeRow,
   gridSlotRead,
   GRID,
@@ -75,21 +77,11 @@ export function growMinHeightStyle(node: BlockNode): Record<string, string> {
   return { minHeight: `${growMinHeightPx(spec.minHeight, gridSlotRead(node.values).h)}px` }
 }
 
-// A block laid on the lower part of a list on the page shortens the list so
-// it ends above the block.
-function growersEndAbove(tree: MaskTree, id: string): MaskTree {
-  const node = tree[id]
-  if (!node || node.parentId !== ROOT_ID || growsOnPage(node)) return tree
-  const pos = gridSlotRead(node.values)
-  let next = tree
-  for (const other of childrenInFlow(tree, ROOT_ID)) {
-    if (other.id === id || !growsOnPage(other)) continue
-    const g = gridSlotRead(other.values)
-    const besideX = pos.x + pos.w <= g.x || g.x + g.w <= pos.x
-    if (besideX || pos.y <= g.y || pos.y >= g.y + g.h) continue
-    next = { ...next, [other.id]: { ...other, values: { ...other.values, gridH: pos.y - g.y } } }
-  }
-  return next
+// The slots an area's blocks take, without the one named.
+export function takenOn(tree: MaskTree, parentId: string, exceptId?: string): GridSlot[] {
+  return childrenInFlow(tree, parentId)
+    .filter((n) => n.id !== exceptId)
+    .map((n) => gridSlotRead(n.values))
 }
 
 export function freeRowOn(tree: MaskTree, parentId: string): number {
@@ -164,8 +156,10 @@ export function cellMoveIn(
   const columns = columnsOf(tree, parentId)
   const w = Math.min(samePage ? cur.w : spec.startWidth, columns)
   const h = samePage ? cur.h : spec.startHeight
-  const nx = Math.max(0, Math.min(x, columns - w))
-  const ny = Math.max(0, y)
+  const spot = nearestFreeSlot(takenOn(tree, parentId, id), { x, y: Math.max(0, y), w, h }, columns, null)
+  if (!spot) return null
+  const nx = spot.x
+  const ny = spot.y
 
   if (sameArea && nx === cur.x && ny === cur.y && w === cur.w && h === cur.h) return null
 
@@ -183,10 +177,11 @@ export function cellMoveIn(
     parentId: parentId,
     values: { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: h },
   }
-  return growersEndAbove(keptInside(next, id, w), id)
+  return keptInside(next, id, w)
 }
 
-// A new place and size in the same area, kept inside the columns.
+// A new place and size in the same area, kept inside the columns and off
+// the other blocks: the pulled sides stop at a neighbour.
 export function slotResize(
   tree: MaskTree,
   id: string,
@@ -198,10 +193,18 @@ export function slotResize(
   if (!parent || !isGridArea(parent)) return null
   const cur = gridSlotRead(node.values)
   const columns = columnsOf(tree, node.parentId)
-  const x = Math.max(0, Math.min(slot.x, columns - 1))
-  const w = Math.max(1, Math.min(slot.w, columns - x))
-  const y = Math.max(0, slot.y)
-  const h = Math.max(1, slot.h)
+  const spec = gridMetricsOf(blockType(node.type))
+  const pulled = {
+    x: Math.max(0, Math.min(slot.x, columns - 1)),
+    y: Math.max(0, slot.y),
+    w: 0,
+    h: Math.max(1, slot.h),
+  }
+  pulled.w = Math.max(1, Math.min(slot.w, columns - pulled.x))
+  const { x, y, w, h } = fitSlot(takenOn(tree, node.parentId, id), cur, pulled, {
+    w: Math.max(1, spec.minWidth),
+    h: Math.max(1, spec.minHeight),
+  })
   if (x === cur.x && y === cur.y && w === cur.w && h === cur.h) return null
   return keptInside({
     ...tree,
@@ -224,15 +227,15 @@ export function newBlockOnCell(
   const spec = gridMetricsOf(blockType(type))
   const columns = columnsOf(tree, parentId)
   const w = Math.min(spec.startWidth, columns)
-  const nx = Math.max(0, Math.min(x, columns - w))
-  const ny = Math.max(0, y)
-  node.values = { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: spec.startHeight }
+  const spot = nearestFreeSlot(takenOn(tree, parentId), { x, y: Math.max(0, y), w, h: spec.startHeight }, columns, null)
+  if (!spot) return null
+  node.values = { ...node.values, gridX: spot.x, gridY: spot.y, gridW: w, gridH: spec.startHeight }
   return {
-    tree: growersEndAbove({
+    tree: {
       ...tree,
       ...nodes,
       [parent.id]: { ...parent, childIds: [...parent.childIds, node.id] },
-    }, node.id),
+    },
     node,
   }
 }
