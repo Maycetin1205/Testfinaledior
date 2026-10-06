@@ -356,6 +356,10 @@ export class EditorStore extends Subject<EditorStore> {
 
   pickFollowFor(blockId: string | null): void { this._shows.pickFollowFor(blockId) }
 
+  get dataWindow(): boolean { return this._shows.dataWindow }
+
+  showData(open: boolean): void { this._shows.showData(open) }
+
   // ----- where the work is kept -----
 
   get maskOnDisk() { return this._kept.maskOnDisk }

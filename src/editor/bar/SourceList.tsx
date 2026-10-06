@@ -11,7 +11,6 @@ import {
 } from '../../core/data/extraSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import { openData } from '../data/openData'
 import type { ValueOrigin } from '../../core/data/valueOrigin'
 import { OriginPicker } from '../controls/OriginPicker'
 import type { OriginOffer } from '../controls/originOffer'
@@ -142,7 +141,7 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
 
   if (library.length === 0) {
     return (
-      <Button className="self-start" onClick={openData}>Daten öffnen</Button>
+      <Button className="self-start" onClick={() => ed.showData(true)}>Daten öffnen</Button>
     )
   }
 

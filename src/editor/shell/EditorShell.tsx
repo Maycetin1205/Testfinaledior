@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
 import { useKeyboardShortcuts } from '../state/useKeyboardShortcuts'
+import { useView } from '../state/useView'
 import { Canvas } from '../canvas/Canvas'
 import { OpenCalculationWindow } from '../canvas/CalculationWindow'
 import { OpenStepWindow } from '../actions/ActionsSection'
@@ -7,22 +7,17 @@ import { LookupColumns } from '../canvas/LookupColumns'
 import { PageBar } from '../canvas/PageBar'
 import { BlockPalette } from '../sidebar/BlockPalette'
 import { DataWindow } from '../data/DataWindow'
-import { onDataRequest } from '../data/openData'
 import { BarStrip } from '../bar/BarStrip'
 import { Toolbar } from './Toolbar'
 
 export function EditorShell() {
   useKeyboardShortcuts()
-
-  // The data stay closed until „Daten" is clicked, then open as a window.
-  const [dataOpen, setDataOpen] = useState(false)
-
-  useEffect(() => onDataRequest(() => setDataOpen(true)), [])
+  const view = useView()
 
   return (
     <div className="flex h-screen w-screen flex-col bg-ground text-ink">
       <header className="flex shrink-0 items-center gap-[12px] overflow-x-auto border-b border-line bg-panel px-[12px] py-[8px]">
-        <Toolbar dataOpen={dataOpen} onData={() => setDataOpen(!dataOpen)} />
+        <Toolbar />
         <div className="flex-1" />
         <PageBar />
       </header>
@@ -41,7 +36,7 @@ export function EditorShell() {
 
       </div>
 
-      {dataOpen && <DataWindow onClose={() => setDataOpen(false)} />}
+      {view.dataWindow && <DataWindow onClose={() => view.showData(false)} />}
 
       <LookupColumns />
       <OpenCalculationWindow />

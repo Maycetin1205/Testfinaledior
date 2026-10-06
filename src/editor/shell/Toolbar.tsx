@@ -12,6 +12,7 @@ import { failedChecks, validateMaskHtml } from '../../export/validator'
 import { downloadFile } from '../state/downloadFile'
 import { loadMaskFromFile, saveMaskAsFile } from '../state/maskFile'
 import { useEditor } from '../state/useEditor'
+import { useView } from '../state/useView'
 import { Field } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
@@ -22,8 +23,9 @@ const MASK_NAMES = {
   sevariablen: 'index.basis.SEvariablen.json',
 }
 
-export function Toolbar({ dataOpen, onData }: { dataOpen: boolean; onData: () => void }) {
+export function Toolbar() {
   const ed = useEditor()
+  const dataOpen = useView().dataWindow
   const fileRef = useRef<HTMLInputElement>(null)
 
   const nameSession = useInputSession(() => ed.beginTransaction(), () => ed.endTransaction())
@@ -133,7 +135,7 @@ export function Toolbar({ dataOpen, onData }: { dataOpen: boolean; onData: () =>
       <Button
         aria-pressed={dataOpen}
         className={dataOpen ? 'border-accent bg-accent-soft' : undefined}
-        onClick={onData}
+        onClick={() => ed.showData(!dataOpen)}
       >
         <Database size={14} /> Daten
       </Button>

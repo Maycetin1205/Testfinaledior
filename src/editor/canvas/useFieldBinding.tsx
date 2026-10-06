@@ -9,7 +9,6 @@ import type { SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
-import { openData } from '../data/openData'
 import { FieldPicker } from './FieldPicker'
 import { pickerGroups } from './fieldNames'
 import { ListEntryBar, type ListPick } from './ListEntryBar'
@@ -122,7 +121,7 @@ export function useFieldBinding({
     onData: () => {
       closePicker()
       closeListPicker()
-      openData()
+      editor.showData(true)
     },
     onChoose: (sourceId: string) => {
       const carrier = sourcesCarrier(editor.tree, blockRef.current.id)

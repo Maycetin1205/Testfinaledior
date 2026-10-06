@@ -36,8 +36,19 @@ export class EditorView {
 
   private _followPickFor: string | null = null
 
+  private _dataWindow = false
+
   constructor(changed: () => void) {
     this.changed = changed
+  }
+
+  // The window "Daten" over the mask: closed until "Daten" is clicked.
+  get dataWindow(): boolean { return this._dataWindow }
+
+  showData(open: boolean): void {
+    if (this._dataWindow === open) return
+    this._dataWindow = open
+    this.changed()
   }
 
   get stepWindow(): OpenStep | null { return this._stepWindow }
