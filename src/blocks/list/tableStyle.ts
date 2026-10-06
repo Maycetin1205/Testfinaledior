@@ -183,9 +183,9 @@ export const tableStyle = css`
       .head-line { display: flex; align-items: center; min-width: 0; }
 
       /* A record with sublines is two text lines high: the value of the column
-         on top, under it, smaller but in the same ink, the values of the
-         subline columns anchored to it. The head carries their titles the
-         same way. A row without a record stays one line high. */
+         on top, under it, smaller, grey and set in by one cell padding, the
+         values of the subline columns anchored to it. The head carries their
+         titles the same way. A row without a record stays one line high. */
       .head.subline { min-height: calc(var(--row-height) + var(--sub-height)); }
       .row.subline { height: calc(var(--row-height) + var(--sub-height)); }
       .head.subline > div,
@@ -209,8 +209,10 @@ export const tableStyle = css`
         display: flex;
         gap: 6px;
         min-width: 0;
+        padding-left: var(--se-cell-x);
         line-height: var(--sub-height);
         font-size: var(--se-fs-sm);
+        color: var(--se-muted);
         white-space: nowrap;
         overflow: hidden;
       }
@@ -229,6 +231,7 @@ export const tableStyle = css`
         display: flex;
         gap: 6px;
         min-width: 0;
+        padding-left: var(--se-cell-x);
         line-height: var(--sub-height);
         font-size: var(--se-fs-xs);
         font-weight: 400;
@@ -246,16 +249,12 @@ export const tableStyle = css`
       /* The sublines of the capture: a line that holds an input lets the
          suggestion list hang out, the inputs of the second line share it,
          each as small as the line. The capture row shows its second line
-         on a shade darker ground with a hairline above, so the operator
-         sees the second line before typing into it. */
+         with a hairline above, where the booked rows show grey values. */
       .row.capture > div > .line,
       .row > div.typable > .line { display: flex; align-items: center; overflow: visible; }
       .row.capture > div > .subs,
       .row > div.typable > .subs { overflow: visible; }
-      .row.capture > div > .subs {
-        background: var(--se-bg);
-        border-top: var(--se-border) solid var(--se-line-soft);
-      }
+      .row.capture > div > .subs { border-top: var(--se-border) solid var(--se-line-soft); }
       .subs > .part.typable {
         display: flex;
         align-items: center;
