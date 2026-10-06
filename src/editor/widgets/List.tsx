@@ -3,7 +3,7 @@ import { Check, Search } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { Badge } from './Badge'
 
-export interface ListEntry {
+interface ListEntry {
   value: string
   name: string
 

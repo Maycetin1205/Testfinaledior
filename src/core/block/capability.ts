@@ -103,7 +103,7 @@ export function applies(
   return f !== undefined && propertyVisible(f.when, values)
 }
 
-export type BindingProp<P extends string = string> = `${P}Field`
+type BindingProp<P extends string = string> = `${P}Field`
 
 type BindingAttr = `${string}field`
 

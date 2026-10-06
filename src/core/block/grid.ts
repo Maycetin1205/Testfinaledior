@@ -1,7 +1,7 @@
 import { numberProperty, type Property, type PropertyValue } from './property'
 import { styleAsCss } from './styleCss'
 
-export const GRID = { columns: 48, columnPx: 20, rowPx: 12, gapPx: 4 } as const
+export const GRID = { columns: 48, rowPx: 12, gapPx: 4 } as const
 
 export interface GridSlot {
   x: number

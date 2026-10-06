@@ -139,7 +139,7 @@ export function fieldCodeSplit(code: string): { pos: string; len: string } | nul
   return m ? { pos: m[1], len: m[2] } : null
 }
 
-export type ParameterRole = 'pos' | 'len' | 'relid'
+type ParameterRole = 'pos' | 'len' | 'relid'
 
 // What a parameter of the syntax stands for, read from its name.
 export function parameterRole(raw: string): ParameterRole | null {
@@ -188,7 +188,7 @@ export function relationSyntaxAsText(
   return `${relation.verb}[${parts.join('!')}]`
 }
 
-export type RelationGroup = 'read' | 'write'
+type RelationGroup = 'read' | 'write'
 
 export function relationGroup(relation: Pick<RelationTemplate, 'verb'>): RelationGroup {
   return relation.verb === 'GET_RELATION' ? 'read' : 'write'

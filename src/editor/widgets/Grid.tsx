@@ -15,7 +15,7 @@ import { OnEscape, useCloseOnEscape } from './useCloseOnEscape'
 // entry with lines between rows and columns. A click marks the whole line, a
 // double click types into it, the empty last line takes a new entry.
 
-export interface GridColumn {
+interface GridColumn {
   name: string
   // Pixels; a column without takes what is left.
   width?: number
@@ -23,7 +23,7 @@ export interface GridColumn {
   right?: boolean
 }
 
-export const TH = 'h-[26px] truncate border-b border-r border-line bg-control px-[10px] text-left text-dense font-semibold text-muted last:border-r-0'
+const TH = 'h-[26px] truncate border-b border-r border-line bg-control px-[10px] text-left text-dense font-semibold text-muted last:border-r-0'
 export const TD = 'h-[29px] border-b border-r border-line/70 p-0 last:border-r-0'
 const TEXT = 'block truncate px-[10px]'
 // A cell typed into looks like any other, only with the cursor, as in the

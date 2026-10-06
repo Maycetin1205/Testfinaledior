@@ -1,7 +1,7 @@
 // Where a value comes from. One list for every place that takes a value: the
 // key of a helper source, a factor of a calculation, the parameter of an action,
 // the following of a selection. Each place offers the part of it it can read.
-export type OriginKind = 'row' | 'helper' | 'document' | 'formField' | 'fixed'
+type OriginKind = 'row' | 'helper' | 'document' | 'formField' | 'fixed'
 
 export interface ValueOrigin {
   kind: OriginKind

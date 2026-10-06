@@ -20,7 +20,7 @@ export interface RuntimeRelationValueDelivery {
   get: RuntimeGetValue
 }
 
-export const GET_VALUE_SOURCES = ['fixed', 'dataField', 'seVariable'] as const
+const GET_VALUE_SOURCES = ['fixed', 'dataField', 'seVariable'] as const
 
 export function getValueSourceAllowed(source: ParameterSource): boolean {
   return source === 'omitted' || (GET_VALUE_SOURCES as readonly string[]).includes(source)

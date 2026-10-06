@@ -6,7 +6,7 @@ import { cn } from './cn'
 import { FamilyMember } from './Popover'
 import { useCloseOnEscape } from './useCloseOnEscape'
 
-export interface WindowTab<K extends string> {
+interface WindowTab<K extends string> {
   key: K
   name: string
   count?: number

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { gestureBracket, type GestureBracket } from '../state/history'
 
-export interface EditSession {
+interface EditSession {
   begin: () => void
 
   finish: () => void

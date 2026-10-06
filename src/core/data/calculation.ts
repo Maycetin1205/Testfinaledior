@@ -8,7 +8,7 @@ import type { ValueOrigin } from './valueOrigin'
 // sentence that stands empty is computed from the others; a row with none
 // or with two empty columns is left alone.
 
-export interface UnitPair {
+interface UnitPair {
   first: string
   second: string
   factor: number

@@ -8,7 +8,7 @@ import { extractRecordAnswer, newSeMessageResult, resultFromAnswer, seMessageKey
 // sender, so one question is out at a time: GET relations and ERP queries
 // share one queue.
 
-export interface RelationOptions {
+interface RelationOptions {
   // The answer is the raw record, not one value out of it.
   recordAnswer?: boolean
 }
@@ -20,18 +20,18 @@ interface GetJob {
   options: RelationOptions
 }
 
-export interface QueryAnswer {
+interface QueryAnswer {
   rows?: unknown[]
 }
 
 // What narrows the question, resolved: the kind of document and the address
 // whose documents are asked for; empty asks for all.
-export interface QueryKeys {
+interface QueryKeys {
   documentKind: string
   address: string
 }
 
-export const ALL_RECORDS: QueryKeys = { documentKind: '', address: '' }
+const ALL_RECORDS: QueryKeys = { documentKind: '', address: '' }
 
 interface QueryJob {
   query: RuntimeQuery

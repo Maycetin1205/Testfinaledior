@@ -246,7 +246,7 @@ export function originGroups(raw: string, choices: PlaceChoices): ListGroup[] {
 
 // A chosen entry: a value for the place, or a field whose position and length
 // fill every place that asks for them.
-export type PlacePick = { set: Parameter } | { adopt: { sourceId: string; code: string } }
+type PlacePick = { set: Parameter } | { adopt: { sourceId: string; code: string } }
 
 const pick = (p: PlacePick): string => JSON.stringify(p)
 

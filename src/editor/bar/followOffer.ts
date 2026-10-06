@@ -16,7 +16,7 @@ export function followOf(block: BlockNode): SelectionFollow | undefined {
   return selectionFollowsFrom(block.values[SELECTION_FOLLOW_PROP])[0]
 }
 
-export function giversFor(tree: Readonly<MaskTree>, block: BlockNode): BlockNode[] {
+function giversFor(tree: Readonly<MaskTree>, block: BlockNode): BlockNode[] {
   return Object.values(tree).filter((n) => n.id !== block.id && isSelectionGiver(n))
 }
 
@@ -31,7 +31,7 @@ export function followOffered(tree: Readonly<MaskTree>, block: BlockNode, librar
 
 // What a block follows once the giver is clicked. Field pairs only where the
 // rows are not fetched for the chosen row anyway; the same giver keeps its pairs.
-export function followOn(block: BlockNode, giverId: string, library: readonly DataSource[]): SelectionFollow[] {
+function followOn(block: BlockNode, giverId: string, library: readonly DataSource[]): SelectionFollow[] {
   const before = followOf(block)
   const own = library.find((s) => s.id === selectionSourceIdOf(block))
   const fetches = own !== undefined && deliveryAdapter(own.delivery.kind).fetchOn === 'selection'
@@ -41,7 +41,7 @@ export function followOn(block: BlockNode, giverId: string, library: readonly Da
 
 // What a block follows once a form field is clicked, or the open document
 // chosen: one pair, its own field still to choose. The same one keeps its pairs.
-export function followOnFormField(block: BlockNode, fieldId: string, prop: string): SelectionFollow[] {
+function followOnFormField(block: BlockNode, fieldId: string, prop: string): SelectionFollow[] {
   const before = followOf(block)
   if (before?.giverId === '' && before.pairs.some((p) => p.from === 'formField' && p.fromField === fieldId)) return [before]
   return [{ giverId: '', pairs: [{ fromField: fieldId, toField: '', from: 'formField', fromProp: prop }] }]

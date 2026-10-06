@@ -24,7 +24,7 @@ export function allBlockTypes(): BlockType[] {
   return Array.from(registry.values())
 }
 
-export function blockTypeForTag(tagName: string): BlockType | undefined {
+function blockTypeForTag(tagName: string): BlockType | undefined {
   const tag = tagName.toLowerCase()
   return Array.from(registry.values()).find((def) => def.tag.toLowerCase() === tag)
 }

@@ -29,7 +29,7 @@ const STEP_ADAPTERS: { [K in StepKind]: StepAdapter<K> } = {
   MASK_CLOSE: maskClose,
 }
 
-export const STEP_KINDS: readonly StepKind[] = Object.values(STEP_ADAPTERS).map((a) => a.kind)
+const STEP_KINDS: readonly StepKind[] = Object.values(STEP_ADAPTERS).map((a) => a.kind)
 
 export function stepAdapter(kind: StepKind): StepAdapter<StepKind> {
   return STEP_ADAPTERS[kind]

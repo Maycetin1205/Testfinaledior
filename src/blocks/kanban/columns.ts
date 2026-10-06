@@ -11,7 +11,7 @@ import { toneProperty } from '../tone/tone'
 
 // A place in a column, where a card lies: its name, typed on its head, and the
 // value it stands for in the field the board sorts by.
-export const kanbanPlaceProperties = {
+const kanbanPlaceProperties = {
   name: textProperty({
     default: 'Platz',
     label: 'Name',
@@ -31,7 +31,7 @@ export const kanbanPlaceProperties = {
 // for none; its tone; whether it takes the cards whose value no place names;
 // and its places, one at least. A column with one place shows no place of
 // its own.
-export const kanbanColumnProperties = {
+const kanbanColumnProperties = {
   heading: textProperty({
     default: 'Neue Spalte',
     label: 'Titel',
@@ -73,7 +73,7 @@ function column(heading: string, tone: string): KanbanColumn {
   return { heading, button: '', tone, catchAll: false, places: [place(heading)] }
 }
 
-export function defaultKanbanColumns(): KanbanColumn[] {
+function defaultKanbanColumns(): KanbanColumn[] {
   return [column('Offen', 'warning'), column('In Arbeit', 'info'), column('Fertig', 'success')]
 }
 
@@ -83,7 +83,7 @@ function placeFrom(raw: unknown): KanbanPlace {
   return { name: String(values.name), value: String(values.value) }
 }
 
-export function kanbanPlacesFrom(raw: unknown): KanbanPlace[] {
+function kanbanPlacesFrom(raw: unknown): KanbanPlace[] {
   return Array.isArray(raw) ? raw.map(placeFrom) : []
 }
 
@@ -124,7 +124,7 @@ function moved<E>(entries: readonly E[], from: number, to: number): E[] | null {
 
 // The places of a column at their heads: name typed on the head, value in the
 // bar, added from the bar at the column's head. A column keeps one place.
-export const KANBAN_PLACES_BINDING: ListBinding<KanbanPlace> = {
+const KANBAN_PLACES_BINDING: ListBinding<KanbanPlace> = {
   prop: 'places',
   defaultTitle: 'Platz {n}',
   fieldless: true,

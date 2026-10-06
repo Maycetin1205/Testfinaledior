@@ -71,7 +71,7 @@ export function inSubtree(tree: MaskTree, ancestorId: string, id: string): boole
   return false
 }
 
-export type PropertyOutcome =
+type PropertyOutcome =
   | { kind: 'changed'; tree: MaskTree }
   // The value already stands there.
   | { kind: 'same' }

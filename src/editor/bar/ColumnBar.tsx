@@ -20,21 +20,21 @@ import { controlShown } from './controlShown'
 // One line holds seven parts at most; more, and the switches share a window.
 const BAR_PARTS = 7
 
-export interface ColumnSwitch {
+interface ColumnSwitch {
   key: string
   label: string
   on: boolean
   onToggle: (on: boolean) => void
 }
 
-export interface ColumnAction {
+interface ColumnAction {
   label: string
   icon: Icon
   onOpen: () => void
 }
 
 // A choice among the column's siblings, like the column a subline stands under.
-export interface ColumnPlace {
+interface ColumnPlace {
   key: string
   label: string
   value: string

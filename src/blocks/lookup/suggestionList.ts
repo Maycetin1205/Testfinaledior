@@ -4,7 +4,7 @@ import type { Column } from '../list/columns'
 import { markHit, plainText } from '../list/textSearch'
 import { maskState } from '../../runtime/maskState'
 
-export const SUGGESTIONS_MAX = 50
+const SUGGESTIONS_MAX = 50
 
 // Rows the list shows at once; a page key moves the mark by this many.
 export const SUGGESTIONS_PAGE = 12

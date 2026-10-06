@@ -13,7 +13,7 @@ const blockValueKey = (blockId: string, prop: string): string =>
 // document or the value of a form field. The key of a helper source and the
 // pairs of a follow offer the same.
 
-export interface FormFieldSpot {
+interface FormFieldSpot {
   key: string
   blockId: string
   prop: string

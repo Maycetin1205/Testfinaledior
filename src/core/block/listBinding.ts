@@ -53,7 +53,7 @@ export interface ListBinding<E = unknown> {
   entryMove?(entries: readonly E[], from: number, to: number): E[] | null
 }
 
-export interface InnerList<E> {
+interface InnerList<E> {
   binding: ListBinding
   of(entry: E): readonly unknown[]
   with(entry: E, inner: readonly unknown[]): E

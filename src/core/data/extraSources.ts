@@ -25,7 +25,7 @@ export function completePairs(carrier: { pairs: readonly KeyPair[] }): KeyPair[]
   return carrier.pairs.filter((p) => p.fromField.trim() !== '' && p.toField.trim() !== '')
 }
 
-export function keyPairFrom(raw: unknown): KeyPair | null {
+function keyPairFrom(raw: unknown): KeyPair | null {
   if (!raw || typeof raw !== 'object') return null
   const pair: Unread<KeyPair> = raw
   if (typeof pair.fromField !== 'string' || typeof pair.toField !== 'string') return null

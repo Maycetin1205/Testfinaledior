@@ -73,7 +73,7 @@ function stable(value: unknown): string {
   })
 }
 
-export function addOn<T extends { id: string }>(
+function addOn<T extends { id: string }>(
   old: readonly T[],
   fromFile: readonly T[],
 ): { list: readonly T[]; added: number; replaced: number } {

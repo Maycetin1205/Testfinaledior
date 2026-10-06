@@ -7,7 +7,7 @@ export interface OfferEntry {
   badge?: string
 }
 
-export interface OfferSource {
+interface OfferSource {
   sourceId: string
   name: string
   fields: readonly OfferEntry[]

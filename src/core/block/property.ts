@@ -59,7 +59,7 @@ export type PropertyPlace = 'bar' | 'display' | 'font' | 'source' | 'lookup' | '
 // Another property presets this one, like the role of a text its color: a new
 // value there brings this one back to its default, and while it holds the
 // default, `values` names what it shows.
-export interface Preset {
+interface Preset {
   by: string
   values?: Readonly<Record<string, string>>
 }
@@ -222,7 +222,7 @@ export function booleanProperty(init: Init<boolean>): Property<boolean> {
 }
 
 // A list or record the block folder reads into its own type.
-export function structuredProperty<V>(
+function structuredProperty<V>(
   type: Omit<PropertyType<V>, 'control'>,
   init: Init<V>,
 ): Property<V> {
