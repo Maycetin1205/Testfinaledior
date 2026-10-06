@@ -2,8 +2,7 @@ import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
 import { relationIdsOf } from '../core/block/treeQuery'
 import type { DataSource } from '../core/data/dataSources'
 import { deliveryAdapter } from '../core/data/deliveries/deliveries'
-import { writesOneField, type RelationTemplate } from '../core/data/relations'
-import { writeAdapter } from '../core/data/writes/writes'
+import type { RelationTemplate } from '../core/data/relations'
 
 export function collectRelation(
   tree: MaskTree,
@@ -27,12 +26,6 @@ export function collectRelation(
   visit(tree[ROOT_ID])
   for (const source of sources) {
     for (const id of deliveryAdapter(source.delivery.kind).relationIds(source.delivery)) add(id)
-  }
-  for (const source of sources) {
-    for (const id of writeAdapter(source.write.kind).relationIds(source.write)) {
-      const rel = relation.find((r) => r.id === id)
-      if (rel && writesOneField(rel)) add(id)
-    }
   }
   return acc
 }

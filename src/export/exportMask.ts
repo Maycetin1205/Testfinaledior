@@ -19,8 +19,7 @@ import {
   type DataSource,
 } from '../core/data/dataSources'
 import { deliveryAdapter } from '../core/data/deliveries/deliveries'
-import { writesOneField, type RelationTemplate } from '../core/data/relations'
-import { writeRelationOf } from '../core/data/writes/writes'
+import type { RelationTemplate } from '../core/data/relations'
 import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
 import { pagesOfMask } from '../core/block/pages'
 import { pageRowsTemplate, ROOT_PADDING } from '../core/block/gridArea'
@@ -171,30 +170,18 @@ export function exportMask(
 
   const runtimeJs = guardScriptContent(escapeNonAsciiJs(runtimeRaw))
 
-  // A source writes with a relation the mask carries that writes one field,
-  // else with none.
-  const writeRelationIn = (s: DataSource): string => {
-    const id = writeRelationOf(s.write)
-    const rel = usedRelation.find((r) => r.id === id)
-    return rel && writesOneField(rel) ? id : ''
-  }
-
   const sourcesJs = guardJsonScript(escapeNonAsciiJs(
-    'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => {
-      const writeRelation = writeRelationIn(s)
-      return {
-        id: s.id,
-        name: s.name,
-        tableId: s.tableId,
-        recordField: recordNumberOf(s),
-        ...(writeRelation !== '' ? { writeRelation } : {}),
-        ...deliveryAdapter(s.delivery.kind).export(s.delivery, s, {
-          usedFields: usedFields.get(s.id),
-          orderedFields: (source) => orderedFields(source, usedFields.get(source.id), getKey.get(source.id) ?? [], false),
-          relations: relation,
-        }),
-      }
-    })) + ';',
+    'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => ({
+      id: s.id,
+      name: s.name,
+      tableId: s.tableId,
+      recordField: recordNumberOf(s),
+      ...deliveryAdapter(s.delivery.kind).export(s.delivery, s, {
+        usedFields: usedFields.get(s.id),
+        orderedFields: (source) => orderedFields(source, usedFields.get(source.id), getKey.get(source.id) ?? [], false),
+        relations: relation,
+      }),
+    }))) + ';',
   ))
 
   const relationJs = guardJsonScript(escapeNonAsciiJs(

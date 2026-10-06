@@ -62,15 +62,11 @@ export const tableText = (s: DataSource): string => keyDisplay(s.tableId)
 export const nameTaken = (sources: readonly DataSource[], name: string, except?: string): boolean =>
   sources.some((s) => s.id !== except && aliasOf(s.name) === aliasOf(name))
 
-// The record number is the field named so; a source that knows one keeps it,
-// and with it the relation that writes a field.
+// The record number is the field named so; a source that knows one keeps it.
 function writeFor(preset: PresetId, fields: readonly DataField[], before: Write): Write {
   if (!sourcePreset(preset).writes) return { kind: 'none' }
   const named = fields.find((f) => aliasOf(f.name) === 'satznummer')
-  if (named) {
-    const relationId = before.kind === 'putRelation' ? before.relationId : undefined
-    return { kind: 'putRelation', recordField: named.code, ...(relationId ? { relationId } : {}) }
-  }
+  if (named) return { kind: 'putRelation', recordField: named.code }
   if (before.kind === 'putRelation' && fields.some((f) => f.code === before.recordField)) return before
   return before.kind === 'putRelation' && fields.length === 0 ? before : { kind: 'none' }
 }
@@ -108,15 +104,6 @@ export function withEntry(s: DataSource, change: { name?: string; table?: string
   }
   const choice = { ...choiceOf(s), headerKey: '', openRecord: false, load: null }
   return { ...without(s), name, ...kind, ...described(kind.preset, choice, fields, s.write), fields }
-}
-
-// The relation that writes one field of a record; '' writes none. Only a
-// source with a record number writes.
-export function withWriteRelation(s: DataSource, relationId: string): SourceData {
-  if (s.write.kind !== 'putRelation') return without(s)
-  const { relationId: _before, ...write } = s.write
-  void _before
-  return { ...without(s), write: relationId === '' ? write : { ...write, relationId } }
 }
 
 // New settings: what the source delivers, its value relation, its area, the
