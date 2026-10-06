@@ -1,5 +1,6 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock } from '../base/BlockElement'
+import { startRename } from '../base/inlineRename'
 import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
 import type { DataPreamble } from '../../runtime/source'
@@ -65,9 +66,54 @@ export class Kanban extends BlockElement {
     >${bound && !image ? animalOutline('paw') : nothing}</span>`
   }
 
+  // The button under the cards of a column, in the tone of the column it leads
+  // to; the last column has none. In the editor its text is typed on it; in
+  // the mask it shows only with a text and moves the card on.
+  private advance(column: number, card: CardData | null): TemplateResult | typeof nothing {
+    const columns = kanbanColumnsFrom(this.columns)
+    const next = columns[column + 1]
+    const text = columns[column]?.button ?? ''
+    if (!next || (card !== null && text.trim() === '')) return nothing
+    if (card === null) {
+      return html`<button
+        type="button"
+        class="advance tone-${toneValue(next.tone)}"
+        data-ff-editable
+        @dblclick=${(e: MouseEvent) => this.editAdvance(e, column)}
+      >${text}</button>`
+    }
+    return html`<button
+      type="button"
+      class="advance tone-${toneValue(next.tone)}"
+      draggable="false"
+      @click=${(e: MouseEvent) => {
+        e.stopPropagation()
+        this.board.advance(card)
+      }}
+    >${text}</button>`
+  }
+
+  private editAdvance(event: MouseEvent, column: number): void {
+    if (!this.editable) return
+    const target = event.currentTarget
+    if (!(target instanceof HTMLElement)) return
+    event.stopPropagation()
+    event.preventDefault()
+    startRename(target, (text, original) => {
+      if (text === original) return
+      const columns = kanbanColumnsFrom(this.columns).map((c, i) => (i === column ? { ...c, button: text } : c))
+      this.dispatchEvent(new CustomEvent('ff-prop-change', {
+        detail: { attr: 'columns', value: columns },
+        bubbles: true,
+        composed: true,
+      }))
+    })
+  }
+
   // Without values the card is the one the builder shapes: every spot shows.
   // In the mask a spot without a value falls away.
-  private cardContent(values: Readonly<Record<string, string>> | null): TemplateResult {
+  private cardContent(column: number, card: CardData | null): TemplateResult {
+    const values = card === null ? null : card.values
     const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean =>
       values === null || (values[prop] ?? '').trim() !== ''
     const main = shows('avatar') || shows('heading') || shows('subline')
@@ -90,10 +136,11 @@ export class Kanban extends BlockElement {
             ${shows('time') ? this.spot('time', 'time', values) : nothing}
             ${shows('chip') ? this.spot('chip', `chip tone-${toneValue(this.chipTone)}`, values) : nothing}
           </div>`
-        : nothing}`
+        : nothing}
+      ${this.advance(column, card)}`
   }
 
-  private cardTpl(card: CardData): TemplateResult {
+  private cardTpl(card: CardData, column: number): TemplateResult {
     const board = this.board
     const chosen = card.key === board.chosen
     return html`<div
@@ -110,12 +157,12 @@ export class Kanban extends BlockElement {
       }}
       @dragstart=${(e: DragEvent) => board.startDrag(e, card)}
       @dragend=${() => board.endDrag()}
-    >${this.cardContent(card.values)}</div>`
+    >${this.cardContent(column, card)}</div>`
   }
 
   private cardsAt(spot: Spot): TemplateResult | TemplateResult[] {
-    if (this.preview) return html`<div class="card">${this.cardContent(null)}</div>`
-    return this.board.cardsAt(spot).map((card) => this.cardTpl(card))
+    if (this.preview) return html`<div class="card">${this.cardContent(spot.column, null)}</div>`
+    return this.board.cardsAt(spot).map((card) => this.cardTpl(card, spot.column))
   }
 
   private count(cards: readonly CardData[]): string | number {

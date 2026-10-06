@@ -243,7 +243,28 @@ export const kanbanStyle = css`
     white-space: nowrap;
   }
 
-  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before {
+  /* The button under the card, as .vbtn-aktion: in the tone of the column it
+     leads to. */
+  .advance {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--se-control);
+    border: none;
+    border-radius: var(--se-radius);
+    background: var(--tone-tint);
+    color: var(--tone-ink);
+    font-family: var(--se-font);
+    font-size: var(--se-fs);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+  .advance:hover { filter: brightness(.96); }
+
+  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before,
+  :host([preview]) .advance:empty::before {
     content: '—';
     color: var(--se-faint);
   }
