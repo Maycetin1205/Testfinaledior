@@ -214,7 +214,6 @@ export class Capture extends BlockElement
 
 defineBlock(Capture, {
   name: 'Erfassung',
-  head: '.head',
   category: 'input',
   properties: captureProperties,
   capabilities: [

@@ -8,6 +8,7 @@ import { PageBar } from '../canvas/PageBar'
 import { BlockPalette } from '../sidebar/BlockPalette'
 import { DataWindow } from '../data/DataWindow'
 import { onDataRequest } from '../data/openData'
+import { BarStrip } from '../bar/BarStrip'
 import { Toolbar } from './Toolbar'
 
 export function EditorShell() {
@@ -32,10 +33,11 @@ export function EditorShell() {
           <BlockPalette />
         </aside>
 
-        {/* Above the mask room for the bar of a block in its first row. */}
-        <main className="min-w-0 flex-1 overflow-auto bg-[hsl(var(--canvas-bg))] px-4 pb-4 pt-[20px]">
-          <Canvas />
-        </main>
+        <BarStrip>
+          <main className="min-w-0 flex-1 overflow-auto bg-[hsl(var(--canvas-bg))] p-4">
+            <Canvas />
+          </main>
+        </BarStrip>
 
       </div>
 

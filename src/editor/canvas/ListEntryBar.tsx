@@ -1,4 +1,3 @@
-import type { RefObject } from 'react'
 import { Calculator, ListPlus, Search } from '@/editor/icons/icon'
 import {
   entriesWithValue,
@@ -49,7 +48,6 @@ interface ListEntryBarProps {
   // The block's lookup window, when it belongs to this list's entries.
   searchWindow: LookupWindow | undefined
 
-  containerRef: RefObject<HTMLDivElement | null>
   element: HTMLElement | null
 
   onClose: () => void
@@ -59,7 +57,7 @@ interface ListEntryBarProps {
 // switches and actions, the bin. An inner entry gets a bar of its own.
 export function ListEntryBar({
   editor, block, listBinding, pick, sources, groups, sourceFromProp, hasFields, sourcesChoice,
-  searchWindow, containerRef, element, onClose,
+  searchWindow, element, onClose,
 }: ListEntryBarProps) {
   const entriesOf = (): unknown[] => listBinding.entries(block.values[listBinding.prop])
 
@@ -149,9 +147,6 @@ export function ListEntryBar({
       <ColumnBar
         key={`${pick.index}.${at}`}
         block={block}
-        host={containerRef}
-        element={element}
-        align={pick.left}
         name={title === '' ? listDefaultTitle(innerBinding, at) : title}
         fields={[]}
         groups={groups}
@@ -177,9 +172,6 @@ export function ListEntryBar({
     <ColumnBar
       key={pick.index}
       block={block}
-      host={containerRef}
-      element={element}
-      align={pick.left}
       name={titleNow === '' ? defaultTitle : titleNow}
       fields={!hasFields || listBinding.fieldless === true ? [] : [
         { key: 'field', label: 'Feld', current: listBinding.fieldOf(entry), onChoose: pickField },

@@ -164,7 +164,6 @@ export function useFieldBinding({
           hasFields={listPickerHasFields}
           sourcesChoice={sourcesChoice}
           searchWindow={ownWindow ? searchWindow : undefined}
-          containerRef={containerRef}
           element={element}
           onClose={closeListPicker}
         />
