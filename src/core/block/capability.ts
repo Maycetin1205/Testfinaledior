@@ -150,14 +150,9 @@ export interface ChangeCarrier {
   changedRows: readonly { record: string; values: readonly string[] }[]
 }
 
-export interface Delivery {
-  rows: readonly unknown[]
-  recordOf: (row: unknown) => string
-  read: (row: unknown, field: string) => string
-}
-
+// The document delivered anew, or closed: what was written is through.
 export interface SentRowsElement {
-  checkArrival: (delivery: Delivery | null) => void
+  writtenArrived: () => void
 }
 
 export interface WrittenRow {

@@ -1,4 +1,4 @@
-import type { Delivery, PendingKind, WrittenRow } from '../../core/block/capability'
+import type { PendingKind, WrittenRow } from '../../core/block/capability'
 import type { Calculation } from '../../core/data/calculation'
 import type { Column } from '../list/columns'
 import type { Entry } from '../lookup/lookup'
@@ -171,19 +171,12 @@ export class CaptureLedger {
 
   // ----- the answer of the document -----
 
-  checkArrival(delivery: Delivery | null): void {
-    if (delivery === null) {
-      if (!this.captured.hasWritten() && !this.booked.hasInFlight()) return
-      this.captured.dropWritten()
-      this.booked.dropInFlight()
-      this.host.report()
-      return
-    }
-    const captured = this.captured.arrival(delivery)
-    const booked = this.booked.arrival(delivery)
-    for (const key of captured.missing) this.outbound.failed('captured', key)
-    for (const record of booked.missing) this.outbound.failed('changed', record)
-
-    if (captured.moved || booked.moved) this.host.report()
+  // The document delivered anew: what was written is through and leaves,
+  // the document shows it now.
+  writtenArrived(): void {
+    if (!this.captured.hasWritten() && !this.booked.hasInFlight()) return
+    this.captured.dropWritten()
+    this.booked.dropInFlight()
+    this.host.report()
   }
 }

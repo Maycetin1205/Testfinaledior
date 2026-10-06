@@ -4,7 +4,6 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import type {
   CaptureCarrier,
   ChangeCarrier,
-  Delivery,
   PendingKind,
   RunReportElement,
   SentRowsElement,
@@ -106,8 +105,8 @@ export class Capture extends BlockElement
     this._ledger.runDone(kind, written)
   }
 
-  checkArrival(delivery: Delivery | null): void {
-    this._ledger.checkArrival(delivery)
+  writtenArrived(): void {
+    this._ledger.writtenArrived()
   }
 
   listColumns(): CaptureColumn[] {

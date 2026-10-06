@@ -1,5 +1,4 @@
-import type { Delivery, PendingKind, WrittenRow } from '../../../core/block/capability'
-import { arrivalCheck } from '../arrival'
+import type { PendingKind, WrittenRow } from '../../../core/block/capability'
 import type { CaptureColumn } from '../column'
 import { missingRequired, type CaptureContext } from '../row'
 import type { CaptureRow, Helpers } from './captureRow'
@@ -169,7 +168,7 @@ export class CapturedRows {
     return this.rows.some((row) => row.written !== undefined)
   }
 
-  // The document closed without an answer: the written rows leave.
+  // The document delivered anew or closed: the written rows leave.
   dropWritten(): void {
     const away = new Set<number>()
     this.rows.forEach((row, slot) => {
@@ -177,37 +176,6 @@ export class CapturedRows {
     })
     this.rows = this.rows.filter((_, slot) => !away.has(slot))
     this.slideCorrection(away)
-  }
-
-  // The document answered: the written rows it shows leave, the others go
-  // back to pending and are named as missing.
-  arrival(delivery: Delivery): { missing: string[]; moved: boolean } {
-    const sent: { slot: number; record: string; values: readonly string[] }[] = []
-    this.rows.forEach((row, slot) => {
-      const mark = row.written
-      if (mark !== undefined) sent.push({ slot, record: mark.record, values: row.values })
-    })
-    if (sent.length === 0) return { missing: [], moved: false }
-
-    const arrived = arrivalCheck(sent, this.host.columns(), delivery)
-
-    const away = new Set<number>()
-    const missing: string[] = []
-    sent.forEach((row, i) => {
-      if (arrived[i] === true) {
-        away.add(row.slot)
-        return
-      }
-      missing.push(this.rows[row.slot]?.key ?? '')
-    })
-    this.rows = this.rows
-      .filter((_, slot) => !away.has(slot))
-      .map((row) => (missing.includes(row.key)
-        ? { ...row, written: undefined }
-        : row))
-
-    this.slideCorrection(away)
-    return { missing, moved: true }
   }
 
   // Rows left the list: the row under correction keeps its place among those
