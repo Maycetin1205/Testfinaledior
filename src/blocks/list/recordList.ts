@@ -9,9 +9,9 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { ViewChoices } from './viewChoices'
 import { giverIdOf } from '../../runtime/selection'
 import { SUBLINE_HEIGHT, type MeasureTarget } from './pageSize'
+import { sendPropChange } from '../base/BlockElement'
 import {
   columnsView,
-  sendColumnsChange,
   type Column,
   type ColumnView,
 } from './columns'
@@ -121,7 +121,7 @@ export class RecordList implements ReactiveController {
       preview: () => el.preview,
       fullSlot: (rendered) => this.layoutOf(this.visibleView()).main.slots[rendered] ?? rendered,
       columnsList: () => [...el.listColumns()],
-      writeColumns: (columns) => sendColumnsChange(el, columns),
+      writeColumns: (columns) => sendPropChange(el, 'columns', columns),
       report: () => el.requestUpdate(),
     })
     this._view = new ViewChoices(el, () => el.listColumns(), () => this.subHeight())

@@ -6,6 +6,7 @@ import {
   windowWidthFor,
   openLookup,
 } from '../../blocks/lookup/lookup'
+import { PROP_CHANGE, type PropChange } from '../../blocks/base/BlockElement'
 import { DIALOG_FRAME_TAG, WINDOW_HEIGHT, type DialogFrame } from '../../blocks/dialog/DialogFrame'
 import type { Column } from '../../blocks/list/columns'
 import type { BlockNode } from '../../core/block/tree'
@@ -166,9 +167,9 @@ function wireWidths(
   window: LookupWindow,
   slot: number,
 ): void {
-  frame.querySelector('ff-table')?.addEventListener('ff-prop-change', (event) => {
-    const detail = (event as CustomEvent<{ attr?: string; value?: unknown }>).detail
-    if (detail?.attr !== 'columns') return
+  frame.querySelector('ff-table')?.addEventListener(PROP_CHANGE, (event) => {
+    const detail = (event as CustomEvent<PropChange>).detail
+    if (detail.prop !== 'columns') return
     const dragged = coerceLookupColumns(detail.value)
 
     const state = windowStateOf(ed, blockId, window, slot)

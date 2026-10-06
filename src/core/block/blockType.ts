@@ -44,11 +44,8 @@ export interface BlockDeclaration {
 
   takesChildren?: boolean
 
-  allowedChildren?: readonly string[]
   allowedParent?: readonly string[]
   inPalette?: boolean
-
-  containerFrame?: boolean
 
   page?: boolean
 

@@ -60,12 +60,10 @@ export function readActionValue(el: Element, prop: string): string {
 export function mayContain(parentType: string, childType: string): boolean {
   const child = registry.get(childType)
   if (!child) return false
-  if (child?.allowedParent && !child.allowedParent.includes(parentType)) {
+  if (child.allowedParent && !child.allowedParent.includes(parentType)) {
     return false
   }
   const def = registry.get(parentType)
   if (!def) return parentType === ROOT_TYPE
-  if (!def.takesChildren) return false
-  if (!def.allowedChildren) return true
-  return def.allowedChildren.includes(childType)
+  return def.takesChildren
 }

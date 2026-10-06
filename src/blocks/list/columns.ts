@@ -146,15 +146,6 @@ export function coerceColumns(v: unknown): Column[] {
 // The css grid template the head, the rows and the ruler all stand on.
 export type ColumnsGrid = { gridTemplateColumns: string }
 
-// The editor owns the tree; a block asks it to store changed columns.
-export function sendColumnsChange(el: HTMLElement, columns: readonly Column[]): void {
-  el.dispatchEvent(new CustomEvent('ff-prop-change', {
-    detail: { attr: 'columns', value: columns },
-    bubbles: true,
-    composed: true,
-  }))
-}
-
 export function columnsTemplate(
   columns: readonly Column[],
   widths: (index: number) => number | undefined = () => undefined,
