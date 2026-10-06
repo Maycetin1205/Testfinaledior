@@ -151,10 +151,15 @@ export function rowsToSelection(el: HTMLElement, rows: unknown[]): unknown[] {
     if (needsRow && selection === undefined) return []
 
     // A pair reads the giver's chosen row, the open document or a form field.
+    // An equal pair without a value shows nothing; an unequal pair without a
+    // value drops nothing.
     const expected = follow.pairs.map((p) => outsideValue(p, el) ?? host.readField(selection, p.fromField))
-    if (expected.some((value) => value.trim() === '')) return []
+    if (follow.pairs.some((p, i) => !p.unequal && expected[i].trim() === '')) return []
 
-    out = out.filter((row) => follow.pairs.every((p, i) => expected[i] === host.readField(row, p.toField)))
+    out = out.filter((row) => follow.pairs.every((p, i) => {
+      if (p.unequal) return expected[i].trim() === '' || expected[i] !== host.readField(row, p.toField)
+      return expected[i] === host.readField(row, p.toField)
+    }))
   }
   return out
 }

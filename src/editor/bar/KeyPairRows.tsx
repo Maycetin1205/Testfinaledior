@@ -16,6 +16,9 @@ interface KeyPairRowsProps {
   rightName: (at: number) => string
   removeName: (at: number) => string
   onChange: (pairs: KeyPair[]) => void
+
+  // Whether a click on the sign turns "=" into "≠" and back.
+  comparable?: boolean
 }
 
 // One sentence per pair: the field of the source, "=", where its value comes
@@ -28,6 +31,7 @@ export function KeyPairRows({
   rightName,
   removeName,
   onChange,
+  comparable = false,
 }: KeyPairRowsProps) {
   const setPair = (at: number, part: Partial<KeyPair>) =>
     onChange(pairs.map((p, i) => (i === at ? { ...p, ...part } : p)))
@@ -57,7 +61,22 @@ export function KeyPairRows({
             emptyText="Nicht gebunden"
             onChoose={(code) => setPair(at, { toField: code })}
           />
-          <span className="text-muted">=</span>
+          {comparable
+            ? (
+                <Button
+                  onlyIcon
+                  aria-label={pair.unequal ? 'Ungleich' : 'Gleich'}
+                  title={pair.unequal ? 'Ungleich' : 'Gleich'}
+                  onClick={() => onChange(pairs.map((p, i) => {
+                    if (i !== at) return p
+                    const { unequal, ...rest } = p
+                    return unequal ? rest : { ...rest, unequal: true }
+                  }))}
+                >
+                  {pair.unequal ? '≠' : '='}
+                </Button>
+              )
+            : <span className="text-muted">=</span>}
           <div className="flex min-w-0 [&>*]:w-full [&>*]:flex-1">{left(pair, at)}</div>
           <span className="flex items-center">
             {pairs.length > 1 && (

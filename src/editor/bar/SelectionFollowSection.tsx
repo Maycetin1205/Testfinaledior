@@ -60,9 +60,13 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
     ? null
     : outsideOrigin(pair) ?? { kind: 'row', sourceId: follow.giverId, value: pair.fromField })
 
-  const pairFor = (origin: ValueOrigin, pair: KeyPair): KeyPair | null => (fromOutside(origin)
-    ? outsidePair(origin, pair.toField, formFields)
-    : { fromField: origin.value, toField: pair.toField })
+  // A new origin keeps the sign of the pair.
+  const pairFor = (origin: ValueOrigin, pair: KeyPair): KeyPair | null => {
+    const next = fromOutside(origin)
+      ? outsidePair(origin, pair.toField, formFields)
+      : { fromField: origin.value, toField: pair.toField }
+    return next && pair.unequal ? { ...next, unequal: true } : next
+  }
 
   // Once every pair reads a form field or the open document, the block no
   // longer follows a giver's row.
@@ -105,6 +109,7 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
           rightName={(at) => `Feld ${at + 1} in diesem Baustein`}
           removeName={(at) => `Feldpaar ${at + 1} entfernen`}
           onChange={(keyPairs) => set([{ ...follow, pairs: keyPairs }])}
+          comparable
         />
       )}
     </div>
