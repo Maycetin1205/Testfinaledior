@@ -408,6 +408,18 @@ steht hier nur als Wissen:
   blieben ohne Wirkung. Die Antwort `focusOnUs()` in `softengine/bridge.ts`
   bleibt stehen, sie ist folgenlos. STDERFASSUNG ohne Layoutrahmen: nicht
   nachgemessen.
+  **Nachgemessen 2026-10-06** (Fokus-Mitschrieb, GetGUIThreadInfo, 40 ms Takt,
+  Layoutrahmen 10000, Beleg L00 ohne Positionen, Maske ohne jede Bestellung,
+  CPU von SeErpWinUi bei 3 bis 6 %): nicht die Rechenphase nimmt den Fokus,
+  sondern SoftEngines eigenes Fenster `Positionserfassung / WA-Lieferschein
+  (L00)` (Klasse BWWORK, eigenes Hauptfenster). Ein Klick in die Maske gibt dem
+  WebView den Fokus für 60 bis 80 ms, dann holt sich die Positionserfassung
+  Vordergrund und Fokus zurück; weitere Klicks in den WebView bewegen den
+  Fokus gar nicht mehr. Mal bleibt der erste Klick nach dem Öffnen, mal nicht,
+  bei gleichem Beleg und gleicher Maske. Die Positionskalkulation war dabei
+  nicht die Ursache; sie verlängert nur die Phase, wenn Positionen da sind
+  (Debugprotokoll 2026-10-02: 442 BPK-Formelschritte und Relation 1911 je
+  Position, 1,8 s).
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
   und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie
