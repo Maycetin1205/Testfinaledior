@@ -172,7 +172,6 @@ function RelationBody({ step, group, template, relations, choices, onChange }: {
             className="w-full"
             groups={[{ key: 'relations', entries: offered.map((r) => ({ value: r.id, name: r.name, badge: relationSyntaxAsText(r) })) }]}
             value={template.id}
-            placeholder=""
             onChoose={choose}
           />
         </div>
@@ -311,7 +310,6 @@ function PopupBody({ step, popups, onChange }: {
               className="w-full"
               groups={[{ key: 'popups', entries: popups }]}
               value={step.popupId}
-              placeholder=""
               onChoose={(id) => onChange({ ...step, popupId: id })}
             />
           </>

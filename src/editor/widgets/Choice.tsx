@@ -22,6 +22,7 @@ interface ChoiceProps
 
 export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
   ({ options, value, emptyText, onChoose, className, ...rest }, ref) => {
+    // A value the options do not have keeps the select on it, showing nothing.
     const unknown = value !== '' && !options.some((o) => o.value === value)
 
     return (
@@ -30,16 +31,12 @@ export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
           ref={ref}
           value={value}
           onChange={(e) => onChoose(e.currentTarget.value)}
-          className={cn(
-            INPUT_EDGE,
-            'h-control cursor-pointer appearance-none py-0 pl-2 pr-7',
-            unknown && 'text-error',
-          )}
+          className={cn(INPUT_EDGE, 'h-control cursor-pointer appearance-none py-0 pl-2 pr-7')}
           {...rest}
         >
           {emptyText !== undefined && <option value="">{emptyText}</option>}
 
-          {unknown && <option value={value}>{value}</option>}
+          {unknown && <option value={value}></option>}
           {options.map((o) => (
             <option key={o.value} value={o.value} disabled={o.disabled}>
               {o.badge === undefined || o.badge === '' ? o.name : `${o.name} — ${o.badge}`}

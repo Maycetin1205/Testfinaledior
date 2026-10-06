@@ -64,18 +64,19 @@ interface Display {
   name: string
   key?: string
   empty: boolean
-  unknown: boolean
 }
 
+// The bound field by name and code; a field the sources in reach no longer
+// have leaves the row empty.
 function displayOf(value: string, groups: readonly PickerGroup[]): Display {
-  if (value === '') return { name: NOT_BOUND, empty: true, unknown: false }
+  if (value === '') return { name: NOT_BOUND, empty: true }
   for (const g of groups) {
     for (const f of g.fields) {
       if (bindingWithSource(g.sourceId, f.code) !== value) continue
-      return { name: f.name, key: f.code, empty: false, unknown: false }
+      return { name: f.name, key: f.code, empty: false }
     }
   }
-  return { name: value, empty: false, unknown: true }
+  return { name: '', empty: false }
 }
 
 function listGroups(groups: readonly PickerGroup[]): ListGroup[] {
@@ -106,11 +107,7 @@ function FieldRow({ label, display }: FieldRowProps) {
 
       <span className="w-24 shrink-0 truncate text-ui text-muted">{label}</span>
       <span
-        className={cn(
-          'min-w-0 flex-1 truncate text-ui',
-          display.empty && 'text-muted',
-          display.unknown ? 'text-error' : 'text-ink',
-        )}
+        className={cn('min-w-0 flex-1 truncate text-ui', display.empty ? 'text-muted' : 'text-ink')}
       >
         {display.name}
       </span>

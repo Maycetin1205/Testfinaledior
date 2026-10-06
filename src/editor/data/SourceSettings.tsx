@@ -177,7 +177,6 @@ function RelationChoice({ getters, value, onChoose }: {
       className={cn(PICKER, 'w-[280px]')}
       groups={[{ key: 'relations', entries: getters.map((r) => ({ value: r.id, name: r.name, badge: relationSyntaxAsText(r) })) }]}
       value={value}
-      placeholder=""
       onChoose={(id) => {
         const t = getters.find((r) => r.id === id)
         if (t) onChoose(t)

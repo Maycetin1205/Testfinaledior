@@ -1,34 +1,33 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { INPUT_EDGE } from '@/editor/widgets/Field'
 import { Button } from '@/editor/widgets/Button'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { Popover } from '@/editor/widgets/Popover'
-import { Row, type RowControl } from '@/editor/widgets/Row'
+import { Row } from '@/editor/widgets/Row'
 
 interface PickerControlProps {
   label?: string
-  error?: ReactNode
 
   name: string
   groups: readonly ListGroup[]
   value: string
 
+  // What the button shows while nothing is chosen; the list offers it as a choice.
   emptyText?: string
-  placeholder?: string
   className?: string
   onChoose: (value: string) => void
 }
 
+// A button that opens a list to choose from. It shows the name of the chosen
+// entry; a value the list does not have shows nothing.
 export function PickerControl({
   label,
-  error,
   name,
   groups,
   value,
   emptyText,
-  placeholder = '— wählen —',
   className,
   onChoose,
 }: PickerControlProps) {
@@ -37,16 +36,12 @@ export function PickerControl({
 
   const hit = groups.flatMap((g) => g.entries).find((e) => e.value === value)
 
-  const unknown = value !== '' && hit === undefined
+  const shown = hit?.name ?? (value === '' ? emptyText ?? '' : '')
 
-  const shown = unknown ? 'fehlt' : (hit?.name ?? emptyText ?? placeholder)
-
-  const button = (control?: RowControl) => (
+  const button = (id?: string) => (
     <Button
       ref={buttonRef}
-      id={control?.id}
-      aria-describedby={control?.['aria-describedby']}
-      aria-invalid={control?.['aria-invalid']}
+      id={id}
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-label={label === undefined ? `${name}: ${shown}` : undefined}
@@ -57,7 +52,7 @@ export function PickerControl({
         className={cn(
           'min-w-0 flex-1 truncate',
           value === '' && 'text-muted',
-          unknown ? 'text-error' : value !== '' && 'font-medium',
+          hit !== undefined && 'font-medium',
         )}
       >
         {shown}
@@ -68,9 +63,9 @@ export function PickerControl({
 
   return (
     <>
-      {label === undefined && error === undefined
+      {label === undefined
         ? button()
-        : <Row label={label} error={error}>{(control) => button(control)}</Row>}
+        : <Row label={label}>{(id) => button(id)}</Row>}
 
       {open && (
         <Popover

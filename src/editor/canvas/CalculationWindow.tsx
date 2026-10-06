@@ -497,7 +497,6 @@ function UnitsPane({ term, names, onChange }: {
           className="w-full"
           groups={groups}
           value={term.first === undefined ? '' : encodeOrigin(term.first)}
-          placeholder=""
           onChoose={(v) => onChange({ ...term, first: decodeOrigin(v) })}
         />
         <span className="text-dense text-muted">Einheit 2</span>
@@ -506,7 +505,6 @@ function UnitsPane({ term, names, onChange }: {
           className="w-full"
           groups={groups}
           value={term.second === undefined ? '' : encodeOrigin(term.second)}
-          placeholder=""
           onChoose={(v) => onChange({ ...term, second: decodeOrigin(v) })}
         />
       </div>

@@ -32,7 +32,7 @@ export function SegmentControl({ label, ...rest }: SegmentControlProps) {
 
   return (
     <Row label={label}>
-      {(control) => <SegmentField {...rest} id={control.id} />}
+      {(id) => <SegmentField {...rest} id={id} />}
     </Row>
   )
 }
