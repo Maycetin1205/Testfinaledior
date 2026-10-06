@@ -41,6 +41,10 @@ export interface BlockLookupWindow {
 export interface EntryLookupWindow {
   entriesProp: string
 
+  // The fields the window's own columns show, read from the entry: the mask
+  // orders them from the source of the entry's field choice.
+  windowFields: (entry: unknown) => readonly string[]
+
   spot?: string
   when?: Condition
 }

@@ -18,7 +18,7 @@ import {
 import { LIST_GRID, listCapabilities } from '../list/listDeclaration'
 import { RecordList } from '../list/recordList'
 import { tableStyle } from '../list/tableStyle'
-import { validMetrics, closeLookupFor } from '../lookup/lookup'
+import { validMetrics, closeLookupFor, coerceLookupColumns } from '../lookup/lookup'
 import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../dialog/DialogFrame'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { reportPendingMarks } from '../../runtime/pendingState'
@@ -224,7 +224,13 @@ defineBlock(Capture, {
     { kind: 'change', key: 'editable' },
     { kind: 'holdsSent' },
     { kind: 'compute', prop: CALCULATIONS_PROP },
-    { kind: 'lookupWindow', window: { entriesProp: 'columns' } },
+    {
+      kind: 'lookupWindow',
+      window: {
+        entriesProp: 'columns',
+        windowFields: (entry) => coerceLookupColumns((entry as CaptureColumn).windowColumns).map((c) => c.field),
+      },
+    },
   ],
   contracts: { capture: Capture, change: Capture, holdsSent: Capture },
   grid: LIST_GRID,
