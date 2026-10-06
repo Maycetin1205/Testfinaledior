@@ -63,13 +63,17 @@ function deepestActive(): Element | null {
   return el
 }
 
-function focusOnUs(): boolean {
-  const el = deepestActive()
+// What the operator types into.
+export function typable(el: unknown): boolean {
   if (!(el instanceof HTMLElement)) return false
   return el.isContentEditable
     || el instanceof HTMLInputElement
     || el instanceof HTMLTextAreaElement
     || el instanceof HTMLSelectElement
+}
+
+function focusOnUs(): boolean {
+  return typable(deepestActive())
 }
 
 function afterRunStart(): void {

@@ -420,6 +420,20 @@ steht hier nur als Wissen:
   nicht die Ursache; sie verlängert nur die Phase, wenn Positionen da sind
   (Debugprotokoll 2026-10-02: 442 BPK-Formelschritte und Relation 1911 je
   Position, 1,8 s).
+  **Gelöst 2026-10-06, Echttest bestanden:** SoftEngines eigene Masken melden
+  dem Host das Bearbeiten an, bevor der Cursor ins Feld geht (selib
+  `SEDataList.js`, `StartEditMode`/`StopEditMode`):
+  `basisHTML_SND_MSG('MASKENEVENT', { EVENT: 'KARTEIKARTEN_DEAKTIVIEREN' })`
+  und `{ EVENT: 'BEARBEITUNG_AKTIV' }` vor dem Tippen,
+  `{ EVENT: 'BEARBEITUNG_BEENDET' }` und `{ EVENT: 'KARTEIKARTEN_AKTIVIEREN ' }`
+  (mit Leerzeichen, SoftEngines Schreibweise) danach. Ohne diese Anmeldung
+  gilt die Maske als Anzeige, und die Positionserfassung holt die Tastatur
+  zurück. Die Maske meldet beim Drücken der Maustaste auf ein tippbares
+  Element an, noch vor dem Klick, und meldet nur ab, wenn der Bediener in der
+  Maske auf etwas Nichttippbares klickt; ein verlorener Fensterfokus meldet
+  nichts ab, denn so sieht der Griff der Positionserfassung aus. Darum
+  scheiterte der Versuch vom 22.09. (2051ced): er meldete bei `focusout` ab.
+  Gilt in: `softengine/editing.ts`.
 - Ohne `JWHtmlStart` fehlen SoftEngines Helfer aus `HTMLEditor/JS/Allgemein.js`
   (`sendBWLink`, `sendBWLinkIntern`, `ResetDataBasis`, `InitialisiereDatenBasis`)
   und aus `jsonWandlung.js` (`InitialisiereSchnittstelle`). Die Maske ruft sie
