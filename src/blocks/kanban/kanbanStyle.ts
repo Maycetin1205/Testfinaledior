@@ -21,7 +21,7 @@ export const kanbanStyle = css`
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
-    min-width: 0;
+    min-width: 232px;
     min-height: 0;
     overflow: hidden;
     background: var(--tone-shell);
@@ -159,7 +159,14 @@ export const kanbanStyle = css`
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--se-gap-sm);
+  }
+
+  /* Name and subline on one line, as .vkarte-zeile1. */
+  .line {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    min-width: 0;
   }
 
   .avatar {
@@ -180,8 +187,9 @@ export const kanbanStyle = css`
   :host([preview][data-editable]) .avatar { cursor: pointer; }
 
   .name,
-  .extra {
+  .owner {
     display: block;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -190,11 +198,31 @@ export const kanbanStyle = css`
     color: var(--se-ink);
     font-size: var(--se-fs-name);
     font-weight: 600;
-    line-height: var(--se-lh-tight);
   }
-  .extra {
+  .meta {
+    flex: none;
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
+    white-space: nowrap;
+  }
+  .owner {
+    color: var(--se-muted);
+    font-size: var(--se-fs-sm);
+  }
+
+  .time {
+    flex: none;
+    color: var(--se-faint);
+    font-size: var(--se-fs-sm);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* The flags of the card, as .vkarte-flags. */
+  .flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
   }
 
   .text {
@@ -207,24 +235,9 @@ export const kanbanStyle = css`
     line-height: var(--se-lh);
   }
 
-  .foot {
-    display: flex;
-    align-items: center;
-    gap: var(--se-gap);
-  }
-  .foot-title {
-    min-width: 0;
+  /* The line of information under the text, as .vkarte-info-zeile. */
+  .date {
     color: var(--se-muted);
-    font-size: var(--se-fs-sm);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .date,
-  .time {
-    flex: none;
-    color: var(--se-faint);
     font-size: var(--se-fs-sm);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -232,7 +245,6 @@ export const kanbanStyle = css`
 
   .chip {
     flex: none;
-    margin-left: auto;
     padding: 2px 8px;
     border-radius: var(--se-radius);
     font-family: var(--se-font);

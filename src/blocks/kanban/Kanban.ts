@@ -110,33 +110,38 @@ export class Kanban extends BlockElement {
     })
   }
 
-  // Without values the card is the one the builder shapes: every spot shows.
-  // In the mask a spot without a value falls away.
+  // The card as .vkarte of the reception mask: avatar, beside it the title
+  // with the subline on the same line and the second title below, the time at
+  // the right; then the chip, the text, the date, the button. Without values
+  // the card is the one the builder shapes: every spot shows. In the mask a
+  // spot without a value falls away.
   private cardContent(column: number, card: CardData | null): TemplateResult {
     const values = card === null ? null : card.values
     const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean =>
       values === null || (values[prop] ?? '').trim() !== ''
-    const main = shows('avatar') || shows('heading') || shows('subline')
-    const foot = shows('heading2') || shows('date') || shows('time') || shows('chip')
+    const line = shows('heading') || shows('subline')
+    const main = shows('avatar') || line || shows('heading2') || shows('time')
     return html`
       ${main
         ? html`<div class="main">
             ${shows('avatar') ? this.avatar(values) : nothing}
             <div class="ident">
-              ${shows('heading') ? this.spot('heading', 'name', values) : nothing}
-              ${shows('subline') ? this.spot('subline', 'extra', values) : nothing}
+              ${line
+                ? html`<div class="line">
+                    ${shows('heading') ? this.spot('heading', 'name', values) : nothing}
+                    ${shows('subline') ? this.spot('subline', 'meta', values) : nothing}
+                  </div>`
+                : nothing}
+              ${shows('heading2') ? this.spot('heading2', 'owner', values) : nothing}
             </div>
+            ${shows('time') ? this.spot('time', 'time', values) : nothing}
           </div>`
+        : nothing}
+      ${shows('chip')
+        ? html`<div class="flags">${this.spot('chip', `chip tone-${toneValue(this.chipTone)}`, values)}</div>`
         : nothing}
       ${shows('text') ? this.spot('text', 'text', values) : nothing}
-      ${foot
-        ? html`<div class="foot">
-            ${shows('heading2') ? this.spot('heading2', 'foot-title', values) : nothing}
-            ${shows('date') ? this.spot('date', 'date', values) : nothing}
-            ${shows('time') ? this.spot('time', 'time', values) : nothing}
-            ${shows('chip') ? this.spot('chip', `chip tone-${toneValue(this.chipTone)}`, values) : nothing}
-          </div>`
-        : nothing}
+      ${shows('date') ? this.spot('date', 'date', values) : nothing}
       ${this.advance(column, card)}`
   }
 
