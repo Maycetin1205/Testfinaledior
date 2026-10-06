@@ -448,6 +448,16 @@ steht hier nur als Wissen:
   Maske fragt nach der Brücke und meldet ohne sie, dass nichts hinausging
   (`softengine/befehle.ts`). Aus Auslieferung und Programm gelesen, nicht per
   Echttest.
+  **Echttest 2026-10-06 (Layoutrahmen 10000, WinUI):** `HTMLEVENT
+  { art: 'ESCAPEHTML' }` aus der Maske, so wie SoftEngines eigenständige
+  Masken es senden (`V2/JS/SEFunctions.js` `CloseHTML`, `STDERFASSUNG/DWTO27`),
+  schließt die Positionserfassung **nicht**; die Nachricht geht nachweislich
+  hinaus. Keine der 17 ausgelieferten Layoutrahmen-Masken sendet sie.
+  SoftEngines Masken `STDERFASSUNG/MISP16` und `EinAusgangsgespraeche` schicken
+  `sendBWLink("LINKID,HANDLE_ESCAPE_KEY,OFF")`, wenn die Seite einen eigenen
+  Dialog öffnet, und `…,ON`, wenn er zugeht: bei ON behandelt der Host die
+  Esc-Taste selbst. Nicht per Echttest: die BW-Form
+  `HTMLEVENT { art: 'BWLINK', params: 'ESCAPEHTML' }` und `HANDLE_ESCAPE_KEY,ON`.
 - Ein Skript im Maskenordner (`<script src="fftest.js">`) wird ebenfalls
   geladen (belegt 2026-08-28, als zwoelf Laufzeitdateien belegt 2026-09-08).
   Die Laufzeit steht trotzdem in der Maske selbst: eine HTML plus eine JSON,
