@@ -966,8 +966,18 @@ der Code-Prüfung vom 01.10. (Quelle viermal, zwei Systeme Wertherkunft,
 Namensregel in der Maske, Bindung zu Feldname mehrfach) fallen dabei weg,
 jeweils an dem Baustein, der sie zuerst braucht.
 
-1. Erfassung: mit der Tastatur durch Zeile und Unterzeile. Der Hauptfall,
-   der Fehler ist vom Nutzer gesehen.
+1. Erfassung: Unterzeile schlank und Tastatur durchgängig, ein Chat. Die
+   Unterzeile (defab57, 04.10.) bleibt als Idee, nicht als Bau: ein Kopf
+   statt zwei, keine eigenen Breiten, die Spalte steht unter der Zelle ihrer
+   Ankerspalte und ist so breit wie diese, der Feldname steht klein und grau
+   vor dem Wert („Charge 4711“); bei erfassten und gebuchten Zeilen nur,
+   wenn ein Wert drin steht, in der Eingabezeile immer. Tab und Enter laufen
+   durch die Hauptzeile, dann durch die graue Zeile, dann wird erfasst;
+   Pfeil runter wechselt von Haupt- in Unterzeile und weiter zur nächsten
+   Position; Escape bricht ab. Im Editor: Schalter „Unterzeile“ in der
+   Spaltenleiste, Ankerspalte durch Klick auf die Zelle der Hauptzeile.
+   Dabei wird der Baustein komplett sauber: Spaltendeklaration, Ereignisse,
+   Tastatur, Aussehen, Export und Laden ohne Verlust.
 2. Chef-Maske Empfang im Editor nachbauen, so weit es geht, Bild und
    Lücken zeigen. Die Lücken sind die Liste für Schritt 3, keine Vermutung.
 3. Stein für Stein aus dieser Liste, voraussichtlich: Bereich mit Aussehen
