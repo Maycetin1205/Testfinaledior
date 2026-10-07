@@ -942,77 +942,65 @@ Größenwahl in Stufen der Empfangsmaske (Vorschlag, Nutzer entscheidet). Die
 „Arten" (Feldtypen oder Quellenarten, der Nutzer sagt welche) sind
 unlogisch und werden in Schritt 2 neu geordnet.
 
-### Offen, in dieser Reihenfolge (Stand 28.09.)
+### Offen, in dieser Reihenfolge (Stand 07.10., Nutzer)
 
-Große Dateien werden geteilt, wenn ein Schritt sie ohnehin anfasst, nie in
-einer eigenen Aufräumaktion.
+Entschieden am 07.10.: Das Gerüst bleibt. Deklaration je Baustein mit
+Inspector, Export und Laden daraus, eine flache Basisklasse, das Raster mit
+48 Spalten und schachtelbaren Bereichen, ein Store, SoftEngine nur in
+`src/softengine/`: alles geprüft, alles trägt. Schwach sind die Bausteine
+selbst (zu wenige, zu nackt: der Bereich ohne Aussehen, der Text ohne Chip,
+kein Bild, keine Datenliste, kein Zähler, keine Navigation), die Brücke
+Editor–Baustein (`BlockHost`, `useLitElement`, `useFieldBinding`,
+`ColumnControls`, rund 800 Zeilen, misst ins Shadow-DOM) und die
+uneinheitliche Nutzung der Designwerte.
 
-1. Bedienfehler aus der Durchsicht vom 28.09., fertig auf
-   `claude/kanban-ein-baustein`, nicht in SoftEngine geprüft: Tippen auf der
-   Fläche zeigt den Text einmal, auch im Knopf (f4f2626); die Leiste liegt
-   über dem Baustein, sonst darunter, erst dann auf ihm (3be9721); die
-   Erfassung zeigt den Zeilenzustand nur als Ton, Punkt und Einrückung weg
-   (f008bd7, 29.09.).
-2. Schreiben ins ERP läuft (Nutzer, 29.09.): je erfasster Zeile ein eigener
-   PUT_RELATION, keine Satznummer vorab, Relation 640 hat damit nichts zu
-   tun. Kein Bau. Die Erfassung (`src/blocks/capture/ledger.ts`, eine Klasse
-   mit 1.094 Zeilen) wird beim nächsten Eingriff dort entlang ihrer fünf
-   Abschnitte geteilt.
-3. Kanban Schritt 1 bis 3 auf `claude/kanban-ein-baustein` (38200b9, 74fba76,
-   aa76efb) in SoftEngine prüfen und nach master übernehmen. Danach Schritt
-   4: Chip-Farbe folgt einem Feld, einstellbar, welcher Wert welchen Ton
-   bekommt. Versteckte Plätze („Erledigt") nur auf Wunsch.
-4. Übersetzer, fertig (9c94910): der Nutzer importiert keine alten Masken,
-   Datenquellen aber immer (28.09.). `src/editor/state/maskSchema.ts` liest
-   Masken ab Schema 20 (seit 24.09.), ältere und neuere nicht. Der Übersetzer
-   der Kundendatei steht allein in `src/editor/state/librarySchema.ts` und
-   behält jede Stufe: Daten, Reiter „Bibliothek", „Bibliothek laden…"
-   importiert Kundendateien jeder Fassung. Die Sicherungen vom 14.09.
-   (`masken/bibliothek-wiederherstellung.json`, 15 Quellen) und 15.09.
-   (`Desktop/aufbau-bibliothek-rettung-2026-09-15-0952.json`, 22 Quellen)
-   tragen Quellen, die in `Desktop/bibliothek.json` (2 Quellen) fehlen.
-5. Quellenarten nach Inhalt: erst Adressstamm, Artikelstamm, Beleg,
-   Belegpositionen, darunter „Andere“ und erst dort die Technik (IDB-Tabelle,
-   DataSet, ERP-Abfrage, ERP-Maske, Wert per Relation, Datei). Vorlage plus
-   Adapter bleiben. Die Wahl „Art“ steht in
-   `src/editor/data/SourceSettings.tsx`, wie eine Quelle daraus entsteht in
-   `src/editor/data/sourceEdit.ts`. Dabei `src/softengine/relations.ts`
-   teilen in Antwort lesen, Senden und Warten, Werte zusammensuchen.
-6. Bauteile der Empfangsmaske, ohne neuen Baustein, wo ein Aussehen reicht:
-   der Bereich bekommt „Aussehen“ Frei, Kasten (`.vstat`), Kopfzeile
-   (`.vkopf`); der Text bekommt die Rolle Chip mit Ton (`.vflag`), und „Ton
-   folgt einem Feld“ (Kanban Schritt 4) wird einmal als Eigenschaftsart
-   gebaut und gilt für jeden Chip; das Popup bekommt „Lage“ Mitte oder Rechts
-   (`.vkartei`). Neu nur Bild (fest oder gebunden, Technik vom
-   Kanban-Avatar) und Datenliste: der Kartenteil des Kanban
-   (`src/blocks/kanban/`) wird herausgelöst, beide nutzen ihn. Später:
-   Zähler braucht die Wertherkunft „Anzahl Zeilen einer Quelle“; Navigation
-   braucht Ansichten (im Empfang Tafel, Termine, Kunden), ob Masken mehrere
-   Ansichten bekommen, entscheidet der Nutzer. Das Symbol bleibt in
-   `src/editor/blockIcons.ts`, es ist Editor-Sache. Dabei
-   `src/editor/canvas/useFieldBinding.tsx` teilen.
-7. Berechnung, fertig (04.10.), nicht in SoftEngine geprüft: ein Satz am
-   Spaltenkopf („Menge = Tiere × Tage × Körpergewicht × Dosierung ÷ KGW ÷
-   Inhalt ÷ Faktor, gerundet auf 2 Stellen“). Das Rechner-Symbol in der
-   Spaltenleiste öffnet das Fenster in der Bildschirmmitte, gebaut wie das
-   Schritt-Fenster: je Größe eine Zeile mit Nummer, Zeichen, Herkunft und
-   Eingabe, rechts Ergebnis, Rundung und die Einheiten-Tabelle, unten
-   Abbrechen und Übernehmen. Nur mal und geteilt; die eine leere Spalte des Satzes wird in
-   der Zeile ausgerechnet, bei keiner oder zwei leeren passiert nichts, keine
-   Meldung. Eine Größe ist Spalte der Zeile, Feld einer Hilfsquelle, feste
-   Zahl oder der Faktor aus zwei Einheiten als Tabelle (mg/kg 1000000, g/kg
-   1000, ml/l 1000, mg/g 1000; sonst 1), die Dosierung aus WORKFLOW11111.json
-   ist damit der erste Fall. Am Kopf einer anderen beteiligten Spalte steht
-   derselbe Satz nach ihr umgestellt. `src/core/data/calculation.ts` neu
-   (240 statt 566 Zeilen), Zahlenlesen in `src/core/data/number.ts`,
-   Bedienung in `src/editor/bar/CalculationWindow.tsx`; Einheiten, Dialog
-   und Fenster sind weg. Maskenschema 25 hebt alte Berechnungen in den Satz.
-8. Aufräumen nebenbei: wer eine Datei anfasst, räumt sie auf. Erledigt am
-   06.10. (Zweig `claude/aufraeumen-06-10`): `GRID.columnPx`, das Fenster
-   `Dialog.tsx` ohne Nutzer, 38 Exporte ohne Abnehmer, der rote
-   „fehlt“-Hinweis und der Platzhaltersatz der Auswahl, das Dokument-Ereignis
-   fürs Datenfenster. Die Löschvormerkung der Erfassung ist nicht mehr im
-   Code. Tote Dateien und ungenutzte Exporte gibt es keine.
+Maßstab ist die Chef-Maske Empfang (`docs/chef-maske/empfang`): lässt sie
+sich im Editor komplett nachbauen, lässt sich alles bauen, was so aussieht,
+und mehr. Die Werte bleiben die aus `src/design/mask.css`; die Chef-Maske
+ist Maßstab fürs Können, nicht für neue Farben oder Maße.
+
+Keine eigenen Aufräum-Chats mehr. Geputzt wird, was ein Schritt anfasst,
+und zwar ganz: Deklaration, Ereignisse, Verhalten im Editor, Verhalten in
+der Maske, Export und Laden ohne Verlust, Aussehen. Die Doppelbauten aus
+der Code-Prüfung vom 01.10. (Quelle viermal, zwei Systeme Wertherkunft,
+Namensregel in der Maske, Bindung zu Feldname mehrfach) fallen dabei weg,
+jeweils an dem Baustein, der sie zuerst braucht.
+
+1. Erfassung: mit der Tastatur durch Zeile und Unterzeile. Der Hauptfall,
+   der Fehler ist vom Nutzer gesehen.
+2. Chef-Maske Empfang im Editor nachbauen, so weit es geht, Bild und
+   Lücken zeigen. Die Lücken sind die Liste für Schritt 3, keine Vermutung.
+3. Stein für Stein aus dieser Liste, voraussichtlich: Bereich mit Aussehen
+   (Frei, Kasten, Kopfzeile), Text als Chip mit Ton, Bild (fest oder
+   gebunden, Technik vom Kanban-Avatar), Datenliste (Kartenteil des Kanban
+   herausgelöst, beide nutzen ihn), Zähler (Wertherkunft „Anzahl Zeilen
+   einer Quelle“), Navigation mit Ansichten (ob Masken mehrere Ansichten
+   bekommen, entscheidet der Nutzer). Je Stein ein Chat, der den Baustein
+   komplett sauber macht.
+4. Zuletzt die Brücke Editor–Baustein, dann ist die Bedienung durchgängig.
+
+Gestrichen am 07.10.: Chip-Farbe folgt einem Feld (Kanban Schritt 4 und
+der Teil in Punkt 6 alt). Das Ankreuzfeld bleibt, wie es ist; was ein Haken
+an SoftEngine schickt, klärt der Nutzer, bevor jemand es anfasst. Ein
+zweiter Schreibmodus für vorhandene Belegpositionen ist dem Nutzer bekannt,
+aber noch nicht in `docs/softengine-wiki/kontrakte.md`; bis dahin kein Bau.
+Quellenarten nach Inhalt (Punkt 5 alt) bleiben liegen, bis der Nutzer sie
+will. Neubau von null: nein.
+
+Erledigt vor dem 07.10., nicht in SoftEngine geprüft: die Bedienfehler vom
+28.09. (f4f2626, 3be9721, f008bd7); Schreiben ins ERP je Zeile ein
+PUT_RELATION, vom Nutzer am 29.09. bestätigt; Kanban Schritt 1 bis 3
+(38200b9, 74fba76, aa76efb); der Übersetzer der Kundendatei (9c94910,
+`src/editor/state/librarySchema.ts`, behält jede Stufe; Masken ab
+Schema 20 in `src/editor/state/maskSchema.ts`); die Berechnung als Satz am
+Spaltenkopf (04.10., `src/core/data/calculation.ts`,
+`src/editor/bar/CalculationWindow.tsx`, Maskenschema 25); das Aufräumen
+vom 06.10. (Zweig `claude/aufraeumen-06-10`: `GRID.columnPx`, `Dialog.tsx`,
+38 Exporte ohne Abnehmer, der „fehlt“-Hinweis, der Platzhaltersatz der
+Auswahl, das Dokument-Ereignis fürs Datenfenster). Die Sicherungen vom
+14.09. (`masken/bibliothek-wiederherstellung.json`, 15 Quellen) und 15.09.
+(`Desktop/aufbau-bibliothek-rettung-2026-09-15-0952.json`, 22 Quellen)
+tragen Quellen, die in `Desktop/bibliothek.json` (2 Quellen) fehlen.
 
 Fertig und mit PR #1 in master (1d8437a), nicht in SoftEngine geprüft:
 Bedienung, ein Commit je Punkt: 1 Kopfzeile (1ad6913), 2 Palette als dunkler
@@ -1166,8 +1154,7 @@ Später, vor dem Bau besprechen:
 - Berechnung: komplett neu, Vollbild und Aufbau sind Müll. Der Nutzer
   versteht die heutige Rechnung nicht; Form und Bedienung werden vor dem
   Bau mit ihm festgelegt (Vorschlag: ein Satz am Spaltenkopf).
-- Chip-Farbe der Karte: folgt einem Feld, aber einstellbar, welches Feld
-  und welcher Wert welchen Ton bekommt. Kommt mit dem neuen Kanban.
+- Chip-Farbe der Karte: gestrichen am 07.10.
 
 ## Code-Prüfung 01.10. (Stand dfed591)
 
