@@ -1006,19 +1006,27 @@ jeweils an dem Baustein, der sie zuerst braucht.
      die beiden Kästen erst nach „+ Kunde“ und „+ Tier“ zeigt. Das Raster
      fließt nicht nach, ein zugeklappter Bereich ließe ein Loch; ob das
      reicht oder das Raster dafür fließen soll, entscheidet der Nutzer.
-   - Zähler: die Statuszeile „0 Termine offen · 0 im Wartezimmer · 0/4
-     Zimmer belegt“ mit Tonpunkt; im Nachbau stehen nur die drei
-     Beschriftungen. Zähler als Text mit Wertherkunft „Anzahl Zeilen einer
-     Quelle“.
-   - Karte: ein Platz kennt ein Feld der eigenen Quelle. Die Chef-Karte
-     zeigt „Tierart · Rasse“ (zwei Felder) und den Besitzer live aus dem
-     Adressstamm (Vorname und Nachname einer zweiten Quelle über die
-     Kundennummer); gebunden sind Tierart und Nachname des Termins. Dazu
-     die Tiere des Besuchs als Chips (Kundenhaustiere), die Zeile „in 20
-     min“ und „wartet 12 min“ (gerechnet), Stundentrenner und Jetzt-Linie
-     in Spalte 1, der Knopf „Rechnung erstellen“ in der letzten Spalte
-     (Aktion, nicht weiter). Roter Rand und Chip-Farbe je Priorität:
-     gestrichen, der Chip folgt keinem Feld.
+   - Gestrichen 07.10. vom Nutzer: der Zähler (Statuszeile „0 Termine
+     offen · 0 im Wartezimmer · 0/4 Zimmer belegt“); im Nachbau bleiben
+     die drei Beschriftungen.
+   - Karte, erster Teil erledigt 07.10.: ein Platz der Karte nimmt mehrere
+     Felder. Klick auf den Platz, jedes Feld der Liste kommt dazu oder geht
+     wieder; ab zwei Feldern steht im Pop-up der Trenner, „·“ oder
+     Leerzeichen; leere Werte fallen in der Maske weg. Felder einer
+     Hilfsquelle gehen wie an jedem Platz. Der Knopf je Spalte steht am
+     Spaltenkopf auf Aus, Weiter oder Aktion: Weiter schiebt die Karte in
+     die nächste Spalte, im Ton dieser Spalte; Aktion führt die Aktion
+     „Knopf angeklickt“ des Boards mit der Satznummer der Karte (PINDEX)
+     aus, im Akzent wie `.va-abrechnung`; alle Spalten mit Aktion teilen
+     diese eine Aktion. Maskenschema 26: eine Spalte mit Knopftext wird
+     Weiter, eine ohne Aus. In der Empfang-Maske: Unterzeile „Tierart ·
+     Rasse“ (18_30, 48_30), Besitzer „Vorname Nachname“ live aus dem
+     Adressstamm über die Kundennummer (10_8 zu 2_8), „Rechnung
+     erstellen“ in „Zur Kasse“ ohne hinterlegte Aktion (712 steht nicht in
+     den Kontrakten). Offen von der Karte: die Tiere des Besuchs als Chips
+     (Kundenhaustiere), die Zeile „in 20 min“ und „wartet 12 min“
+     (gerechnet), Stundentrenner und Jetzt-Linie in Spalte 1. Roter Rand
+     und Chip-Farbe je Priorität: gestrichen, der Chip folgt keinem Feld.
    - Datenliste: „Tiere für diesen Besuch“ (Haustiere des Kunden, mehrere
      wählbar, „+ Tier“) und „Behandlung je Tier“ im Popup; die Kartei
      rechts (Patientenakte mit Feldern und Speichern) beim Klick auf die

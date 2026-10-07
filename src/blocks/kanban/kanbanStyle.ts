@@ -275,6 +275,12 @@ export const kanbanStyle = css`
   }
   .advance:hover { filter: brightness(.96); }
 
+  /* .va-abrechnung */
+  .advance.action {
+    --tone-tint: var(--se-accent-soft);
+    --tone-ink: var(--se-accent-dark);
+  }
+
   :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before,
   :host([preview]) .advance:empty::before {
     content: '—';

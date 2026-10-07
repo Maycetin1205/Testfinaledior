@@ -76,13 +76,13 @@ export type KanbanValues = ValuesOf<typeof kanbanProperties>
 
 // The spots every card of the board has, in the order the editor offers them.
 export const CARD_SPOTS = [
-  { prop: 'time', name: 'Zeit' },
-  { prop: 'date', name: 'Datum' },
-  { prop: 'heading', name: 'Titel' },
-  { prop: 'heading2', name: 'Titel 2' },
-  { prop: 'subline', name: 'Unterzeile' },
-  { prop: 'text', name: 'Textzeile' },
-  { prop: 'chip', name: 'Chip' },
+  { prop: 'time', name: 'Zeit', several: true },
+  { prop: 'date', name: 'Datum', several: true },
+  { prop: 'heading', name: 'Titel', several: true },
+  { prop: 'heading2', name: 'Titel 2', several: true },
+  { prop: 'subline', name: 'Unterzeile', several: true },
+  { prop: 'text', name: 'Textzeile', several: true },
+  { prop: 'chip', name: 'Chip', several: true },
 ] as const
 
 export type CardSpot = (typeof CARD_SPOTS)[number]['prop']

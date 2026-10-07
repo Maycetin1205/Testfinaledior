@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 25
+export const CURRENT_SCHEMA_VERSION = 26
 
-const LIFTABLE = [20, 21, 22, 23, 24]
+const LIFTABLE = [20, 21, 22, 23, 24, 25]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -178,6 +178,21 @@ function liftTo25(tree: unknown): void {
   }
 }
 
+// ---- version 26: the button of a kanban column is off, on to the next column or the action ----
+
+// Up to 25 a column with a button text moved the card on, one without had none.
+function liftTo26(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'kanban' || !isPlainObject(node.values)) continue
+    if (!Array.isArray(node.values.columns)) continue
+    for (const column of node.values.columns) {
+      if (!isPlainObject(column) || column.buttonKind !== undefined) continue
+      column.buttonKind = typeof column.button === 'string' && column.button.trim() !== '' ? 'next' : 'none'
+    }
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -188,6 +203,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 23) liftTo23(lifted.tree)
   if (raw.schemaVersion < 24) liftTo24(lifted.tree)
   if (raw.schemaVersion < 25) liftTo25(lifted.tree)
+  if (raw.schemaVersion < 26) liftTo26(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

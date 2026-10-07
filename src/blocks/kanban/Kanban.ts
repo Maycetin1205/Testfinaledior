@@ -1,6 +1,7 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock, sendPropChange } from '../base/BlockElement'
 import { startRename } from '../base/inlineRename'
+import { bindingFields, bindingJoiner } from '../../core/block/binding'
 import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
 import type { DataPreamble } from '../../runtime/source'
@@ -26,11 +27,14 @@ export class Kanban extends BlockElement {
 
   readonly board = new Board(this)
 
-  // A bound spot shows its field, any other what the builder typed.
+  // A bound spot shows its fields, the empty ones left out, any other what the
+  // builder typed.
   cardValues(row: unknown, read: DataPreamble['read']): Record<string, string> {
     const typedOrBound = Object.fromEntries(CARD_SPOTS.map(({ prop }) => {
-      const field = this[`${prop}Field`]
-      return [prop, field === '' ? this[prop] : read(row, field)]
+      const binding = this[`${prop}Field`]
+      if (binding === '') return [prop, this[prop]]
+      const values = bindingFields(binding).map((field) => read(row, field)).filter((v) => v.trim() !== '')
+      return [prop, values.join(bindingJoiner(binding))]
     }))
     return { ...typedOrBound, avatar: this.avatarField === '' ? '' : read(row, this.avatarField) }
   }
@@ -66,34 +70,38 @@ export class Kanban extends BlockElement {
     >${bound && !image ? animalOutline('paw') : nothing}</span>`
   }
 
-  // The button under the cards of a column, in the tone of the column it leads
-  // to; the last column has none. In the editor its text is typed on it; in
-  // the mask it shows only with a text and moves the card on.
-  private advance(column: number, card: CardData | null): TemplateResult | typeof nothing {
+  // The button under the cards of a column, as the column sets it: on to the
+  // next column, in the tone of that one, the last column has none; or the
+  // board's action, in the accent. In the editor its text is typed on it; in
+  // the mask it shows only with a text.
+  private button(column: number, card: CardData | null): TemplateResult | typeof nothing {
     const columns = kanbanColumnsFrom(this.columns)
+    const own = columns[column]
     const next = columns[column + 1]
-    const text = columns[column]?.button ?? ''
-    if (!next || (card !== null && text.trim() === '')) return nothing
+    if (!own || own.buttonKind === 'none' || (own.buttonKind === 'next' && !next)) return nothing
+    if (card !== null && own.button.trim() === '') return nothing
+    const look = own.buttonKind === 'next' && next ? `tone-${toneValue(next.tone)}` : 'action'
     if (card === null) {
       return html`<button
         type="button"
-        class="advance tone-${toneValue(next.tone)}"
+        class="advance ${look}"
         data-ff-editable
-        @dblclick=${(e: MouseEvent) => this.editAdvance(e, column)}
-      >${text}</button>`
+        @dblclick=${(e: MouseEvent) => this.editButton(e, column)}
+      >${own.button}</button>`
     }
     return html`<button
       type="button"
-      class="advance tone-${toneValue(next.tone)}"
+      class="advance ${look}"
       draggable="false"
       @click=${(e: MouseEvent) => {
         e.stopPropagation()
-        this.board.advance(card)
+        if (own.buttonKind === 'next') this.board.advance(card)
+        else this.board.press(card)
       }}
-    >${text}</button>`
+    >${own.button}</button>`
   }
 
-  private editAdvance(event: MouseEvent, column: number): void {
+  private editButton(event: MouseEvent, column: number): void {
     if (!this.editable) return
     const target = event.currentTarget
     if (!(target instanceof HTMLElement)) return
@@ -138,7 +146,7 @@ export class Kanban extends BlockElement {
         : nothing}
       ${shows('text') ? this.spot('text', 'text', values) : nothing}
       ${shows('date') ? this.spot('date', 'date', values) : nothing}
-      ${this.advance(column, card)}`
+      ${this.button(column, card)}`
   }
 
   private cardTpl(card: CardData, column: number): TemplateResult {
@@ -237,6 +245,7 @@ defineBlock(Kanban, {
       list: [
         { key: 'onCardClick', name: 'Karte angeklickt' },
         { key: 'onCardDrop', name: 'Karte verschoben' },
+        { key: 'onCardButton', name: 'Knopf angeklickt' },
       ],
     },
   ],

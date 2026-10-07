@@ -2,6 +2,7 @@ import {
   booleanProperty,
   listProperty,
   readValues,
+  segmentProperty,
   textProperty,
   type Property,
 } from '../../core/block/property'
@@ -27,10 +28,10 @@ const kanbanPlaceProperties = {
 }
 
 // A column of the board: its title, typed on its head; the button under its
-// cards, typed on the card, that moves a card on to the next column, empty
-// for none; its tone; whether it takes the cards whose value no place names;
-// and its places, one at least. A column with one place shows no place of
-// its own.
+// cards, its text typed on the card, that moves a card on to the next column,
+// runs the board's action or is not there; its tone; whether it takes the
+// cards whose value no place names; and its places, one at least. A column
+// with one place shows no place of its own.
 const kanbanColumnProperties = {
   heading: textProperty({
     default: 'Neue Spalte',
@@ -40,9 +41,18 @@ const kanbanColumnProperties = {
   }),
   button: textProperty({
     default: '',
-    label: 'Knopf',
+    label: 'Knopftext',
     place: 'block',
     attribute: 'button',
+  }),
+  buttonKind: segmentProperty([
+    { value: 'none', name: 'Aus' },
+    { value: 'next', name: 'Weiter' },
+    { value: 'action', name: 'Aktion' },
+  ], {
+    default: 'none',
+    label: 'Knopf',
+    attribute: 'buttonkind',
   }),
   tone: toneProperty(),
   catchAll: booleanProperty({
@@ -59,9 +69,14 @@ export interface KanbanPlace {
   value: string
 }
 
+export type ButtonKind = 'none' | 'next' | 'action'
+
+const BUTTON_KINDS: readonly ButtonKind[] = ['none', 'next', 'action']
+
 export interface KanbanColumn {
   heading: string
   button: string
+  buttonKind: ButtonKind
   tone: string
   catchAll: boolean
   places: KanbanPlace[]
@@ -70,7 +85,7 @@ export interface KanbanColumn {
 const place = (name: string): KanbanPlace => ({ name, value: '' })
 
 function column(heading: string, tone: string): KanbanColumn {
-  return { heading, button: '', tone, catchAll: false, places: [place(heading)] }
+  return { heading, button: '', buttonKind: 'none', tone, catchAll: false, places: [place(heading)] }
 }
 
 function defaultKanbanColumns(): KanbanColumn[] {
@@ -95,6 +110,7 @@ function columnFrom(raw: unknown): KanbanColumn {
   return {
     heading,
     button: String(values.button),
+    buttonKind: BUTTON_KINDS.find((k) => k === values.buttonKind) ?? 'none',
     tone: String(values.tone),
     catchAll: values.catchAll === true,
     places: places.length > 0 ? places : [place(heading)],
@@ -147,7 +163,11 @@ export const KANBAN_COLUMNS_BINDING: ListBinding<KanbanColumn> = {
   prop: 'columns',
   defaultTitle: 'Spalte {n}',
   fieldless: true,
-  entryProperties: { tone: kanbanColumnProperties.tone, catchAll: kanbanColumnProperties.catchAll },
+  entryProperties: {
+    buttonKind: kanbanColumnProperties.buttonKind,
+    tone: kanbanColumnProperties.tone,
+    catchAll: kanbanColumnProperties.catchAll,
+  },
   inner: {
     binding: KANBAN_PLACES_BINDING,
     of: (c) => c.places,

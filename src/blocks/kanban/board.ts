@@ -152,6 +152,11 @@ export class Board {
     void this.move(card, { column, place: 0 })
   }
 
+  // The button of a column that runs the board's action for its card.
+  press(card: CardData): void {
+    runEvent(this.el, 'onCardButton', { PINDEX: card.record }).catch(() => {})
+  }
+
   drop(event: DragEvent, spot: Spot): void {
     const card = this.cards.find((c) => c.key === this.dragging)
     this.endDrag()

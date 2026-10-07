@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import type { BlockNode } from '../../core/block/tree'
+import { bindingFields, bindingJoiner } from '../../core/block/binding'
 import { splitBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
@@ -77,10 +78,12 @@ export function useLitElement({
       const value = block.values[bindingProp(spot.prop)]
       if (typeof value !== 'string' || value === '') continue
 
-      const field = fieldInReachOf(value, sources)
-      if (field) {
-        el.setDeclared(spot.previewProp ?? spot.prop, field.name
-          + (splitBinding(value).sourceId === '' ? '' : FOREIGN_ICON))
+      const names = bindingFields(value).flatMap((binding) => {
+        const field = fieldInReachOf(binding, sources)
+        return field ? [field.name + (splitBinding(binding).sourceId === '' ? '' : FOREIGN_ICON)] : []
+      })
+      if (names.length > 0) {
+        el.setDeclared(spot.previewProp ?? spot.prop, names.join(bindingJoiner(value)))
       } else {
         el.setDeclared(bindingProp(spot.prop), '')
       }

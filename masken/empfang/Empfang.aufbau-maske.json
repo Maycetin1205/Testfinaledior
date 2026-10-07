@@ -1,7 +1,7 @@
 {
   "kind": "aufbau-editor-maske",
   "fileVersion": 4,
-  "schemaVersion": 25,
+  "schemaVersion": 26,
   "tree": {
     "root": {
       "id": "root",
@@ -159,6 +159,7 @@
           {
             "heading": "Termine heute",
             "button": "Anmelden →",
+            "buttonKind": "next",
             "tone": "neutral",
             "catchAll": true,
             "places": [
@@ -171,6 +172,7 @@
           {
             "heading": "Wartezimmer",
             "button": "Ins Zimmer →",
+            "buttonKind": "next",
             "tone": "warning",
             "catchAll": false,
             "places": [
@@ -183,6 +185,7 @@
           {
             "heading": "In Behandlung",
             "button": "Zur Kasse →",
+            "buttonKind": "next",
             "tone": "info",
             "catchAll": false,
             "places": [
@@ -206,7 +209,8 @@
           },
           {
             "heading": "Zur Kasse",
-            "button": "",
+            "button": "Rechnung erstellen",
+            "buttonKind": "action",
             "tone": "success",
             "catchAll": false,
             "places": [
@@ -221,11 +225,23 @@
         "chipTone": "danger",
         "timeField": "118_5",
         "headingField": "78_30",
-        "sublineField": "18_30",
-        "heading2Field": "313_30",
+        "sublineField": "18_30 · 48_30",
+        "heading2Field": "src-adressstamm::3292_30 src-adressstamm::3322_40",
         "textField": "123_150",
         "chipField": "373_12",
-        "avatarField": "18_30"
+        "avatarField": "18_30",
+        "extraSources": [
+          {
+            "sourceId": "src-adressstamm",
+            "partnerId": "",
+            "pairs": [
+              {
+                "fromField": "10_8",
+                "toField": "2_8"
+              }
+            ]
+          }
+        ]
       },
       "childIds": []
     },

@@ -1,3 +1,4 @@
+import { bindingFields } from './binding'
 import type { BlockNode } from './tree'
 import { defaultsOf, type PropertyValue } from './property'
 import { bindingProp } from './capability'
@@ -39,9 +40,10 @@ function boundAlias(node: BlockNode, sources: readonly DataSource[]): string {
   const ownSource = String(node.values[SOURCE_PROP] ?? '')
   for (const spot of bindableSpotsOf(node)) {
     const binding = String(node.values[bindingProp(spot.prop)] ?? '')
-    if (binding === '') continue
-    const alias = fieldPlainName(binding, ownSource, sources)
-    if (alias !== '') return alias
+    for (const field of bindingFields(binding)) {
+      const alias = fieldPlainName(field, ownSource, sources)
+      if (alias !== '') return alias
+    }
   }
   return ''
 }

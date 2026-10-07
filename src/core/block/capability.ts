@@ -6,6 +6,9 @@ export interface BindableSpot {
   name: string
   when?: Condition
   previewProp?: string
+
+  // The spot takes several fields and shows their values in a row.
+  several?: true
 }
 
 export interface ValueSpot {

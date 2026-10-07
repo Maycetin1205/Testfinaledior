@@ -22,6 +22,9 @@ interface ListProps {
   groups: readonly ListGroup[]
   value: string
 
+  // Several chosen at once; stands in for value.
+  values?: readonly string[]
+
   emptyText?: string
 
   searchable?: boolean
@@ -40,6 +43,7 @@ function fits(text: string, search: string): boolean {
 export function List({
   groups,
   value,
+  values,
   emptyText,
   searchable = false,
   fill = false,
@@ -104,7 +108,7 @@ export function List({
             </p>
           )}
           {g.entries.map((e) => {
-            const chosen = e.value === value
+            const chosen = values ? values.includes(e.value) : e.value === value
             return (
               <button
                 key={`${g.key}::${e.value}`}
