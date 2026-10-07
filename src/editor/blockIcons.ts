@@ -3,6 +3,7 @@ import '../blocks/register'
 import {
   AppWindow,
   Calendar,
+  ListChecks,
   ListPlus,
   PanelTop,
   RectangleHorizontal,
@@ -15,6 +16,7 @@ import {
 import { Area } from '../blocks/area/Area'
 import { Button } from '../blocks/button/Button'
 import { Capture } from '../blocks/capture/Capture'
+import { DataList } from '../blocks/datalist/DataList'
 import { DatePicker } from '../blocks/date/DatePicker'
 import { FormField } from '../blocks/formfield/FormField'
 import { Kanban } from '../blocks/kanban/Kanban'
@@ -29,6 +31,7 @@ export const BLOCK_ICONS: Record<string, Icon> = {
   [Area.type]: PanelTop,
   [Button.type]: RectangleHorizontal,
   [Capture.type]: ListPlus,
+  [DataList.type]: ListChecks,
   [DatePicker.type]: Calendar,
   [FormField.type]: TextCursorInput,
   [Kanban.type]: SquareKanban,

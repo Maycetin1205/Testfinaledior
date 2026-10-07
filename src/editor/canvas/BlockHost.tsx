@@ -17,6 +17,7 @@ import { capability } from '../../core/block/capability'
 import { gridMetricsOf } from '../../core/block/grid'
 import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block/treeQuery'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
+import { OPENED_BY_PROP, openerOf, opensByClick } from '../../core/block/opening'
 import { useEditorInstance } from '../state/EditorContext'
 import { useView } from '../state/useView'
 import { followableByClick, followByClick } from '../bar/followOffer'
@@ -25,6 +26,7 @@ import { useDataSources } from '../state/useDataSources'
 import { BlockBar } from '../bar/BlockBar'
 import { ColumnControls } from './ColumnControls'
 import { useFieldBinding } from './useFieldBinding'
+import { useAreaPickStart } from './useAreaPickStart'
 import { openLookupInEditor } from './lookupWindowState'
 import { Grip } from './Grip'
 import { GRIPS, useBlockResize } from './useBlockResize'
@@ -45,7 +47,9 @@ const NO_SOURCES: readonly SourceInReach[] = []
 
 export function BlockHost({ block, selected, onSelect, grid = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
-  const follower = useView().followPickFor
+  const view = useView()
+  const follower = view.followPickFor
+  const opener = view.areaPickFor
   const rootRef = useRef<HTMLDivElement | null>(null)
   const def = blockType(block.type)
   const isContainer = def?.takesChildren ?? false
@@ -108,6 +112,8 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     return null
   }
 
+  const areaPickStart = useAreaPickStart(editor, blockRef)
+
   const { startGridResize, resetGridSize } = useBlockResize(editor, blockRef, rootRef)
 
   const gridSpec = gridMetricsOf(def)
@@ -119,10 +125,23 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
   // waiting.
   const toFollow = follower !== null && followableByClick(block, follower)
 
+  // While a block waits for the area it opens, only an area answers that does
+  // not hold the block; the areas it opens already stand marked.
+  const toOpen = opener !== null && opener !== block.id && opensByClick(block)
+    && !editor.isInSubtree(block.id, opener)
+  const opensHere = toOpen && openerOf(block) === opener
+
   return (
     <div
       ref={rootRef}
       onClick={(e) => {
+        if (opener !== null) {
+          if (!toOpen) return
+          e.stopPropagation()
+          editor.updateProperty(block.id, OPENED_BY_PROP, opensHere ? '' : opener)
+          editor.pickAreaFor(null)
+          return
+        }
         if (follower !== null) {
           if (!toFollow) return
           e.stopPropagation()
@@ -139,9 +158,13 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           onSelect?.()
           return
         }
+        areaPickStart.onClick(e)
         onClick(e)
       }}
-      onDoubleClick={onDoubleClick}
+      onDoubleClick={(e) => {
+        areaPickStart.onDoubleClick()
+        onDoubleClick(e)
+      }}
       data-block-id={block.id}
       style={{
         display: 'block',
@@ -151,7 +174,8 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         cursor: selected ? 'default' : 'pointer',
         outline: selected
           ? '2px solid hsl(var(--wb-selection))'
-          : toFollow ? '2px dashed hsl(var(--wb-selection))' : '2px solid transparent',
+          : opensHere ? '2px solid hsl(var(--wb-selection))'
+            : toFollow || toOpen ? '2px dashed hsl(var(--wb-selection))' : '2px solid transparent',
         outlineOffset: 1,
         borderRadius: 'var(--radius)',
         userSelect: 'none',

@@ -259,6 +259,8 @@
         "tm-kunde",
         "tm-kunde-neu",
         "tm-neu-kunde",
+        "tm-tiere-titel",
+        "tm-tiere",
         "tm-neu-tier",
         "tm-datum",
         "tm-uhrzeit",
@@ -310,7 +312,8 @@
         "gridW": 48,
         "gridH": 12,
         "appearance": "headed",
-        "heading": "Neuer Kunde"
+        "heading": "Neuer Kunde",
+        "openedBy": "tm-kunde-neu"
       },
       "childIds": [
         "nk-vorname",
@@ -440,11 +443,12 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 15,
+        "gridY": 30,
         "gridW": 48,
         "gridH": 15,
         "appearance": "headed",
-        "heading": "Neues Tier"
+        "heading": "Neues Tier",
+        "openedBy": "tm-tiere"
       },
       "childIds": [
         "nt-name",
@@ -576,7 +580,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 31,
+        "gridY": 46,
         "gridW": 16,
         "gridH": 2,
         "label": "Datum",
@@ -591,7 +595,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 16,
-        "gridY": 31,
+        "gridY": 46,
         "gridW": 16,
         "gridH": 2,
         "label": "Uhrzeit",
@@ -605,7 +609,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 32,
-        "gridY": 31,
+        "gridY": 46,
         "gridW": 16,
         "gridH": 2,
         "label": "Priorität",
@@ -620,7 +624,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 34,
+        "gridY": 49,
         "gridW": 48,
         "gridH": 2,
         "label": "Behandlung"
@@ -633,7 +637,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 37,
+        "gridY": 52,
         "gridW": 48,
         "gridH": 2,
         "label": "Patient ist bereits da — direkt ins Wartezimmer einchecken",
@@ -647,7 +651,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 28,
-        "gridY": 40,
+        "gridY": 55,
         "gridW": 9,
         "gridH": 2,
         "label": "Abbrechen",
@@ -671,11 +675,53 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 38,
-        "gridY": 40,
+        "gridY": 55,
         "gridW": 10,
         "gridH": 2,
         "label": "Termin anlegen",
         "variant": "primary"
+      },
+      "childIds": []
+    },
+    "tm-tiere-titel": {
+      "id": "tm-tiere-titel",
+      "type": "text",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 16,
+        "gridW": 48,
+        "gridH": 1,
+        "variant": "label",
+        "text": "Tiere für diesen Besuch"
+      },
+      "childIds": []
+    },
+    "tm-tiere": {
+      "id": "tm-tiere",
+      "type": "datalist",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 17,
+        "gridW": 48,
+        "gridH": 12,
+        "source": "8363c6c3-fdb0-48ea-b5ac-b201ea3d16d0",
+        "addLabel": "+ Tier",
+        "headingField": "LFA_400_30",
+        "sublineField": "LFA_971_30 · LFA_430_30",
+        "avatarField": "LFA_971_30",
+        "followsSelection": [
+          {
+            "giverId": "tm-kunde",
+            "pairs": [
+              {
+                "fromField": "2_8",
+                "toField": "LFA_10_8"
+              }
+            ]
+          }
+        ]
       },
       "childIds": []
     }
@@ -816,6 +862,52 @@
         {
           "code": "512_350",
           "name": "Notiz"
+        }
+      ]
+    },
+    {
+      "id": "8363c6c3-fdb0-48ea-b5ac-b201ea3d16d0",
+      "name": "Haustiere",
+      "preset": "erpQuery",
+      "tableId": "LIEFERADRESSE.GET",
+      "order": {
+        "kind": "none"
+      },
+      "delivery": {
+        "kind": "message"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fieldPrefix": "LFA_",
+      "fields": [
+        {
+          "code": "LFA_2_8",
+          "name": "Lieferadressnummer"
+        },
+        {
+          "code": "LFA_10_8",
+          "name": "Kundennummer"
+        },
+        {
+          "code": "LFA_400_30",
+          "name": "Tiername"
+        },
+        {
+          "code": "LFA_960_10",
+          "name": "Geburtsdatum"
+        },
+        {
+          "code": "LFA_971_30",
+          "name": "Tierart"
+        },
+        {
+          "code": "LFA_430_30",
+          "name": "Rasse"
+        },
+        {
+          "code": "LFA_2072_6",
+          "name": "Gewicht"
         }
       ]
     }

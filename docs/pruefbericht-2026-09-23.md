@@ -1002,10 +1002,7 @@ jeweils an dem Baustein, der sie zuerst braucht.
      (wie bisher) oder Kopfzeile: Kasten mit Kopf in einem Ton und dem
      Titel darin, getippt auf dem Kopf, wie `.vraum` der Chef-Maske.
      „Neuer Kunde“ und „Neues Tier“ in der Empfang-Maske tragen jetzt
-     die Kopfzeile. Nicht gebaut: auf und zu per Knopf, wie die Chef-Maske
-     die beiden Kästen erst nach „+ Kunde“ und „+ Tier“ zeigt. Das Raster
-     fließt nicht nach, ein zugeklappter Bereich ließe ein Loch; ob das
-     reicht oder das Raster dafür fließen soll, entscheidet der Nutzer.
+     die Kopfzeile. Auf und zu per Klick: unter Datenliste.
    - Gestrichen 07.10. vom Nutzer: der Zähler (Statuszeile „0 Termine
      offen · 0 im Wartezimmer · 0/4 Zimmer belegt“); im Nachbau bleiben
      die drei Beschriftungen.
@@ -1037,10 +1034,30 @@ jeweils an dem Baustein, der sie zuerst braucht.
      (Uhrzeit 118_5). Offen von der Karte: die Tiere des Besuchs als Chips
      (Kundenhaustiere) und „wartet 12 min“ im Wartezimmer (die Chef-Maske
      merkt sich die Ankunft im Browser, nicht im ERP).
-   - Datenliste: „Tiere für diesen Besuch“ (Haustiere des Kunden, mehrere
-     wählbar, „+ Tier“) und „Behandlung je Tier“ im Popup; die Kartei
-     rechts (Patientenakte mit Feldern und Speichern) beim Klick auf die
-     Karte.
+   - Datenliste, erster Teil erledigt 07.10.: neuer Baustein. Je Zeile
+     Haken, Tiersymbol, Titel, darunter die Unterzeile; die Stellen werden
+     wie auf der Karte durch Klick gebunden (mehrere Felder mit Trenner),
+     leere Werte fallen in der Maske weg. Mehrere Zeilen sind anhakbar, ein
+     Haken bleibt, solange die Zeile in den Daten steht. Die Liste folgt
+     der Auswahl wie jede Liste. Oben steht das Plus, sein Text auf der
+     Fläche getippt; in der Maske nur, wenn ein Bereich damit öffnet.
+     Bereich auf und zu (Nutzer 07.10.: was darunter liegt, rückt nach):
+     ein Bereich öffnet mit einem Knopf oder dem Plus einer Datenliste.
+     Im Editor Klick auf das Plus der gewählten Liste oder auf das
+     Bereich-Zeichen in der Leiste, dann auf den Bereich; Klick auf einen
+     schon verbundenen Bereich löst ihn wieder. In der Maske ist der
+     Bereich zu, bis das Plus oder der Knopf geklickt wird, jeder weitere
+     Klick schließt oder öffnet; seine Zeilen und die freien darunter
+     fallen weg, alles darunter rückt hoch. Empfang-Maske: Quelle
+     „Haustiere“ (ERP-Abfrage LIEFERADRESSE.GET, LFA_, aus der Sicherung
+     vom 14.09.); „Tiere für diesen Besuch“ folgt dem Kunden (2_8 zu
+     LFA_10_8), Titel Tiername (LFA_400_30), Unterzeile „Tierart · Rasse“
+     (LFA_971_30, LFA_430_30), Tiersymbol nach Tierart; „+ Tier“ öffnet
+     „Neues Tier“, „+ Kunde“ öffnet „Neuer Kunde“. Im Browser mit
+     Beispieldaten geprüft, nicht in SoftEngine. Offen: „Behandlung je
+     Tier“ und die Kartei rechts (Patientenakte beim Klick auf die Karte);
+     das Popup bleibt so hoch wie gezogen, mit zugeklappten Bereichen
+     steht unten Leerraum.
    - Bild: die Chef-Maske hat keins außer dem Tiersymbol; ob der Stein
      trotzdem kommt, entscheidet der Nutzer.
    - Navigation mit Ansichten: die dunkle Leiste links (Logo, Empfang,

@@ -80,6 +80,9 @@ export type Capability =
   | { kind: 'compute'; prop: string }
   | { kind: 'events'; list: readonly EventDef[] }
 
+  // A click on the block opens the area that names it.
+  | { kind: 'opener' }
+
 type CapabilityKind = Capability['kind']
 
 type CapabilityOf<A extends CapabilityKind> = Extract<Capability, { kind: A }>

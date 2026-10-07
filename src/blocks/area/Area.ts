@@ -1,5 +1,6 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock } from '../base/BlockElement'
+import { wireOpened } from '../../runtime/opening'
 import { toneStyle, toneValue } from '../tone/tone'
 import { areaStyle } from './areaStyle'
 import { areaProperties, type AreaValues } from './properties'
@@ -11,6 +12,20 @@ export class Area extends BlockElement {
   static readonly tag = 'ff-area'
 
   static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, areaStyle]
+
+  private unwire: (() => void) | null = null
+
+  // In the mask an area that opens with another block starts closed.
+  override connectedCallback(): void {
+    super.connectedCallback()
+    if (!this.preview && this.unwire === null) this.unwire = wireOpened(this, this.openedBy)
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.unwire?.()
+    this.unwire = null
+  }
 
   // The head of a headed area carries the title, typed right there.
   override render(): TemplateResult {

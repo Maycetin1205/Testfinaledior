@@ -1,11 +1,10 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock, sendPropChange } from '../base/BlockElement'
 import { startRename } from '../base/inlineRename'
-import { bindingFields, bindingJoiner } from '../../core/block/binding'
 import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
-import type { DataPreamble } from '../../runtime/source'
-import { animalOf, animalOutline } from './animal'
+import { spotValue, type DataPreamble } from '../../runtime/source'
+import { animalOf, animalOutline } from '../avatar/animal'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
 import { clockOf, isToday, minuteNow, minuteOf, untilOf, type Until } from './clock'
 import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom, type KanbanPlace } from './columns'
@@ -38,15 +37,9 @@ export class Kanban extends BlockElement {
 
   private clock: ReturnType<typeof setInterval> | null = null
 
-  // A bound spot shows its fields, the empty ones left out, any other what the
-  // builder typed.
   cardValues(row: unknown, read: DataPreamble['read']): Record<string, string> {
-    const typedOrBound = Object.fromEntries(CARD_SPOTS.map(({ prop }) => {
-      const binding = this[`${prop}Field`]
-      if (binding === '') return [prop, this[prop]]
-      const values = bindingFields(binding).map((field) => read(row, field)).filter((v) => v.trim() !== '')
-      return [prop, values.join(bindingJoiner(binding))]
-    }))
+    const typedOrBound = Object.fromEntries(CARD_SPOTS.map(({ prop }) =>
+      [prop, spotValue(this[prop], this[`${prop}Field`], row, read)]))
     return { ...typedOrBound, avatar: this.avatarField === '' ? '' : read(row, this.avatarField) }
   }
 

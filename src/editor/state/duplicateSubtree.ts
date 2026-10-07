@@ -9,22 +9,26 @@ import {
 import { deepClone } from '../../core/deepClone'
 import { freePagesName, isPagesBlock, pagesOfMask } from '../../core/block/pages'
 import { freePositionForCopy } from '../../core/block/gridArea'
+import { OPENED_BY_PROP, openerOf } from '../../core/block/opening'
 
 type NewIdFor = (oldId: string) => string | undefined
 
 function writeBlockReferencesTo(node: BlockNode, newIdFor: NewIdFor): BlockNode {
   const follows = rewrittenFollows(node.values[SELECTION_FOLLOW_PROP], newIdFor)
+  const opener = replacementId(openerOf(node), newIdFor)
   const events = node.chains === undefined
     ? undefined
     : rewrittenEvents(node.chains, newIdFor)
 
   const newEvents = events !== undefined && events !== node.chains
-  if (follows === null && !newEvents) return node
+  if (follows === null && opener === undefined && !newEvents) return node
   return {
     ...node,
-    ...(follows !== null
-      ? { values: { ...node.values, [SELECTION_FOLLOW_PROP]: follows } }
-      : {}),
+    values: {
+      ...node.values,
+      ...(follows !== null ? { [SELECTION_FOLLOW_PROP]: follows } : {}),
+      ...(opener !== undefined ? { [OPENED_BY_PROP]: opener } : {}),
+    },
     ...(newEvents ? { chains: events } : {}),
   }
 }
