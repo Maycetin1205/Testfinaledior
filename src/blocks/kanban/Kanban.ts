@@ -7,12 +7,21 @@ import { toneStyle, toneValue } from '../tone/tone'
 import type { DataPreamble } from '../../runtime/source'
 import { animalOf, animalOutline } from './animal'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
+import { clockOf, isToday, minuteNow, minuteOf, untilOf, type Until } from './clock'
 import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom, type KanbanPlace } from './columns'
 import type { Spot } from './places'
 import { kanbanStyle } from './kanbanStyle'
 import { AVATAR_SPOT, CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
 
 const COUNT_IN_EDITOR = '—'
+const HOUR_IN_EDITOR = 9
+const UNTIL_IN_EDITOR: Until = { text: 'in 20 min', late: false }
+const CLOCK_TICK = 30_000
+
+const hourLine = (hour: number): TemplateResult =>
+  html`<div class="hour">${String(hour).padStart(2, '0')} Uhr</div>`
+
+const nowLine = (now: Date): TemplateResult => html`<div class="now">Jetzt · ${clockOf(now)}</div>`
 
 export interface Kanban extends KanbanValues {}
 
@@ -26,6 +35,8 @@ export class Kanban extends BlockElement {
   static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, kanbanStyle]
 
   readonly board = new Board(this)
+
+  private clock: ReturnType<typeof setInterval> | null = null
 
   // A bound spot shows its fields, the empty ones left out, any other what the
   // builder typed.
@@ -116,10 +127,10 @@ export class Kanban extends BlockElement {
 
   // The card as .vkarte of the reception mask: avatar, beside it the title
   // with the subline on the same line and the second title below, the time at
-  // the right; then the chip, the text, the date, the button. Without values
-  // the card is the one the builder shapes: every spot shows. In the mask a
-  // spot without a value falls away.
-  private cardContent(column: number, card: CardData | null): TemplateResult {
+  // the right; then the chip, the text, the date, how far its time lies from
+  // now, the button. Without values the card is the one the builder shapes:
+  // every spot shows. In the mask a spot without a value falls away.
+  private cardContent(column: number, card: CardData | null, until: Until | null): TemplateResult {
     const values = card === null ? null : card.values
     const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean =>
       values === null || (values[prop] ?? '').trim() !== ''
@@ -146,10 +157,11 @@ export class Kanban extends BlockElement {
         : nothing}
       ${shows('text') ? this.spot('text', 'text', values) : nothing}
       ${shows('date') ? this.spot('date', 'date', values) : nothing}
+      ${until ? html`<span class="until${until.late ? ' late' : ''}">${until.text}</span>` : nothing}
       ${this.button(column, card)}`
   }
 
-  private cardTpl(card: CardData, column: number): TemplateResult {
+  private cardTpl(card: CardData, column: number, until: Until | null): TemplateResult {
     const board = this.board
     const chosen = card.key === board.chosen
     return html`<div
@@ -166,12 +178,45 @@ export class Kanban extends BlockElement {
       }}
       @dragstart=${(e: DragEvent) => board.startDrag(e, card)}
       @dragend=${() => board.endDrag()}
-    >${this.cardContent(column, card)}</div>`
+    >${this.cardContent(column, card, until)}</div>`
   }
 
+  // A column by the clock, as "Nicht zugewiesen" of the reception mask: the
+  // cards in the order of their time, a line before each new hour; is the
+  // chosen day today, the line of now before the first card to come and on
+  // each card how far its time lies from now. In the editor an hour line
+  // stands over the card.
   private cardsAt(spot: Spot): TemplateResult | TemplateResult[] {
-    if (this.preview) return html`<div class="card">${this.cardContent(spot.column, null)}</div>`
-    return this.board.cardsAt(spot).map((card) => this.cardTpl(card, spot.column))
+    const byTime = kanbanColumnsFrom(this.columns)[spot.column]?.byTime === true
+    if (this.preview) {
+      return html`${byTime ? hourLine(HOUR_IN_EDITOR) : nothing}<div class="card">${
+        this.cardContent(spot.column, null, byTime ? UNTIL_IN_EDITOR : null)
+      }</div>`
+    }
+    const cards = this.board.cardsAt(spot)
+    if (!byTime) return cards.map((card) => this.cardTpl(card, spot.column, null))
+    const now = new Date()
+    const nowMinute = minuteNow(now)
+    const today = isToday(now)
+    const timed = cards
+      .map((card) => ({ card, minute: minuteOf(card.values.time ?? '') }))
+      .sort((a, b) => (a.minute ?? Infinity) - (b.minute ?? Infinity) || 0)
+    const out: TemplateResult[] = []
+    let hour = -1
+    let nowShown = !today
+    for (const { card, minute } of timed) {
+      if (!nowShown && minute !== null && minute > nowMinute) {
+        out.push(nowLine(now))
+        nowShown = true
+      }
+      if (minute !== null && Math.floor(minute / 60) !== hour) {
+        hour = Math.floor(minute / 60)
+        out.push(hourLine(hour))
+      }
+      out.push(this.cardTpl(card, spot.column, today && minute !== null ? untilOf(minute, nowMinute) : null))
+    }
+    if (!nowShown && timed.length > 0) out.push(nowLine(now))
+    return out
   }
 
   private count(cards: readonly CardData[]): string | number {
@@ -220,14 +265,23 @@ export class Kanban extends BlockElement {
     </div>`
   }
 
+  // A column by the clock is drawn anew every half minute, but not while a
+  // card is dragged.
   override connectedCallback(): void {
     super.connectedCallback()
     boardRegister(this)
+    if (this.preview || this.clock !== null) return
+    this.clock = setInterval(() => {
+      if (this.board.dragging !== '' || !kanbanColumnsFrom(this.columns).some((c) => c.byTime)) return
+      this.requestUpdate()
+    }, CLOCK_TICK)
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
     boardUnregister(this)
+    if (this.clock !== null) clearInterval(this.clock)
+    this.clock = null
   }
 }
 

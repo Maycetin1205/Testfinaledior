@@ -1023,10 +1023,20 @@ jeweils an dem Baustein, der sie zuerst braucht.
      Rasse“ (18_30, 48_30), Besitzer „Vorname Nachname“ live aus dem
      Adressstamm über die Kundennummer (10_8 zu 2_8), „Rechnung
      erstellen“ in „Zur Kasse“ ohne hinterlegte Aktion (712 steht nicht in
-     den Kontrakten). Offen von der Karte: die Tiere des Besuchs als Chips
-     (Kundenhaustiere), die Zeile „in 20 min“ und „wartet 12 min“
-     (gerechnet), Stundentrenner und Jetzt-Linie in Spalte 1. Roter Rand
-     und Chip-Farbe je Priorität: gestrichen, der Chip folgt keinem Feld.
+     den Kontrakten). Roter Rand und Chip-Farbe je Priorität: gestrichen,
+     der Chip folgt keinem Feld.
+   - Karte, zweiter Teil erledigt 07.10.: Schalter „Nach Uhrzeit“ am
+     Spaltenkopf unter Aus, Weiter, Aktion. Eingeschaltet ordnet die
+     Spalte ihre Karten nach der ersten Uhrzeit im Platz „Zeit“, setzt vor
+     jede neue Stunde die Linie „09 Uhr“ (`.vstunde`) und, ist der gewählte
+     Tag heute, die rote Linie „Jetzt · 10:42“ (`.vjetzt`) vor die erste
+     kommende Karte; jede Karte trägt dann „in 20 min“ grau oder „vor
+     5 min“ rot (`.vinfo`), ab zehn Stunden nichts, alle 30 Sekunden neu
+     gerechnet. Im Editor steht über der Musterkarte „09 Uhr“ und auf ihr
+     „in 20 min“. In der Empfang-Maske bei „Termine heute“ eingeschaltet
+     (Uhrzeit 118_5). Offen von der Karte: die Tiere des Besuchs als Chips
+     (Kundenhaustiere) und „wartet 12 min“ im Wartezimmer (die Chef-Maske
+     merkt sich die Ankunft im Browser, nicht im ERP).
    - Datenliste: „Tiere für diesen Besuch“ (Haustiere des Kunden, mehrere
      wählbar, „+ Tier“) und „Behandlung je Tier“ im Popup; die Kartei
      rechts (Patientenakte mit Feldern und Speichern) beim Klick auf die

@@ -160,6 +160,7 @@
             "heading": "Termine heute",
             "button": "Anmelden →",
             "buttonKind": "next",
+            "byTime": true,
             "tone": "neutral",
             "catchAll": true,
             "places": [

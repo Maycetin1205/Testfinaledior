@@ -29,9 +29,10 @@ const kanbanPlaceProperties = {
 
 // A column of the board: its title, typed on its head; the button under its
 // cards, its text typed on the card, that moves a card on to the next column,
-// runs the board's action or is not there; its tone; whether it takes the
-// cards whose value no place names; and its places, one at least. A column
-// with one place shows no place of its own.
+// runs the board's action or is not there; whether it lays its cards out by
+// the clock; its tone; whether it takes the cards whose value no place names;
+// and its places, one at least. A column with one place shows no place of its
+// own.
 const kanbanColumnProperties = {
   heading: textProperty({
     default: 'Neue Spalte',
@@ -53,6 +54,12 @@ const kanbanColumnProperties = {
     default: 'none',
     label: 'Knopf',
     attribute: 'buttonkind',
+  }),
+  byTime: booleanProperty({
+    default: false,
+    label: 'Nach Uhrzeit',
+    attribute: 'bytime',
+    needsSource: true,
   }),
   tone: toneProperty(),
   catchAll: booleanProperty({
@@ -77,6 +84,7 @@ export interface KanbanColumn {
   heading: string
   button: string
   buttonKind: ButtonKind
+  byTime: boolean
   tone: string
   catchAll: boolean
   places: KanbanPlace[]
@@ -85,7 +93,7 @@ export interface KanbanColumn {
 const place = (name: string): KanbanPlace => ({ name, value: '' })
 
 function column(heading: string, tone: string): KanbanColumn {
-  return { heading, button: '', buttonKind: 'none', tone, catchAll: false, places: [place(heading)] }
+  return { heading, button: '', buttonKind: 'none', byTime: false, tone, catchAll: false, places: [place(heading)] }
 }
 
 function defaultKanbanColumns(): KanbanColumn[] {
@@ -111,6 +119,7 @@ function columnFrom(raw: unknown): KanbanColumn {
     heading,
     button: String(values.button),
     buttonKind: BUTTON_KINDS.find((k) => k === values.buttonKind) ?? 'none',
+    byTime: values.byTime === true,
     tone: String(values.tone),
     catchAll: values.catchAll === true,
     places: places.length > 0 ? places : [place(heading)],
@@ -165,6 +174,7 @@ export const KANBAN_COLUMNS_BINDING: ListBinding<KanbanColumn> = {
   fieldless: true,
   entryProperties: {
     buttonKind: kanbanColumnProperties.buttonKind,
+    byTime: kanbanColumnProperties.byTime,
     tone: kanbanColumnProperties.tone,
     catchAll: kanbanColumnProperties.catchAll,
   },
