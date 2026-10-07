@@ -3,6 +3,7 @@ import type { KeyPair } from '../../../core/data/extraSources'
 import { outsideValue } from '../../../runtime/foreignSources'
 import { maskState } from '../../../runtime/maskState'
 import { columnWithKey, type Column } from '../../list/columns'
+import { walkOrder, type RowLayout } from '../../list/tableBody'
 import { plainText, rowFits } from '../../list/textSearch'
 import {
   automaticColumns,
@@ -51,8 +52,8 @@ interface CaptureRowHost {
 
   context: () => CaptureContext
 
-  // The columns the operator sees, by their place among all columns.
-  shown: () => readonly number[]
+  // The columns the operator sees: those of the row and of its grey line.
+  layout: () => RowLayout
 
   report: () => void
 
@@ -76,8 +77,6 @@ export class CaptureRow {
 
   private cursorColumn = -1
 
-  private listColumn = -1
-
   constructor(host: CaptureRowHost) {
     this.host = host
   }
@@ -92,6 +91,11 @@ export class CaptureRow {
 
   get suggestions(): readonly Entry[] {
     return this.list.hit
+  }
+
+  // Something was typed or chosen: there is a position to give up.
+  get touched(): boolean {
+    return this.chosen.size > 0 || [...this.typed.values()].some((text) => text !== '')
   }
 
   // What the capture row shows: one pass over the columns instead of one
@@ -134,7 +138,6 @@ export class CaptureRow {
     if (this.cursorColumn === index) {
       this.settle(index)
       this.cursorColumn = -1
-      this.listColumn = -1
       this.list.idle()
     }
     this.host.report()
@@ -169,13 +172,6 @@ export class CaptureRow {
     this.host.report()
   }
 
-  openList(index: number): void {
-    this.cursorColumn = index
-    this.listColumn = index
-    this.list.openList()
-    this.host.report()
-  }
-
   decideKey(index: number, key: string): KeyAction {
     const context = this.host.context()
     const target = targetIn(context, index)
@@ -187,25 +183,24 @@ export class CaptureRow {
       hasRecords: () => this.entriesIn(context, index).length > 0,
       jumps: true,
     })
-    if (action === 'closeList') this.listColumn = -1
     // The key moved the mark or closed the list: what the operator sees is a
     // step further than the drawing.
     if (action !== 'nothing') this.host.report()
     return action
   }
 
-  // Tab and Enter walk the cells the operator has to fill: a cell that
-  // holds a value from the chosen record or from a calculation is skipped,
-  // a click still enters it.
+  // Tab and Enter walk the cells the operator has to fill, the row first,
+  // then its grey line: a cell that holds a value from the chosen record or
+  // from a calculation is skipped, a click still enters it.
   neighbour(from: number, direction: 1 | -1): number {
     const view = this.rowView()
-    const typed = this.host.shown().filter((slot) => view[slot]?.automatic !== true)
+    const typed = walkOrder(this.host.layout()).filter((slot) => view[slot]?.automatic !== true)
     return neighbourSlot(typed, from, direction)
   }
 
   // The first cell of the capture row the operator sees.
   get firstCell(): number {
-    return this.host.shown()[0] ?? 0
+    return walkOrder(this.host.layout())[0] ?? 0
   }
 
   // What the lookup window of a cell shows. Nothing when the column names no
@@ -250,10 +245,6 @@ export class CaptureRow {
     this.host.report()
   }
 
-  entriesFor(index: number): Entry[] {
-    return this.entriesIn(this.host.context(), index)
-  }
-
   private entriesIn(context: CaptureContext, index: number): Entry[] {
     const target = targetIn(context, index)
     if (target.kind !== 'linked' || target.sourceId === '' || target.code === '') return []
@@ -277,7 +268,7 @@ export class CaptureRow {
     const index = this.cursorColumn
     if (this.list.closed || targetIn(context, index).kind === 'free') return []
     const typed = this.typed.get(index) ?? ''
-    if (typed === '' && this.listColumn !== index) return []
+    if (typed === '') return []
     const codes = sameSourceCodes(context, index)
     const texts = (e: Entry): string[] => [
       e.display, e.value, ...codes.map((code) => maskState.host.readField(e.record, code)),
@@ -450,7 +441,6 @@ export class CaptureRow {
     this.byHand.clear()
     this.computed.clear()
     this.cursorColumn = -1
-    this.listColumn = -1
     this.list.idle()
   }
 }

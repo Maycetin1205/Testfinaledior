@@ -71,9 +71,11 @@ function key(placement: CaptureRowPlacement, index: number, e: KeyboardEvent): v
     // Enter takes the hit and stays in the cell; Tab goes on.
     if (e.key === 'Tab') keep = ledger.jumpFrom(index, e.key)
   } else if (action === 'window') openWindow(placement, index)
-  else if (action === 'openList') ledger.openList(index)
   else if (action === 'further') keep = ledger.jumpFrom(index, e.key)
+  else if (action === 'down') keep = ledger.down(index)
+  else if (action === 'up') keep = ledger.up(index)
   else if (action === 'clear') ledger.empty(index)
+  else if (action === 'giveUp') keep = ledger.giveUp()
   if (keep) e.preventDefault()
 }
 

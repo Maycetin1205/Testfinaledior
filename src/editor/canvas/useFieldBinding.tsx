@@ -55,6 +55,7 @@ export function useFieldBinding({
 
   // A column head is chosen: its bar stands in the place of the block's.
   columnOpen: boolean
+  openEntry: number | null
 } {
   const library = useDataSources().list
 
@@ -173,5 +174,8 @@ export function useFieldBinding({
   const columnOpen = selected === true && listPicker !== null
     && entriesOf()[listPicker.index] !== undefined
 
-  return { onClick, onDoubleClick, pickers, columnOpen }
+  // The entry of the list whose bar is open: a click on the block may place it.
+  const openEntry = columnOpen && listPicker.inner === undefined ? listPicker.index : null
+
+  return { onClick, onDoubleClick, pickers, columnOpen, openEntry }
 }

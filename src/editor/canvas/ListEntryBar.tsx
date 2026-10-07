@@ -208,13 +208,6 @@ export function ListEntryBar({
         on: flagOn(s, entry),
         onToggle: (on) => writeInEntry((e) => s.withValue(e, on)),
       }))}
-      places={(listBinding.entryPlace ?? []).filter((p) => p.shown(entry)).map((p) => ({
-        key: p.key,
-        label: p.name,
-        value: p.valueOf(entriesOf(), pick.index),
-        entries: p.options(entriesOf(), pick.index),
-        onChoose: (value) => writeInEntry((e) => p.withValue(e, value)),
-      }))}
       actions={[
         ...(!innerBinding || innerAdd === undefined ? [] : [{
           label: `${innerBinding.defaultTitle.replace(/\s*\{n\}/, '')} anfügen`,

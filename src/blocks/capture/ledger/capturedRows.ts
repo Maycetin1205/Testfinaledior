@@ -1,4 +1,5 @@
 import type { PendingKind, WrittenRow } from '../../../core/block/capability'
+import { walkOrder, type RowLayout } from '../../list/tableBody'
 import type { CaptureColumn } from '../column'
 import { missingRequired, type CaptureContext } from '../row'
 import type { CaptureRow, Helpers } from './captureRow'
@@ -23,8 +24,8 @@ interface CapturedRowsHost {
 
   columns: () => readonly CaptureColumn[]
 
-  // The columns the operator sees, by their place among all columns.
-  shown: () => readonly number[]
+  // The columns the operator sees: those of the row and of its grey line.
+  layout: () => RowLayout
 
   report: () => void
 
@@ -48,7 +49,8 @@ export class CapturedRows {
 
   private nextKey = 1
 
-  private correction: { key: string; slot: number } | null = null
+  // The row brought back into the capture row, as it was, and its place.
+  private correction: { row: CapturedRow; slot: number } | null = null
 
   constructor(host: CapturedRowsHost, row: CaptureRow, status: Status) {
     this.host = host
@@ -104,12 +106,12 @@ export class CapturedRows {
       this.row.clear()
       return 'captured'
     }
-    const missing = missingRequired(context.columns, values, this.host.shown())
+    const missing = missingRequired(context.columns, values, walkOrder(this.host.layout()))
     if (missing !== -1) return { missing }
     if (back) {
       this.rows = [
         ...this.rows.slice(0, back.slot),
-        { key: back.key, values, ...this.row.helpersNow() },
+        { key: back.row.key, values, ...this.row.helpersNow() },
         ...this.rows.slice(back.slot),
       ]
       this.correction = null
@@ -135,10 +137,25 @@ export class CapturedRows {
     const now = this.rows.indexOf(row)
     if (now === -1) return
     this.rows = this.rows.filter((_, i) => i !== now)
-    this.correction = { key: row.key, slot: now }
+    this.correction = { row, slot: now }
     this.row.adoptRow(context, row.values, row)
     this.host.report()
     this.host.focusCell(this.row.firstCell)
+  }
+
+  // Escape gives the position up: what was typed goes, a row under
+  // correction goes back as it was. False when nothing was begun.
+  giveUp(): boolean {
+    const back = this.correction
+    if (back === null && !this.row.touched) return false
+    if (back !== null) {
+      this.rows = [...this.rows.slice(0, back.slot), back.row, ...this.rows.slice(back.slot)]
+      this.correction = null
+    }
+    this.row.clear()
+    this.host.report()
+    this.host.focusCell(this.row.firstCell)
+    return true
   }
 
   remove(index: number): void {

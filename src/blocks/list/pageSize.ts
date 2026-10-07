@@ -15,16 +15,15 @@ function headRows(headHeight: number, tick: number): number {
   return Math.max(1, Math.floor(headHeight / tick))
 }
 
-// A record takes a row and, with sublines, the line under it; the head
-// takes its rows and one subline as well.
+// A record takes a row and, with a grey line, the line under it. Where the
+// list has a grey line, a page counts every record with one.
 function fittingRows(
   bodyHeight: number,
   heads: number,
   rowsHeight: number,
   sub: number,
 ): number {
-  const headSub = sub > 0 ? sub : 0
-  return Math.max(1, Math.floor((bodyHeight - heads * rowsHeight - headSub) / (rowsHeight + sub)))
+  return Math.max(1, Math.floor((bodyHeight - heads * rowsHeight) / (rowsHeight + sub)))
 }
 
 export interface RowMetrics {
@@ -39,10 +38,10 @@ function rowMetrics(
   tick: number,
   sub: number,
 ): RowMetrics {
-  const heads = headRows(headHeight - sub, tick)
+  const heads = headRows(headHeight, tick)
   const fit = fittingRows(bodyHeight, heads, tick, sub)
-  // A row with a subline keeps its height: stretched, the main line would
-  // drift away from the subline under it. The room left stays below the rows.
+  // A row with a grey line keeps its height: stretched, the row would drift
+  // away from the grey line under it. The room left stays below the rows.
   if (sub > 0) return { fit, rowsHeight: tick }
   const height = bodyHeight / (fit + heads)
   if (height < tick) return { fit, rowsHeight: tick }

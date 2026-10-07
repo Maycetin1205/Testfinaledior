@@ -23,13 +23,13 @@ import { suggestionStyle } from '../lookup/suggestionList'
 import { reportPendingMarks } from '../../runtime/pendingState'
 import { enterCell, cellsInputStyle, cellsFields } from './cells'
 import { hasRecordNumber } from '../list/sourceRows'
-import type { Sublines, RowDecoration } from '../list/tableBody'
+import type { RowsBelow, RowDecoration } from '../list/tableBody'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
 import {
-  anchorKeyOf,
   CAPTURE_COLUMNS_BINDING,
   coerceCaptureColumns,
+  greyLine,
   type CaptureColumn,
 } from './column'
 import { CaptureLedger } from './ledger'
@@ -58,7 +58,7 @@ export class Capture extends BlockElement
   private readonly _ledger: CaptureLedger = new CaptureLedger({
     block: this,
     columns: () => this.listColumns(),
-    shown: () => this._list.shownSlots(),
+    layout: () => this._list.rowLayout(),
     calculations: () => this.listCalculations(),
     sourceId: () => this.source,
     rawRows: () => this.rawRows,
@@ -76,8 +76,7 @@ export class Capture extends BlockElement
     cellValue: (rawIndex, slot) => this._ledger.cellValue(rawIndex, slot),
     decoration: () => this.rowsDecoration(),
     required: (slot) => this.listColumns()[slot]?.required === true,
-    inSubline: (slot) => this.listColumns()[slot]?.subline === true,
-    anchorOf: (slot) => anchorKeyOf(this.listColumns(), slot),
+    greyLine: (shown) => greyLine(this.listColumns(), shown),
     bottom: () => this.underRows(),
   })
 
@@ -119,7 +118,7 @@ export class Capture extends BlockElement
 
   private focusCaptureCell(index: number): void {
     void this.updateComplete.then(() => {
-      enterCell(cellsFields(this.shadowRoot, '.row.capture', index)[0])
+      enterCell(cellsFields(this.shadowRoot, '.row.capture', [index])[0])
     })
   }
 
@@ -141,7 +140,7 @@ export class Capture extends BlockElement
     })
   }
 
-  private underRows(): Sublines {
+  private underRows(): RowsBelow {
     const captured = this._ledger.capturedValues
     return {
       count: 1 + captured.length,

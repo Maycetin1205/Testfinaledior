@@ -34,19 +34,78 @@ export const WITHOUT_DECORATION: RowDecoration = {
   key: () => false,
 }
 
-// The columns of the row, and under each the columns of its grey second
-// line: a subline column stands in the cell of the column it is anchored to.
+// The columns of the row, and under a cell of it the column of the grey line
+// standing there, both by their place among all columns.
 export interface RowLayout {
   main: ColumnView
 
-  hasSubs: boolean
-
-  subsOf: (mainSlot: number) => ColumnView
+  under: ReadonlyMap<number, { column: Column; slot: number }>
 }
 
-export const WITHOUT_SUBS: ColumnView = { columns: [], slots: [] }
+// The cells Tab walks: the row from left to right, then its grey line.
+export function walkOrder(layout: RowLayout): number[] {
+  const grey = layout.main.slots.flatMap((slot) => {
+    const sub = layout.under.get(slot)
+    return sub === undefined ? [] : [sub.slot]
+  })
+  return [...layout.main.slots, ...grey]
+}
 
-export interface Sublines {
+// The cell of the grey line under a cell of the row; -1 where none stands.
+export function cellBelow(layout: RowLayout, slot: number): number {
+  return layout.under.get(slot)?.slot ?? -1
+}
+
+// The cell of the row over a cell of the grey line; -1 for a cell of the row.
+export function cellAbove(layout: RowLayout, slot: number): number {
+  return [...layout.under].find(([, sub]) => sub.slot === slot)?.[0] ?? -1
+}
+
+// The cells over each other at the place of a cell: that of the row, then
+// that of the grey line under it.
+export function stripeOf(layout: RowLayout, slot: number): number[] {
+  const above = cellAbove(layout, slot)
+  const top = above === -1 ? slot : above
+  const below = cellBelow(layout, top)
+  return below === -1 ? [top] : [top, below]
+}
+
+// What a cell of the grey line shows: its value as text, or the input of a
+// typable cell.
+export interface GreyPart {
+  column: Column
+
+  content: TemplateResult | string
+
+  typable: boolean
+}
+
+// A cell of the grey line, under the cell of the row at the same place: the
+// name of its column, small and grey, before the value. Without a part the
+// cell stays empty and only carries the column line. In the editor a spot
+// names the column, and the cell is its head.
+export function greyCellTpl(at: number, part: GreyPart | null, spot?: number): TemplateResult {
+  const classes = [
+    'sub',
+    part !== null && columnStandsRight(part.column) ? 'right' : '',
+    part?.column.hidden === true ? 'hidden' : '',
+    part?.typable === true ? 'typable' : '',
+  ].filter((k) => k !== '').join(' ')
+  return html`<div
+    class=${classes}
+    role="cell"
+    style="grid-column: ${at + 1}"
+    data-ff-entry=${spot ?? nothing}
+    data-ff-below=${spot === undefined ? nothing : ''}
+    data-ff-editable=${spot === undefined ? nothing : ''}
+  >${part === null ? nothing : html`<span class="head-text">${part.column.title}</span>${part.typable
+    ? part.content
+    : part.content === '' ? nothing : html`<span class="sub-value">${part.content}</span>`}`}</div>`
+}
+
+// The rows below the records: what a block draws after them, like the rows
+// of a capture.
+export interface RowsBelow {
   count: number
 
   render: (placement: {
@@ -113,13 +172,13 @@ interface BodyAct {
   rowDouble: (rawIndex: number | null) => void
 }
 
-function ruler(placement: BodyPlacement): TemplateResult | typeof nothing {
-  if (placement.rulerTicks === 0) return nothing
+// The lines under the records. It also takes the room a record without a
+// grey line leaves, so the lines reach the foot.
+function ruler(placement: BodyPlacement): TemplateResult {
   const style = placement.rulerTicks === null
     ? placement.cols
     : {
         ...placement.cols,
-        flex: '0 1 auto',
         height: `calc(var(--record-height) * ${placement.rulerTicks})`,
       }
   return html`<div class="ruler" role="presentation" style=${styleMap(style)}>
@@ -151,16 +210,6 @@ function partOf(
   }
 }
 
-// The second line of a cell: the values of the subline columns anchored to
-// it, side by side, each one a part.
-export function sublineTpl(
-  parts: readonly { content: TemplateResult | string; typable: boolean }[],
-): TemplateResult {
-  return html`<span class="subs">${parts.map((p) => html`<span
-    class=${p.typable ? 'part typable' : p.content === '' ? 'part empty' : 'part'}
-  >${p.content}</span>`)}</span>`
-}
-
 function cellTpl(
   placement: BodyPlacement,
   decoration: RowDecoration,
@@ -169,20 +218,32 @@ function cellTpl(
   slot: number,
 ): TemplateResult {
   const main = partOf(placement, decoration, rawIndex, s, slot)
-  const subs = placement.layout.subsOf(slot)
   const classes = [
     s.hidden === true ? 'hidden' : '',
     columnStandsRight(s) ? 'right' : '',
     main.typable ? 'typable' : '',
   ].filter((k) => k !== '').join(' ')
-  if (!placement.layout.hasSubs) {
-    return html`<div class=${classes === '' ? nothing : classes} role="cell">${main.content}</div>`
-  }
-  return html`<div class=${classes === '' ? nothing : classes} role="cell"
-    ><span class="line">${main.content}</span>${subs.columns.length === 0
-      ? nothing
-      : sublineTpl(subs.columns.map((c, i) => partOf(placement, decoration, rawIndex, c, subs.slots[i])))
-    }</div>`
+  return html`<div class=${classes === '' ? nothing : classes} role="cell">${main.content}</div>`
+}
+
+// The grey line of a record, one part under each cell of the row: shown
+// where a value stands or a cell takes typing. Null when nothing shows, and
+// the record stays one line high.
+function greyParts(
+  placement: BodyPlacement,
+  decoration: RowDecoration,
+  rawIndex: number | null,
+): (GreyPart | null)[] | null {
+  if (rawIndex === null || placement.layout.under.size === 0) return null
+  const parts = placement.slots.map((slot): GreyPart | null => {
+    const sub = placement.layout.under.get(slot)
+    if (sub === undefined) return null
+    const part = partOf(placement, decoration, rawIndex, sub.column, sub.slot)
+    return part.typable || part.value !== ''
+      ? { column: sub.column, content: part.content, typable: part.typable }
+      : null
+  })
+  return parts.some((part) => part !== null) ? parts : null
 }
 
 function rowTpl(
@@ -193,11 +254,12 @@ function rowTpl(
 ): TemplateResult {
   const activatable = rawIndex !== null
   const decoration = placement.decoration(rawIndex)
+  const grey = greyParts(placement, decoration, rawIndex)
   return html`<div
     class="row${
       rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
-      rawIndex !== null && placement.layout.hasSubs ? ' subline' : ''}${
+      grey !== null ? ' subline' : ''}${
       decoration.className === '' ? '' : ' ' + decoration.className}"
     role="row"
     data-status=${decoration.status === '' ? nothing : decoration.status}
@@ -236,20 +298,13 @@ function rowTpl(
     }}
   >
     ${placement.columns.map((s, i) => cellTpl(placement, decoration, rawIndex, s, placement.slots[i]))}
+    ${grey === null ? nothing : grey.map((part, i) => greyCellTpl(i, part))}
     ${decoration.right}
   </div>`
 }
 
-function headTitleTpl(placement: BodyPlacement, s: Column, slot: number): TemplateResult {
-  return html`<span class="head-text">${s.title}</span>${placement.required(slot)
-    ? html`<em class="required">*</em>`
-    : nothing}${!placement.editable && placement.sortColumn === slot
-    ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
-    : ''}`
-}
-
-// A head cell: the title of the column and, small under it, the titles of
-// the subline columns anchored to it, each one a head of its own.
+// A head cell: the title of the column. The columns of the grey line have no
+// head here; their name stands in front of their value.
 function headCellTpl(
   placement: BodyPlacement,
   act: BodyAct,
@@ -257,37 +312,22 @@ function headCellTpl(
   slot: number,
   i: number,
 ): TemplateResult {
-  const subs = placement.layout.subsOf(slot)
-  // With sublines the editor's spot is the title line alone, not the whole
-  // two-line cell: the subline titles below have spots of their own.
-  const onLine = placement.layout.hasSubs
   return html`<div
     class=${[s.hidden === true ? 'hidden' : '', columnStandsRight(s) ? 'right' : '']
       .filter((k) => k !== '').join(' ') || nothing}
     role="columnheader"
-    data-ff-editable=${onLine ? nothing : ''}
-    data-ff-entry=${placement.preview && !onLine ? slot : nothing}
+    data-ff-editable
+    data-ff-entry=${placement.preview ? slot : nothing}
     style="grid-row: 1; grid-column: ${i + 1}"
     @click=${() => act.clickHead(slot)}
     @contextmenu=${placement.columnPickerOn
       ? (e: MouseEvent) => act.openColumnPicker(e)
       : nothing}
-  ><span
-    class="head-line"
-    data-ff-editable=${onLine ? '' : nothing}
-    data-ff-entry=${placement.preview && onLine ? slot : nothing}
-  >${headTitleTpl(placement, s, slot)}</span>${subs.columns.length === 0
-    ? nothing
-    : html`<span class="head-sub">${subs.columns.map((c, k) => html`<span
-        class="head-sub-text"
-        data-ff-editable
-        data-ff-entry=${placement.preview ? subs.slots[k] : nothing}
-        @click=${(e: MouseEvent) => {
-          e.stopPropagation()
-          act.clickHead(subs.slots[k])
-        }}
-      >${c.title}${placement.required(subs.slots[k]) ? html`<em class="required">*</em>` : nothing}</span>`)}</span>`
-  }</div>`
+  ><span class="head-text">${s.title}</span>${placement.required(slot)
+    ? html`<em class="required">*</em>`
+    : nothing}${!placement.editable && placement.sortColumn === slot
+    ? html`<span class="sort-arrow">${placement.sortAscending ? ' ▲' : ' ▼'}</span>`
+    : ''}</div>`
 }
 
 export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResult {
@@ -309,7 +349,7 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
         </div>
       </div>` : ''}
       <div class="body" role="table" tabindex="-1">
-      <div class="head${placement.layout.hasSubs ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+      <div class="head" role="row" style=${styleMap(placement.cols)}>
         ${placement.columns.map((s, i) => headCellTpl(placement, act, s, placement.slots[i], i))}
         ${widthsHandles(placement.columns.length, act.widths)}
       </div>

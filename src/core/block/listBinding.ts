@@ -26,7 +26,7 @@ export interface ListBinding<E = unknown> {
 
   entryFieldChoice?: readonly EntryFieldChoice<E>[]
 
-  entryPlace?: readonly EntryPlaceChoice<E>[]
+  entryPlace?: EntryPlaceChoice<E>
 
   entrySpots?: string
 
@@ -87,23 +87,16 @@ export function withInner<E>(b: ListBinding<E>, entries: readonly E[], index: nu
   return next
 }
 
-// Where an entry stands among its siblings, chosen from them: the column a
-// subline column stands under.
+// Where an entry stands among its siblings, chosen by a click on a spot of
+// the block that names a sibling (data-ff-place): the cell a column of the
+// grey line stands under.
 export interface EntryPlaceChoice<E> {
-  key: string
-
-  name: string
-
-  // Only an entry this applies to shows the choice.
+  // Only an entry this applies to waits for the click.
   shown(entry: E): boolean
 
-  // The siblings that can be chosen, by key and title.
-  options(entries: readonly E[], index: number): readonly { value: string; name: string }[]
-
-  // The chosen sibling, or the one that stands in without a choice.
-  valueOf(entries: readonly E[], index: number): string
-
-  withValue(entry: E, value: string): E
+  // The entries with this one placed at the sibling with that key; null when
+  // it stands there already or cannot.
+  placed(entries: readonly E[], index: number, key: string): E[] | null
 }
 
 export interface EntryFieldChoice<E> {

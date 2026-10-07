@@ -1,6 +1,7 @@
 import type { PendingKind, WrittenRow } from '../../core/block/capability'
 import type { Calculation } from '../../core/data/calculation'
 import type { Column } from '../list/columns'
+import { cellAbove, cellBelow, stripeOf, type RowLayout } from '../list/tableBody'
 import type { Entry } from '../lookup/lookup'
 import type { KeyAction } from '../lookup/suggestionState'
 import type { CaptureColumn } from './column'
@@ -17,8 +18,8 @@ interface CaptureHost {
 
   columns: () => readonly CaptureColumn[]
 
-  // The columns the operator sees, by their place among all columns.
-  shown: () => readonly number[]
+  // The columns the operator sees: those of the row and of its grey line.
+  layout: () => RowLayout
 
   calculations: () => readonly Calculation[]
 
@@ -85,8 +86,6 @@ export class CaptureLedger {
 
   setMark(mark: number): void { this.row.setMark(mark) }
 
-  openList(index: number): void { this.row.openList(index) }
-
   decideKey(index: number, key: string): KeyAction { return this.row.decideKey(index, key) }
 
   neighbour(from: number, direction: 1 | -1): number { return this.row.neighbour(from, direction) }
@@ -99,15 +98,14 @@ export class CaptureLedger {
 
   adopt(index: number, record: unknown): void { this.row.adopt(index, record) }
 
-  entriesFor(index: number): Entry[] { return this.row.entriesFor(index) }
-
   refresh(): void { this.row.refresh() }
 
   typedAt(index: number): string { return this.row.typedAt(index) }
 
   windowColumnsAt(index: number): Column[] { return this.row.windowColumnsAt(index) }
 
-  // Enter and Tab go one column on; past the last one they capture the row.
+  // Enter and Tab go one cell on, through the row and then its grey line;
+  // past the last one they capture the row.
   jumpFrom(index: number, key: string): boolean {
     this.row.settle(index)
     const next = this.row.neighbour(index, 1)
@@ -119,6 +117,31 @@ export class CaptureLedger {
     return this.captured.captureRow()
   }
 
+  // Arrow down goes from a cell of the row into the grey line under it, and
+  // from there, or where nothing stands under it, on to the next position:
+  // the row is captured.
+  down(index: number): boolean {
+    this.row.settle(index)
+    const below = cellBelow(this.host.layout(), index)
+    if (below === -1) return this.captured.captureRow()
+    this.host.focusCell(below)
+    return true
+  }
+
+  // Arrow up goes from the grey line into the row, and from the row into the
+  // position above, where its cells take typing.
+  up(index: number): boolean {
+    this.row.settle(index)
+    const layout = this.host.layout()
+    const above = cellAbove(layout, index)
+    if (above === -1) return this.booked.enterLast(stripeOf(layout, index))
+    this.host.focusCell(above)
+    return true
+  }
+
+  // Escape in an empty cell gives the position up.
+  giveUp(): boolean { return this.captured.giveUp() }
+
   // ----- the captured rows -----
 
   get capturedValues(): readonly (readonly string[])[] { return this.captured.values }
@@ -128,8 +151,6 @@ export class CaptureLedger {
   pendingMarks(): PendingRow[] { return this.captured.pendingMarks() }
 
   capturedStatus(index: number): RowState { return this.captured.statusAt(index) }
-
-  captureRow(): boolean { return this.captured.captureRow() }
 
   bringBackCaptured(index: number): void { this.captured.bringBack(index) }
 

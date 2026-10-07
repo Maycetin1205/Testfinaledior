@@ -8,7 +8,6 @@ import type { Property } from '../../core/block/property'
 import { blockType } from '../../core/block/registry'
 import { propertiesFor } from '../../core/block/propertyPlace'
 import { FieldPicker, type PickerField, type PickerGroup, type SourcesChoice } from '../canvas/FieldPicker'
-import { PickerControl } from '../controls/PickerControl'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { BarControl, type EntryAccess } from './BarControl'
@@ -33,15 +32,6 @@ interface ColumnAction {
   onOpen: () => void
 }
 
-// A choice among the column's siblings, like the column a subline stands under.
-interface ColumnPlace {
-  key: string
-  label: string
-  value: string
-  entries: readonly { value: string; name: string }[]
-  onChoose: (value: string) => void
-}
-
 interface ColumnBarProps {
   block: BlockNode
 
@@ -54,7 +44,6 @@ interface ColumnBarProps {
   nameOf: (value: string) => string
 
   switches: readonly ColumnSwitch[]
-  places?: readonly ColumnPlace[]
   actions: readonly ColumnAction[]
 
   // What the entry itself declares, like the tone of a board's column, each
@@ -73,7 +62,7 @@ interface ColumnBarProps {
 // fields, its switches, what the list chooses at its heads, and the bin.
 export function ColumnBar({
   block, name, fields, groups, sourcesChoice, nameOf,
-  switches, places = [], actions, entries = [], removeLabel, onRemove, onClose,
+  switches, actions, entries = [], removeLabel, onRemove, onClose,
 }: ColumnBarProps) {
   const ed = useEditor()
   const library = useDataSources().list
@@ -101,7 +90,7 @@ export function ColumnBar({
   const own = entries.flatMap(({ properties, access }, group) => properties
     .filter(([, property]) => controlShown(property, block, sourceInReach, library))
     .map(([key, property]) => ({ key: `${group}:${key}`, propertyKey: key, property, access })))
-  const parts = 1 + fields.length + own.length + switches.length + places.length + choices.length + actions.length + (onRemove ? 1 : 0)
+  const parts = 1 + fields.length + own.length + switches.length + choices.length + actions.length + (onRemove ? 1 : 0)
   const fieldsFrom = fields.filter((field) => field.onlyForeignSources === true)
   const fieldsTo = fields.filter((field) => field.onlyForeignSources !== true)
 
@@ -119,17 +108,6 @@ export function ColumnBar({
         />
       ))}
       {switches.map((s) => <Switch key={s.key} label={s.label} on={s.on} onToggle={s.onToggle} />)}
-      {places.map((p) => (
-        <Labeled key={p.key} label={p.label}>
-          <PickerControl
-            name={p.label}
-            className="w-full"
-            groups={[{ key: p.key, entries: p.entries.map((e) => ({ value: e.value, name: e.name })) }]}
-            value={p.value}
-            onChoose={p.onChoose}
-          />
-        </Labeled>
-      ))}
       {choices.map(({ key, property }) => (
         <BarControl
           key={key}

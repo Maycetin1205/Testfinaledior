@@ -26,7 +26,10 @@ export type KeyAction =
   | 'openList'
   | 'window'
   | 'further'
+  | 'down'
+  | 'up'
   | 'clear'
+  | 'giveUp'
   | 'nothing'
 
 export function keyOf(e: KeyboardEvent): string {
@@ -61,15 +64,22 @@ function keyAction(key: string, l: KeysPlacement & {
   if (key === 'F5') {
     return l.lookupable ? 'window' : 'nothing'
   }
+  // In a row that jumps, Escape in an empty cell gives the row up, and the
+  // arrows go from line to line.
   if (key === 'Escape') {
     if (l.listOpen) return 'closeList'
-    return l.fieldEmpty ? 'nothing' : 'clear'
+    if (!l.fieldEmpty) return 'clear'
+    return l.jumps ? 'giveUp' : 'nothing'
   }
   if (key === 'ArrowDown') {
     if (l.listOpen) return 'markDown'
+    if (l.jumps) return 'down'
     return l.lookupable && l.hasRecords() ? 'openList' : 'nothing'
   }
-  if (key === 'ArrowUp') return l.listOpen ? 'markUp' : 'nothing'
+  if (key === 'ArrowUp') {
+    if (l.listOpen) return 'markUp'
+    return l.jumps ? 'up' : 'nothing'
+  }
   if (key === 'PageDown') return l.listOpen ? 'pageDown' : 'nothing'
   if (key === 'PageUp') return l.listOpen ? 'pageUp' : 'nothing'
   if (key !== 'Enter') return 'nothing'

@@ -12,18 +12,34 @@ import {
 } from '../../core/block/blockType'
 import { useEditorInstance } from '../state/EditorContext'
 
-interface Spot {
+interface Frame {
   left: number
   top: number
   width: number
   height: number
+}
 
+interface Spot extends Frame {
   path: EntryPath
+
+  // The spot stands in a second line, like a column of the grey line, and
+  // keeps its place there: it does not move by dragging.
+  below: boolean
+}
+
+// A cell that names a sibling by its key: a click there places the entry
+// whose bar is open, like a column of the grey line under that cell.
+interface Place extends Frame {
+  key: string
 }
 
 interface ColumnControlsProps {
   block: BlockNode
   selected: boolean
+
+  // The entry whose bar is open.
+  open: number | null
+
   binding: ListBinding
   selector: string
 
@@ -42,27 +58,33 @@ const HANDLE_EDGE = 6
 // The plus at the end of the heads, as .vspalte-zahl: white with an edge.
 const PLUS_SIZE = 20
 
-function measure(element: HTMLElement, host: HTMLElement, selector: string): Spot[] {
+function frameOf(el: HTMLElement, reference: DOMRect): Frame {
+  const r = el.getBoundingClientRect()
+  return { left: r.left - reference.left, top: r.top - reference.top, width: r.width, height: r.height }
+}
+
+function measure(element: HTMLElement, host: HTMLElement, selector: string): { spots: Spot[]; places: Place[] } {
   const root = element.shadowRoot
-  if (!root) return []
+  if (!root) return { spots: [], places: [] }
   const reference = host.getBoundingClientRect()
-  return Array.from(root.querySelectorAll<HTMLElement>(selector)).map((el, i) => {
-    const r = el.getBoundingClientRect()
-    return {
-      left: r.left - reference.left,
-      top: r.top - reference.top,
-      width: r.width,
-      height: r.height,
+  return {
+    spots: Array.from(root.querySelectorAll<HTMLElement>(selector)).map((el, i) => ({
+      ...frameOf(el, reference),
       path: entryPathFrom(el.getAttribute('data-ff-entry'), i),
-    }
-  })
+      below: el.hasAttribute('data-ff-below'),
+    })),
+    places: Array.from(root.querySelectorAll<HTMLElement>('[data-ff-place]')).map((el) => ({
+      ...frameOf(el, reference),
+      key: el.getAttribute('data-ff-place') ?? '',
+    })),
+  }
 }
 
 export function ColumnControls({
-  block, selected, binding, selector, element, host, container, onSelect,
+  block, selected, open, binding, selector, element, host, container, onSelect,
 }: ColumnControlsProps) {
   const editor = useEditorInstance()
-  const [spots, setSpots] = useState<Spot[]>([])
+  const [{ spots, places }, setMeasured] = useState<{ spots: Spot[]; places: Place[] }>({ spots: [], places: [] })
   const [drag, setDrag] = useState<{ from: number; slot: number } | null>(null)
 
   useEffect(() => {
@@ -73,7 +95,7 @@ export function ColumnControls({
     let ro: ResizeObserver | null = null
     let mo: MutationObserver | null = null
     const remeasure = (): void => {
-      if (!stopped) setSpots(measure(el, frame, selector))
+      if (!stopped) setMeasured(measure(el, frame, selector))
     }
     // A change in the block's tree reaches the observer while the block is
     // still drawing: measure now and again once it has finished.
@@ -96,7 +118,7 @@ export function ColumnControls({
         subtree: true,
         childList: true,
         attributes: true,
-        attributeFilter: ['style', 'class', 'data-ff-entry'],
+        attributeFilter: ['style', 'class', 'data-ff-entry', 'data-ff-place'],
       })
       remeasureDrawn()
     }
@@ -155,10 +177,15 @@ export function ColumnControls({
     })
   }
 
-  const added = binding.entryAdd?.(binding.entries(block.values[binding.prop])) ?? null
+  const entries = binding.entries(block.values[binding.prop])
+  const added = binding.entryAdd?.(entries) ?? null
+
+  // The entry whose bar is open waits for a click on a cell that places it.
+  const waiting = open === null ? undefined : entries[open]
+  const placing = waiting !== undefined && binding.entryPlace?.shown(waiting) === true ? binding.entryPlace : undefined
 
   // Only the heads of the list itself move by dragging, side by side.
-  const heads = spots.filter((s) => s.path.inner === undefined)
+  const heads = spots.filter((s) => s.path.inner === undefined && !s.below)
 
   const onPress = (index: number, e: ReactPointerEvent<HTMLDivElement>): void => {
     if (e.button !== 0) return
@@ -167,7 +194,7 @@ export function ColumnControls({
     if (!frame) return
 
     const wasSelected = editor.selectedId === block.id
-    const inner = spots[index]?.path.inner !== undefined
+    const stays = spots[index]?.path.inner !== undefined || spots[index]?.below === true
     const startX = e.clientX
     const referenceLeft = frame.getBoundingClientRect().left
     const midway = heads.map((s) => referenceLeft + s.left + s.width / 2)
@@ -188,7 +215,7 @@ export function ColumnControls({
     }
     function onMove(ev: PointerEvent): void {
       if (!drags) {
-        if (inner || Math.abs(ev.clientX - startX) < DRAG_THRESHOLD) return
+        if (stays || Math.abs(ev.clientX - startX) < DRAG_THRESHOLD) return
         drags = true
         document.body.style.cursor = 'grabbing'
       }
@@ -209,7 +236,6 @@ export function ColumnControls({
 
       const of = spots[index]?.path.index ?? index
       const toRaw = heads[s]?.path.index ?? (heads[heads.length - 1]?.path.index ?? 0) + 1
-      const entries = binding.entries(block.values[binding.prop])
       const next = binding.entryMove(entries, of, toRaw > of ? toRaw - 1 : toRaw)
       if (next !== null) editor.updateProperty(block.id, binding.prop, next)
     }
@@ -260,6 +286,19 @@ export function ColumnControls({
           onDoubleClick={(e) => {
             e.stopPropagation()
             rename(i)
+          }}
+        />
+      ))}
+      {open !== null && placing !== undefined && places.map((p) => (
+        <div
+          key={p.key}
+          className="pointer-events-auto absolute cursor-pointer hover:bg-[hsl(var(--wb-selection)/0.08)]"
+          style={{ left: p.left, top: p.top, width: p.width, height: p.height }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            const next = placing.placed(entries, open, p.key)
+            if (next !== null) editor.updateProperty(block.id, binding.prop, next)
           }}
         />
       ))}

@@ -3,6 +3,7 @@ import { columnSlots, rowValues, type Calculation } from '../../../core/data/cal
 import { asNumber } from '../../../core/data/number'
 import { columnWithKey } from '../../list/columns'
 import { rowsIndexOf } from '../../list/sourceRows'
+import { stripeOf, type RowLayout } from '../../list/tableBody'
 import { cellsFields, enterCell } from '../cells'
 import type { CaptureColumn } from '../column'
 import type { RowState, RowsStatus } from './outbound'
@@ -22,6 +23,9 @@ interface BookedRowsHost {
   block: HTMLElement
 
   columns: () => readonly CaptureColumn[]
+
+  // The columns the operator sees: those of the row and of its grey line.
+  layout: () => RowLayout
 
   calculations: () => readonly Calculation[]
 
@@ -197,22 +201,27 @@ export class BookedRows {
     if (step === undefined) return
     e.preventDefault()
     e.stopPropagation()
-    this.cellNeighbour(columnsIndex, field, step, e.key === 'Enter')
+    // The arrows go through the grey line as well; Enter and the page keys
+    // stay in the column.
+    const arrow = e.key === 'ArrowDown' || e.key === 'ArrowUp'
+    this.cellNeighbour(arrow ? stripeOf(this.host.layout(), columnsIndex) : [columnsIndex], field, step, e.key)
   }
 
+  // Under the last position lies the capture row: Enter goes on to its first
+  // cell, arrow down to its cell at the same place.
   private cellNeighbour(
-    columnsIndex: number,
+    slots: readonly number[],
     of: HTMLInputElement,
     step: number,
-    enterMode: boolean,
+    key: string,
   ): void {
-    const fields = cellsFields(this.host.block.shadowRoot, BOOKED_ROWS, columnsIndex)
+    const fields = cellsFields(this.host.block.shadowRoot, BOOKED_ROWS, slots)
     const now = fields.indexOf(of)
     if (now < 0) return
     let target = now + step
     if (target > fields.length - 1) {
-      if (enterMode) {
-        this.host.focusCell(this.host.firstCell())
+      if (key === 'Enter' || key === 'ArrowDown') {
+        this.host.focusCell(key === 'Enter' ? this.host.firstCell() : slots[0])
         return
       }
       target = fields.length - 1
@@ -221,6 +230,12 @@ export class BookedRows {
     const field = fields[target]
     if (field === of) return
     enterCell(field)
+  }
+
+  // Arrow up from the capture row: the lowest cell at the same place in the
+  // positions above that takes typing. False where none does.
+  enterLast(slots: readonly number[]): boolean {
+    return enterCell(cellsFields(this.host.block.shadowRoot, BOOKED_ROWS, slots).at(-1))
   }
 
   // A written row leaves the pending marks and waits for the document to show

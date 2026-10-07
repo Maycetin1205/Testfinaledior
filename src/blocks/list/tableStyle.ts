@@ -167,9 +167,11 @@ export const tableStyle = css`
         text-overflow: ellipsis;
       }
 
-      /* A 1-px line between the columns: in the head, in the rows, in the rest below. */
+      /* A 1-px line between the columns: in the head, in the rows and their
+         grey line, in the rest below. */
       .head > [role='columnheader'] + [role='columnheader'],
-      .row > [role='cell'] + [role='cell'],
+      .row > [role='cell']:not(.sub) + [role='cell']:not(.sub),
+      .row > .sub + .sub,
       .ruler > div + div {
         border-left: var(--se-border) solid var(--se-line-soft);
       }
@@ -180,88 +182,37 @@ export const tableStyle = css`
         font-variant-numeric: tabular-nums;
       }
       .head > div.right { justify-content: flex-end; text-align: right; }
-      .head-line { display: flex; align-items: center; min-width: 0; }
 
-      /* A record with sublines is two text lines high: the value of the column
-         on top, under it, smaller, grey and set in by one cell padding, the
-         values of the subline columns anchored to it. The head carries their
-         titles the same way. A row without a record stays one line high. */
-      .head.subline { min-height: calc(var(--row-height) + var(--sub-height)); }
-      .row.subline { height: calc(var(--row-height) + var(--sub-height)); }
-      .head.subline > div,
-      .row.subline > div {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: stretch;
-        line-height: normal;
-        white-space: normal;
+      /* A record with a grey line is two lines high: the row on top and,
+         under a cell of it, the column anchored there, as wide as the cell.
+         Its name stands small and grey before the value. A record without
+         a value there stays one line high. */
+      .row.subline {
+        height: calc(var(--row-height) + var(--sub-height));
+        grid-template-rows: calc(var(--row-height) - var(--se-border)) var(--sub-height);
       }
-      .row.subline > div > .line {
-        display: block;
-        min-width: 0;
-        line-height: calc(var(--row-height) - var(--se-border));
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .row > div > .subs {
-        display: flex;
-        gap: 6px;
-        min-width: 0;
-        padding-left: var(--se-cell-x);
-        line-height: var(--sub-height);
-        font-size: var(--se-fs-sm);
-        color: var(--se-muted);
-        white-space: nowrap;
-        overflow: hidden;
-      }
-      .row.subline > div.right > .subs { justify-content: flex-end; }
-      .subs > .part {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      /* A dot between two values; an empty part stands without one. */
-      .subs > .part:not(.typable):not(.empty) + .part:not(.typable):not(.empty)::before { content: '· '; }
-      .head.subline > div > .head-line { min-height: var(--row-height); }
-      .head.subline > div.right > .head-line,
-      .head.subline > div.right > .head-sub { justify-content: flex-end; }
-      .head-sub {
-        display: flex;
-        gap: 6px;
-        min-width: 0;
-        padding-left: var(--se-cell-x);
-        line-height: var(--sub-height);
-        font-size: var(--se-fs-xs);
-        font-weight: 400;
-        color: var(--se-muted);
-        white-space: nowrap;
-        overflow: hidden;
-      }
-      .head-sub-text {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        cursor: pointer;
-      }
-
-      /* The sublines of the capture: a line that holds an input lets the
-         suggestion list hang out, the inputs of the second line share it,
-         each as small as the line. The capture row shows its second line
-         with a hairline above, where the booked rows show grey values. */
-      .row.capture > div > .line,
-      .row > div.typable > .line { display: flex; align-items: center; overflow: visible; }
-      .row.capture > div > .subs,
-      .row > div.typable > .subs { overflow: visible; }
-      .row.capture > div > .subs { border-top: var(--se-border) solid var(--se-line-soft); }
-      .subs > .part.typable {
+      .row.subline > [role='cell']:not(.sub) { grid-row: 1; }
+      .row > .sub {
+        grid-row: 2;
         display: flex;
         align-items: center;
-        flex: 1 1 0;
-        overflow: visible;
+        gap: var(--se-gap-sm);
+        line-height: var(--sub-height);
+        font-size: var(--se-fs-sm);
       }
-      .subs > .part.typable .cell-input {
+      .row > .sub.right { justify-content: flex-end; }
+      .sub > .head-text { flex: none; color: var(--se-muted); }
+      .sub > .sub-value {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* A cell of the grey line that takes typing lets the suggestion list
+         hang out; its input is as small as the line. */
+      .row > .sub.typable { overflow: visible; }
+      .sub > .cell-holder { flex: 1 1 0; }
+      .sub .cell-input {
         height: calc(var(--sub-height) - 4px);
         font-size: var(--se-fs-sm);
       }
@@ -286,7 +237,7 @@ export const tableStyle = css`
         font-style: normal;
       }
       /* Breaks only between words; a word too long for the column is cut off. */
-      .head-text {
+      .head .head-text {
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;

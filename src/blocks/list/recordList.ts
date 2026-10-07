@@ -21,11 +21,10 @@ import { tableRenderModel } from './tableModel'
 import type { ListSettings } from './listDeclaration'
 import {
   WITHOUT_DECORATION,
-  WITHOUT_SUBS,
   tableFoot,
   tableBody,
   type RowLayout,
-  type Sublines,
+  type RowsBelow,
   type RowDecoration,
 } from './tableBody'
 import {
@@ -52,7 +51,7 @@ interface ListElement
   hasUpdated: boolean
 }
 
-// What a block adds on top of a plain list. The capture fills all three, the
+// What a block adds on top of a plain list. The capture fills them all, the
 // table none.
 interface ListHooks {
   cellValue: (rawIndex: number, slot: number) => string
@@ -61,12 +60,11 @@ interface ListHooks {
 
   required: (slot: number) => boolean
 
-  // A column that stands in the grey second line of a row, and the key of
-  // the column whose cell it stands in.
-  inSubline: (slot: number) => boolean
-  anchorOf: (slot: number) => string
+  // Of the columns shown, those of the grey line, each by the place of the
+  // cell of the row it stands under.
+  greyLine: (shown: readonly number[]) => ReadonlyMap<number, number>
 
-  bottom: () => Sublines | null
+  bottom: () => RowsBelow | null
 }
 
 interface ListShowQuestion {
@@ -119,7 +117,7 @@ export class RecordList implements ReactiveController {
     this.hooks = hooks
     this._widths = new WidthsState({
       preview: () => el.preview,
-      fullSlot: (rendered) => this.layoutOf(this.visibleView()).main.slots[rendered] ?? rendered,
+      fullSlot: (rendered) => this.rowLayout().main.slots[rendered] ?? rendered,
       columnsList: () => [...el.listColumns()],
       writeColumns: (columns) => sendColumnsChange(el, columns),
       report: () => el.requestUpdate(),
@@ -165,48 +163,28 @@ export class RecordList implements ReactiveController {
     return columnsView(el.listColumns(), el.preview, this._choice.away())
   }
 
-  // The columns of the row, and under each the subline columns anchored to
-  // it. A subline column whose anchor is not shown stands under the nearest
-  // shown column to its left, or the first.
-  private layoutOf(visible: ColumnView): RowLayout {
-    const hooks = this.hooks
-    if (!hooks || !visible.slots.some((slot) => hooks.inSubline(slot))) {
-      return { main: visible, hasSubs: false, subsOf: () => WITHOUT_SUBS }
+  // The columns the operator sees: those of the row, and under a cell of it
+  // the column of the grey line standing there.
+  rowLayout(): RowLayout {
+    const visible = this.visibleView()
+    const columns = this.el.listColumns()
+    const under = new Map<number, { column: Column; slot: number }>()
+    for (const [anchor, slot] of this.hooks?.greyLine(visible.slots) ?? []) {
+      under.set(anchor, { column: columns[slot], slot })
     }
+    if (under.size === 0) return { main: visible, under }
+    const grey = new Set([...under.values()].map((sub) => sub.slot))
     const main: { columns: Column[]; slots: number[] } = { columns: [], slots: [] }
-    const subs = new Map<number, { columns: Column[]; slots: number[] }>()
     visible.columns.forEach((column, i) => {
-      if (hooks.inSubline(visible.slots[i])) return
+      if (grey.has(visible.slots[i])) return
       main.columns.push(column)
       main.slots.push(visible.slots[i])
     })
-    if (main.slots.length === 0) return { main: visible, hasSubs: false, subsOf: () => WITHOUT_SUBS }
-    visible.columns.forEach((column, i) => {
-      const slot = visible.slots[i]
-      if (!hooks.inSubline(slot)) return
-      const key = hooks.anchorOf(slot)
-      const byKey = main.columns.findIndex((c) => c.key === key)
-      const left = main.slots.findLastIndex((s) => s < slot)
-      const at = byKey !== -1 ? byKey : (left !== -1 ? left : 0)
-      const anchor = main.slots[at]
-      const own = subs.get(anchor) ?? { columns: [], slots: [] }
-      own.columns.push(column)
-      own.slots.push(slot)
-      subs.set(anchor, own)
-    })
-    return { main, hasSubs: true, subsOf: (slot) => subs.get(slot) ?? WITHOUT_SUBS }
+    return { main, under }
   }
 
   private subHeight(): number {
-    return this.layoutOf(this.visibleView()).hasSubs ? SUBLINE_HEIGHT : 0
-  }
-
-  // The columns the operator sees, by their place among all columns: each
-  // column of the row, and right after it the columns of its second line.
-  // Tab walks them so, column by column from left to right.
-  shownSlots(): readonly number[] {
-    const layout = this.layoutOf(this.visibleView())
-    return layout.main.slots.flatMap((slot) => [slot, ...layout.subsOf(slot).slots])
+    return this.rowLayout().under.size > 0 ? SUBLINE_HEIGHT : 0
   }
 
   reset(): void {
@@ -280,9 +258,9 @@ export class RecordList implements ReactiveController {
   render(): TemplateResult {
     const el = this.el
     const columns = el.listColumns()
-    const layout = this.layoutOf(this.visibleView())
+    const layout = this.rowLayout()
     const visible = layout.main
-    const subHeight = layout.hasSubs ? SUBLINE_HEIGHT : 0
+    const subHeight = layout.under.size > 0 ? SUBLINE_HEIGHT : 0
     const bottom = this.hooks?.bottom() ?? null
     const decoration = this.hooks?.decoration() ?? ((): RowDecoration => WITHOUT_DECORATION)
     const shows = listEmptyState({

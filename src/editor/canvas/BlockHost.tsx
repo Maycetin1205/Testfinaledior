@@ -81,7 +81,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     grid,
   })
 
-  const { onClick, onDoubleClick, pickers, columnOpen } = useFieldBinding({
+  const { onClick, onDoubleClick, pickers, columnOpen, openEntry } = useFieldBinding({
     editor,
     blockRef,
     block,
@@ -183,6 +183,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         <ColumnControls
           block={block}
           selected={selected === true}
+          open={openEntry}
           binding={list}
           selector={list.entrySpots}
           element={element}

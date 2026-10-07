@@ -12,13 +12,16 @@ export function cellsClass(state: CellsState): string {
   return CELL_CLASS[state]
 }
 
+// The inputs of these columns in an area, top to bottom: in a row the input
+// of the row comes before that of its grey line.
 export function cellsFields(
   root: ShadowRoot | null | undefined,
   area: string,
-  slot: number,
+  slots: readonly number[],
 ): HTMLInputElement[] {
+  if (slots.length === 0) return []
   const found = root?.querySelectorAll<HTMLInputElement>(
-    `${area} .cell-input[data-column="${slot}"]`,
+    slots.map((slot) => `${area} .cell-input[data-column="${slot}"]`).join(', '),
   )
   return found === undefined ? [] : Array.from(found)
 }

@@ -5,7 +5,7 @@ import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
 import { columnStandsRight, FIELD_KEY_PREFIX, type Column } from '../list/columns'
-import { sublineTpl, type RowLayout } from '../list/tableBody'
+import { greyCellTpl, type RowLayout } from '../list/tableBody'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -49,43 +49,43 @@ interface CaptureAct {
   setMark: (listIndex: number) => void
 }
 
+// The row being typed: its cells, and under them the grey line with the name
+// of each column before its input, always, also where nothing is typed yet.
 export function captureRowTpl(
   placement: CapturePlacement,
   act: CaptureAct,
 ): TemplateResult {
-  const layout = placement.layout
-  return html`<div class="row capture${layout.hasSubs ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
+  const under = placement.layout.under
+  return html`<div class="row capture${under.size > 0 ? ' subline' : ''}" role="row" style=${styleMap(placement.cols)}>
     ${placement.columns.map((column, i) => captureCellTpl(placement, act, column, placement.slots[i]))}
+    ${under.size === 0 ? nothing : placement.slots.map((slot, i) => {
+      const sub = under.get(slot)
+      if (sub === undefined) return greyCellTpl(i, null)
+      // In the editor the name alone stands there, as the head of its column.
+      if (placement.preview) return greyCellTpl(i, { column: sub.column, content: '', typable: false }, sub.slot)
+      return greyCellTpl(i, {
+        column: sub.column,
+        content: captureInputTpl(placement, act, sub.column, sub.slot),
+        typable: true,
+      })
+    })}
   </div>`
 }
 
-// A cell of the capture row: the input of its column and, under it, the
-// inputs of the subline columns anchored to it.
+// A cell of the capture row. In the editor it stays empty and names its
+// column: a click there places the column of the grey line chosen at its head.
 function captureCellTpl(
   placement: CapturePlacement,
   act: CaptureAct,
   column: Column,
   slot: number,
 ): TemplateResult {
-  const layout = placement.layout
-  const subs = layout.subsOf(slot)
   if (placement.preview) {
-    return html`<div class=${column.hidden === true ? 'hidden' : nothing} role="cell"></div>`
+    return html`<div class=${column.hidden === true ? 'hidden' : nothing} role="cell" data-ff-place=${column.key}></div>`
   }
-
-  const main = captureInputTpl(placement, act, column, slot)
-  const edge = columnStandsRight(column) ? 'right' : nothing
-  if (!layout.hasSubs) {
-    return html`<div class=${edge} role="cell">${main}</div>`
-  }
-  return html`<div class=${edge} role="cell"
-    ><span class="line">${main}</span>${subs.columns.length === 0
-      ? nothing
-      : sublineTpl(subs.columns.map((c, i) => ({
-          content: captureInputTpl(placement, act, c, subs.slots[i]),
-          typable: true,
-        })))
-    }</div>`
+  return html`<div class=${columnStandsRight(column) ? 'right' : nothing} role="cell">${
+    captureInputTpl(placement, act, column, slot)
+  }</div>`
 }
 
 function captureInputTpl(

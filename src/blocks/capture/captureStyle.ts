@@ -65,17 +65,14 @@ export const captureStyle = css`
       .body > .row:focus,
       .body > .row.selected:focus:not(:focus-visible) { outline: none; }
 
-      /* A typable cell hands its padding to its input, so the text keeps the
-         edge of every other cell, and lets the suggestion list hang out. */
-      .row > div.typable,
-      .row.capture [role='cell'] {
+      /* A typable cell of the row hands its padding to its input, so the text
+         keeps the edge of every other cell, and lets the suggestion list hang
+         out. In the grey line the name keeps that edge. */
+      .row > div.typable:not(.sub),
+      .row.capture > [role='cell']:not(.sub) {
+        display: flex;
+        align-items: center;
         overflow: visible;
         padding: 0 calc(var(--se-cell-x) - var(--se-input-x) - var(--se-border));
       }
-      .row:not(.subline) > div.typable,
-      .row.capture:not(.subline) [role='cell'] {
-        display: flex;
-        align-items: center;
-      }
-
 `

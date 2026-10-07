@@ -16,9 +16,8 @@ export type CaptureColumn = Column & {
 
   required?: boolean
 
-  // The column stands in the grey second line of the row, in the cell of
-  // the column named by its key; without one, under the nearest column to
-  // its left.
+  // The column stands in the grey line of the row, under the cell of the
+  // column its key names.
   subline?: boolean
   under?: string
 
@@ -93,31 +92,48 @@ const SUBLINE: EntrySwitch<CaptureColumn> = {
   ),
 }
 
-// The key of the column a subline column stands under: the chosen one when
-// it is a column of the row. The subline columns without a choice spread
-// over the row's columns from left to right, one under each, so they do
-// not all pile up under one. Empty when the row has no column.
-export function anchorKeyOf(columns: readonly CaptureColumn[], index: number): string {
-  const own = columns[index]
-  if (own === undefined || own.subline !== true) return ''
-  const row = columns.filter((c) => c.subline !== true)
-  if (row.length === 0) return ''
-  const chosenOf = (c: CaptureColumn): CaptureColumn | undefined => row.find((r) => r.key === c.under)
-  const chosen = chosenOf(own)
-  if (chosen) return chosen.key
-  const unplaced = columns.filter((c) => c.subline === true && chosenOf(c) === undefined)
-  return row[unplaced.indexOf(own) % row.length].key
+// Under which cell of the row each column of the grey line stands, by place
+// among all columns: one under a cell, as wide as the cell. A column stands
+// under the column its key names; one without that choice, or whose choice
+// is taken, takes the first free cell from the left. Where no cell is free,
+// it stays in the row.
+export function greyLine(columns: readonly CaptureColumn[], shown: readonly number[]): Map<number, number> {
+  const row = shown.filter((slot) => columns[slot]?.subline !== true)
+  const under = new Map<number, number>()
+  const unplaced: number[] = []
+  for (const slot of shown) {
+    if (columns[slot]?.subline !== true) continue
+    const chosen = row.find((r) => columns[r].key === columns[slot].under)
+    if (chosen !== undefined && !under.has(chosen)) under.set(chosen, slot)
+    else unplaced.push(slot)
+  }
+  for (const slot of unplaced) {
+    const free = row.find((r) => !under.has(r))
+    if (free === undefined) break
+    under.set(free, slot)
+  }
+  return under
+}
+
+// The columns with the one at index placed under the column with that key.
+// A column already standing there takes the cell this one leaves.
+function placedUnder(columns: readonly CaptureColumn[], index: number, key: string): CaptureColumn[] | null {
+  const target = columns.findIndex((c) => c.key === key && c.subline !== true)
+  if (columns[index]?.subline !== true || target === -1) return null
+  const under = greyLine(columns, columns.map((_, i) => i))
+  const left = [...under].find(([, slot]) => slot === index)?.[0]
+  const there = under.get(target)
+  if (there === index) return null
+  return columns.map((column, i) => {
+    if (i === index) return withEntryValue(column, 'under', key)
+    if (i === there) return withEntryValue(column, 'under', left === undefined ? undefined : columns[left].key)
+    return column
+  })
 }
 
 const UNDER: EntryPlaceChoice<CaptureColumn> = {
-  key: 'under',
-  name: 'Unter',
   shown: (column) => column.subline === true,
-  options: (columns) => columns
-    .filter((c) => c.subline !== true)
-    .map((c) => ({ value: c.key, name: c.title })),
-  valueOf: (columns, index) => anchorKeyOf(columns, index),
-  withValue: (column, value) => withEntryValue(column, 'under', value === '' ? undefined : value),
+  placed: placedUnder,
 }
 
 const FILL_FIELD: EntryFieldChoice<CaptureColumn> = {
@@ -137,7 +153,7 @@ export const CAPTURE_COLUMNS_BINDING: ListBinding<CaptureColumn> = {
 
   entryFieldChoice: [FILL_FIELD],
 
-  entryPlace: [UNDER],
+  entryPlace: UNDER,
 }
 
 // A field of a helper source is looked up, never typed: the switch does not
