@@ -4,19 +4,11 @@ import type { BlockNode } from '../../core/block/tree'
 import { splitBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
-import { BlockElement } from '../../blocks/base/BlockElement'
+import { BlockElement, PROP_CHANGE, type PropChange } from '../../blocks/base/BlockElement'
 import { fieldInReachOf, type SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
-import type { GestureBracket } from '../state/history'
 
 const FOREIGN_ICON = ' ↗'
-
-interface PropChangeDetail {
-  attr: string
-  value: unknown
-
-  gesture?: 'start' | 'end'
-}
 
 interface LitElementArgs {
   editor: EditorStore
@@ -42,8 +34,6 @@ export function useLitElement({
 }: LitElementArgs) {
   const containerRef = useRef<HTMLDivElement | null>(null)
 
-  const bracket = useRef<GestureBracket | null>(null)
-
   const elementRef = useRef<HTMLElement | null>(null)
   const [element, setElement] = useState<HTMLElement | null>(null)
 
@@ -63,26 +53,13 @@ export function useLitElement({
     setElement(el)
 
     const onPropChange = (e: Event) => {
-      if (e.target !== el) return
-      const ce = e as CustomEvent<PropChangeDetail>
-      const detail = ce.detail
-      if (!detail || typeof detail.attr !== 'string') return
-      if (detail.gesture === 'start' && !bracket.current) {
-        bracket.current = editor.openGesture()
-      }
-      bracket.current?.open()
-      editor.updateProperty(blockRef.current.id, detail.attr, detail.value)
-      if (detail.gesture === 'end') {
-        bracket.current?.close()
-        bracket.current = null
-      }
+      const { prop, value } = (e as CustomEvent<PropChange>).detail
+      editor.updateProperty(blockRef.current.id, prop, value)
     }
-    el.addEventListener('ff-prop-change', onPropChange)
+    el.addEventListener(PROP_CHANGE, onPropChange)
 
     return () => {
-      bracket.current?.close()
-      bracket.current = null
-      el.removeEventListener('ff-prop-change', onPropChange)
+      el.removeEventListener(PROP_CHANGE, onPropChange)
       if (container.contains(el)) container.removeChild(el)
       elementRef.current = null
       setElement(null)

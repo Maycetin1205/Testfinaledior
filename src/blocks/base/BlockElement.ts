@@ -48,6 +48,19 @@ function declareLitProperties(element: BlockElementClass, properties: PropertyMa
   }
 }
 
+// A block asks the editor to store a new value of one of its properties: the
+// editor owns the tree. The event stays at the element.
+export const PROP_CHANGE = 'ff-prop-change'
+
+export interface PropChange {
+  prop: string
+  value: unknown
+}
+
+export function sendPropChange(el: HTMLElement, prop: string, value: unknown): void {
+  el.dispatchEvent(new CustomEvent<PropChange>(PROP_CHANGE, { detail: { prop, value } }))
+}
+
 function startValues(properties: PropertyMap): Record<string, PropertyValue> {
   const out: Record<string, PropertyValue> = {}
   for (const [name, declared] of Object.entries(properties)) {
@@ -100,7 +113,7 @@ export abstract class BlockElement extends LitElement {
     Object.assign(this, { [name]: value })
   }
 
-  protected inlineEdit(event: MouseEvent, attr: string): void {
+  protected inlineEdit(event: MouseEvent, prop: string): void {
     if (!this.editable) return
     const target = event.currentTarget as HTMLElement | null
     if (!target) return
@@ -109,12 +122,7 @@ export abstract class BlockElement extends LitElement {
     event.stopPropagation()
     event.preventDefault()
     startRename(target, (text, original) => {
-      if (text === original) return
-      this.dispatchEvent(new CustomEvent('ff-prop-change', {
-        detail: { attr, value: text },
-        bubbles: true,
-        composed: true,
-      }))
+      if (text !== original) sendPropChange(this, prop, text)
     })
   }
 }

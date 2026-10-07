@@ -162,16 +162,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         style={{
           pointerEvents: 'auto',
           height: '100%',
-
-          // .vspalte-leer draws 1.5px dashed in #D5DEE3; --wb-line is the nearest editor color.
-          ...(isContainer && def?.containerFrame !== false
-            ? {
-                border: '1.5px dashed hsl(var(--wb-line))',
-                borderRadius: 'var(--radius)',
-                minHeight: 40,
-              }
-            : null),
-
         }}
       >
         {element && isContainer && children != null

@@ -1,5 +1,5 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
-import { BlockElement, defineBlock } from '../base/BlockElement'
+import { BlockElement, defineBlock, sendPropChange } from '../base/BlockElement'
 import { startRename } from '../base/inlineRename'
 import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
@@ -102,11 +102,7 @@ export class Kanban extends BlockElement {
     startRename(target, (text, original) => {
       if (text === original) return
       const columns = kanbanColumnsFrom(this.columns).map((c, i) => (i === column ? { ...c, button: text } : c))
-      this.dispatchEvent(new CustomEvent('ff-prop-change', {
-        detail: { attr: 'columns', value: columns },
-        bubbles: true,
-        composed: true,
-      }))
+      sendPropChange(this, 'columns', columns)
     })
   }
 

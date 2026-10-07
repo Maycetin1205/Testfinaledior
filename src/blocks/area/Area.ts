@@ -18,6 +18,5 @@ defineBlock(Area, {
   category: 'layout',
   takesChildren: true,
   gridArea: true,
-  containerFrame: false,
   grid: { startWidth: 24, startHeight: 12, minWidth: 4, minHeight: 3 },
 })

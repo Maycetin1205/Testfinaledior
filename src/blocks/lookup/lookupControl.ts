@@ -223,6 +223,8 @@ export class LookupControl implements ReactiveController {
     const action = actionOnLeave(this.inField, this.display, this.host.value())
     this.typed = null
     this.list.idle()
+    // What was typed and not taken gives way to what the field holds.
+    this.host.report()
     if (action !== 'clear') return
     this.empty()
     this.host.changed()
