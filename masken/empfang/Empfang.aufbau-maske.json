@@ -1,0 +1,803 @@
+{
+  "kind": "aufbau-editor-maske",
+  "fileVersion": 4,
+  "schemaVersion": 25,
+  "tree": {
+    "root": {
+      "id": "root",
+      "type": "root",
+      "parentId": null,
+      "values": {
+        "maskName": "Empfang",
+        "documentFrame": ""
+      },
+      "childIds": [
+        "head-title",
+        "head-sub",
+        "head-search",
+        "head-day",
+        "head-new",
+        "stat-open",
+        "stat-wait",
+        "stat-rooms",
+        "board",
+        "popup-termin"
+      ]
+    },
+    "head-title": {
+      "id": "head-title",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 11,
+        "gridH": 2,
+        "variant": "title",
+        "text": "Kleintierpraxis am Lindenhof"
+      },
+      "childIds": []
+    },
+    "head-sub": {
+      "id": "head-sub",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 2,
+        "gridW": 11,
+        "gridH": 1,
+        "variant": "muted",
+        "text": "Empfang · Praxis heute"
+      },
+      "childIds": []
+    },
+    "head-search": {
+      "id": "head-search",
+      "type": "formfield",
+      "parentId": "root",
+      "values": {
+        "gridX": 12,
+        "gridY": 0,
+        "gridW": 12,
+        "gridH": 2,
+        "label": "Suche"
+      },
+      "childIds": []
+    },
+    "head-day": {
+      "id": "head-day",
+      "type": "date",
+      "parentId": "root",
+      "values": {
+        "gridX": 25,
+        "gridY": 0,
+        "gridW": 12,
+        "gridH": 2
+      },
+      "childIds": []
+    },
+    "head-new": {
+      "id": "head-new",
+      "type": "button",
+      "parentId": "root",
+      "values": {
+        "gridX": 43,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "+ Termin",
+        "variant": "primary"
+      },
+      "childIds": [],
+      "chains": {
+        "onClick": [
+          {
+            "id": "step-open-termin",
+            "kind": "POPUP_OPEN",
+            "resultName": "",
+            "popupId": "popup-termin"
+          }
+        ]
+      }
+    },
+    "stat-open": {
+      "id": "stat-open",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 4,
+        "gridW": 6,
+        "gridH": 1,
+        "variant": "muted",
+        "text": "Termine offen"
+      },
+      "childIds": []
+    },
+    "stat-wait": {
+      "id": "stat-wait",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 6,
+        "gridY": 4,
+        "gridW": 6,
+        "gridH": 1,
+        "variant": "muted",
+        "text": "im Wartezimmer"
+      },
+      "childIds": []
+    },
+    "stat-rooms": {
+      "id": "stat-rooms",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 12,
+        "gridY": 4,
+        "gridW": 6,
+        "gridH": 1,
+        "variant": "muted",
+        "text": "Zimmer belegt"
+      },
+      "childIds": []
+    },
+    "board": {
+      "id": "board",
+      "type": "kanban",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 48,
+        "gridH": 40,
+        "source": "src-terminplaner",
+        "columnsField": "343_30",
+        "dayField": "273_10",
+        "columns": [
+          {
+            "heading": "Termine heute",
+            "button": "Anmelden →",
+            "tone": "neutral",
+            "catchAll": true,
+            "places": [
+              {
+                "name": "Termine heute",
+                "value": ""
+              }
+            ]
+          },
+          {
+            "heading": "Wartezimmer",
+            "button": "Ins Zimmer →",
+            "tone": "warning",
+            "catchAll": false,
+            "places": [
+              {
+                "name": "Wartezimmer",
+                "value": "Wartezimmer"
+              }
+            ]
+          },
+          {
+            "heading": "In Behandlung",
+            "button": "Zur Kasse →",
+            "tone": "info",
+            "catchAll": false,
+            "places": [
+              {
+                "name": "Zimmer 1",
+                "value": "Behandlungszimmer 1"
+              },
+              {
+                "name": "Zimmer 2",
+                "value": "Behandlungszimmer 2"
+              },
+              {
+                "name": "Zimmer 3",
+                "value": "Behandlungszimmer 3"
+              },
+              {
+                "name": "Zimmer 4",
+                "value": "Behandlungszimmer 4"
+              }
+            ]
+          },
+          {
+            "heading": "Zur Kasse",
+            "button": "",
+            "tone": "success",
+            "catchAll": false,
+            "places": [
+              {
+                "name": "Zur Kasse",
+                "value": "Abrechnung"
+              }
+            ]
+          }
+        ],
+        "avatarKind": "animal",
+        "chipTone": "danger",
+        "timeField": "118_5",
+        "headingField": "78_30",
+        "sublineField": "18_30",
+        "heading2Field": "313_30",
+        "textField": "123_150",
+        "chipField": "373_12",
+        "avatarField": "18_30"
+      },
+      "childIds": []
+    },
+    "popup-termin": {
+      "id": "popup-termin",
+      "type": "popup",
+      "parentId": "root",
+      "values": {
+        "name": "Neuen Termin anlegen",
+        "popupWidth": 760,
+        "popupHeight": 660
+      },
+      "childIds": [
+        "tm-kunde",
+        "tm-kunde-neu",
+        "tm-neu-kunde",
+        "tm-neu-tier",
+        "tm-datum",
+        "tm-uhrzeit",
+        "tm-prio",
+        "tm-behandlung",
+        "tm-da",
+        "tm-abbrechen",
+        "tm-save"
+      ]
+    },
+    "tm-kunde": {
+      "id": "tm-kunde",
+      "type": "formfield",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 36,
+        "gridH": 2,
+        "label": "Kunde",
+        "lookup": true,
+        "lookupSource": "src-adressstamm",
+        "storageField": "2_8",
+        "required": true
+      },
+      "childIds": []
+    },
+    "tm-kunde-neu": {
+      "id": "tm-kunde-neu",
+      "type": "button",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 37,
+        "gridY": 0,
+        "gridW": 11,
+        "gridH": 2,
+        "label": "+ Kunde",
+        "variant": "standard"
+      },
+      "childIds": []
+    },
+    "tm-neu-kunde": {
+      "id": "tm-neu-kunde",
+      "type": "area",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 48,
+        "gridH": 8
+      },
+      "childIds": [
+        "nk-vorname",
+        "nk-nachname",
+        "nk-mobil",
+        "nk-email",
+        "nk-strasse",
+        "nk-hausnr",
+        "nk-plz",
+        "nk-ort"
+      ]
+    },
+    "nk-vorname": {
+      "id": "nk-vorname",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Vorname",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nk-nachname": {
+      "id": "nk-nachname",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 24,
+        "gridY": 0,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Nachname",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nk-mobil": {
+      "id": "nk-mobil",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Mobil",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nk-email": {
+      "id": "nk-email",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 24,
+        "gridY": 3,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "E-Mail"
+      },
+      "childIds": []
+    },
+    "nk-strasse": {
+      "id": "nk-strasse",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 16,
+        "gridH": 2,
+        "label": "Straße",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nk-hausnr": {
+      "id": "nk-hausnr",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 16,
+        "gridY": 6,
+        "gridW": 8,
+        "gridH": 2,
+        "label": "Hausnr.",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nk-plz": {
+      "id": "nk-plz",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 24,
+        "gridY": 6,
+        "gridW": 8,
+        "gridH": 2,
+        "label": "PLZ",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nk-ort": {
+      "id": "nk-ort",
+      "type": "formfield",
+      "parentId": "tm-neu-kunde",
+      "values": {
+        "gridX": 32,
+        "gridY": 6,
+        "gridW": 16,
+        "gridH": 2,
+        "label": "Ort",
+        "required": true
+      },
+      "childIds": []
+    },
+    "tm-neu-tier": {
+      "id": "tm-neu-tier",
+      "type": "area",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 12,
+        "gridW": 48,
+        "gridH": 11
+      },
+      "childIds": [
+        "nt-name",
+        "nt-tierart",
+        "nt-unterart",
+        "nt-geb",
+        "nt-geschlecht",
+        "nt-kastriert",
+        "nt-gewicht",
+        "nt-allergie"
+      ]
+    },
+    "nt-name": {
+      "id": "nt-name",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Name",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nt-tierart": {
+      "id": "nt-tierart",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 24,
+        "gridY": 0,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Tierart",
+        "fieldType": "select",
+        "options": "Hund, Katze, Kaninchen, Meerschweinchen, Hamster, Vogel, Reptil, Sonstiges",
+        "required": true
+      },
+      "childIds": []
+    },
+    "nt-unterart": {
+      "id": "nt-unterart",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Rasse / Unterart"
+      },
+      "childIds": []
+    },
+    "nt-geb": {
+      "id": "nt-geb",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 24,
+        "gridY": 3,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Geburtsdatum",
+        "fieldType": "date"
+      },
+      "childIds": []
+    },
+    "nt-geschlecht": {
+      "id": "nt-geschlecht",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 16,
+        "gridH": 2,
+        "label": "Geschlecht",
+        "fieldType": "select",
+        "options": "männlich, weiblich"
+      },
+      "childIds": []
+    },
+    "nt-kastriert": {
+      "id": "nt-kastriert",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 16,
+        "gridY": 6,
+        "gridW": 8,
+        "gridH": 2,
+        "label": "Kastriert",
+        "fieldType": "checkbox"
+      },
+      "childIds": []
+    },
+    "nt-gewicht": {
+      "id": "nt-gewicht",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 24,
+        "gridY": 6,
+        "gridW": 24,
+        "gridH": 2,
+        "label": "Gewicht (kg)",
+        "fieldType": "number"
+      },
+      "childIds": []
+    },
+    "nt-allergie": {
+      "id": "nt-allergie",
+      "type": "formfield",
+      "parentId": "tm-neu-tier",
+      "values": {
+        "gridX": 0,
+        "gridY": 9,
+        "gridW": 48,
+        "gridH": 2,
+        "label": "Allergien / Warnhinweise"
+      },
+      "childIds": []
+    },
+    "tm-datum": {
+      "id": "tm-datum",
+      "type": "formfield",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 24,
+        "gridW": 16,
+        "gridH": 2,
+        "label": "Datum",
+        "fieldType": "date",
+        "required": true
+      },
+      "childIds": []
+    },
+    "tm-uhrzeit": {
+      "id": "tm-uhrzeit",
+      "type": "formfield",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 16,
+        "gridY": 24,
+        "gridW": 16,
+        "gridH": 2,
+        "label": "Uhrzeit",
+        "fieldType": "time"
+      },
+      "childIds": []
+    },
+    "tm-prio": {
+      "id": "tm-prio",
+      "type": "formfield",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 32,
+        "gridY": 24,
+        "gridW": 16,
+        "gridH": 2,
+        "label": "Priorität",
+        "fieldType": "select",
+        "options": "Normal, OP, Notfall"
+      },
+      "childIds": []
+    },
+    "tm-behandlung": {
+      "id": "tm-behandlung",
+      "type": "formfield",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 27,
+        "gridW": 48,
+        "gridH": 2,
+        "label": "Behandlung"
+      },
+      "childIds": []
+    },
+    "tm-da": {
+      "id": "tm-da",
+      "type": "formfield",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 0,
+        "gridY": 30,
+        "gridW": 48,
+        "gridH": 2,
+        "label": "Patient ist bereits da — direkt ins Wartezimmer einchecken",
+        "fieldType": "checkbox"
+      },
+      "childIds": []
+    },
+    "tm-abbrechen": {
+      "id": "tm-abbrechen",
+      "type": "button",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 28,
+        "gridY": 33,
+        "gridW": 9,
+        "gridH": 2,
+        "label": "Abbrechen",
+        "variant": "standard"
+      },
+      "childIds": [],
+      "chains": {
+        "onClick": [
+          {
+            "id": "step-close-termin",
+            "kind": "POPUP_CLOSE",
+            "resultName": "",
+            "popupId": "popup-termin"
+          }
+        ]
+      }
+    },
+    "tm-save": {
+      "id": "tm-save",
+      "type": "button",
+      "parentId": "popup-termin",
+      "values": {
+        "gridX": 38,
+        "gridY": 33,
+        "gridW": 10,
+        "gridH": 2,
+        "label": "Termin anlegen",
+        "variant": "primary"
+      },
+      "childIds": []
+    }
+  },
+  "dataSources": [
+    {
+      "id": "src-terminplaner",
+      "name": "Terminplaner",
+      "preset": "idb",
+      "tableId": "IDBID0021",
+      "order": {
+        "kind": "sefileloop",
+        "wildcard": true,
+        "underHeader": false,
+        "headerKey": ""
+      },
+      "delivery": {
+        "kind": "push",
+        "path": "SEFileLoop"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fields": [
+        {
+          "code": "0_10",
+          "name": "Satznummer"
+        },
+        {
+          "code": "10_8",
+          "name": "Kundennummer"
+        },
+        {
+          "code": "18_30",
+          "name": "Tierart"
+        },
+        {
+          "code": "48_30",
+          "name": "Rasse"
+        },
+        {
+          "code": "78_30",
+          "name": "Tiername"
+        },
+        {
+          "code": "108_10",
+          "name": "Geburtsdatum"
+        },
+        {
+          "code": "118_5",
+          "name": "Uhrzeit"
+        },
+        {
+          "code": "123_150",
+          "name": "Behandlung"
+        },
+        {
+          "code": "273_10",
+          "name": "Datum"
+        },
+        {
+          "code": "283_30",
+          "name": "Vorname"
+        },
+        {
+          "code": "313_30",
+          "name": "Nachname"
+        },
+        {
+          "code": "343_30",
+          "name": "Zimmer"
+        },
+        {
+          "code": "373_12",
+          "name": "Priorität"
+        },
+        {
+          "code": "385_12",
+          "name": "Belegnummer"
+        }
+      ]
+    },
+    {
+      "id": "src-adressstamm",
+      "name": "Adressstamm",
+      "preset": "addressMaster",
+      "tableId": "ADR",
+      "order": {
+        "kind": "sefileloop",
+        "wildcard": false,
+        "underHeader": false,
+        "headerKey": ""
+      },
+      "delivery": {
+        "kind": "push",
+        "path": "SEFileLoop"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fields": [
+        {
+          "code": "2_8",
+          "name": "Kundennummer"
+        },
+        {
+          "code": "3292_30",
+          "name": "Vorname"
+        },
+        {
+          "code": "3322_40",
+          "name": "Nachname"
+        },
+        {
+          "code": "1114_20",
+          "name": "Mobil"
+        },
+        {
+          "code": "1330_60",
+          "name": "E-Mail"
+        },
+        {
+          "code": "2187_46",
+          "name": "Straße"
+        },
+        {
+          "code": "2170_11",
+          "name": "Hausnr."
+        },
+        {
+          "code": "110_10",
+          "name": "PLZ"
+        },
+        {
+          "code": "2233_40",
+          "name": "Ort"
+        },
+        {
+          "code": "512_350",
+          "name": "Notiz"
+        }
+      ]
+    }
+  ],
+  "relation": []
+}

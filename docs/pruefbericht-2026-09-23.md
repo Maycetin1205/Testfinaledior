@@ -980,15 +980,58 @@ jeweils an dem Baustein, der sie zuerst braucht.
    einer grauen Spalte setzt ein Klick auf eine Zelle der Hauptzeile den
    Anker, eine dort stehende graue Spalte tauscht den Platz. Blättern
    zählt jede Zeile zweizeilig, wenn die Erfassung eine graue Zeile hat.
-2. Chef-Maske Empfang im Editor nachbauen, so weit es geht, Bild und
-   Lücken zeigen. Die Lücken sind die Liste für Schritt 3, keine Vermutung.
-3. Stein für Stein aus dieser Liste, voraussichtlich: Bereich mit Aussehen
-   (Frei, Kasten, Kopfzeile), Text als Chip mit Ton, Bild (fest oder
-   gebunden, Technik vom Kanban-Avatar), Datenliste (Kartenteil des Kanban
-   herausgelöst, beide nutzen ihn), Zähler (Wertherkunft „Anzahl Zeilen
-   einer Quelle“), Navigation mit Ansichten (ob Masken mehrere Ansichten
-   bekommen, entscheidet der Nutzer). Je Stein ein Chat, der den Baustein
-   komplett sauber macht.
+2. Erledigt 07.10.: Chef-Maske Empfang nachgebaut, 38 Bausteine, zwei
+   Quellen (Terminplaner IDBID0021, Adressstamm), gespeichert als
+   `masken/empfang/Empfang.aufbau-maske.json`, im Editor über „Laden“ zu
+   öffnen. Steht: Kopf mit Praxisname und Unterzeile, Suchfeld, Datum mit
+   Vortag, Folgetag und Heute, Knopf „+ Termin“ (öffnet das Popup); das
+   Board mit vier Spalten in den Tönen der Chef-Maske, „In Behandlung“ mit
+   Zimmer 1 bis 4, Karten mit Tiersymbol, Tiername, Tierart, Nachname,
+   Uhrzeit, Chip Priorität und Behandlung, je Spalte der Knopf weiter
+   (Anmelden, Ins Zimmer, Zur Kasse), einsortiert nach Zimmer (343_30),
+   gefiltert nach Datum (273_10); das Popup „Neuen Termin anlegen“ mit
+   Kunde (nachschlagen im Adressstamm), den Bereichen Neuer Kunde (acht
+   Felder) und Neues Tier (acht Felder, Tierart und Geschlecht als Auswahl,
+   Kastriert als Haken), Datum, Uhrzeit, Priorität, Behandlung, Haken
+   „Patient ist bereits da“, Abbrechen (schließt) und Termin anlegen.
+   Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins,
+   neuer Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen,
+   Rechnung (712), Aktualisieren (3003).
+3. Die Lücken, am Nachbau gemessen, in der Reihenfolge des Baus:
+   - Bereich mit Aussehen: „Neuer Kunde“ und „Neues Tier“ sind in der
+     Chef-Maske Kästen mit Legende, erst nach „+ Kunde“ und „+ Tier“ zu
+     sehen; der Bereich hat weder Rahmen noch Titel noch auf und zu.
+   - Zähler: die Statuszeile „0 Termine offen · 0 im Wartezimmer · 0/4
+     Zimmer belegt“ mit Tonpunkt; im Nachbau stehen nur die drei
+     Beschriftungen. Zähler als Text mit Wertherkunft „Anzahl Zeilen einer
+     Quelle“, der Punkt als Chip.
+   - Text als Chip mit Ton: der Tonpunkt der Statuszeile, der Hinweis
+     unter dem Spaltenkopf („Termin geplant, Patient noch nicht da“).
+   - Karte: ein Platz kennt ein Feld der eigenen Quelle. Die Chef-Karte
+     zeigt „Tierart · Rasse“ (zwei Felder) und den Besitzer live aus dem
+     Adressstamm (Vorname und Nachname einer zweiten Quelle über die
+     Kundennummer); gebunden sind Tierart und Nachname des Termins. Dazu
+     die Tiere des Besuchs als Chips (Kundenhaustiere), die Zeile „in 20
+     min“ und „wartet 12 min“ (gerechnet), Stundentrenner und Jetzt-Linie
+     in Spalte 1, der Knopf „Rechnung erstellen“ in der letzten Spalte
+     (Aktion, nicht weiter). Roter Rand und Chip-Farbe je Priorität:
+     gestrichen, der Chip folgt keinem Feld.
+   - Datenliste: „Tiere für diesen Besuch“ (Haustiere des Kunden, mehrere
+     wählbar, „+ Tier“) und „Behandlung je Tier“ im Popup; die Kartei
+     rechts (Patientenakte mit Feldern und Speichern) beim Klick auf die
+     Karte.
+   - Bild: die Chef-Maske hat keins außer dem Tiersymbol; ob der Stein
+     trotzdem kommt, entscheidet der Nutzer.
+   - Navigation mit Ansichten: die dunkle Leiste links (Logo, Empfang,
+     Terminkalender, Bediener), die Ansicht Terminkalender (Woche und
+     Tag), die Uhr im Kopf. Ob Masken mehrere Ansichten bekommen,
+     entscheidet der Nutzer.
+   - Formular: die Chef-Maske schreibt die Beschriftung klein und grau über
+     das Feld, das Feld hier zeigt sie im Kasten; der Pflichtstern ist im
+     Nachbau nicht zu sehen; das Suchfeld filtert in der Chef-Maske das
+     Board, hier steht es ohne Wirkung; die Lupe ist ein Symbol, Symbole
+     gibt es nicht.
+   Je Stein ein Chat, der den Baustein komplett sauber macht.
 4. Zuletzt die Brücke Editor–Baustein, dann ist die Bedienung durchgängig.
 
 Gestrichen am 07.10.: Chip-Farbe folgt einem Feld (Kanban Schritt 4 und
