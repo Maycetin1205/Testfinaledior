@@ -966,7 +966,7 @@ der Code-Prüfung vom 01.10. (Quelle viermal, zwei Systeme Wertherkunft,
 Namensregel in der Maske, Bindung zu Feldname mehrfach) fallen dabei weg,
 jeweils an dem Baustein, der sie zuerst braucht.
 
-1. Erledigt 07.10. (4b408a0), nicht in SoftEngine geprüft: Erfassung,
+1. Erledigt 07.10. (4b408a0), vom Nutzer abgenommen, SoftEngine-Prüfung später: Erfassung,
    Unterzeile schlank und Tastatur durchgängig. Ein Kopf; je Zelle der
    Hauptzeile höchstens eine graue Spalte, so breit wie die Zelle, Name
    klein und grau vor dem Wert; erfasste und gebuchte Zeilen nur mit Wert,
