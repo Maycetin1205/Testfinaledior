@@ -998,9 +998,14 @@ jeweils an dem Baustein, der sie zuerst braucht.
    neuer Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen,
    Rechnung (712), Aktualisieren (3003).
 3. Die Lücken, am Nachbau gemessen, in der Reihenfolge des Baus:
-   - Bereich mit Aussehen: „Neuer Kunde“ und „Neues Tier“ sind in der
-     Chef-Maske Kästen mit Legende, erst nach „+ Kunde“ und „+ Tier“ zu
-     sehen; der Bereich hat weder Rahmen noch Titel noch auf und zu.
+   - Erledigt 07.10.: Bereich mit Aussehen. Frei (kein Rahmen), Kasten
+     (wie bisher) oder Kopfzeile: Kasten mit Kopf in einem Ton und dem
+     Titel darin, getippt auf dem Kopf, wie `.vraum` der Chef-Maske.
+     „Neuer Kunde“ und „Neues Tier“ in der Empfang-Maske tragen jetzt
+     die Kopfzeile. Nicht gebaut: auf und zu per Knopf, wie die Chef-Maske
+     die beiden Kästen erst nach „+ Kunde“ und „+ Tier“ zeigt. Das Raster
+     fließt nicht nach, ein zugeklappter Bereich ließe ein Loch; ob das
+     reicht oder das Raster dafür fließen soll, entscheidet der Nutzer.
    - Zähler: die Statuszeile „0 Termine offen · 0 im Wartezimmer · 0/4
      Zimmer belegt“ mit Tonpunkt; im Nachbau stehen nur die drei
      Beschriftungen. Zähler als Text mit Wertherkunft „Anzahl Zeilen einer

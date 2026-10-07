@@ -236,7 +236,7 @@
       "values": {
         "name": "Neuen Termin anlegen",
         "popupWidth": 760,
-        "popupHeight": 660
+        "popupHeight": 780
       },
       "childIds": [
         "tm-kunde",
@@ -291,7 +291,9 @@
         "gridX": 0,
         "gridY": 3,
         "gridW": 48,
-        "gridH": 8
+        "gridH": 12,
+        "appearance": "headed",
+        "heading": "Neuer Kunde"
       },
       "childIds": [
         "nk-vorname",
@@ -421,9 +423,11 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 12,
+        "gridY": 15,
         "gridW": 48,
-        "gridH": 11
+        "gridH": 15,
+        "appearance": "headed",
+        "heading": "Neues Tier"
       },
       "childIds": [
         "nt-name",
@@ -555,7 +559,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 24,
+        "gridY": 31,
         "gridW": 16,
         "gridH": 2,
         "label": "Datum",
@@ -570,7 +574,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 16,
-        "gridY": 24,
+        "gridY": 31,
         "gridW": 16,
         "gridH": 2,
         "label": "Uhrzeit",
@@ -584,7 +588,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 32,
-        "gridY": 24,
+        "gridY": 31,
         "gridW": 16,
         "gridH": 2,
         "label": "Priorität",
@@ -599,7 +603,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 27,
+        "gridY": 34,
         "gridW": 48,
         "gridH": 2,
         "label": "Behandlung"
@@ -612,7 +616,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 0,
-        "gridY": 30,
+        "gridY": 37,
         "gridW": 48,
         "gridH": 2,
         "label": "Patient ist bereits da — direkt ins Wartezimmer einchecken",
@@ -626,7 +630,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 28,
-        "gridY": 33,
+        "gridY": 40,
         "gridW": 9,
         "gridH": 2,
         "label": "Abbrechen",
@@ -650,7 +654,7 @@
       "parentId": "popup-termin",
       "values": {
         "gridX": 38,
-        "gridY": 33,
+        "gridY": 40,
         "gridW": 10,
         "gridH": 2,
         "label": "Termin anlegen",
