@@ -830,7 +830,7 @@ Bausteine:
   Tageswahl; Popup bleibt, dazu Seitenleiste rechts.
 - Neu, aus der Empfangsmaske: Kopfzeile (Marke, Suche, Tageswahl, Uhr,
   Hauptknopf); Kachel mit Titel; Datenliste Beschriftung/Wert; Zähler-Zeile;
-  Knopfleiste; Bild/Avatar; Status-Chip; Seitenleiste rechts; Navigation mit
+  Knopfleiste; Bild/Avatar; Seitenleiste rechts; Navigation mit
   Ansichten, falls gewünscht (8.5).
 
 Reihenfolge: Schritt 0 (Datenverlust stoppen, Abschnitt 9) → Guss und
@@ -948,8 +948,8 @@ Entschieden am 07.10.: Das Gerüst bleibt. Deklaration je Baustein mit
 Inspector, Export und Laden daraus, eine flache Basisklasse, das Raster mit
 48 Spalten und schachtelbaren Bereichen, ein Store, SoftEngine nur in
 `src/softengine/`: alles geprüft, alles trägt. Schwach sind die Bausteine
-selbst (zu wenige, zu nackt: der Bereich ohne Aussehen, der Text ohne Chip,
-kein Bild, keine Datenliste, kein Zähler, keine Navigation), die Brücke
+selbst (zu wenige, zu nackt: der Bereich ohne Aussehen, kein Bild, keine
+Datenliste, kein Zähler, keine Navigation), die Brücke
 Editor–Baustein (`BlockHost`, `useLitElement`, `useFieldBinding`,
 `ColumnControls`, rund 800 Zeilen, misst ins Shadow-DOM) und die
 uneinheitliche Nutzung der Designwerte.
@@ -1004,9 +1004,7 @@ jeweils an dem Baustein, der sie zuerst braucht.
    - Zähler: die Statuszeile „0 Termine offen · 0 im Wartezimmer · 0/4
      Zimmer belegt“ mit Tonpunkt; im Nachbau stehen nur die drei
      Beschriftungen. Zähler als Text mit Wertherkunft „Anzahl Zeilen einer
-     Quelle“, der Punkt als Chip.
-   - Text als Chip mit Ton: der Tonpunkt der Statuszeile, der Hinweis
-     unter dem Spaltenkopf („Termin geplant, Patient noch nicht da“).
+     Quelle“.
    - Karte: ein Platz kennt ein Feld der eigenen Quelle. Die Chef-Karte
      zeigt „Tierart · Rasse“ (zwei Felder) und den Besitzer live aus dem
      Adressstamm (Vorname und Nachname einer zweiten Quelle über die
