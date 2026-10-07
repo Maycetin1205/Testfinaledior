@@ -966,18 +966,20 @@ der Code-Prüfung vom 01.10. (Quelle viermal, zwei Systeme Wertherkunft,
 Namensregel in der Maske, Bindung zu Feldname mehrfach) fallen dabei weg,
 jeweils an dem Baustein, der sie zuerst braucht.
 
-1. Erfassung: Unterzeile schlank und Tastatur durchgängig, ein Chat. Die
-   Unterzeile (defab57, 04.10.) bleibt als Idee, nicht als Bau: ein Kopf
-   statt zwei, keine eigenen Breiten, die Spalte steht unter der Zelle ihrer
-   Ankerspalte und ist so breit wie diese, der Feldname steht klein und grau
-   vor dem Wert („Charge 4711“); bei erfassten und gebuchten Zeilen nur,
-   wenn ein Wert drin steht, in der Eingabezeile immer. Tab und Enter laufen
-   durch die Hauptzeile, dann durch die graue Zeile, dann wird erfasst;
-   Pfeil runter wechselt von Haupt- in Unterzeile und weiter zur nächsten
-   Position; Escape bricht ab. Im Editor: Schalter „Unterzeile“ in der
-   Spaltenleiste, Ankerspalte durch Klick auf die Zelle der Hauptzeile.
-   Dabei wird der Baustein komplett sauber: Spaltendeklaration, Ereignisse,
-   Tastatur, Aussehen, Export und Laden ohne Verlust.
+1. Erledigt 07.10. (4b408a0), nicht in SoftEngine geprüft: Erfassung,
+   Unterzeile schlank und Tastatur durchgängig. Ein Kopf; je Zelle der
+   Hauptzeile höchstens eine graue Spalte, so breit wie die Zelle, Name
+   klein und grau vor dem Wert; erfasste und gebuchte Zeilen nur mit Wert,
+   sonst einzeilig. Tab und Enter: Hauptzeile, graue Zeile, erfassen.
+   Pfeil runter: in die graue Zelle darunter, von dort (oder ohne eine)
+   erfassen und nächste Position; Pfeil hoch zurück und in tippbare
+   gebuchte Zeilen. Escape: Liste zu, dann Zelle leeren, in leerer Zelle
+   Position abbrechen, eine zurückgeholte Zeile geht unverändert zurück.
+   Pfeil runter öffnet keine Vorschlagsliste mehr (Tippen oder F5). Im
+   Editor: Schalter „Unterzeile“ in der Spaltenleiste, bei offener Leiste
+   einer grauen Spalte setzt ein Klick auf eine Zelle der Hauptzeile den
+   Anker, eine dort stehende graue Spalte tauscht den Platz. Blättern
+   zählt jede Zeile zweizeilig, wenn die Erfassung eine graue Zeile hat.
 2. Chef-Maske Empfang im Editor nachbauen, so weit es geht, Bild und
    Lücken zeigen. Die Lücken sind die Liste für Schritt 3, keine Vermutung.
 3. Stein für Stein aus dieser Liste, voraussichtlich: Bereich mit Aussehen
