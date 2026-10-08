@@ -77,7 +77,8 @@ export function selectionSourceIdOf(node: BlockNode | undefined): string {
 
 export function isSelectionGiver(node: BlockNode | undefined): boolean {
   if (!node) return false
-  if (!hasCapability(blockType(node.type), 'recordPick')) return false
+  const pick = capability(blockType(node.type), 'recordPick')
+  if (!pick || !propertyVisible(pick.gives, node.values)) return false
   return selectionSourceIdOf(node) !== ''
 }
 

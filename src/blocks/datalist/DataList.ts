@@ -1,16 +1,16 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
-import { BlockElement, defineBlock, sendSpotClick } from '../base/BlockElement'
+import { BlockElement, defineBlock } from '../base/BlockElement'
 import { bindable } from '../../core/block/capability'
-import { opensAnArea, sendOpen } from '../../runtime/opening'
-import { rowsToSelection } from '../../runtime/selection'
+import { chooseSelection, giverIdOf, relocateSelection, rowsToSelection } from '../../runtime/selection'
 import { makeDataLink, readDataPreamble, rowKeys, spotValue } from '../../runtime/source'
 import { animalAvatarTpl, avatarSpotTpl } from '../parts/card'
 import { dataListStyle } from './dataListStyle'
-import { AVATAR_SPOT, dataListProperties, ROW_SPOTS, type DataListValues, type RowSpot } from './properties'
+import { AVATAR_SPOT, dataListProperties, PICK_ONE, ROW_SPOTS, type DataListValues, type RowSpot } from './properties'
 
 interface Item {
   key: string
+  row: unknown
 
   // What each spot of the row shows.
   values: Readonly<Record<string, string>>
@@ -19,9 +19,9 @@ interface Item {
 export interface DataList extends DataListValues {}
 
 // The records of a source as a list, as "Tiere für diesen Besuch" of the
-// reception mask: several can be ticked, and the plus on top opens the area
-// that names the list. In the editor one row stands for all; its spots are
-// typed or bound right there.
+// reception mask. A click chooses one row, as at the table, or ticks several,
+// or does nothing. In the editor one row stands for all; its spots are typed
+// or bound right there.
 export class DataList extends BlockElement {
   static readonly type = 'datalist'
   static readonly tag = 'ff-datalist'
@@ -30,11 +30,9 @@ export class DataList extends BlockElement {
 
   @state() private items: readonly Item[] = []
 
-  // The keys of the ticked rows; a row the data no longer holds drops out.
+  // The keys of the chosen or ticked rows; a row the data no longer holds
+  // drops out.
   @state() private chosen: ReadonlySet<string> = new Set()
-
-  // The plus shows in the mask only when an area opens with it.
-  @state() private opens = false
 
   hydrate(): void {
     const preamble = readDataPreamble(this)
@@ -43,6 +41,7 @@ export class DataList extends BlockElement {
     this.items = preamble
       ? rows.map((row, i) => ({
           key: keys[i],
+          row,
           values: {
             ...Object.fromEntries(ROW_SPOTS.map(({ prop }) =>
               [prop, spotValue(this[prop], this[`${prop}Field`], row, preamble.read)])),
@@ -50,8 +49,18 @@ export class DataList extends BlockElement {
           },
         }))
       : []
+    if (this.pick === 'one') {
+      const hit = relocateSelection(giverIdOf(this), this.items, (item) => item.row, (item) => item.key)
+      this.chosen = new Set(hit.slice(0, 1).map((i) => this.items[i].key))
+      return
+    }
     const held = new Set(keys)
     this.chosen = new Set([...this.chosen].filter((key) => held.has(key)))
+  }
+
+  // A second click on the chosen row lets it go.
+  private choose(item: Item): void {
+    chooseSelection(giverIdOf(this), item.row, item.key)
   }
 
   private toggle(key: string): void {
@@ -82,40 +91,41 @@ export class DataList extends BlockElement {
     return avatarSpotTpl(AVATAR_SPOT.prop, bound, bound, (e) => this.reportSpot(e))
   }
 
-  private add(): TemplateResult | typeof nothing {
-    if (this.preview) {
-      return html`<button
-        type="button"
-        class="add"
-        data-ff-editable
-        @click=${(e: MouseEvent) => sendSpotClick(this, { kind: 'opener', click: e })}
-        @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'addLabel')}
-      >${this.addLabel}</button>`
-    }
-    if (!this.opens || this.addLabel.trim() === '') return nothing
-    return html`<button type="button" class="add" @click=${() => sendOpen(this)}>${this.addLabel}</button>`
-  }
-
   // In the mask a spot without a value falls away.
   private row(item: Item): TemplateResult {
     const chosen = this.chosen.has(item.key)
     const { heading, subline, avatar } = item.values
-    return html`<label class="row${chosen ? ' chosen' : ''}">
-      <input type="checkbox" .checked=${chosen} @change=${() => this.toggle(item.key)} />
-      ${this.avatar(avatar)}
+    const content = html`${this.avatar(avatar)}
       <span class="ident">
         ${heading.trim() === '' ? nothing : html`<span class="name">${heading}</span>`}
         ${subline.trim() === '' ? nothing : html`<span class="meta">${subline}</span>`}
-      </span>
-    </label>`
+      </span>`
+    if (this.pick === 'several') {
+      return html`<label class="row${chosen ? ' chosen' : ''}">
+        <input type="checkbox" .checked=${chosen} @change=${() => this.toggle(item.key)} />
+        ${content}
+      </label>`
+    }
+    if (this.pick !== 'one') return html`<div class="row">${content}</div>`
+    return html`<div
+      class="row${chosen ? ' chosen' : ''}"
+      role="button"
+      tabindex="0"
+      aria-pressed=${String(chosen)}
+      @click=${() => this.choose(item)}
+      @keydown=${(e: KeyboardEvent) => {
+        if ((e.key !== 'Enter' && e.key !== ' ') || e.target !== e.currentTarget) return
+        e.preventDefault()
+        this.choose(item)
+      }}
+    >${content}</div>`
   }
 
   override render(): TemplateResult {
-    return html`<div class="list">
-      ${this.add()}
+    return html`<div class="list pick-${this.pick}">
       ${this.preview
         ? html`<div class="row">
-            <input type="checkbox" tabindex="-1" />
+            ${this.pick === 'several' ? html`<input type="checkbox" tabindex="-1" />` : nothing}
             ${this.avatar(null)}
             <span class="ident">${this.spot('heading', 'name')}${this.spot('subline', 'meta')}</span>
           </div>`
@@ -126,7 +136,6 @@ export class DataList extends BlockElement {
   override connectedCallback(): void {
     super.connectedCallback()
     link.connect(this)
-    if (!this.preview) this.opens = opensAnArea(this)
   }
 
   override disconnectedCallback(): void {
@@ -145,9 +154,9 @@ defineBlock(DataList, {
   properties: dataListProperties,
   capabilities: [
     { kind: 'source' },
+    { kind: 'recordPick', gives: PICK_ONE },
     { kind: 'followsSelection' },
     bindable<typeof dataListProperties>([...ROW_SPOTS, AVATAR_SPOT]),
-    { kind: 'opener' },
   ],
   grid: { startWidth: 24, startHeight: 10, minWidth: 8, minHeight: 3 },
 })

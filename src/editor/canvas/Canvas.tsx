@@ -46,7 +46,6 @@ export function Canvas() {
           data-ff-canvas
           onClick={() => {
             if (ed.followPickFor !== null) ed.pickFollowFor(null)
-            else if (ed.areaPickFor !== null) ed.pickAreaFor(null)
             else ed.selectBlock(null)
           }}
 

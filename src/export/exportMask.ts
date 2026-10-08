@@ -1,5 +1,5 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
-import { bindingProp, capability, applies, hasCapability } from '../core/block/capability'
+import { bindingProp, capability, applies } from '../core/block/capability'
 import { blockType } from '../core/block/registry'
 import {
   bindableSpotsOf,
@@ -22,7 +22,6 @@ import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
 import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
 import { pagesOfMask } from '../core/block/pages'
-import { opensAnArea } from '../core/block/opening'
 import { pageRowsTemplate, ROOT_PADDING } from '../core/block/gridArea'
 import { gridAreaCss } from '../core/block/grid'
 import tokensCssRaw from '../design/mask.css?raw'
@@ -118,7 +117,6 @@ function nodeToHtml(
     || applies(capability(def, 'capture'), node.values)
     || carriesChanges(node)
     || isSelectionGiver(node)
-    || (hasCapability(def, 'opener') && opensAnArea(tree, node.id))
   const keyAttr = addressable ? ` ${BLOCK_ID_ATTR}="${escapeHtmlAttr(node.id)}"` : ''
 
   const fillsAttr = def.page !== true ? ' fills' : ''

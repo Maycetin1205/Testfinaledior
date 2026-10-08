@@ -18,8 +18,6 @@ import { BarFrame, BarSign } from './BarFrame'
 import { controlShown } from './controlShown'
 import { followOf, followOffered } from './followOffer'
 import { FollowPick } from './FollowPick'
-import { AreaPick } from './AreaPick'
-import { isOpener, opensByClick } from '../../core/block/opening'
 import { SettingsWindow } from './SettingsWindow'
 
 interface BlockBarProps {
@@ -100,7 +98,6 @@ export function BlockBar({ block, def, onRemove }: BlockBarProps) {
         events={capability(def, 'events')?.list ?? []}
       />
       {follows && (follow === undefined || waiting) && <FollowPick block={block} />}
-      {isOpener(block) && Object.values(ed.tree).some(opensByClick) && <AreaPick block={block} />}
 
       {onRemove && (
         <>

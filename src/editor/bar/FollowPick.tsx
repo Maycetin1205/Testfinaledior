@@ -45,7 +45,7 @@ export function FollowPick({ block }: { block: BlockNode }) {
   )
 }
 
-export function EscapeEnds({ onEscape }: { onEscape: () => void }) {
+function EscapeEnds({ onEscape }: { onEscape: () => void }) {
   useCloseOnEscape(onEscape)
   return null
 }

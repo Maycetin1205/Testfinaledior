@@ -17,7 +17,6 @@ export const dataListStyle = css`
     color: var(--se-ink);
   }
 
-  .add,
   .row {
     box-sizing: border-box;
     display: flex;
@@ -33,19 +32,14 @@ export const dataListStyle = css`
     cursor: pointer;
   }
 
-  /* .vpet-neu: the plus stands first, in the accent. */
-  .add {
-    font: inherit;
-    font-weight: 600;
-    color: var(--se-accent-dark);
-    text-align: left;
-  }
-
-  .add:hover,
   .row:hover { background: var(--se-accent-soft); }
   .row.chosen { background: var(--se-selection); }
 
-  .add:focus-visible,
+  /* Keine: the rows are only read. */
+  .pick-none .row { cursor: default; }
+  .pick-none .row:hover { background: var(--se-panel); }
+
+  .row:focus-visible,
   .row:has(input:focus-visible) {
     outline: var(--se-border) solid var(--se-accent);
     outline-offset: calc(-1 * var(--se-border));
@@ -101,8 +95,7 @@ export const dataListStyle = css`
   :host([preview]) .row { cursor: default; }
   :host([preview]) input { pointer-events: none; }
 
-  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before,
-  :host([preview]) .add:empty::before {
+  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before {
     content: '—';
     color: var(--se-faint);
   }

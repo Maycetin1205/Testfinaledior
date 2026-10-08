@@ -7,7 +7,7 @@ import type { SpotClick } from '../../blocks/base/BlockElement'
 import type { EditorStore } from '../state/EditorStore'
 
 // How long a click waits, so a double click can still type the text.
-export const DOUBLE_CLICK_WAIT = 300
+const DOUBLE_CLICK_WAIT = 300
 
 export function bindingCode(props: Readonly<Record<string, PropertyValue>>, spot: BindableSpot): string {
   const code = props[bindingProp(spot.prop)]

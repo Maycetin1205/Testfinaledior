@@ -1,5 +1,4 @@
 import { choiceProperty, textProperty, type ValuesOf } from '../../core/block/property'
-import { openedByProperty } from '../../core/block/opening'
 import { emphasisProperty, toneProperty } from '../look/look'
 
 const HEADED = { key: 'appearance', equals: 'headed' }
@@ -26,7 +25,6 @@ export const areaProperties = {
   }),
   tone: toneProperty({ default: 'neutral' }),
   emphasis: emphasisProperty({ default: 'text' }),
-  openedBy: openedByProperty,
 }
 
 export type AreaValues = ValuesOf<typeof areaProperties>

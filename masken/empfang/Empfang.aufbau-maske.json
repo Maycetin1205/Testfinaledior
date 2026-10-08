@@ -312,8 +312,7 @@
         "gridW": 48,
         "gridH": 12,
         "appearance": "headed",
-        "heading": "Neuer Kunde",
-        "openedBy": "tm-kunde-neu"
+        "heading": "Neuer Kunde"
       },
       "childIds": [
         "nk-vorname",
@@ -447,8 +446,7 @@
         "gridW": 48,
         "gridH": 15,
         "appearance": "headed",
-        "heading": "Neues Tier",
-        "openedBy": "tm-tiere"
+        "heading": "Neues Tier"
       },
       "childIds": [
         "nt-name",
@@ -707,7 +705,6 @@
         "gridW": 48,
         "gridH": 12,
         "source": "8363c6c3-fdb0-48ea-b5ac-b201ea3d16d0",
-        "addLabel": "+ Tier",
         "headingField": "LFA_400_30",
         "sublineField": "LFA_971_30 · LFA_430_30",
         "avatarField": "LFA_971_30",

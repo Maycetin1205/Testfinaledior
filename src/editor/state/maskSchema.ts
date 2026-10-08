@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 29
+export const CURRENT_SCHEMA_VERSION = 30
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -258,6 +258,17 @@ function liftTo29(tree: unknown): void {
   }
 }
 
+// ---- version 30: a data list chooses one row, ticks several or none ----
+
+// Up to 29 every data list ticked several rows.
+function liftTo30(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'datalist' || !isPlainObject(node.values)) continue
+    node.values.pick = 'several'
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -272,6 +283,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 27) liftTo27(lifted.tree)
   if (raw.schemaVersion < 28) liftTo28(lifted.tree)
   if (raw.schemaVersion < 29) liftTo29(lifted.tree)
+  if (raw.schemaVersion < 30) liftTo30(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

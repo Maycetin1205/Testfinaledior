@@ -60,7 +60,10 @@ export type Capability =
   // the source follows in the export; without it the source comes first.
   | { kind: 'source'; when?: Condition; helpersApart?: boolean; after?: string }
 
-  | { kind: 'recordPick'; sourceProp?: string; when?: Condition }
+  // The block gives the row clicked in it to the blocks that follow it; the
+  // row comes from sourceProp while when holds, else from the block's source.
+  // gives: the block gives a row only while this holds.
+  | { kind: 'recordPick'; sourceProp?: string; when?: Condition; gives?: Condition }
 
   | { kind: 'followsSelection' }
 
@@ -79,9 +82,6 @@ export type Capability =
 
   | { kind: 'compute'; prop: string }
   | { kind: 'events'; list: readonly EventDef[] }
-
-  // A click on the block opens the area that names it.
-  | { kind: 'opener' }
 
 type CapabilityKind = Capability['kind']
 

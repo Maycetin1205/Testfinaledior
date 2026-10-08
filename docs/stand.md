@@ -133,15 +133,14 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 
 ## Bausteine
 
-Gebaut: Bereich (Form Frei, Kasten oder Kopfzeile mit Titel; Farbe, Art;
-das Auf- und Zuklappen vom 07.10. kommt wieder raus), Schaltfläche (Farbe,
-Art, Größe), Datum
-(Tageswahl), Formularfeld (Text, Zahl, Datum tippbar, Auswahl,
-Nachschlagen; Ankreuzfeld unfertig), Tabelle, Erfassung, Kanban (Plätze je
-Spalte, mehrere Felder je Platz mit Trenner, Knopf je Spalte Aus, Weiter
-oder Aktion, Spalte nach Uhrzeit mit Stundenlinien und Jetzt-Linie),
-Datenliste (je Zeile Haken, Symbol, Titel, Unterzeile; Plus oben), Popup,
-Text (Rolle, Farbe, Art, Größe; Fläche oder Rand macht ihn zum Chip).
+Gebaut: Bereich (Form Frei, Kasten oder Kopfzeile mit Titel; Farbe, Art),
+Schaltfläche (Farbe, Art, Größe), Datum (Tageswahl), Formularfeld (Text,
+Zahl, Datum tippbar, Auswahl, Nachschlagen; Ankreuzfeld unfertig), Tabelle,
+Erfassung, Kanban (Plätze je Spalte, mehrere Felder je Platz mit Trenner,
+Knopf je Spalte Aus, Weiter oder Aktion, Spalte nach Uhrzeit mit
+Stundenlinien und Jetzt-Linie), Datenliste (Auswahl Eine Zeile, Mehrere
+oder Keine; je Zeile Symbol, Titel, Unterzeile), Popup, Text (Rolle, Farbe,
+Art, Größe; Fläche oder Rand macht ihn zum Chip).
 
 Chef-Maske Empfang nachgebaut am 07.10.: `masken/empfang/
 Empfang.aufbau-maske.json`, 38 Bausteine, zwei Quellen (Terminplaner
@@ -159,13 +158,6 @@ Was bleibt:
   Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
 - Formularfeld: Beschriftung klein und grau über dem Feld wie in der
   Chef-Maske; der Pflichtstern ist im Nachbau nicht zu sehen.
-- Datenliste: die Wahl „Auswahl“ (Eine Zeile wie die Tabelle, Mehrere,
-  Keine); heute kann sie nur Haken, die Fähigkeit `recordPick` der Tabelle
-  fehlt ihr. Das Plus und die Fähigkeit `opener` (`core/block/opening.ts`,
-  `runtime/opening.ts`, `bar/AreaPick.tsx`, `canvas/useAreaPickStart.ts`,
-  die Meldung `opener` in `base/BlockElement.ts`) raus, samt dem
-  Nachrücken in der Maske; die Empfang-Maske zeigt beide
-  Bereiche offen. Damit erledigt sich auch der Leerraum im Popup.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
 Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
@@ -186,12 +178,10 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    Größenänderung (`ff-heads-placed`, `blocks/base/headsReport.ts`);
    `ColumnControls.tsx` und `LookupColumns.tsx` messen nicht mehr im
    Shadow-DOM. (c) Erledigt 08.10.: Kein Suchmuster mehr in den
-   Deklarationen (`entryHeads` ist ein Schalter); das Plus der Datenliste
-   meldet seinen Klick selbst (`ff-spot-click`). `src/blocks/parts/` hält
+   Deklarationen (`entryHeads` ist ein Schalter). `src/blocks/parts/` hält
    Zelle, Spalte, Karte (Stellen und Avatar) und Chip; Liste, Erfassung
    und Kanban nehmen sie nur von dort, die Erfassung die Liste selbst nur
-   über `blocks/list/index.ts`. `bar/AreaPick.tsx` und
-   `useAreaPickStart.ts` gehen mit dem Plus (Datenliste, Punkt 5).
+   über `blocks/list/index.ts`.
    (d) Erledigt 08.10.: Der Rahmen ist der Baustein. Formularfeld, Datum
    und Schaltfläche stehen zwei Rasterzeilen hoch (`heightFixed` in der
    Grid-Deklaration), nur links und rechts ein Griff; ältere Masken
@@ -243,8 +233,14 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    bisher. Maskenschema 29: eine Textfarbe wird die Farbe gleichen Namens,
    Dunkel, Grau und Hell werden Neutral; eine Kopfzeile behält ihre Farbe
    (sonst Blau) und wird Fläche leicht. Bleibt: Chip, ein kleiner Chat.
-5. Dann die Liste unter „Bausteine“: Bild, Formularfeld, Datenliste; je
-   einer ein Chat.
+5. Dann die Liste unter „Bausteine“: Bild, Formularfeld; je einer ein
+   Chat. Datenliste erledigt 08.10.: die Wahl „Auswahl“ in der Leiste. Eine
+   Zeile gibt die angeklickte Zeile weiter wie Tabelle und Kanban
+   (`recordPick`, nur solange sie gewählt ist: `gives`); Mehrere sind die
+   Haken; Keine nur lesen. Plus und Auf- und Zuklappen sind raus, mit ihnen
+   die Fähigkeit `opener` und das Nachrücken in der Maske. Maskenschema
+   30: eine Datenliste von vorher wird Mehrere. Die Empfang-Maske zeigt
+   „Neuer Kunde“ und „Neues Tier“ offen; „+ Kunde“ hat keine Aktion mehr.
 
 Einzelne Punkte, ohne Reihenfolge:
 
@@ -291,9 +287,9 @@ Ideen, nicht freigegeben (Regel 3):
 
 - 07.10. Chef-Maske Empfang nachgebaut (2b1180f); Bereich mit Aussehen
   (a49e82d); Karte mit mehreren Feldern je Platz und Knopf je Spalte
-  (882ed53); Karte nach Uhrzeit (aa25848); Datenliste und Bereich auf und
-  zu (a4af7b5); Feld: Datum tippen, Auswahl lesbar (b8238e1); Basisklasse
-  mit einer Meldung (753d679).
+  (882ed53); Karte nach Uhrzeit (aa25848); Datenliste (a4af7b5); Feld:
+  Datum tippen, Auswahl lesbar (b8238e1); Basisklasse mit einer Meldung
+  (753d679).
 - 07.10. Erfassung mit Unterzeile und Tastatur (4b408a0), vom Nutzer
   abgenommen.
 - 06.10. Aufräumen (`claude/aufraeumen-06-10`): Dialog weg, 38 Exporte
