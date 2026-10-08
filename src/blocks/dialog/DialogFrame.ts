@@ -140,6 +140,11 @@ export class DialogFrame extends LitElement {
     catchesEscape(this, shouldRegister)
   }
 
+  // Where the window stands on the screen, for the editor's grips at its edges.
+  windowBox(): DOMRect | null {
+    return this.renderRoot.querySelector('.window')?.getBoundingClientRect() ?? null
+  }
+
   close(): void {
     this.dispatchEvent(new CustomEvent(DIALOG_CLOSE_EVENT, {
       bubbles: true,

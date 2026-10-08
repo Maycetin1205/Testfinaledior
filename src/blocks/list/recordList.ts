@@ -10,6 +10,7 @@ import { ViewChoices } from './viewChoices'
 import { giverIdOf } from '../../runtime/selection'
 import { SUBLINE_HEIGHT, type MeasureTarget } from './pageSize'
 import { sendPropChange } from '../base/BlockElement'
+import { reportsHeads } from '../base/headsReport'
 import {
   columnsView,
   type Column,
@@ -131,6 +132,7 @@ export class RecordList implements ReactiveController {
     })
     this._rowsChoice = new RowsChoice(el)
     el.addController(this)
+    reportsHeads(el)
   }
 
   get rowsFrom(): RowsFrom {

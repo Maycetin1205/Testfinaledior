@@ -1,6 +1,7 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock, sendPropChange } from '../base/BlockElement'
 import { startRename } from '../base/inlineRename'
+import { reportsHeads } from '../base/headsReport'
 import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
 import { spotValue, type DataPreamble } from '../../runtime/source'
@@ -36,6 +37,11 @@ export class Kanban extends BlockElement {
   readonly board = new Board(this)
 
   private clock: ReturnType<typeof setInterval> | null = null
+
+  constructor() {
+    super()
+    reportsHeads(this)
+  }
 
   cardValues(row: unknown, read: DataPreamble['read']): Record<string, string> {
     const typedOrBound = Object.fromEntries(CARD_SPOTS.map(({ prop }) =>

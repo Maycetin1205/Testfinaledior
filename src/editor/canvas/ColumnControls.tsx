@@ -1,37 +1,14 @@
-import { useEffect, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
+import { useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
 import { Plus } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
-import { startRename } from '../../blocks/base/inlineRename'
 import type { BlockNode } from '../../core/block/tree'
 import {
-  entryPathFrom,
   listDefaultTitle,
   withInner,
-  type EntryPath,
   type ListBinding,
 } from '../../core/block/blockType'
 import { useEditorInstance } from '../state/EditorContext'
-
-interface Frame {
-  left: number
-  top: number
-  width: number
-  height: number
-}
-
-interface Spot extends Frame {
-  path: EntryPath
-
-  // The spot stands in a second line, like a column of the grey line, and
-  // keeps its place there: it does not move by dragging.
-  below: boolean
-}
-
-// A cell that names a sibling by its key: a click there places the entry
-// whose bar is open, like a column of the grey line under that cell.
-interface Place extends Frame {
-  key: string
-}
+import { useHeadsPlaced } from './useHeadsPlaced'
 
 interface ColumnControlsProps {
   block: BlockNode
@@ -41,7 +18,6 @@ interface ColumnControlsProps {
   open: number | null
 
   binding: ListBinding
-  selector: string
 
   element: HTMLElement | null
 
@@ -58,79 +34,15 @@ const HANDLE_EDGE = 6
 // The plus at the end of the heads, as .vspalte-zahl: white with an edge.
 const PLUS_SIZE = 20
 
-function frameOf(el: HTMLElement, reference: DOMRect): Frame {
-  const r = el.getBoundingClientRect()
-  return { left: r.left - reference.left, top: r.top - reference.top, width: r.width, height: r.height }
-}
-
-function measure(element: HTMLElement, host: HTMLElement, selector: string): { spots: Spot[]; places: Place[] } {
-  const root = element.shadowRoot
-  if (!root) return { spots: [], places: [] }
-  const reference = host.getBoundingClientRect()
-  return {
-    spots: Array.from(root.querySelectorAll<HTMLElement>(selector)).map((el, i) => ({
-      ...frameOf(el, reference),
-      path: entryPathFrom(el.getAttribute('data-ff-entry'), i),
-      below: el.hasAttribute('data-ff-below'),
-    })),
-    places: Array.from(root.querySelectorAll<HTMLElement>('[data-ff-place]')).map((el) => ({
-      ...frameOf(el, reference),
-      key: el.getAttribute('data-ff-place') ?? '',
-    })),
-  }
-}
-
 export function ColumnControls({
-  block, selected, open, binding, selector, element, host, container, onSelect,
+  block, selected, open, binding, element, host, container, onSelect,
 }: ColumnControlsProps) {
   const editor = useEditorInstance()
-  const [{ spots, places }, setMeasured] = useState<{ spots: Spot[]; places: Place[] }>({ spots: [], places: [] })
+
+  // The block fills its host: what it reports from its own corner stands
+  // there in the host as well.
+  const { heads: spots, places } = useHeadsPlaced(element)
   const [drag, setDrag] = useState<{ from: number; slot: number } | null>(null)
-
-  useEffect(() => {
-    const el = element
-    const frame = host.current
-    if (!el || !frame) return
-    let stopped = false
-    let ro: ResizeObserver | null = null
-    let mo: MutationObserver | null = null
-    const remeasure = (): void => {
-      if (!stopped) setMeasured(measure(el, frame, selector))
-    }
-    // A change in the block's tree reaches the observer while the block is
-    // still drawing: measure now and again once it has finished.
-    const remeasureDrawn = (): void => {
-      remeasure()
-      const drawn = (el as { updateComplete?: Promise<unknown> }).updateComplete
-      if (drawn) void drawn.then(remeasure)
-    }
-
-    // The block may still be upgrading when this runs, and it may have drawn
-    // already: watch it once it has a shadow root, and measure right away
-    // and again after its next drawing.
-    const attach = (): void => {
-      const root = el.shadowRoot
-      if (stopped || !root) return
-      ro = new ResizeObserver(remeasure)
-      ro.observe(el)
-      mo = new MutationObserver(remeasureDrawn)
-      mo.observe(root, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['style', 'class', 'data-ff-entry', 'data-ff-place'],
-      })
-      remeasureDrawn()
-    }
-    if (el.shadowRoot) attach()
-    else void customElements.whenDefined(el.localName).then(attach)
-
-    return () => {
-      stopped = true
-      ro?.disconnect()
-      mo?.disconnect()
-    }
-  }, [element, host, selector])
 
   const openPicker = (index: number): void => {
     onSelect?.()
@@ -153,10 +65,8 @@ export function ColumnControls({
   // The title is typed on the head itself, one level down as well.
   const rename = (index: number): void => {
     const s = spots[index]
-    const head = element?.shadowRoot?.querySelectorAll<HTMLElement>(selector)[index]
-    const text = head?.querySelector<HTMLElement>('.head-text') ?? head
-    if (!s || !text) return
-    startRename(text, (typed, original) => {
+    if (!s) return
+    s.rename((typed, original) => {
       if (typed === original) return
       const entries = binding.entries(block.values[binding.prop])
       const entry = entries[s.path.index]

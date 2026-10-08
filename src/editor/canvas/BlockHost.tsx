@@ -185,7 +185,6 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           selected={selected === true}
           open={openEntry}
           binding={list}
-          selector={list.entrySpots}
           element={element}
           host={rootRef}
           container={containerRef}

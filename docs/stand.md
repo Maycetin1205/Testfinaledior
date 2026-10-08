@@ -177,9 +177,12 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 2. Brücke Editor–Baustein, drei Chats: Der Baustein spricht, der Editor
    hört. (a) Erledigt 08.10.: Klicks auf bindbare Stellen und auf die Lupe
    meldet der Baustein (`ff-spot-click`); die Klick-Suche im Editor und das
-   Suchmuster `.magnifier` sind weg. (b) Der Baustein meldet die Lage seiner Spalten, ersetzt das Nachmessen
-   in `ColumnControls.tsx` und `LookupColumns.tsx` (14 der 23 Griffe ins
-   Shadow-DOM). (c) Die Suchmuster in den Deklarationen fallen weg. Die
+   Suchmuster `.magnifier` sind weg. (b) Erledigt 08.10.: Die Lage der
+   Spaltenköpfe meldet der Baustein nach jedem Zeichnen und bei jeder
+   Größenänderung (`ff-heads-placed`, `blocks/base/headsReport.ts`);
+   `ColumnControls.tsx` und `LookupColumns.tsx` messen nicht mehr im
+   Shadow-DOM. (c) Die Suchmuster in den Deklarationen fallen weg
+   (`entrySpots` ist nur noch ein Schalter). Die
    Teile vom 07.10. (`core/block/spotProperty.ts`, `useAreaPickStart.ts`,
    `bar/AreaPick.tsx`) gehen denselben Weg. Dazu
    `src/blocks/parts/` für Zelle, Spalte, Karte, Chip; Liste, Erfassung

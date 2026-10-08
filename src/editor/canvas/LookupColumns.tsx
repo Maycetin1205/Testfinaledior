@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/editor/widgets/cn'
 import { LEVEL_OVER_MASK_WINDOW } from '@/editor/widgets/Popover'
 import { Plus } from '@/editor/icons/icon'
+import type { HeadsPlaced } from '../../blocks/base/headsReport'
 import type { DialogFrame } from '../../blocks/dialog/DialogFrame'
 import type { Table } from '../../blocks/table/Table'
 import {
@@ -26,6 +27,7 @@ import { FieldPicker, type PickerGroup } from './FieldPicker'
 import { axesOf, dragSize } from './dragSize'
 import { Grip } from './Grip'
 import { GRIPS } from './useBlockResize'
+import { useHeadsPlaced } from './useHeadsPlaced'
 
 const HANDLE_EDGE = 6
 
@@ -40,43 +42,21 @@ interface Head {
   height: number
 }
 
-interface Measurement {
-  heads: readonly Head[]
-
-  row: { right: number; top: number; height: number } | null
-
-  box: { left: number; top: number; width: number; height: number } | null
-}
-
-const NOTHING: Measurement = { heads: [], row: null, box: null }
-
 function tableIn(frame: DialogFrame): Table | null {
   return frame.querySelector<Table>('ff-table')
 }
 
-function measure(frame: DialogFrame): Measurement {
-  const rect = frame.shadowRoot?.querySelector('.window')?.getBoundingClientRect()
-  const box = rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null
-  const row = tableIn(frame)?.shadowRoot?.querySelector('.head')
-  if (row == null) return { ...NOTHING, box }
-  const rowRect = row.getBoundingClientRect()
-  return {
-    box,
-    heads: Array.from(row.querySelectorAll<HTMLElement>(':scope > [data-ff-entry]')).map(
-      (el, i) => {
-        const r = el.getBoundingClientRect()
-        const raw = Number(el.getAttribute('data-ff-entry'))
-        return {
-          slot: Number.isInteger(raw) ? raw : i,
-          left: r.left,
-          top: r.top,
-          width: r.width,
-          height: r.height,
-        }
-      },
-    ),
-    row: { right: rowRect.right, top: rowRect.top, height: rowRect.height },
-  }
+// The heads the table in the window reports, on the screen.
+function headsOnScreen(table: Table | null, placed: HeadsPlaced): Head[] {
+  if (table === null) return []
+  const at = table.getBoundingClientRect()
+  return placed.heads.filter((head) => !head.below).map((head) => ({
+    slot: head.path.index,
+    left: at.left + head.left,
+    top: at.top + head.top,
+    width: head.width,
+    height: head.height,
+  }))
 }
 
 interface Metrics {
@@ -105,7 +85,6 @@ export function LookupColumns() {
 function Heads({ open }: { open: OpenLookup }) {
   const ed = useEditor()
   const library = useDataSources().list
-  const [metrics, setMetrics] = useState<Measurement>(NOTHING)
   const [chosen, setChosen] = useState<number | null>(null)
   const layerRef = useRef<HTMLDivElement | null>(null)
 
@@ -119,31 +98,14 @@ function Heads({ open }: { open: OpenLookup }) {
     return () => mo.disconnect()
   }, [ed, open])
 
-  useEffect(() => {
-    const frame = windowFrameInEditor()
-    const table = frame === null ? null : tableIn(frame)
-    if (frame === null || table?.shadowRoot == null) return
-    const remeasure = (): void => setMetrics(measure(frame))
-    const ro = new ResizeObserver(remeasure)
-    ro.observe(table)
-    const mo = new MutationObserver(remeasure)
-    mo.observe(table.shadowRoot, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['style', 'class', 'data-ff-entry'],
-    })
-    return () => {
-      ro.disconnect()
-      mo.disconnect()
-    }
-  }, [open])
+  const frame = windowFrameInEditor()
+  const table = frame === null ? null : tableIn(frame)
+  const heads = headsOnScreen(table, useHeadsPlaced(table))
 
   const state = windowStateOf(ed, open.blockId, open.window, open.slot)
 
   const backfilled = useRef<Metrics | null>(null)
   useEffect(() => {
-    const frame = windowFrameInEditor()
     if (frame === null || state === null) return
     carryTo(frame, state, backfilled.current)
     backfilled.current = { width: state.width, height: state.height }
@@ -171,12 +133,16 @@ function Heads({ open }: { open: OpenLookup }) {
 
   const headOfPickers = chosen === null
     ? undefined
-    : metrics.heads.find((k) => k.slot === chosen)
+    : heads.find((k) => k.slot === chosen)
   const columnOfPickers = chosen === null ? undefined : state.columns[chosen]
   const defaultTitle = DEFAULT_TITLE.replace('{n}', String((chosen ?? 0) + 1))
 
-  const plus = state.columns.length < COLUMNS_MAX ? metrics.row : null
-  const box = metrics.box
+  // The plus stands over the right end of the heads, which fill their row.
+  const plus = state.columns.length < COLUMNS_MAX && heads.length > 0
+    ? { right: Math.max(...heads.map((h) => h.left + h.width)), top: Math.min(...heads.map((h) => h.top)) }
+    : null
+  const rect = frame?.windowBox() ?? null
+  const box = rect === null ? null : { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
 
   return createPortal(
     <>
@@ -186,7 +152,7 @@ function Heads({ open }: { open: OpenLookup }) {
         className="pointer-events-none fixed inset-0"
         style={{ zIndex: LEVEL_OVER_MASK_WINDOW }}
       >
-        {metrics.heads.map((head) => {
+        {heads.map((head) => {
           const left = head.left + HANDLE_EDGE
           const right = head.left + head.width - HANDLE_EDGE
           return (
