@@ -22,10 +22,7 @@ export function PageBar() {
   }
 
   return (
-    <div
-      className="flex max-w-[44vw] items-center gap-0.5 overflow-x-auto rounded border border-line bg-panel p-0.5"
-      data-ff-editor-helper
-    >
+    <div className="flex shrink-0 items-center gap-[8px]" data-ff-editor-helper>
       {pages.map((p) => (
         rename?.id === p.id ? (
           <Field
@@ -39,12 +36,13 @@ export function PageBar() {
               if (e.key === 'Enter') adopt()
               if (e.key === 'Escape') setRename(null)
             }}
-            className="h-6 w-32 shrink-0"
+            className="w-40"
           />
         ) : (
           <Fragment key={p.id}>
             <Tabs
               active={p.id === active}
+              title={p.name}
               onClick={() => ed.setActivePage(p.id)}
               onDoubleClick={() => {
                 if (!p.isMainPage) setRename({ id: p.id, text: p.name })
@@ -55,12 +53,12 @@ export function PageBar() {
             {p.id === active && !p.isMainPage && (
               <Button
                 onlyIcon
+                kind="risk"
                 title="Seite löschen"
                 aria-label={`Seite ${p.name} löschen`}
                 onClick={() => ed.removeBlock(p.id)}
-                className="h-6 w-auto rounded-l-none bg-accent pr-1.5 text-panel hover:bg-accent-ink hover:text-panel"
               >
-                <Trash size={12} />
+                <Trash size={14} />
               </Button>
             )}
           </Fragment>
@@ -73,9 +71,8 @@ export function PageBar() {
           title={`Neues ${def.name}`}
           aria-label={`Neues ${def.name}`}
           onClick={() => ed.addPage(def.type)}
-          className="h-6 w-6"
         >
-          <Plus size={13} />
+          <Plus size={14} />
         </Button>
       ))}
     </div>
