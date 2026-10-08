@@ -149,15 +149,18 @@ export class FormField extends BlockElement implements ValueCarrier {
 
   // The operator types into the control while it shows the value: live writes
   // only what differs from what the control holds, so typing is never reset.
+  // A new select is given its value before its options exist, so the option of
+  // the value comes selected; without a value the empty one shows, hidden from
+  // the list but not disabled, or the browser would show the first entry.
   private controlTpl(kind: FieldType): TemplateResult {
     if (this.lookup) return this._lookup.render('ctrl', this.label)
     if (kind === 'select') {
       const entries = this.options.split(',').map((o) => o.trim()).filter((o) => o !== '')
       const foreignValue = this.value !== '' && !entries.includes(this.value)
       return html`<select class="ctrl" .value=${live(this.value)} @input=${this.onInput} @change=${this.onChange}>
-        <option value="" disabled hidden></option>
-        ${foreignValue ? html`<option value=${this.value} hidden>${this.value}</option>` : nothing}
-        ${entries.map((o) => html`<option value=${o}>${o}</option>`)}
+        <option value="" hidden></option>
+        ${foreignValue ? html`<option value=${this.value} hidden selected>${this.value}</option>` : nothing}
+        ${entries.map((o) => html`<option value=${o} ?selected=${o === this.value}>${o}</option>`)}
       </select>`
     }
     return html`<input

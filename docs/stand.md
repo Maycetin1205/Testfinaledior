@@ -267,10 +267,6 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 Einzelne Punkte, ohne Reihenfolge:
 
-- Auswahl ohne Wert zeigt ihre erste Möglichkeit unter der Beschriftung
-  (Empfang-Maske: Tierart, Geschlecht, Priorität): der Wert ist leer, das
-  Listenfeld zeigt „Hund“ (`blocks/formfield/FormField.ts`, `controlTpl`).
-  Im Editor gesehen 08.10., die Maske nimmt dasselbe Element.
 - Pfeil runter in der Erfassung öffnet keine Vorschlagsliste (von der KI
   am 07.10. festgelegt, Tippen oder F5). Der Nutzer prüft es in SoftEngine.
 - Tag-Feld je Baustein: wie heute, nicht entschieden.
