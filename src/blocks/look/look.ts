@@ -93,8 +93,10 @@ export function sizeProperty(init: LookInit = {}): Property<string> {
     { default: 'normal', label: 'Größe', attribute: 'size', ...init })
 }
 
-export function lookClass(look: { tone: string; emphasis: string; size: string }): string {
-  return `tone-${toneValue(look.tone)} emphasis-${look.emphasis} size-${look.size}`
+// A block without the size, like an area, leaves it out.
+export function lookClass(look: { tone: string; emphasis: string; size?: string }): string {
+  const colored = `tone-${toneValue(look.tone)} emphasis-${look.emphasis}`
+  return look.size === undefined ? colored : `${colored} size-${look.size}`
 }
 
 // A tone sets its tokens, a size its type. An emphasis says where the color

@@ -1,11 +1,12 @@
 import { choiceProperty, textProperty, type ValuesOf } from '../../core/block/property'
 import { openedByProperty } from '../../core/block/opening'
-import { toneProperty } from '../look/look'
+import { emphasisProperty, toneProperty } from '../look/look'
 
 const HEADED = { key: 'appearance', equals: 'headed' }
 
-// How the area stands on the page: free, as a box, or as a box with a head
-// that carries its title in a tone, as .vraum of the reception mask.
+// The form of the area: free, as a box, or as a box with a head that carries
+// its title, as .vraum of the reception mask. Color and emphasis as at every
+// block; Nur Schrift colors only the title.
 export const areaProperties = {
   appearance: choiceProperty([
     { value: 'plain', name: 'Frei' },
@@ -13,7 +14,7 @@ export const areaProperties = {
     { value: 'headed', name: 'Kopfzeile' },
   ], {
     default: 'box',
-    label: 'Aussehen',
+    label: 'Form',
     attribute: 'appearance',
   }),
   heading: textProperty({
@@ -23,7 +24,8 @@ export const areaProperties = {
     attribute: 'heading',
     when: HEADED,
   }),
-  tone: toneProperty({ when: HEADED }),
+  tone: toneProperty({ default: 'neutral' }),
+  emphasis: emphasisProperty({ default: 'text' }),
   openedBy: openedByProperty,
 }
 

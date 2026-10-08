@@ -56,7 +56,7 @@ interface PropertyType<V> {
 // or nowhere (it has its own window or the editor writes it).
 export type PropertyPlace = 'bar' | 'display' | 'font' | 'source' | 'lookup' | 'column' | 'block' | 'none'
 
-// Another property presets this one, like the role of a text its color: a new
+// Another property presets this one, like the role of a text its size: a new
 // value there brings this one back to its default, and while it holds the
 // default, `values` names what it shows.
 interface Preset {

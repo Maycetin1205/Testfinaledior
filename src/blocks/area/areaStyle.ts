@@ -28,8 +28,18 @@ export const areaStyle = css`
   }
   .appearance-box .body { padding: var(--se-gap); }
 
-  /* The box with a head, as .vraum of the reception mask: the line and the
-     head in the tone, the title in its ink. */
+  /* Fläche voll, Fläche leicht and Nur Rand lay the tone on a free area and
+     on a box: the ground and the line of the emphasis, the line drawn inside.
+     Nur Schrift leaves them as they are; they have no type. */
+  .appearance-plain:not(.emphasis-text),
+  .appearance-box:not(.emphasis-text) {
+    background: var(--look-ground);
+    outline: var(--se-border) solid var(--look-edge);
+    outline-offset: calc(-1 * var(--se-border));
+  }
+
+  /* The box with a head, as .vraum of the reception mask: the line in the
+     tone, the head in the emphasis. Fläche leicht is .vraum-kopf. */
   .appearance-headed {
     background: var(--se-panel);
     border: 1.5px solid var(--tone-line);
@@ -42,8 +52,8 @@ export const areaStyle = css`
     align-items: center;
     gap: var(--se-gap);
     padding: 8px 12px;
-    background: var(--tone-soft);
-    color: var(--tone-ink);
+    background: var(--look-ground);
+    color: var(--look-ink);
     font-weight: 600;
   }
 

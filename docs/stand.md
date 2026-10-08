@@ -34,7 +34,9 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   dieselben: Farbe (Petrol, Neutral, Blau, Grün, Ocker, Rot), Art (Fläche
   voll, Fläche leicht, nur Rand, nur Schrift), Größe (Klein, Normal,
   Groß). Nur die Werte aus `mask.css`, keine freien Farben. Petrol ist der
-  Akzent der Maske, als sechste Farbe vom Nutzer gewählt.
+  Akzent der Maske, als sechste Farbe vom Nutzer gewählt. Beim Text macht
+  Fläche voll oder leicht einen Chip, Nur Schrift ist der normale Text; beim
+  Bereich ergänzen Farbe und Art die Formen Frei, Kasten, Kopfzeile.
 - 08.10. Datenliste: Wahl „Auswahl“ je Liste: Eine Zeile (Klick, andere
   folgen, wie die Tabelle), Mehrere (Haken) oder Keine. Vorgabe Eine Zeile.
   Die gewählte Zeile steht in den Aktionen als Herkunft, etwa als
@@ -60,8 +62,8 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   gelesen: kann ein Modul etwas, das wir brauchen, schicken wir dieselbe
   Nachricht. So wurde der Fokus gelöst (`SEDataList.js`, 06.10.).
 - 08.10. Plätze im Kanban (Zimmer 1 bis 4 einer Spalte) bleiben.
-- 07.10. Kein Neubau. Gestrichen: Chip-Farbe folgt einem Feld, Text als
-  Chip, der Zähler (Statuszeile „0 Termine offen · 0 im Wartezimmer“).
+- 07.10. Kein Neubau. Gestrichen: Chip-Farbe folgt einem Feld, der Zähler
+  (Statuszeile „0 Termine offen · 0 im Wartezimmer“).
 - 07.10. Ankreuzfeld bleibt, bis der Nutzer zeigt, was ein Haken an
   SoftEngine schickt. Zweiter Schreibmodus für vorhandene Positionen: kein
   Bau, bis er in kontrakte.md steht. Quellenarten nach Inhalt: liegen lassen.
@@ -131,15 +133,15 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 
 ## Bausteine
 
-Gebaut: Bereich (Frei, Kasten oder Kopfzeile mit Titel und Farbe; das Auf-
-und Zuklappen vom 07.10. kommt wieder raus), Schaltfläche (Farbe, Art,
-Größe), Datum
+Gebaut: Bereich (Form Frei, Kasten oder Kopfzeile mit Titel; Farbe, Art;
+das Auf- und Zuklappen vom 07.10. kommt wieder raus), Schaltfläche (Farbe,
+Art, Größe), Datum
 (Tageswahl), Formularfeld (Text, Zahl, Datum tippbar, Auswahl,
 Nachschlagen; Ankreuzfeld unfertig), Tabelle, Erfassung, Kanban (Plätze je
 Spalte, mehrere Felder je Platz mit Trenner, Knopf je Spalte Aus, Weiter
 oder Aktion, Spalte nach Uhrzeit mit Stundenlinien und Jetzt-Linie),
 Datenliste (je Zeile Haken, Symbol, Titel, Unterzeile; Plus oben), Popup,
-Text (Rollen, Farbe, Größe).
+Text (Rolle, Farbe, Art, Größe; Fläche oder Rand macht ihn zum Chip).
 
 Chef-Maske Empfang nachgebaut am 07.10.: `masken/empfang/
 Empfang.aufbau-maske.json`, 38 Bausteine, zwei Quellen (Terminplaner
@@ -149,9 +151,9 @@ Beispieldaten geprüft, nicht in SoftEngine.
 Lücken, am Nachbau gemessen, vom Nutzer am 08.10. gestrichen oder behalten.
 Was bleibt:
 
-- Alle Bausteine: die drei Wahlen fürs Aussehen. Die Schaltfläche hat
-  alle drei; der Text hat Rolle, eigene Farbe und Größe, der Bereich drei
-  Formen und die Farbe, Kanban die Farbe je Spalte und am Chip.
+- Alle Bausteine: die drei Wahlen fürs Aussehen. Schaltfläche, Text und
+  Bereich haben sie (der Text seine eigene Größe, der Bereich keine);
+  Kanban die Farbe je Spalte und am Chip.
 - Bild: eigener Baustein, Technik vom Kanban-Avatar (`blocks/parts/card.ts`;
   festes Bild in der Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
   Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
@@ -232,7 +234,15 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    alle drei; ihre vier alten Aussehen werden beim Laden (Maskenschema 28)
    Neutral/nur Rand (Standard), Petrol/Fläche voll (Hervorgehoben),
    Petrol/Fläche leicht (Leise), Neutral/nur Schrift (Ohne Rahmen).
-   Bleibt: Text, Bereich, Chip je ein kleiner Chat.
+   Teil 2 erledigt 08.10.: Text und Bereich. Beim Text ersetzt die Farbe
+   die alte Farbwahl, Neutral lässt ihm die Farbe seiner Rolle; Art „Nur
+   Schrift“ ist der Text, die anderen drei machen ihn zum Chip (Form aus
+   `blocks/parts/chip.ts`); die Größe bleibt seine (11 bis 19). Der
+   Bereich trägt Farbe und Art bei der Kopfzeile im Kopf, bei Frei und
+   Kasten auf Fläche und Rand; „Nur Schrift“ lässt Frei und Kasten wie
+   bisher. Maskenschema 29: eine Textfarbe wird die Farbe gleichen Namens,
+   Dunkel, Grau und Hell werden Neutral; eine Kopfzeile behält ihre Farbe
+   (sonst Blau) und wird Fläche leicht. Bleibt: Chip, ein kleiner Chat.
 5. Dann die Liste unter „Bausteine“: Bild, Formularfeld, Datenliste; je
    einer ein Chat.
 

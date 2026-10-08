@@ -1,7 +1,7 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { wireOpened } from '../../runtime/opening'
-import { lookStyle, toneValue } from '../look/look'
+import { lookClass, lookStyle } from '../look/look'
 import { areaStyle } from './areaStyle'
 import { areaProperties, type AreaValues } from './properties'
 
@@ -30,7 +30,7 @@ export class Area extends BlockElement {
   // The head of a headed area carries the title, typed right there.
   override render(): TemplateResult {
     const headed = this.appearance === 'headed'
-    return html`<div class="frame appearance-${this.appearance} tone-${toneValue(this.tone)}">
+    return html`<div class="frame appearance-${this.appearance} ${lookClass(this)}">
       ${headed
         ? html`<div class="head">
             <span

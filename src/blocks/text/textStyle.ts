@@ -1,4 +1,5 @@
 import { css } from 'lit'
+import { chipShape } from '../parts/chip'
 
 export const textStyle = css`
   .text {
@@ -64,4 +65,27 @@ export const textStyle = css`
     font-variant-numeric: tabular-nums;
     font-weight: 400;
   }
+
+  .align-center { text-align: center; }
+  .align-right { text-align: right; }
+
+  /* Nur Schrift is the plain text: a color gives it the ink of its tone,
+     Neutral leaves it the ink of its role. */
+  .text.emphasis-text:not(.tone-neutral) { color: var(--look-ink); }
+
+  /* Fläche voll, Fläche leicht and Nur Rand make the text a chip, as .vflag:
+     as wide as its words, on the ground of its emphasis, the line drawn
+     inside. It stands where its text would. */
+  .text:not(.emphasis-text) {
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: 100%;
+    ${chipShape}
+    background: var(--look-ground);
+    color: var(--look-ink);
+    outline: var(--se-border) solid var(--look-edge);
+    outline-offset: calc(-1 * var(--se-border));
+  }
+  .align-center:not(.emphasis-text) { margin-inline: auto; }
+  .align-right:not(.emphasis-text) { margin-left: auto; }
 `

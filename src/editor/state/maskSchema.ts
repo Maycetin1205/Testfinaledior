@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 28
+export const CURRENT_SCHEMA_VERSION = 29
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -226,6 +226,38 @@ function liftTo28(tree: unknown): void {
   }
 }
 
+// ---- version 29: a text and an area take color and emphasis ----
+
+// A text keeps its color as the tone of the same name; dark, grey and light
+// become Neutral, the ink of its role.
+const TEXT_TONES_29: Readonly<Record<string, string>> = {
+  petrol: 'accent',
+  blue: 'info',
+  green: 'success',
+  ochre: 'warning',
+  red: 'danger',
+}
+
+// A head was the soft color of its tone, blue unless chosen.
+const HEAD_LOOK_29 = { tone: 'info', emphasis: 'soft' }
+
+function liftTo29(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || !isPlainObject(node.values)) continue
+    const values = node.values
+    if (node.type === 'text') {
+      const tone = TEXT_TONES_29[String(values.color)]
+      if (tone !== undefined) values.tone = tone
+      delete values.color
+    }
+    if (node.type === 'area' && values.appearance === 'headed') {
+      values.tone ??= HEAD_LOOK_29.tone
+      values.emphasis = HEAD_LOOK_29.emphasis
+    }
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -239,6 +271,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 26) liftTo26(lifted.tree)
   if (raw.schemaVersion < 27) liftTo27(lifted.tree)
   if (raw.schemaVersion < 28) liftTo28(lifted.tree)
+  if (raw.schemaVersion < 29) liftTo29(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
