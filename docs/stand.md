@@ -182,9 +182,7 @@ Was bleibt:
 - Alle Bausteine: die drei Wahlen fürs Aussehen. Schaltfläche, Text und
   Bereich haben sie (der Text seine eigene Größe, der Bereich keine);
   Kanban die Farbe je Spalte, am Chip Farbe und Art.
-- Bild: eigener Baustein, Technik vom Kanban-Avatar (`blocks/parts/card.ts`;
-  festes Bild in der Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
-  Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
+- Bild: fällt vorerst raus (Nutzer 08.10.).
 - Formularfeld: Die Beschriftung steht im Feld und bleibt dort. „Pflicht“
   ist als Wahl da und in der Maske nicht zu sehen; wenn je, dann im Feld,
   nie darüber.
@@ -267,7 +265,7 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    vorher), beide in den Einstellungen unter Anzeige. Form, Fläche, Schrift
    und Rand kommen für ihn und den Text-Chip aus `blocks/parts/chip.ts`;
    „Nur Schrift“ ist das Wort in seiner Farbe, ohne Fläche und Abstand.
-5. Dann die Liste unter „Bausteine“: Bild, ein Chat. Ankreuzfeld erledigt
+5. Dann die Liste unter „Bausteine“. Ankreuzfeld erledigt
    08.10.: Der Haken steht im Wert des Felds, wie der Text eines
    Textfelds; Haken schreibt „Wert mit Haken“ (Vorgabe `J`), kein Haken
    „Wert ohne Haken“ (Vorgabe `N`), beide je Feld in den Einstellungen
