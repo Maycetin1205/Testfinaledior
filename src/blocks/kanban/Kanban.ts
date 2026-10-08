@@ -153,7 +153,7 @@ export class Kanban extends BlockElement {
           </div>`
         : nothing}
       ${shows('chip')
-        ? html`<div class="flags">${this.spot('chip', chipClass(this.chipTone), values)}</div>`
+        ? html`<div class="flags">${this.spot('chip', chipClass(this.chipTone, this.chipEmphasis), values)}</div>`
         : nothing}
       ${shows('text') ? this.spot('text', 'text', values) : nothing}
       ${shows('date') ? this.spot('date', 'date', values) : nothing}

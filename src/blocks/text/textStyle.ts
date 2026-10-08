@@ -77,14 +77,9 @@ export const textStyle = css`
      as wide as its words, on the ground of its emphasis, the line drawn
      inside. It stands where its text would. */
   .text:not(.emphasis-text) {
-    box-sizing: border-box;
     width: fit-content;
     max-width: 100%;
     ${chipShape}
-    background: var(--look-ground);
-    color: var(--look-ink);
-    outline: var(--se-border) solid var(--look-edge);
-    outline-offset: calc(-1 * var(--se-border));
   }
   .align-center:not(.emphasis-text) { margin-inline: auto; }
   .align-right:not(.emphasis-text) { margin-left: auto; }

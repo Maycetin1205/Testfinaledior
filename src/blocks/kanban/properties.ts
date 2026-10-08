@@ -5,7 +5,7 @@ import {
 } from '../../core/block/property'
 import { DAY_FIELD_PROPERTY } from '../../core/block/dayFieldProperty'
 import { spotBinding, typedSpot } from '../parts/card'
-import { toneProperty } from '../look/look'
+import { emphasisProperty, toneProperty } from '../look/look'
 import { kanbanColumnsProperty } from './columns'
 
 export const kanbanProperties = {
@@ -31,6 +31,12 @@ export const kanbanProperties = {
     label: 'Farbe des Chips',
     place: 'display',
     attribute: 'chiptone',
+  }),
+  chipEmphasis: emphasisProperty({
+    default: 'soft',
+    label: 'Art des Chips',
+    place: 'display',
+    attribute: 'chipemphasis',
   }),
   heading: typedSpot('Titel', 'heading'),
   heading2: typedSpot('Titel 2', 'heading2'),
