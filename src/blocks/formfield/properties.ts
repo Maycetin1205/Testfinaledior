@@ -23,12 +23,11 @@ export const ONLY_LOOKUP: Condition = { key: 'lookup', equals: true }
 // A checkbox is never empty.
 export const NOT_CHECKBOX: Condition = { key: 'fieldType', notEquals: 'checkbox' }
 
-// A field that neither ticks nor looks up shows a value of its source.
-export const WITH_VALUE: Condition = {
-  key: 'fieldType',
-  notEquals: 'checkbox',
-  and: { key: 'lookup', notEquals: true },
-}
+// A field that does not look up shows a value of its source; a checkbox
+// ticks by it.
+export const WITH_VALUE: Condition = { key: 'lookup', notEquals: true }
+
+const ONLY_CHECKBOX: Condition = { key: 'fieldType', equals: 'checkbox' }
 
 export const formFieldProperties = {
   fieldType: choiceProperty([
@@ -74,6 +73,22 @@ export const formFieldProperties = {
     place: 'source',
     attribute: 'valuefield',
     when: WITH_VALUE,
+  }),
+  // What a tick writes into the field, and what no tick writes: the yes/no
+  // fields of SoftEngine hold J and N, another field may hold 1 and 0.
+  checkedValue: textProperty({
+    default: 'J',
+    label: 'Wert mit Haken',
+    place: 'source',
+    attribute: 'checkedvalue',
+    when: ONLY_CHECKBOX,
+  }),
+  uncheckedValue: textProperty({
+    default: 'N',
+    label: 'Wert ohne Haken',
+    place: 'source',
+    attribute: 'uncheckedvalue',
+    when: ONLY_CHECKBOX,
   }),
   lookupSource: sourceProperty({
     default: '',

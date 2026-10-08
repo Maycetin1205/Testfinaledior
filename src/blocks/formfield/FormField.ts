@@ -1,5 +1,4 @@
 import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
-import { state } from 'lit/decorators.js'
 import { live } from 'lit/directives/live.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable, type ValueCarrier } from '../../core/block/capability'
@@ -46,8 +45,6 @@ export class FormField extends BlockElement implements ValueCarrier {
   static readonly tag = 'ff-formfield'
 
   static override styles: CSSResultGroup = [BlockElement.styles, fieldStyle, suggestionStyle]
-
-  @state() private ticked = false
 
   private valueAtFocus = ''
   private typed = false
@@ -111,10 +108,12 @@ export class FormField extends BlockElement implements ValueCarrier {
     if (e.key === 'Enter') this.takeTyped()
   }
 
-  // The label beside the box of a checkbox, which ticks it.
-  private textTpl(): TemplateResult {
+  // The label beside the box of a checkbox, which ticks it. A bound checkbox
+  // shows the name of its field there.
+  private textTpl(bound: boolean): TemplateResult {
     return html`<span
       class="text"
+      ?data-ff-bound=${bound}
       data-ff-editable
       @click=${this.onTextClick}
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
@@ -132,15 +131,20 @@ export class FormField extends BlockElement implements ValueCarrier {
     >${this.label}</span>`
   }
 
-  private onTextClick(): void {
-    if (this.preview) return
-    this.setTick(!this.ticked)
+  // A checkbox holds one of its two values in the field's value, as a text
+  // field holds its text: the tick writes it, and the actions read it.
+  private get ticked(): boolean {
+    return this.value === this.checkedValue
   }
 
-  private setTick(on: boolean): void {
-    if (this.ticked === on) return
-    this.ticked = on
-    this.dispatchEvent(new Event('change'))
+  private tick(on: boolean): void {
+    this.value = on ? this.checkedValue : this.uncheckedValue
+  }
+
+  private onTextClick(): void {
+    if (this.preview) return
+    this.tick(!this.ticked)
+    this.onChange()
   }
 
   // The operator types into the control while it shows the value: live writes
@@ -167,30 +171,46 @@ export class FormField extends BlockElement implements ValueCarrier {
     />`
   }
 
+  // No tick is a value as well: an empty or foreign value reads as the
+  // unticked one, also in an action before the box was ever clicked.
+  protected override willUpdate(changed: PropertyValues): void {
+    super.willUpdate(changed)
+    if (fieldTypeOf(this.fieldType) === 'checkbox' && !this.ticked) this.value = this.uncheckedValue
+  }
+
   protected override updated(changed: PropertyValues): void {
     super.updated(changed)
 
     this.toggleAttribute('data-ff-list', this._lookup.hangsBelow)
   }
 
+  // The box and its label together are the spot bound to the field.
+  private checkboxTpl(bound: boolean): TemplateResult {
+    return html`<div class="field">
+      <div
+        class="row"
+        data-ff-spot="value"
+        @click=${this.reportSpot}
+        @dblclick=${this.reportSpot}
+      >
+        <input
+          class="ctrl"
+          type="checkbox"
+          .checked=${live(this.ticked)}
+          @input=${(e: Event) => this.tick((e.target as HTMLInputElement).checked)}
+          @change=${this.onChange}
+        />
+        ${this.textTpl(bound)}
+      </div>
+    </div>`
+  }
+
   override render(): TemplateResult {
     const kind = fieldTypeOf(this.fieldType)
-    if (kind === 'checkbox') {
-      return html`<div class="field">
-        <div class="row">
-          <input
-            class="ctrl"
-            type="checkbox"
-            .checked=${this.ticked}
-            @change=${(e: Event) => this.setTick((e.target as HTMLInputElement).checked)}
-          />
-          ${this.textTpl()}
-        </div>
-      </div>`
-    }
-
     const valueBindable = !this.lookup
     const bound = valueBindable && this.valueField !== ''
+    if (kind === 'checkbox') return this.checkboxTpl(bound)
+
     const empty = (valueBindable ? this.value : this._lookup.inField) === ''
     const fieldClasses = `field${this.appearance === 'plain' ? ' plain' : ''}`
     return html`<div class=${fieldClasses}>

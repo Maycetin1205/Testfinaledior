@@ -150,6 +150,7 @@ export const fieldStyle = css`
 
   :host([fills]) .field,
   :host([fills]) .wrap,
+  :host([fills]) .row,
   :host([fills]) .lookup { height: 100%; }
   :host([fills]) .wrap .ctrl { height: 100%; min-height: 0; }
 `

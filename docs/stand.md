@@ -144,7 +144,7 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 
 Gebaut: Bereich (Form Frei, Kasten oder Kopfzeile mit Titel; Farbe, Art),
 Schaltfläche (Farbe, Art, Größe), Datum (Tageswahl), Formularfeld (Text,
-Zahl, Datum tippbar, Auswahl, Nachschlagen; Ankreuzfeld unfertig), Tabelle,
+Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld mit J/N), Tabelle,
 Erfassung, Kanban (Plätze je Spalte, mehrere Felder je Platz mit Trenner,
 Knopf je Spalte Aus, Weiter oder Aktion, Spalte nach Uhrzeit mit
 Stundenlinien und Jetzt-Linie), Datenliste (Auswahl Eine Zeile, Mehrere
@@ -165,9 +165,9 @@ Was bleibt:
 - Bild: eigener Baustein, Technik vom Kanban-Avatar (`blocks/parts/card.ts`;
   festes Bild in der Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
   Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
-- Formularfeld: nur das Ankreuzfeld (siehe „Einzelne Punkte“). Die
-  Beschriftung steht im Feld und bleibt dort. „Pflicht“ ist als Wahl da
-  und in der Maske nicht zu sehen; wenn je, dann im Feld, nie darüber.
+- Formularfeld: Die Beschriftung steht im Feld und bleibt dort. „Pflicht“
+  ist als Wahl da und in der Maske nicht zu sehen; wenn je, dann im Feld,
+  nie darüber.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
 Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
@@ -243,8 +243,17 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    bisher. Maskenschema 29: eine Textfarbe wird die Farbe gleichen Namens,
    Dunkel, Grau und Hell werden Neutral; eine Kopfzeile behält ihre Farbe
    (sonst Blau) und wird Fläche leicht. Bleibt: Chip, ein kleiner Chat.
-5. Dann die Liste unter „Bausteine“: Bild, Ankreuzfeld; je einer ein
-   Chat. Datenliste erledigt 08.10.: die Wahl „Auswahl“ in der Leiste. Eine
+5. Dann die Liste unter „Bausteine“: Bild, ein Chat. Ankreuzfeld erledigt
+   08.10.: Der Haken steht im Wert des Felds, wie der Text eines
+   Textfelds; Haken schreibt „Wert mit Haken“ (Vorgabe `J`), kein Haken
+   „Wert ohne Haken“ (Vorgabe `N`), beide je Feld in den Einstellungen
+   unter Quelle. Ein leerer oder fremder Wert gilt als kein Haken. Das
+   Ankreuzfeld wird gebunden wie die anderen Felder, Klick auf Haken und
+   Beschriftung; gebunden steht dort der Name des Felds. Der Haken löst
+   „Wert geändert“ aus, die Aktionen lesen `J`/`N` als Herkunft. Im
+   Browser mit exportierter Maske geprüft (Lieferung `J` hakt an, Klick
+   schickt `N` im PUT_RELATION), nicht in SoftEngine. Datenliste erledigt
+   08.10.: die Wahl „Auswahl“ in der Leiste. Eine
    Zeile gibt die angeklickte Zeile weiter wie Tabelle und Kanban
    (`recordPick`, nur solange sie gewählt ist: `gives`); Mehrere sind die
    Haken; Keine nur lesen. Plus und Auf- und Zuklappen sind raus, mit ihnen
@@ -254,10 +263,10 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 Einzelne Punkte, ohne Reihenfolge:
 
-- Ankreuzfeld fertig bauen, eigener Chat, nur das: Haken `J`, kein Haken
-  `N`, je Feld änderbar; heute liegt der Haken in privatem Zustand und
-  „Wert geändert“ liest leer (`blocks/formfield/FormField.ts`). Die
-  Beschriftung der anderen Felder bleibt, wo sie ist.
+- Auswahl ohne Wert zeigt ihre erste Möglichkeit unter der Beschriftung
+  (Empfang-Maske: Tierart, Geschlecht, Priorität): der Wert ist leer, das
+  Listenfeld zeigt „Hund“ (`blocks/formfield/FormField.ts`, `controlTpl`).
+  Im Editor gesehen 08.10., die Maske nimmt dasselbe Element.
 - Pfeil runter in der Erfassung öffnet keine Vorschlagsliste (von der KI
   am 07.10. festgelegt, Tippen oder F5). Der Nutzer prüft es in SoftEngine.
 - Tag-Feld je Baustein: wie heute, nicht entschieden.
