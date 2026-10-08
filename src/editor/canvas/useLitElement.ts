@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import type { BlockNode } from '../../core/block/tree'
-import { bindingFields, bindingJoiner } from '../../core/block/binding'
-import { splitBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import { gridMetricsOf, rowsForHeight } from '../../core/block/grid'
 import { blockType } from '../../core/block/registry'
@@ -14,10 +12,11 @@ import {
   type SpotClick,
 } from '../../blocks/base/BlockElement'
 import { HEIGHT_REPORTED, type HeightReported } from '../../blocks/base/heightReport'
-import { fieldInReachOf, type SourceInReach } from '../../core/data/extraSources'
+import { boundNames } from '../../core/data/boundField'
+import type { SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
 
-const FOREIGN_ICON = ' ↗'
+const HELPER_MARK = ' ↗'
 
 interface LitElementArgs {
   editor: EditorStore
@@ -103,12 +102,9 @@ export function useLitElement({
       const value = block.values[bindingProp(spot.prop)]
       if (typeof value !== 'string' || value === '') continue
 
-      const names = bindingFields(value).flatMap((binding) => {
-        const field = fieldInReachOf(binding, sources)
-        return field ? [field.name + (splitBinding(binding).sourceId === '' ? '' : FOREIGN_ICON)] : []
-      })
-      if (names.length > 0) {
-        el.setDeclared(spot.previewProp ?? spot.prop, names.join(bindingJoiner(value)))
+      const names = boundNames(value, sources, HELPER_MARK)
+      if (names !== '') {
+        el.setDeclared(spot.previewProp ?? spot.prop, names)
       } else {
         el.setDeclared(bindingProp(spot.prop), '')
       }

@@ -26,7 +26,7 @@ export function followUsable(f: SelectionFollow): boolean {
   return pairs.length > 0 && (f.giverId !== '' || pairs.every((p) => p.from !== undefined))
 }
 
-export function selectionFollowsFrom(raw: unknown): SelectionFollow[] {
+function selectionFollowsFrom(raw: unknown): SelectionFollow[] {
   if (!Array.isArray(raw)) return []
   const acc: SelectionFollow[] = []
   for (const entry of raw) {

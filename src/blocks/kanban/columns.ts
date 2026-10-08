@@ -126,7 +126,7 @@ function columnFrom(raw: unknown): KanbanColumn {
   }
 }
 
-export function kanbanColumnsFrom(raw: unknown): KanbanColumn[] {
+function kanbanColumnsFrom(raw: unknown): KanbanColumn[] {
   return Array.isArray(raw) ? raw.map(columnFrom) : defaultKanbanColumns()
 }
 

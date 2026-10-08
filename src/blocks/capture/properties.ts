@@ -1,9 +1,5 @@
-import { listProperty, numberProperty, type ValuesOf } from '../../core/block/property'
-import {
-  calculationsForExport,
-  calculationsFrom,
-  type Calculation,
-} from '../../core/data/calculation'
+import { numberProperty, type ValuesOf } from '../../core/block/property'
+import { calculationsProperty } from '../../core/data/calculation'
 import { listProperties } from '../list'
 import { captureColumnsProperty } from './column'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
@@ -11,12 +7,7 @@ import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 export const captureProperties = {
   ...listProperties(false),
   columns: captureColumnsProperty(),
-  calculations: listProperty<Calculation[]>(calculationsFrom, {
-    default: [],
-    label: 'Berechnungen',
-    place: 'none',
-    attribute: 'calculations',
-  }, calculationsForExport),
+  calculations: calculationsProperty,
   windowWidth: numberProperty({
     default: WINDOW_WIDTH,
     label: 'Fensterbreite',

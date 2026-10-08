@@ -10,7 +10,7 @@ import {
   type HandedRow,
   type RowsFrom,
 } from '../list'
-import { COLUMNS_BINDING, coerceColumns, type Column } from '../parts/column'
+import { COLUMNS_BINDING, type Column } from '../parts/column'
 import { tableProperties, type TableValues } from './properties'
 
 export interface Table extends TableValues {}
@@ -28,7 +28,7 @@ export class Table extends BlockElement {
   private readonly _list = new RecordList(this)
 
   listColumns(): readonly Column[] {
-    return coerceColumns(this.columns)
+    return this.columns
   }
 
   listCalculations(): readonly Calculation[] {

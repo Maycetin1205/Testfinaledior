@@ -215,11 +215,16 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    Quelle, Hilfsquelle, Folgt der Auswahl und Berechnung nehmen sie nur von
    dort. Die Maske liest Quelle und Tagesfeld aus der Deklaration des
    Bausteins (`readDeclared` in `core/block/registry.ts`, Tagesfeld in
-   `core/block/dayFieldProperty.ts`). Teil 2 offen: „Quelle“ viermal von
-   Hand deklariert (`blocks/*/properties.ts`); Listen-Eigenschaften
-   siebenmal gleich gelesen (`core/data/extraSources.ts`); Bindung zu
-   Feldname an drei bis fünf Stellen. Dateien über 300 Zeilen werden dabei
-   nach Thema geteilt.
+   `core/block/dayFieldProperty.ts`). Teil 2 erledigt 08.10.: Die
+   Quelle kommt mit der Fähigkeit `source` (`blocks/base/BlockElement.ts`,
+   `after` hält ihren Platz im Export), kein Baustein listet sie mehr.
+   Quelle, Hilfsquellen, Folgt der Auswahl und Berechnungen liest der
+   Editor nur über ihre Deklaration (`declaredValue` in
+   `core/block/registry.ts`); die Bausteine lesen ihre Listen nicht noch
+   einmal. Von einer Bindung zum Feld, seinem Namen und seiner Länge führt
+   nur `core/data/boundField.ts`. Die Spalte nach Uhrzeit steht in
+   `blocks/kanban/clock.ts`. Bleibt: das Suchfenster liest seine Spalten
+   über die Schlüssel seiner Fähigkeit (`editor/canvas/lookupWindowState.ts`).
 4. Aussehen: die drei Drehknöpfe einmal deklarieren (ein Chat), dann
    Schaltfläche, Text, Bereich, Chip je ein kleiner Chat.
 5. Dann die Liste unter „Bausteine“: Bild, Formularfeld, Datenliste; je

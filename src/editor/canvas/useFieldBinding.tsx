@@ -12,7 +12,7 @@ import type { EditorStore } from '../state/EditorStore'
 import { sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { FieldPicker } from './FieldPicker'
-import { pickerGroups } from './fieldNames'
+import { pickerGroups } from './pickerGroups'
 import { ListEntryBar, type ListPick } from './ListEntryBar'
 import { bindingCode, useBindingPicker } from './useBindingPicker'
 

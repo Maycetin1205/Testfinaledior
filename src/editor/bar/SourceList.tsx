@@ -1,11 +1,12 @@
-import { SOURCE_PROP } from '../../core/block/sourceProperty'
+import { declaredValue } from '../../core/block/registry'
+import { SOURCE_PROP, SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import { Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
 import { sourcesKey } from '../../core/data/dataSources'
 import {
   EXTRA_SOURCES_PROP,
-  extraSourcesFrom,
+  extraSourcesProperty,
   type ExtraSource,
   type KeyPair,
 } from '../../core/data/extraSources'
@@ -29,8 +30,8 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
   const ed = useEditor()
   const library = useDataSources().list
 
-  const first = typeof block.values[SOURCE_PROP] === 'string' ? block.values[SOURCE_PROP] : ''
-  const extra = extraSourcesFrom(block.values[EXTRA_SOURCES_PROP])
+  const first = declaredValue(block, SOURCE_PROPERTY)
+  const extra = declaredValue(block, extraSourcesProperty)
 
   const fieldsOf = (id: string) => library.find((s) => s.id === id)?.fields ?? []
 

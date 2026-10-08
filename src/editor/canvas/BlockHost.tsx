@@ -6,21 +6,17 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import type { BlockNode } from '../../core/block/tree'
-import {
-  sourcesResolve,
-  EXTRA_SOURCES_PROP,
-  type SourceInReach,
-} from '../../core/data/extraSources'
+import type { SourceInReach } from '../../core/data/extraSources'
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import { gridMetricsOf } from '../../core/block/grid'
-import { bindableSpotsOf, SOURCE_PROP, carriesOwnSource } from '../../core/block/treeQuery'
+import { bindableSpotsOf, carriesOwnSource } from '../../core/block/treeQuery'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
 import { OPENED_BY_PROP, openerOf, opensByClick } from '../../core/block/opening'
 import { useEditorInstance } from '../state/EditorContext'
 import { useView } from '../state/useView'
 import { followableByClick, followByClick } from '../bar/followOffer'
-import { sourcesCarrier } from '../../core/block/sourcesInReach'
+import { ownSourcesOf, sourcesCarrier } from '../../core/block/sourcesInReach'
 import { useDataSources } from '../state/useDataSources'
 import { BlockBar } from '../bar/BlockBar'
 import { ColumnControls } from './ColumnControls'
@@ -64,7 +60,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
   const library = sourcesLibrary.list
   const sources = useMemo(
     () => (needs && carrier
-      ? sourcesResolve(carrier.values[SOURCE_PROP], carrier.values[EXTRA_SOURCES_PROP], library)
+      ? ownSourcesOf(carrier, library)
       : NO_SOURCES),
     [needs, carrier, library],
   )

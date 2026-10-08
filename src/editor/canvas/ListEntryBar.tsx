@@ -13,13 +13,13 @@ import {
 import type { LookupWindow } from '../../core/block/capability'
 import type { BlockNode } from '../../core/block/tree'
 import { canCompute } from '../../core/block/treeQuery'
-import { fieldOf, sourcesKey, type DataSource } from '../../core/data/dataSources'
+import { sourcesKey, type DataSource } from '../../core/data/dataSources'
 import type { SourceInReach } from '../../core/data/extraSources'
+import { boundField, sourceInReachOf } from '../../core/data/boundField'
 import { ColumnBar } from '../bar/ColumnBar'
 import type { EditorStore } from '../state/EditorStore'
 import type { PickerGroup, SourcesChoice } from './FieldPicker'
-import { plainNameOf, sourceNameOf } from './fieldNames'
-import { lengthOf, widthFromLength } from './fieldWidth'
+import { widthFromLength } from './fieldWidth'
 import { openLookupInEditor } from './lookupWindowState'
 
 // Which entry of the block's list has its head chosen, and where its bar
@@ -105,14 +105,12 @@ export function ListEntryBar({
     : groups
   const titleNow = listBinding.titleOf(entry)
   const defaultTitle = listDefaultTitle(listBinding, pick.index)
-  const plainName = (fieldValue: string): string => (perSource
-    ? (fieldOf(sourceFromProp, fieldValue)?.name ?? '')
-    : plainNameOf(fieldValue, sources)) || fieldValue
+  // A list with a source of its own reads its fields from that one alone.
+  const reach: readonly SourceInReach[] = perSource ? [{ source: sourceFromProp }] : sources
+  const plainName = (fieldValue: string): string => boundField(fieldValue, reach)?.name || fieldValue
   // In the bar the field carries its source: two columns named alike
   // tell apart by where they read.
-  const sourceName = (fieldValue: string): string => (perSource
-    ? sourceFromProp.name
-    : sourceNameOf(fieldValue, sources))
+  const sourceName = (fieldValue: string): string => sourceInReachOf(fieldValue, reach)?.name ?? ''
   const nameWithSource = (fieldValue: string): string => {
     const source = sourceName(fieldValue)
     return source === '' ? plainName(fieldValue) : `${source}: ${plainName(fieldValue)}`
@@ -123,14 +121,11 @@ export function ListEntryBar({
       const next = entriesOf()
       const target = next[pick.index]
       if (target === undefined) return
-      const length = perSource
-        ? fieldOf(sourceFromProp, value)?.length
-        : lengthOf(value, sources)
       next[pick.index] = listBinding.withPickedField(
         target,
         value,
         value === '' ? defaultTitle : plainName(value),
-        widthFromLength(length),
+        widthFromLength(boundField(value, reach)?.length),
       )
       editor.updateProperty(block.id, listBinding.prop, next)
     })

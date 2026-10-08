@@ -1,25 +1,24 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
 import { fieldChoicesRead, splitBinding } from '../core/block/blockType'
 import { bindingFields } from '../core/block/binding'
-import { bindingProp, capability } from '../core/block/capability'
-import { blockType } from '../core/block/registry'
+import { bindingProp, capability, hasCapability } from '../core/block/capability'
+import { blockType, declaredValue } from '../core/block/registry'
 import { propertyVisible } from '../core/block/property'
 import {
   selectionSourceIdOf,
   bindableSpotsOf,
   maySelectionFollows,
-  SOURCE_PROP,
   carriesOwnSource,
 } from '../core/block/treeQuery'
-import { SELECTION_FOLLOW_PROP, selectionFollowsFrom, followUsable } from '../core/data/selectionFollow'
-import { fieldBindingsFrom } from '../core/data/calculation'
+import { SOURCE_PROPERTY } from '../core/block/sourceProperty'
+import { followsSelectionProperty, followUsable } from '../core/data/selectionFollow'
+import { calculationsProperty, fieldBindingsOf } from '../core/data/calculation'
 import type { DataSource } from '../core/data/dataSources'
 import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import {
   sourceUsable,
   completePairs,
-  EXTRA_SOURCES_PROP,
-  extraSourcesFrom,
+  extraSourcesProperty,
   type SourceInReach,
 } from '../core/data/extraSources'
 import { sourceIdsUsedBy, sourcesInReach } from '../core/block/sourcesInReach'
@@ -124,9 +123,8 @@ export function usedFieldsPerSource(
       }
     }
 
-    const compute = capability(def, 'compute')
-    if (compute) {
-      for (const field of fieldBindingsFrom(node.values[compute.prop])) {
+    if (hasCapability(def, 'compute')) {
+      for (const field of fieldBindingsOf(declaredValue(node, calculationsProperty))) {
         rememberBinding(field)
       }
     }
@@ -140,8 +138,8 @@ export function usedFieldsPerSource(
     }
 
     if (carriesOwnSource(node)) {
-      const first = typeof node.values[SOURCE_PROP] === 'string' ? node.values[SOURCE_PROP] : ''
-      for (const q of extraSourcesFrom(node.values[EXTRA_SOURCES_PROP])) {
+      const first = declaredValue(node, SOURCE_PROPERTY)
+      for (const q of declaredValue(node, extraSourcesProperty)) {
         if (!sourceUsable(q)) continue
 
         const partner = q.partnerId === '' ? first : q.partnerId
@@ -155,7 +153,7 @@ export function usedFieldsPerSource(
 
     if (maySelectionFollows(node)) {
       const own = selectionSourceIdOf(node)
-      for (const follow of selectionFollowsFrom(node.values[SELECTION_FOLLOW_PROP])) {
+      for (const follow of declaredValue(node, followsSelectionProperty)) {
         if (!followUsable(follow)) continue
         const giver = selectionSourceIdOf(tree[follow.giverId])
         for (const pair of completePairs(follow)) {
@@ -210,7 +208,7 @@ export function getKeyPerGiver(
     const source = sources.find((s) => s.id === selectionSourceIdOf(node))
     const giverFields = source ? deliveryAdapter(source.delivery.kind).giverFields(source.delivery) : []
     if (giverFields.length > 0) {
-      for (const follow of selectionFollowsFrom(node.values[SELECTION_FOLLOW_PROP])) {
+      for (const follow of declaredValue(node, followsSelectionProperty)) {
         remember(selectionSourceIdOf(tree[follow.giverId]), giverFields)
       }
     }

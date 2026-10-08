@@ -1,4 +1,5 @@
-import { SOURCE_PROP } from '../../core/block/sourceProperty'
+import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
+import { declaredValue } from '../../core/block/registry'
 import { coerceCaptureColumns, windowColumnsIn, type CaptureColumn } from '../../blocks/capture'
 import {
   automaticColumns,
@@ -99,7 +100,7 @@ function statePerEntry(
 
   const fromColumns = windowColumnsIn({
     columns: entries,
-    sourceId: String(block.values[SOURCE_PROP] ?? ''),
+    sourceId: declaredValue(block, SOURCE_PROPERTY),
     calculations: [],
     pairsTo: () => [],
     partnerOf: () => '',

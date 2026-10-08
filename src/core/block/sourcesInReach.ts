@@ -1,17 +1,17 @@
 import type { BlockNode, MaskTree } from './tree'
-import { blockType } from './registry'
+import { blockType, declaredValue } from './registry'
 import { propertyVisible } from './property'
-import { capability } from './capability'
+import { hasCapability } from './capability'
 import { splitBinding } from './binding'
-import { SOURCE_PROP, sourcesIdsInChainsOf, carriesOwnSource, maySelectionFollows } from './treeQuery'
-import { fieldBindingsFrom } from '../data/calculation'
+import { SOURCE_PROPERTY } from './sourceProperty'
+import { sourcesIdsInChainsOf, carriesOwnSource, maySelectionFollows } from './treeQuery'
+import { calculationsProperty, fieldBindingsOf } from '../data/calculation'
 import type { DataSource } from '../data/dataSources'
-import { SELECTION_FOLLOW_PROP, selectionFollowsFrom } from '../data/selectionFollow'
+import { followsSelectionProperty } from '../data/selectionFollow'
 import {
-  sourcesResolve,
+  completePairs,
+  extraSourcesProperty,
   sourceUsable,
-  extraSourcesFrom,
-  EXTRA_SOURCES_PROP,
   type SourceInReach,
 } from '../data/extraSources'
 
@@ -24,14 +24,33 @@ export function sourcesCarrier(tree: MaskTree, id: string): BlockNode | undefine
   return undefined
 }
 
+// The sources a carrier reads: its own first, then each usable helper source
+// once, with the pairs that key it and the source it is keyed to.
+export function ownSourcesOf(carrier: BlockNode, library: readonly DataSource[]): SourceInReach[] {
+  const sourceId = declaredValue(carrier, SOURCE_PROPERTY)
+  const first = sourceId === '' ? undefined : library.find((s) => s.id === sourceId)
+  if (!first) return []
+  const acc: SourceInReach[] = [{ source: first }]
+  const seen = new Set<string>([first.id])
+  for (const q of declaredValue(carrier, extraSourcesProperty)) {
+    if (seen.has(q.sourceId) || !sourceUsable(q)) continue
+    const source = library.find((s) => s.id === q.sourceId)
+    if (!source) continue
+    seen.add(source.id)
+
+    const partnerId = q.partnerId === source.id ? '' : q.partnerId
+    acc.push({ source: source, pairs: completePairs(q), partnerId })
+  }
+  return acc
+}
+
 export function sourcesInReach(
   tree: MaskTree,
   id: string,
   library: readonly DataSource[],
 ): SourceInReach[] {
   const carrier = sourcesCarrier(tree, id)
-  if (!carrier) return []
-  return sourcesResolve(carrier.values[SOURCE_PROP], carrier.values[EXTRA_SOURCES_PROP], library)
+  return carrier ? ownSourcesOf(carrier, library) : []
 }
 
 // The data window lists and the export orders exactly these sources.
@@ -41,15 +60,15 @@ export function sourceIdsUsedBy(node: BlockNode): string[] {
     if (typeof id === 'string' && id !== '') ids.push(id)
   }
   if (carriesOwnSource(node)) {
-    add(node.values[SOURCE_PROP])
-    for (const q of extraSourcesFrom(node.values[EXTRA_SOURCES_PROP])) {
+    add(declaredValue(node, SOURCE_PROPERTY))
+    for (const q of declaredValue(node, extraSourcesProperty)) {
       if (!sourceUsable(q)) continue
       add(q.sourceId)
       for (const pair of q.pairs) if (pair.from === 'document') add(pair.fromSourceId)
     }
   }
   if (maySelectionFollows(node)) {
-    for (const follow of selectionFollowsFrom(node.values[SELECTION_FOLLOW_PROP])) {
+    for (const follow of declaredValue(node, followsSelectionProperty)) {
       for (const pair of follow.pairs) if (pair.from === 'document') add(pair.fromSourceId)
     }
   }
@@ -57,9 +76,8 @@ export function sourceIdsUsedBy(node: BlockNode): string[] {
   for (const [key, prop] of Object.entries(def?.properties ?? {})) {
     if (prop.type.control === 'source' && propertyVisible(prop.when, node.values)) add(node.values[key])
   }
-  const compute = capability(def, 'compute')
-  if (compute) {
-    for (const field of fieldBindingsFrom(node.values[compute.prop])) add(splitBinding(field).sourceId)
+  if (hasCapability(def, 'compute')) {
+    for (const field of fieldBindingsOf(declaredValue(node, calculationsProperty))) add(splitBinding(field).sourceId)
   }
   for (const id of sourcesIdsInChainsOf(node)) add(id)
   return ids
@@ -71,6 +89,7 @@ export function firstSourceInReach(
   library: readonly DataSource[],
 ): DataSource | undefined {
   const carrier = sourcesCarrier(tree, id)
-  if (!carrier || typeof carrier.values[SOURCE_PROP] !== 'string') return undefined
-  return library.find((s) => s.id === carrier.values[SOURCE_PROP])
+  if (!carrier) return undefined
+  const sourceId = declaredValue(carrier, SOURCE_PROPERTY)
+  return library.find((s) => s.id === sourceId)
 }

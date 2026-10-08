@@ -1,7 +1,8 @@
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
 import type { Property } from '../../core/block/property'
-import { fieldOf, fieldPlainName, sourcesKey, type DataSource } from '../../core/data/dataSources'
+import { fieldOf, sourcesKey, type DataSource } from '../../core/data/dataSources'
+import { boundField } from '../../core/data/boundField'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import type { ListGroup } from '@/editor/widgets/List'
@@ -72,11 +73,7 @@ export function BarControl({
     ? undefined
     : entry ? block : block.parentId ? ed.getNode(block.parentId) : undefined
   const parentField = parent && property.nameFromParentField !== undefined
-    ? fieldPlainName(
-      String(parent.values[property.nameFromParentField] ?? ''),
-      ed.dataSourceFor(parent.id)?.id ?? '',
-      ed.sourcesFor(parent.id).map((q) => q.source),
-    )
+    ? boundField(String(parent.values[property.nameFromParentField] ?? ''), ed.sourcesFor(parent.id))?.name ?? ''
     : ''
 
   if (!controlShown(property, block, sourceInReach, sources.list)) return null

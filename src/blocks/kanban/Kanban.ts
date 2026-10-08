@@ -8,21 +8,14 @@ import { spotValue, type DataPreamble } from '../../runtime/source'
 import { animalAvatarTpl, avatarSpotTpl, imageAvatarTpl } from '../parts/card'
 import { chipClass, chipStyle } from '../parts/chip'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
-import { clockOf, isToday, minuteNow, minuteOf, untilOf, type Until } from './clock'
-import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom, type KanbanPlace } from './columns'
+import { cardsByClock, SAMPLE_HOUR_LINE, SAMPLE_UNTIL, type Until } from './clock'
+import { KANBAN_COLUMNS_BINDING, type KanbanPlace } from './columns'
 import type { Spot } from './places'
 import { kanbanStyle } from './kanbanStyle'
 import { AVATAR_SPOT, CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
 
 const COUNT_IN_EDITOR = '—'
-const HOUR_IN_EDITOR = 9
-const UNTIL_IN_EDITOR: Until = { text: 'in 20 min', late: false }
 const CLOCK_TICK = 30_000
-
-const hourLine = (hour: number): TemplateResult =>
-  html`<div class="hour">${String(hour).padStart(2, '0')} Uhr</div>`
-
-const nowLine = (now: Date): TemplateResult => html`<div class="now">Jetzt · ${clockOf(now)}</div>`
 
 export interface Kanban extends KanbanValues {}
 
@@ -82,7 +75,7 @@ export class Kanban extends BlockElement {
   // board's action, in the accent. In the editor its text is typed on it; in
   // the mask it shows only with a text.
   private button(column: number, card: CardData | null): TemplateResult | typeof nothing {
-    const columns = kanbanColumnsFrom(this.columns)
+    const columns = this.columns
     const own = columns[column]
     const next = columns[column + 1]
     if (!own || own.buttonKind === 'none' || (own.buttonKind === 'next' && !next)) return nothing
@@ -116,7 +109,7 @@ export class Kanban extends BlockElement {
     event.preventDefault()
     startRename(target, (text, original) => {
       if (text === original) return
-      const columns = kanbanColumnsFrom(this.columns).map((c, i) => (i === column ? { ...c, button: text } : c))
+      const columns = this.columns.map((c, i) => (i === column ? { ...c, button: text } : c))
       sendPropChange(this, 'columns', columns)
     })
   }
@@ -188,45 +181,20 @@ export class Kanban extends BlockElement {
     >${this.cardContent(column, card, until)}</div>`
   }
 
-  // A column by the clock, as "Nicht zugewiesen" of the reception mask: the
-  // cards in the order of their time, a line before each new hour; is the
-  // chosen day today, the line of now before the first card to come and on
-  // each card how far its time lies from now. In the editor an hour line
-  // stands over the card.
+  // The cards of a place; a column by the clock orders them by their time.
   private cardsAt(spot: Spot): TemplateResult | TemplateResult[] {
-    const byTime = kanbanColumnsFrom(this.columns)[spot.column]?.byTime === true
+    const byTime = this.columns[spot.column]?.byTime === true
     if (this.preview) {
       // One sample card per column, in its first place: the button of the
       // column is typed on it. The other places stand empty, as in the mask.
       if (spot.place !== 0) return []
-      return html`${byTime ? hourLine(HOUR_IN_EDITOR) : nothing}<div class="card">${
-        this.cardContent(spot.column, null, byTime ? UNTIL_IN_EDITOR : null)
+      return html`${byTime ? SAMPLE_HOUR_LINE : nothing}<div class="card">${
+        this.cardContent(spot.column, null, byTime ? SAMPLE_UNTIL : null)
       }</div>`
     }
     const cards = this.board.cardsAt(spot)
     if (!byTime) return cards.map((card) => this.cardTpl(card, spot.column, null))
-    const now = new Date()
-    const nowMinute = minuteNow(now)
-    const today = isToday(now)
-    const timed = cards
-      .map((card) => ({ card, minute: minuteOf(card.values.time ?? '') }))
-      .sort((a, b) => (a.minute ?? Infinity) - (b.minute ?? Infinity) || 0)
-    const out: TemplateResult[] = []
-    let hour = -1
-    let nowShown = !today
-    for (const { card, minute } of timed) {
-      if (!nowShown && minute !== null && minute > nowMinute) {
-        out.push(nowLine(now))
-        nowShown = true
-      }
-      if (minute !== null && Math.floor(minute / 60) !== hour) {
-        hour = Math.floor(minute / 60)
-        out.push(hourLine(hour))
-      }
-      out.push(this.cardTpl(card, spot.column, today && minute !== null ? untilOf(minute, nowMinute) : null))
-    }
-    if (!nowShown && timed.length > 0) out.push(nowLine(now))
-    return out
+    return cardsByClock(cards, (card, until) => this.cardTpl(card, spot.column, until))
   }
 
   private count(cards: readonly CardData[]): string | number {
@@ -252,7 +220,7 @@ export class Kanban extends BlockElement {
   override render(): TemplateResult {
     const board = this.board
     return html`<div class="board" aria-busy=${String(board.writes)} @dragleave=${(e: DragEvent) => board.leave(e)}>
-      ${kanbanColumnsFrom(this.columns).map((column, i) => {
+      ${this.columns.map((column, i) => {
         const only: Spot = { column: i, place: 0 }
         const single = column.places.length === 1
         return html`<div
@@ -282,7 +250,7 @@ export class Kanban extends BlockElement {
     boardRegister(this)
     if (this.preview || this.clock !== null) return
     this.clock = setInterval(() => {
-      if (this.board.dragging !== '' || !kanbanColumnsFrom(this.columns).some((c) => c.byTime)) return
+      if (this.board.dragging !== '' || !this.columns.some((c) => c.byTime)) return
       this.requestUpdate()
     }, CLOCK_TICK)
   }

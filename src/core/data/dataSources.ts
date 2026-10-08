@@ -1,4 +1,4 @@
-import { SOURCES_DIVIDER, splitBinding } from '../block/blockType'
+import { SOURCES_DIVIDER } from '../block/blockType'
 import { isUnread } from '../unread'
 import { deliveryAdapter, isDeliveryKind, type Delivery, type RuntimeDelivery } from './deliveries/deliveries'
 import { isOrderKind, orderAdapter, type Order } from './orders/orders'
@@ -61,16 +61,6 @@ export interface RuntimeSource {
 // source does not have.
 export function fieldOf(source: DataSource | undefined, code: string): DataField | undefined {
   return code === '' ? undefined : source?.fields.find((f) => f.code === code)
-}
-
-export function fieldPlainName(
-  binding: string,
-  ownSourceId: string,
-  sources: readonly DataSource[],
-): string {
-  const { sourceId, code } = splitBinding(binding)
-  const wanted = sourceId === '' ? ownSourceId : sourceId
-  return fieldOf(sources.find((s) => s.id === wanted), code)?.name ?? ''
 }
 
 export function recordNumberOf(source: DataSource): string {

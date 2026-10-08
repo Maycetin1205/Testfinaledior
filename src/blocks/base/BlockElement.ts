@@ -1,10 +1,11 @@
 import { css, LitElement, type CSSResultGroup, type PropertyDeclaration } from 'lit'
 import { property } from 'lit/decorators.js'
 import type { BlockDeclaration } from '../../core/block/blockType'
-import { hasCapability } from '../../core/block/capability'
+import { capability, hasCapability } from '../../core/block/capability'
 import type { PropertyMap, PropertyValue } from '../../core/block/property'
 import { registerBlockType } from '../../core/block/registry'
 import { GRID_PROPERTIES } from '../../core/block/grid'
+import { SOURCE_PROP, SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import { deepClone } from '../../core/deepClone'
 import { followsSelectionProperty } from '../../core/data/selectionFollow'
 import { extraSourcesProperty } from '../../core/data/extraSources'
@@ -23,6 +24,15 @@ interface BlockElementClass {
   new(): BlockElement
 }
 
+// The block's own properties, with the source where its capability puts it.
+function ownProperties(shape: BlockShape): PropertyMap {
+  const own = Object.entries(shape.properties ?? {})
+  const source = capability({ capabilities: shape.capabilities ?? [] }, 'source')
+  if (!source) return Object.fromEntries(own)
+  const at = own.findIndex(([key]) => key === source.after) + 1
+  return Object.fromEntries([...own.slice(0, at), [SOURCE_PROP, SOURCE_PROPERTY], ...own.slice(at)])
+}
+
 function allProperties(shape: BlockShape): PropertyMap {
   const capable = { capabilities: shape.capabilities ?? [] }
   return {
@@ -31,7 +41,7 @@ function allProperties(shape: BlockShape): PropertyMap {
     ...(hasCapability(capable, 'followsSelection')
       ? { followsSelection: followsSelectionProperty }
       : null),
-    ...shape.properties,
+    ...ownProperties(shape),
   }
 }
 

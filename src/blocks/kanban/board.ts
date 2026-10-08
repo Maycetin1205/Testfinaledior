@@ -1,7 +1,7 @@
 import { chooseSelection, giverIdOf, relocateSelection } from '../../runtime/selection'
 import { readDataPreamble, makeDataLink, recordOf, rowKeys, type DataPreamble } from '../../runtime/source'
 import { runEvent } from '../../runtime/events'
-import { kanbanColumnsFrom, type KanbanColumn } from './columns'
+import type { KanbanColumn } from './columns'
 import { placeValue, sameSpot, spotOf, type Spot } from './places'
 
 export interface CardData {
@@ -73,7 +73,7 @@ export class Board {
       el.requestUpdate()
       return
     }
-    const columns = kanbanColumnsFrom(el.columns)
+    const columns = el.columns
     const field = el.columnsField.trim()
     const keys = rowKeys(preamble.source, preamble.rows)
     this.cards = preamble.rows.map((row, i) => ({
@@ -135,7 +135,7 @@ export class Board {
   // The button under a card: on to the first place of the next column.
   advance(card: CardData): void {
     const column = this.spotOf(card).column + 1
-    if (column >= kanbanColumnsFrom(this.el.columns).length) return
+    if (column >= this.el.columns.length) return
     void this.move(card, { column, place: 0 })
   }
 
@@ -156,7 +156,7 @@ export class Board {
   // The card lies at its new place at once. Fails the action, it lies again
   // where it came from; the next delivery sorts by the data anyway.
   private async move(card: CardData, spot: Spot): Promise<void> {
-    const column = kanbanColumnsFrom(this.el.columns)[spot.column]
+    const column = this.el.columns[spot.column]
     const place = column?.places[spot.place]
     if (this.writes || !column || !place || sameSpot(this.spotOf(card), spot)) return
     this.moved.set(card.key, spot)

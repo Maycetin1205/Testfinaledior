@@ -1,7 +1,9 @@
 import type { BlockNode } from '../core/block/tree'
 import { bindingProp, type BindableSpot } from '../core/block/capability'
-import { bindableSpotsOf, SOURCE_PROP } from '../core/block/treeQuery'
-import { fieldPlainName, type DataSource } from '../core/data/dataSources'
+import { bindableSpotsOf } from '../core/block/treeQuery'
+import { ownSourcesOf } from '../core/block/sourcesInReach'
+import { boundNames } from '../core/data/boundField'
+import type { DataSource } from '../core/data/dataSources'
 
 export function previewSpotsOf(node: BlockNode): Map<string, BindableSpot> {
   return new Map(bindableSpotsOf(node).flatMap((spot) => (spot.previewProp === undefined
@@ -19,5 +21,5 @@ export function previewRaw(
   if (binding === '') {
     return String(node.values[spot.previewProp ?? spot.prop] ?? fallback ?? '')
   }
-  return fieldPlainName(binding, String(node.values[SOURCE_PROP] ?? ''), sources)
+  return boundNames(binding, ownSourcesOf(node, sources))
 }

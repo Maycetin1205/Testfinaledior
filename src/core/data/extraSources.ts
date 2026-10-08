@@ -1,7 +1,6 @@
-import { splitBinding } from '../block/binding'
 import { listProperty, type Property } from '../block/property'
 import type { Unread } from '../unread'
-import { fieldOf, type DataField, type DataSource } from './dataSources'
+import type { DataSource } from './dataSources'
 
 export interface KeyPair {
   fromField: string
@@ -75,7 +74,7 @@ export function sourceUsable(q: ExtraSource): boolean {
   return q.sourceId !== ''
 }
 
-export function extraSourcesFrom(raw: unknown): ExtraSource[] {
+function extraSourcesFrom(raw: unknown): ExtraSource[] {
   if (!Array.isArray(raw)) return []
   const acc: ExtraSource[] = []
   for (const entry of raw) {
@@ -92,46 +91,12 @@ export function extraSourcesFrom(raw: unknown): ExtraSource[] {
   return acc
 }
 
+// A source a block reaches: its own one first, then its helper sources, each
+// with the pairs that key it and the source it is keyed to.
 export interface SourceInReach {
   source: DataSource
 
   pairs?: KeyPair[]
 
   partnerId?: string
-}
-
-// The source a binding names among those in reach: without an id the block's
-// own one, the first.
-export function sourceInReachOf(binding: string, sources: readonly SourceInReach[]): DataSource | undefined {
-  const { sourceId } = splitBinding(binding)
-  return sourceId === ''
-    ? sources[0]?.source
-    : sources.find((q) => q.source.id === sourceId)?.source
-}
-
-export function fieldInReachOf(binding: string, sources: readonly SourceInReach[]): DataField | undefined {
-  return fieldOf(sourceInReachOf(binding, sources), splitBinding(binding).code)
-}
-
-export function sourcesResolve(
-  sourceId: unknown,
-  extraRaw: unknown,
-  library: readonly DataSource[],
-): SourceInReach[] {
-  const first = typeof sourceId === 'string' && sourceId !== ''
-    ? library.find((s) => s.id === sourceId)
-    : undefined
-  if (!first) return []
-  const acc: SourceInReach[] = [{ source: first }]
-  const seen = new Set<string>([first.id])
-  for (const q of extraSourcesFrom(extraRaw)) {
-    if (seen.has(q.sourceId) || !sourceUsable(q)) continue
-    const source = library.find((s) => s.id === q.sourceId)
-    if (!source) continue
-    seen.add(source.id)
-
-    const partnerId = q.partnerId === source.id ? '' : q.partnerId
-    acc.push({ source: source, pairs: completePairs(q), partnerId })
-  }
-  return acc
 }

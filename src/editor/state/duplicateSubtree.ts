@@ -1,9 +1,9 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
-import type { PropertyValue } from '../../core/block/property'
+import { declaredValue } from '../../core/block/registry'
 import { stepAdapter, type Step, type ActionChains } from '../../core/data/steps/steps'
 import {
   SELECTION_FOLLOW_PROP,
-  selectionFollowsFrom,
+  followsSelectionProperty,
   type SelectionFollow,
 } from '../../core/data/selectionFollow'
 import { deepClone } from '../../core/deepClone'
@@ -14,7 +14,7 @@ import { OPENED_BY_PROP, openerOf } from '../../core/block/opening'
 type NewIdFor = (oldId: string) => string | undefined
 
 function writeBlockReferencesTo(node: BlockNode, newIdFor: NewIdFor): BlockNode {
-  const follows = rewrittenFollows(node.values[SELECTION_FOLLOW_PROP], newIdFor)
+  const follows = rewrittenFollows(declaredValue(node, followsSelectionProperty), newIdFor)
   const opener = replacementId(openerOf(node), newIdFor)
   const events = node.chains === undefined
     ? undefined
@@ -40,9 +40,9 @@ function replacementId(old: string, newIdFor: NewIdFor): string | undefined {
 
 // null when no follow points into the copied part: neither its giver nor a
 // form field one of its pairs reads.
-function rewrittenFollows(raw: PropertyValue | undefined, newIdFor: NewIdFor): SelectionFollow[] | null {
+function rewrittenFollows(follows: readonly SelectionFollow[], newIdFor: NewIdFor): SelectionFollow[] | null {
   let changed = false
-  const next = selectionFollowsFrom(raw).map((follow) => {
+  const next = follows.map((follow) => {
     const giver = replacementId(follow.giverId, newIdFor)
     const pairs = follow.pairs.map((pair) => {
       const field = pair.from === 'formField' ? replacementId(pair.fromField, newIdFor) : undefined

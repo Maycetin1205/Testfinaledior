@@ -4,7 +4,7 @@ import { live } from 'lit/directives/live.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable, type ValueCarrier } from '../../core/block/capability'
 import { propertyVisible } from '../../core/block/property'
-import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
+import { LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
 import { dayKey } from '../../runtime/chosenDay'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { LookupControl } from '../lookup/lookupControl'
@@ -58,7 +58,7 @@ export class FormField extends BlockElement implements ValueCarrier {
     source: () => this.lookupSource,
     storageField: () => this.storageField,
     storageTitle: () => this.storageTitle,
-    columns: () => coerceLookupColumns(this.lookupColumns),
+    columns: () => this.lookupColumns,
     title: () => this.label,
     width: () => this.windowWidth,
     height: () => this.windowHeight,
@@ -223,7 +223,7 @@ defineBlock(FormField, {
   category: 'input',
   properties: formFieldProperties,
   capabilities: [
-    { kind: 'source', when: { key: 'lookup', notEquals: true } },
+    { kind: 'source', when: { key: 'lookup', notEquals: true }, after: 'options' },
     { kind: 'followsSelection' },
     { kind: 'recordPick', sourceProp: 'lookupSource', when: ONLY_LOOKUP },
     { kind: 'list', binding: LOOKUP_COLUMNS_BINDING },

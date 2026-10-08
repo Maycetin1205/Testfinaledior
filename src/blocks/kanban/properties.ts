@@ -5,13 +5,11 @@ import {
   type ValuesOf,
 } from '../../core/block/property'
 import { DAY_FIELD_PROPERTY } from '../../core/block/dayFieldProperty'
-import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import { spotBinding, typedSpot } from '../parts/card'
 import { toneOptions } from '../../core/block/tones'
 import { kanbanColumnsProperty } from './columns'
 
 export const kanbanProperties = {
-  source: SOURCE_PROPERTY,
   columnsField: fieldProperty({
     default: '',
     label: 'Einsortieren nach',

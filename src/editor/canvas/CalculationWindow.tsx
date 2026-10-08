@@ -5,10 +5,10 @@ import { cn } from '@/editor/widgets/cn'
 import { Grid, Strip, TD } from '@/editor/widgets/Grid'
 import { Window } from '@/editor/widgets/Window'
 import { capability, hasCapability } from '../../core/block/capability'
-import { blockType } from '../../core/block/registry'
+import { blockType, declaredValue } from '../../core/block/registry'
 import { sourcesInReach } from '../../core/block/sourcesInReach'
 import {
-  calculationsFrom,
+  calculationsProperty,
   newCalculation,
   toldFrom,
   DECIMALS_MAX,
@@ -47,7 +47,7 @@ export function OpenCalculationWindow() {
   const prop = capability(def, 'compute')?.prop
   if (block === undefined || prop === undefined || !hasCapability(def, 'list')) return null
 
-  const all = calculationsFrom(block.values[prop])
+  const all = declaredValue(block, calculationsProperty)
   const present = all.flatMap((b) => {
     const told = toldFrom(b, open.column)
     return told === null ? [] : [told]

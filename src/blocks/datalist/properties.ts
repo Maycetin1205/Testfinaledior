@@ -1,9 +1,7 @@
 import { textProperty, type ValuesOf } from '../../core/block/property'
-import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import { spotBinding, typedSpot } from '../parts/card'
 
 export const dataListProperties = {
-  source: SOURCE_PROPERTY,
   addLabel: textProperty({
     default: '+ Neu',
     label: 'Plus',

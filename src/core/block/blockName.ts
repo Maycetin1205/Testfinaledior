@@ -3,8 +3,10 @@ import type { BlockNode } from './tree'
 import { defaultsOf, type PropertyValue } from './property'
 import { bindingProp } from './capability'
 import { blockType } from './registry'
-import { bindableSpotsOf, SOURCE_PROP } from './treeQuery'
-import { fieldPlainName, type DataSource } from '../data/dataSources'
+import { bindableSpotsOf } from './treeQuery'
+import { ownSourcesOf } from './sourcesInReach'
+import { boundField } from '../data/boundField'
+import type { DataSource } from '../data/dataSources'
 
 const TEXT_PROPS = ['title', 'text', 'label'] as const
 
@@ -36,12 +38,12 @@ function coveredProps(node: BlockNode): Set<string> {
   return out
 }
 
-function boundAlias(node: BlockNode, sources: readonly DataSource[]): string {
-  const ownSource = String(node.values[SOURCE_PROP] ?? '')
+function boundAlias(node: BlockNode, library: readonly DataSource[]): string {
+  const sources = ownSourcesOf(node, library)
   for (const spot of bindableSpotsOf(node)) {
     const binding = String(node.values[bindingProp(spot.prop)] ?? '')
     for (const field of bindingFields(binding)) {
-      const alias = fieldPlainName(field, ownSource, sources)
+      const alias = boundField(field, sources)?.name ?? ''
       if (alias !== '') return alias
     }
   }

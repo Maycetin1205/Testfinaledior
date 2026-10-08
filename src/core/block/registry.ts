@@ -1,4 +1,4 @@
-import { ROOT_TYPE } from './tree'
+import { ROOT_TYPE, type BlockNode } from './tree'
 import type { BlockDeclaration, BlockType } from './blockType'
 import { capability, hasCapability, type ContractKind, type RuntimeContracts } from './capability'
 import type { Property, PropertyValue } from './property'
@@ -55,6 +55,17 @@ export function readDeclared<V extends PropertyValue>(el: Element, declared: Pro
   const def = blockTypeForTag(el.tagName)
   if (!def || !Object.values(def.properties).includes(declared)) return undefined
   return declared.type.fromAttribute(el.getAttribute(declared.attribute), declared.default)
+}
+
+// What a node holds in a property its block declares, read by that
+// declaration, as the element reads it in readDeclared; the declared default
+// when its block does not list the property.
+export function declaredValue<V extends PropertyValue>(node: BlockNode, declared: Property<V>): V {
+  const properties = registry.get(node.type)?.properties ?? {}
+  const key = Object.keys(properties).find((k) => properties[k] === declared)
+  if (key === undefined) return declared.default
+  const read = declared.type.read(node.values[key])
+  return read.ok ? read.value : declared.default
 }
 
 // What an element holds at a spot its block names in actionValue. Only a

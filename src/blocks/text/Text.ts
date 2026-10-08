@@ -74,7 +74,7 @@ defineBlock(Text, {
   category: 'display',
   properties: textProperties,
   capabilities: [
-    { kind: 'source' },
+    { kind: 'source', after: 'text' },
     { kind: 'followsSelection' },
     bindable<typeof textProperties>([{ prop: 'text', name: 'Text' }]),
   ],

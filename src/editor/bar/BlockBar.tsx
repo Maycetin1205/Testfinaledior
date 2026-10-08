@@ -7,11 +7,9 @@ import type { BlockType } from '../../core/block/blockType'
 import { capability } from '../../core/block/capability'
 import { propertyVisible, type PropertyPlace } from '../../core/block/property'
 import { propertiesFor, type DeclaredProperty } from '../../core/block/propertyPlace'
-import {
-  carriesOwnSource,
-  maySelectionFollows,
-  SOURCE_PROP,
-} from '../../core/block/treeQuery'
+import { carriesOwnSource, maySelectionFollows } from '../../core/block/treeQuery'
+import { declaredValue } from '../../core/block/registry'
+import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { BarControl } from './BarControl'
@@ -97,7 +95,7 @@ export function BlockBar({ block, def, onRemove }: BlockBarProps) {
         shows={at('display')}
         lookupProps={at('lookup')}
         searchWindow={windowShown ? searchWindow : undefined}
-        helpersApart={helpersApart && String(block.values[SOURCE_PROP] ?? '') !== ''}
+        helpersApart={helpersApart && declaredValue(block, SOURCE_PROPERTY) !== ''}
         follow={follow !== undefined && !waiting ? follow : undefined}
         events={capability(def, 'events')?.list ?? []}
       />

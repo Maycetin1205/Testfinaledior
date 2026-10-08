@@ -1,4 +1,5 @@
 import { bindingWithSource } from '../block/binding'
+import { listProperty, type Property } from '../block/property'
 import { isUnread } from '../unread'
 import { asNumber, numberText, roundTo } from './number'
 import type { ValueOrigin } from './valueOrigin'
@@ -167,9 +168,9 @@ function originsOf(b: Calculation): TermOrigin[] {
 }
 
 // The fields of helper sources the sentences read, as bindings.
-export function fieldBindingsFrom(raw: unknown): string[] {
+export function fieldBindingsOf(calculations: readonly Calculation[]): string[] {
   const out: string[] = []
-  for (const b of calculationsFrom(raw)) {
+  for (const b of calculations) {
     for (const o of originsOf(b)) {
       if (o.kind !== 'helper') continue
       const binding = bindingWithSource(o.sourceId ?? '', o.value)
@@ -249,7 +250,7 @@ function decimalsFrom(raw: unknown): number {
     : DECIMALS_DEFAULT
 }
 
-export function calculationsFrom(raw: unknown): Calculation[] {
+function calculationsFrom(raw: unknown): Calculation[] {
   if (!Array.isArray(raw)) return []
   return raw.flatMap((entry, i): Calculation[] => {
     if (!isUnread<Calculation>(entry)) return []
@@ -271,7 +272,7 @@ export function calculationsFrom(raw: unknown): Calculation[] {
 
 // Only a sentence with a lead and a term goes out; a term says "divides"
 // only when it does.
-export function calculationsForExport(calculations: readonly Calculation[]): unknown[] {
+function calculationsForExport(calculations: readonly Calculation[]): unknown[] {
   return calculations
     .filter((b) => b.lead !== '' && b.terms.length > 0)
     .map((b) => ({
@@ -279,3 +280,10 @@ export function calculationsForExport(calculations: readonly Calculation[]): unk
       terms: b.terms.map(({ divides, ...term }) => (divides ? { ...term, divides } : term)),
     }))
 }
+
+export const calculationsProperty: Property<Calculation[]> = listProperty<Calculation[]>(calculationsFrom, {
+  default: [],
+  label: 'Berechnungen',
+  place: 'none',
+  attribute: 'calculations',
+}, calculationsForExport)

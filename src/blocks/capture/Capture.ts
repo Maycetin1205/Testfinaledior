@@ -9,11 +9,7 @@ import type {
   SentRowsElement,
   WrittenRow,
 } from '../../core/block/capability'
-import {
-  CALCULATIONS_PROP,
-  calculationsFrom,
-  type Calculation,
-} from '../../core/data/calculation'
+import { CALCULATIONS_PROP, type Calculation } from '../../core/data/calculation'
 import {
   hasRecordNumber,
   LIST_GRID,
@@ -30,17 +26,13 @@ import { reportPendingMarks } from '../../runtime/pendingState'
 import { enterCell, cellsInputStyle, cellsFields } from './cells'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
-import {
-  CAPTURE_COLUMNS_BINDING,
-  coerceCaptureColumns,
-  greyLine,
-  type CaptureColumn,
-} from './column'
+import { CAPTURE_COLUMNS_BINDING, greyLine, type CaptureColumn } from './column'
 import { CaptureLedger } from './ledger'
 import { captureStyle } from './captureStyle'
 import { captureProperties, type CaptureValues } from './properties'
+import type { SourceValue } from '../../core/block/sourceProperty'
 
-export interface Capture extends CaptureValues {}
+export interface Capture extends CaptureValues, SourceValue {}
 
 export class Capture extends BlockElement
   implements CaptureCarrier, ChangeCarrier, SentRowsElement, RunReportElement {
@@ -112,12 +104,12 @@ export class Capture extends BlockElement
     this._ledger.writtenArrived()
   }
 
-  listColumns(): CaptureColumn[] {
-    return coerceCaptureColumns(this.columns)
+  listColumns(): readonly CaptureColumn[] {
+    return this.columns
   }
 
   listCalculations(): readonly Calculation[] {
-    return calculationsFrom(this.calculations)
+    return this.calculations
   }
 
   private focusCaptureCell(index: number): void {

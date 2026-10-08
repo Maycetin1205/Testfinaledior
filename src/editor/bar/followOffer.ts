@@ -1,19 +1,15 @@
 import type { BlockNode, MaskTree } from '../../core/block/tree'
 import { blockName } from '../../core/block/blockName'
 import { capability } from '../../core/block/capability'
-import { blockType } from '../../core/block/registry'
+import { blockType, declaredValue } from '../../core/block/registry'
 import { isSelectionGiver, selectionSourceIdOf, valueSpotsInTree } from '../../core/block/treeQuery'
 import type { DataSource } from '../../core/data/dataSources'
 import { deliveryAdapter } from '../../core/data/deliveries/deliveries'
-import {
-  SELECTION_FOLLOW_PROP,
-  selectionFollowsFrom,
-  type SelectionFollow,
-} from '../../core/data/selectionFollow'
+import { followsSelectionProperty, type SelectionFollow } from '../../core/data/selectionFollow'
 import { openDocumentOf } from '../origin/reach'
 
 export function followOf(block: BlockNode): SelectionFollow | undefined {
-  return selectionFollowsFrom(block.values[SELECTION_FOLLOW_PROP])[0]
+  return declaredValue(block, followsSelectionProperty)[0]
 }
 
 function giversFor(tree: Readonly<MaskTree>, block: BlockNode): BlockNode[] {
