@@ -1,9 +1,10 @@
+import { bindingFields, bindingJoiner } from '../core/block/binding'
 import { fieldProperty, type Property } from '../core/block/property'
 import { SOURCE_PROPERTY } from '../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import type { RuntimeSource } from '../core/data/dataSources'
 import { maskState } from './maskState'
-import { followsFormField, onSelectionList } from './selection'
+import { followsFormField, onSelectionList, traitOf } from './selection'
 import { keyedByFormField, makeFieldReader, type FieldReader } from './foreignSources'
 import { onChosenDay, chosenDay, dayKey } from './chosenDay'
 import { wireFetchingSources } from './fetchingSources'
@@ -58,6 +59,35 @@ export function readDataPreamble(el: HTMLElement): DataPreamble | null {
     chosenDay(),
   )
   return { source, rows, read: makeFieldReader(el) }
+}
+
+// A bound spot shows its fields, the empty ones left out; any other what the
+// builder typed.
+export function spotValue(typed: string, binding: string, row: unknown, read: FieldReader): string {
+  if (binding === '') return typed
+  return bindingFields(binding)
+    .map((field) => read(row, field))
+    .filter((v) => v.trim() !== '')
+    .join(bindingJoiner(binding))
+}
+
+// A row keeps its key across deliveries: the record number where it is
+// unique, else the content, so a choice survives a delivery.
+export function rowKeys(source: RuntimeSource, rows: readonly unknown[]): string[] {
+  const recordCount = new Map<string, number>()
+  for (const row of rows) {
+    const record = recordOf(source, row)
+    if (record !== '') recordCount.set(record, (recordCount.get(record) ?? 0) + 1)
+  }
+  const occurrences = new Map<string, number>()
+  return rows.map((row) => {
+    const record = recordOf(source, row)
+    const unique = record !== '' && recordCount.get(record) === 1
+    const base = JSON.stringify([source.id, unique ? 'record' : 'content', unique ? record : traitOf(row)])
+    const number = occurrences.get(base) ?? 0
+    occurrences.set(base, number + 1)
+    return `${base}:${number}`
+  })
 }
 
 interface DataLink<T extends HTMLElement> {

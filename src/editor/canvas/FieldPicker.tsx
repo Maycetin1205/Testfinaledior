@@ -6,6 +6,8 @@ import { Button } from '@/editor/widgets/Button'
 import { List, type ListGroup } from '@/editor/widgets/List'
 import { MenuRow } from '@/editor/widgets/MenuRow'
 import { Separator } from '@/editor/widgets/Separator'
+import { Segment } from '@/editor/widgets/Segment'
+import { BINDING_JOINERS, bindingFields, bindingJoiner, type BindingJoiner } from '../../core/block/binding'
 import { bindingWithSource } from '../../core/block/blockType'
 import type { DataField } from '../../core/data/dataSources'
 
@@ -44,6 +46,8 @@ interface FieldPickerProps {
 
   current?: string
 
+  several?: SeveralFields
+
   onRemove?: () => void
   removeLabel?: string
 
@@ -66,18 +70,34 @@ interface Display {
   empty: boolean
 }
 
-// The bound field by name and code; a field the sources in reach no longer
-// have leaves the row empty.
+function fieldIn(value: string, groups: readonly PickerGroup[]): DataField | undefined {
+  for (const g of groups) {
+    const field = g.fields.find((f) => bindingWithSource(g.sourceId, f.code) === value)
+    if (field) return field
+  }
+  return undefined
+}
+
+// The bound fields by name, a single one with its code; a field the sources
+// in reach no longer have is left out.
 function displayOf(value: string, groups: readonly PickerGroup[]): Display {
   if (value === '') return { name: NOT_BOUND, empty: true }
-  for (const g of groups) {
-    for (const f of g.fields) {
-      if (bindingWithSource(g.sourceId, f.code) !== value) continue
-      return { name: f.name, key: f.code, empty: false }
-    }
-  }
-  return { name: '', empty: false }
+  const fields = bindingFields(value).flatMap((f) => fieldIn(f, groups) ?? [])
+  const key = fields.length === 1 && bindingFields(value).length === 1 ? fields[0].code : undefined
+  return { name: fields.map((f) => f.name).join(bindingJoiner(value)), key, empty: false }
 }
+
+// A spot that takes several fields: the list adds and drops them, the joiner
+// stands between their values.
+export interface SeveralFields {
+  joiner: BindingJoiner
+  onJoiner: (joiner: BindingJoiner) => void
+}
+
+const JOINER_OPTIONS = [
+  { value: BINDING_JOINERS[0], name: '·' },
+  { value: BINDING_JOINERS[1], name: 'Leerzeichen' },
+]
 
 function listGroups(groups: readonly PickerGroup[]): ListGroup[] {
   return groups.map((g) => ({
@@ -123,6 +143,7 @@ export function FieldPicker({
   groups,
   sourcesChoice,
   current,
+  several,
   anchor,
   level,
   top,
@@ -175,6 +196,18 @@ export function FieldPicker({
 
         <FieldRow label="Feld" display={displayOf(chosen, groups)} />
 
+        {several && bindingFields(chosen).length > 1 && (
+          <div className="flex shrink-0 items-center gap-2 px-1.5">
+            <span className="w-24 shrink-0 truncate text-ui text-muted">Trenner</span>
+            <Segment
+              name="Trenner"
+              options={JOINER_OPTIONS}
+              value={several.joiner}
+              onChoose={(joiner) => several.onJoiner(bindingJoiner(joiner))}
+            />
+          </div>
+        )}
+
         <Separator className="shrink-0" />
 
         <p className="flex shrink-0 items-baseline gap-2 px-1.5 text-dense font-semibold text-muted">
@@ -197,6 +230,7 @@ export function FieldPicker({
               : groups,
           )}
           value={chosen}
+          values={several ? bindingFields(chosen) : undefined}
           emptyText={NOT_BOUND}
           onChoose={onPick}
         />

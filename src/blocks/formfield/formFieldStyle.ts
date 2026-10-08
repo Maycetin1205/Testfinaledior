@@ -74,12 +74,17 @@ export const fieldStyle = css`
     text-overflow: ellipsis;
     pointer-events: none;
   }
-  /* A select draws its text 4px inside its padding and keeps its end for the
-     arrow. */
-  select.ctrl ~ .ph {
-    margin-left: calc(var(--field-pad-x) + var(--se-border) + 4px);
-    margin-right: calc(var(--field-pad-x) + var(--se-border) + 16px);
+  /* A select centers its text itself, at every height, and draws it 4px inside
+     its padding; vertical padding would cut the text off at the bottom. The
+     label sits in the middle with it and keeps the arrow free. */
+  select.ctrl {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: calc(var(--field-pad-x) - 4px);
   }
+  select.ctrl,
+  select.ctrl ~ .ph { align-self: center; }
+  select.ctrl ~ .ph { margin-right: calc(var(--field-pad-x) + var(--se-border) + 16px); }
 
   /* An empty date stays empty instead of showing the browser's date pattern;
      while it is typed into, the pattern stands instead of the label. */

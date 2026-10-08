@@ -6,6 +6,9 @@ export interface BindableSpot {
   name: string
   when?: Condition
   previewProp?: string
+
+  // The spot takes several fields and shows their values in a row.
+  several?: true
 }
 
 export interface ValueSpot {
@@ -76,6 +79,9 @@ export type Capability =
 
   | { kind: 'compute'; prop: string }
   | { kind: 'events'; list: readonly EventDef[] }
+
+  // A click on the block opens the area that names it.
+  | { kind: 'opener' }
 
 type CapabilityKind = Capability['kind']
 

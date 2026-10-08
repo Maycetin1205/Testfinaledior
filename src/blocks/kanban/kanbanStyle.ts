@@ -243,6 +243,65 @@ export const kanbanStyle = css`
     white-space: nowrap;
   }
 
+  /* How far the time lies from now, as .vinfo; past it, as .vinfo.spaet. */
+  .until {
+    color: var(--se-muted);
+    font-size: var(--se-fs-sm);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .until.late { color: var(--se-danger); }
+
+  /* The line before each hour of a column by the clock, as .vstunde. */
+  .hour {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 4px 0;
+    color: var(--se-muted);
+    font-family: var(--se-font);
+    font-size: var(--se-fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+  }
+  .hour::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--se-line);
+  }
+
+  /* The line of now, as .vjetzt. */
+  .now {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 1px 4px;
+    color: var(--se-danger);
+    font-family: var(--se-font);
+    font-size: var(--se-fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .now::before {
+    content: '';
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--se-danger);
+  }
+  .now::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--se-danger);
+  }
+
   .chip {
     flex: none;
     padding: 2px 8px;
@@ -274,6 +333,12 @@ export const kanbanStyle = css`
     cursor: pointer;
   }
   .advance:hover { filter: brightness(.96); }
+
+  /* .va-abrechnung */
+  .advance.action {
+    --tone-tint: var(--se-accent-soft);
+    --tone-ink: var(--se-accent-dark);
+  }
 
   :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before,
   :host([preview]) .advance:empty::before {

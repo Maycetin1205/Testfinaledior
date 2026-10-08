@@ -1,5 +1,6 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
 import { fieldChoicesRead, splitBinding } from '../core/block/blockType'
+import { bindingFields } from '../core/block/binding'
 import { bindingProp, capability } from '../core/block/capability'
 import { blockType } from '../core/block/registry'
 import { propertyVisible } from '../core/block/property'
@@ -93,7 +94,8 @@ export function usedFieldsPerSource(
     }
 
     for (const spot of bindableSpotsOf(node)) {
-      rememberBinding(node.values[bindingProp(spot.prop)])
+      const binding = node.values[bindingProp(spot.prop)]
+      if (typeof binding === 'string') bindingFields(binding).forEach(rememberBinding)
     }
 
     const b = capability(def, 'list')?.binding

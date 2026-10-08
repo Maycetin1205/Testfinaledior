@@ -5,6 +5,9 @@ import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import type { PropertyValue } from '../../core/block/property'
 import type { EditorStore } from '../state/EditorStore'
 
+// How long a click waits, so a double click can still type the text.
+export const DOUBLE_CLICK_WAIT = 300
+
 export function bindingCode(props: Readonly<Record<string, PropertyValue>>, spot: BindableSpot): string {
   const code = props[bindingProp(spot.prop)]
   return typeof code === 'string' ? code : ''
@@ -85,7 +88,7 @@ export function useBindingPicker({
       if (editor.selectedId === blockRef.current.id) {
         setPicker({ spot: hit.spot, ...pos })
       }
-    }, 300)
+    }, DOUBLE_CLICK_WAIT)
   }
 
   function onDoubleClick(e: ReactMouseEvent<HTMLDivElement>) {

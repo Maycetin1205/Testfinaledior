@@ -1,10 +1,11 @@
 import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
+import { live } from 'lit/directives/live.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { actionValue, bindable, type ValueCarrier } from '../../core/block/capability'
 import { propertyVisible } from '../../core/block/property'
 import { coerceLookupColumns, LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
-import { readDate, dayKey } from '../../runtime/chosenDay'
+import { dayKey } from '../../runtime/chosenDay'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { LookupControl } from '../lookup/lookupControl'
 // The lookup window draws its rows with the table block.
@@ -25,16 +26,17 @@ function fieldTypeOf(v: unknown): FieldType {
   return FIELD_TYPES.includes(v as FieldType) ? (v as FieldType) : 'text'
 }
 
-function dateForInput(value: string): string {
-  return dayKey(value) || value
+// The date input speaks yyyy-mm-dd, the mask keeps dd.mm.yyyy. Both ways are
+// exact inverses, so a year half typed (0202) comes back as it went out and
+// the input keeps the segment the operator types in.
+function dateFromInput(value: string): string {
+  const iso = /^(\d{4,})-(\d{2})-(\d{2})$/.exec(value)
+  return iso ? `${iso[3]}.${iso[2]}.${iso[1]}` : value
 }
 
-function dateFromInput(value: string): string {
-  const date = readDate(value)
-  if (!date) return value
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  return `${day}.${month}.${date.getFullYear()}`
+function dateForInput(value: string): string {
+  const german = /^(\d{2})\.(\d{2})\.(\d{4,})$/.exec(value)
+  return german ? `${german[3]}-${german[2]}-${german[1]}` : dayKey(value) || value
 }
 
 export interface FormField extends FormFieldValues {}
@@ -47,9 +49,12 @@ export class FormField extends BlockElement implements ValueCarrier {
 
   @state() private ticked = false
 
+  private valueAtFocus = ''
+  private typed = false
+
   // A text field with room for two lines takes them.
   @state() private roomy = false
-  private readonly _size = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure())
+  private readonly _size = new ResizeObserver(() => this.measure())
 
   private readonly _lookup = new LookupControl({
     block: this,
@@ -97,10 +102,28 @@ export class FormField extends BlockElement implements ValueCarrier {
   private onInput(e: Event): void {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     this.value = fieldTypeOf(this.fieldType) === 'date' ? dateFromInput(target.value) : target.value
+    this.typed = true
   }
 
   private onChange(): void {
     this.dispatchEvent(new Event('change'))
+  }
+
+  // What the operator typed in one visit counts once: on leaving the control
+  // or on Enter, as the browser's own change of a text input does. A date
+  // input on its own reports every finished segment.
+  private onFocus(): void {
+    this.valueAtFocus = this.value
+    this.typed = false
+  }
+
+  private takeTyped(): void {
+    if (this.typed && this.value !== this.valueAtFocus) this.onChange()
+    this.onFocus()
+  }
+
+  private onKey(e: KeyboardEvent): void {
+    if (e.key === 'Enter') this.takeTyped()
   }
 
   // The label beside the box of a checkbox, which ticks it.
@@ -135,26 +158,36 @@ export class FormField extends BlockElement implements ValueCarrier {
     this.dispatchEvent(new Event('change'))
   }
 
+  // The operator types into the control while it shows the value: live writes
+  // only what differs from what the control holds, so typing is never reset.
   private controlTpl(kind: FieldType): TemplateResult {
     if (this.lookup) return this._lookup.render('ctrl', this.label)
     if (kind === 'select') {
       const entries = this.options.split(',').map((o) => o.trim()).filter((o) => o !== '')
       const foreignValue = this.value !== '' && !entries.includes(this.value)
-      return html`<select class="ctrl" .value=${this.value} @input=${this.onInput} @change=${this.onChange}>
+      return html`<select class="ctrl" .value=${live(this.value)} @input=${this.onInput} @change=${this.onChange}>
         <option value="" disabled hidden></option>
         ${foreignValue ? html`<option value=${this.value} hidden>${this.value}</option>` : nothing}
         ${entries.map((o) => html`<option value=${o}>${o}</option>`)}
       </select>`
     }
     if (kind === 'text' && this.roomy) {
-      return html`<textarea class="ctrl" .value=${this.value} @input=${this.onInput} @change=${this.onChange}></textarea>`
+      return html`<textarea
+        class="ctrl"
+        .value=${live(this.value)}
+        @input=${this.onInput}
+        @focus=${this.onFocus}
+        @blur=${this.takeTyped}
+      ></textarea>`
     }
     return html`<input
       class="ctrl"
       type=${kind}
-      .value=${kind === 'date' ? dateForInput(this.value) : this.value}
+      .value=${live(kind === 'date' ? dateForInput(this.value) : this.value)}
       @input=${this.onInput}
-      @change=${this.onChange}
+      @focus=${this.onFocus}
+      @blur=${this.takeTyped}
+      @keydown=${this.onKey}
     />`
   }
 
@@ -199,13 +232,13 @@ export class FormField extends BlockElement implements ValueCarrier {
   override connectedCallback(): void {
     super.connectedCallback()
     connectValue(this)
-    this._size?.observe(this)
+    this._size.observe(this)
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
     disconnectValue(this)
-    this._size?.disconnect()
+    this._size.disconnect()
   }
 }
 

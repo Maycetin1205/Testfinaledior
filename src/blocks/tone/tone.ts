@@ -1,14 +1,15 @@
 import { css, unsafeCSS } from 'lit'
-import { choiceProperty, type Property } from '../../core/block/property'
+import { choiceProperty, type Condition, type Property } from '../../core/block/property'
 import { TONES, toneOptions } from '../../core/block/tones'
 
 export { toneValue } from '../../core/block/tones'
 
-export function toneProperty(attribute = 'tone'): Property<string> {
+export function toneProperty(when?: Condition): Property<string> {
   return choiceProperty(toneOptions(), {
     default: 'info',
     label: 'Ton',
-    attribute,
+    attribute: 'tone',
+    ...(when ? { when } : {}),
   })
 }
 

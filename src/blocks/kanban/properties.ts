@@ -2,32 +2,13 @@ import {
   choiceProperty,
   fieldProperty,
   segmentProperty,
-  textProperty,
   type ValuesOf,
 } from '../../core/block/property'
 import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
+import { spotBinding, typedSpot } from '../../core/block/spotProperty'
 import { toneOptions } from '../../core/block/tones'
 import { dayFieldProperty } from '../../runtime/source'
 import { kanbanColumnsProperty } from './columns'
-
-// A spot of the card: typed on the card itself, or bound to a field.
-function spot(label: string, attribute: string) {
-  return textProperty({
-    default: '',
-    label,
-    place: 'block',
-    attribute,
-  })
-}
-
-function spotField(label: string, attribute: string) {
-  return fieldProperty({
-    default: '',
-    label: `${label} — Feld`,
-    place: 'none',
-    attribute,
-  })
-}
 
 export const kanbanProperties = {
   source: SOURCE_PROPERTY,
@@ -55,34 +36,34 @@ export const kanbanProperties = {
     place: 'display',
     attribute: 'chiptone',
   }),
-  heading: spot('Titel', 'heading'),
-  heading2: spot('Titel 2', 'heading2'),
-  time: spot('Zeit', 'time'),
-  date: spot('Datum', 'date'),
-  subline: spot('Unterzeile', 'subline'),
-  text: spot('Textzeile', 'text'),
-  chip: spot('Chip', 'chip'),
-  headingField: spotField('Titel', 'headingfield'),
-  heading2Field: spotField('Titel 2', 'heading2field'),
-  timeField: spotField('Zeit', 'timefield'),
-  dateField: spotField('Datum', 'datefield'),
-  sublineField: spotField('Unterzeile', 'sublinefield'),
-  textField: spotField('Textzeile', 'textfield'),
-  chipField: spotField('Chip', 'chipfield'),
-  avatarField: spotField('Avatar', 'avatarfield'),
+  heading: typedSpot('Titel', 'heading'),
+  heading2: typedSpot('Titel 2', 'heading2'),
+  time: typedSpot('Zeit', 'time'),
+  date: typedSpot('Datum', 'date'),
+  subline: typedSpot('Unterzeile', 'subline'),
+  text: typedSpot('Textzeile', 'text'),
+  chip: typedSpot('Chip', 'chip'),
+  headingField: spotBinding('Titel', 'headingfield'),
+  heading2Field: spotBinding('Titel 2', 'heading2field'),
+  timeField: spotBinding('Zeit', 'timefield'),
+  dateField: spotBinding('Datum', 'datefield'),
+  sublineField: spotBinding('Unterzeile', 'sublinefield'),
+  textField: spotBinding('Textzeile', 'textfield'),
+  chipField: spotBinding('Chip', 'chipfield'),
+  avatarField: spotBinding('Avatar', 'avatarfield'),
 }
 
 export type KanbanValues = ValuesOf<typeof kanbanProperties>
 
 // The spots every card of the board has, in the order the editor offers them.
 export const CARD_SPOTS = [
-  { prop: 'time', name: 'Zeit' },
-  { prop: 'date', name: 'Datum' },
-  { prop: 'heading', name: 'Titel' },
-  { prop: 'heading2', name: 'Titel 2' },
-  { prop: 'subline', name: 'Unterzeile' },
-  { prop: 'text', name: 'Textzeile' },
-  { prop: 'chip', name: 'Chip' },
+  { prop: 'time', name: 'Zeit', several: true },
+  { prop: 'date', name: 'Datum', several: true },
+  { prop: 'heading', name: 'Titel', several: true },
+  { prop: 'heading2', name: 'Titel 2', several: true },
+  { prop: 'subline', name: 'Unterzeile', several: true },
+  { prop: 'text', name: 'Textzeile', several: true },
+  { prop: 'chip', name: 'Chip', several: true },
 ] as const
 
 export type CardSpot = (typeof CARD_SPOTS)[number]['prop']

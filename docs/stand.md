@@ -1,6 +1,6 @@
 # Stand
 
-08.10.2026. Ersetzt den Prüfbericht vom 23.09. (in Git: bis 47c5892). Die
+08.10.2026. Ersetzt den Prüfbericht vom 23.09. (in Git: bis 2f50216). Die
 Regeln stehen in `CLAUDE.md`, was über SoftEngine belegt ist in
 `docs/softengine-wiki/kontrakte.md`. Hier steht nur, was entschieden,
 gebaut und offen ist.
@@ -34,7 +34,9 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   gelesen: kann ein Modul etwas, das wir brauchen, schicken wir dieselbe
   Nachricht. So wurde der Fokus gelöst (`SEDataList.js`, 06.10.).
 - 08.10. Plätze im Kanban (Zimmer 1 bis 4 einer Spalte) bleiben.
-- 07.10. Kein Neubau. Chip-Farbe folgt einem Feld: gestrichen.
+- 07.10. Kein Neubau. Gestrichen: Chip-Farbe folgt einem Feld, Text als
+  Chip, der Zähler (Statuszeile „0 Termine offen · 0 im Wartezimmer“).
+  Bereich auf und zu: was darunter liegt, rückt nach.
 - 07.10. Ankreuzfeld bleibt, bis der Nutzer zeigt, was ein Haken an
   SoftEngine schickt. Zweiter Schreibmodus für vorhandene Positionen: kein
   Bau, bis er in kontrakte.md steht. Quellenarten nach Inhalt: liegen lassen.
@@ -104,17 +106,38 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 
 ## Bausteine
 
-Gebaut: Bereich (nur Lage und Größe), Schaltfläche, Datum (Tageswahl),
-Formularfeld (Text, Zahl, Auswahl, Nachschlagen, Ankreuzfeld unfertig),
-Tabelle, Erfassung, Kanban, Popup, Text (Rollen, Farbe, Größe).
+Gebaut: Bereich (Frei, Kasten oder Kopfzeile mit Titel und Ton; auf und zu
+durch einen Knopf oder das Plus einer Datenliste), Schaltfläche, Datum
+(Tageswahl), Formularfeld (Text, Zahl, Datum tippbar, Auswahl,
+Nachschlagen; Ankreuzfeld unfertig), Tabelle, Erfassung, Kanban (Plätze je
+Spalte, mehrere Felder je Platz mit Trenner, Knopf je Spalte Aus, Weiter
+oder Aktion, Spalte nach Uhrzeit mit Stundenlinien und Jetzt-Linie),
+Datenliste (je Zeile Haken, Symbol, Titel, Unterzeile; Plus oben), Popup,
+Text (Rollen, Farbe, Größe).
 
-Fehlt gegenüber der Chef-Maske, Vermutung vom 23.09. und 07.10.; die echte
-Liste entsteht beim Nachbau und wird vom Nutzer gestrichen: Bereich mit
-Aussehen (Frei, Kasten, Kopfzeile), Text als Chip mit Ton, Bild (fest oder
-gebunden, Technik vom Kanban-Avatar), Datenliste Beschriftung/Wert
-(Kartenteil des Kanban herausgelöst), Zähler (Anzahl Zeilen einer Quelle),
-Kopfzeile mit Marke, Suche, Tageswahl, Uhr, Hauptknopf; Knopfleiste;
-Seitenleiste rechts; Navigation mit Ansichten.
+Chef-Maske Empfang nachgebaut am 07.10.: `masken/empfang/
+Empfang.aufbau-maske.json`, 38 Bausteine, zwei Quellen (Terminplaner
+IDBID0021, Adressstamm), im Editor über „Laden“. Im Browser mit
+Beispieldaten geprüft, nicht in SoftEngine.
+
+Lücken, am Nachbau gemessen. Der Nutzer streicht:
+
+- Bild: die Chef-Maske hat keins außer dem Tiersymbol. Nutzer entscheidet.
+- Navigation mit Ansichten: die dunkle Leiste links, die Ansicht
+  Terminkalender (Woche, Tag), die Uhr im Kopf. Nutzer entscheidet.
+- Formularfeld: die Chef-Maske schreibt die Beschriftung klein und grau
+  über das Feld, hier steht sie im Kasten; der Pflichtstern ist im Nachbau
+  nicht zu sehen; das Suchfeld filtert in der Chef-Maske das Board, hier
+  ohne Wirkung; die Lupe ist ein Symbol, Symbole gibt es nicht.
+- Karte: die Tiere des Besuchs als Chips; „wartet 12 min“ im Wartezimmer
+  (die Chef-Maske merkt sich die Ankunft im Browser, nicht im ERP).
+- Datenliste: „Behandlung je Tier“; die Kartei rechts beim Klick auf die
+  Karte; das Popup bleibt so hoch wie gezogen, mit zugeklappten Bereichen
+  steht unten Leerraum.
+
+Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
+Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
+(712), Aktualisieren (3003).
 
 Je Baustein, bevor er gebaut wird, drei Sätze im Chat: Das teilt er mit X.
 Das ist neu. Das wird dadurch überflüssig. Der Nutzer sagt ja oder nein.
@@ -122,15 +145,16 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 ## Offen, in dieser Reihenfolge
 
-1. Chef-Maske Empfang im Editor nachbauen, so weit es geht. Bild und
-   Lückenliste; dabei die Bedienung in Aktion: Was hakt, kommt mit auf die
-   Liste. Der Nutzer streicht.
+1. Die Lückenliste unter „Bausteine“: der Nutzer streicht. Bild und
+   Navigation sind seine Entscheidung.
 2. Brücke Editor–Baustein, drei Chats: Der Baustein spricht, der Editor
    hört. (a) Ein Ereignis des Bausteins für Klicks auf bindbare Stellen,
    ersetzt die Klick-Suche in `useFieldBinding.tsx` und `BlockHost.tsx`.
    (b) Der Baustein meldet die Lage seiner Spalten, ersetzt das Nachmessen
    in `ColumnControls.tsx` und `LookupColumns.tsx` (14 der 23 Griffe ins
-   Shadow-DOM). (c) Die Suchmuster in den Deklarationen fallen weg. Dazu
+   Shadow-DOM). (c) Die Suchmuster in den Deklarationen fallen weg. Die
+   Teile vom 07.10. (`core/block/spotProperty.ts`, `useAreaPickStart.ts`,
+   `bar/AreaPick.tsx`) gehen denselben Weg. Dazu
    `src/blocks/parts/` für Zelle, Spalte, Karte, Chip; Liste, Erfassung
    und Kanban nehmen nur von dort (heute holt die Erfassung elf Dinge
    direkt aus `blocks/list/`).
@@ -175,6 +199,11 @@ Ideen, nicht freigegeben (Regel 3):
 
 ## Gebaut, vom Nutzer gesehen, nicht in SoftEngine geprüft
 
+- 07.10. Chef-Maske Empfang nachgebaut (2b1180f); Bereich mit Aussehen
+  (a49e82d); Karte mit mehreren Feldern je Platz und Knopf je Spalte
+  (882ed53); Karte nach Uhrzeit (aa25848); Datenliste und Bereich auf und
+  zu (a4af7b5); Feld: Datum tippen, Auswahl lesbar (b8238e1); Basisklasse
+  mit einer Meldung (753d679).
 - 07.10. Erfassung mit Unterzeile und Tastatur (4b408a0), vom Nutzer
   abgenommen.
 - 06.10. Aufräumen (`claude/aufraeumen-06-10`): Dialog weg, 38 Exporte

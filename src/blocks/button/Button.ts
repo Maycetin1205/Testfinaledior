@@ -6,6 +6,7 @@ import { stepAdapter } from '../../core/data/steps/steps'
 import { runEvent, searchCarrier } from '../../runtime/events'
 import { PENDING_EVENT, pendingRows } from '../../runtime/pendingState'
 import { maskState } from '../../runtime/maskState'
+import { sendOpen } from '../../runtime/opening'
 import { buttonStyle } from './buttonStyle'
 import { buttonProperties, type ButtonValues } from './properties'
 
@@ -48,6 +49,7 @@ export class Button extends BlockElement {
     const open = this.open
     return html`<button
       class="variant-${this.variant}"
+      @click=${() => sendOpen(this)}
       data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
     ><span class="text">${open ? `${this.label} (${open})` : this.label}</span></button>`
@@ -81,6 +83,6 @@ defineBlock(Button, {
   name: 'Knopf',
   category: 'input',
   properties: buttonProperties,
-  capabilities: [{ kind: 'events', list: [{ key: CLICK, name: 'Klick' }] }],
+  capabilities: [{ kind: 'events', list: [{ key: CLICK, name: 'Klick' }] }, { kind: 'opener' }],
   grid: { startWidth: 8, startHeight: 2, minWidth: 4, minHeight: 2 },
 })

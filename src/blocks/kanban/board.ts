@@ -1,5 +1,5 @@
-import { chooseSelection, giverIdOf, relocateSelection, traitOf } from '../../runtime/selection'
-import { readDataPreamble, makeDataLink, recordOf, type DataPreamble } from '../../runtime/source'
+import { chooseSelection, giverIdOf, relocateSelection } from '../../runtime/selection'
+import { readDataPreamble, makeDataLink, recordOf, rowKeys, type DataPreamble } from '../../runtime/source'
 import { runEvent } from '../../runtime/events'
 import { kanbanColumnsFrom, type KanbanColumn } from './columns'
 import { placeValue, sameSpot, spotOf, type Spot } from './places'
@@ -62,9 +62,8 @@ export class Board {
     return this.target !== null && sameSpot(this.target, spot)
   }
 
-  // A card keeps its key across deliveries: the record number where it is
-  // unique, else the content, so the choice survives a delivery. A moved card
-  // stays where it was put until data arrives; a new choice is no data.
+  // A moved card stays where it was put until data arrives; a new choice is
+  // no data.
   hydrate(delivery: boolean): void {
     const el = this.el
     const preamble = readDataPreamble(el)
@@ -76,26 +75,14 @@ export class Board {
     }
     const columns = kanbanColumnsFrom(el.columns)
     const field = el.columnsField.trim()
-    const recordCount = new Map<string, number>()
-    for (const row of preamble.rows) {
-      const record = recordOf(preamble.source, row)
-      if (record !== '') recordCount.set(record, (recordCount.get(record) ?? 0) + 1)
-    }
-    const occurrences = new Map<string, number>()
-    this.cards = preamble.rows.map((row) => {
-      const record = recordOf(preamble.source, row)
-      const unique = record !== '' && recordCount.get(record) === 1
-      const base = JSON.stringify([preamble.source.id, unique ? 'record' : 'content', unique ? record : traitOf(row)])
-      const number = occurrences.get(base) ?? 0
-      occurrences.set(base, number + 1)
-      return {
-        key: `${base}:${number}`,
-        row,
-        record,
-        spot: spotOf(columns, field, row),
-        values: el.cardValues(row, preamble.read),
-      }
-    })
+    const keys = rowKeys(preamble.source, preamble.rows)
+    this.cards = preamble.rows.map((row, i) => ({
+      key: keys[i],
+      row,
+      record: recordOf(preamble.source, row),
+      spot: spotOf(columns, field, row),
+      values: el.cardValues(row, preamble.read),
+    }))
     if (delivery && !this.writes) this.moved.clear()
     if (!this.cards.some((card) => card.key === this.dragging)) this.endDrag()
     const hit = relocateSelection(giverIdOf(el), this.cards, (card) => card.row, (card) => card.key)
@@ -150,6 +137,11 @@ export class Board {
     const column = this.spotOf(card).column + 1
     if (column >= kanbanColumnsFrom(this.el.columns).length) return
     void this.move(card, { column, place: 0 })
+  }
+
+  // The button of a column that runs the board's action for its card.
+  press(card: CardData): void {
+    runEvent(this.el, 'onCardButton', { PINDEX: card.record }).catch(() => {})
   }
 
   drop(event: DragEvent, spot: Spot): void {

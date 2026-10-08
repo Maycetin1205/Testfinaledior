@@ -36,6 +36,8 @@ export class EditorView {
 
   private _followPickFor: string | null = null
 
+  private _areaPickFor: string | null = null
+
   private _dataWindow = false
 
   constructor(changed: () => void) {
@@ -83,6 +85,15 @@ export class EditorView {
   pickFollowFor(blockId: string | null): void {
     if (this._followPickFor === blockId) return
     this._followPickFor = blockId
+    this.changed()
+  }
+
+  // The block that waits for a click on the area it opens.
+  get areaPickFor(): string | null { return this._areaPickFor }
+
+  pickAreaFor(blockId: string | null): void {
+    if (this._areaPickFor === blockId) return
+    this._areaPickFor = blockId
     this.changed()
   }
 }

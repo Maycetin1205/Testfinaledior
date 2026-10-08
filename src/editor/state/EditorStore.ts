@@ -131,6 +131,7 @@ export class EditorStore extends Subject<EditorStore> {
     if (this._selectedId === id) return
     this._selectedId = id
     this.pickFollowFor(null)
+    this.pickAreaFor(null)
     this.notify(this)
   }
 
@@ -355,6 +356,10 @@ export class EditorStore extends Subject<EditorStore> {
   get followPickFor(): string | null { return this._shows.followPickFor }
 
   pickFollowFor(blockId: string | null): void { this._shows.pickFollowFor(blockId) }
+
+  get areaPickFor(): string | null { return this._shows.areaPickFor }
+
+  pickAreaFor(blockId: string | null): void { this._shows.pickAreaFor(blockId) }
 
   get dataWindow(): boolean { return this._shows.dataWindow }
 

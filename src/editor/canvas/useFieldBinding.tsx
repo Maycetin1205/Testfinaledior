@@ -2,6 +2,7 @@ import { SOURCE_PROP } from '../../core/block/sourceProperty'
 import { useCallback, useEffect, useState, type ReactNode, type RefObject } from 'react'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { BlockNode } from '../../core/block/tree'
+import { bindingFields, bindingJoiner, joinedBinding, toggledBinding } from '../../core/block/binding'
 import { type ListBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot, type LookupWindow } from '../../core/block/capability'
 import { sourcesKey } from '../../core/data/dataSources'
@@ -142,12 +143,23 @@ export function useFieldBinding({
           spotLabel={picker.spot.name}
           groups={groups}
           current={bindingCode(block.values, picker.spot)}
+          several={picker.spot.several ? {
+            joiner: bindingJoiner(bindingCode(block.values, picker.spot)),
+            onJoiner: (joiner) => editor.updateProperty(
+              blockRef.current.id,
+              bindingProp(picker.spot.prop),
+              joinedBinding(bindingFields(bindingCode(blockRef.current.values, picker.spot)), joiner),
+            ),
+          } : undefined}
           top={picker.top}
           left={picker.left}
           sourcesChoice={sourcesChoice}
           onPick={(value) => {
-            editor.updateProperty(blockRef.current.id, bindingProp(picker.spot.prop), value)
-            closePicker()
+            // A spot of several fields stays open: a pick adds or drops one.
+            const several = picker.spot.several === true && value !== ''
+            const binding = several ? toggledBinding(bindingCode(blockRef.current.values, picker.spot), value) : value
+            editor.updateProperty(blockRef.current.id, bindingProp(picker.spot.prop), binding)
+            if (!several) closePicker()
           }}
           onClose={closePicker}
         />

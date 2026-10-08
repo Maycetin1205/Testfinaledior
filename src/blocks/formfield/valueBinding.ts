@@ -4,14 +4,7 @@ import { makeDataLink, recordOf } from '../../runtime/source'
 import { maskState } from '../../runtime/maskState'
 import { readBoundSpot } from '../../runtime/boundSpot'
 import { runEvent } from '../../runtime/events'
-
-interface ValueElement extends HTMLElement {
-  value: string
-
-  fillsSelf?: () => boolean
-
-  checkOwnValue?: () => void
-}
+import type { FormField } from './FormField'
 
 interface Connected {
   row: unknown
@@ -19,16 +12,12 @@ interface Connected {
   pindex: string
 }
 
-const data = new WeakMap<ValueElement, Connected>()
-const wired = new WeakSet<ValueElement>()
+const data = new WeakMap<FormField, Connected>()
+const wired = new WeakSet<FormField>()
 
-function currentValue(el: ValueElement): string {
-  return typeof el.value === 'string' ? el.value : ''
-}
-
-function hydrate(el: ValueElement): void {
-  el.checkOwnValue?.()
-  if (el.fillsSelf?.() === true) {
+function hydrate(el: FormField): void {
+  el.checkOwnValue()
+  if (el.fillsSelf()) {
     data.delete(el)
     return
   }
@@ -51,26 +40,26 @@ function hydrate(el: ValueElement): void {
   setSelection(giverIdOf(el), row)
 }
 
-function writeLocal(el: ValueElement): Connected | undefined {
+function writeLocal(el: FormField): Connected | undefined {
   const state = data.get(el)
-  if (state) maskState.host.writeField(state.row, state.code, currentValue(el))
+  if (state) maskState.host.writeField(state.row, state.code, el.value)
   return state
 }
 
-function wire(el: ValueElement): void {
+function wire(el: FormField): void {
   if (wired.has(el)) return
   wired.add(el)
   el.addEventListener('input', () => { writeLocal(el) })
   el.addEventListener('change', () => {
     const state = writeLocal(el)
     runEvent(el, 'onChange', {
-      VALUE: currentValue(el),
+      VALUE: el.value,
       PINDEX: state?.pindex ?? '',
     }).catch(() => {})
   })
 }
 
-const link = makeDataLink<ValueElement>({ hydrate, wire })
+const link = makeDataLink<FormField>({ hydrate, wire })
 
 export const connectValue = link.connect
 export const disconnectValue = link.disconnect
