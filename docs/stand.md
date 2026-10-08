@@ -25,6 +25,22 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
 - 08.10. Erst der Editor, dann Feintuning. Meldungen und Tests kommen vor
   der Abnahme durch die Programmierer, nicht vorher.
+- 08.10. Aussehen aus drei Drehknöpfen, einmal deklariert, an jedem
+  Baustein dieselben: Ton (Neutral, Hinweis, Erfolg, Warnung, Fehler),
+  Stärke (Fläche voll, Fläche leicht, nur Rand, nur Schrift), Größe
+  (Klein, Normal, Groß). Nur die Werte aus `mask.css`, keine freien
+  Farben.
+- 08.10. Datenliste: Wahl „Auswahl“ je Liste: Eine Zeile (Klick, andere
+  folgen, wie die Tabelle), Mehrere (Haken) oder Keine. Vorgabe Eine Zeile.
+  Die gewählte Zeile steht in den Aktionen als Herkunft, etwa als
+  Parameter einer Relation, genau wie bei der Tabelle.
+- 08.10. Bild kommt als Baustein mit der Technik des Kanban-Avatars,
+  sobald der Nutzer zeigt, was SoftEngine für ein Tierfoto liefert.
+- 08.10. Gestrichen: Navigation mit Ansichten (andere Ansicht heißt
+  andere Maske), Chips aus einer zweiten Quelle auf der Karte, „wartet
+  12 min“, Suchfeld filtert das Board, Symbole in Masken, Behandlung je
+  Tier in der Datenliste. Die Kartei rechts braucht keinen Baustein:
+  Popup oder Bereich mit „Folgt der Auswahl“.
 - 08.10. Brücke Editor–Baustein und Datenweg werden vor neuen Bausteinen
   sauber gemacht, als eigene Chats. Hebt „keine Aufräum-Chats“ vom 07.10.
   auf: Sonst würde jeder neue Baustein gegen die alte Brücke gebaut.
@@ -120,20 +136,22 @@ Empfang.aufbau-maske.json`, 38 Bausteine, zwei Quellen (Terminplaner
 IDBID0021, Adressstamm), im Editor über „Laden“. Im Browser mit
 Beispieldaten geprüft, nicht in SoftEngine.
 
-Lücken, am Nachbau gemessen. Der Nutzer streicht:
+Lücken, am Nachbau gemessen, vom Nutzer am 08.10. gestrichen oder behalten.
+Was bleibt:
 
-- Bild: die Chef-Maske hat keins außer dem Tiersymbol. Nutzer entscheidet.
-- Navigation mit Ansichten: die dunkle Leiste links, die Ansicht
-  Terminkalender (Woche, Tag), die Uhr im Kopf. Nutzer entscheidet.
-- Formularfeld: die Chef-Maske schreibt die Beschriftung klein und grau
-  über das Feld, hier steht sie im Kasten; der Pflichtstern ist im Nachbau
-  nicht zu sehen; das Suchfeld filtert in der Chef-Maske das Board, hier
-  ohne Wirkung; die Lupe ist ein Symbol, Symbole gibt es nicht.
-- Karte: die Tiere des Besuchs als Chips; „wartet 12 min“ im Wartezimmer
-  (die Chef-Maske merkt sich die Ankunft im Browser, nicht im ERP).
-- Datenliste: „Behandlung je Tier“; die Kartei rechts beim Klick auf die
-  Karte; das Popup bleibt so hoch wie gezogen, mit zugeklappten Bereichen
-  steht unten Leerraum.
+- Alle Bausteine: die drei Drehknöpfe Ton, Stärke, Größe. Heute hat die
+  Schaltfläche vier Aussehen ohne Ton und Größe, der Text Rolle, Farbe,
+  Größe, der Bereich drei Formen; die fünf Töne nutzen nur Kanban und
+  Bereich.
+- Bild: eigener Baustein, Technik vom Kanban-Avatar (festes Bild in der
+  Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
+  Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
+- Formularfeld: Beschriftung klein und grau über dem Feld wie in der
+  Chef-Maske; der Pflichtstern ist im Nachbau nicht zu sehen.
+- Datenliste: die Wahl „Auswahl“ (Eine Zeile wie die Tabelle, Mehrere,
+  Keine); heute kann sie nur Haken, die Fähigkeit `recordPick` der Tabelle
+  fehlt ihr. Das Popup bleibt so hoch wie gezogen, mit zugeklappten
+  Bereichen steht unten Leerraum.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
 Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
@@ -145,8 +163,7 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 ## Offen, in dieser Reihenfolge
 
-1. Die Lückenliste unter „Bausteine“: der Nutzer streicht. Bild und
-   Navigation sind seine Entscheidung.
+1. Erledigt 08.10.: die Lückenliste ist gestrichen, siehe „Bausteine“.
 2. Brücke Editor–Baustein, drei Chats: Der Baustein spricht, der Editor
    hört. (a) Ein Ereignis des Bausteins für Klicks auf bindbare Stellen,
    ersetzt die Klick-Suche in `useFieldBinding.tsx` und `BlockHost.tsx`.
@@ -165,7 +182,10 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    die Maske liest Eigenschaften per Namensregel statt aus der Deklaration
    (`runtime/source.ts`); Bindung zu Feldname an drei bis fünf Stellen.
    Dateien über 300 Zeilen werden dabei nach Thema geteilt.
-4. Neue Bausteine nach der gestrichenen Liste, je einer ein Chat.
+4. Aussehen: die drei Drehknöpfe einmal deklarieren (ein Chat), dann
+   Schaltfläche, Text, Bereich, Chip je ein kleiner Chat.
+5. Dann die Liste unter „Bausteine“: Bild, Formularfeld, Datenliste; je
+   einer ein Chat.
 
 Einzelne Punkte, ohne Reihenfolge:
 
