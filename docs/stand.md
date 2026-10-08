@@ -64,9 +64,13 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 - 08.10. Plätze im Kanban (Zimmer 1 bis 4 einer Spalte) bleiben.
 - 07.10. Kein Neubau. Gestrichen: Chip-Farbe folgt einem Feld, der Zähler
   (Statuszeile „0 Termine offen · 0 im Wartezimmer“).
-- 07.10. Ankreuzfeld bleibt, bis der Nutzer zeigt, was ein Haken an
-  SoftEngine schickt. Zweiter Schreibmodus für vorhandene Positionen: kein
-  Bau, bis er in kontrakte.md steht. Quellenarten nach Inhalt: liegen lassen.
+- 08.10. Ankreuzfeld: ein Haken schreibt `J`, kein Haken `N` in das
+  gebundene Feld (Debug-Log vom 08.10., kontrakte.md §3); die beiden
+  Werte sind je Feld Daten, nicht Code, und lassen sich in den
+  Einstellungen des Feldes ändern (etwa `1`/`0`). Der Haken löst „Wert
+  geändert“ aus und steht in den Aktionen als Herkunft.
+- 07.10. Zweiter Schreibmodus für vorhandene Positionen: kein Bau, bis er
+  in kontrakte.md steht. Quellenarten nach Inhalt: liegen lassen.
 - 07.10. Erfassung: ein Kopf; je Zelle der Hauptzeile höchstens eine graue
   Spalte, so breit wie die Zelle, Name klein und grau vor dem Wert;
   erfasste und gebuchte Zeilen nur mit Wert zweizeilig. Tab und Enter:
@@ -244,9 +248,9 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 Einzelne Punkte, ohne Reihenfolge:
 
-- Ankreuzfeld: der Nutzer klickt in SoftEngine ein Ankreuzfeld an und ab
-  und schickt den Debug-Log mit dem Feldcode. Dann wird es fertig gebaut
-  (Haken liegt heute in privatem Zustand, `blocks/formfield/FormField.ts`).
+- Ankreuzfeld fertig bauen, im Formularfeld-Chat: Haken `J`, kein Haken
+  `N`, je Feld änderbar; heute liegt der Haken in privatem Zustand und
+  „Wert geändert“ liest leer (`blocks/formfield/FormField.ts`).
 - Pfeil runter in der Erfassung öffnet keine Vorschlagsliste (von der KI
   am 07.10. festgelegt, Tippen oder F5). Der Nutzer prüft es in SoftEngine.
 - Tag-Feld je Baustein: wie heute, nicht entschieden.

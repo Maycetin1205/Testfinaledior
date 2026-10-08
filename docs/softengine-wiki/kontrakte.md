@@ -51,6 +51,15 @@ fehlt, wird nicht geraten, sondern getestet.
   Code `253_30`. Schlüssel-Scan: gleich / Präfix `code_` / Endung `_code` —
   für Lesen UND Schreiben.
 - Eine ERP-Abfrage liefert Schlüssel mit festem Vorsatz: `LFA_pos_len`.
+- **Ankreuzfelder sind Felder mit Länge 1 und den Werten `J` / `N`.**
+  Debug-Log des Nutzers 2026-10-08, Artikelstamm, Kalkulationsspur
+  `STK_A01` beim An- und Abhaken: die Ja/Nein-Felder des Artikels stehen
+  als `ART_129_1 (J)`, `ART_1852_1 (N)`, `ART_1853_1`, `ART_2203_1 (N)`,
+  `ART_2582_1 (N)`, `ART_3000_1`, `ART_3001_1`, `ART_3073_1`, die Kalkulation
+  vergleicht sie alpha mit `"J"` und `"N"`. Einstellige Felder mit `0`,
+  `1`, `9` (`ART_2034_1`, `ART_2580_1` 0 bis 4, `ART_2228_1`) sind
+  Statuskennzeichen, keine Haken. Jeder Klick auf einen Haken stößt die
+  Stammkalkulation zweimal an (Feld, dann `pos=0`), rund 300 ms je Lauf.
 - Gilt in: `core/data/sourceInput.ts` (`POS_LEN`), `softengine/data.ts`
   (`fieldRead`/`fieldWrite`), `core/data/relations.ts` (`fieldCodeSplit`).
 
