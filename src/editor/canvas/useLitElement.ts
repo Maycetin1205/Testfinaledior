@@ -4,6 +4,7 @@ import type { BlockNode } from '../../core/block/tree'
 import { bindingFields, bindingJoiner } from '../../core/block/binding'
 import { splitBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
+import { gridMetricsOf, rowsForHeight } from '../../core/block/grid'
 import { blockType } from '../../core/block/registry'
 import {
   BlockElement,
@@ -12,6 +13,7 @@ import {
   type PropChange,
   type SpotClick,
 } from '../../blocks/base/BlockElement'
+import { HEIGHT_REPORTED, type HeightReported } from '../../blocks/base/heightReport'
 import { fieldInReachOf, type SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
 
@@ -73,9 +75,17 @@ export function useLitElement({
     }
     el.addEventListener(SPOT_CLICK, onSpotClick)
 
+    // A block as high as its content reports that height; its rows follow.
+    const onHeightReported = (e: Event) => {
+      const { height } = (e as CustomEvent<HeightReported>).detail
+      editor.fitNodeHeight(blockRef.current.id, rowsForHeight(height))
+    }
+    if (gridMetricsOf(def).heightFromContent) el.addEventListener(HEIGHT_REPORTED, onHeightReported)
+
     return () => {
       el.removeEventListener(PROP_CHANGE, onPropChange)
       el.removeEventListener(SPOT_CLICK, onSpotClick)
+      el.removeEventListener(HEIGHT_REPORTED, onHeightReported)
       if (container.contains(el)) container.removeChild(el)
       elementRef.current = null
       setElement(null)

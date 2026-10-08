@@ -199,10 +199,13 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    Rasterzeile bleibt ganz und ragt darum unten heraus. Kein Griff zieht
    unter die Mindestgröße, ein Bereich nicht schmaler oder niedriger als
    sein Inhalt, auch nicht per Doppelklick auf den Griff.
-   (e) Nachtrag, Nutzer 08.10.: Text ist so hoch wie sein Text, nicht
-   höher und nicht niedriger. Der Text meldet seine Höhe in Rasterzeilen
-   (wie `ff-heads-placed`), der Editor setzt die Zeilen; Griffe nur links
-   und rechts. Heute füllt er den Rahmen und ragt bei einer Zeile heraus.
+   (e) Erledigt 08.10.: Text ist so hoch wie sein Text. Der Text meldet
+   die Höhe seines Inhalts (`ff-height-reported`,
+   `blocks/base/heightReport.ts`), der Editor setzt die Rasterzeilen
+   (`heightFromContent` in der Grid-Deklaration, `fitNodeHeight` im Store,
+   ohne eigenen Schritt im Rückgängig); Griffe nur links und rechts. Im
+   Editor geprüft: eine Zeile 2 Rasterzeilen, sechs Zeilen 8, breiter
+   gezogen 3, Rückgängig zieht die Höhe mit.
 3. Datenweg, ein bis zwei Chats, auf einen Weg: „Quelle“ viermal von Hand
    deklariert (`blocks/*/properties.ts`); Listen-Eigenschaften siebenmal
    gleich gelesen (`core/data/extraSources.ts`); zwei Systeme „woher kommt

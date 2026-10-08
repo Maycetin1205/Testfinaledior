@@ -10,10 +10,9 @@ export const textStyle = css`
     overflow-wrap: anywhere;
   }
 
+  /* The text is as high as its lines, an empty one as high as one line; the
+     frame follows the text, not the other way round. */
   .text:empty { min-height: calc(1em * var(--text-line-height)); }
-
-  /* The text fills its frame; a frame lower than one line keeps the line whole. */
-  :host([fills]) .text { min-height: 100%; }
 
   /* .vmodal-titel */
   .variant-title {

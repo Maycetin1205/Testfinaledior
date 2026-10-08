@@ -1,6 +1,7 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
+import { reportsHeight } from '../base/heightReport'
 import { bindable, bindingAttr } from '../../core/block/capability'
 import { readBoundSpot } from '../../runtime/boundSpot'
 import { makeDataLink, sourceIdOf } from '../../runtime/source'
@@ -21,6 +22,11 @@ export class Text extends BlockElement {
   static readonly tag = 'ff-text'
 
   static override styles: CSSResultGroup = [BlockElement.styles, textStyle]
+
+  constructor() {
+    super()
+    reportsHeight(this, () => this.renderRoot.querySelector('.text'))
+  }
 
   override render(): TemplateResult {
     return html`<div
@@ -72,5 +78,5 @@ defineBlock(Text, {
     { kind: 'followsSelection' },
     bindable<typeof textProperties>([{ prop: 'text', name: 'Text' }]),
   ],
-  grid: { startWidth: 12, startHeight: 2, minWidth: 2, minHeight: 1 },
+  grid: { startWidth: 12, startHeight: 2, minWidth: 2, minHeight: 1, heightFromContent: true },
 })

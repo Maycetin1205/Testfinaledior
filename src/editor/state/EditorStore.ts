@@ -1,6 +1,6 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
-import { type GridSlot } from '../../core/block/grid'
+import { gridSlotRead, type GridSlot } from '../../core/block/grid'
 import { type ActionChains } from '../../core/data/steps/steps'
 import { type DataSource } from '../../core/data/dataSources'
 import { type SourceInReach } from '../../core/data/extraSources'
@@ -297,6 +297,17 @@ export class EditorStore extends Subject<EditorStore> {
   resizeNodeToSlot(id: string, slot: GridSlot): void {
     const next = slotResize(this._tree, id, slot)
     if (next) this.apply(next)
+  }
+
+  // A block as high as its content reports that height; its rows follow
+  // without a step in the history, the next step carries them along.
+  fitNodeHeight(id: string, rows: number): void {
+    const node = this._tree[id]
+    if (!node) return
+    const next = slotResize(this._tree, id, { ...gridSlotRead(node.values), h: rows })
+    if (!next) return
+    this._tree = next
+    this.notify(this)
   }
 
   addBlockAtCell(type: string, parentId: string, x: number, y: number): BlockNode | null {

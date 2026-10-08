@@ -17,6 +17,9 @@ export interface GridMetrics {
   minHeight: number
   // A block one input line high keeps its start height; only its width is pulled.
   heightFixed: boolean
+  // A block as high as its content, like a text: it reports its height, the
+  // editor sets the rows; only its width is pulled.
+  heightFromContent: boolean
   // A list on the page grows with the window in height.
   grows: boolean
 }
@@ -27,7 +30,13 @@ const GRID_FALLBACK: GridMetrics = {
   minWidth: 2,
   minHeight: 1,
   heightFixed: false,
+  heightFromContent: false,
   grows: false,
+}
+
+// The rows a content of this height takes: rows of rowPx with a gap between.
+export function rowsForHeight(px: number): number {
+  return Math.max(1, Math.ceil((px + GRID.gapPx) / (GRID.rowPx + GRID.gapPx)))
 }
 
 const cell = (label: string, fallback: number): Property<number> => numberProperty({
