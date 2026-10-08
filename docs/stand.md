@@ -33,7 +33,10 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 - 08.10. Datenliste: Wahl „Auswahl“ je Liste: Eine Zeile (Klick, andere
   folgen, wie die Tabelle), Mehrere (Haken) oder Keine. Vorgabe Eine Zeile.
   Die gewählte Zeile steht in den Aktionen als Herkunft, etwa als
-  Parameter einer Relation, genau wie bei der Tabelle.
+  Parameter einer Relation, genau wie bei der Tabelle. Das Plus oben an
+  der Datenliste: weg. Einen Bereich auf- und zuklappen kann die
+  Schaltfläche („Beim Klick: Bereich“), ein Weg je Knopf. In der
+  Empfang-Maske werden „+ Tier“ und „+ Kunde“ Schaltflächen.
 - 08.10. Bild kommt als Baustein mit der Technik des Kanban-Avatars,
   sobald der Nutzer zeigt, was SoftEngine für ein Tierfoto liefert.
 - 08.10. Gestrichen: Navigation mit Ansichten (andere Ansicht heißt
@@ -123,7 +126,7 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 ## Bausteine
 
 Gebaut: Bereich (Frei, Kasten oder Kopfzeile mit Titel und Ton; auf und zu
-durch einen Knopf oder das Plus einer Datenliste), Schaltfläche, Datum
+durch das Plus einer Datenliste, das zur Schaltfläche wandert), Schaltfläche, Datum
 (Tageswahl), Formularfeld (Text, Zahl, Datum tippbar, Auswahl,
 Nachschlagen; Ankreuzfeld unfertig), Tabelle, Erfassung, Kanban (Plätze je
 Spalte, mehrere Felder je Platz mit Trenner, Knopf je Spalte Aus, Weiter
@@ -150,8 +153,10 @@ Was bleibt:
   Chef-Maske; der Pflichtstern ist im Nachbau nicht zu sehen.
 - Datenliste: die Wahl „Auswahl“ (Eine Zeile wie die Tabelle, Mehrere,
   Keine); heute kann sie nur Haken, die Fähigkeit `recordPick` der Tabelle
-  fehlt ihr. Das Popup bleibt so hoch wie gezogen, mit zugeklappten
-  Bereichen steht unten Leerraum.
+  fehlt ihr. Das Plus raus; die Fähigkeit `opener` (`core/block/opening.ts`,
+  `runtime/opening.ts`, `bar/AreaPick.tsx`) wandert zur Schaltfläche als
+  Wahl „Beim Klick: Bereich“. Das Popup bleibt so hoch wie gezogen, mit
+  zugeklappten Bereichen steht unten Leerraum.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
 Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
