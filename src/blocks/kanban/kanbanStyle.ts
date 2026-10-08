@@ -82,9 +82,14 @@ export const kanbanStyle = css`
     overflow-y: auto;
   }
 
-  /* A place of a column with more than one: a box in the box. */
+  /* A place of a column with more than one: a box in the box. The places
+     share the height of the column: each keeps its cards and takes an equal
+     part of what is left, so an empty room is a room, not a strip. */
   .place {
-    flex: none;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
     border: 1.5px solid var(--tone-line);
     border-radius: var(--se-radius);
     background: var(--se-panel);
@@ -112,8 +117,11 @@ export const kanbanStyle = css`
   .place-body {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
     gap: var(--se-gap);
     padding: 10px;
+    overflow-y: auto;
   }
 
   /* Where a dragged card would land. */

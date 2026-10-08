@@ -61,7 +61,10 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 - 08.10. SE-Module (SETabelle, SEFeldListe) werden nicht genutzt, aber
   gelesen: kann ein Modul etwas, das wir brauchen, schicken wir dieselbe
   Nachricht. So wurde der Fokus gelöst (`SEDataList.js`, 06.10.).
-- 08.10. Plätze im Kanban (Zimmer 1 bis 4 einer Spalte) bleiben.
+- 08.10. Plätze im Kanban (Zimmer 1 bis 4 einer Spalte) bleiben. Die
+  Plätze teilen sich die Höhe der Spalte: jeder behält seine Karten und
+  nimmt vom Rest gleich viel; ein leeres Zimmer ist ein Zimmer, kein
+  Streifen (Nutzer 08.10.).
 - 07.10. Kein Neubau. Gestrichen: Chip-Farbe folgt einem Feld, der Zähler
   (Statuszeile „0 Termine offen · 0 im Wartezimmer“).
 - 08.10. Ankreuzfeld: ein Haken schreibt `J`, kein Haken `N` in das
@@ -280,8 +283,8 @@ Einzelne Punkte, ohne Reihenfolge:
   Zimmer; ungebundene Stellen zeigt sie als Strich nur, solange das Board
   markiert ist, nicht markiert nur die getippten und gebundenen, und ist
   nichts davon da, alle, damit sie nie leer steht. Die Größe der Karte
-  kommt mit der Wahl Größe (Klein, Normal, Groß). Plätze: Feintuning im
-  selben Chat.
+  kommt mit der Wahl Größe (Klein, Normal, Groß). Plätze: erledigt 08.10.,
+  siehe „Entschieden“.
 - Datenquellen: eigenes Gespräch. Der Nutzer hat eine Analyse der
   SoftEngine-Vorlagen, die noch nicht im Projekt ist.
 - Escape in der Spaltenwahl schließt das ganze Fenster
