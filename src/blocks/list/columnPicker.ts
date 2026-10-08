@@ -1,6 +1,6 @@
 import { html, nothing, type TemplateResult } from 'lit'
 import { makeOperatorState } from './operatorState'
-import type { Column } from './columns'
+import type { Column } from '../parts/column'
 
 function readRemoved(raw: unknown): string[] | null {
   if (!Array.isArray(raw)) return null

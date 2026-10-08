@@ -5,7 +5,7 @@ import {
   type ValuesOf,
 } from '../../core/block/property'
 import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
-import { spotBinding, typedSpot } from '../../core/block/spotProperty'
+import { spotBinding, typedSpot } from '../parts/card'
 import { toneOptions } from '../../core/block/tones'
 import { dayFieldProperty } from '../../runtime/source'
 import { kanbanColumnsProperty } from './columns'

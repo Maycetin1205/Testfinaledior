@@ -3,7 +3,7 @@ import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import type { Capability } from '../../core/block/capability'
 import type { ListBinding } from '../../core/block/listBinding'
 import { dayFieldProperty } from '../../runtime/source'
-import { columnsProperty } from './columns'
+import { columnsProperty } from '../parts/column'
 import { KEY_F4, ROW_DOUBLE, ROW_CHOSEN } from './rowActivation'
 
 export const LIST_GRID = { startWidth: 48, startHeight: 14, minWidth: 12, minHeight: 4, grows: true }

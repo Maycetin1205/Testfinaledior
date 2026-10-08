@@ -1,7 +1,7 @@
 import { css, html, nothing, type TemplateResult } from 'lit'
 import { ref } from 'lit/directives/ref.js'
-import type { Column } from '../list/columns'
-import { markHit, plainText } from '../list/textSearch'
+import type { Column } from '../parts/column'
+import { markHit, plainText } from '../parts/cellSearch'
 import { maskState } from '../../runtime/maskState'
 
 const SUGGESTIONS_MAX = 50

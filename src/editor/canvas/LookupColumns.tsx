@@ -11,7 +11,7 @@ import {
   COLUMNS_MAX,
   DEFAULT_TITLE,
   type Column,
-} from '../../blocks/list/columns'
+} from '../../blocks/parts/column'
 import { fieldOf, sourcesKey } from '../../core/data/dataSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'

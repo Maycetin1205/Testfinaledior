@@ -151,16 +151,17 @@ Was bleibt:
   Schaltfläche vier Aussehen ohne Ton und Größe, der Text Rolle, Farbe,
   Größe, der Bereich drei Formen; die fünf Töne nutzen nur Kanban und
   Bereich.
-- Bild: eigener Baustein, Technik vom Kanban-Avatar (festes Bild in der
-  Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
+- Bild: eigener Baustein, Technik vom Kanban-Avatar (`blocks/parts/card.ts`;
+  festes Bild in der Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
   Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
 - Formularfeld: Beschriftung klein und grau über dem Feld wie in der
   Chef-Maske; der Pflichtstern ist im Nachbau nicht zu sehen.
 - Datenliste: die Wahl „Auswahl“ (Eine Zeile wie die Tabelle, Mehrere,
   Keine); heute kann sie nur Haken, die Fähigkeit `recordPick` der Tabelle
   fehlt ihr. Das Plus und die Fähigkeit `opener` (`core/block/opening.ts`,
-  `runtime/opening.ts`, `bar/AreaPick.tsx`, `canvas/useAreaPickStart.ts`)
-  raus, samt dem Nachrücken in der Maske; die Empfang-Maske zeigt beide
+  `runtime/opening.ts`, `bar/AreaPick.tsx`, `canvas/useAreaPickStart.ts`,
+  die Meldung `opener` in `base/BlockElement.ts`) raus, samt dem
+  Nachrücken in der Maske; die Empfang-Maske zeigt beide
   Bereiche offen. Damit erledigt sich auch der Leerraum im Popup.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
@@ -181,13 +182,14 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    Spaltenköpfe meldet der Baustein nach jedem Zeichnen und bei jeder
    Größenänderung (`ff-heads-placed`, `blocks/base/headsReport.ts`);
    `ColumnControls.tsx` und `LookupColumns.tsx` messen nicht mehr im
-   Shadow-DOM. (c) Die Suchmuster in den Deklarationen fallen weg
-   (`entrySpots` ist nur noch ein Schalter). Die
-   Teile vom 07.10. (`core/block/spotProperty.ts`, `useAreaPickStart.ts`,
-   `bar/AreaPick.tsx`) gehen denselben Weg. Dazu
-   `src/blocks/parts/` für Zelle, Spalte, Karte, Chip; Liste, Erfassung
-   und Kanban nehmen nur von dort (heute holt die Erfassung elf Dinge
-   direkt aus `blocks/list/`). (d) Der Rahmen ist der Baustein: Formularfeld,
+   Shadow-DOM. (c) Erledigt 08.10.: Kein Suchmuster mehr in den
+   Deklarationen (`entryHeads` ist ein Schalter); das Plus der Datenliste
+   meldet seinen Klick selbst (`ff-spot-click`). `src/blocks/parts/` hält
+   Zelle, Spalte, Karte (Stellen und Avatar) und Chip; Liste, Erfassung
+   und Kanban nehmen sie nur von dort, die Erfassung die Liste selbst nur
+   über `blocks/list/index.ts`. `bar/AreaPick.tsx` und
+   `useAreaPickStart.ts` gehen mit dem Plus (Datenliste, Punkt 5).
+   (d) Der Rahmen ist der Baustein: Formularfeld,
    Datum und Schaltfläche haben eine feste Höhe (eine Eingabezeile) und
    keine Griffe oben und unten; Text, Bereich, Tabelle, Erfassung, Kanban,
    Datenliste und Bild füllen ihren Rahmen ganz; kleiner als die

@@ -226,7 +226,7 @@ export const COLUMNS_BINDING: ListBinding<Column> = {
   entryRemove: withoutColumn,
   entryMove: withMovedColumn,
 
-  entrySpots: '[data-ff-entry]',
+  entryHeads: true,
 
   entryFlag: [TOTAL, HIDDEN],
 }

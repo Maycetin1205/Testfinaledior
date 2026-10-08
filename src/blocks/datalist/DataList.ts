@@ -1,11 +1,11 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
-import { BlockElement, defineBlock } from '../base/BlockElement'
+import { BlockElement, defineBlock, sendSpotClick } from '../base/BlockElement'
 import { bindable } from '../../core/block/capability'
 import { opensAnArea, sendOpen } from '../../runtime/opening'
 import { rowsToSelection } from '../../runtime/selection'
 import { makeDataLink, readDataPreamble, rowKeys, spotValue } from '../../runtime/source'
-import { animalOf, animalOutline } from '../avatar/animal'
+import { animalAvatarTpl, avatarSpotTpl } from '../parts/card'
 import { dataListStyle } from './dataListStyle'
 import { AVATAR_SPOT, dataListProperties, ROW_SPOTS, type DataListValues, type RowSpot } from './properties'
 
@@ -77,19 +77,9 @@ export class DataList extends BlockElement {
   // The outline of the animal the field names, in the color of its kind; a
   // bound avatar stands in every row, so the names stay in line.
   private avatar(species: string | null): TemplateResult | typeof nothing {
-    if (species !== null) {
-      if (this.avatarField === '') return nothing
-      const animal = animalOf(species)
-      return html`<span class="avatar" style="color:var(--se-animal-${animal})">${animalOutline(animal)}</span>`
-    }
     const bound = this.avatarField !== ''
-    return html`<span
-      class="avatar"
-      data-ff-spot=${AVATAR_SPOT.prop}
-      ?data-ff-bound=${bound}
-      @click=${this.reportSpot}
-      @dblclick=${this.reportSpot}
-    >${bound ? animalOutline('paw') : nothing}</span>`
+    if (species !== null) return bound ? animalAvatarTpl(species) : nothing
+    return avatarSpotTpl(AVATAR_SPOT.prop, bound, bound, (e) => this.reportSpot(e))
   }
 
   private add(): TemplateResult | typeof nothing {
@@ -97,8 +87,8 @@ export class DataList extends BlockElement {
       return html`<button
         type="button"
         class="add"
-        data-ff-opener
         data-ff-editable
+        @click=${(e: MouseEvent) => sendSpotClick(this, { kind: 'opener', click: e })}
         @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'addLabel')}
       >${this.addLabel}</button>`
     }

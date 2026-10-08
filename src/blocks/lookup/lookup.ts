@@ -16,7 +16,7 @@ import {
   DEFAULT_TITLE,
   FIELD_KEY_PREFIX,
   type Column,
-} from '../list/columns'
+} from '../parts/column'
 import {
   ROW_ACTIVATED_EVENT,
   type RowActivatedDetail,

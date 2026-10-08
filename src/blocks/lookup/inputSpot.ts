@@ -1,5 +1,5 @@
 import { html, nothing, type TemplateResult } from 'lit'
-import type { Column } from '../list/columns'
+import type { Column } from '../parts/column'
 import { suggestionListTpl, type SuggestionRow } from './suggestionList'
 
 interface InputSpotPlacement {

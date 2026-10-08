@@ -28,7 +28,9 @@ export interface ListBinding<E = unknown> {
 
   entryPlace?: EntryPlaceChoice<E>
 
-  entrySpots?: string
+  // Each entry has a head on the block, and the block reports where the heads
+  // stand (ff-heads-placed); the editor puts its handles there.
+  entryHeads?: true
 
   entries(raw: unknown): E[]
 

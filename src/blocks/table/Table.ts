@@ -2,11 +2,15 @@ import { type CSSResultGroup, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import type { Calculation } from '../../core/data/calculation'
 import { BlockElement, defineBlock } from '../base/BlockElement'
-import { LIST_GRID, listCapabilities } from '../list/listDeclaration'
-import { RecordList } from '../list/recordList'
-import { COLUMNS_BINDING, coerceColumns, type Column } from '../list/columns'
-import { tableStyle } from '../list/tableStyle'
-import type { HandedRow, RowsFrom } from '../list/sourceRows'
+import {
+  LIST_GRID,
+  listCapabilities,
+  RecordList,
+  tableStyle,
+  type HandedRow,
+  type RowsFrom,
+} from '../list'
+import { COLUMNS_BINDING, coerceColumns, type Column } from '../parts/column'
 import { tableProperties, type TableValues } from './properties'
 
 export interface Table extends TableValues {}

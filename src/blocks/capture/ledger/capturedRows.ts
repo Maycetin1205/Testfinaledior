@@ -1,5 +1,5 @@
 import type { PendingKind, WrittenRow } from '../../../core/block/capability'
-import { walkOrder, type RowLayout } from '../../list/tableBody'
+import { walkOrder, type RowLayout } from '../../parts/cell'
 import type { CaptureColumn } from '../column'
 import { missingRequired, type CaptureContext } from '../row'
 import type { CaptureRow, Helpers } from './captureRow'

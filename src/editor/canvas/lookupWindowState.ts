@@ -8,7 +8,7 @@ import {
 } from '../../blocks/lookup/lookup'
 import { PROP_CHANGE, type PropChange } from '../../blocks/base/BlockElement'
 import { DIALOG_FRAME_TAG, WINDOW_HEIGHT, type DialogFrame } from '../../blocks/dialog/DialogFrame'
-import type { Column } from '../../blocks/list/columns'
+import type { Column } from '../../blocks/parts/column'
 import type { BlockNode } from '../../core/block/tree'
 import { splitBinding } from '../../core/block/blockType'
 import type { BlockLookupWindow, EntryLookupWindow, LookupWindow } from '../../core/block/capability'

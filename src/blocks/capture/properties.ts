@@ -4,7 +4,7 @@ import {
   calculationsFrom,
   type Calculation,
 } from '../../core/data/calculation'
-import { listProperties } from '../list/listDeclaration'
+import { listProperties } from '../list'
 import { captureColumnsProperty } from './column'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 

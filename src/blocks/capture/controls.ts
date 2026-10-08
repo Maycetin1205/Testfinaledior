@@ -1,8 +1,8 @@
 import type { TemplateResult } from 'lit'
 import { openLookup } from '../lookup/lookup'
 import { keyOf } from '../lookup/suggestionState'
-import type { ColumnView } from '../list/columns'
-import type { RowLayout } from '../list/tableBody'
+import type { ColumnView } from '../parts/column'
+import type { RowLayout } from '../parts/cell'
 import type { CaptureLedger } from './ledger'
 import { captureRowTpl } from './row'
 

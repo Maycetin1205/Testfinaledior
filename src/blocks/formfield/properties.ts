@@ -10,7 +10,7 @@ import {
   type ValuesOf,
 } from '../../core/block/property'
 import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
-import type { Column } from '../list/columns'
+import type { Column } from '../parts/column'
 import { coerceLookupColumns } from '../lookup/lookup'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
 

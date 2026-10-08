@@ -192,5 +192,5 @@ export const KANBAN_COLUMNS_BINDING: ListBinding<KanbanColumn> = {
   entryAdd: (entries) => [...entries, column(listDefaultTitle(KANBAN_COLUMNS_BINDING, entries.length), 'info')],
   entryRemove: (entries, index) => (entries.length <= 1 ? null : entries.filter((_, i) => i !== index)),
   entryMove: moved,
-  entrySpots: '[data-ff-entry]',
+  entryHeads: true,
 }

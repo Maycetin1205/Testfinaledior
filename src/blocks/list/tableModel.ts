@@ -8,8 +8,8 @@ import {
   type RowMetrics,
 } from './pageSize'
 import { sortIndices, TOTAL_DECIMALS, totalText } from './sorting'
-import { columnsTemplate, type Column, type ColumnsGrid } from './columns'
-import { rowFits } from './textSearch'
+import { columnsTemplate, type Column, type ColumnsGrid } from '../parts/column'
+import { rowFits } from '../parts/cellSearch'
 
 interface ViewQuestion {
   columns: readonly Column[]

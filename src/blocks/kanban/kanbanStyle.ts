@@ -302,18 +302,6 @@ export const kanbanStyle = css`
     background: var(--se-danger);
   }
 
-  .chip {
-    flex: none;
-    padding: 2px 8px;
-    border-radius: var(--se-radius);
-    font-family: var(--se-font);
-    font-size: var(--se-fs-chip);
-    font-weight: 600;
-    color: var(--tone-ink);
-    background: var(--tone-soft);
-    white-space: nowrap;
-  }
-
   /* The button under the card, as .vbtn-aktion: in the tone of the column it
      leads to. */
   .advance {

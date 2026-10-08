@@ -15,16 +15,16 @@ import {
   columnsView,
   type Column,
   type ColumnView,
-} from './columns'
+} from '../parts/column'
 import { WidthsState } from './columnWidth'
 import { ColumnsChoiceState } from './columnPicker'
 import { tableRenderModel } from './tableModel'
 import type { ListSettings } from './listDeclaration'
+import type { RowLayout } from '../parts/cell'
 import {
   WITHOUT_DECORATION,
   tableFoot,
   tableBody,
-  type RowLayout,
   type RowsBelow,
   type RowDecoration,
 } from './tableBody'

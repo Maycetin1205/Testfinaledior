@@ -1,5 +1,5 @@
 import { BLOCK_ID_ATTR } from '../../core/data/actions'
-import { FIELD_KEY_PREFIX } from './columns'
+import { FIELD_KEY_PREFIX } from '../parts/column'
 
 export const LOOKUP_KEY_PART = '/lookup/'
 

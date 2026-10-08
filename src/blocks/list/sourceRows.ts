@@ -8,7 +8,7 @@ import {
   sourceIdOf,
 } from '../../runtime/source'
 import { rowValues, type Calculation } from '../../core/data/calculation'
-import { columnWithKey, type Column } from './columns'
+import { columnWithKey, type Column } from '../parts/column'
 
 // Where a list takes its rows from: it reads them from its own data source, or
 // another part of the mask hands them over (the lookup window does).

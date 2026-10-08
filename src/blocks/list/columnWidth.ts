@@ -1,5 +1,5 @@
 import { html, type TemplateResult } from 'lit'
-import { COLUMNS_MIN_WIDTH, type Column } from './columns'
+import { COLUMNS_MIN_WIDTH, type Column } from '../parts/column'
 
 interface WidthsChange {
   index: number

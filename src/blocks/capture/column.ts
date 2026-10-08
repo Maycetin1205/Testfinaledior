@@ -9,7 +9,7 @@ import {
 } from '../../core/block/listBinding'
 import { listProperty, type Property } from '../../core/block/property'
 import { isUnread } from '../../core/unread'
-import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../list/columns'
+import { coerceColumns, COLUMNS_BINDING, defaultColumns, type Column } from '../parts/column'
 
 export type CaptureColumn = Column & {
   editable?: boolean

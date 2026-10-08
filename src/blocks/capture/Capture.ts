@@ -14,16 +14,20 @@ import {
   calculationsFrom,
   type Calculation,
 } from '../../core/data/calculation'
-import { LIST_GRID, listCapabilities } from '../list/listDeclaration'
-import { RecordList } from '../list/recordList'
-import { tableStyle } from '../list/tableStyle'
+import {
+  hasRecordNumber,
+  LIST_GRID,
+  listCapabilities,
+  RecordList,
+  tableStyle,
+  type RowDecoration,
+  type RowsBelow,
+} from '../list'
 import { validMetrics, closeLookupFor, coerceLookupColumns } from '../lookup/lookup'
 import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../dialog/DialogFrame'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { reportPendingMarks } from '../../runtime/pendingState'
 import { enterCell, cellsInputStyle, cellsFields } from './cells'
-import { hasRecordNumber } from '../list/sourceRows'
-import type { RowsBelow, RowDecoration } from '../list/tableBody'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
 import {

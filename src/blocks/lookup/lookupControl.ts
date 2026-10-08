@@ -8,11 +8,11 @@ import {
   closeLookupFor,
   type Entry,
 } from './lookup'
-import type { Column } from '../list/columns'
+import type { Column } from '../parts/column'
 import { keyOf, SuggestionState } from './suggestionState'
 import { orderedSuggestions } from './suggestionList'
 import { inputSpotTpl } from './inputSpot'
-import { rowFits } from '../list/textSearch'
+import { rowFits } from '../parts/cellSearch'
 import { maskState } from '../../runtime/maskState'
 
 export function magnifierIcon(): TemplateResult {

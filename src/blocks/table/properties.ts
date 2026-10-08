@@ -1,5 +1,5 @@
 import type { ValuesOf } from '../../core/block/property'
-import { listProperties } from '../list/listDeclaration'
+import { listProperties } from '../list'
 
 export const tableProperties = listProperties(true)
 

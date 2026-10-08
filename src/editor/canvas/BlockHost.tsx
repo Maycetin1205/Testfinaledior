@@ -99,7 +99,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     onSelect,
   })
 
-  const areaPickStart = useAreaPickStart(editor, blockRef)
+  const areaPickStart = useAreaPickStart(editor, blockRef, spotClickOf)
 
   const { startGridResize, resetGridSize } = useBlockResize(editor, blockRef, rootRef)
 
@@ -179,7 +179,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           : null}
       </div>
       {pickers}
-      {list?.entrySpots !== undefined && (
+      {list?.entryHeads === true && (
         <ColumnControls
           block={block}
           selected={selected === true}

@@ -3,14 +3,9 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
-import { columnStandsRight, type Column } from '../list/columns'
-import {
-  greyCellTpl,
-  WITHOUT_DECORATION,
-  type GreyPart,
-  type RowDecoration,
-  type RowLayout,
-} from '../list/tableBody'
+import { columnStandsRight, type Column } from '../parts/column'
+import { greyCellTpl, type GreyPart, type RowLayout } from '../parts/cell'
+import { WITHOUT_DECORATION, type RowDecoration } from '../list'
 import type { CaptureLedger, RowState } from './ledger'
 
 // The input a booked row's cell shows in place of its text.

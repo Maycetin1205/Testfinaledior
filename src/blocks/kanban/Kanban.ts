@@ -5,7 +5,8 @@ import { reportsHeads } from '../base/headsReport'
 import { bindable } from '../../core/block/capability'
 import { toneStyle, toneValue } from '../tone/tone'
 import { spotValue, type DataPreamble } from '../../runtime/source'
-import { animalOf, animalOutline } from '../avatar/animal'
+import { animalAvatarTpl, avatarSpotTpl, imageAvatarTpl } from '../parts/card'
+import { chipClass, chipStyle } from '../parts/chip'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
 import { clockOf, isToday, minuteNow, minuteOf, untilOf, type Until } from './clock'
 import { KANBAN_COLUMNS_BINDING, kanbanColumnsFrom, type KanbanPlace } from './columns'
@@ -32,7 +33,7 @@ export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, kanbanStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, kanbanStyle, chipStyle]
 
   readonly board = new Board(this)
 
@@ -71,19 +72,9 @@ export class Kanban extends BlockElement {
   // the mask has.
   private avatar(values: Readonly<Record<string, string>> | null): TemplateResult {
     const image = this.avatarKind === 'image'
-    if (values !== null) {
-      if (image) return html`<span class="avatar" style=${`background-image:url(${JSON.stringify(values.avatar)})`}></span>`
-      const animal = animalOf(values.avatar)
-      return html`<span class="avatar" style="color:var(--se-animal-${animal})">${animalOutline(animal)}</span>`
-    }
+    if (values !== null) return image ? imageAvatarTpl(values.avatar) : animalAvatarTpl(values.avatar)
     const bound = this.avatarField !== ''
-    return html`<span
-      class="avatar"
-      data-ff-spot=${AVATAR_SPOT.prop}
-      ?data-ff-bound=${bound}
-      @click=${this.reportSpot}
-      @dblclick=${this.reportSpot}
-    >${bound && !image ? animalOutline('paw') : nothing}</span>`
+    return avatarSpotTpl(AVATAR_SPOT.prop, bound, bound && !image, (e) => this.reportSpot(e))
   }
 
   // The button under the cards of a column, as the column sets it: on to the
@@ -158,7 +149,7 @@ export class Kanban extends BlockElement {
           </div>`
         : nothing}
       ${shows('chip')
-        ? html`<div class="flags">${this.spot('chip', `chip tone-${toneValue(this.chipTone)}`, values)}</div>`
+        ? html`<div class="flags">${this.spot('chip', chipClass(this.chipTone), values)}</div>`
         : nothing}
       ${shows('text') ? this.spot('text', 'text', values) : nothing}
       ${shows('date') ? this.spot('date', 'date', values) : nothing}

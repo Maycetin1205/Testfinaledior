@@ -2,9 +2,9 @@ import { columnSlots, rowValues } from '../../../core/data/calculation'
 import type { KeyPair } from '../../../core/data/extraSources'
 import { outsideValue } from '../../../runtime/foreignSources'
 import { maskState } from '../../../runtime/maskState'
-import { columnWithKey, type Column } from '../../list/columns'
-import { walkOrder, type RowLayout } from '../../list/tableBody'
-import { plainText, rowFits } from '../../list/textSearch'
+import { columnWithKey, type Column } from '../../parts/column'
+import { walkOrder, type RowLayout } from '../../parts/cell'
+import { plainText, rowFits } from '../../parts/cellSearch'
 import {
   automaticColumns,
   lookupEntries,
