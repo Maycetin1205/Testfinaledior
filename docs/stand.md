@@ -25,6 +25,10 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
 - 08.10. Erst der Editor, dann Feintuning. Meldungen und Tests kommen vor
   der Abnahme durch die Programmierer, nicht vorher.
+- 08.10. Der Rahmen ist der Baustein. Was eine feste Höhe hat (Feld,
+  Datum, Schaltfläche), lässt sich nur in der Breite ziehen; alles andere
+  füllt seinen Rahmen ganz. Kein Rahmen ist größer oder kleiner als sein
+  Baustein.
 - 08.10. Aussehen aus drei Drehknöpfen, einmal deklariert, an jedem
   Baustein dieselben: Ton (Neutral, Hinweis, Erfolg, Warnung, Fehler),
   Stärke (Fläche voll, Fläche leicht, nur Rand, nur Schrift), Größe
@@ -180,7 +184,14 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    `bar/AreaPick.tsx`) gehen denselben Weg. Dazu
    `src/blocks/parts/` für Zelle, Spalte, Karte, Chip; Liste, Erfassung
    und Kanban nehmen nur von dort (heute holt die Erfassung elf Dinge
-   direkt aus `blocks/list/`).
+   direkt aus `blocks/list/`). (d) Der Rahmen ist der Baustein: Formularfeld,
+   Datum und Schaltfläche haben eine feste Höhe (eine Eingabezeile) und
+   keine Griffe oben und unten; Text, Bereich, Tabelle, Erfassung, Kanban,
+   Datenliste und Bild füllen ihren Rahmen ganz; kleiner als die
+   Mindestgröße der Deklaration lässt sich kein Rahmen ziehen. Heute
+   füllen Text, Feld und Datum nicht, der blaue Rahmen ist größer als der
+   Baustein. In der Grid-Deklaration fehlt nur „Höhe fest“, der Rest ist
+   `fills` in der Basisklasse.
 3. Datenweg, ein bis zwei Chats, auf einen Weg: „Quelle“ viermal von Hand
    deklariert (`blocks/*/properties.ts`); Listen-Eigenschaften siebenmal
    gleich gelesen (`core/data/extraSources.ts`); zwei Systeme „woher kommt
