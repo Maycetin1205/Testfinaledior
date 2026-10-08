@@ -215,7 +215,16 @@ Einzelne Punkte, ohne Reihenfolge:
 - Pfeil runter in der Erfassung öffnet keine Vorschlagsliste (von der KI
   am 07.10. festgelegt, Tippen oder F5). Der Nutzer prüft es in SoftEngine.
 - Tag-Feld je Baustein: wie heute, nicht entschieden.
-- Plätze im Kanban: Feintuning, wenn der Kanban dran ist.
+- Karte im Kanban (Nutzer 08.10.): die feste Anordnung der Chef-Maske
+  bleibt, mit vier Regeln. Titel gewinnt, die Unterzeile gibt nach und
+  wird zuerst abgeschnitten, bei Enge rutscht sie unter den Titel. Nichts
+  schiebt etwas anderes: jeder Text endet in seiner Zeile mit „…“, die
+  Zeit bleibt rechts, der Chip bleibt. Die Karte ist so hoch wie ihre
+  gefüllten Zeilen (in der Maske heute so). Im Editor zeigt die Musterkarte
+  ungebundene Stellen nur als Strich und nur, solange sie markiert ist;
+  nicht markiert sieht sie aus wie beim Kunden (heute immer alle sieben).
+  Die Größe der Karte kommt mit den Drehknöpfen (Klein, Normal, Groß).
+  Plätze: Feintuning im selben Chat.
 - Datenquellen: eigenes Gespräch. Der Nutzer hat eine Analyse der
   SoftEngine-Vorlagen, die noch nicht im Projekt ist.
 - Escape in der Spaltenwahl schließt das ganze Fenster
