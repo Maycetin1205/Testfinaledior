@@ -231,11 +231,13 @@ Einzelne Punkte, ohne Reihenfolge:
   wird zuerst abgeschnitten, bei Enge rutscht sie unter den Titel. Nichts
   schiebt etwas anderes: jeder Text endet in seiner Zeile mit „…“, die
   Zeit bleibt rechts, der Chip bleibt. Die Karte ist so hoch wie ihre
-  gefüllten Zeilen (in der Maske heute so). Im Editor zeigt die Musterkarte
-  ungebundene Stellen nur als Strich und nur, solange sie markiert ist;
-  nicht markiert sieht sie aus wie beim Kunden (heute immer alle sieben).
-  Die Größe der Karte kommt mit den Drehknöpfen (Klein, Normal, Groß).
-  Plätze: Feintuning im selben Chat.
+  gefüllten Zeilen (in der Maske heute so). Erledigt 08.10.: Im Editor
+  steht eine Musterkarte je Spalte, im ersten Platz, nicht in jedem
+  Zimmer; ungebundene Stellen zeigt sie als Strich nur, solange das Board
+  markiert ist, nicht markiert nur die getippten und gebundenen, und ist
+  nichts davon da, alle, damit sie nie leer steht. Die Größe der Karte
+  kommt mit den Drehknöpfen (Klein, Normal, Groß). Plätze: Feintuning im
+  selben Chat.
 - Datenquellen: eigenes Gespräch. Der Nutzer hat eine Analyse der
   SoftEngine-Vorlagen, die noch nicht im Projekt ist.
 - Escape in der Spaltenwahl schließt das ganze Fenster

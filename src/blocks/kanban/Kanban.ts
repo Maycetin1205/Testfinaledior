@@ -121,15 +121,26 @@ export class Kanban extends BlockElement {
     })
   }
 
+  // A spot the builder gave something: a text typed on it or a field.
+  private spotShaped(prop: CardSpot | typeof AVATAR_SPOT.prop): boolean {
+    if (prop === AVATAR_SPOT.prop) return this.avatarField !== ''
+    return this[prop] !== '' || this[`${prop}Field`] !== ''
+  }
+
   // The card as .vkarte of the reception mask: avatar, beside it the title
   // with the subline on the same line and the second title below, the time at
   // the right; then the chip, the text, the date, how far its time lies from
   // now, the button. Without values the card is the one the builder shapes:
-  // every spot shows. In the mask a spot without a value falls away.
+  // while the board is marked every spot shows, otherwise only the shaped
+  // ones, and with none shaped every spot, so the card never stands empty.
+  // In the mask a spot without a value falls away.
   private cardContent(column: number, card: CardData | null, until: Until | null): TemplateResult {
     const values = card === null ? null : card.values
-    const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean =>
-      values === null || (values[prop] ?? '').trim() !== ''
+    const onlyShaped = values === null && !this.editable
+      && (this.spotShaped(AVATAR_SPOT.prop) || CARD_SPOTS.some((s) => this.spotShaped(s.prop)))
+    const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean => (values === null
+      ? !onlyShaped || this.spotShaped(prop)
+      : (values[prop] ?? '').trim() !== '')
     const line = shows('heading') || shows('subline')
     const main = shows('avatar') || line || shows('heading2') || shows('time')
     return html`
@@ -185,6 +196,9 @@ export class Kanban extends BlockElement {
   private cardsAt(spot: Spot): TemplateResult | TemplateResult[] {
     const byTime = kanbanColumnsFrom(this.columns)[spot.column]?.byTime === true
     if (this.preview) {
+      // One sample card per column, in its first place: the button of the
+      // column is typed on it. The other places stand empty, as in the mask.
+      if (spot.place !== 0) return []
       return html`${byTime ? hourLine(HOUR_IN_EDITOR) : nothing}<div class="card">${
         this.cardContent(spot.column, null, byTime ? UNTIL_IN_EDITOR : null)
       }</div>`
