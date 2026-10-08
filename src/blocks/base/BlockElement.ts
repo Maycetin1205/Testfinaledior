@@ -61,6 +61,20 @@ export function sendPropChange(el: HTMLElement, prop: string, value: unknown): v
   el.dispatchEvent(new CustomEvent<PropChange>(PROP_CHANGE, { detail: { prop, value } }))
 }
 
+// A click in the editor on a spot the editor answers: a spot it binds to a
+// field, or the spot that opens the block's lookup window. The block says
+// which spot and where it stands, the editor decides what opens. The event
+// stays at the element and carries the click it reports.
+export const SPOT_CLICK = 'ff-spot-click'
+
+export type SpotClick =
+  | { kind: 'binding'; click: MouseEvent; prop: string; rect: DOMRect }
+  | { kind: 'lookupWindow'; click: MouseEvent }
+
+export function sendSpotClick(el: BlockElement, detail: SpotClick): void {
+  if (el.preview) el.dispatchEvent(new CustomEvent<SpotClick>(SPOT_CLICK, { detail }))
+}
+
 function startValues(properties: PropertyMap): Record<string, PropertyValue> {
   const out: Record<string, PropertyValue> = {}
   for (const [name, declared] of Object.entries(properties)) {
@@ -111,6 +125,14 @@ export abstract class BlockElement extends LitElement {
   setDeclared(name: string, value: unknown): void {
     if (!Object.hasOwn(this.properties, name) || !this.properties[name].type.read(value).ok) return
     Object.assign(this, { [name]: value })
+  }
+
+  // A bindable spot names itself in data-ff-spot; its clicks and double clicks
+  // go to the editor.
+  protected reportSpot(event: MouseEvent): void {
+    const at = event.currentTarget
+    if (!(at instanceof HTMLElement) || at.dataset.ffSpot === undefined) return
+    sendSpotClick(this, { kind: 'binding', click: event, prop: at.dataset.ffSpot, rect: at.getBoundingClientRect() })
   }
 
   protected inlineEdit(event: MouseEvent, prop: string): void {

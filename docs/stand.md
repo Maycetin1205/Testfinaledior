@@ -171,9 +171,9 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 1. Erledigt 08.10.: die Lückenliste ist gestrichen, siehe „Bausteine“.
 2. Brücke Editor–Baustein, drei Chats: Der Baustein spricht, der Editor
-   hört. (a) Ein Ereignis des Bausteins für Klicks auf bindbare Stellen,
-   ersetzt die Klick-Suche in `useFieldBinding.tsx` und `BlockHost.tsx`.
-   (b) Der Baustein meldet die Lage seiner Spalten, ersetzt das Nachmessen
+   hört. (a) Erledigt 08.10.: Klicks auf bindbare Stellen und auf die Lupe
+   meldet der Baustein (`ff-spot-click`); die Klick-Suche im Editor und das
+   Suchmuster `.magnifier` sind weg. (b) Der Baustein meldet die Lage seiner Spalten, ersetzt das Nachmessen
    in `ColumnControls.tsx` und `LookupColumns.tsx` (14 der 23 Griffe ins
    Shadow-DOM). (c) Die Suchmuster in den Deklarationen fallen weg. Die
    Teile vom 07.10. (`core/block/spotProperty.ts`, `useAreaPickStart.ts`,

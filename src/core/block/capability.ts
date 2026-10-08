@@ -35,7 +35,6 @@ export interface BlockLookupWindow {
   // The property the window is titled by.
   titleProp?: string
 
-  spot?: string
   when?: Condition
 }
 
@@ -48,7 +47,6 @@ export interface EntryLookupWindow {
   // orders them from the source of the entry's field choice.
   windowFields: (entry: unknown) => readonly string[]
 
-  spot?: string
   when?: Condition
 }
 

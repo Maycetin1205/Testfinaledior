@@ -50,7 +50,11 @@ export class Kanban extends BlockElement {
       data-ff-editable
       data-ff-spot=${prop}
       ?data-ff-bound=${this[`${prop}Field`] !== ''}
-      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, prop)}
+      @click=${this.reportSpot}
+      @dblclick=${(e: MouseEvent) => {
+        this.reportSpot(e)
+        this.inlineEdit(e, prop)
+      }}
     >${this[prop]}</span>`
   }
 
@@ -71,6 +75,8 @@ export class Kanban extends BlockElement {
       class="avatar"
       data-ff-spot=${AVATAR_SPOT.prop}
       ?data-ff-bound=${bound}
+      @click=${this.reportSpot}
+      @dblclick=${this.reportSpot}
     >${bound && !image ? animalOutline('paw') : nothing}</span>`
   }
 

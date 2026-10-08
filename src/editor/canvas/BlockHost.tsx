@@ -2,7 +2,6 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
-  type MouseEvent as ReactMouseEvent,
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
@@ -75,7 +74,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     blockRef.current = block
   })
 
-  const { containerRef, elementRef, element } = useLitElement({
+  const { containerRef, elementRef, element, spotClickOf } = useLitElement({
     editor,
     blockRef,
     block,
@@ -96,21 +95,9 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
     sources,
     containerRef,
     element,
+    spotClickOf,
     onSelect,
   })
-
-  const windowSpot = searchWindow?.spot
-  const onWindowSpot = (e: ReactMouseEvent<HTMLDivElement>): number | null => {
-    if (windowSpot === undefined) return null
-    for (const t of e.nativeEvent.composedPath()) {
-      if (t === e.currentTarget) return null
-      if (t instanceof HTMLElement && t.matches(windowSpot)) {
-        const slot = Number(t.getAttribute('data-ff-entry'))
-        return Number.isInteger(slot) && slot >= 0 ? slot : 0
-      }
-    }
-    return null
-  }
 
   const areaPickStart = useAreaPickStart(editor, blockRef)
 
@@ -151,9 +138,8 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
           editor.pickFollowFor(null)
           return
         }
-        const slot = onWindowSpot(e)
-        if (slot !== null && searchWindow !== undefined && elementRef.current
-          && openLookupInEditor(editor, elementRef.current, block.id, searchWindow, slot)) {
+        if (spotClickOf(e.nativeEvent)?.kind === 'lookupWindow' && searchWindow !== undefined
+          && elementRef.current && openLookupInEditor(editor, elementRef.current, block.id, searchWindow, 0)) {
           e.stopPropagation()
           onSelect?.()
           return

@@ -4,6 +4,7 @@ import type { MouseEvent as ReactMouseEvent } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import { bindingFields, bindingJoiner, joinedBinding, toggledBinding } from '../../core/block/binding'
 import { type ListBinding } from '../../core/block/blockType'
+import type { SpotClick } from '../../blocks/base/BlockElement'
 import { bindingProp, type BindableSpot, type LookupWindow } from '../../core/block/capability'
 import { sourcesKey } from '../../core/data/dataSources'
 import type { SourceInReach } from '../../core/data/extraSources'
@@ -31,6 +32,8 @@ interface FieldBindingArgs {
 
   element: HTMLElement | null
 
+  spotClickOf: (click: Event) => SpotClick | null
+
   onSelect?: () => void
 }
 
@@ -48,6 +51,7 @@ export function useFieldBinding({
   sources,
   containerRef,
   element,
+  spotClickOf,
   onSelect,
 }: FieldBindingArgs): {
   onClick: (e: ReactMouseEvent<HTMLDivElement>) => void
@@ -71,6 +75,7 @@ export function useFieldBinding({
     selected,
     bindableSpots,
     hasOffer,
+    spotClickOf,
     onSelect,
   })
 

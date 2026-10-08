@@ -33,7 +33,11 @@ export class Text extends BlockElement {
       data-ff-editable
       data-ff-spot="text"
       ?data-ff-bound=${this.textField !== ''}
-      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'text')}
+      @click=${this.reportSpot}
+      @dblclick=${(e: MouseEvent) => {
+        this.reportSpot(e)
+        this.inlineEdit(e, 'text')
+      }}
     >${this.text}</div>`
   }
 

@@ -1,5 +1,5 @@
 import { html, type ReactiveController, type TemplateResult } from 'lit'
-import type { BlockElement } from '../base/BlockElement'
+import { sendSpotClick, type BlockElement } from '../base/BlockElement'
 import { giverIdOf, clearSelection, setSelection, rowsToSelection } from '../../runtime/selection'
 import {
   automaticColumns,
@@ -112,7 +112,7 @@ export class LookupControl implements ReactiveController {
         type="button"
         aria-label="Nachschlagen"
         title="Nachschlagen"
-        @click=${() => this.openWindow()}
+        @click=${(e: MouseEvent) => this.onMagnifier(e)}
       >${magnifierIcon()}</button>`,
     }, {
       typing: (value) => {
@@ -128,6 +128,13 @@ export class LookupControl implements ReactiveController {
         this.host.report()
       },
     })}`
+  }
+
+  // In the editor the magnifier only reports the click: the editor opens its own window.
+  private onMagnifier(e: MouseEvent): void {
+    const block = this.host.block
+    if (block.preview) sendSpotClick(block, { kind: 'lookupWindow', click: e })
+    else this.openWindow()
   }
 
   private openWindow(searchText = ''): void {

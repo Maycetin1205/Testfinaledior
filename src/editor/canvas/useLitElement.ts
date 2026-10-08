@@ -5,7 +5,13 @@ import { bindingFields, bindingJoiner } from '../../core/block/binding'
 import { splitBinding } from '../../core/block/blockType'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import { blockType } from '../../core/block/registry'
-import { BlockElement, PROP_CHANGE, type PropChange } from '../../blocks/base/BlockElement'
+import {
+  BlockElement,
+  PROP_CHANGE,
+  SPOT_CLICK,
+  type PropChange,
+  type SpotClick,
+} from '../../blocks/base/BlockElement'
 import { fieldInReachOf, type SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
 
@@ -38,6 +44,9 @@ export function useLitElement({
   const elementRef = useRef<HTMLElement | null>(null)
   const [element, setElement] = useState<HTMLElement | null>(null)
 
+  // The block reports a click on a spot before the click reaches the host.
+  const spotClick = useRef<SpotClick | null>(null)
+
   useEffect(() => {
     const def = blockType(block.type)
     if (!def) {
@@ -59,8 +68,14 @@ export function useLitElement({
     }
     el.addEventListener(PROP_CHANGE, onPropChange)
 
+    const onSpotClick = (e: Event) => {
+      spotClick.current = (e as CustomEvent<SpotClick>).detail
+    }
+    el.addEventListener(SPOT_CLICK, onSpotClick)
+
     return () => {
       el.removeEventListener(PROP_CHANGE, onPropChange)
+      el.removeEventListener(SPOT_CLICK, onSpotClick)
       if (container.contains(el)) container.removeChild(el)
       elementRef.current = null
       setElement(null)
@@ -94,5 +109,10 @@ export function useLitElement({
     el.toggleAttribute('fills', !!grid)
   }, [element, block.type, block.values, selected, bindableSpots, sources, grid])
 
-  return { containerRef, elementRef, element }
+  // The spot the block reported for this click, or null for a click beside its spots.
+  const spotClickOf = (click: Event): SpotClick | null => (
+    spotClick.current?.click === click ? spotClick.current : null
+  )
+
+  return { containerRef, elementRef, element, spotClickOf }
 }

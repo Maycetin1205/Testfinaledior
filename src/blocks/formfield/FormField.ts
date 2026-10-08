@@ -222,6 +222,8 @@ export class FormField extends BlockElement implements ValueCarrier {
         class=${empty ? 'wrap empty' : 'wrap'}
         data-ff-spot=${valueBindable ? 'value' : nothing}
         ?data-ff-bound=${bound}
+        @click=${this.reportSpot}
+        @dblclick=${this.reportSpot}
       >
         ${this.controlTpl(kind)}
         ${empty ? this.placeholderTpl(bound) : nothing}
@@ -261,7 +263,6 @@ defineBlock(FormField, {
         storageFieldProp: 'storageField',
         storageTitleProp: 'storageTitle',
         titleProp: 'label',
-        spot: '.magnifier',
         when: ONLY_LOOKUP,
       },
     },

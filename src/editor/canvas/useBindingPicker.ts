@@ -3,6 +3,7 @@ import type { MouseEvent as ReactMouseEvent, RefObject } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import { bindingProp, type BindableSpot } from '../../core/block/capability'
 import type { PropertyValue } from '../../core/block/property'
+import type { SpotClick } from '../../blocks/base/BlockElement'
 import type { EditorStore } from '../state/EditorStore'
 
 // How long a click waits, so a double click can still type the text.
@@ -21,6 +22,9 @@ interface BindingPickerArgs {
 
   hasOffer: boolean
 
+  // The spot the block reported for a click.
+  spotClickOf: (click: Event) => SpotClick | null
+
   onSelect?: () => void
 }
 
@@ -30,6 +34,7 @@ export function useBindingPicker({
   selected,
   bindableSpots,
   hasOffer,
+  spotClickOf,
   onSelect,
 }: BindingPickerArgs) {
   const [picker, setPicker] = useState<{ spot: BindableSpot; top: number; left: number } | null>(null)
@@ -46,20 +51,14 @@ export function useBindingPicker({
 
   if (!selected && picker !== null) setPicker(null)
 
-  function spotAt(e: ReactMouseEvent<HTMLDivElement>): { spot: BindableSpot; el: HTMLElement } | null {
-    if (bindableSpots.length === 0) return null
-    for (const t of e.nativeEvent.composedPath()) {
-      if (t === e.currentTarget) return null
-      if (t instanceof HTMLElement && t.hasAttribute('data-ff-spot')) {
-        const spot = bindableSpots.find((s) => s.prop === t.getAttribute('data-ff-spot'))
-        return spot ? { spot, el: t } : null
-      }
-    }
-    return null
+  function spotAt(e: ReactMouseEvent<HTMLDivElement>): { spot: BindableSpot; rect: DOMRect } | null {
+    const reported = spotClickOf(e.nativeEvent)
+    if (reported?.kind !== 'binding') return null
+    const spot = bindableSpots.find((s) => s.prop === reported.prop)
+    return spot ? { spot, rect: reported.rect } : null
   }
 
-  function pickerPos(spotEl: HTMLElement): { top: number; left: number } {
-    const spotRect = spotEl.getBoundingClientRect()
+  function pickerPos(spotRect: DOMRect): { top: number; left: number } {
     return {
       top: Math.max(8, spotRect.bottom + 4),
       left: Math.max(8, Math.min(spotRect.left, window.innerWidth - 248)),
@@ -76,7 +75,7 @@ export function useBindingPicker({
     if (e.detail > 1) return
     const hit = spotAt(e)
     if (!hit) return
-    const pos = pickerPos(hit.el)
+    const pos = pickerPos(hit.rect)
 
     if (bindingCode(blockRef.current.values, hit.spot) !== '') {
       setPicker({ spot: hit.spot, ...pos })
@@ -97,7 +96,7 @@ export function useBindingPicker({
     const hit = spotAt(e)
     if (!hit || bindingCode(blockRef.current.values, hit.spot) === '') return
     e.stopPropagation()
-    setPicker({ spot: hit.spot, ...pickerPos(hit.el) })
+    setPicker({ spot: hit.spot, ...pickerPos(hit.rect) })
   }
 
   return {
