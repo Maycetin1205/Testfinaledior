@@ -26,9 +26,10 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 - 08.10. Erst der Editor, dann Feintuning. Meldungen und Tests kommen vor
   der Abnahme durch die Programmierer, nicht vorher.
 - 08.10. Der Rahmen ist der Baustein. Was eine feste Höhe hat (Feld,
-  Datum, Schaltfläche), lässt sich nur in der Breite ziehen; alles andere
-  füllt seinen Rahmen ganz. Kein Rahmen ist größer oder kleiner als sein
-  Baustein.
+  Datum, Schaltfläche), lässt sich nur in der Breite ziehen; Text ist so
+  hoch wie sein Text (Rolle und Größe geben die Zeilenhöhe, die Breite den
+  Umbruch), auch nur in der Breite ziehbar; alles andere füllt seinen
+  Rahmen ganz. Kein Rahmen ist größer oder kleiner als sein Baustein.
 - 08.10. Aussehen aus drei Drehknöpfen, einmal deklariert, an jedem
   Baustein dieselben: Ton (Neutral, Hinweis, Erfolg, Warnung, Fehler),
   Stärke (Fläche voll, Fläche leicht, nur Rand, nur Schrift), Größe
@@ -198,6 +199,10 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    Rasterzeile bleibt ganz und ragt darum unten heraus. Kein Griff zieht
    unter die Mindestgröße, ein Bereich nicht schmaler oder niedriger als
    sein Inhalt, auch nicht per Doppelklick auf den Griff.
+   (e) Nachtrag, Nutzer 08.10.: Text ist so hoch wie sein Text, nicht
+   höher und nicht niedriger. Der Text meldet seine Höhe in Rasterzeilen
+   (wie `ff-heads-placed`), der Editor setzt die Zeilen; Griffe nur links
+   und rechts. Heute füllt er den Rahmen und ragt bei einer Zeile heraus.
 3. Datenweg, ein bis zwei Chats, auf einen Weg: „Quelle“ viermal von Hand
    deklariert (`blocks/*/properties.ts`); Listen-Eigenschaften siebenmal
    gleich gelesen (`core/data/extraSources.ts`); zwei Systeme „woher kommt
