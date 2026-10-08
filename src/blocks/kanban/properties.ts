@@ -4,10 +4,10 @@ import {
   segmentProperty,
   type ValuesOf,
 } from '../../core/block/property'
+import { DAY_FIELD_PROPERTY } from '../../core/block/dayFieldProperty'
 import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import { spotBinding, typedSpot } from '../parts/card'
 import { toneOptions } from '../../core/block/tones'
-import { dayFieldProperty } from '../../runtime/source'
 import { kanbanColumnsProperty } from './columns'
 
 export const kanbanProperties = {
@@ -18,7 +18,7 @@ export const kanbanProperties = {
     place: 'source',
     attribute: 'columnsfield',
   }),
-  dayField: dayFieldProperty(),
+  dayField: DAY_FIELD_PROPERTY,
   columns: kanbanColumnsProperty(),
   avatarKind: segmentProperty([
     { value: 'animal', name: 'Tiersymbol' },

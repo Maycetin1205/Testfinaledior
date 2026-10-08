@@ -10,7 +10,7 @@ import {
   selectionFollowsFrom,
   type SelectionFollow,
 } from '../../core/data/selectionFollow'
-import { openDocumentOf } from '../controls/outsideOrigin'
+import { openDocumentOf } from '../origin/reach'
 
 export function followOf(block: BlockNode): SelectionFollow | undefined {
   return selectionFollowsFrom(block.values[SELECTION_FOLLOW_PROP])[0]

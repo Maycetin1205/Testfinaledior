@@ -206,13 +206,20 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    ohne eigenen Schritt im Rückgängig); Griffe nur links und rechts. Im
    Editor geprüft: eine Zeile 2 Rasterzeilen, sechs Zeilen 8, breiter
    gezogen 3, Rückgängig zieht die Höhe mit.
-3. Datenweg, ein bis zwei Chats, auf einen Weg: „Quelle“ viermal von Hand
-   deklariert (`blocks/*/properties.ts`); Listen-Eigenschaften siebenmal
-   gleich gelesen (`core/data/extraSources.ts`); zwei Systeme „woher kommt
-   ein Wert“ (`core/data/valueOrigin.ts`, `editor/actions/placeChoices.ts`);
-   die Maske liest Eigenschaften per Namensregel statt aus der Deklaration
-   (`runtime/source.ts`); Bindung zu Feldname an drei bis fünf Stellen.
-   Dateien über 300 Zeilen werden dabei nach Thema geteilt.
+3. Datenweg, zwei Chats, auf einen Weg. Teil 1 erledigt 08.10.: Ein Weg
+   für „woher kommt ein Wert“. `core/data/valueOrigin.ts` nennt jede
+   Herkunft und liest Parameter und Feldpaar als eine; `editor/origin/`
+   hält, was eine Stelle erreicht (`reach.ts`), die Herkünfte mit Namen und
+   Einträgen (`origins.ts`), die Liste in einem Schritt (`OriginPicker.tsx`)
+   und die Zelle der Zeilen (`ChoiceCell.tsx`). Aktionen, Wert einer
+   Quelle, Hilfsquelle, Folgt der Auswahl und Berechnung nehmen sie nur von
+   dort. Die Maske liest Quelle und Tagesfeld aus der Deklaration des
+   Bausteins (`readDeclared` in `core/block/registry.ts`, Tagesfeld in
+   `core/block/dayFieldProperty.ts`). Teil 2 offen: „Quelle“ viermal von
+   Hand deklariert (`blocks/*/properties.ts`); Listen-Eigenschaften
+   siebenmal gleich gelesen (`core/data/extraSources.ts`); Bindung zu
+   Feldname an drei bis fünf Stellen. Dateien über 300 Zeilen werden dabei
+   nach Thema geteilt.
 4. Aussehen: die drei Drehknöpfe einmal deklarieren (ein Chat), dann
    Schaltfläche, Text, Bereich, Chip je ein kleiner Chat.
 5. Dann die Liste unter „Bausteine“: Bild, Formularfeld, Datenliste; je

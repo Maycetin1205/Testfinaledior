@@ -9,7 +9,7 @@ import { getValueSourceAllowed } from '../../core/data/deliveries/relationValue'
 import { readMaskFields } from '../../core/data/maskFields'
 import { PRESET_IDS, sourcePreset, type PresetId } from '../../core/data/presets/presets'
 import { POSITIONS_RELATION, relationSyntaxAsText, type RelationTemplate } from '../../core/data/relations'
-import { sourceChoices } from '../actions/placeChoices'
+import { sourceReach } from '../origin/reach'
 import { Places } from '../actions/Places'
 import { PickerControl } from '../controls/PickerControl'
 import type { ListGroup } from '@/editor/widgets/List'
@@ -156,7 +156,7 @@ export function SourceBelow({ source }: { source: DataSource }) {
         <Places
           template={template}
           filled={{ parameter: getValue.parameter, extraParameter: [] }}
-          choices={sourceChoices(store.list, source.id)}
+          reach={sourceReach(store.list, source.id)}
           extras={false}
           onChange={(filled) => saveValue(getValue.relationId, filled.parameter)}
         />

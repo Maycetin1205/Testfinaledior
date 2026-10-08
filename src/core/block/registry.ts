@@ -1,6 +1,7 @@
 import { ROOT_TYPE } from './tree'
 import type { BlockDeclaration, BlockType } from './blockType'
 import { capability, hasCapability, type ContractKind, type RuntimeContracts } from './capability'
+import type { Property, PropertyValue } from './property'
 
 const registry = new Map<string, BlockType>()
 
@@ -46,6 +47,14 @@ export function contractOf<A extends ContractKind>(
   throw new Error(
     `<${el.tagName.toLowerCase()}> meldet die Faehigkeit „${kind}", nennt aber keine Klasse, die sie erfuellt.`,
   )
+}
+
+// What an element holds in a property its block declares, read from its
+// attribute by that declaration; nothing when its block does not list it.
+export function readDeclared<V extends PropertyValue>(el: Element, declared: Property<V>): V | undefined {
+  const def = blockTypeForTag(el.tagName)
+  if (!def || !Object.values(def.properties).includes(declared)) return undefined
+  return declared.type.fromAttribute(el.getAttribute(declared.attribute), declared.default)
 }
 
 // What an element holds at a spot its block names in actionValue. Only a

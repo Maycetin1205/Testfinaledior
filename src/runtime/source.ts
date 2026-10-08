@@ -1,5 +1,6 @@
 import { bindingFields, bindingJoiner } from '../core/block/binding'
-import { fieldProperty, type Property } from '../core/block/property'
+import { DAY_FIELD_PROPERTY } from '../core/block/dayFieldProperty'
+import { readDeclared } from '../core/block/registry'
 import { SOURCE_PROPERTY } from '../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import type { RuntimeSource } from '../core/data/dataSources'
@@ -9,21 +10,9 @@ import { keyedByFormField, makeFieldReader, type FieldReader } from './foreignSo
 import { onChosenDay, chosenDay, dayKey } from './chosenDay'
 import { wireFetchingSources } from './fetchingSources'
 
-// The field a list filters by the chosen day; the lists declare it, the
-// mask reads it by the same declaration.
-const DAY_FIELD: Property<string> = fieldProperty({
-  default: '',
-  label: 'Tag filtern nach',
-  place: 'source',
-  attribute: 'dayfield',
-})
-
-export function dayFieldProperty(): Property<string> {
-  return DAY_FIELD
-}
-
+// The source a block reads, as its block declares it.
 export function sourceIdOf(el: Element): string {
-  return el.getAttribute(SOURCE_PROPERTY.attribute) ?? ''
+  return readDeclared(el, SOURCE_PROPERTY) ?? ''
 }
 
 // The record number the host knows a row by; empty when the source names none.
@@ -53,11 +42,7 @@ export function readDataPreamble(el: HTMLElement): DataPreamble | null {
   if (sourceId === '') return null
   const source = maskState.host.source(sourceId)
   if (!source) return null
-  const rows = rowsAtDay(
-    maskState.host.rows(source),
-    DAY_FIELD.type.fromAttribute(el.getAttribute(DAY_FIELD.attribute), DAY_FIELD.default),
-    chosenDay(),
-  )
+  const rows = rowsAtDay(maskState.host.rows(source), readDeclared(el, DAY_FIELD_PROPERTY) ?? '', chosenDay())
   return { source, rows, read: makeFieldReader(el) }
 }
 

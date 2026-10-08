@@ -13,8 +13,8 @@ import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
 import { useView } from '../state/useView'
+import { maskReach } from '../origin/reach'
 import type { EditorStore } from '../state/EditorStore'
-import { maskChoices } from './placeChoices'
 import { StepWindow, type StepContext, type StepTab } from './StepWindow'
 
 // The tab a step opens on.
@@ -39,7 +39,7 @@ function useStepContext(): StepContext {
   return useMemo(() => ({
     relations,
     popups: pagesOfMask(tree).filter(isWindowPage).map((p) => ({ value: p.id, name: p.name })),
-    choices: maskChoices(tree, sources),
+    reach: maskReach(tree, sources),
   }), [tree, sources, relations])
 }
 

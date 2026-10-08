@@ -1,8 +1,8 @@
 import { booleanProperty, type ValuesOf } from '../../core/block/property'
+import { DAY_FIELD_PROPERTY } from '../../core/block/dayFieldProperty'
 import { SOURCE_PROPERTY } from '../../core/block/sourceProperty'
 import type { Capability } from '../../core/block/capability'
 import type { ListBinding } from '../../core/block/listBinding'
-import { dayFieldProperty } from '../../runtime/source'
 import { columnsProperty } from '../parts/column'
 import { KEY_F4, ROW_DOUBLE, ROW_CHOSEN } from './rowActivation'
 
@@ -38,7 +38,7 @@ export function listProperties(sortsByClick: boolean) {
       place: 'column',
       attribute: 'columnpicker',
     }),
-    dayField: dayFieldProperty(),
+    dayField: DAY_FIELD_PROPERTY,
   }
 }
 

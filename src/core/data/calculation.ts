@@ -14,17 +14,20 @@ interface UnitPair {
   factor: number
 }
 
-// A term takes its value from a column of the row, a field of a helper
-// source or a typed number; or it is the factor a table gives for the two
-// units the row holds, 1 when no pair of the table fits.
+// What a term reads: a column of the row, a field of a helper source or a
+// typed number.
+export type TermOrigin = Extract<ValueOrigin, { kind: 'row' | 'helper' | 'fixed' }>
+
+// A term takes its value from its origin; or it is the factor a table gives
+// for the two units the row holds, 1 when no pair of the table fits.
 export type Term =
-  | (ValueOrigin & { divides: boolean })
+  | (TermOrigin & { divides: boolean })
   | UnitsTerm
 
 export interface UnitsTerm {
   kind: 'units'
-  first?: ValueOrigin
-  second?: ValueOrigin
+  first?: TermOrigin
+  second?: TermOrigin
   table: UnitPair[]
   divides: boolean
 }
@@ -49,7 +52,7 @@ const DECIMALS_DEFAULT = 2
 // ----- computing -----
 
 // What a term reads in a row; '' when the place is empty or not there.
-type Read = (origin: ValueOrigin) => string
+type Read = (origin: TermOrigin) => string
 
 interface Member {
   left: boolean
@@ -75,7 +78,7 @@ interface Solved {
 // than one stands empty, or another value is missing or no number.
 function solve(b: Calculation, slotOf: (column: string) => number, read: Read): Solved | null {
   const members: Member[] = []
-  const places: { origin: ValueOrigin; left: boolean }[] = [{ origin: { kind: 'row', value: b.lead }, left: true }]
+  const places: { origin: TermOrigin; left: boolean }[] = [{ origin: { kind: 'row', value: b.lead }, left: true }]
   for (const term of b.terms) {
     if (term.kind === 'units') members.push({ left: term.divides, value: unitFactor(term, read) })
     else places.push({ origin: term, left: term.divides })
@@ -157,9 +160,9 @@ export function columnSlots(
   return out
 }
 
-function originsOf(b: Calculation): ValueOrigin[] {
+function originsOf(b: Calculation): TermOrigin[] {
   return b.terms.flatMap((t) => (t.kind === 'units'
-    ? [t.first, t.second].filter((o): o is ValueOrigin => o !== undefined)
+    ? [t.first, t.second].filter((o): o is TermOrigin => o !== undefined)
     : [t]))
 }
 
@@ -202,11 +205,11 @@ export function newCalculation(present: readonly Calculation[], lead: string): C
 
 const text = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
 
-const ORIGIN_KINDS = ['row', 'helper', 'fixed'] as const
+const TERM_KINDS = ['row', 'helper', 'fixed'] as const
 
-function originFrom(raw: unknown): ValueOrigin | undefined {
-  if (!isUnread<ValueOrigin>(raw)) return undefined
-  const kind = ORIGIN_KINDS.find((k) => k === raw.kind)
+function originFrom(raw: unknown): TermOrigin | undefined {
+  if (!isUnread<TermOrigin>(raw)) return undefined
+  const kind = TERM_KINDS.find((k) => k === raw.kind)
   const value = text(raw.value)
   if (kind === undefined || value === '') return undefined
   const sourceId = text(raw.sourceId)

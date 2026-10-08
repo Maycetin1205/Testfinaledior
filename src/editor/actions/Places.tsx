@@ -1,23 +1,23 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from 'react'
-import { ChevronDown, Plus, Trash2 } from '@/editor/icons/icon'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { Plus, Trash2 } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { Grid, INPUT, MARKED, TD } from '@/editor/widgets/Grid'
-import { List, type ListGroup } from '@/editor/widgets/List'
-import { Popover } from '@/editor/widgets/Popover'
+import type { ListGroup } from '@/editor/widgets/List'
 import { OnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { Parameter } from '../../core/data/actions'
 import type { RelationTemplate } from '../../core/data/relations'
+import { ChoiceCell } from '../origin/ChoiceCell'
+import type { Reach } from '../origin/reach'
 import { adoptedField, fieldAdopt } from './fieldAdopt'
 import {
   entryText,
-  originEntries,
-  originGroups,
-  originName,
-  originOf,
+  placeEntries,
   placeEntry,
+  placeGroups,
+  placeOrigin,
+  placeOriginName,
   placePicked,
-  type PlaceChoices,
-} from './placeChoices'
+} from './placeOrigins'
 
 // What stands in the places of a relation: one per place of its syntax, then
 // those added behind a relation that ends in "...".
@@ -37,13 +37,13 @@ const COLUMNS = [
 
 // The relation as it goes out: a fixed value as it stands, every other value
 // as its name in braces.
-export function Result({ template, filled, choices }: { template: RelationTemplate; filled: Filled; choices: PlaceChoices }) {
+export function Result({ template, filled, reach }: { template: RelationTemplate; filled: Filled; reach: Reach }) {
   const all = [...filled.parameter, ...filled.extraParameter]
   return (
     <div className="break-all border-b border-line px-[12px] py-[9px] font-mono text-dense leading-[19px] text-muted">
       {template.verb}[{template.nr}
       {all.map((b, k) => {
-        const entry = placeEntry(b, choices)
+        const entry = placeEntry(b, reach)
         return (
           <span key={k}>
             !
@@ -63,10 +63,10 @@ type Open = { at: number; list: 'origin' | 'entry' } | null
 // the origin, a short list of what the mask has; then the entry offers only
 // what that origin holds, and a fixed value is just typed. A click on a line
 // types into it; Enter and the arrows go on, F4 opens the choice.
-export function Places({ template, filled, choices, extras = true, fill = true, onChange }: {
+export function Places({ template, filled, reach, extras = true, fill = true, onChange }: {
   template: RelationTemplate
   filled: Filled
-  choices: PlaceChoices
+  reach: Reach
   // Places may be added behind a relation that ends in "...".
   extras?: boolean
   fill?: boolean
@@ -78,7 +78,8 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
   const [open, setOpen] = useState<Open>(null)
   const all = [...filled.parameter, ...filled.extraParameter]
   const fixedCount = filled.parameter.length
-  const adopted = adoptedField(template, filled.parameter, choices.dataSources)
+  const sources = reach.sources ?? []
+  const adopted = adoptedField(template, filled.parameter, sources)
 
   const set = (i: number, b: Parameter) => onChange(i < fixedCount
     ? { ...filled, parameter: filled.parameter.map((x, k) => (k === i ? b : x)) }
@@ -87,11 +88,12 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
     setPending(null)
     setOpen(null)
     const picked = placePicked(value)
+    if (picked === null) return
     if ('set' in picked) {
       set(i, picked.set)
       return
     }
-    const source = choices.dataSources.find((s) => s.id === picked.adopt.sourceId)
+    const source = sources.find((s) => s.id === picked.adopt.sourceId)
     if (source) onChange({ ...filled, parameter: fieldAdopt(filled.parameter, template, source, picked.adopt.code) })
   }
   const chooseOrigin = (i: number, origin: string) => {
@@ -102,7 +104,7 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
       return
     }
     // One entry is taken at once; more open right away beside it.
-    const entries = originEntries(origin, choices).flatMap((g) => g.entries)
+    const entries = placeEntries(origin, reach).flatMap((g) => g.entries)
     if (entries.length === 1 && entries[0]) {
       take(i, entries[0].value)
       return
@@ -120,7 +122,7 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
     <Grid columns={COLUMNS} fill={fill}>
       {all.map((b, i) => {
         const raw = template.parameter[i] ?? '…'
-        const origin = pending?.at === i ? pending.origin : originOf(b, raw, adopted)
+        const origin = pending?.at === i ? pending.origin : placeOrigin(b, raw, adopted)
         return (
           <PlaceLine
             key={i}
@@ -128,12 +130,12 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
             raw={raw}
             binding={b}
             origin={origin}
-            originText={originName(origin, choices, adopted?.label)}
-            entry={pending?.at === i ? '' : entryText(b, choices)}
+            originText={placeOriginName(origin, reach, adopted?.label)}
+            entry={pending?.at === i ? '' : entryText(b, reach)}
             on={selected === i}
             open={open?.at === i ? open.list : null}
-            origins={() => originGroups(raw, choices)}
-            entries={() => originEntries(origin, choices)}
+            origins={() => placeGroups(raw, reach)}
+            entries={() => placeEntries(origin, reach)}
             onSelect={() => {
               if (selected !== i) setPending(null)
               setSelected(i)
@@ -174,43 +176,6 @@ export function Places({ template, filled, choices, extras = true, fill = true, 
   )
 }
 
-// A cell that opens a short list: what it shows, and a chevron on the marked line.
-export function ChoiceCell({ label, on, open, groups, value, cellRef, onOpen, onChoose }: {
-  label: ReactNode
-  on: boolean
-  open: boolean
-  groups: () => ListGroup[]
-  value: string
-  cellRef: RefObject<HTMLButtonElement | null>
-  onOpen: (open: boolean) => void
-  onChoose: (value: string) => void
-}) {
-  return (
-    <>
-      <button
-        ref={cellRef}
-        type="button"
-        tabIndex={on ? 0 : -1}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={(e) => {
-          e.stopPropagation()
-          onOpen(!open)
-        }}
-        className="flex h-[28px] w-full min-w-0 items-center gap-[6px] px-[10px] text-left outline-none"
-      >
-        <span className="min-w-0 flex-1 truncate">{label}</span>
-        {on && <ChevronDown size={13} aria-hidden className="shrink-0 opacity-80" />}
-      </button>
-      {open && (
-        <Popover name="Wahl" anchor={cellRef} width={280} level={70} onClose={() => onOpen(false)}>
-          <List searchable groups={groups()} value={value} onChoose={onChoose} />
-        </Popover>
-      )}
-    </>
-  )
-}
-
 function PlaceLine({
   nr, raw, binding, origin, originText, entry, on, open, origins, entries,
   onSelect, onOpen, onOrigin, onTake, onType, onMove, onDone, onRemove,
@@ -239,7 +204,7 @@ function PlaceLine({
   const input = useRef<HTMLInputElement>(null)
   // A fixed value, a field's position typed in, or nothing yet: typed in place.
   const typed = origin === '' || origin === 'fixed' || (origin.startsWith('adopt:') && binding.source === 'fixed' && binding.value !== '')
-  const chosen = !typed && origin !== 'previous' && origin !== 'var'
+  const chosen = !typed && origin !== 'previous' && origin !== 'variable'
   useEffect(() => { if (on && typed && open === null) input.current?.focus() }, [on, typed, open])
 
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {

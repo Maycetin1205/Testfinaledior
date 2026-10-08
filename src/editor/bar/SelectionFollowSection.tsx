@@ -1,21 +1,12 @@
 import { Link2, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import type { BlockNode } from '../../core/block/tree'
-import { blockName } from '../../core/block/blockName'
 import { selectionSourceIdOf } from '../../core/block/treeQuery'
 import type { KeyPair } from '../../core/data/extraSources'
 import { SELECTION_FOLLOW_PROP, type SelectionFollow } from '../../core/data/selectionFollow'
-import type { ValueOrigin } from '../../core/data/valueOrigin'
-import { OriginPicker } from '../controls/OriginPicker'
-import type { OriginOffer } from '../controls/originOffer'
-import {
-  fieldEntries,
-  formFieldSpots,
-  fromOutside,
-  outsideOffer,
-  outsideOrigin,
-  outsidePair,
-} from '../controls/outsideOrigin'
+import { originPair, pairOrigin, type ValueOrigin } from '../../core/data/valueOrigin'
+import { OriginPicker } from '../origin/OriginPicker'
+import { formFieldsOf, giverGroup, outsideReach, type Reach } from '../origin/reach'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { followedName, followOf } from './followOffer'
@@ -38,33 +29,20 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
   const follow = followOf(block)
   if (!follow) return null
 
-  const sourceOf = (n: BlockNode | undefined) =>
-    library.find((s) => s.id === selectionSourceIdOf(n))
   const giver = ed.tree[follow.giverId]
-  const giverSource = sourceOf(giver)
-  const ownSource = sourceOf(block)
-  const formFields = formFieldSpots(ed.tree, library, block.id)
+  const ownSource = library.find((s) => s.id === selectionSourceIdOf(block))
 
-  const offer: OriginOffer = {
-    rows: giver && giverSource
-      ? [{
-          sourceId: follow.giverId,
-          name: `Gewählte Zeile ${blockName(giver, library)}`,
-          fields: fieldEntries(giverSource),
-        }]
-      : [],
-    ...outsideOffer(library, formFields),
+  const reach: Reach = {
+    givers: giver ? [giverGroup(giver, library)] : [],
+    ...outsideReach(library, formFieldsOf(ed.tree, library).filter((f) => f.blockId !== block.id)),
   }
 
-  const originOf = (pair: KeyPair): ValueOrigin | null => (pair.fromField === ''
-    ? null
-    : outsideOrigin(pair) ?? { kind: 'row', sourceId: follow.giverId, value: pair.fromField })
+  const originOf = (pair: KeyPair): ValueOrigin | null =>
+    pairOrigin(pair, (value) => ({ kind: 'chosenRow', blockId: follow.giverId, value }))
 
   // A new origin keeps the sign of the pair.
   const pairFor = (origin: ValueOrigin, pair: KeyPair): KeyPair | null => {
-    const next = fromOutside(origin)
-      ? outsidePair(origin, pair.toField, formFields)
-      : { fromField: origin.value, toField: pair.toField }
+    const next = originPair(origin, pair.toField)
     return next && pair.unequal ? { ...next, unequal: true } : next
   }
 
@@ -98,7 +76,7 @@ export function SelectionFollowSection({ block, onPick }: SelectionFollowSection
             <OriginPicker
               name={`Wert ${at + 1}`}
               origin={originOf(pair)}
-              offer={offer}
+              reach={reach}
               onChoose={(origin) => {
                 const next = pairFor(origin, pair)
                 if (next) set([{ ...follow, pairs: follow.pairs.map((p, x) => (x === at ? next : p)) }])

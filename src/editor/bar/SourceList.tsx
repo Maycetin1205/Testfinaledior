@@ -11,17 +11,9 @@ import {
 } from '../../core/data/extraSources'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
-import type { ValueOrigin } from '../../core/data/valueOrigin'
-import { OriginPicker } from '../controls/OriginPicker'
-import type { OriginOffer } from '../controls/originOffer'
-import {
-  fieldEntries,
-  formFieldSpots,
-  fromOutside,
-  outsideOffer,
-  outsideOrigin,
-  outsidePair,
-} from '../controls/outsideOrigin'
+import { originPair, pairOrigin, type ValueOrigin } from '../../core/data/valueOrigin'
+import { OriginPicker } from '../origin/OriginPicker'
+import { fieldEntries, formFieldsOf, outsideReach, sourceGroup, type Reach } from '../origin/reach'
 import { PickerControl } from '../controls/PickerControl'
 import { Labeled } from './Labeled'
 import { KeyPairRows } from './KeyPairRows'
@@ -56,25 +48,19 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     return library.filter((s) => !taken.has(s.id))
   }
 
-  const entriesOf = (id: string) => fieldEntries(library.find((s) => s.id === id))
-
-  const formFields = formFieldSpots(ed.tree, library)
+  const outside = outsideReach(library, formFieldsOf(ed.tree, library))
 
   // The key of a helper source comes from the row itself, another helper
   // source, the open document or a form field. The pairs that read the row or
   // a helper source all read from the same one.
-  function offerFor(index: number): OriginOffer {
+  function reachFor(index: number): Reach {
     const own = extra[index]
     return {
-      row: entriesOf(first),
+      row: fieldEntries(library.find((s) => s.id === first)),
       helpers: extra
         .filter((q, at) => at !== index && q.sourceId !== '' && q.sourceId !== own?.sourceId)
-        .map((q) => ({
-          sourceId: q.sourceId,
-          name: library.find((s) => s.id === q.sourceId)?.name ?? '',
-          fields: entriesOf(q.sourceId),
-        })),
-      ...outsideOffer(library, formFields),
+        .flatMap((q) => library.filter((s) => s.id === q.sourceId).map(sourceGroup)),
+      ...outside,
     }
   }
 
@@ -86,11 +72,8 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
   }
 
   function originOf(index: number, pair: KeyPair): ValueOrigin | null {
-    if (pair.fromField === '') return null
-    const outside = outsideOrigin(pair)
-    if (outside) return outside
     const partner = partnerOf(index)
-    return partner === '' ? { kind: 'row', value: pair.fromField } : { kind: 'helper', sourceId: partner, value: pair.fromField }
+    return pairOrigin(pair, (value) => (partner === '' ? { kind: 'row', value } : { kind: 'helper', sourceId: partner, value }))
   }
 
   const fromPartner = (p: KeyPair, fromField: string): KeyPair => ({ fromField, toField: p.toField })
@@ -101,9 +84,9 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     const pairs = [...own.pairs]
     const pair = pairs[at]
     if (!pair) return
-    if (fromOutside(origin)) {
-      const next = outsidePair(origin, pair.toField, formFields)
-      if (!next) return
+    const next = originPair(origin, pair.toField)
+    if (!next) return
+    if (next.from !== undefined) {
       pairs[at] = next
       change(index, { pairs })
       return
@@ -114,7 +97,7 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     change(index, {
       partnerId: partner,
       pairs: pairs.map((p, x) => (x === at
-        ? fromPartner(p, origin.value)
+        ? next
         : (same || p.from !== undefined ? p : fromPartner(p, '')))),
     })
   }
@@ -185,7 +168,7 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
                 <OriginPicker
                   name={`Wert ${at + 1}`}
                   origin={originOf(i, pair)}
-                  offer={offerFor(i)}
+                  reach={reachFor(i)}
                   onChoose={(origin) => setOrigin(i, at, origin)}
                 />
               )}
