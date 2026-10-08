@@ -33,10 +33,12 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 - 08.10. Datenliste: Wahl „Auswahl“ je Liste: Eine Zeile (Klick, andere
   folgen, wie die Tabelle), Mehrere (Haken) oder Keine. Vorgabe Eine Zeile.
   Die gewählte Zeile steht in den Aktionen als Herkunft, etwa als
-  Parameter einer Relation, genau wie bei der Tabelle. Das Plus oben an
-  der Datenliste: weg. Einen Bereich auf- und zuklappen kann die
-  Schaltfläche („Beim Klick: Bereich“), ein Weg je Knopf. In der
-  Empfang-Maske werden „+ Tier“ und „+ Kunde“ Schaltflächen.
+  Parameter einer Relation, genau wie bei der Tabelle.
+- 08.10. Das Plus der Datenliste und das Auf- und Zuklappen eines Bereichs
+  (07.10.): ganz raus. Im Editor ist der Platz reserviert, in der Maske
+  rückte alles nach; Editor und Maske wären verschieden. Zeigen, wenn
+  gebraucht, macht das Popup. In der Empfang-Maske sind „Neuer Kunde“ und
+  „Neues Tier“ immer sichtbar.
 - 08.10. Bild kommt als Baustein mit der Technik des Kanban-Avatars,
   sobald der Nutzer zeigt, was SoftEngine für ein Tierfoto liefert.
 - 08.10. Gestrichen: Navigation mit Ansichten (andere Ansicht heißt
@@ -55,7 +57,6 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 - 08.10. Plätze im Kanban (Zimmer 1 bis 4 einer Spalte) bleiben.
 - 07.10. Kein Neubau. Gestrichen: Chip-Farbe folgt einem Feld, Text als
   Chip, der Zähler (Statuszeile „0 Termine offen · 0 im Wartezimmer“).
-  Bereich auf und zu: was darunter liegt, rückt nach.
 - 07.10. Ankreuzfeld bleibt, bis der Nutzer zeigt, was ein Haken an
   SoftEngine schickt. Zweiter Schreibmodus für vorhandene Positionen: kein
   Bau, bis er in kontrakte.md steht. Quellenarten nach Inhalt: liegen lassen.
@@ -125,8 +126,8 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 
 ## Bausteine
 
-Gebaut: Bereich (Frei, Kasten oder Kopfzeile mit Titel und Ton; auf und zu
-durch das Plus einer Datenliste, das zur Schaltfläche wandert), Schaltfläche, Datum
+Gebaut: Bereich (Frei, Kasten oder Kopfzeile mit Titel und Ton; das Auf-
+und Zuklappen vom 07.10. kommt wieder raus), Schaltfläche, Datum
 (Tageswahl), Formularfeld (Text, Zahl, Datum tippbar, Auswahl,
 Nachschlagen; Ankreuzfeld unfertig), Tabelle, Erfassung, Kanban (Plätze je
 Spalte, mehrere Felder je Platz mit Trenner, Knopf je Spalte Aus, Weiter
@@ -153,10 +154,10 @@ Was bleibt:
   Chef-Maske; der Pflichtstern ist im Nachbau nicht zu sehen.
 - Datenliste: die Wahl „Auswahl“ (Eine Zeile wie die Tabelle, Mehrere,
   Keine); heute kann sie nur Haken, die Fähigkeit `recordPick` der Tabelle
-  fehlt ihr. Das Plus raus; die Fähigkeit `opener` (`core/block/opening.ts`,
-  `runtime/opening.ts`, `bar/AreaPick.tsx`) wandert zur Schaltfläche als
-  Wahl „Beim Klick: Bereich“. Das Popup bleibt so hoch wie gezogen, mit
-  zugeklappten Bereichen steht unten Leerraum.
+  fehlt ihr. Das Plus und die Fähigkeit `opener` (`core/block/opening.ts`,
+  `runtime/opening.ts`, `bar/AreaPick.tsx`, `canvas/useAreaPickStart.ts`)
+  raus, samt dem Nachrücken in der Maske; die Empfang-Maske zeigt beide
+  Bereiche offen. Damit erledigt sich auch der Leerraum im Popup.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
 Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
