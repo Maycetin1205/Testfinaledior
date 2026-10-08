@@ -69,6 +69,11 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   Werte sind je Feld Daten, nicht Code, und lassen sich in den
   Einstellungen des Feldes ändern (etwa `1`/`0`). Der Haken löst „Wert
   geändert“ aus und steht in den Aktionen als Herkunft.
+- 08.10. Die Beschriftung eines Formularfelds steht im leeren Feld selbst,
+  als Platzhalter (Text, Zahl, Datum, Auswahl, Nachschlagen), beim
+  Ankreuzfeld neben dem Haken. Nie über dem Feld, nie daneben. Vom Nutzer
+  mehrfach gesagt; ein Chat, der sie über das Feld setzte, wurde
+  abgebrochen und verworfen.
 - 07.10. Zweiter Schreibmodus für vorhandene Positionen: kein Bau, bis er
   in kontrakte.md steht. Quellenarten nach Inhalt: liegen lassen.
 - 07.10. Erfassung: ein Kopf; je Zelle der Hauptzeile höchstens eine graue
@@ -160,8 +165,9 @@ Was bleibt:
 - Bild: eigener Baustein, Technik vom Kanban-Avatar (`blocks/parts/card.ts`;
   festes Bild in der Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
   Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
-- Formularfeld: Beschriftung klein und grau über dem Feld wie in der
-  Chef-Maske; der Pflichtstern ist im Nachbau nicht zu sehen.
+- Formularfeld: nur das Ankreuzfeld (siehe „Einzelne Punkte“). Die
+  Beschriftung steht im Feld und bleibt dort. „Pflicht“ ist als Wahl da
+  und in der Maske nicht zu sehen; wenn je, dann im Feld, nie darüber.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
 Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
@@ -237,7 +243,7 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    bisher. Maskenschema 29: eine Textfarbe wird die Farbe gleichen Namens,
    Dunkel, Grau und Hell werden Neutral; eine Kopfzeile behält ihre Farbe
    (sonst Blau) und wird Fläche leicht. Bleibt: Chip, ein kleiner Chat.
-5. Dann die Liste unter „Bausteine“: Bild, Formularfeld; je einer ein
+5. Dann die Liste unter „Bausteine“: Bild, Ankreuzfeld; je einer ein
    Chat. Datenliste erledigt 08.10.: die Wahl „Auswahl“ in der Leiste. Eine
    Zeile gibt die angeklickte Zeile weiter wie Tabelle und Kanban
    (`recordPick`, nur solange sie gewählt ist: `gives`); Mehrere sind die
@@ -248,9 +254,10 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 Einzelne Punkte, ohne Reihenfolge:
 
-- Ankreuzfeld fertig bauen, im Formularfeld-Chat: Haken `J`, kein Haken
+- Ankreuzfeld fertig bauen, eigener Chat, nur das: Haken `J`, kein Haken
   `N`, je Feld änderbar; heute liegt der Haken in privatem Zustand und
-  „Wert geändert“ liest leer (`blocks/formfield/FormField.ts`).
+  „Wert geändert“ liest leer (`blocks/formfield/FormField.ts`). Die
+  Beschriftung der anderen Felder bleibt, wo sie ist.
 - Pfeil runter in der Erfassung öffnet keine Vorschlagsliste (von der KI
   am 07.10. festgelegt, Tippen oder F5). Der Nutzer prüft es in SoftEngine.
 - Tag-Feld je Baustein: wie heute, nicht entschieden.
