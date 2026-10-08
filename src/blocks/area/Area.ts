@@ -1,7 +1,7 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { wireOpened } from '../../runtime/opening'
-import { toneStyle, toneValue } from '../tone/tone'
+import { lookStyle, toneValue } from '../look/look'
 import { areaStyle } from './areaStyle'
 import { areaProperties, type AreaValues } from './properties'
 
@@ -11,7 +11,7 @@ export class Area extends BlockElement {
   static readonly type = 'area'
   static readonly tag = 'ff-area'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, areaStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, areaStyle]
 
   private unwire: (() => void) | null = null
 

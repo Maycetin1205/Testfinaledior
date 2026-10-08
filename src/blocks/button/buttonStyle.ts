@@ -1,5 +1,8 @@
 import { css } from 'lit'
 
+// Color, emphasis and size come from lookStyle, as .vbtn of the reception
+// mask: Neutral and Nur Rand is .vbtn, Petrol and Fläche voll .vbtn-primaer,
+// Petrol and Fläche leicht .vbtn-leise, Neutral and Nur Schrift .vbtn-ghost.
 export const buttonStyle = css`
   button {
     box-sizing: border-box;
@@ -10,18 +13,18 @@ export const buttonStyle = css`
     padding: 7px 13px;
     cursor: pointer;
     border-radius: var(--se-radius);
-    border: var(--se-border) solid var(--se-line);
-    background: var(--se-panel);
-    color: var(--se-ink);
+    border: var(--se-border) solid var(--look-edge);
+    background: var(--look-ground);
+    color: var(--look-ink);
     font-family: var(--se-font);
-    font-size: var(--se-fs);
+    font-size: var(--look-fs);
     font-weight: 550;
     line-height: var(--se-lh);
     white-space: nowrap;
 
     transition: background var(--se-move), border-color var(--se-move);
   }
-  button:hover { background: var(--se-accent-soft); border-color: var(--se-accent); }
+  button:hover { background: var(--look-ground-hover); border-color: var(--look-edge-hover); }
 
   /* One line as .vbtn; a label wider than the button ends in an ellipsis. */
   .text {
@@ -29,23 +32,6 @@ export const buttonStyle = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  /* .vbtn-primaer */
-  .variant-primary { background: var(--se-accent); border-color: var(--se-accent); color: var(--se-panel); }
-  .variant-primary:hover { background: var(--se-accent-dark); border-color: var(--se-accent-dark); }
-
-  /* .vbtn-leise */
-  .variant-quiet {
-    padding: 5px 10px;
-    border-color: transparent;
-    background: var(--se-accent-soft);
-    color: var(--se-accent-dark);
-  }
-  .variant-quiet:hover { border-color: var(--se-accent); }
-
-  /* .vbtn-ghost */
-  .variant-ghost { border-color: transparent; background: transparent; color: var(--se-muted); }
-  .variant-ghost:hover { background: var(--se-bg); color: var(--se-ink); }
 
   button:focus-visible { outline: 2px solid var(--se-accent); outline-offset: 2px; }
 

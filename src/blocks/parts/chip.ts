@@ -1,8 +1,8 @@
 import { css } from 'lit'
-import { toneValue } from '../tone/tone'
+import { toneValue } from '../look/look'
 
 // The chip: a short word on the soft color of its tone. The block that shows
-// it carries toneStyle, which gives each tone its colors.
+// it carries lookStyle, which gives each tone its colors.
 export const chipStyle = css`
   .chip {
     flex: none;

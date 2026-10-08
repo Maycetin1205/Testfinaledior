@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 27
+export const CURRENT_SCHEMA_VERSION = 28
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25, 26]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -207,6 +207,25 @@ function liftTo27(tree: unknown): void {
   }
 }
 
+// ---- version 28: a button takes color, emphasis and size, not one of four looks ----
+
+const STANDARD_LOOK_28 = { tone: 'neutral', emphasis: 'outline' }
+const BUTTON_LOOKS_28: Readonly<Record<string, { tone: string; emphasis: string }>> = {
+  standard: STANDARD_LOOK_28,
+  primary: { tone: 'accent', emphasis: 'solid' },
+  quiet: { tone: 'accent', emphasis: 'soft' },
+  ghost: { tone: 'neutral', emphasis: 'text' },
+}
+
+function liftTo28(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'button' || !isPlainObject(node.values)) continue
+    Object.assign(node.values, BUTTON_LOOKS_28[String(node.values.variant)] ?? STANDARD_LOOK_28)
+    delete node.values.variant
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -219,6 +238,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 25) liftTo25(lifted.tree)
   if (raw.schemaVersion < 26) liftTo26(lifted.tree)
   if (raw.schemaVersion < 27) liftTo27(lifted.tree)
+  if (raw.schemaVersion < 28) liftTo28(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

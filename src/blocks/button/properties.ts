@@ -1,4 +1,5 @@
-import { choiceProperty, textProperty, type ValuesOf } from '../../core/block/property'
+import { textProperty, type ValuesOf } from '../../core/block/property'
+import { emphasisProperty, sizeProperty, toneProperty } from '../look/look'
 
 export const buttonProperties = {
   label: textProperty({
@@ -7,16 +8,9 @@ export const buttonProperties = {
     place: 'block',
     attribute: 'label',
   }),
-  variant: choiceProperty([
-    { value: 'standard', name: 'Standard' },
-    { value: 'primary', name: 'Hervorgehoben' },
-    { value: 'quiet', name: 'Leise' },
-    { value: 'ghost', name: 'Ohne Rahmen' },
-  ], {
-    default: 'standard',
-    label: 'Aussehen',
-    attribute: 'variant',
-  }),
+  tone: toneProperty({ default: 'neutral' }),
+  emphasis: emphasisProperty(),
+  size: sizeProperty(),
 }
 
 export type ButtonValues = ValuesOf<typeof buttonProperties>

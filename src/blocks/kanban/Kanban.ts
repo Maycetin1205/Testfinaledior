@@ -3,7 +3,7 @@ import { BlockElement, defineBlock, sendPropChange } from '../base/BlockElement'
 import { startRename } from '../base/inlineRename'
 import { reportsHeads } from '../base/headsReport'
 import { bindable } from '../../core/block/capability'
-import { toneStyle, toneValue } from '../tone/tone'
+import { lookStyle, toneValue } from '../look/look'
 import { spotValue, type DataPreamble } from '../../runtime/source'
 import { animalAvatarTpl, avatarSpotTpl, imageAvatarTpl } from '../parts/card'
 import { chipClass, chipStyle } from '../parts/chip'
@@ -26,7 +26,7 @@ export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, toneStyle, kanbanStyle, chipStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, kanbanStyle, chipStyle]
 
   readonly board = new Board(this)
 

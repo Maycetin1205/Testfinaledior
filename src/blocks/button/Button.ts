@@ -7,6 +7,7 @@ import { runEvent, searchCarrier } from '../../runtime/events'
 import { PENDING_EVENT, pendingRows } from '../../runtime/pendingState'
 import { maskState } from '../../runtime/maskState'
 import { sendOpen } from '../../runtime/opening'
+import { lookClass, lookStyle } from '../look/look'
 import { buttonStyle } from './buttonStyle'
 import { buttonProperties, type ButtonValues } from './properties'
 
@@ -37,7 +38,7 @@ export class Button extends BlockElement {
   static readonly type = 'button'
   static readonly tag = 'ff-button'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, buttonStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, buttonStyle]
 
   @state() private open: number | undefined = undefined
 
@@ -48,7 +49,7 @@ export class Button extends BlockElement {
   override render(): TemplateResult {
     const open = this.open
     return html`<button
-      class="variant-${this.variant}"
+      class=${lookClass(this)}
       @click=${() => sendOpen(this)}
       data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}

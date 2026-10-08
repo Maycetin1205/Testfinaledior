@@ -1,12 +1,11 @@
 import {
-  choiceProperty,
   fieldProperty,
   segmentProperty,
   type ValuesOf,
 } from '../../core/block/property'
 import { DAY_FIELD_PROPERTY } from '../../core/block/dayFieldProperty'
 import { spotBinding, typedSpot } from '../parts/card'
-import { toneOptions } from '../../core/block/tones'
+import { toneProperty } from '../look/look'
 import { kanbanColumnsProperty } from './columns'
 
 export const kanbanProperties = {
@@ -28,9 +27,8 @@ export const kanbanProperties = {
     attribute: 'avatarkind',
     when: { key: 'avatarField', notEquals: '' },
   }),
-  chipTone: choiceProperty(toneOptions(), {
-    default: 'info',
-    label: 'Ton des Chips',
+  chipTone: toneProperty({
+    label: 'Farbe des Chips',
     place: 'display',
     attribute: 'chiptone',
   }),

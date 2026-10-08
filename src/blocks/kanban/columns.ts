@@ -8,7 +8,7 @@ import {
 } from '../../core/block/property'
 import { listDefaultTitle, type ListBinding } from '../../core/block/listBinding'
 import { isUnread } from '../../core/unread'
-import { toneProperty } from '../tone/tone'
+import { toneProperty } from '../look/look'
 
 // A place in a column, where a card lies: its name, typed on its head, and the
 // value it stands for in the field the board sorts by.

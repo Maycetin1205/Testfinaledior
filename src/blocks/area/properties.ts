@@ -1,6 +1,6 @@
 import { choiceProperty, textProperty, type ValuesOf } from '../../core/block/property'
 import { openedByProperty } from '../../core/block/opening'
-import { toneProperty } from '../tone/tone'
+import { toneProperty } from '../look/look'
 
 const HEADED = { key: 'appearance', equals: 'headed' }
 
@@ -23,7 +23,7 @@ export const areaProperties = {
     attribute: 'heading',
     when: HEADED,
   }),
-  tone: toneProperty(HEADED),
+  tone: toneProperty({ when: HEADED }),
   openedBy: openedByProperty,
 }
 

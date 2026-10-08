@@ -30,11 +30,11 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   hoch wie sein Text (Rolle und Größe geben die Zeilenhöhe, die Breite den
   Umbruch), auch nur in der Breite ziehbar; alles andere füllt seinen
   Rahmen ganz. Kein Rahmen ist größer oder kleiner als sein Baustein.
-- 08.10. Aussehen aus drei Wahlen (Farbe, Art, Größe), einmal deklariert, an jedem
-  Baustein dieselben: Ton (Neutral, Hinweis, Erfolg, Warnung, Fehler),
-  Stärke (Fläche voll, Fläche leicht, nur Rand, nur Schrift), Größe
-  (Klein, Normal, Groß). Nur die Werte aus `mask.css`, keine freien
-  Farben.
+- 08.10. Aussehen aus drei Wahlen, einmal deklariert, an jedem Baustein
+  dieselben: Farbe (Petrol, Neutral, Blau, Grün, Ocker, Rot), Art (Fläche
+  voll, Fläche leicht, nur Rand, nur Schrift), Größe (Klein, Normal,
+  Groß). Nur die Werte aus `mask.css`, keine freien Farben. Petrol ist der
+  Akzent der Maske, als sechste Farbe vom Nutzer gewählt.
 - 08.10. Datenliste: Wahl „Auswahl“ je Liste: Eine Zeile (Klick, andere
   folgen, wie die Tabelle), Mehrere (Haken) oder Keine. Vorgabe Eine Zeile.
   Die gewählte Zeile steht in den Aktionen als Herkunft, etwa als
@@ -126,13 +126,14 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
   Spaltenleiste. Erfassung dazu je Spalte: Eingabe, Füllfeld, Nachschlagen,
   Unterzeile; Berechnung am Kopf der Ergebnisspalte als Satz.
 - Kanban: Spaltentitel tippen, Plus fügt an, die erste Karte ist das
-  Muster; Klick auf einen Spaltenkopf: Ton, Wert im ERP, Auffangspalte,
+  Muster; Klick auf einen Spaltenkopf: Farbe, Wert im ERP, Auffangspalte,
   Plätze.
 
 ## Bausteine
 
-Gebaut: Bereich (Frei, Kasten oder Kopfzeile mit Titel und Ton; das Auf-
-und Zuklappen vom 07.10. kommt wieder raus), Schaltfläche, Datum
+Gebaut: Bereich (Frei, Kasten oder Kopfzeile mit Titel und Farbe; das Auf-
+und Zuklappen vom 07.10. kommt wieder raus), Schaltfläche (Farbe, Art,
+Größe), Datum
 (Tageswahl), Formularfeld (Text, Zahl, Datum tippbar, Auswahl,
 Nachschlagen; Ankreuzfeld unfertig), Tabelle, Erfassung, Kanban (Plätze je
 Spalte, mehrere Felder je Platz mit Trenner, Knopf je Spalte Aus, Weiter
@@ -148,10 +149,9 @@ Beispieldaten geprüft, nicht in SoftEngine.
 Lücken, am Nachbau gemessen, vom Nutzer am 08.10. gestrichen oder behalten.
 Was bleibt:
 
-- Alle Bausteine: die drei Wahlen fürs Aussehen: Farbe (Ton), Art (Stärke), Größe. Heute hat die
-  Schaltfläche vier Aussehen ohne Ton und Größe, der Text Rolle, Farbe,
-  Größe, der Bereich drei Formen; die fünf Töne nutzen nur Kanban und
-  Bereich.
+- Alle Bausteine: die drei Wahlen fürs Aussehen. Die Schaltfläche hat
+  alle drei; der Text hat Rolle, eigene Farbe und Größe, der Bereich drei
+  Formen und die Farbe, Kanban die Farbe je Spalte und am Chip.
 - Bild: eigener Baustein, Technik vom Kanban-Avatar (`blocks/parts/card.ts`;
   festes Bild in der Datei, oder gebunden an ein Feld). Offen: Hat der Tierstamm im ERP ein
   Foto-Feld, und was liefert SoftEngine dafür? Der Nutzer schaut nach.
@@ -225,8 +225,14 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    nur `core/data/boundField.ts`. Die Spalte nach Uhrzeit steht in
    `blocks/kanban/clock.ts`. Bleibt: das Suchfenster liest seine Spalten
    über die Schlüssel seiner Fähigkeit (`editor/canvas/lookupWindowState.ts`).
-4. Aussehen: die drei Wahlen Farbe, Art, Größe einmal deklarieren (ein Chat), dann
-   Schaltfläche, Text, Bereich, Chip je ein kleiner Chat.
+4. Aussehen. Teil 1 erledigt 08.10.: Farbe, Art und Größe stehen einmal
+   in `blocks/look/look.ts`, als Eigenschaftsarten mit den Tokens aus
+   `mask.css` und den Klassen dazu (`lookClass`, `lookStyle`); Bereich,
+   Kanban-Spalte und Chip holen die Farbe von dort. Die Schaltfläche hat
+   alle drei; ihre vier alten Aussehen werden beim Laden (Maskenschema 28)
+   Neutral/nur Rand (Standard), Petrol/Fläche voll (Hervorgehoben),
+   Petrol/Fläche leicht (Leise), Neutral/nur Schrift (Ohne Rahmen).
+   Bleibt: Text, Bereich, Chip je ein kleiner Chat.
 5. Dann die Liste unter „Bausteine“: Bild, Formularfeld, Datenliste; je
    einer ein Chat.
 
