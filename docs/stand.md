@@ -189,14 +189,15 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    und Kanban nehmen sie nur von dort, die Erfassung die Liste selbst nur
    über `blocks/list/index.ts`. `bar/AreaPick.tsx` und
    `useAreaPickStart.ts` gehen mit dem Plus (Datenliste, Punkt 5).
-   (d) Der Rahmen ist der Baustein: Formularfeld,
-   Datum und Schaltfläche haben eine feste Höhe (eine Eingabezeile) und
-   keine Griffe oben und unten; Text, Bereich, Tabelle, Erfassung, Kanban,
-   Datenliste und Bild füllen ihren Rahmen ganz; kleiner als die
-   Mindestgröße der Deklaration lässt sich kein Rahmen ziehen. Heute
-   füllen Text, Feld und Datum nicht, der blaue Rahmen ist größer als der
-   Baustein. In der Grid-Deklaration fehlt nur „Höhe fest“, der Rest ist
-   `fills` in der Basisklasse.
+   (d) Erledigt 08.10.: Der Rahmen ist der Baustein. Formularfeld, Datum
+   und Schaltfläche stehen zwei Rasterzeilen hoch (`heightFixed` in der
+   Grid-Deklaration), nur links und rechts ein Griff; ältere Masken
+   kommen beim Laden auf diese Höhe (Maskenschema 27), das zweizeilige
+   Textfeld ist weg. Text füllt seinen Rahmen wie Bereich, Tabelle,
+   Erfassung, Kanban und Datenliste; ein Text in einer einzigen
+   Rasterzeile bleibt ganz und ragt darum unten heraus. Kein Griff zieht
+   unter die Mindestgröße, ein Bereich nicht schmaler oder niedriger als
+   sein Inhalt, auch nicht per Doppelklick auf den Griff.
 3. Datenweg, ein bis zwei Chats, auf einen Weg: „Quelle“ viermal von Hand
    deklariert (`blocks/*/properties.ts`); Listen-Eigenschaften siebenmal
    gleich gelesen (`core/data/extraSources.ts`); zwei Systeme „woher kommt

@@ -52,10 +52,6 @@ export class FormField extends BlockElement implements ValueCarrier {
   private valueAtFocus = ''
   private typed = false
 
-  // A text field with room for two lines takes them.
-  @state() private roomy = false
-  private readonly _size = new ResizeObserver(() => this.measure())
-
   private readonly _lookup = new LookupControl({
     block: this,
     report: () => this.requestUpdate(),
@@ -76,17 +72,6 @@ export class FormField extends BlockElement implements ValueCarrier {
     return this.lookup
   }
 
-  private measure(): void {
-    const ctrl = this.renderRoot.querySelector<HTMLElement>('.ctrl')
-    if (!ctrl) return
-    const style = getComputedStyle(ctrl)
-    const px = (value: string): number => parseFloat(value) || 0
-    const twoLines = 2 * px(style.lineHeight) + px(style.paddingTop) + px(style.paddingBottom)
-      + px(style.borderTopWidth) + px(style.borderBottomWidth)
-    const roomy = this.clientHeight >= twoLines
-    if (roomy !== this.roomy) this.roomy = roomy
-  }
-
   checkOwnValue(): void {
     if (this.fillsSelf()) this._lookup.checkValue()
   }
@@ -96,11 +81,11 @@ export class FormField extends BlockElement implements ValueCarrier {
   }
 
   focusValue(): void {
-    this.renderRoot.querySelector<HTMLElement>('input, textarea, select')?.focus()
+    this.renderRoot.querySelector<HTMLElement>('input, select')?.focus()
   }
 
   private onInput(e: Event): void {
-    const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    const target = e.target as HTMLInputElement | HTMLSelectElement
     this.value = fieldTypeOf(this.fieldType) === 'date' ? dateFromInput(target.value) : target.value
     this.typed = true
   }
@@ -171,15 +156,6 @@ export class FormField extends BlockElement implements ValueCarrier {
         ${entries.map((o) => html`<option value=${o}>${o}</option>`)}
       </select>`
     }
-    if (kind === 'text' && this.roomy) {
-      return html`<textarea
-        class="ctrl"
-        .value=${live(this.value)}
-        @input=${this.onInput}
-        @focus=${this.onFocus}
-        @blur=${this.takeTyped}
-      ></textarea>`
-    }
     return html`<input
       class="ctrl"
       type=${kind}
@@ -234,13 +210,11 @@ export class FormField extends BlockElement implements ValueCarrier {
   override connectedCallback(): void {
     super.connectedCallback()
     connectValue(this)
-    this._size.observe(this)
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
     disconnectValue(this)
-    this._size.disconnect()
   }
 }
 
@@ -277,6 +251,6 @@ defineBlock(FormField, {
     actionValue<typeof formFieldProperties>([{ prop: 'value', name: 'Wert' }]),
     { kind: 'events', list: [{ key: 'onChange', name: 'Wert geändert' }] },
   ],
-  grid: { startWidth: 12, startHeight: 2, minWidth: 4, minHeight: 2 },
+  grid: { startWidth: 12, startHeight: 2, minWidth: 4, heightFixed: true },
   contracts: { actionValue: FormField },
 })

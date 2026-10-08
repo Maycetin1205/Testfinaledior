@@ -200,7 +200,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       )}
 
       {selected && gridDraggable && GRIPS
-        .filter((edge) => gridSpec.widthDraggable || !/[ew]/.test(edge))
+        .filter((edge) => !gridSpec.heightFixed || edge === 'e' || edge === 'w')
         .map((edge) => (
           <Grip
             key={edge}

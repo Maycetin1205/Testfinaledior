@@ -129,14 +129,14 @@ export function referenceTree(): MaskTree {
       ],
     }),
     f1: node('f1', 'formfield', ROOT_ID, {
-      gridX: 10, gridY: 0, gridW: 16, gridH: 3,
+      gridX: 10, gridY: 0, gridW: 16, gridH: 2,
       fieldType: 'text',
       label: 'Bezeichnung',
       source: 'q-pos',
       valueField: '45_60',
     }),
     b1: node('b1', 'button', ROOT_ID, {
-      gridX: 26, gridY: 0, gridW: 8, gridH: 3, label: 'Schreiben',
+      gridX: 26, gridY: 0, gridW: 8, gridH: 2, label: 'Schreiben',
     }),
     k1: node('k1', 'kanban', ROOT_ID, {
       gridX: 18, gridY: 3, gridW: 30, gridH: 22, source: 'q-pos', columnsField: '18_25',
@@ -144,7 +144,7 @@ export function referenceTree(): MaskTree {
       heading: 'Karte', headingField: '45_60',
     }),
     tx1: node('tx1', 'text', ROOT_ID, { gridX: 34, gridY: 0, gridW: 14, gridH: 3 }),
-    d1: node('d1', 'date', ROOT_ID, { gridX: 0, gridY: 0, gridW: 10, gridH: 3 }),
+    d1: node('d1', 'date', ROOT_ID, { gridX: 0, gridY: 0, gridW: 10, gridH: 2 }),
     p1: node('p1', 'popup', ROOT_ID, { name: 'Hinweis' }, ['tx2']),
     tx2: node('tx2', 'text', 'p1', {}),
   }

@@ -84,5 +84,5 @@ defineBlock(Button, {
   category: 'input',
   properties: buttonProperties,
   capabilities: [{ kind: 'events', list: [{ key: CLICK, name: 'Klick' }] }, { kind: 'opener' }],
-  grid: { startWidth: 8, startHeight: 2, minWidth: 4, minHeight: 2 },
+  grid: { startWidth: 8, startHeight: 2, minWidth: 4, heightFixed: true },
 })

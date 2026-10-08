@@ -15,7 +15,8 @@ export interface GridMetrics {
   startHeight: number
   minWidth: number
   minHeight: number
-  widthDraggable: boolean
+  // A block one input line high keeps its start height; only its width is pulled.
+  heightFixed: boolean
   // A list on the page grows with the window in height.
   grows: boolean
 }
@@ -25,7 +26,7 @@ const GRID_FALLBACK: GridMetrics = {
   startHeight: 3,
   minWidth: 2,
   minHeight: 1,
-  widthDraggable: true,
+  heightFixed: false,
   grows: false,
 }
 

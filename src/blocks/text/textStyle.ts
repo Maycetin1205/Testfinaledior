@@ -12,6 +12,9 @@ export const textStyle = css`
 
   .text:empty { min-height: calc(1em * var(--text-line-height)); }
 
+  /* The text fills its frame; a frame lower than one line keeps the line whole. */
+  :host([fills]) .text { min-height: 100%; }
+
   /* .vmodal-titel */
   .variant-title {
     color: var(--se-ink);

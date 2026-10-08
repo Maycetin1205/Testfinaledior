@@ -2,7 +2,7 @@ import type { PointerEvent as ReactPointerEvent, RefObject } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import { blockType } from '../../core/block/registry'
 import { GRID, gridSlotRead, gridMetricsOf, type GridSlot } from '../../core/block/grid'
-import { columnsOf, freeRowOn } from '../../core/block/gridArea'
+import { columnsOf, freeRowOn, isGridArea, usedColumnsOn } from '../../core/block/gridArea'
 import type { EditorStore } from '../state/EditorStore'
 import { areaOf, heightInBox, capacityOf, rowsCapacity } from './gridArea'
 import { swallowNextClick } from './dragPosition'
@@ -22,6 +22,16 @@ export function useBlockResize(
   blockRef: RefObject<BlockNode>,
   rootRef: RefObject<HTMLElement | null>,
 ) {
+  // No frame gets smaller than its block's least size; an area keeps room
+  // for what it holds.
+  function leastSize(node: BlockNode, h: number): { w: number; h: number } {
+    const spec = gridMetricsOf(blockType(node.type))
+    const own = capacityOf(editor.tree, node.id)
+    const rows = own === null ? 0 : freeRowOn(editor.tree, node.id) + h - own
+    const columns = isGridArea(node) ? usedColumnsOn(editor.tree, node.id) : 0
+    return { w: Math.max(1, spec.minWidth, columns), h: Math.max(1, spec.minHeight, rows) }
+  }
+
   // The pulled edges follow the pointer cell by cell, the opposite ones stay.
   function startGridResize(e: ReactPointerEvent<HTMLElement>, edge: Edge) {
     const el = rootRef.current
@@ -31,7 +41,6 @@ export function useBlockResize(
 
     const node = blockRef.current
     const start = gridSlotRead(node.values)
-    const spec = gridMetricsOf(blockType(node.type))
     const rect = el.getBoundingClientRect()
     const stepX = (rect.width + GRID.gapPx) / start.w
 
@@ -39,11 +48,7 @@ export function useBlockResize(
     const capacity = area && node.parentId
       ? rowsCapacity(editor.tree, node.parentId, area)
       : null
-    // A container keeps room for what it holds.
-    const own = capacityOf(editor.tree, node.id)
-    const content = own === null ? 0 : freeRowOn(editor.tree, node.id) + start.h - own
-    const minW = Math.max(1, spec.minWidth)
-    const minH = Math.max(1, spec.minHeight, content)
+    const { w: minW, h: minH } = leastSize(node, start.h)
 
     // Every row of the editor is one fixed step; only the mask stretches a
     // list's rows to the window. The row under the pointer comes from the tracks.
@@ -98,10 +103,11 @@ export function useBlockResize(
     const node = blockRef.current
     const slot = gridSlotRead(node.values)
     const spec = gridMetricsOf(blockType(node.type))
+    const least = leastSize(node, slot.h)
     editor.resizeNodeToSlot(node.id, {
       ...slot,
-      ...(edge.includes('e') || edge.includes('w') ? { w: spec.startWidth } : {}),
-      ...(edge.includes('n') || edge.includes('s') ? { h: spec.startHeight } : {}),
+      ...(edge.includes('e') || edge.includes('w') ? { w: Math.max(spec.startWidth, least.w) } : {}),
+      ...(edge.includes('n') || edge.includes('s') ? { h: Math.max(spec.startHeight, least.h) } : {}),
     })
   }
 

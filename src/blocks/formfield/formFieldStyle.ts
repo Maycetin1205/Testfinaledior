@@ -41,10 +41,6 @@ export const fieldStyle = css`
     border-color: var(--se-accent);
     box-shadow: var(--se-focus);
   }
-  textarea.ctrl {
-    display: block;
-    resize: none;
-  }
 
   /* The plain look: a line below, in the accent while typed into. */
   .field.plain .ctrl {

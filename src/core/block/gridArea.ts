@@ -99,6 +99,13 @@ export function freeRowOn(tree: MaskTree, parentId: string): number {
   )
 }
 
+// The columns of an area that what it holds reaches to.
+export function usedColumnsOn(tree: MaskTree, parentId: string): number {
+  return childrenInFlow(tree, parentId)
+    .map((n) => gridSlotRead(n.values))
+    .reduce((max, p) => Math.max(max, p.x + p.w), 0)
+}
+
 export function slotOn(
   tree: MaskTree,
   parentId: string,

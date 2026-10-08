@@ -63,5 +63,5 @@ export class DatePicker extends BlockElement {
 defineBlock(DatePicker, {
   name: 'Datum',
   category: 'display',
-  grid: { startWidth: 18, startHeight: 2, minWidth: 10, minHeight: 2 },
+  grid: { startWidth: 18, startHeight: 2, minWidth: 10, heightFixed: true },
 })

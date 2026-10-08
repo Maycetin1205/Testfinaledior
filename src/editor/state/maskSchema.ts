@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 26
+export const CURRENT_SCHEMA_VERSION = 27
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -193,6 +193,20 @@ function liftTo26(tree: unknown): void {
   }
 }
 
+// ---- version 27: a field, a date and a button stand one input line high ----
+
+// Up to 26 their height was pulled; now it stays at two rows.
+const ONE_LINE_TYPES_27 = ['formfield', 'date', 'button']
+const ONE_LINE_ROWS_27 = 2
+
+function liftTo27(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || typeof node.type !== 'string' || !isPlainObject(node.values)) continue
+    if (ONE_LINE_TYPES_27.includes(node.type)) node.values.gridH = ONE_LINE_ROWS_27
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -204,6 +218,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 24) liftTo24(lifted.tree)
   if (raw.schemaVersion < 25) liftTo25(lifted.tree)
   if (raw.schemaVersion < 26) liftTo26(lifted.tree)
+  if (raw.schemaVersion < 27) liftTo27(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
