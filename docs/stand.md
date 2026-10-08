@@ -30,7 +30,7 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   hoch wie sein Text (Rolle und Größe geben die Zeilenhöhe, die Breite den
   Umbruch), auch nur in der Breite ziehbar; alles andere füllt seinen
   Rahmen ganz. Kein Rahmen ist größer oder kleiner als sein Baustein.
-- 08.10. Aussehen aus drei Drehknöpfen, einmal deklariert, an jedem
+- 08.10. Aussehen aus drei Wahlen (Farbe, Art, Größe), einmal deklariert, an jedem
   Baustein dieselben: Ton (Neutral, Hinweis, Erfolg, Warnung, Fehler),
   Stärke (Fläche voll, Fläche leicht, nur Rand, nur Schrift), Größe
   (Klein, Normal, Groß). Nur die Werte aus `mask.css`, keine freien
@@ -148,7 +148,7 @@ Beispieldaten geprüft, nicht in SoftEngine.
 Lücken, am Nachbau gemessen, vom Nutzer am 08.10. gestrichen oder behalten.
 Was bleibt:
 
-- Alle Bausteine: die drei Drehknöpfe Ton, Stärke, Größe. Heute hat die
+- Alle Bausteine: die drei Wahlen fürs Aussehen: Farbe (Ton), Art (Stärke), Größe. Heute hat die
   Schaltfläche vier Aussehen ohne Ton und Größe, der Text Rolle, Farbe,
   Größe, der Bereich drei Formen; die fünf Töne nutzen nur Kanban und
   Bereich.
@@ -225,7 +225,7 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
    nur `core/data/boundField.ts`. Die Spalte nach Uhrzeit steht in
    `blocks/kanban/clock.ts`. Bleibt: das Suchfenster liest seine Spalten
    über die Schlüssel seiner Fähigkeit (`editor/canvas/lookupWindowState.ts`).
-4. Aussehen: die drei Drehknöpfe einmal deklarieren (ein Chat), dann
+4. Aussehen: die drei Wahlen Farbe, Art, Größe einmal deklarieren (ein Chat), dann
    Schaltfläche, Text, Bereich, Chip je ein kleiner Chat.
 5. Dann die Liste unter „Bausteine“: Bild, Formularfeld, Datenliste; je
    einer ein Chat.
@@ -248,7 +248,7 @@ Einzelne Punkte, ohne Reihenfolge:
   Zimmer; ungebundene Stellen zeigt sie als Strich nur, solange das Board
   markiert ist, nicht markiert nur die getippten und gebundenen, und ist
   nichts davon da, alle, damit sie nie leer steht. Die Größe der Karte
-  kommt mit den Drehknöpfen (Klein, Normal, Groß). Plätze: Feintuning im
+  kommt mit der Wahl Größe (Klein, Normal, Groß). Plätze: Feintuning im
   selben Chat.
 - Datenquellen: eigenes Gespräch. Der Nutzer hat eine Analyse der
   SoftEngine-Vorlagen, die noch nicht im Projekt ist.
