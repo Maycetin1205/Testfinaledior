@@ -1,0 +1,2850 @@
+{
+  "kind": "aufbau-editor-maske",
+  "fileVersion": 4,
+  "schemaVersion": 30,
+  "tree": {
+    "root": {
+      "id": "root",
+      "type": "root",
+      "parentId": null,
+      "values": {
+        "maskName": "Behandlung",
+        "documentFrame": "10000"
+      },
+      "childIds": [
+        "kopf-kunde-l",
+        "kopf-kunde",
+        "kopf-nr-l",
+        "kopf-nr",
+        "kopf-datum-l",
+        "kopf-datum",
+        "kopf-vorgang-l",
+        "kopf-vorgang",
+        "entfernen",
+        "speichern",
+        "tiere-bereich",
+        "patient",
+        "halter",
+        "impfstatus",
+        "erfassung-l",
+        "erfassung",
+        "verlauf-l",
+        "verlauf",
+        "verlauf-pos-l",
+        "verlauf-positionen",
+        "uebernehmen"
+      ]
+    },
+    "kopf-kunde-l": {
+      "id": "kopf-kunde-l",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 16,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "Kunde",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "kopf-kunde": {
+      "id": "kopf-kunde",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 1,
+        "gridW": 16,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "title",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "107_30"
+      },
+      "childIds": []
+    },
+    "kopf-nr-l": {
+      "id": "kopf-nr-l",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 17,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "Beleg-Nr.",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "kopf-nr": {
+      "id": "kopf-nr",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 17,
+        "gridY": 1,
+        "gridW": 5,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "number",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "3_8"
+      },
+      "childIds": []
+    },
+    "kopf-datum-l": {
+      "id": "kopf-datum-l",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 23,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "Datum",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "kopf-datum": {
+      "id": "kopf-datum",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 23,
+        "gridY": 1,
+        "gridW": 5,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "number",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "19_10"
+      },
+      "childIds": []
+    },
+    "kopf-vorgang-l": {
+      "id": "kopf-vorgang-l",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 29,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "label",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "Vorgang",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "kopf-vorgang": {
+      "id": "kopf-vorgang",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 29,
+        "gridY": 1,
+        "gridW": 5,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "body",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "1313_8"
+      },
+      "childIds": []
+    },
+    "entfernen": {
+      "id": "entfernen",
+      "type": "button",
+      "parentId": "root",
+      "values": {
+        "gridX": 35,
+        "gridY": 1,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "Entfernen",
+        "tone": "neutral",
+        "emphasis": "text",
+        "size": "normal"
+      },
+      "childIds": [],
+      "chains": {
+        "onClick": [
+          {
+            "id": "84dbf54a-bc18-4ec8-adf1-a67c7775307a",
+            "kind": "RELATION",
+            "resultName": "",
+            "relationId": "a376b2b0-e972-4284-aea4-cfb20f9a2cfb",
+            "parameter": [
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "dataField",
+                "value": "2_1",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "dataField",
+                "value": "3_8",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "18_25",
+                "blockId": "erfassung"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              }
+            ],
+            "extraParameter": []
+          }
+        ]
+      }
+    },
+    "speichern": {
+      "id": "speichern",
+      "type": "button",
+      "parentId": "root",
+      "values": {
+        "gridX": 42,
+        "gridY": 1,
+        "gridW": 6,
+        "gridH": 2,
+        "label": "Speichern",
+        "tone": "accent",
+        "emphasis": "solid",
+        "size": "normal"
+      },
+      "childIds": [],
+      "chains": {
+        "onClick": [
+          {
+            "id": "44f8703d-125c-4a79-a5a9-b31194c30f5f",
+            "kind": "RELATION",
+            "resultName": "",
+            "relationId": "9c5d2276-c003-4865-ae28-371c84ab6d90",
+            "parameter": [
+              {
+                "source": "fixed",
+                "value": "0"
+              },
+              {
+                "source": "dataField",
+                "value": "2_1",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "dataField",
+                "value": "3_8",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "captureCell",
+                "value": "s1",
+                "blockId": "erfassung"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "captureCell",
+                "value": "s3",
+                "blockId": "erfassung"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "captureCell",
+                "value": "s7",
+                "blockId": "erfassung"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              }
+            ],
+            "extraParameter": []
+          }
+        ]
+      }
+    },
+    "tiere-bereich": {
+      "id": "tiere-bereich",
+      "type": "area",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 4,
+        "gridW": 10,
+        "gridH": 14,
+        "appearance": "headed",
+        "heading": "Tiere",
+        "tone": "neutral",
+        "emphasis": "soft"
+      },
+      "childIds": [
+        "tiere"
+      ]
+    },
+    "tiere": {
+      "id": "tiere",
+      "type": "datalist",
+      "parentId": "tiere-bereich",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 10,
+        "gridH": 11,
+        "source": "src-haustiere",
+        "pick": "one",
+        "headingField": "LFA_400_30",
+        "sublineField": "LFA_971_30 · LFA_430_30",
+        "avatarField": "LFA_971_30",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "LFA_10_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "patient": {
+      "id": "patient",
+      "type": "area",
+      "parentId": "root",
+      "values": {
+        "gridX": 11,
+        "gridY": 4,
+        "gridW": 19,
+        "gridH": 14,
+        "appearance": "headed",
+        "heading": "Patient",
+        "tone": "neutral",
+        "emphasis": "soft"
+      },
+      "childIds": [
+        "pt-name",
+        "pt-tierart",
+        "pt-rasse",
+        "pt-geb",
+        "pt-geschlecht",
+        "pt-gewicht",
+        "pt-kastriert",
+        "pt-chip",
+        "pt-allergie"
+      ]
+    },
+    "pt-name": {
+      "id": "pt-name",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 10,
+        "gridH": 2,
+        "label": "Name",
+        "source": "src-haustiere",
+        "valueField": "LFA_400_30",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "pt-tierart": {
+      "id": "pt-tierart",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 10,
+        "gridY": 0,
+        "gridW": 9,
+        "gridH": 2,
+        "label": "Tierart",
+        "source": "src-haustiere",
+        "valueField": "LFA_971_30",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "pt-rasse": {
+      "id": "pt-rasse",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 10,
+        "gridH": 2,
+        "label": "Rasse",
+        "source": "src-haustiere",
+        "valueField": "LFA_430_30",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "pt-geb": {
+      "id": "pt-geb",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 10,
+        "gridY": 3,
+        "gridW": 9,
+        "gridH": 2,
+        "label": "Geburtsdatum",
+        "source": "src-haustiere",
+        "valueField": "LFA_960_10",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "date"
+      },
+      "childIds": []
+    },
+    "pt-geschlecht": {
+      "id": "pt-geschlecht",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 7,
+        "gridH": 2,
+        "label": "Geschlecht",
+        "source": "src-haustiere",
+        "valueField": "LFA_2000_12",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "pt-gewicht": {
+      "id": "pt-gewicht",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 7,
+        "gridY": 6,
+        "gridW": 6,
+        "gridH": 2,
+        "label": "Gewicht kg",
+        "source": "src-haustiere",
+        "valueField": "LFA_2072_6",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "number"
+      },
+      "childIds": []
+    },
+    "pt-kastriert": {
+      "id": "pt-kastriert",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 13,
+        "gridY": 6,
+        "gridW": 6,
+        "gridH": 2,
+        "label": "Kastriert",
+        "source": "src-haustiere",
+        "valueField": "LFA_970_1",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "checkbox"
+      },
+      "childIds": []
+    },
+    "pt-chip": {
+      "id": "pt-chip",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 0,
+        "gridY": 9,
+        "gridW": 10,
+        "gridH": 2,
+        "label": "Chip-Nr.",
+        "source": "src-haustiere",
+        "valueField": "LFA_2080_30",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "pt-allergie": {
+      "id": "pt-allergie",
+      "type": "formfield",
+      "parentId": "patient",
+      "values": {
+        "gridX": 10,
+        "gridY": 9,
+        "gridW": 9,
+        "gridH": 2,
+        "label": "Allergien",
+        "source": "src-haustiere",
+        "valueField": "LFA_2012_60",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "halter": {
+      "id": "halter",
+      "type": "area",
+      "parentId": "root",
+      "values": {
+        "gridX": 31,
+        "gridY": 4,
+        "gridW": 17,
+        "gridH": 14,
+        "appearance": "headed",
+        "heading": "Halter",
+        "tone": "neutral",
+        "emphasis": "soft"
+      },
+      "childIds": [
+        "ha-vorname",
+        "ha-nachname",
+        "ha-mobil",
+        "ha-email",
+        "ha-strasse",
+        "ha-hausnr",
+        "ha-plz",
+        "ha-ort"
+      ]
+    },
+    "ha-vorname": {
+      "id": "ha-vorname",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 8,
+        "gridH": 2,
+        "label": "Vorname",
+        "source": "src-adressstamm",
+        "valueField": "3292_30",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "ha-nachname": {
+      "id": "ha-nachname",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 8,
+        "gridY": 0,
+        "gridW": 9,
+        "gridH": 2,
+        "label": "Nachname",
+        "source": "src-adressstamm",
+        "valueField": "3322_40",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "ha-mobil": {
+      "id": "ha-mobil",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 8,
+        "gridH": 2,
+        "label": "Mobil",
+        "source": "src-adressstamm",
+        "valueField": "1114_20",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "ha-email": {
+      "id": "ha-email",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 8,
+        "gridY": 3,
+        "gridW": 9,
+        "gridH": 2,
+        "label": "E-Mail",
+        "source": "src-adressstamm",
+        "valueField": "1330_60",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "ha-strasse": {
+      "id": "ha-strasse",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 12,
+        "gridH": 2,
+        "label": "Straße",
+        "source": "src-adressstamm",
+        "valueField": "2187_46",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "ha-hausnr": {
+      "id": "ha-hausnr",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 12,
+        "gridY": 6,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "Hausnr.",
+        "source": "src-adressstamm",
+        "valueField": "2170_11",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "ha-plz": {
+      "id": "ha-plz",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 9,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "PLZ",
+        "source": "src-adressstamm",
+        "valueField": "110_10",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "ha-ort": {
+      "id": "ha-ort",
+      "type": "formfield",
+      "parentId": "halter",
+      "values": {
+        "gridX": 5,
+        "gridY": 9,
+        "gridW": 12,
+        "gridH": 2,
+        "label": "Ort",
+        "source": "src-adressstamm",
+        "valueField": "2233_40",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "impfstatus": {
+      "id": "impfstatus",
+      "type": "area",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 19,
+        "gridW": 10,
+        "gridH": 12,
+        "appearance": "headed",
+        "heading": "Impfstatus",
+        "tone": "neutral",
+        "emphasis": "soft"
+      },
+      "childIds": [
+        "im-tollwut",
+        "im-tollwut-dat",
+        "im-shppi",
+        "im-shppi-dat",
+        "im-lepto",
+        "im-lepto-dat"
+      ]
+    },
+    "im-tollwut": {
+      "id": "im-tollwut",
+      "type": "formfield",
+      "parentId": "impfstatus",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "Tollwut",
+        "source": "src-haustiere",
+        "valueField": "LFA_2110_1",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "checkbox"
+      },
+      "childIds": []
+    },
+    "im-tollwut-dat": {
+      "id": "im-tollwut-dat",
+      "type": "formfield",
+      "parentId": "impfstatus",
+      "values": {
+        "gridX": 5,
+        "gridY": 0,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "Datum",
+        "source": "src-haustiere",
+        "valueField": "LFA_2111_10",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "date"
+      },
+      "childIds": []
+    },
+    "im-shppi": {
+      "id": "im-shppi",
+      "type": "formfield",
+      "parentId": "impfstatus",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "SHPPi",
+        "source": "src-haustiere",
+        "valueField": "LFA_2151_1",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "checkbox"
+      },
+      "childIds": []
+    },
+    "im-shppi-dat": {
+      "id": "im-shppi-dat",
+      "type": "formfield",
+      "parentId": "impfstatus",
+      "values": {
+        "gridX": 5,
+        "gridY": 3,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "Datum",
+        "source": "src-haustiere",
+        "valueField": "LFA_2121_30",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "im-lepto": {
+      "id": "im-lepto",
+      "type": "formfield",
+      "parentId": "impfstatus",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "Leptospirose",
+        "source": "src-haustiere",
+        "valueField": "LFA_2152_30",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "checkbox"
+      },
+      "childIds": []
+    },
+    "im-lepto-dat": {
+      "id": "im-lepto-dat",
+      "type": "formfield",
+      "parentId": "impfstatus",
+      "values": {
+        "gridX": 5,
+        "gridY": 6,
+        "gridW": 5,
+        "gridH": 2,
+        "label": "Datum",
+        "source": "src-haustiere",
+        "valueField": "LFA_2182_10",
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "fieldType": "date"
+      },
+      "childIds": []
+    },
+    "erfassung-l": {
+      "id": "erfassung-l",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 11,
+        "gridY": 19,
+        "gridW": 37,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "heading",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "Leistungen & Medikamente",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "erfassung": {
+      "id": "erfassung",
+      "type": "capture",
+      "parentId": "root",
+      "values": {
+        "gridX": 11,
+        "gridY": 20,
+        "gridW": 37,
+        "gridH": 18,
+        "extraSources": [
+          {
+            "sourceId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
+            "partnerId": "",
+            "pairs": []
+          },
+          {
+            "sourceId": "0695b6ad-8efb-469e-b90b-868e64abbe43",
+            "partnerId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
+            "pairs": [
+              {
+                "fromField": "ART_1_25",
+                "toField": "CHA_26_25"
+              }
+            ]
+          }
+        ],
+        "followsSelection": [],
+        "source": "0e74871f-a3d7-40df-a1f5-8215b01f1e1b",
+        "columns": [
+          {
+            "fillField": "60d6bfda-542c-4ff5-8976-95fb35b5604f::ART_1_25",
+            "required": true,
+            "windowColumns": [
+              {
+                "key": "w1",
+                "title": "Artikel-Nr.",
+                "field": "ART_1_25"
+              },
+              {
+                "key": "w2",
+                "title": "Bezeichnung",
+                "field": "ART_51_60"
+              },
+              {
+                "key": "w3",
+                "title": "Einheit",
+                "field": "ART_1706_5"
+              },
+              {
+                "key": "w4",
+                "title": "Netto",
+                "field": "ART_8320_9"
+              }
+            ],
+            "editable": false,
+            "key": "s1",
+            "title": "Artikel-Nr.",
+            "field": "18_25",
+            "width": 150
+          },
+          {
+            "fillField": "60d6bfda-542c-4ff5-8976-95fb35b5604f::ART_51_60",
+            "editable": false,
+            "key": "s2",
+            "title": "Bezeichnung",
+            "field": "45_60",
+            "width": 420
+          },
+          {
+            "required": true,
+            "editable": false,
+            "key": "s3",
+            "title": "Menge",
+            "field": "164_8",
+            "width": 80
+          },
+          {
+            "fillField": "60d6bfda-542c-4ff5-8976-95fb35b5604f::ART_1706_5",
+            "editable": false,
+            "key": "s4",
+            "title": "Einheit",
+            "field": "689_5",
+            "width": 70
+          },
+          {
+            "fillField": "60d6bfda-542c-4ff5-8976-95fb35b5604f::ART_8320_9",
+            "editable": false,
+            "key": "s5",
+            "title": "Einzelpreis",
+            "field": "246_9",
+            "width": 100
+          },
+          {
+            "editable": false,
+            "key": "s6",
+            "title": "Gesamtpreis",
+            "field": "280_12",
+            "width": 110,
+            "total": true
+          },
+          {
+            "fillField": "0695b6ad-8efb-469e-b90b-868e64abbe43::CHA_1_25",
+            "subline": true,
+            "under": "s1",
+            "editable": false,
+            "key": "s7",
+            "title": "Charge",
+            "field": "1695_60"
+          }
+        ],
+        "search": false,
+        "paging": false,
+        "sortByClick": false,
+        "columnPicker": false,
+        "dayField": "",
+        "calculations": [
+          {
+            "key": "c1",
+            "lead": "s6",
+            "terms": [
+              {
+                "kind": "row",
+                "value": "s3",
+                "divides": false
+              },
+              {
+                "kind": "row",
+                "value": "s5",
+                "divides": false
+              }
+            ],
+            "decimals": 2
+          }
+        ],
+        "windowWidth": 520,
+        "windowHeight": 380
+      },
+      "childIds": []
+    },
+    "verlauf-l": {
+      "id": "verlauf-l",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 32,
+        "gridW": 10,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "heading",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "Frühere Behandlungen",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "verlauf": {
+      "id": "verlauf",
+      "type": "datalist",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 33,
+        "gridW": 10,
+        "gridH": 14,
+        "source": "8a88988e-9613-42b9-bb54-e96e00274af3",
+        "pick": "one",
+        "headingField": "19_10",
+        "sublineField": "3_8 · 8204_12",
+        "avatarField": "",
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "11_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "fromField": "3_8",
+                "toField": "3_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+                "unequal": true
+              }
+            ]
+          }
+        ]
+      },
+      "childIds": []
+    },
+    "verlauf-pos-l": {
+      "id": "verlauf-pos-l",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 11,
+        "gridY": 39,
+        "gridW": 30,
+        "gridH": 1,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "heading",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "Positionen des gewählten Belegs",
+        "source": "",
+        "textField": ""
+      },
+      "childIds": []
+    },
+    "verlauf-positionen": {
+      "id": "verlauf-positionen",
+      "type": "table",
+      "parentId": "root",
+      "values": {
+        "gridX": 11,
+        "gridY": 40,
+        "gridW": 30,
+        "gridH": 7,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "verlauf",
+            "pairs": []
+          }
+        ],
+        "source": "0879b91f-63ed-48b1-9beb-310cff2f36f7",
+        "columns": [
+          {
+            "key": "s1",
+            "title": "Artikel-Nr.",
+            "field": "18_25",
+            "width": 130
+          },
+          {
+            "key": "s2",
+            "title": "Bezeichnung",
+            "field": "45_60",
+            "width": 300
+          },
+          {
+            "key": "s3",
+            "title": "Menge",
+            "field": "164_8",
+            "width": 70
+          },
+          {
+            "key": "s5",
+            "title": "Dosierung",
+            "field": "1536_100",
+            "width": 210
+          },
+          {
+            "key": "s4",
+            "title": "Einzelpreis",
+            "field": "246_9",
+            "width": 90
+          }
+        ],
+        "search": false,
+        "paging": false,
+        "sortByClick": true,
+        "columnPicker": false,
+        "dayField": ""
+      },
+      "childIds": [],
+      "chains": {
+        "rowDouble": [
+          {
+            "id": "f409499e-c0da-46da-b07d-239294e01b7b",
+            "kind": "RELATION",
+            "resultName": "",
+            "relationId": "9c5d2276-c003-4865-ae28-371c84ab6d90",
+            "parameter": [
+              {
+                "source": "fixed",
+                "value": "0"
+              },
+              {
+                "source": "dataField",
+                "value": "2_1",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "dataField",
+                "value": "3_8",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "18_25",
+                "blockId": "verlauf-positionen"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "164_8",
+                "blockId": "verlauf-positionen"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              }
+            ],
+            "extraParameter": []
+          }
+        ],
+        "keyF4": [
+          {
+            "id": "3730f459-7d2b-4c1d-b77d-cf7f30d537ee",
+            "kind": "RELATION",
+            "resultName": "",
+            "relationId": "9c5d2276-c003-4865-ae28-371c84ab6d90",
+            "parameter": [
+              {
+                "source": "fixed",
+                "value": "0"
+              },
+              {
+                "source": "dataField",
+                "value": "2_1",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "dataField",
+                "value": "3_8",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "18_25",
+                "blockId": "verlauf-positionen"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "164_8",
+                "blockId": "verlauf-positionen"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              }
+            ],
+            "extraParameter": []
+          }
+        ]
+      }
+    },
+    "uebernehmen": {
+      "id": "uebernehmen",
+      "type": "button",
+      "parentId": "root",
+      "values": {
+        "gridX": 41,
+        "gridY": 40,
+        "gridW": 7,
+        "gridH": 2,
+        "label": "Übernehmen",
+        "tone": "neutral",
+        "emphasis": "outline",
+        "size": "normal"
+      },
+      "childIds": [],
+      "chains": {
+        "onClick": [
+          {
+            "id": "a6c6c80a-885f-488b-9ebd-f4921475f742",
+            "kind": "RELATION",
+            "resultName": "",
+            "relationId": "9c5d2276-c003-4865-ae28-371c84ab6d90",
+            "parameter": [
+              {
+                "source": "fixed",
+                "value": "0"
+              },
+              {
+                "source": "dataField",
+                "value": "2_1",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "dataField",
+                "value": "3_8",
+                "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "18_25",
+                "blockId": "verlauf-positionen"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "chosenRow",
+                "value": "164_8",
+                "blockId": "verlauf-positionen"
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              },
+              {
+                "source": "fixed",
+                "value": ""
+              }
+            ],
+            "extraParameter": []
+          }
+        ]
+      }
+    }
+  },
+  "dataSources": [
+    {
+      "id": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+      "name": "Beleg",
+      "preset": "document",
+      "tableId": "BEL",
+      "order": {
+        "kind": "var"
+      },
+      "delivery": {
+        "kind": "push",
+        "path": "Var"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fields": [
+        {
+          "code": "2_1",
+          "name": "Belegart"
+        },
+        {
+          "code": "3_8",
+          "name": "Belegnummer"
+        },
+        {
+          "code": "0_1",
+          "name": "Jahr"
+        },
+        {
+          "code": "1_1",
+          "name": "Archiv"
+        },
+        {
+          "code": "11_8",
+          "name": "Ad.Nr."
+        },
+        {
+          "code": "107_30",
+          "name": "Firmenname"
+        },
+        {
+          "code": "19_10",
+          "name": "Belegdatum"
+        },
+        {
+          "code": "1313_8",
+          "name": "Vorgang"
+        },
+        {
+          "code": "29_10",
+          "name": "Liefer-/Versanddatum"
+        }
+      ]
+    },
+    {
+      "id": "0e74871f-a3d7-40df-a1f5-8215b01f1e1b",
+      "name": "Belegpositionen",
+      "preset": "documentItem",
+      "tableId": "POS",
+      "order": {
+        "kind": "sefileloop",
+        "wildcard": false,
+        "underHeader": true,
+        "headerKey": "BEL_0_11"
+      },
+      "delivery": {
+        "kind": "push",
+        "path": "SEFileLoop"
+      },
+      "write": {
+        "kind": "putRelation",
+        "recordField": "645_10"
+      },
+      "fields": [
+        {
+          "code": "2_1",
+          "name": "Belegart",
+          "length": 1
+        },
+        {
+          "code": "3_8",
+          "name": "Belegnummer",
+          "length": 8
+        },
+        {
+          "code": "18_25",
+          "name": "Artikelnummer",
+          "length": 25
+        },
+        {
+          "code": "45_60",
+          "name": "Bezeichnung",
+          "length": 30
+        },
+        {
+          "code": "164_8",
+          "name": "Menge",
+          "length": 3
+        },
+        {
+          "code": "280_12",
+          "name": "Gesamtpreis",
+          "length": 6
+        },
+        {
+          "code": "372_5",
+          "name": "MwSt-Satz",
+          "length": 5
+        },
+        {
+          "code": "645_10",
+          "name": "Satznummer",
+          "length": 5
+        },
+        {
+          "code": "689_5",
+          "name": "Mengeneinheit",
+          "length": 5
+        },
+        {
+          "code": "1401_12",
+          "name": "Rohertrag"
+        },
+        {
+          "code": "2558_1",
+          "name": "Farbkennzeichen"
+        },
+        {
+          "code": "412_30",
+          "name": "Tierart",
+          "length": 15
+        },
+        {
+          "code": "900_30",
+          "name": "Dosierung pro Tier",
+          "length": 8
+        },
+        {
+          "code": "930_3",
+          "name": "Körpergewicht"
+        },
+        {
+          "code": "933_3",
+          "name": "Behandlungstage"
+        },
+        {
+          "code": "936_10",
+          "name": "Anzahl der Tiere (Ausgerechnet)"
+        },
+        {
+          "code": "946_30",
+          "name": "Abgabemenge"
+        },
+        {
+          "code": "1536_100",
+          "name": "Dosierung"
+        },
+        {
+          "code": "1636_5",
+          "name": "Behandlungsdauer"
+        },
+        {
+          "code": "1641_5",
+          "name": "Behandlungsmenge"
+        },
+        {
+          "code": "1646_5",
+          "name": "Behandlungseinheit"
+        },
+        {
+          "code": "1651_5",
+          "name": "Behandlungsintervall"
+        },
+        {
+          "code": "1656_5",
+          "name": "Behandlungsintervalleinheit"
+        },
+        {
+          "code": "1661_4",
+          "name": "Dosierungseinheit"
+        },
+        {
+          "code": "1665_30",
+          "name": "Art der Verabreichung"
+        },
+        {
+          "code": "1808_30",
+          "name": "Gewicht"
+        },
+        {
+          "code": "1695_60",
+          "name": "Chargennummer",
+          "length": 30
+        },
+        {
+          "code": "1268_8",
+          "name": "Stat:Adressnummer",
+          "length": 8
+        },
+        {
+          "code": "350_8",
+          "name": "Lager",
+          "length": 8
+        },
+        {
+          "code": "246_9",
+          "name": "Einzelpreis",
+          "length": 9
+        },
+        {
+          "code": "265_5",
+          "name": "Rabatt %",
+          "length": 5
+        },
+        {
+          "code": "17_1",
+          "name": "S Steuerspalte",
+          "length": 1
+        },
+        {
+          "code": "128_6",
+          "name": "Pos.Nr.",
+          "length": 1
+        }
+      ]
+    },
+    {
+      "id": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
+      "name": "Artikelstamm",
+      "preset": "erpQuery",
+      "tableId": "ARTIKEL.GET",
+      "order": {
+        "kind": "none"
+      },
+      "delivery": {
+        "kind": "message"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fieldPrefix": "ART_",
+      "fields": [
+        {
+          "code": "ART_2305_8",
+          "name": "Menge",
+          "length": 4
+        },
+        {
+          "code": "ART_1_25",
+          "name": "Artikelnummer",
+          "length": 20
+        },
+        {
+          "code": "ART_51_60",
+          "name": "Bezeichnung",
+          "length": 20
+        },
+        {
+          "code": "ART_759_10",
+          "name": "Bestand",
+          "length": 5
+        },
+        {
+          "code": "ART_769_10",
+          "name": "Bestand Kalk.",
+          "length": 5
+        },
+        {
+          "code": "ART_8320_9",
+          "name": "Netto",
+          "length": 5
+        },
+        {
+          "code": "ART_2228_1",
+          "name": "BS Bestellstatus"
+        },
+        {
+          "code": "ART_26_10",
+          "name": "Kurzname"
+        },
+        {
+          "code": "ART_36_5",
+          "name": "WGR"
+        },
+        {
+          "code": "ART_2115_2",
+          "name": "V Bitmap Lagerstatus"
+        },
+        {
+          "code": "ART_1706_5",
+          "name": "Lagereinheit"
+        },
+        {
+          "code": "ART_2035_80",
+          "name": "Bilddateiname"
+        },
+        {
+          "code": "ART_1216_8",
+          "name": "Lager",
+          "length": 5
+        },
+        {
+          "code": "ART_8329_9",
+          "name": "Brutto",
+          "length": 5
+        }
+      ]
+    },
+    {
+      "id": "0695b6ad-8efb-469e-b90b-868e64abbe43",
+      "name": "Chargen (Kopie)",
+      "preset": "erpQuery",
+      "tableId": "CHARGE.GET",
+      "order": {
+        "kind": "none"
+      },
+      "delivery": {
+        "kind": "message"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fieldPrefix": "CHA_",
+      "fields": [
+        {
+          "code": "CHA_1_25",
+          "name": "Chargennummer"
+        },
+        {
+          "code": "CHA_26_25",
+          "name": "Artikelnummer"
+        },
+        {
+          "code": "CHA_77_60",
+          "name": "Bezeichnung"
+        },
+        {
+          "code": "CHA_61_8",
+          "name": "Lieferant"
+        },
+        {
+          "code": "CHA_1054_10",
+          "name": "Mindesthalbarkeitsdatum"
+        },
+        {
+          "code": "CHA_198_10",
+          "name": "Lagerbestand"
+        }
+      ]
+    },
+    {
+      "id": "8a88988e-9613-42b9-bb54-e96e00274af3",
+      "name": "Belege Kunde",
+      "preset": "document",
+      "tableId": "BEL",
+      "order": {
+        "kind": "sefileloop",
+        "wildcard": false,
+        "underHeader": false,
+        "headerKey": ""
+      },
+      "delivery": {
+        "kind": "push",
+        "path": "SEFileLoop"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fields": [
+        {
+          "code": "0_1",
+          "name": "Jahr"
+        },
+        {
+          "code": "1_1",
+          "name": "Archiv"
+        },
+        {
+          "code": "0_11",
+          "name": "Satzschluessel"
+        },
+        {
+          "code": "107_30",
+          "name": "Firmenname"
+        },
+        {
+          "code": "3437_3",
+          "name": "FI - Fibu gebucht"
+        },
+        {
+          "code": "3434_3",
+          "name": "DR - Beleg gedruckt"
+        },
+        {
+          "code": "3_8",
+          "name": "Beleg-Nr."
+        },
+        {
+          "code": "11_8",
+          "name": "Ad.Nr."
+        },
+        {
+          "code": "19_10",
+          "name": "Belegdatum"
+        },
+        {
+          "code": "3440_60",
+          "name": "Name"
+        },
+        {
+          "code": "1610_12",
+          "name": "Netto EUR"
+        },
+        {
+          "code": "7335_12",
+          "name": "Mwst EUR"
+        },
+        {
+          "code": "8204_12",
+          "name": "Brutto EUR"
+        },
+        {
+          "code": "1574_12",
+          "name": "Rohertrag EUR"
+        },
+        {
+          "code": "1313_8",
+          "name": "Vorgang"
+        },
+        {
+          "code": "29_10",
+          "name": "Liefer-/Versanddatum"
+        },
+        {
+          "code": "39_8",
+          "name": "Projektnummer"
+        },
+        {
+          "code": "47_10",
+          "name": "Kurzname"
+        },
+        {
+          "code": "57_10",
+          "name": "Postleitzahl"
+        },
+        {
+          "code": "1893_2",
+          "name": "Beleggruppe"
+        },
+        {
+          "code": "747_8",
+          "name": "Lieferadresse"
+        },
+        {
+          "code": "631_12",
+          "name": "Belegnummer Lieferant"
+        },
+        {
+          "code": "2_1",
+          "name": "Belegart"
+        }
+      ]
+    },
+    {
+      "name": "BelegGET",
+      "preset": "documentItem",
+      "tableId": "POS",
+      "order": {
+        "kind": "none"
+      },
+      "delivery": {
+        "kind": "relationRows",
+        "relationId": "96555215-aa12-4eaf-9136-d469c3e02273",
+        "documentKindField": "2_1",
+        "documentNumberField": "3_8",
+        "yearField": "0_1",
+        "archiveField": "1_1",
+        "endFields": [
+          "11_6",
+          "18_25"
+        ]
+      },
+      "write": {
+        "kind": "putRelation",
+        "recordField": "645_10"
+      },
+      "fields": [
+        {
+          "code": "2_1",
+          "name": "Belegart",
+          "length": 1
+        },
+        {
+          "code": "3_8",
+          "name": "Belegnummer",
+          "length": 8
+        },
+        {
+          "code": "18_25",
+          "name": "Artikelnummer",
+          "length": 25
+        },
+        {
+          "code": "45_60",
+          "name": "Bezeichnung",
+          "length": 30
+        },
+        {
+          "code": "164_8",
+          "name": "Menge",
+          "length": 3
+        },
+        {
+          "code": "280_12",
+          "name": "Gesamtpreis",
+          "length": 6
+        },
+        {
+          "code": "372_5",
+          "name": "MwSt-Satz",
+          "length": 5
+        },
+        {
+          "code": "645_10",
+          "name": "Satznummer",
+          "length": 5
+        },
+        {
+          "code": "689_5",
+          "name": "Mengeneinheit",
+          "length": 5
+        },
+        {
+          "code": "1401_12",
+          "name": "Rohertrag"
+        },
+        {
+          "code": "2558_1",
+          "name": "Farbkennzeichen"
+        },
+        {
+          "code": "412_30",
+          "name": "Tierart",
+          "length": 15
+        },
+        {
+          "code": "900_30",
+          "name": "Dosierung pro Tier",
+          "length": 8
+        },
+        {
+          "code": "930_3",
+          "name": "Körpergewicht"
+        },
+        {
+          "code": "933_3",
+          "name": "Behandlungstage"
+        },
+        {
+          "code": "936_10",
+          "name": "Anzahl der Tiere (Ausgerechnet)"
+        },
+        {
+          "code": "946_30",
+          "name": "Abgabemenge"
+        },
+        {
+          "code": "1536_100",
+          "name": "Dosierung"
+        },
+        {
+          "code": "1636_5",
+          "name": "Behandlungsdauer"
+        },
+        {
+          "code": "1641_5",
+          "name": "Behandlungsmenge"
+        },
+        {
+          "code": "1646_5",
+          "name": "Behandlungseinheit"
+        },
+        {
+          "code": "1651_5",
+          "name": "Behandlungsintervall"
+        },
+        {
+          "code": "1656_5",
+          "name": "Behandlungsintervalleinheit"
+        },
+        {
+          "code": "1661_4",
+          "name": "Dosierungseinheit"
+        },
+        {
+          "code": "1665_30",
+          "name": "Art der Verabreichung"
+        },
+        {
+          "code": "1808_30",
+          "name": "Gewicht"
+        },
+        {
+          "code": "1695_60",
+          "name": "Chargennummer",
+          "length": 30
+        },
+        {
+          "code": "1268_8",
+          "name": "Stat:Adressnummer",
+          "length": 8
+        },
+        {
+          "code": "350_8",
+          "name": "Lager",
+          "length": 8
+        },
+        {
+          "code": "246_9",
+          "name": "Einzelpreis",
+          "length": 9
+        },
+        {
+          "code": "265_5",
+          "name": "Rabatt %",
+          "length": 5
+        },
+        {
+          "code": "17_1",
+          "name": "S Steuerspalte",
+          "length": 1
+        },
+        {
+          "code": "128_6",
+          "name": "Pos.Nr.",
+          "length": 1
+        }
+      ],
+      "id": "0879b91f-63ed-48b1-9beb-310cff2f36f7"
+    },
+    {
+      "id": "src-adressstamm",
+      "name": "Adressstamm",
+      "preset": "addressMaster",
+      "tableId": "ADR",
+      "order": {
+        "kind": "sefileloop",
+        "wildcard": false,
+        "underHeader": false,
+        "headerKey": ""
+      },
+      "delivery": {
+        "kind": "push",
+        "path": "SEFileLoop"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fields": [
+        {
+          "code": "2_8",
+          "name": "Kundennummer"
+        },
+        {
+          "code": "3292_30",
+          "name": "Vorname"
+        },
+        {
+          "code": "3322_40",
+          "name": "Nachname"
+        },
+        {
+          "code": "1114_20",
+          "name": "Mobil"
+        },
+        {
+          "code": "1330_60",
+          "name": "E-Mail"
+        },
+        {
+          "code": "2187_46",
+          "name": "Straße"
+        },
+        {
+          "code": "2170_11",
+          "name": "Hausnr."
+        },
+        {
+          "code": "110_10",
+          "name": "PLZ"
+        },
+        {
+          "code": "2233_40",
+          "name": "Ort"
+        },
+        {
+          "code": "512_350",
+          "name": "Notiz"
+        }
+      ]
+    },
+    {
+      "id": "src-haustiere",
+      "name": "Haustiere",
+      "preset": "erpQuery",
+      "tableId": "LIEFERADRESSE.GET",
+      "order": {
+        "kind": "none"
+      },
+      "delivery": {
+        "kind": "message"
+      },
+      "write": {
+        "kind": "none"
+      },
+      "fieldPrefix": "LFA_",
+      "fields": [
+        {
+          "code": "LFA_2_8",
+          "name": "Lieferadressnummer"
+        },
+        {
+          "code": "LFA_10_8",
+          "name": "Kundennummer"
+        },
+        {
+          "code": "LFA_400_30",
+          "name": "Tiername"
+        },
+        {
+          "code": "LFA_430_30",
+          "name": "Rasse"
+        },
+        {
+          "code": "LFA_460_500",
+          "name": "Anamnese"
+        },
+        {
+          "code": "LFA_960_10",
+          "name": "Geburtsdatum"
+        },
+        {
+          "code": "LFA_970_1",
+          "name": "Kastriert"
+        },
+        {
+          "code": "LFA_971_30",
+          "name": "Tierart"
+        },
+        {
+          "code": "LFA_2000_12",
+          "name": "Geschlecht"
+        },
+        {
+          "code": "LFA_2012_60",
+          "name": "Allergien"
+        },
+        {
+          "code": "LFA_2072_6",
+          "name": "Gewicht"
+        },
+        {
+          "code": "LFA_2078_1",
+          "name": "Blutergebnis"
+        },
+        {
+          "code": "LFA_2079_1",
+          "name": "Einverständnis"
+        },
+        {
+          "code": "LFA_2080_30",
+          "name": "Chip-Nr."
+        },
+        {
+          "code": "LFA_2110_1",
+          "name": "Tollwut"
+        },
+        {
+          "code": "LFA_2111_10",
+          "name": "Tollwut Datum"
+        },
+        {
+          "code": "LFA_2151_1",
+          "name": "SHPPi"
+        },
+        {
+          "code": "LFA_2121_30",
+          "name": "SHPPi Datum"
+        },
+        {
+          "code": "LFA_2152_30",
+          "name": "Leptospirose"
+        },
+        {
+          "code": "LFA_2182_10",
+          "name": "Leptospirose Datum"
+        }
+      ]
+    }
+  ],
+  "relation": [
+    {
+      "id": "a376b2b0-e972-4284-aea4-cfb20f9a2cfb",
+      "name": "PUT53",
+      "verb": "PUT_RELATION",
+      "nr": "53",
+      "parameter": [
+        "",
+        "",
+        "",
+        "BELART",
+        "BELNR",
+        "",
+        "ARTNR",
+        "POS_128_6",
+        "POS_11_6",
+        "POS_1_1",
+        "POS_645_10",
+        "POS_0_1",
+        "POS_17_1",
+        "SNR"
+      ],
+      "extraParameterAllowed": false
+    },
+    {
+      "id": "9c5d2276-c003-4865-ae28-371c84ab6d90",
+      "name": "PUT82",
+      "verb": "PUT_RELATION",
+      "nr": "82",
+      "parameter": [
+        "GJ",
+        "BELART",
+        "BELNR",
+        "STSPALTE",
+        "ARTNR",
+        "TEXT",
+        "MENGE",
+        "EPREIS",
+        "PEH",
+        "EK",
+        "RABP",
+        "RABADR",
+        "VTRNR",
+        "EINFUEGE_SNR",
+        "EAPINFO",
+        "EAN",
+        "LANGTEXT",
+        "BUCHUNGSART",
+        "BUDAT",
+        "LAGER",
+        "TIDENT",
+        "SERNR",
+        "CHANR",
+        "PRUEFZ",
+        "KOID",
+        "KOGID",
+        "SACHKONTO",
+        "MARK",
+        "P",
+        "L",
+        "A",
+        "W"
+      ],
+      "extraParameterAllowed": true
+    },
+    {
+      "name": "Positionen holen (Relation 69)",
+      "verb": "GET_RELATION",
+      "nr": "69",
+      "parameter": [
+        "BELART",
+        "POS",
+        "LEN",
+        "BELNR",
+        "JAHR",
+        "ARCHIV",
+        "",
+        "POSNR",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "positions": {
+        "slots": [
+          "documentKind",
+          "position",
+          "length",
+          "documentNumber",
+          "year",
+          "archive",
+          "empty",
+          "positionNumber",
+          "empty",
+          "empty",
+          "empty",
+          "empty"
+        ],
+        "answerLength": 255
+      },
+      "id": "96555215-aa12-4eaf-9136-d469c3e02273"
+    }
+  ]
+}

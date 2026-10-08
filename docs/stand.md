@@ -65,6 +65,13 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   Plätze teilen sich die Höhe der Spalte: jeder behält seine Karten und
   nimmt vom Rest gleich viel; ein leeres Zimmer ist ein Zimmer, kein
   Streifen (Nutzer 08.10.).
+- 08.10. Zwei Masken: Empfang bleibt die Empfang-Maske. Der Arzt bekommt
+  die Belegerfassung (Layoutrahmen 10000) mit den Tieren des Kunden, dem
+  Patienten, dem Halter, dem Impfstatus und den früheren Behandlungen
+  (`masken/behandlung`). Die Felder des Tiers sind die `LFA_`-Felder der
+  Feldkarte der Chef-Maske (Lieferadresse, Freifelder vom 04.08.);
+  geschrieben werden nur die Positionen (PUT 82, PUT 53), Tier und Halter
+  werden gelesen.
 - 07.10. Kein Neubau. Gestrichen: Chip-Farbe folgt einem Feld, der Zähler
   (Statuszeile „0 Termine offen · 0 im Wartezimmer“).
 - 08.10. Ankreuzfeld: ein Haken schreibt `J`, kein Haken `N` in das
@@ -158,6 +165,16 @@ Chef-Maske Empfang nachgebaut am 07.10.: `masken/empfang/
 Empfang.aufbau-maske.json`, 38 Bausteine, zwei Quellen (Terminplaner
 IDBID0021, Adressstamm), im Editor über „Laden“. Im Browser mit
 Beispieldaten geprüft, nicht in SoftEngine.
+
+Chef-Maske Behandlung nachgebaut am 08.10.: `masken/behandlung/
+Behandlung.aufbau-maske.json`, 45 Bausteine, Belegerfassung mit Kopf des
+Belegs, Tiere des Kunden (Datenliste, folgt dem Beleg), Patient und
+Impfstatus (Felder folgen dem gewählten Tier), Halter (folgt dem Beleg),
+Erfassung mit Artikelsuche und Chargen wie in der Belegerfassung, frühere
+Behandlungen (Belege des Kunden) mit ihren Positionen und „Übernehmen“.
+Acht Quellen, drei Relationen. Im Editor geladen und vermessen, nicht in
+SoftEngine. Ohne Foto (Baustein Bild fehlt) und ohne Befund, Diagnose,
+Therapie: dafür gibt es keine Quelle in den Kontrakten.
 
 Lücken, am Nachbau gemessen, vom Nutzer am 08.10. gestrichen oder behalten.
 Was bleibt:
