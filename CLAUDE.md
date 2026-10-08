@@ -40,7 +40,9 @@ hinfaellig.
    `docs/softengine-wiki/kontrakte.md`. Belegt am 23.09.: Lesen und
    Schreiben laufen; ERPAPICALL als Nachricht nach dem Oeffnen ist deutlich
    schneller als die Bestellung im Zettel und ist die Bauweise.
-10. Befunde, Bausteinliste und Reihenfolge: `docs/pruefbericht-2026-09-23.md`.
+10. Entscheidungen, Bedienung, Bausteinliste und Reihenfolge: `docs/stand.md`.
+    Wird ersetzt, nicht ergaenzt: kein Nachtrag, keine Geschichte, die
+    steht in Git.
 
 ## Befehle
 
