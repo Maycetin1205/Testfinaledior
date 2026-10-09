@@ -154,8 +154,8 @@
         "gridW": 48,
         "gridH": 40,
         "source": "src-terminplaner",
-        "columnsField": "343_30",
-        "dayField": "273_10",
+        "columnsField": "IDBID0021_343_30",
+        "dayField": "IDBID0021_273_10",
         "columns": [
           {
             "heading": "Termine heute",
@@ -225,20 +225,20 @@
         ],
         "avatarKind": "animal",
         "chipTone": "danger",
-        "timeField": "118_5",
-        "headingField": "78_30",
-        "sublineField": "18_30 · 48_30",
+        "timeField": "IDBID0021_118_5",
+        "headingField": "IDBID0021_78_30",
+        "sublineField": "IDBID0021_18_30 · IDBID0021_48_30",
         "heading2Field": "src-adressen-alle::ADR_3292_30 src-adressen-alle::ADR_3322_40",
-        "textField": "123_150",
-        "chipField": "373_12",
-        "avatarField": "18_30",
+        "textField": "IDBID0021_123_150",
+        "chipField": "IDBID0021_373_12",
+        "avatarField": "IDBID0021_18_30",
         "extraSources": [
           {
             "sourceId": "src-adressen-alle",
             "partnerId": "",
             "pairs": [
               {
-                "fromField": "10_8",
+                "fromField": "IDBID0021_10_8",
                 "toField": "ADR_2_8"
               }
             ]
@@ -736,79 +736,76 @@
     {
       "id": "src-terminplaner",
       "name": "Terminplaner",
-      "preset": "idb",
-      "tableId": "IDBID0021",
+      "preset": "erpQuery",
+      "tableId": "IDBID0021.GET",
       "order": {
-        "kind": "sefileloop",
-        "wildcard": true,
-        "underHeader": false,
-        "headerKey": ""
+        "kind": "none"
       },
       "delivery": {
-        "kind": "push",
-        "path": "SEFileLoop"
+        "kind": "message"
       },
       "write": {
         "kind": "none"
       },
       "fields": [
         {
-          "code": "0_10",
+          "code": "IDBID0021_0_10",
           "name": "Satznummer"
         },
         {
-          "code": "10_8",
+          "code": "IDBID0021_10_8",
           "name": "Kundennummer"
         },
         {
-          "code": "18_30",
+          "code": "IDBID0021_18_30",
           "name": "Tierart"
         },
         {
-          "code": "48_30",
+          "code": "IDBID0021_48_30",
           "name": "Rasse"
         },
         {
-          "code": "78_30",
+          "code": "IDBID0021_78_30",
           "name": "Tiername"
         },
         {
-          "code": "108_10",
+          "code": "IDBID0021_108_10",
           "name": "Geburtsdatum"
         },
         {
-          "code": "118_5",
+          "code": "IDBID0021_118_5",
           "name": "Uhrzeit"
         },
         {
-          "code": "123_150",
+          "code": "IDBID0021_123_150",
           "name": "Behandlung"
         },
         {
-          "code": "273_10",
+          "code": "IDBID0021_273_10",
           "name": "Datum"
         },
         {
-          "code": "283_30",
+          "code": "IDBID0021_283_30",
           "name": "Vorname"
         },
         {
-          "code": "313_30",
+          "code": "IDBID0021_313_30",
           "name": "Nachname"
         },
         {
-          "code": "343_30",
+          "code": "IDBID0021_343_30",
           "name": "Zimmer"
         },
         {
-          "code": "373_12",
+          "code": "IDBID0021_373_12",
           "name": "Priorität"
         },
         {
-          "code": "385_12",
+          "code": "IDBID0021_385_12",
           "name": "Belegnummer"
         }
-      ]
+      ],
+      "fieldPrefix": "IDBID0021_"
     },
     {
       "id": "src-adressen-alle",
