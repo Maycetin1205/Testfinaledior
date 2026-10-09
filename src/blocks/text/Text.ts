@@ -4,7 +4,9 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import { reportsHeight } from '../base/heightReport'
 import { bindable, bindingAttr } from '../../core/block/capability'
 import { readBoundSpot } from '../../runtime/boundSpot'
-import { makeDataLink, sourceIdOf } from '../../runtime/source'
+import { makeDataLink, sourceIdOf, spotValue } from '../../runtime/source'
+import { makeFieldReader } from '../../runtime/foreignSources'
+import { bindingFields } from '../../core/block/binding'
 import { lookClass, lookStyle } from '../look/look'
 import { symbolTpl } from '../look/symbol'
 import { textStyle } from './textStyle'
@@ -63,11 +65,20 @@ export class Text extends BlockElement {
   }
 }
 
+// A text bound to several fields shows their values in a row, as a line of
+// the data list does, the empty ones left out.
 const link = makeDataLink<Text>({
   hydrate: (el) => {
     const spot = readBoundSpot(el, TEXT_BINDING)
     if (spot.kind === 'unbound') return
-    el.text = spot.kind === 'value' ? spot.value : ''
+    if (spot.kind !== 'value') {
+      el.text = ''
+      return
+    }
+    const binding = el.getAttribute(TEXT_BINDING) ?? ''
+    el.text = bindingFields(binding).length > 1
+      ? spotValue('', binding, spot.row, makeFieldReader(el))
+      : spot.value
   },
   wire: (el) => {
     if (sourceIdOf(el) !== '' && el.getAttribute(TEXT_BINDING)) el.text = ''
@@ -81,7 +92,7 @@ defineBlock(Text, {
   capabilities: [
     { kind: 'source', after: 'text' },
     { kind: 'followsSelection' },
-    bindable<typeof textProperties>([{ prop: 'text', name: 'Text' }]),
+    bindable<typeof textProperties>([{ prop: 'text', name: 'Text', several: true }]),
   ],
   grid: { startWidth: 12, startHeight: 2, minWidth: 2, minHeight: 1, heightFromContent: true },
 })
