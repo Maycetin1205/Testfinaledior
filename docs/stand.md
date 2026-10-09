@@ -31,6 +31,15 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   eine Rasterzeile niedriger (2 statt 3). Kein Kasten mehr, die Wahl
   Kasten/Still ist weg. Ein leeres Feld zeigt einen Strich. Die Fläche beim
   Zeigen ist deutlich, der blaue Ring beim Tippen kräftig.
+- 09.10. Behandlung lädt nach dem Öffnen (Nutzer: alles per ERPAPICALL):
+  Adresse per ADRESSE.GET (Vorsatz ADR_), frühere Belege per BELEG.GET
+  (Vorsatz BEL_), beide nur für den Kunden des offenen Belegs (VON_ADRNR =
+  BIS_ADRNR = BEL 11_8), Tiere, Artikel und Chargen wie bisher. Bestellt
+  werden nur der offene Beleg (VAR BEL) und seine Positionen (Kopfsatz-Loop):
+  für beide gibt es keine Abfrage, sie sind klein, und SoftEngines eigene
+  Belegerfassung bestellt sie genauso (Layoutrahmen 00012). Parameter und
+  Vorsätze aus SoftEngines eigenen Masken (STDERFASSUNG/DWld04/951–955,
+  PGEACT, Analyse auf dem Desktop), nicht in SoftEngine geprüft.
 - 09.10. Erfassung: keine Kästchen in Zeilen, auch nicht in der Tippzeile.
   Die Zelle beim Tippen sieht aus wie jede andere, nur mit dem Cursor
   (07.10. bestätigt). Ein Chat hatte der Tippzeile graue Kästchen gegeben,

@@ -966,8 +966,8 @@
         "gridH": 17,
         "source": "8a88988e-9613-42b9-bb54-e96e00274af3",
         "pick": "one",
-        "headingField": "19_10",
-        "sublineField": "3_8",
+        "headingField": "BEL_19_10",
+        "sublineField": "BEL_3_8",
         "avatarField": "",
         "followsSelection": [
           {
@@ -975,13 +975,13 @@
             "pairs": [
               {
                 "fromField": "11_8",
-                "toField": "11_8",
+                "toField": "BEL_11_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
               },
               {
                 "fromField": "3_8",
-                "toField": "3_8",
+                "toField": "BEL_3_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
                 "unequal": true
@@ -989,7 +989,7 @@
             ]
           }
         ],
-        "asideField": "8204_12"
+        "asideField": "BEL_8204_12"
       },
       "childIds": []
     },
@@ -1563,7 +1563,7 @@
             "pairs": [
               {
                 "fromField": "11_8",
-                "toField": "2_8",
+                "toField": "ADR_2_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
               }
@@ -1576,7 +1576,7 @@
         "align": "left",
         "text": "",
         "source": "src-adressstamm",
-        "textField": "3292_30 3322_40",
+        "textField": "ADR_3292_30 ADR_3322_40",
         "size": "17",
         "symbol": ""
       },
@@ -1598,7 +1598,7 @@
             "pairs": [
               {
                 "fromField": "11_8",
-                "toField": "2_8",
+                "toField": "ADR_2_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
               }
@@ -1611,7 +1611,7 @@
         "align": "left",
         "text": "",
         "source": "src-adressstamm",
-        "textField": "1114_20",
+        "textField": "ADR_1114_20",
         "size": "",
         "symbol": "phone"
       },
@@ -1633,7 +1633,7 @@
             "pairs": [
               {
                 "fromField": "11_8",
-                "toField": "2_8",
+                "toField": "ADR_2_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
               }
@@ -1646,7 +1646,7 @@
         "align": "left",
         "text": "",
         "source": "src-adressstamm",
-        "textField": "1330_60",
+        "textField": "ADR_1330_60",
         "size": "",
         "symbol": "mail"
       },
@@ -1668,7 +1668,7 @@
             "pairs": [
               {
                 "fromField": "11_8",
-                "toField": "2_8",
+                "toField": "ADR_2_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
               }
@@ -1681,7 +1681,7 @@
         "align": "left",
         "text": "",
         "source": "src-adressstamm",
-        "textField": "2187_46 2170_11 110_10 2233_40",
+        "textField": "ADR_2187_46 ADR_2170_11 ADR_110_10 ADR_2233_40",
         "size": "",
         "symbol": "place"
       },
@@ -2147,115 +2147,119 @@
     {
       "id": "8a88988e-9613-42b9-bb54-e96e00274af3",
       "name": "Belege Kunde",
-      "preset": "document",
-      "tableId": "BEL",
+      "preset": "erpQuery",
+      "tableId": "BELEG.GET",
       "order": {
-        "kind": "sefileloop",
-        "wildcard": false,
-        "underHeader": false,
-        "headerKey": ""
+        "kind": "none"
       },
       "delivery": {
-        "kind": "push",
-        "path": "SEFileLoop"
+        "kind": "message",
+        "restriction": {
+          "documentKind": "",
+          "address": {
+            "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+            "code": "11_8"
+          }
+        }
       },
       "write": {
         "kind": "none"
       },
       "fields": [
         {
-          "code": "0_1",
+          "code": "BEL_0_1",
           "name": "Jahr"
         },
         {
-          "code": "1_1",
+          "code": "BEL_1_1",
           "name": "Archiv"
         },
         {
-          "code": "0_11",
+          "code": "BEL_0_11",
           "name": "Satzschluessel"
         },
         {
-          "code": "107_30",
+          "code": "BEL_107_30",
           "name": "Firmenname"
         },
         {
-          "code": "3437_3",
+          "code": "BEL_3437_3",
           "name": "FI - Fibu gebucht"
         },
         {
-          "code": "3434_3",
+          "code": "BEL_3434_3",
           "name": "DR - Beleg gedruckt"
         },
         {
-          "code": "3_8",
+          "code": "BEL_3_8",
           "name": "Beleg-Nr."
         },
         {
-          "code": "11_8",
+          "code": "BEL_11_8",
           "name": "Ad.Nr."
         },
         {
-          "code": "19_10",
+          "code": "BEL_19_10",
           "name": "Belegdatum"
         },
         {
-          "code": "3440_60",
+          "code": "BEL_3440_60",
           "name": "Name"
         },
         {
-          "code": "1610_12",
+          "code": "BEL_1610_12",
           "name": "Netto EUR"
         },
         {
-          "code": "7335_12",
+          "code": "BEL_7335_12",
           "name": "Mwst EUR"
         },
         {
-          "code": "8204_12",
+          "code": "BEL_8204_12",
           "name": "Brutto EUR"
         },
         {
-          "code": "1574_12",
+          "code": "BEL_1574_12",
           "name": "Rohertrag EUR"
         },
         {
-          "code": "1313_8",
+          "code": "BEL_1313_8",
           "name": "Vorgang"
         },
         {
-          "code": "29_10",
+          "code": "BEL_29_10",
           "name": "Liefer-/Versanddatum"
         },
         {
-          "code": "39_8",
+          "code": "BEL_39_8",
           "name": "Projektnummer"
         },
         {
-          "code": "47_10",
+          "code": "BEL_47_10",
           "name": "Kurzname"
         },
         {
-          "code": "57_10",
+          "code": "BEL_57_10",
           "name": "Postleitzahl"
         },
         {
-          "code": "1893_2",
+          "code": "BEL_1893_2",
           "name": "Beleggruppe"
         },
         {
-          "code": "747_8",
+          "code": "BEL_747_8",
           "name": "Lieferadresse"
         },
         {
-          "code": "631_12",
+          "code": "BEL_631_12",
           "name": "Belegnummer Lieferant"
         },
         {
-          "code": "2_1",
+          "code": "BEL_2_1",
           "name": "Belegart"
         }
-      ]
+      ],
+      "fieldPrefix": "BEL_"
     },
     {
       "name": "BelegGET",
@@ -2437,63 +2441,67 @@
     {
       "id": "src-adressstamm",
       "name": "Adressstamm",
-      "preset": "addressMaster",
-      "tableId": "ADR",
+      "preset": "erpQuery",
+      "tableId": "ADRESSE.GET",
       "order": {
-        "kind": "sefileloop",
-        "wildcard": false,
-        "underHeader": false,
-        "headerKey": ""
+        "kind": "none"
       },
       "delivery": {
-        "kind": "push",
-        "path": "SEFileLoop"
+        "kind": "message",
+        "restriction": {
+          "documentKind": "",
+          "address": {
+            "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+            "code": "11_8"
+          }
+        }
       },
       "write": {
         "kind": "none"
       },
       "fields": [
         {
-          "code": "2_8",
+          "code": "ADR_2_8",
           "name": "Kundennummer"
         },
         {
-          "code": "3292_30",
+          "code": "ADR_3292_30",
           "name": "Vorname"
         },
         {
-          "code": "3322_40",
+          "code": "ADR_3322_40",
           "name": "Nachname"
         },
         {
-          "code": "1114_20",
+          "code": "ADR_1114_20",
           "name": "Mobil"
         },
         {
-          "code": "1330_60",
+          "code": "ADR_1330_60",
           "name": "E-Mail"
         },
         {
-          "code": "2187_46",
+          "code": "ADR_2187_46",
           "name": "Straße"
         },
         {
-          "code": "2170_11",
+          "code": "ADR_2170_11",
           "name": "Hausnr."
         },
         {
-          "code": "110_10",
+          "code": "ADR_110_10",
           "name": "PLZ"
         },
         {
-          "code": "2233_40",
+          "code": "ADR_2233_40",
           "name": "Ort"
         },
         {
-          "code": "512_350",
+          "code": "ADR_512_350",
           "name": "Notiz"
         }
-      ]
+      ],
+      "fieldPrefix": "ADR_"
     },
     {
       "id": "src-haustiere",
