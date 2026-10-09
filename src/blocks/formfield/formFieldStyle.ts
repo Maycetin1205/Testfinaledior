@@ -191,8 +191,8 @@ export const fieldStyle = css`
   .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
   .magnifier svg { width: 16px; height: 16px; }
 
-  /* The checkbox: .f.check and .cb, the box and its text in the middle of the
-     field. */
+  /* The checkbox: .f.check, the box (tickBoxStyle) and its text in the
+     middle of the field. */
   .field.check {
     display: flex;
     align-items: center;
@@ -205,38 +205,6 @@ export const fieldStyle = css`
     gap: 10px;
     min-width: 0;
   }
-  .box {
-    position: relative;
-    flex: none;
-    width: 20px;
-    height: 20px;
-    display: grid;
-    place-items: center;
-  }
-  .box .ctrl {
-    position: absolute;
-    inset: 0;
-    width: 20px;
-    height: 20px;
-    border: 1.5px solid var(--se-box-line);
-    border-radius: var(--se-radius-sm);
-    background: var(--se-panel);
-    cursor: pointer;
-    appearance: none;
-    transition: background-color var(--se-move), border-color var(--se-move);
-  }
-  .box .ctrl:hover { border-color: var(--se-muted); }
-  .box .ctrl:checked { background: var(--se-accent); border-color: var(--se-accent); }
-  .box .ctrl:focus-visible { box-shadow: var(--se-focus); }
-  .box .icon {
-    position: relative;
-    width: 12px;
-    height: 12px;
-    color: var(--se-panel);
-    visibility: hidden;
-    pointer-events: none;
-  }
-  .box .ctrl:checked + .icon { visibility: visible; }
   .text {
     min-width: 0;
     color: var(--se-ink);

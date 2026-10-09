@@ -98,14 +98,26 @@
   --se-petrol-ink:  #0B5E66;
   --se-petrol-soft: #E3F1F2;
 
-  /* The outline of an animal, in the color of its kind. */
-  --se-animal-dog:    #3B5BDB;  /* --dog */
-  --se-animal-cat:    #B7791F;  /* --cat */
-  --se-animal-rabbit: #4F7C2C;  /* --rabbit */
-  --se-animal-bird:   #0E7C86;
-  --se-animal-rat:    #8E5A9B;
-  --se-animal-turtle: #4B6068;
-  --se-animal-paw:    #64748B;
+  /* The outline of an animal in the color of its kind, on a circle of the
+     same color, soft. */
+  --se-animal-dog:         #3B5BDB;  /* --dog */
+  --se-animal-dog-soft:    #E9EDFB;  /* --dog-soft */
+  --se-animal-cat:         #B7791F;  /* --cat */
+  --se-animal-cat-soft:    #FBF1DD;  /* --cat-soft */
+  --se-animal-rabbit:      #4F7C2C;  /* --rabbit */
+  --se-animal-rabbit-soft: #ECF4E4;  /* --rabbit-soft */
+  --se-animal-bird:        #0E7C86;
+  --se-animal-bird-soft:   #E3F1F2;
+  --se-animal-rat:         #8E5A9B;
+  --se-animal-rat-soft:    #F4ECF6;
+  --se-animal-turtle:      #4B6068;
+  --se-animal-turtle-soft: #E8EDEF;
+  --se-animal-fish:        #2563EB;
+  --se-animal-fish-soft:   #E8F0FE;
+  --se-animal-horse:       #8B5E34;
+  --se-animal-horse-soft:  #F4ECE4;
+  --se-animal-paw:         #64748B;
+  --se-animal-paw-soft:    #EEF1F4;
 
   --se-border: 1px;
   --se-radius: 8px;  /* --r-ctl */

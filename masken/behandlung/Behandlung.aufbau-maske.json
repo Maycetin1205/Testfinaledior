@@ -1390,7 +1390,7 @@
         "source": "8a88988e-9613-42b9-bb54-e96e00274af3",
         "pick": "one",
         "headingField": "19_10",
-        "sublineField": "3_8 · 8204_12",
+        "sublineField": "3_8",
         "avatarField": "",
         "followsSelection": [
           {
@@ -1411,7 +1411,8 @@
               }
             ]
           }
-        ]
+        ],
+        "asideField": "8204_12"
       },
       "childIds": []
     },

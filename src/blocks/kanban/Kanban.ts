@@ -5,7 +5,7 @@ import { reportsHeads } from '../base/headsReport'
 import { bindable } from '../../core/block/capability'
 import { lookStyle, toneValue } from '../look/look'
 import { spotValue, type DataPreamble } from '../../runtime/source'
-import { animalAvatarTpl, avatarSpotTpl, imageAvatarTpl } from '../parts/card'
+import { animalAvatarTpl, avatarSpotTpl, avatarStyle, imageAvatarTpl } from '../parts/card'
 import { chipClass, chipStyle } from '../parts/chip'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
 import { cardsByClock, SAMPLE_HOUR_LINE, SAMPLE_UNTIL, type Until } from './clock'
@@ -26,7 +26,7 @@ export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, kanbanStyle, chipStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, avatarStyle, kanbanStyle, chipStyle]
 
   readonly board = new Board(this)
 

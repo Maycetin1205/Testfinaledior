@@ -177,22 +177,6 @@ export const kanbanStyle = css`
     min-width: 0;
   }
 
-  .avatar {
-    box-sizing: border-box;
-    flex: none;
-    width: 36px;
-    height: 36px;
-    display: grid;
-    place-items: center;
-    border-radius: var(--se-radius);
-    background: no-repeat center / cover;
-    color: var(--se-animal-paw);
-  }
-  .avatar svg { width: 88%; height: 88%; stroke-width: 2; }
-
-  /* A bound avatar has a dotted edge in the editor, as a bound form field. */
-  :host([preview]) .avatar[data-ff-bound] { border: var(--se-border) dotted var(--se-accent); }
-  :host([preview][data-editable]) .avatar { cursor: pointer; }
 
   .name,
   .owner {

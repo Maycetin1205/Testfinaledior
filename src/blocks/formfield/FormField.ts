@@ -11,6 +11,7 @@ import { asNumber } from '../../core/data/number'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { LookupControl } from '../lookup/lookupControl'
 import { icon, type IconName } from '../parts/icons'
+import { tickBoxStyle, tickBoxTpl } from '../parts/tickBox'
 import { symbolTpl } from '../look/symbol'
 // The lookup window draws its rows with the table block.
 import '../table/Table'
@@ -81,7 +82,7 @@ export class FormField extends BlockElement implements ValueCarrier {
   static readonly type = 'formfield'
   static readonly tag = 'ff-formfield'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, fieldStyle, suggestionStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, fieldStyle, tickBoxStyle, suggestionStyle]
 
   private valueAtFocus = ''
   private typed = false
@@ -250,17 +251,14 @@ export class FormField extends BlockElement implements ValueCarrier {
         @click=${this.reportSpot}
         @dblclick=${this.reportSpot}
       >
-        <span class="box">
-          <input
-            class="ctrl"
-            type="checkbox"
-            aria-label=${this.label}
-            .checked=${live(this.ticked)}
-            @input=${(e: Event) => this.tick((e.target as HTMLInputElement).checked)}
-            @change=${this.onChange}
-          />
-          ${icon('check')}
-        </span>
+        ${tickBoxTpl(html`<input
+          class="ctrl"
+          type="checkbox"
+          aria-label=${this.label}
+          .checked=${live(this.ticked)}
+          @input=${(e: Event) => this.tick((e.target as HTMLInputElement).checked)}
+          @change=${this.onChange}
+        />`)}
         ${this.showLabel
           ? html`<span
               class="text"
