@@ -223,8 +223,7 @@ und braucht es nicht: das ist eine Einstellung in SoftEngine.
   `Buttonbar/Temp/sedata_SCBB01_1_951.js`. Aus den ausgelieferten Dateien
   geschlossen, nicht beobachtet.
 - Einen Weg, auf dem eine Maske eine eigene Zeile in SoftEngines Debug-Log
-  schreibt, gibt es in der Installation nicht. Editor: Konsole ja; die
-  Zeitspur der Maske schreibt dorthin (`src/softengine/timeTrace.ts`).
+  schreibt, gibt es in der Installation nicht. Editor: Konsole ja.
 
 ## g) Was sonst Arbeit spart
 
@@ -235,8 +234,6 @@ und braucht es nicht: das ist eine Einstellung in SoftEngine.
     dazu `ALIAS`, `FORMAT`, `SUCHEN_UND_ERSETZEN`. Der Wert kommt mit dem
     Dokument unter `Daten.Var.<ALIAS>` (`SEDATA.Daten.Var.GetRelation_4625`,
     `Belegerfassung/INTERNEOPTIONSMASKEN/PGBED1/index.basis.source.html:140`).
-    Spart die Frage nach dem Öffnen für Werte des offenen Satzes; der Editor
-    fragt solche Werte heute nach jeder Lieferung einzeln.
   - `LANGTEXT` `{ DATEI_TYP, DATEI_ID, IDX_PRAEFIX, PK, ALIAS, TEXTFORMAT }`
     und `WINDOW_LANGTEXT`: Beleg- und Positionstexte unter `Daten.Var.<ALIAS>`
     (`Belegerfassung/LAYOUTRAHMEN/00003`, `00008`). Bisher kommt der Editor an
@@ -256,8 +253,7 @@ und braucht es nicht: das ist eine Einstellung in SoftEngine.
   `SORTIERUNG: "ABSTEIGEND"`. Belege eines Kunden je Belegart über Index 8:
   `{"ID":"BEL","VON_INDEX":"CONCAT[NUMFORMAT[ADR_2_8!R0!8]!AN]","BIS_INDEX":"CONCAT[NUMFORMAT[ADR_2_8!R0!8]!AN]","INDEX_NR":"8",…}`
   (`MIS_V3/LANDINGPAGES/KDE/HTML/01`). Der Editor schreibt nur `INDEX_NR: 0`
-  und `KOPFSATZ_INDEX`. Ob eine so eingeschränkte Liste so schnell ist wie
-  `BELEG.GET` als Nachricht, ist nicht gemessen.
+  und `KOPFSATZ_INDEX`.
 - **`EINGABE`** ist der allgemeine Name des offenen Satzes eines Fensters:
   als VAR-ID (DWZE22) und in Feldverweisen (`EINGABE_785_8`).
 - **ERPAPICALL ausprobieren ohne Maske.** SoftEngine hat ein Fenster dafür,
@@ -270,28 +266,18 @@ und braucht es nicht: das ist eine Einstellung in SoftEngine.
   267 Stück), nicht ADR, BEL, ART, POS. Feldnamen der Hauptdateien gibt es
   dort nicht; nützlich ist `DWBE01` (c).
 
-## Die fünf Funde, die am meisten bringen
+## Die Funde, die am meisten bringen
 
-1. **Layoutrahmen-Schalter „Datenbereich laden“ und „Refresh: …“** (c). Holt
-   die Maske Adresse, Lieferadresse und Belege selbst per ERPAPICALL, lädt
-   SoftEngine sie vielleicht umsonst mit, und „Refresh: Beim Zeilenwechsel“
-   könnte Lieferungen erklären, die keiner bestellt hat. Im Editor zu bauen: nichts;
-   ein Echttest in SoftEngine, Schalter aus, Öffnen mit der Zeitspur messen.
-2. **In den offenen Beleg schreiben über die ERP-Maske** (d, belegt in
+1. **In den offenen Beleg schreiben über die ERP-Maske** (d, belegt in
    `kontrakte.md` §7a). Im Editor zu bauen: ein Schreibweg „Maskenfeld“ neben
    PUT_RELATION, der für ein Feld einer MASKE-Quelle die vier Nachrichten
    schickt, mit dem Format aus der Feldbeschreibung, Ankreuzfelder als J/N.
-3. **`REFRESH_FELDER`** (c). Code-Felder bekommen ihren Klartext ohne eigene
+2. **`REFRESH_FELDER`** (c). Code-Felder bekommen ihren Klartext ohne eigene
    Relation, auch in Listen. Im Editor zu bauen: je Feld einer Quelle ein
    Schalter „Klartext mitliefern“; der Export schreibt `REFRESH_FELDER` in den
    VAR- bzw. SEFILELOOP-Eintrag (bei ERPAPICALL mit `:<ID>`), das Lesen nimmt
    `REFRESH_<Feldcode>`.
-4. **`GET_RELATION`-Block in der SEvariablen** (g). Werte des offenen Satzes
-   kommen mit dem Dokument statt als Frage danach. Im Editor zu bauen: eine
-   Bestellung für Wert-Quellen, deren Parameter nur Felder des offenen Satzes
-   sind; der Export schreibt `{ ID, ALIAS, PARAMETER, RUECKGABE_ALS_ARRAY: false }`,
-   gelesen wird `Daten.Var.<ALIAS>`.
-5. **Fertige Schritte für BW-Befehle und Tasten** (a, e): Beleg öffnen
+3. **Fertige Schritte für BW-Befehle und Tasten** (a, e): Beleg öffnen
    (`START_MIS,BEL,<Index>`), Feld im ERP anspringen (`JUMPTOPOS`),
    F-Taste des ERP drücken (`KEY_EVENT`). Im Editor zu bauen: drei Schrittarten
    mit je einer Wahl (Feld für den Belegindex, Position, Taste) statt eines
@@ -300,12 +286,8 @@ und braucht es nicht: das ist eine Einstellung in SoftEngine.
 ## Offen
 
 - Ob `DATRECV` oder die Konsole in SoftEngines Debug-Log landen.
-- Was „Datenbereich laden“ abschaltet, welche Vorgabe `AJN`/`ANJ` hat und wo
-  der Layoutrahmen-Satz im Menü sitzt.
 - Was `ZGR` heißt, was Relation `1351` tut, wer `PRINTHTML` schickt, wofür
   REFRESH-ID `300500` steht.
 - Freifelder: nichts gefunden.
-- Ob ein ERPAPICALL mit Feldverweis in der SEvariablen schneller ist als die
-  Nachricht nach dem Öffnen.
 - Das Programm `SeErpWinUi.exe` liegt nicht unter `Ressourcen/Standard` und
   ist für diese Datei nicht gelesen.

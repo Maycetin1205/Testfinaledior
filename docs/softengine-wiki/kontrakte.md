@@ -65,7 +65,7 @@ fehlt, wird nicht geraten, sondern getestet.
   vergleicht sie alpha mit `"J"` und `"N"`. Einstellige Felder mit `0`,
   `1`, `9` (`ART_2034_1`, `ART_2580_1` 0 bis 4, `ART_2228_1`) sind
   Statuskennzeichen, keine Haken. Jeder Klick auf einen Haken stößt die
-  Stammkalkulation zweimal an (Feld, dann `pos=0`), rund 300 ms je Lauf.
+  Stammkalkulation zweimal an (Feld, dann `pos=0`).
 - Gilt in: `core/data/sourceInput.ts` (`POS_LEN`), `softengine/data.ts`
   (`fieldRead`/`fieldWrite`), `core/data/relations.ts` (`fieldCodeSplit`).
 
@@ -78,8 +78,8 @@ fehlt, wird nicht geraten, sondern getestet.
   - **MEMTAB** kommt in keiner echten Maske vor und wird nicht geschrieben.
 - Unser Export schreibt für IDB die explizite Liste der BENUTZTEN Felder statt
   `*`. Grund: SoftEngine macht für jeden gelieferten Wert einen Bild-Nachschlag
-  (`GET_RELATION 1911` — Nutzer-Log 2026-08-11: 5 953 Aufrufe in 9,2 s beim
-  Öffnen). Bestätigt 2026-08-12: die Maske liefert damit.
+  (`GET_RELATION 1911`, Nutzer-Log 2026-08-11). Bestätigt 2026-08-12: die
+  Maske liefert damit.
 - **Sicherheitsventil:** sobald EIN Code sich nicht als `pos_len` ausdrücken
   lässt, fällt die ganze Bestellung auf `*` zurück.
 - Was in einer expliziten Liste fehlt, liefert SoftEngine **nie** — die
@@ -238,7 +238,7 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
 - Belegt 2026-10-06 (Nutzer, Belegerfassung als Rahmen10000, Erfassung auf
   der SEFILELOOP-Quelle `POS` unter `BEL`): nach dem PUT_RELATION steht die Position im
   Beleg, und SoftEngine liefert von selbst neu; die neue Zeile erscheint in
-  der Maske ohne Neuöffnen, mit spürbarer Verzögerung.
+  der Maske ohne Neuöffnen.
 - Belegt ist ein anderer Weg: SoftEngines PAN-Layoutrahmen (z. B.
   `PAN/LAYOUTRAHMEN/Rahmen00221`) schicken nach einem Werkzeugstart
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
@@ -314,7 +314,7 @@ Belegt 2026-08-10/11, Echttests:
 
 - Relation 69 liefert je Frage EIN Feld einer Position:
   `PARAMS: [BELART, POS, LEN, BELNR, JAHR, ARCHIV, '', POSNR, '', '', '', '']`
-  → `{"RESULT":"…"}` über den REGISTER-Callback, 2–19 ms.
+  → `{"RESULT":"…"}` über den REGISTER-Callback.
 - `JAHR`/`ARCHIV` = BEL-Felder `0_1`/`1_1` der gewählten Zeile.
   **Leer findet nur den aktuellen Nummernkreis** (Echttest 2026-08-12:
   261er-Belege lieferten nichts, 262er schon).
@@ -347,10 +347,9 @@ Belegt 2026-08-10/11, Echttests:
   > `LFA_pos_len`."
 - **Nach dem Oeffnen gefragt, nicht bestellt.** Echttest des Nutzers
   2026-09-21, WinUI, Belegerfassung Layoutrahmen 00001: dieselben fuenf Listen
-  im Bestellzettel -> „Maske hat ihre Daten" nach 2666 ms, Fokus hakt; als
-  Nachricht nach dem Oeffnen -> Maske nach 445 ms, danach ARTIKEL.GET 5953
-  Zeilen in 652 ms, IDBID0001.GET 670 in 104 ms, IDBID0010.GET 631 in 116 ms,
-  CHARGE.GET 1759 in 172 ms, dazu BELEG.GET. Nichts fror ein.
+  (ARTIKEL.GET, IDBID0001.GET, IDBID0010.GET, CHARGE.GET, BELEG.GET) als
+  Nachricht nach dem Oeffnen statt im Bestellzettel: die Maske hat ihre Daten,
+  nichts fror ein; im Bestellzettel hakte der Fokus.
 - Nachricht: `basisHTML_SND_MSG('ERPAPICALL', { ID, ALIAS, FELDER })`, Felder
   mit Vorsatz. Die Antwort kommt ueber den REGISTER-Rueckruf, ohne `Daten`-Block
   und ohne Absender: `{ ARTIKELLISTE: { ARTIKEL: [...] } }`,
@@ -358,17 +357,13 @@ Belegt 2026-08-10/11, Echttests:
   `{ CHARGENLISTE: { CHARGE: [...] } }`. Die Zeilen tragen die bestellten
   Schluessel. Darum immer nur eine Frage zugleich, dieselbe Schlange wie GET.
 - Mit `FREISELEKT` (`GET_RELATION[992!ART_51_60!<Begriff>!0]=1`, wie SoftEngines
-  Vorlage RGBP07) kommen nur Treffer, aber je Suche rund 1,25 s: alle Artikel
-  auf einmal sind schneller (Echttest 2026-09-21).
+  Vorlage RGBP07) kommen nur Treffer; alle Artikel auf einmal zu holen bleibt
+  der Weg (Echttest 2026-09-21).
 - **Eingeschränkt auf den Kunden des offenen Belegs.** Echttest des Nutzers
   2026-10-09: `BELEG.GET` per Nachricht nach dem Öffnen mit `VON_ADRNR` =
   `BIS_ADRNR` = Kundennummer des offenen Belegs (BEL `11_8`, als Zahl, kein
   Feldverweis) liefert die Belege dieses Kunden; `ADRESSE.GET` entsprechend
-  seine Adresse. Die Maske öffnet damit spürbar schneller als mit der Liste
-  in der SEFILELOOP. SoftEngines eigene Masken bestellen dieselben Abfragen
-  in der SEvariablen und geben statt der Zahl einen Feldverweis
-  (`"VON_ADRNR": "EINGABE_785_8"`, `STDERFASSUNG/DWld04/951`); dieser Weg
-  ist nicht getestet.
+  seine Adresse.
 - Nicht belegt und darum nicht angeboten: Kopfsatz, offener Satz (VAR),
   Hol-Relation, Schreibweg. WebUI nicht getestet.
 - Gilt in: `core/data/deliveries/message.ts` (`fetchOn: 'delivery'`),

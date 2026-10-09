@@ -2,7 +2,6 @@ import type { RelationAnswer, RuntimeRelation } from '../../core/data/relations'
 import type { RuntimeQuery } from '../../core/data/deliveries/message'
 import { onSeAnswer, seWindow, startSe } from '../bridge'
 import { isObject, rowsFromQueryAnswer } from '../data'
-import { traceQuestion } from '../timeTrace'
 import { extractRecordAnswer, newSeMessageResult, resultFromAnswer, seMessageKeys } from './answer'
 
 // Sending to SoftEngine and waiting for the answer. The answers carry no
@@ -87,12 +86,10 @@ function sendGet(job: GetJob): void {
   let unsubscribe: (() => void) | null = null
   let poll: ReturnType<typeof setInterval> | null = null
   let timeout: ReturnType<typeof setTimeout> | null = null
-  let traced: ReturnType<typeof traceQuestion> | null = null
 
   const finish = (value: string, raw: unknown, failed = false): void => {
     if (settled) return
     settled = true
-    traced?.(failed ? 'ohne Antwort' : 'beantwortet')
     unsubscribe?.()
     if (poll !== null) clearInterval(poll)
     if (timeout !== null) clearTimeout(timeout)
@@ -149,7 +146,6 @@ function sendGet(job: GetJob): void {
       finish('', undefined, true)
       return
     }
-    traced = traceQuestion('GET_RELATION', `NR ${job.template.nr}`)
     g.basisHTML_SND_MSG('GET_RELATION', {
       NR: job.template.nr,
       PARAMS: job.params,
@@ -198,13 +194,10 @@ function sendQuery(job: QueryJob): void {
   let settled = false
   let unregister: (() => void) | null = null
   let clock: ReturnType<typeof setTimeout> | null = null
-  let traced: ReturnType<typeof traceQuestion> | null = null
 
   const done = (rows?: unknown[]): void => {
     if (settled) return
     settled = true
-    if (rows === undefined) traced?.('ohne Antwort')
-    else traced?.('beantwortet', `${rows.length} Zeilen`)
     unregister?.()
     if (clock !== null) clearTimeout(clock)
     hostCalls.callInFlight = false
@@ -226,9 +219,8 @@ function sendQuery(job: QueryJob): void {
       done()
       return
     }
-    const { documentKind, address } = job.keys
-    traced = traceQuestion('ERPAPICALL', `${job.query.id} ${job.name}${address === '' ? '' : ` (Adresse ${address})`}`)
     // The keys SoftEngine's own masks give BELEG.GET.
+    const { documentKind, address } = job.keys
     g.basisHTML_SND_MSG('ERPAPICALL', {
       ID: job.query.id,
       ALIAS: job.name,

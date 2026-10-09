@@ -25,14 +25,11 @@ Wie der Code gebaut ist, steht in `docs/architektur.md`.
 
 Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
-- 09.10. Die Maske schreibt eine Zeitspur in die Konsole, Zeilen mit
-  „FF-ZEIT“, Millisekunden ab Seitenstart: Anmeldung, erstes Dokument, jede
-  ERPAPICALL- und GET-Frage gesendet und beantwortet, „Maske fertig“ nach
-  einer Sekunde ohne offene Frage; `FF_ZEIT` hält alle Zeilen zum Kopieren
-  (`src/softengine/timeTrace.ts`). Ein Weg in SoftEngines Debug-Log ist
-  nicht bekannt.
+- 09.10. Tempo ist erledigt, die Masken sind schnell. Keine Messungen,
+  keine Zeitspur, keine Vorschläge zur Geschwindigkeit, außer der Nutzer
+  fragt danach.
 - 09.10. Was SoftEngines eigene Masken können und der Editor nicht, steht
-  abgelesen in `docs/softengine-wiki/funktionen.md`, mit fünf Vorschlägen in
+  abgelesen in `docs/softengine-wiki/funktionen.md`, mit drei Vorschlägen in
   Reihenfolge; nichts davon ist gebaut oder per Echttest belegt.
 - 09.10. Der Export schreibt ein Attribut nur, solange das „when“ seiner
   Eigenschaft gilt; keine Eigenschaft ist dort mehr mit Namen bekannt.
