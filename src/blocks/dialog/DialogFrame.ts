@@ -1,6 +1,7 @@
 import { css, html, LitElement, type PropertyValues, type TemplateResult } from 'lit'
 import { property } from 'lit/decorators.js'
 import { maskState } from '../../runtime/maskState'
+import { icon } from '../parts/icons'
 
 export const DIALOG_FRAME_TAG = 'ff-dialog'
 export const DIALOG_CLOSE_EVENT = 'ff-dialog-close'
@@ -75,17 +76,19 @@ export class DialogFrame extends LitElement {
       max-height: calc(100% - ${DIALOG_EDGE}px);
       overflow: hidden;
       background: var(--se-panel);
-      border: var(--se-border) solid var(--se-line);
-      border-radius: var(--se-radius);
+      border-radius: var(--se-radius-card);
       box-shadow: var(--se-shadow-pop);
     }
+    /* The head of a card of the sample (.card .hd), a little larger: the
+       title as text, the cross on the right. */
     .head {
       flex: none;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 18px 20px;
-      border-bottom: var(--se-border) solid var(--se-line-soft);
+      height: 60px;
+      box-sizing: border-box;
+      padding: 0 14px 0 22px;
     }
     .title {
       flex: 1;
@@ -95,6 +98,7 @@ export class DialogFrame extends LitElement {
 
       font-size: var(--se-fs-title);
       font-weight: 700;
+      letter-spacing: -.01em;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -107,17 +111,17 @@ export class DialogFrame extends LitElement {
       padding: 0;
       border: none;
       border-radius: var(--se-radius);
-      background: var(--se-hover);
+      background: transparent;
       color: var(--se-muted);
-      font: inherit;
-      font-size: var(--se-fs-lg);
-      line-height: 1;
       cursor: pointer;
+      transition: background-color var(--se-move), color var(--se-move);
     }
     .close:hover {
-      background: var(--se-line-soft);
+      background: var(--se-panel-2);
       color: var(--se-ink);
     }
+    .close:focus-visible { outline: 2px solid var(--se-accent); outline-offset: 2px; }
+    .close .icon { width: 18px; height: 18px; }
     .content {
       flex: 1 1 auto;
       min-height: 0;
@@ -189,7 +193,7 @@ export class DialogFrame extends LitElement {
               aria-label="Schließen"
               title="Schließen"
               @click=${this.close}
-            >✕</button>
+            >${icon('close')}</button>
           </header>
           <div class="content"><slot></slot></div>
         </section>

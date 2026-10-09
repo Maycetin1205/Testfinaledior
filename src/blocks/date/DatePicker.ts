@@ -3,6 +3,7 @@ import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { onChosenDay, chosenDay, setChosenDay, readDate, dayOf } from '../../runtime/chosenDay'
 import { dateStyle } from './datePickerStyle'
+import { icon } from '../parts/icons'
 
 function dayPlus(key: string, days: number): string {
   const moment = readDate(key)
@@ -29,14 +30,14 @@ export class DatePicker extends BlockElement {
   override render(): TemplateResult {
     return html`<div class="picker">
       <div class="stepper">
-        <button class="arrow" title="Vortag" @click=${() => this.setDay(dayPlus(this.day, -1))}>‹</button>
+        <button class="arrow" title="Vortag" aria-label="Vortag" @click=${() => this.setDay(dayPlus(this.day, -1))}>${icon('caretLeft')}</button>
         <input
           class="field"
           type="date"
           .value=${this.day}
           @change=${(e: Event) => this.setDay((e.target as HTMLInputElement).value)}
         />
-        <button class="arrow" title="Folgetag" @click=${() => this.setDay(dayPlus(this.day, 1))}>›</button>
+        <button class="arrow" title="Folgetag" aria-label="Folgetag" @click=${() => this.setDay(dayPlus(this.day, 1))}>${icon('caretRight')}</button>
       </div>
       <button class="today" @click=${() => this.setDay(dayOf(new Date()))}>Heute</button>
     </div>`

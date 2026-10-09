@@ -1,5 +1,9 @@
 import { css } from 'lit'
 
+// The day of the mask in the language of the sample: the stepper and the
+// day button lie on the soft ground of a button (.btn.sec), without a line;
+// the arrows and the day button darken under the pointer, the day stands
+// bold in the middle.
 export const dateStyle = css`
   .picker {
     --picker-height: 36px;
@@ -7,7 +11,7 @@ export const dateStyle = css`
     --field-min: 128px;
     display: flex;
     align-items: stretch;
-    gap: var(--se-gap-lg);
+    gap: var(--se-gap);
     height: var(--picker-height);
     font-family: var(--se-font);
   }
@@ -20,65 +24,73 @@ export const dateStyle = css`
     flex: 1;
     min-width: 0;
     height: 100%;
-    padding: 3px;
-    border: var(--se-border) solid var(--se-line);
+    padding: 2px;
     border-radius: var(--se-radius);
+    background: var(--se-neutral-soft);
+    transition: box-shadow var(--se-move), background-color var(--se-move);
+  }
+  .stepper:focus-within {
     background: var(--se-panel);
+    box-shadow: var(--se-focus-ring);
   }
 
   .arrow {
     flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     width: 28px;
-    height: 28px;
+    height: 100%;
     padding: 0;
     border: none;
-    border-radius: var(--se-radius);
+    border-radius: var(--se-radius-sm);
     background: transparent;
-    color: var(--se-muted);
-    font-family: var(--se-font);
-    font-size: var(--se-fs-lg);
-    font-weight: 550;
-    line-height: 1;
+    color: var(--se-ink-2);
     cursor: pointer;
+    transition: background-color var(--se-move);
   }
-  .arrow:hover { background: var(--se-hover); }
+  .arrow:hover { background: var(--se-panel); }
+  .arrow .icon { width: 16px; height: 16px; }
 
   .field {
     box-sizing: border-box;
 
     flex: 1;
     min-width: var(--field-min);
+    height: 100%;
     border: none;
     background: transparent;
     padding: 0 4px;
     font-family: var(--se-font);
-    font-size: var(--se-fs);
-    font-weight: 600;
+    font-size: var(--se-fs-lg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
     color: var(--se-ink);
     text-align: center;
   }
   .field:focus { outline: none; }
+  .field::-webkit-calendar-picker-indicator { opacity: .5; cursor: pointer; }
+  .field::-webkit-calendar-picker-indicator:hover { opacity: .9; }
 
   .today {
     box-sizing: border-box;
     flex: none;
     height: 100%;
-    padding: 7px 13px;
-    border: var(--se-border) solid var(--se-line);
+    padding: 0 14px;
+    border: none;
     border-radius: var(--se-radius);
-    background: var(--se-panel);
+    background: var(--se-neutral-soft);
     color: var(--se-ink);
     font-family: var(--se-font);
     font-size: var(--se-fs);
-    font-weight: 550;
+    font-weight: 700;
     white-space: nowrap;
     cursor: pointer;
-    transition: background var(--se-move), border-color var(--se-move);
+    transition: background-color var(--se-move);
   }
-  .today:hover { background: var(--se-accent-soft); border-color: var(--se-accent); }
+  .today:hover { background: color-mix(in oklab, var(--se-neutral-soft), var(--se-neutral) 9%); }
+
+  .arrow:focus-visible,
+  .today:focus-visible { outline: 2px solid var(--se-accent); outline-offset: 2px; }
 
   /* The day button goes first, then the field narrows: the stepper needs
      196px at full width, the day button 78px more. */

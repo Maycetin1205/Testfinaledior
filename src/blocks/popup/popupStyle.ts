@@ -24,7 +24,8 @@ export const popupStyle = css`
     box-sizing: border-box;
     height: 100%;
     overflow: auto;
-    padding: 18px 20px 20px;
+    /* The words of what it holds stand on the line of the title, as in a card. */
+    padding: 4px 12px 16px;
     ${unsafeCSS(gridAreaCss())};
   }
 
