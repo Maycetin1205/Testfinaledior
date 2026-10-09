@@ -23,6 +23,15 @@ Maske dasselbe sind; Raster mit 48 Spalten; ein Store; SoftEngine nur in
 
 Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
+- 08.10. Neue Designsprache für die Maske, vom Nutzer am Muster
+  `docs/design/behandlung-modern.html` (Bild daneben) freigegeben: Daten
+  stehen als Text, kein Feld trägt einen dauerhaften Rahmen (Fläche beim
+  Zeigen, blauer Ring beim Tippen), weiße Karten ohne Rand auf hellem
+  Grund, Schrift Manrope, ein Blau als Akzent, Tiersymbole als dünne
+  Phosphor-Umrisse im getönten Kreis. Nur hell. Verworfen: das heutige
+  Aussehen, ein weiches Karten-Aussehen („KI“) und ein dichtes
+  Windows-Aussehen („Excel“). Die Werte stehen im Muster, nicht mehr in
+  der alten `mask.css`; der Editor übernimmt dieselbe Sprache.
 - 08.10. Erst der Editor, dann Feintuning. Meldungen und Tests kommen vor
   der Abnahme durch die Programmierer, nicht vorher.
 - 08.10. Der Rahmen ist der Baustein. Was eine feste Höhe hat (Feld,
@@ -197,6 +206,16 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 ## Offen, in dieser Reihenfolge
 
+0. Ab 09.10.: die neue Designsprache in die Bausteine, Maßstab
+   `docs/design/behandlung-modern.html`. Zuerst `mask.css` (Farben, Schrift
+   Manrope, Maße: Karte 12 px Rundung ohne Rand mit weichem Schatten, Kopf
+   56 px, Rand innen 22 px, Feld 52 px) und das Feld: Beschriftung bleibt
+   klein über dem Wert stehen und ist je Feld abschaltbar, kein Rahmen,
+   Fläche beim Zeigen, Ring beim Tippen. Dann je ein Chat: Bereich, Text,
+   Knopf, Tabelle, Erfassung, Datenliste, Kanban, Datum, Popup; die
+   Tiersymbole auf Phosphor (dünn, MIT, Lizenz in `docs/design/`). Jeder
+   Schritt ändert den Referenzabzug gewollt. Ziel: Empfang, Behandlung und
+   Belegerfassung sehen im Editor aus wie das Muster.
 1. Erledigt 08.10.: die Lückenliste ist gestrichen, siehe „Bausteine“.
 2. Brücke Editor–Baustein, drei Chats: Der Baustein spricht, der Editor
    hört. (a) Erledigt 08.10.: Klicks auf bindbare Stellen und auf die Lupe

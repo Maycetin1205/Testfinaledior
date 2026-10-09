@@ -1,0 +1,324 @@
+<title>Behandlung modern</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
+<style>
+/* Layout: the treatment on the editor's 48-column grid, but every block in a modern look: data as text, no framed fields (the frame appears only on hover and focus), white cards without borders on a soft ground, generous space, large names, few hairlines. Light only. */
+:root {
+  color-scheme: light;
+  --ground: #F4F5F7; --card: #FFFFFF; --fill: #F1F3F5; --fill-2: #E8EBEF;
+  --ink: #0F172A; --ink2: #334155; --mut: #64748B; --hair: #EDF0F3;
+  --acc: #2F6BFF; --acc-hover: #2558D6; --acc-soft: #EBF1FF; --acc-ink: #1E47B8;
+  --red: #D23B2F; --red-soft: #FDEEEC; --amber: #B45309; --amber-soft: #FEF3E2; --green: #15803D; --green-soft: #E7F6EC;
+  --dog: #3B5BDB; --dog-soft: #E9EDFB; --cat: #B7791F; --cat-soft: #FBF1DD; --rabbit: #4F7C2C; --rabbit-soft: #ECF4E4;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+  --r: 12px; --r-ctl: 8px;
+  --font: "Manrope", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { background: #FFFFFF; }
+body { margin: 0; color: var(--ink); font: 14px/1.5 var(--font); font-variant-numeric: tabular-nums; }
+::selection { background: var(--acc-soft); color: var(--acc-ink); }
+.page { width: 95vw; margin: 0 auto; padding-block: 18px 72px; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 12px; }
+.top h1 { font: 800 20px/1.2 var(--font); margin: 0; letter-spacing: -0.02em; }
+.top p { margin: 0; color: var(--mut); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 20px 0 10px; }
+.bar h2 { font: 700 15px var(--font); margin: 0; }
+.bar span { color: var(--mut); }
+.bar .grow { flex: 1; }
+.tog { height: 32px; padding: 0 12px; border-radius: var(--r-ctl); border: 1px solid #D9DEE5; background: #FFFFFF; color: var(--ink); font: 600 13px var(--font); cursor: pointer; }
+.tog[aria-pressed="true"] { background: var(--ink); color: #FFFFFF; border-color: var(--ink); }
+.scroll { overflow-x: auto; border-radius: 14px; border: 1px solid var(--hair); }
+svg.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+svg.ani { fill: currentColor; flex: none; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+
+/* The grid of the editor */
+.mask { min-width: 1280px; background: var(--ground); padding: 8px; display: grid; grid-template-columns: repeat(48, minmax(0, 1fr)); grid-auto-rows: 12px; gap: 4px; }
+.b { position: relative; min-width: 0; min-height: 0; }
+.mask.show .b { outline: 1.5px dashed rgba(47, 107, 255, 0.85); outline-offset: -1px; }
+.mask.show .b::after { content: attr(data-b) "  ·  " attr(data-s); position: absolute; left: 0; bottom: 0; z-index: 6; padding: 2px 7px; border-radius: 0 6px 0 0; background: var(--acc); color: #FFFFFF; font: 700 11px/1.5 var(--font); white-space: nowrap; pointer-events: none; }
+.mask.show .b.sub { outline-color: rgba(180, 83, 9, 0.85); }
+.mask.show .b.sub::after { background: var(--amber); }
+
+/* Area: a white card without a border, head line as text */
+.card { height: 100%; background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.card .hd { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px; flex: none; }
+.card .hd h3 { margin: 0; font: 700 15px var(--font); letter-spacing: -0.01em; }
+.card .hd .cnt { color: var(--mut); font-weight: 600; }
+.card .bd { padding: 0 22px 20px; min-height: 0; flex: 1; }
+.card .bd.flush { padding: 0; }
+
+/* Field: label and value as text; the frame appears on hover and focus */
+.fgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 14px; }
+.c2 { grid-column: span 2; } .c3 { grid-column: span 3; } .c4 { grid-column: span 4; }
+.f { position: relative; height: 52px; padding: 7px 10px 0; margin: 0 -10px; border-radius: var(--r-ctl); display: flex; flex-direction: column; justify-content: center; gap: 1px; min-width: 0; border: 1.5px solid transparent; }
+.f:hover { background: var(--fill); }
+.f .l { font: 600 12px/14px var(--font); color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f .v { font: 600 15px/22px var(--font); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 22px; }
+.f .v.empty::before { content: "–"; color: #B6BFCB; }
+.f.num .v { text-align: left; }
+.f.ic { padding-right: 34px; }
+.f .fi { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #9AA5B4; }
+.f.hover { background: var(--fill); }
+.f.focus { background: #FFFFFF; border-color: var(--acc); box-shadow: 0 0 0 3px rgba(47, 107, 255, 0.15); }
+.f.focus .l { color: var(--acc-ink); }
+.f.req .l::after { content: " *"; color: var(--red); }
+.f.warn .v { color: var(--red); display: inline-flex; align-items: center; gap: 6px; }
+.f.check { flex-direction: row; align-items: center; gap: 10px; padding-top: 0; }
+.f.check .v { font-size: 15px; }
+.cb { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid #C5CDD8; background: #FFFFFF; display: inline-grid; place-items: center; flex: none; }
+.cb svg { width: 12px; height: 12px; fill: none; stroke: #FFFFFF; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; visibility: hidden; }
+.cb.on { background: var(--acc); border-color: var(--acc); }
+.cb.on svg { visibility: visible; }
+
+/* Button */
+.btn { height: 40px; padding: 0 18px; border-radius: var(--r-ctl); border: 0; font: 700 14px var(--font); display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; white-space: nowrap; background: none; color: var(--ink); }
+.btn.pri { background: var(--acc); color: #FFFFFF; box-shadow: 0 1px 2px rgba(47, 107, 255, 0.3); }
+.btn.pri:hover { background: var(--acc-hover); }
+.btn.sec { background: var(--fill); color: var(--ink); }
+.btn.sec:hover { background: var(--fill-2); }
+.btn.txt { color: var(--ink2); }
+.btn.txt:hover { background: var(--fill); }
+.btn.dan { color: var(--red); }
+.btn.dan:hover { background: var(--red-soft); }
+.btn.sm { height: 34px; padding: 0 14px; font-size: 13px; }
+
+/* Head band: title and meta as text, actions right */
+.band { height: 100%; display: flex; align-items: center; gap: 16px; padding: 0 6px; }
+.band .who { display: grid; gap: 2px; min-width: 0; }
+.t-title { font: 800 26px/30px var(--font); letter-spacing: -0.02em; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-meta { font: 600 13px/18px var(--font); color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.band .grow { flex: 1; }
+.band .act { display: flex; gap: 10px; align-items: center; }
+.band .act .btn.dan { margin-right: 18px; }
+
+/* Patient head inside the card: avatar, name, line, alert */
+.pat { display: flex; align-items: center; gap: 16px; padding: 20px 22px 10px; }
+.av { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.av svg { width: 30px; height: 30px; }
+.av.dog { background: var(--dog-soft); color: var(--dog); }
+.av.cat { background: var(--cat-soft); color: var(--cat); }
+.av.rabbit { background: var(--rabbit-soft); color: var(--rabbit); }
+.pat .name { font: 800 22px/26px var(--font); letter-spacing: -0.02em; }
+.pat .line { color: var(--mut); font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pat > .b { min-width: 0; }
+.alert { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; color: var(--red); font-weight: 700; background: var(--red-soft); border-radius: 999px; padding: 6px 12px 6px 10px; font-size: 13px; }
+
+/* Table and capture */
+.tbl { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.tbl th { height: 40px; padding: 0 8px; text-align: left; font: 700 12px var(--font); color: var(--mut); border-bottom: 1px solid var(--hair); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbl td { height: 48px; padding: 0 8px; border-bottom: 1px solid var(--hair); vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.tbl.cmp td { height: 44px; }
+.tbl th:first-child, .tbl td:first-child { padding-left: 22px; }
+.tbl th:last-child, .tbl td:last-child { padding-right: 22px; }
+.tbl tbody tr:hover td { background: #FAFBFC; }
+.tbl tr.sel td { background: var(--acc-soft); }
+.tbl .n { text-align: right; }
+.tbl .code { color: var(--mut); font-weight: 600; }
+.tbl .sub { display: block; font-size: 12px; color: var(--mut); line-height: 15px; font-weight: 600; }
+.tbl tr.entry td { height: 64px; background: #FFFFFF; overflow: visible; border-bottom: 0; }
+.cell { height: 40px; border-radius: var(--r-ctl); background: var(--fill); display: flex; align-items: center; padding: 0 12px; color: #9AA5B4; gap: 10px; }
+.cell.focus { background: #FFFFFF; box-shadow: inset 0 0 0 1.5px var(--acc), 0 0 0 3px rgba(47, 107, 255, 0.15); }
+.cell.n { justify-content: flex-end; }
+.tbl tfoot td { height: 64px; border-bottom: 0; border-top: 1px solid var(--hair); }
+.sum-l { font: 700 13px var(--font); color: var(--mut); }
+.sum { font: 800 22px var(--font); letter-spacing: -0.02em; }
+
+/* Data list */
+.dl { display: flex; flex-direction: column; padding: 0 10px 10px; }
+.dl-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 12px; align-items: center; height: 56px; padding: 0 12px; border-radius: 10px; }
+.dl-row.noav { grid-template-columns: minmax(0, 1fr) auto; height: 52px; }
+.dl-row:hover { background: var(--fill); }
+.dl-row.sel { background: var(--acc-soft); }
+.dl-row .av { width: 36px; height: 36px; }
+.dl-row .av svg { width: 20px; height: 20px; }
+.t1 { font: 700 14px/18px var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dl-row.sel .t1 { color: var(--acc-ink); }
+.t2 { font: 600 12.5px/16px var(--font); color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meta { color: var(--ink2); font-weight: 700; }
+
+/* Vaccinations as a list: name, date, state */
+.vac { display: grid; grid-template-columns: minmax(0, 1fr) auto 24px; gap: 12px; align-items: center; height: 44px; border-bottom: 1px solid var(--hair); }
+.vac:last-child { border-bottom: 0; }
+.vac b { font-weight: 700; }
+.vac .d { color: var(--ink2); font-weight: 600; }
+.vac .d.open { color: var(--amber); }
+.st { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; }
+.st.ok { background: var(--green-soft); color: var(--green); }
+.st.open { background: var(--amber-soft); color: var(--amber); }
+.st svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Owner as text lines */
+.lines { display: grid; gap: 10px; padding-top: 4px; }
+.lines .row { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--ink2); }
+.lines .row svg { color: #9AA5B4; }
+.lines .big { font: 800 17px/22px var(--font); color: var(--ink); letter-spacing: -0.01em; }
+.sub-hd { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 22px; border-top: 1px solid var(--hair); }
+.sub-hd h4 { margin: 0; font: 700 14px var(--font); }
+.sub-hd .grow { flex: 1; }
+</style>
+
+<div class="page">
+  <div class="top">
+    <h1>Behandlung, modern</h1>
+    <p>Daten als Text, kein Kästchen. Rahmen nur beim Anklicken. Beispieldaten · noch nicht im Code</p>
+  </div>
+  <div class="bar">
+    <h2>Auf dem Raster des Editors</h2>
+    <span>48 Spalten, Zeilen von 12 px. Ein Feld mit Beschriftung ist 3 Zeilen hoch, der Rand einer Karte 22 px.</span>
+    <span class="grow"></span>
+    <button class="tog" type="button" aria-pressed="false" data-for="mask">Bausteine zeigen</button>
+  </div>
+  <div class="scroll">
+    <div class="mask" id="mask">
+
+      <div class="b" data-b="Bereich · Frei" data-s="48 × 4" style="grid-column:1/49;grid-row:1/5">
+        <div class="band">
+          <div class="who b sub" data-b="Text · Titel + Text · Beschriftung" data-s="22 × 4"><span class="t-title">Becker, Anna</span><span class="t-meta">Beleg 26-01873 · 8. Oktober 2026 · Behandlung · Kunde 10234</span></div>
+          <span class="grow"></span>
+          <div class="act">
+            <span class="b sub" data-b="Knopf · nur Schrift, Gefahr" data-s="6 × 3"><button class="btn dan" type="button">Beleg löschen</button></span>
+            <span class="b sub" data-b="Knopf · nur Rand" data-s="5 × 3"><button class="btn sec" type="button">Drucken</button></span>
+            <span class="b sub" data-b="Knopf · Fläche voll" data-s="6 × 3"><button class="btn pri" type="button">Speichern</button></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="b" data-b="Bereich · Kopfzeile" data-s="12 × 16" style="grid-column:1/13;grid-row:6/22">
+        <div class="card">
+          <div class="hd"><h3>Tiere</h3><span class="cnt">3</span></div>
+          <div class="bd flush b sub" data-b="Datenliste · Eine Zeile" data-s="12 × 11">
+            <div class="dl">
+              <div class="dl-row sel" tabindex="0"><span class="av dog"><svg class="ani" viewBox="0 0 256 256"><path d="M102,140a10,10,0,1,1-10-10A10,10,0,0,1,102,140Zm62-10a10,10,0,1,0,10,10A10,10,0,0,0,164,130Zm65.77,10.72a14.24,14.24,0,0,1-5.89,1.29,13.72,13.72,0,0,1-9.88-4.23V184a38,38,0,0,1-38,38H80a38,38,0,0,1-38-38V137.78A13.76,13.76,0,0,1,32.11,142a14.23,14.23,0,0,1-5.88-1.29,13.82,13.82,0,0,1-8-15.34l16.42-88a14,14,0,0,1,17.16-11l.24.07L104.86,42h46.28l52.79-15.51.24-.07a14,14,0,0,1,17.16,11l16.42,88A13.81,13.81,0,0,1,229.77,140.72ZM93.88,51.27,48.84,38a1.9,1.9,0,0,0-1.49.27,2,2,0,0,0-.88,1.32l-16.42,88a2,2,0,0,0,3.54,1.61ZM202,184V122.43L149.06,54H106.94L54,122.43V184a26,26,0,0,0,26,26h42V194.48l-14.24-14.24a6,6,0,0,1,8.48-8.48L128,183.51l11.76-11.75a6,6,0,0,1,8.48,8.48L134,194.48V210h42A26,26,0,0,0,202,184ZM226,127.6l-16.42-88a2,2,0,0,0-.88-1.31,2.07,2.07,0,0,0-1.49-.27l-45,13.23,60.32,78A2,2,0,0,0,226,127.6Z"/></svg></span><div><div class="t1">Bello</div><div class="t2">Hund · Labrador Retriever</div></div><span class="meta">7 J.</span></div>
+              <div class="dl-row" tabindex="0"><span class="av cat"><svg class="ani" viewBox="0 0 256 256"><path d="M221.36,35.07a14,14,0,0,0-15.26,3l-.29.3L187.42,59.58a109.16,109.16,0,0,0-118.84,0L50.19,38.41l-.29-.3A14,14,0,0,0,26,48v88c0,51.83,45.76,94,102,94s102-42.17,102-94V48A14,14,0,0,0,221.36,35.07ZM218,136c0,43.38-37.16,79-84,81.81V194.48l14.24-14.24a6,6,0,0,0-8.48-8.49L128,183.51l-11.76-11.76a6,6,0,0,0-8.48,8.49L122,194.48v23.33C75.16,215,38,179.38,38,136V48a1.91,1.91,0,0,1,1.23-1.85,2.28,2.28,0,0,1,.82-.17,1.87,1.87,0,0,1,1.26.5l21.76,25a6,6,0,0,0,8.11.88A91.52,91.52,0,0,1,90,61.68V88a6,6,0,1,0,12,0V57.51a97.85,97.85,0,0,1,20-3.32V88a6,6,0,1,0,12,0V54.19a97.85,97.85,0,0,1,20,3.32V88a6,6,0,1,0,12,0V61.68a91.52,91.52,0,0,1,18.82,10.73,6,6,0,0,0,8.11-.88l21.76-25A2,2,0,0,1,218,48ZM94,140a10,10,0,1,1-10-10A10,10,0,0,1,94,140Zm88,0a10,10,0,1,1-10-10A10,10,0,0,1,182,140Z"/></svg></span><div><div class="t1">Minka</div><div class="t2">Katze · Europäisch Kurzhaar</div></div><span class="meta">4 J.</span></div>
+              <div class="dl-row" tabindex="0"><span class="av rabbit"><svg class="ani" viewBox="0 0 256 256"><path d="M110,164a10,10,0,1,1-10-10A10,10,0,0,1,110,164Zm46-10a10,10,0,1,0,10,10A10,10,0,0,0,156,154Zm58,34a50,50,0,0,1-86,34.7,50,50,0,1,1-69.39-71.91A70,70,0,0,1,65.23,129a235.12,235.12,0,0,1-20.56-59.3c-3-15.62-5-36.91,2.69-49.62A19.84,19.84,0,0,1,65.07,10C89.91,10,105.23,52.92,114,91.43a69.44,69.44,0,0,1,28,0C150.77,52.92,166.09,10,190.93,10a19.84,19.84,0,0,1,17.71,10.11c7.68,12.71,5.7,34,2.69,49.62A235.12,235.12,0,0,1,190.77,129a70,70,0,0,1,6.62,21.76A49.79,49.79,0,0,1,214,188ZM153.56,94.83a70.05,70.05,0,0,1,21.64,13.48,71.17,71.17,0,0,1,8.05,8.72C199.87,81.2,207,40.54,198.37,26.32A8,8,0,0,0,190.93,22C178.1,22,163.61,50.4,153.56,94.83ZM72.75,117a71.17,71.17,0,0,1,8-8.72,70.05,70.05,0,0,1,21.64-13.48C92.39,50.4,77.9,22,65.07,22a8,8,0,0,0-7.44,4.32C49,40.54,56.13,81.2,72.75,117ZM202,188a37.87,37.87,0,0,0-14.07-29.52,6.05,6.05,0,0,1-2.2-4.09,58,58,0,0,0-115.44,0,6,6,0,0,1-2.19,4.08,38,38,0,1,0,51.5,55.64l-11.42-9.5a6,6,0,1,1,7.67-9.22L128,205.5l12.16-10.11a6,6,0,1,1,7.67,9.22l-11.42,9.5A38,38,0,0,0,202,188Z"/></svg></span><div><div class="t1">Hoppel</div><div class="t2">Kaninchen · Zwergwidder</div></div><span class="meta">2 J.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="b" data-b="Bereich · Kopfzeile" data-s="12 × 15" style="grid-column:1/13;grid-row:23/38">
+        <div class="card">
+          <div class="hd"><h3>Halter</h3></div>
+          <div class="bd">
+            <div class="lines">
+              <div class="row big b sub" data-b="Text · Überschrift" data-s="10 × 2">Anna Becker</div>
+              <div class="row b sub" data-b="Text · Text" data-s="10 × 2"><svg class="i" viewBox="0 0 16 16"><path d="M3 2.5h3l1.2 3-1.7 1.1a8 8 0 0 0 3.9 3.9l1.1-1.7 3 1.2v3a1 1 0 0 1-1 1A11.5 11.5 0 0 1 2 3.5a1 1 0 0 1 1-1Z"/></svg>0171 2345678</div>
+              <div class="row b sub" data-b="Text · Text" data-s="10 × 2"><svg class="i" viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="2"/><path d="M2.5 4.5 8 9l5.5-4.5"/></svg>anna.becker@example.de</div>
+              <div class="row b sub" data-b="Text · Text" data-s="10 × 2"><svg class="i" viewBox="0 0 16 16"><path d="M8 14s4.5-4 4.5-7.5a4.5 4.5 0 0 0-9 0C3.5 10 8 14 8 14Z"/><circle cx="8" cy="6.5" r="1.6"/></svg>Lindenstraße 12, 50667 Köln</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="b" data-b="Bereich · Kopfzeile" data-s="12 × 18" style="grid-column:1/13;grid-row:39/57">
+        <div class="card">
+          <div class="hd"><h3>Impfungen</h3></div>
+          <div class="bd">
+            <div class="vac b sub" data-b="Datenliste · Zeile" data-s="10 × 3"><b>Tollwut</b><span class="d">12.04.2026</span><span class="st ok"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span></div>
+            <div class="vac b sub" data-b="Datenliste · Zeile" data-s="10 × 3"><b>Borreliose</b><span class="d">12.04.2026</span><span class="st ok"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span></div>
+            <div class="vac b sub" data-b="Datenliste · Zeile" data-s="10 × 3"><b>SHPPi</b><span class="d">12.04.2026</span><span class="st ok"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span></div>
+            <div class="vac b sub" data-b="Datenliste · Zeile" data-s="10 × 3"><b>Leptospirose</b><span class="d open">offen</span><span class="st open"><svg viewBox="0 0 16 16"><path d="M8 4v4.5M8 11.5v.1"/></svg></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="b" data-b="Bereich · Kopfzeile" data-s="23 × 19" style="grid-column:13/36;grid-row:6/25">
+        <div class="card">
+          <div class="pat">
+            <span class="av dog b sub" data-b="Bild · Tiersymbol" data-s="3 × 4"><svg class="ani" viewBox="0 0 256 256"><path d="M102,140a10,10,0,1,1-10-10A10,10,0,0,1,102,140Zm62-10a10,10,0,1,0,10,10A10,10,0,0,0,164,130Zm65.77,10.72a14.24,14.24,0,0,1-5.89,1.29,13.72,13.72,0,0,1-9.88-4.23V184a38,38,0,0,1-38,38H80a38,38,0,0,1-38-38V137.78A13.76,13.76,0,0,1,32.11,142a14.23,14.23,0,0,1-5.88-1.29,13.82,13.82,0,0,1-8-15.34l16.42-88a14,14,0,0,1,17.16-11l.24.07L104.86,42h46.28l52.79-15.51.24-.07a14,14,0,0,1,17.16,11l16.42,88A13.81,13.81,0,0,1,229.77,140.72ZM93.88,51.27,48.84,38a1.9,1.9,0,0,0-1.49.27,2,2,0,0,0-.88,1.32l-16.42,88a2,2,0,0,0,3.54,1.61ZM202,184V122.43L149.06,54H106.94L54,122.43V184a26,26,0,0,0,26,26h42V194.48l-14.24-14.24a6,6,0,0,1,8.48-8.48L128,183.51l11.76-11.75a6,6,0,0,1,8.48,8.48L134,194.48V210h42A26,26,0,0,0,202,184ZM226,127.6l-16.42-88a2,2,0,0,0-.88-1.31,2.07,2.07,0,0,0-1.49-.27l-45,13.23,60.32,78A2,2,0,0,0,226,127.6Z"/></svg></span>
+            <div class="b sub" data-b="Text · Titel + Text · Beschriftung" data-s="10 × 4"><div class="name">Bello</div><div class="line">Hund · Labrador Retriever · 7 Jahre · männlich</div></div>
+            <span class="alert b sub" data-b="Text · Kennzeichen, Gefahr" data-s="7 × 2"><svg class="i" viewBox="0 0 16 16"><path d="M8 2.5 14 13H2L8 2.5Z"/><path d="M8 6.5v3M8 11.2v.1"/></svg>Allergie: Penicillin</span>
+          </div>
+          <div class="bd">
+            <div class="fgrid">
+              <div class="f b sub" data-b="Feld" data-s="6 × 3"><span class="l">Tiername</span><span class="v">Bello</span></div>
+              <div class="f ic b sub" data-b="Feld · Auswahl" data-s="6 × 3"><span class="l">Tierart</span><span class="v">Hund</span><svg class="i fi" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></svg></div>
+              <div class="f b sub" data-b="Feld" data-s="6 × 3"><span class="l">Rasse</span><span class="v">Labrador Retriever</span></div>
+              <div class="f ic b sub" data-b="Feld · Datum" data-s="5 × 3"><span class="l">Geburtsdatum</span><span class="v">14.03.2019</span><svg class="i fi" viewBox="0 0 16 16"><rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 7h11M5.5 2v3M10.5 2v3"/></svg></div>
+              <div class="f ic hover b sub" data-b="Feld · Auswahl, Maus darüber" data-s="6 × 3"><span class="l">Geschlecht</span><span class="v">männlich</span><svg class="i fi" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></svg></div>
+              <div class="f focus b sub" data-b="Feld · Zahl, beim Tippen" data-s="6 × 3"><span class="l">Gewicht in kg</span><span class="v">32,4</span></div>
+              <div class="f b sub" data-b="Feld" data-s="6 × 3"><span class="l">Chip-Nr.</span><span class="v">276 0981 0623 4567</span></div>
+              <div class="f check b sub" data-b="Feld · Ankreuzfeld" data-s="5 × 3"><span class="cb on" tabindex="0"><svg viewBox="0 0 12 12"><path d="M2.5 6.3l2.4 2.4 4.6-5.3"/></svg></span><span class="v">Kastriert</span></div>
+              <div class="f warn c2 b sub" data-b="Feld · Farbe Gefahr" data-s="12 × 3"><span class="l">Allergien</span><span class="v">Penicillin</span></div>
+              <div class="f c2 b sub" data-b="Feld" data-s="11 × 3"><span class="l">Versicherung</span><span class="v">Agila, Vertrag 448 201</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="b" data-b="Bereich · Kopfzeile" data-s="23 × 31" style="grid-column:13/36;grid-row:26/57">
+        <div class="card">
+          <div class="hd"><h3>Leistungen &amp; Medikamente</h3><span class="cnt">5</span></div>
+          <div class="bd flush b sub" data-b="Erfassung" data-s="23 × 24">
+            <table class="tbl">
+              <colgroup><col style="width:72px"><col><col style="width:62px"><col style="width:62px"><col style="width:96px"><col style="width:120px"></colgroup>
+              <thead><tr><th>Artikel</th><th>Bezeichnung</th><th class="n">Menge</th><th>Einheit</th><th class="n">Einzelpreis</th><th class="n">Gesamt</th></tr></thead>
+              <tbody>
+                <tr><td class="code">1010</td><td>Allgemeine Untersuchung, Hund</td><td class="n">1</td><td>Stk</td><td class="n">23,62 €</td><td class="n">23,62 €</td></tr>
+                <tr><td class="code">3420</td><td>Nobivac L4 Injektionssuspension<span class="sub">Charge A417B03</span></td><td class="n">1</td><td>Dosis</td><td class="n">18,90 €</td><td class="n">18,90 €</td></tr>
+                <tr><td class="code">3105</td><td>Milbemax Kautabletten, Hund groß<span class="sub">Charge 2K9917</span></td><td class="n">2</td><td>Tbl</td><td class="n">4,85 €</td><td class="n">9,70 €</td></tr>
+                <tr><td class="code">1240</td><td>Blutentnahme</td><td class="n">1</td><td>Stk</td><td class="n">9,98 €</td><td class="n">9,98 €</td></tr>
+                <tr><td class="code">5010</td><td>Labor, kleines Blutbild</td><td class="n">1</td><td>Stk</td><td class="n">28,50 €</td><td class="n">28,50 €</td></tr>
+                <tr class="entry"><td colspan="2"><div class="cell focus"><svg class="i" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg></div></td><td><div class="cell n"></div></td><td></td><td></td><td></td></tr>
+              </tbody>
+              <tfoot><tr><td colspan="5" class="n sum-l">Summe</td><td class="n sum">90,70 €</td></tr></tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="b" data-b="Bereich · Kopfzeile" data-s="13 × 51" style="grid-column:36/49;grid-row:6/57">
+        <div class="card">
+          <div class="hd"><h3>Frühere Behandlungen</h3><span class="cnt">6</span></div>
+          <div class="bd flush">
+            <div class="dl b sub" data-b="Datenliste · Eine Zeile" data-s="13 × 21">
+              <div class="dl-row noav sel" tabindex="0"><div><div class="t1">12.04.2026</div><div class="t2">Impfung, Entwurmung</div></div><span class="meta">96,40 €</span></div>
+              <div class="dl-row noav" tabindex="0"><div><div class="t1">03.11.2025</div><div class="t2">Kontrolle</div></div><span class="meta">41,20 €</span></div>
+              <div class="dl-row noav" tabindex="0"><div><div class="t1">22.06.2025</div><div class="t2">Labor, Röntgen</div></div><span class="meta">154,85 €</span></div>
+              <div class="dl-row noav" tabindex="0"><div><div class="t1">14.02.2025</div><div class="t2">Kontrolle</div></div><span class="meta">38,90 €</span></div>
+              <div class="dl-row noav" tabindex="0"><div><div class="t1">09.10.2024</div><div class="t2">Zahnbehandlung</div></div><span class="meta">212,30 €</span></div>
+              <div class="dl-row noav" tabindex="0"><div><div class="t1">15.04.2024</div><div class="t2">Impfung</div></div><span class="meta">89,60 €</span></div>
+            </div>
+            <div class="sub-hd">
+              <h4 class="b sub" data-b="Text · Überschrift" data-s="6 × 2">Positionen vom 12.04.2026</h4>
+              <span class="grow"></span>
+            </div>
+            <div class="b sub" data-b="Tabelle" data-s="13 × 16">
+              <table class="tbl cmp">
+                <colgroup><col><col style="width:72px"><col style="width:96px"></colgroup>
+                <thead><tr><th>Bezeichnung</th><th class="n">Menge</th><th class="n">Preis</th></tr></thead>
+                <tbody>
+                  <tr><td>Allg. Untersuchung</td><td class="n">1</td><td class="n">23,62 €</td></tr>
+                  <tr><td>Nobivac Tollwut<span class="sub">1 ml s.c.</span></td><td class="n">1</td><td class="n">17,40 €</td></tr>
+                  <tr><td>Nobivac SHPPi<span class="sub">1 ml s.c.</span></td><td class="n">1</td><td class="n">19,90 €</td></tr>
+                  <tr><td>Milbemax groß<span class="sub">1 Tbl.</span></td><td class="n">2</td><td class="n">9,70 €</td></tr>
+                  <tr><td>Krallen schneiden</td><td class="n">1</td><td class="n">8,50 €</td></tr>
+                  <tr><td>Ohrreinigung</td><td class="n">1</td><td class="n">17,28 €</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="padding:14px 22px 0" class="b sub" data-b="Knopf · nur Rand" data-s="11 × 3"><button class="btn sec" type="button" style="width:100%">In diesen Beleg übernehmen</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll('.tog[data-for]').forEach(function (tog) {
+    var mask = document.getElementById(tog.getAttribute('data-for'));
+    tog.addEventListener('click', function () {
+      var on = tog.getAttribute('aria-pressed') !== 'true';
+      tog.setAttribute('aria-pressed', String(on));
+      mask.classList.toggle('show', on);
+      tog.textContent = on ? 'Bausteine ausblenden' : 'Bausteine zeigen';
+    });
+  });
+})();
+</script>
