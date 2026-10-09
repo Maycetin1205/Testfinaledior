@@ -360,6 +360,15 @@ Belegt 2026-08-10/11, Echttests:
 - Mit `FREISELEKT` (`GET_RELATION[992!ART_51_60!<Begriff>!0]=1`, wie SoftEngines
   Vorlage RGBP07) kommen nur Treffer, aber je Suche rund 1,25 s: alle Artikel
   auf einmal sind schneller (Echttest 2026-09-21).
+- **Eingeschränkt auf den Kunden des offenen Belegs.** Echttest des Nutzers
+  2026-10-09: `BELEG.GET` per Nachricht nach dem Öffnen mit `VON_ADRNR` =
+  `BIS_ADRNR` = Kundennummer des offenen Belegs (BEL `11_8`, als Zahl, kein
+  Feldverweis) liefert die Belege dieses Kunden; `ADRESSE.GET` entsprechend
+  seine Adresse. Die Maske öffnet damit spürbar schneller als mit der Liste
+  in der SEFILELOOP. SoftEngines eigene Masken bestellen dieselben Abfragen
+  in der SEvariablen und geben statt der Zahl einen Feldverweis
+  (`"VON_ADRNR": "EINGABE_785_8"`, `STDERFASSUNG/DWld04/951`); dieser Weg
+  ist nicht getestet.
 - Nicht belegt und darum nicht angeboten: Kopfsatz, offener Satz (VAR),
   Hol-Relation, Schreibweg. WebUI nicht getestet.
 - Gilt in: `core/data/deliveries/message.ts` (`fetchOn: 'delivery'`),

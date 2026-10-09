@@ -25,6 +25,9 @@ Wie der Code gebaut ist, steht in `docs/architektur.md`.
 
 Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
+- 09.10. Was SoftEngines eigene Masken können und der Editor nicht, steht
+  abgelesen in `docs/softengine-wiki/funktionen.md`, mit fünf Vorschlägen in
+  Reihenfolge; nichts davon ist gebaut oder per Echttest belegt.
 - 09.10. Der Export schreibt ein Attribut nur, solange das „when“ seiner
   Eigenschaft gilt; keine Eigenschaft ist dort mehr mit Namen bekannt.
   Quelle und Hilfsquellen tragen das „when“ der Fähigkeit „source“, „Folgt
