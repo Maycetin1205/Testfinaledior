@@ -25,6 +25,10 @@ export interface ChoiceOption {
   // Ready made css. Carry all options a color, the bar offers swatches
   // instead of a list.
   color?: string
+
+  // The outline of a symbol, one path on a grid of 256. Carry all options
+  // but an empty one an outline, the bar offers the symbols themselves.
+  icon?: string
 }
 
 export interface Condition {

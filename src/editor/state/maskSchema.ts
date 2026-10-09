@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 30
+export const CURRENT_SCHEMA_VERSION = 31
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -269,6 +269,21 @@ function liftTo30(tree: unknown): void {
   }
 }
 
+// ---- version 31: a field shows its label above the value and has no box ----
+
+// The label stood in the empty field; now it stands above the value, one row
+// more. The box (Kasten, Still) is gone.
+const LABELLED_ROWS_31 = 3
+
+function liftTo31(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'formfield' || !isPlainObject(node.values)) continue
+    node.values.gridH = LABELLED_ROWS_31
+    delete node.values.appearance
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -284,6 +299,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 28) liftTo28(lifted.tree)
   if (raw.schemaVersion < 29) liftTo29(lifted.tree)
   if (raw.schemaVersion < 30) liftTo30(lifted.tree)
+  if (raw.schemaVersion < 31) liftTo31(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

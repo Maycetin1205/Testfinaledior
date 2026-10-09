@@ -12,6 +12,7 @@ import {
 import type { Column } from '../parts/column'
 import { coerceLookupColumns } from '../lookup/lookup'
 import { WINDOW_HEIGHT, WINDOW_WIDTH } from '../dialog/DialogFrame'
+import { symbolProperty } from '../look/symbol'
 
 export const FIELD_TYPES = ['text', 'number', 'date', 'time', 'select', 'checkbox'] as const
 
@@ -49,6 +50,14 @@ export const formFieldProperties = {
     when: { key: 'fieldType', equals: 'text' },
     preset: { by: 'fieldType' },
   }),
+  // The label stands small above the value, or beside the box of a
+  // checkbox; switched off, the field is one line lower.
+  showLabel: booleanProperty({
+    default: true,
+    label: 'Beschriftung',
+    attribute: 'showlabel',
+  }),
+  symbol: symbolProperty({ when: NOT_CHECKBOX }),
   label: textProperty({
     default: 'Feldname',
     label: 'Beschriftung',
@@ -137,15 +146,7 @@ export const formFieldProperties = {
     attribute: 'onlyhit',
     when: ONLY_LOOKUP,
   }),
-  appearance: choiceProperty([
-    { value: 'standard', name: 'Kasten' },
-    { value: 'plain', name: 'Still' },
-  ], {
-    default: 'standard',
-    label: 'Darstellung',
-    attribute: 'appearance',
-    when: { key: 'fieldType', noneOf: ['checkbox'] },
-  }),
+
   required: booleanProperty({
     default: false,
     label: 'Pflicht',

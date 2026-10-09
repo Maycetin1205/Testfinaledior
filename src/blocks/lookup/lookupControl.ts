@@ -14,6 +14,7 @@ import { orderedSuggestions } from './suggestionList'
 import { inputSpotTpl } from './inputSpot'
 import { rowFits } from '../parts/cellSearch'
 import { maskState } from '../../runtime/maskState'
+import { icon } from '../parts/icons'
 
 export function magnifierIcon(): TemplateResult {
   return html`<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
@@ -113,7 +114,7 @@ export class LookupControl implements ReactiveController {
         aria-label="Nachschlagen"
         title="Nachschlagen"
         @click=${(e: MouseEvent) => this.onMagnifier(e)}
-      >${magnifierIcon()}</button>`,
+      >${icon('magnifier')}</button>`,
     }, {
       typing: (value) => {
         this.typed = value

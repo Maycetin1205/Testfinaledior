@@ -1,6 +1,6 @@
 # Stand
 
-08.10.2026. Ersetzt den Prüfbericht vom 23.09. (in Git: bis 2f50216). Die
+09.10.2026. Ersetzt den Prüfbericht vom 23.09. (in Git: bis 2f50216). Die
 Regeln stehen in `CLAUDE.md`, was über SoftEngine belegt ist in
 `docs/softengine-wiki/kontrakte.md`. Hier steht nur, was entschieden,
 gebaut und offen ist.
@@ -23,6 +23,23 @@ Maske dasselbe sind; Raster mit 48 Spalten; ein Store; SoftEngine nur in
 
 Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
+- 09.10. Schrift Manrope steckt in der Maske, nichts wird nachgeladen
+  (kontrakte.md §1): zwei Schnitte (600, 700), lateinischer Satz, als woff2
+  in `mask.css`, zusammen 28 KB; Lizenz OFL in `docs/design/`.
+- 09.10. Formularfeld: Die Beschriftung steht klein über dem Wert und ist
+  je Feld abschaltbar („Beschriftung“ in der Leiste); ohne sie ist das Feld
+  eine Rasterzeile niedriger (2 statt 3). Kein Kasten mehr, die Wahl
+  Kasten/Still ist weg. Ein leeres Feld zeigt einen Strich. Die Fläche beim
+  Zeigen ist deutlich, der blaue Ring beim Tippen kräftig. In der Erfassung
+  behält die Tippzeile immer einen Rahmen, wie das Suchfeld im Muster
+  (kommt mit der Erfassung).
+- 09.10. Symbole ja, als Wahl am Baustein, im Editor gesetzt, nie fest im
+  Code: „Symbol“ (Telefon, Mail, Ort und 19 weitere, Phosphor dünn) zuerst
+  am Feld, links neben Beschriftung und Wert. Tiersymbole ebenso, mit
+  Datenliste und Kanban.
+- 09.10. Blau ist der Akzent der Maske (Ring, Haken, gewählte Zeile) und
+  die Farbe „Blau“. Petrol bleibt als Farbe wählbar, ist aber nicht mehr der
+  Akzent.
 - 08.10. Neue Designsprache für die Maske, vom Nutzer am Muster
   `docs/design/behandlung-modern.html` (Bild daneben) freigegeben: Daten
   stehen als Text, kein Feld trägt einen dauerhaften Rahmen (Fläche beim
@@ -59,8 +76,8 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   sobald der Nutzer zeigt, was SoftEngine für ein Tierfoto liefert.
 - 08.10. Gestrichen: Navigation mit Ansichten (andere Ansicht heißt
   andere Maske), Chips aus einer zweiten Quelle auf der Karte, „wartet
-  12 min“, Suchfeld filtert das Board, Symbole in Masken, Behandlung je
-  Tier in der Datenliste. Die Kartei rechts braucht keinen Baustein:
+  12 min“, Suchfeld filtert das Board, Behandlung je Tier in der
+  Datenliste. Die Kartei rechts braucht keinen Baustein:
   Popup oder Bereich mit „Folgt der Auswahl“.
 - 08.10. Brücke Editor–Baustein und Datenweg werden vor neuen Bausteinen
   sauber gemacht, als eigene Chats. Hebt „keine Aufräum-Chats“ vom 07.10.
@@ -88,11 +105,6 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   Werte sind je Feld Daten, nicht Code, und lassen sich in den
   Einstellungen des Feldes ändern (etwa `1`/`0`). Der Haken löst „Wert
   geändert“ aus und steht in den Aktionen als Herkunft.
-- 08.10. Die Beschriftung eines Formularfelds steht im leeren Feld selbst,
-  als Platzhalter (Text, Zahl, Datum, Auswahl, Nachschlagen), beim
-  Ankreuzfeld neben dem Haken. Nie über dem Feld, nie daneben. Vom Nutzer
-  mehrfach gesagt; ein Chat, der sie über das Feld setzte, wurde
-  abgebrochen und verworfen.
 - 07.10. Zweiter Schreibmodus für vorhandene Positionen: kein Bau, bis er
   in kontrakte.md steht. Quellenarten nach Inhalt: liegen lassen.
 - 07.10. Erfassung: ein Kopf; je Zelle der Hauptzeile höchstens eine graue
@@ -163,7 +175,8 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 
 Gebaut: Bereich (Form Frei, Kasten oder Kopfzeile mit Titel; Farbe, Art),
 Schaltfläche (Farbe, Art, Größe), Datum (Tageswahl), Formularfeld (Text,
-Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld mit J/N), Tabelle,
+Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld mit J/N; Beschriftung
+über dem Wert, abschaltbar; Symbol), Tabelle,
 Erfassung, Kanban (Plätze je Spalte, mehrere Felder je Platz mit Trenner,
 Knopf je Spalte Aus, Weiter oder Aktion, Spalte nach Uhrzeit mit
 Stundenlinien und Jetzt-Linie), Datenliste (Auswahl Eine Zeile, Mehrere
@@ -192,9 +205,7 @@ Was bleibt:
   Bereich haben sie (der Text seine eigene Größe, der Bereich keine);
   Kanban die Farbe je Spalte, am Chip Farbe und Art.
 - Bild: fällt vorerst raus (Nutzer 08.10.).
-- Formularfeld: Die Beschriftung steht im Feld und bleibt dort. „Pflicht“
-  ist als Wahl da und in der Maske nicht zu sehen; wenn je, dann im Feld,
-  nie darüber.
+- Formularfeld: „Pflicht“ ist als Wahl da und in der Maske nicht zu sehen.
 
 Nicht gebaut, weil nicht in den Kontrakten: Schreiben des Termins, neuer
 Kunde (155/01), neues Tier (160/03), Zimmerwechsel per Ziehen, Rechnung
@@ -207,15 +218,21 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 ## Offen, in dieser Reihenfolge
 
 0. Ab 09.10.: die neue Designsprache in die Bausteine, Maßstab
-   `docs/design/behandlung-modern.html`. Zuerst `mask.css` (Farben, Schrift
-   Manrope, Maße: Karte 12 px Rundung ohne Rand mit weichem Schatten, Kopf
-   56 px, Rand innen 22 px, Feld 52 px) und das Feld: Beschriftung bleibt
-   klein über dem Wert stehen und ist je Feld abschaltbar, kein Rahmen,
-   Fläche beim Zeigen, Ring beim Tippen. Dann je ein Chat: Bereich, Text,
-   Knopf, Tabelle, Erfassung, Datenliste, Kanban, Datum, Popup; die
-   Tiersymbole auf Phosphor (dünn, MIT, Lizenz in `docs/design/`). Jeder
-   Schritt ändert den Referenzabzug gewollt. Ziel: Empfang, Behandlung und
-   Belegerfassung sehen im Editor aus wie das Muster.
+   `docs/design/behandlung-modern.html`. Erledigt 09.10.: `mask.css`
+   (Farben, Manrope eingebettet, Rundung 8 px, Fläche beim Zeigen, Ring
+   beim Tippen) und das Feld, siehe „Entschieden“. Das Feld ist mit
+   Beschriftung 3 Rasterzeilen hoch (44 px), ohne 2 (28 px); 52 px wie im
+   Muster gibt das Raster nicht her. Es meldet seine Höhe wie der Text
+   (`heightFromContent`); Maskenschema 31 setzt alte Felder auf 3 Zeilen.
+   Im Editor steht im Wert der Name des gebundenen Felds, die Beschriftung
+   bleibt die getippte. In der Behandlung-Maske sind Patient und Halter
+   darum 2 Zeilen, der Impfstatus 1 Zeile höher, was darunter liegt, rückte
+   nach. Im Browser mit exportierter Maske geprüft (getippt, Haken, Zeigen,
+   Ring), nicht in SoftEngine. Dann: Bereich, Text, Knopf, Tabelle,
+   Erfassung, Datenliste, Kanban, Datum, Popup; die Tiersymbole auf Phosphor
+   (dünn, MIT, Lizenz in `docs/design/`). Jeder Schritt ändert den
+   Referenzabzug gewollt. Ziel: Empfang, Behandlung und Belegerfassung sehen
+   im Editor aus wie das Muster.
 1. Erledigt 08.10.: die Lückenliste ist gestrichen, siehe „Bausteine“.
 2. Brücke Editor–Baustein, drei Chats: Der Baustein spricht, der Editor
    hört. (a) Erledigt 08.10.: Klicks auf bindbare Stellen und auf die Lupe

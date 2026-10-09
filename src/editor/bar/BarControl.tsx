@@ -15,6 +15,7 @@ import { useInputSession } from '../controls/useInputSession'
 import { controlShown, fieldSourceOf } from './controlShown'
 import { Labeled, Switch } from './Labeled'
 import { SwatchChoice } from './SwatchChoice'
+import { SymbolChoice } from './SymbolChoice'
 
 interface EditCallbacks {
   onBeginEditing: () => void
@@ -199,6 +200,9 @@ export function BarControl({
         </Labeled>
       )
     case 'choice':
+      if (options.length > 1 && options.every((o) => o.icon !== undefined || o.value === '')) {
+        return <SymbolChoice label={property.label} options={options} value={String(value ?? '')} onChange={set} />
+      }
       return options.length > 0 && options.every((o) => o.color !== undefined)
         ? <SwatchChoice label={property.label} options={options} value={String(value ?? '')} onChange={set} />
         : (

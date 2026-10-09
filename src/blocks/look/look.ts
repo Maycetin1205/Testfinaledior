@@ -37,17 +37,20 @@ function tone(value: Exclude<ToneValue, 'accent'>, name: string): Tone {
   }
 }
 
-// Petrol is the accent of the mask. It has no tint, shell and line of its
-// own and takes them as red does: its soft color, on white.
+// The value accent is Petrol, the sixth color the user chose on 08.10. as
+// the accent. Since the new look (09.10.) the accent of the mask is the blue
+// of Blau (--se-accent); Petrol stays a color to choose. It has no tint,
+// shell and line of its own and takes them as red does: its soft color, on
+// white.
 const ACCENT: Tone = {
   value: 'accent',
   name: 'Petrol',
-  strong: '--se-accent',
-  ink: '--se-accent-dark',
-  tint: '--se-accent-soft',
+  strong: '--se-petrol',
+  ink: '--se-petrol-ink',
+  tint: '--se-petrol-soft',
   shell: '--se-panel',
-  line: '--se-accent-soft',
-  soft: '--se-accent-soft',
+  line: '--se-petrol-soft',
+  soft: '--se-petrol-soft',
 }
 
 const TONES: readonly Tone[] = [
@@ -77,7 +80,7 @@ export function toneValue(value: string): ToneValue {
   return TONES.some((f) => f.value === value) ? (value as ToneValue) : 'info'
 }
 
-type LookInit = Partial<Pick<Property<string>, 'default' | 'label' | 'place' | 'attribute' | 'when'>>
+export type LookInit = Partial<Pick<Property<string>, 'default' | 'label' | 'place' | 'attribute' | 'when'>>
 
 export function toneProperty(init: LookInit = {}): Property<string> {
   const options = TONES.map((f) => ({ value: f.value, name: f.name, color: `var(${f.strong})` }))

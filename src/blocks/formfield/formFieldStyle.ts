@@ -1,156 +1,256 @@
-import { css } from 'lit'
+import { css, unsafeCSS } from 'lit'
+import { GRID } from '../../core/block/grid'
 
+// The height of a field on the grid: one line of rows without its label, one
+// more with it.
+const rowsHigh = (rows: number): number => rows * GRID.rowPx + (rows - 1) * GRID.gapPx
+
+// The field of the sample docs/design/behandlung-modern.html (.f): label and
+// value stand as text, the field has no frame. Under the pointer it lies on a
+// ground, while typed into it is white with the blue ring.
 export const fieldStyle = css`
-  /* Padding of .vinput, plain of .kinput; the label in the empty field
-     starts where the text does. */
   .field {
-    --field-pad-y: 7px;
-    --field-pad-x: 10px;
-
-    font-family: var(--se-font);
-  }
-  .field.plain {
-    --field-pad-y: 5px;
-    --field-pad-x: 8px;
-  }
-
-  /* The label lies on the control, on the line of its text: the control
-     places its text itself, at every height. */
-  .wrap {
-    display: grid;
-    grid-template: 100% / 100%;
-    align-items: baseline;
-  }
-  .wrap > * { grid-area: 1 / 1; }
-
-  .ctrl {
+    position: relative;
     box-sizing: border-box;
-    width: 100%;
-    padding: var(--field-pad-y) var(--field-pad-x);
-    border: var(--se-border) solid var(--se-line);
-    background: var(--se-panel);
+    height: ${unsafeCSS(rowsHigh(2))}px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: 20px;
+    align-content: center;
+    padding: 0 10px;
     border-radius: var(--se-radius);
     font-family: var(--se-font);
-    font-size: var(--se-fs);
-    line-height: var(--se-lh);
-    color: var(--se-ink);
-    transition: border-color var(--se-move), box-shadow var(--se-move);
+    cursor: text;
+    transition: background-color var(--se-move), box-shadow var(--se-move);
   }
-  .ctrl:focus {
-    outline: none;
-    border-color: var(--se-accent);
-    box-shadow: var(--se-focus);
+  .field.labelled {
+    height: ${unsafeCSS(rowsHigh(3))}px;
+    grid-template-rows: 14px 20px;
+    row-gap: 1px;
+    align-content: start;
+    padding-top: 6px;
   }
-
-  /* The plain look: a line below, in the accent while typed into. */
-  .field.plain .ctrl {
-    border-color: transparent;
-    border-bottom-color: var(--se-line-soft);
-    border-radius: 0;
-    background: transparent;
-  }
-  .field.plain .ctrl:focus {
-    border-bottom-color: var(--se-accent);
-    box-shadow: none;
+  .field:hover { background: var(--se-hover); }
+  .field:focus-within {
+    background: var(--se-panel);
+    box-shadow: var(--se-focus-ring);
   }
 
-  /* The label in the empty field, in the color of input::placeholder.
-     Positioned, as the holder of the lookup is, which would paint over it
-     otherwise; empty, it keeps its line for the double click. */
-  .ph {
-    position: relative;
+  /* .f .l */
+  .label {
+    grid-column: 2;
+    grid-row: 1;
     min-width: 0;
-    min-height: calc(1em * var(--se-lh));
-    margin: 0 calc(var(--field-pad-x) + var(--se-border));
     color: var(--se-muted);
-    font-size: var(--se-fs);
-    line-height: var(--se-lh);
+    font-size: var(--se-fs-sm);
+    font-weight: 600;
+    line-height: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .field:focus-within .label { color: var(--se-accent-dark); }
+
+  /* The value, its control and the dash of an empty field on one line. */
+  .value {
+    grid-column: 2;
+    grid-row: -2;
+    display: grid;
+    grid-template: 20px / minmax(0, 1fr);
+    align-items: center;
+    min-width: 0;
+  }
+  .value > * { grid-area: 1 / 1; }
+
+  /* .f .v */
+  .ctrl,
+  .shown {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--se-ink);
+    font-family: var(--se-font);
+    font-size: var(--se-fs-name);
+    font-weight: 600;
+    line-height: 20px;
+    font-variant-numeric: tabular-nums;
+    text-overflow: ellipsis;
+  }
+  .shown {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* .f .v.empty::before */
+  .dash {
+    color: var(--se-empty);
+    font-size: var(--se-fs-name);
+    font-weight: 600;
+    line-height: 20px;
     pointer-events: none;
   }
-  /* A select centers its text itself, at every height, and draws it 4px inside
-     its padding; vertical padding would cut the text off at the bottom. The
-     label sits in the middle with it and keeps the arrow free. */
-  select.ctrl {
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: calc(var(--field-pad-x) - 4px);
+  .field:focus-within .dash { visibility: hidden; }
+
+  /* The chosen symbol on the left, beside label and value. */
+  .symbol {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: center;
+    display: grid;
+    margin-right: 10px;
+    color: var(--se-faint);
   }
-  select.ctrl,
-  select.ctrl ~ .ph { align-self: center; }
-  select.ctrl ~ .ph { margin-right: calc(var(--field-pad-x) + var(--se-border) + 16px); }
+  .symbol .icon { width: 18px; height: 18px; }
+
+  /* How the field is filled in, on the right; a click goes through to the
+     control below. */
+  .sign {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    align-self: center;
+    display: grid;
+    margin-left: 8px;
+    color: var(--se-faint);
+    pointer-events: none;
+  }
+  .sign .icon { width: 16px; height: 16px; }
+
+  /* A select lies invisible over the whole field. */
+  select.ctrl {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  input[type='number'] { appearance: textfield; }
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button { appearance: none; margin: 0; }
+
+  /* The browser's own picker of a date or a time lies invisible over the sign
+     on the right; the rest of the field takes the typing. */
+  input::-webkit-datetime-edit,
+  input::-webkit-datetime-edit-fields-wrapper,
+  input::-webkit-datetime-edit-text,
+  input::-webkit-datetime-edit-day-field,
+  input::-webkit-datetime-edit-month-field,
+  input::-webkit-datetime-edit-year-field,
+  input::-webkit-datetime-edit-hour-field,
+  input::-webkit-datetime-edit-minute-field { padding: 0; }
+  input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
 
   /* An empty date stays empty instead of showing the browser's date pattern;
-     while it is typed into, the pattern stands instead of the label. */
-  .wrap.empty input[type="date"]:not(:focus)::-webkit-datetime-edit,
-  .wrap.empty input[type="time"]:not(:focus)::-webkit-datetime-edit { opacity: 0; }
-  input[type="date"]:focus ~ .ph,
-  input[type="time"]:focus ~ .ph { display: none; }
+     while it is typed into, the pattern stands instead of the dash. */
+  .value.empty input[type='date']:not(:focus)::-webkit-datetime-edit,
+  .value.empty input[type='time']:not(:focus)::-webkit-datetime-edit { opacity: 0; }
 
-  .row {
-    display: flex;
-    align-items: center;
-    gap: var(--se-gap);
-    font-size: var(--se-fs);
-    font-weight: 500;
-    color: var(--se-ink);
-  }
-  input[type='checkbox'].ctrl {
-    width: 16px;
-    height: 16px;
-    padding: 0;
-    flex: none;
-    accent-color: var(--se-accent);
-  }
-
-  .lookup { position: relative; }
-  .field .lookup .ctrl { padding-right: 38px; }
-  /* The label leaves the magnifier free: in the editor it takes clicks and
-     would cover it. */
-  .lookup ~ .ph { margin-right: calc(38px + var(--se-border)); }
-
-  /* The open suggestion list hangs out of the field. Grid children stack in
-     document order, so without this it would lie under the next block. */
+  /* The lookup: its magnifier is a button on the right, its hits hang under
+     the whole field. */
+  .field.lookup { padding-right: 40px; }
+  .field .lookup { position: static; min-width: 0; }
   :host([data-ff-list]) { position: relative; z-index: 5; }
 
   .magnifier {
     position: absolute;
-    top: var(--se-border);
-    bottom: var(--se-border);
-    right: var(--se-border);
+    top: 50%;
+    right: 5px;
     width: 30px;
+    height: 30px;
+    transform: translateY(-50%);
     display: grid;
     place-items: center;
     padding: 0;
-    border: none;
+    border: 0;
+    border-radius: var(--se-radius-sm);
     background: none;
-    color: var(--se-muted);
+    color: var(--se-faint);
     cursor: pointer;
-    transition: background var(--se-move);
+    transition: background-color var(--se-move), color var(--se-move);
   }
-  .magnifier:hover { background: var(--se-accent-soft); color: var(--se-ink); }
+  .magnifier:hover { background: var(--se-hover-strong); color: var(--se-ink); }
   .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
+  .magnifier svg { width: 16px; height: 16px; }
 
-  /* The magnifier stays clickable in the editor: it opens the lookup window and
-     its inspector section. The label takes the double click that renames it. */
+  /* The checkbox: .f.check and .cb, the box and its text in the middle of the
+     field. */
+  .field.check {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    cursor: default;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .box {
+    position: relative;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+  }
+  .box .ctrl {
+    position: absolute;
+    inset: 0;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--se-box-line);
+    border-radius: var(--se-radius-sm);
+    background: var(--se-panel);
+    cursor: pointer;
+    appearance: none;
+    transition: background-color var(--se-move), border-color var(--se-move);
+  }
+  .box .ctrl:hover { border-color: var(--se-muted); }
+  .box .ctrl:checked { background: var(--se-accent); border-color: var(--se-accent); }
+  .box .ctrl:focus-visible { box-shadow: var(--se-focus); }
+  .box .icon {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    color: var(--se-panel);
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .box .ctrl:checked + .icon { visibility: visible; }
+  .text {
+    min-width: 0;
+    color: var(--se-ink);
+    font-size: var(--se-fs-name);
+    font-weight: 600;
+    line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  :host(:not([preview])) .text { cursor: pointer; user-select: none; }
+
+  /* In the editor the controls take no clicks; the magnifier still opens the
+     lookup window, the label takes the double click that renames it. */
+  :host([preview]) .field { cursor: default; }
   :host([preview]) .ctrl { pointer-events: none; }
-  :host([preview]) .ph { pointer-events: auto; }
-  :host([preview]) .wrap[data-ff-bound] .ctrl {
-    border-style: dotted;
-    border-color: var(--se-accent);
-  }
-  :host([preview]) .field.plain .wrap[data-ff-bound] .ctrl {
-    border-color: transparent;
-    border-bottom-color: var(--se-accent);
-  }
-
-  :host(:not([preview])) .row .text { cursor: pointer; user-select: none; }
-
-  :host([fills]) .field,
-  :host([fills]) .wrap,
-  :host([fills]) .row,
-  :host([fills]) .lookup { height: 100%; }
-  :host([fills]) .wrap .ctrl { height: 100%; min-height: 0; }
 `

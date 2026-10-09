@@ -1,12 +1,16 @@
 import { html, nothing, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit'
+import { classMap } from 'lit/directives/class-map.js'
 import { live } from 'lit/directives/live.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
+import { reportsHeight } from '../base/heightReport'
 import { actionValue, bindable, type ValueCarrier } from '../../core/block/capability'
 import { propertyVisible } from '../../core/block/property'
 import { LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
 import { dayKey } from '../../runtime/chosenDay'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { LookupControl } from '../lookup/lookupControl'
+import { icon, type IconName } from '../parts/icons'
+import { symbolTpl } from '../look/symbol'
 // The lookup window draws its rows with the table block.
 import '../table/Table'
 import { disconnectValue, connectValue } from './valueBinding'
@@ -38,6 +42,17 @@ function dateForInput(value: string): string {
   return german ? `${german[3]}-${german[2]}-${german[1]}` : dayKey(value) || value
 }
 
+// What a field shows on its right: how it is filled in. A lookup has its
+// magnifier there, a button of its own.
+const SIGNS: Partial<Record<FieldType, IconName>> = {
+  select: 'caretDown',
+  date: 'calendar',
+  time: 'clock',
+}
+
+// An empty field shows a dash where its value would stand.
+const DASH = '–'
+
 export interface FormField extends FormFieldValues {}
 
 export class FormField extends BlockElement implements ValueCarrier {
@@ -64,6 +79,13 @@ export class FormField extends BlockElement implements ValueCarrier {
     setValue: (value) => { this.value = value },
     changed: () => this.dispatchEvent(new Event('change')),
   })
+
+  // The field is one line high, or two with its label; the editor sets the
+  // rows from it.
+  constructor() {
+    super()
+    reportsHeight(this, () => this.renderRoot.querySelector('.field'))
+  }
 
   fillsSelf(): boolean {
     return this.lookup
@@ -108,24 +130,20 @@ export class FormField extends BlockElement implements ValueCarrier {
     if (e.key === 'Enter') this.takeTyped()
   }
 
-  // The label beside the box of a checkbox, which ticks it. A bound checkbox
-  // shows the name of its field there.
-  private textTpl(bound: boolean): TemplateResult {
-    return html`<span
-      class="text"
-      ?data-ff-bound=${bound}
-      data-ff-editable
-      @click=${this.onTextClick}
-      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
-    >${this.label}</span>`
+  // In the mask a click anywhere on the field goes into it, also on the label
+  // and beside the value.
+  private onFieldClick(e: MouseEvent): void {
+    if (this.preview) return
+    const control = this.renderRoot.querySelector<HTMLElement>('input, select')
+    if (!control || e.composedPath().includes(control)) return
+    if (e.composedPath().some((at) => at instanceof HTMLButtonElement)) return
+    control.focus()
   }
 
-  // The label inside the empty field, where a placeholder stands. A bound
-  // field shows the name of its field there.
-  private placeholderTpl(bound: boolean): TemplateResult {
+  // The label above the value, renamed by a double click in the editor.
+  private labelTpl(): TemplateResult {
     return html`<span
-      class="ph"
-      ?data-ff-bound=${bound}
+      class="label"
       data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
     >${this.label}</span>`
@@ -147,17 +165,28 @@ export class FormField extends BlockElement implements ValueCarrier {
     this.onChange()
   }
 
-  // The operator types into the control while it shows the value: live writes
-  // only what differs from what the control holds, so typing is never reset.
-  // A new select is given its value before its options exist, so the option of
-  // the value comes selected; without a value the empty one shows, hidden from
-  // the list but not disabled, or the browser would show the first entry.
+  // In the editor the value stands as text: a bound field shows the name of
+  // its field there, dotted. In the mask the operator types into the control
+  // while it shows the value: live writes only what differs from what the
+  // control holds, so typing is never reset. A select lies invisible over the
+  // whole field, so a click anywhere opens it, and its value stands as text.
+  // A new select is given its value before its options exist, so the option
+  // of the value comes selected; without a value the empty one is chosen,
+  // hidden from the list but not disabled, or the browser would choose the
+  // first entry.
   private controlTpl(kind: FieldType): TemplateResult {
     if (this.lookup) return this._lookup.render('ctrl', this.label)
+    if (this.preview) return html`<span class="shown">${this.value}</span>`
     if (kind === 'select') {
       const entries = this.options.split(',').map((o) => o.trim()).filter((o) => o !== '')
       const foreignValue = this.value !== '' && !entries.includes(this.value)
-      return html`<select class="ctrl" .value=${live(this.value)} @input=${this.onInput} @change=${this.onChange}>
+      return html`<span class="shown">${this.value}</span><select
+        class="ctrl"
+        aria-label=${this.label}
+        .value=${live(this.value)}
+        @input=${this.onInput}
+        @change=${this.onChange}
+      >
         <option value="" hidden></option>
         ${foreignValue ? html`<option value=${this.value} hidden selected>${this.value}</option>` : nothing}
         ${entries.map((o) => html`<option value=${o} ?selected=${o === this.value}>${o}</option>`)}
@@ -166,6 +195,7 @@ export class FormField extends BlockElement implements ValueCarrier {
     return html`<input
       class="ctrl"
       type=${kind}
+      aria-label=${this.label}
       .value=${live(kind === 'date' ? dateForInput(this.value) : this.value)}
       @input=${this.onInput}
       @focus=${this.onFocus}
@@ -187,23 +217,36 @@ export class FormField extends BlockElement implements ValueCarrier {
     this.toggleAttribute('data-ff-list', this._lookup.hangsBelow)
   }
 
-  // The box and its label together are the spot bound to the field.
+  // The box and the text beside it together are the spot bound to the field;
+  // the text ticks the box as well.
   private checkboxTpl(bound: boolean): TemplateResult {
-    return html`<div class="field">
+    return html`<div class=${classMap({ field: true, check: true, labelled: this.showLabel })}>
       <div
         class="row"
         data-ff-spot="value"
+        ?data-ff-bound=${bound}
         @click=${this.reportSpot}
         @dblclick=${this.reportSpot}
       >
-        <input
-          class="ctrl"
-          type="checkbox"
-          .checked=${live(this.ticked)}
-          @input=${(e: Event) => this.tick((e.target as HTMLInputElement).checked)}
-          @change=${this.onChange}
-        />
-        ${this.textTpl(bound)}
+        <span class="box">
+          <input
+            class="ctrl"
+            type="checkbox"
+            aria-label=${this.label}
+            .checked=${live(this.ticked)}
+            @input=${(e: Event) => this.tick((e.target as HTMLInputElement).checked)}
+            @change=${this.onChange}
+          />
+          ${icon('check')}
+        </span>
+        ${this.showLabel
+          ? html`<span
+              class="text"
+              data-ff-editable
+              @click=${this.onTextClick}
+              @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
+            >${this.label}</span>`
+          : nothing}
       </div>
     </div>`
   }
@@ -215,18 +258,24 @@ export class FormField extends BlockElement implements ValueCarrier {
     if (kind === 'checkbox') return this.checkboxTpl(bound)
 
     const empty = (valueBindable ? this.value : this._lookup.inField) === ''
-    const fieldClasses = `field${this.appearance === 'plain' ? ' plain' : ''}`
-    return html`<div class=${fieldClasses}>
+    const sign = this.lookup ? undefined : SIGNS[kind]
+    return html`<div
+      class=${classMap({ field: true, labelled: this.showLabel, [`kind-${kind}`]: true, lookup: this.lookup })}
+      @click=${this.onFieldClick}
+    >
+      ${this.symbol !== '' ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}
+      ${this.showLabel ? this.labelTpl() : nothing}
       <div
-        class=${empty ? 'wrap empty' : 'wrap'}
+        class=${classMap({ value: true, empty })}
         data-ff-spot=${valueBindable ? 'value' : nothing}
         ?data-ff-bound=${bound}
         @click=${this.reportSpot}
         @dblclick=${this.reportSpot}
       >
         ${this.controlTpl(kind)}
-        ${empty ? this.placeholderTpl(bound) : nothing}
+        ${empty ? html`<span class="dash">${DASH}</span>` : nothing}
       </div>
+      ${sign ? html`<span class="sign">${icon(sign)}</span>` : nothing}
     </div>`
   }
 
@@ -268,12 +317,11 @@ defineBlock(FormField, {
         prop: 'value',
         name: 'Wert',
         when: WITH_VALUE,
-        previewProp: 'label',
       },
     ]),
     actionValue<typeof formFieldProperties>([{ prop: 'value', name: 'Wert' }]),
     { kind: 'events', list: [{ key: 'onChange', name: 'Wert geändert' }] },
   ],
-  grid: { startWidth: 12, startHeight: 2, minWidth: 4, heightFixed: true },
+  grid: { startWidth: 12, startHeight: 3, minWidth: 4, heightFromContent: true },
   contracts: { actionValue: FormField },
 })
