@@ -7,6 +7,7 @@ import { actionValue, bindable, type ValueCarrier } from '../../core/block/capab
 import { propertyVisible } from '../../core/block/property'
 import { LOOKUP_COLUMNS_BINDING } from '../lookup/lookup'
 import { dayKey } from '../../runtime/chosenDay'
+import { asNumber } from '../../core/data/number'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { LookupControl } from '../lookup/lookupControl'
 import { icon, type IconName } from '../parts/icons'
@@ -40,6 +41,27 @@ function dateFromInput(value: string): string {
 function dateForInput(value: string): string {
   const german = /^(\d{2})\.(\d{2})\.(\d{4,})$/.exec(value)
   return german ? `${german[3]}-${german[2]}-${german[1]}` : dayKey(value) || value
+}
+
+// The number input speaks 32.4, SoftEngine and the mask keep 32,4. A value
+// that is no number leaves the input empty.
+function numberFromInput(value: string): string {
+  return value.replace('.', ',')
+}
+
+function numberForInput(value: string): string {
+  const number = asNumber(value)
+  return number === null ? '' : String(number)
+}
+
+function forInput(kind: FieldType, value: string): string {
+  if (kind === 'date') return dateForInput(value)
+  return kind === 'number' ? numberForInput(value) : value
+}
+
+function fromInput(kind: FieldType, value: string): string {
+  if (kind === 'date') return dateFromInput(value)
+  return kind === 'number' ? numberFromInput(value) : value
 }
 
 // What a field shows on its right: how it is filled in. A lookup has its
@@ -105,7 +127,7 @@ export class FormField extends BlockElement implements ValueCarrier {
 
   private onInput(e: Event): void {
     const target = e.target as HTMLInputElement | HTMLSelectElement
-    this.value = fieldTypeOf(this.fieldType) === 'date' ? dateFromInput(target.value) : target.value
+    this.value = fromInput(fieldTypeOf(this.fieldType), target.value)
     this.typed = true
   }
 
@@ -196,7 +218,7 @@ export class FormField extends BlockElement implements ValueCarrier {
       class="ctrl"
       type=${kind}
       aria-label=${this.label}
-      .value=${live(kind === 'date' ? dateForInput(this.value) : this.value)}
+      .value=${live(forInput(kind, this.value))}
       @input=${this.onInput}
       @focus=${this.onFocus}
       @blur=${this.takeTyped}
