@@ -40,6 +40,19 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 - 09.10. Blau ist der Akzent der Maske (Ring, Haken, gewählte Zeile) und
   die Farbe „Blau“. Petrol bleibt als Farbe wählbar, ist aber nicht mehr der
   Akzent.
+- 09.10. Jeder Baustein, der Text zeigt, hält ihn 10 px vom Rahmen (Feld,
+  Text, Chip, Datenliste, Tabelle); Karten haben 12 px Rand. So beginnt in
+  einer Karte alles auf der Linie ihres Titels (22 px), wie im Muster.
+- 09.10. Kopf und Rand einer Karte nehmen ganze Rasterzeilen (Kopf 52 px,
+  unten 12 px, beim Kasten oben und unten 6 px): ein Bereich fasst so viele
+  Zeilen wie vorher, keine alte Maske schneidet ab. 56 px Kopf wie im Muster
+  gäben eine Zeile weniger.
+- 09.10. Tabelle, Liste und Kanban sind auf dem Seitengrund eine Karte mit
+  Schatten, in einer Karte liegen sie flach. Tabellenzeilen 40 px.
+- 09.10. Knopf: Klein und Normal eine Zeile hoch (28 px), Groß wie ein Feld
+  mit Beschriftung (44 px), so wie die Knöpfe im Muster.
+- 09.10. Textgrößen jetzt 12, 13, 14, 15, 17, 22 und 26 px; ein Text kann
+  mehrere Felder in einer Zeile zeigen.
 - 08.10. Neue Designsprache für die Maske, vom Nutzer am Muster
   `docs/design/behandlung-modern.html` (Bild daneben) freigegeben: Daten
   stehen als Text, kein Feld trägt einen dauerhaften Rahmen (Fläche beim
@@ -173,20 +186,27 @@ Nach dem Vorbild der Empfangsmaske (24.09., 01.10.):
 
 ## Bausteine
 
-Gebaut: Bereich (Form Frei, Kasten oder Kopfzeile mit Titel; Farbe, Art),
-Schaltfläche (Farbe, Art, Größe), Datum (Tageswahl), Formularfeld (Text,
-Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld mit J/N; Beschriftung
-über dem Wert, abschaltbar; Symbol), Tabelle,
-Erfassung, Kanban (Plätze je Spalte, mehrere Felder je Platz mit Trenner,
-Knopf je Spalte Aus, Weiter oder Aktion, Spalte nach Uhrzeit mit
-Stundenlinien und Jetzt-Linie), Datenliste (Auswahl Eine Zeile, Mehrere
-oder Keine; je Zeile Symbol, Titel, Unterzeile), Popup, Text (Rolle, Farbe,
-Art, Größe; Fläche oder Rand macht ihn zum Chip).
+Gebaut, alle im Aussehen des Musters (09.10.): Bereich (Form Frei, Kasten
+oder Kopfzeile mit Titel; Farbe, Art), Schaltfläche (Farbe, Art, Größe),
+Datum (Tageswahl), Formularfeld (Text, Zahl, Datum tippbar, Auswahl,
+Nachschlagen, Ankreuzfeld mit J/N; Beschriftung über dem Wert, abschaltbar;
+Symbol), Tabelle, Erfassung, Kanban (Plätze je Spalte, mehrere Felder je
+Platz mit Trenner, Knopf je Spalte Aus, Weiter oder Aktion, Spalte nach
+Uhrzeit mit Stundenlinien und Jetzt-Linie), Datenliste (Auswahl Eine Zeile,
+Mehrere oder Keine; je Zeile Tiersymbol oder Symbol, Titel, Unterzeile,
+Rechts), Popup, Text (Rolle, Farbe, Art, Größe, Symbol, ein oder mehrere
+Felder; Fläche oder Rand macht ihn zum Chip).
 
 Chef-Maske Empfang nachgebaut am 07.10.: `masken/empfang/
 Empfang.aufbau-maske.json`, 38 Bausteine, zwei Quellen (Terminplaner
 IDBID0021, Adressstamm), im Editor über „Laden“. Im Browser mit
 Beispieldaten geprüft, nicht in SoftEngine.
+
+Behandlung am 09.10. neu gelegt wie das Muster `docs/design/
+behandlung-modern.html`, 38 Bausteine; Empfang und Belegerfassung auf
+Maskenschema 33 gehoben. Alle drei im Browser mit Probedaten über SEDATA
+geprüft, die Positionen früherer Belege nicht (die Probe beantwortet kein
+GET_RELATION).
 
 Chef-Maske Behandlung nachgebaut am 08.10.: `masken/behandlung/
 Behandlung.aufbau-maske.json`, 45 Bausteine, Belegerfassung mit Kopf des
@@ -217,8 +237,11 @@ Nach dem Bau: der Nutzer sieht ihn in SoftEngine.
 
 ## Offen, in dieser Reihenfolge
 
-0. Ab 09.10.: die neue Designsprache in die Bausteine, Maßstab
-   `docs/design/behandlung-modern.html`. Erledigt 09.10.: `mask.css`
+0. Erledigt 09.10.: die neue Designsprache in allen Bausteinen, Maßstab
+   `docs/design/behandlung-modern.html`; Commits „Neue Designsprache (1)“
+   bis „(9)“. Offen davon: die Leiste und Fenster des Editors selbst in
+   derselben Sprache; ein Bild-Baustein für das Tier (Bild fällt vorerst
+   raus). Zuerst gebaut: `mask.css`
    (Farben, Manrope eingebettet, Rundung 8 px, Fläche beim Zeigen, Ring
    beim Tippen) und das Feld, siehe „Entschieden“. Das Feld ist mit
    Beschriftung 3 Rasterzeilen hoch (44 px), ohne 2 (28 px); 52 px wie im
@@ -358,6 +381,10 @@ Ideen, nicht freigegeben (Regel 3):
   den Daten, die SoftEngine wirklich geschickt hat.
 
 ## Gebaut, vom Nutzer gesehen, nicht in SoftEngine geprüft
+
+- 09.10. Neue Designsprache in allen Bausteinen (1927771 bis 9b9327c),
+  Feld mit Zahl und Komma (63cbd3e), Text mit mehreren Feldern (89c4f7d),
+  Masken im neuen Look (6b83978). Gesehen: das Feld beim Tippen.
 
 - 07.10. Chef-Maske Empfang nachgebaut (2b1180f); Bereich mit Aussehen
   (a49e82d); Karte mit mehreren Feldern je Platz und Knopf je Spalte
