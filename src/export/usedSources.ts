@@ -129,12 +129,18 @@ export function usedFieldsPerSource(
       }
     }
 
+    // A field property may hold several fields, as a spot that shows them in
+    // a row; each is ordered on its own.
     for (const [key, prop] of Object.entries(def?.properties ?? {})) {
       if (prop.type.control !== 'field') continue
       if (!propertyVisible(prop.when, node.values)) continue
+      const value = node.values[key]
+      if (typeof value !== 'string') continue
 
-      if (prop.sourceProp === undefined) rememberBinding(node.values[key])
-      else remember(String(node.values[prop.sourceProp] ?? ''), node.values[key])
+      for (const field of bindingFields(value)) {
+        if (prop.sourceProp === undefined) rememberBinding(field)
+        else remember(String(node.values[prop.sourceProp] ?? ''), field)
+      }
     }
 
     if (carriesOwnSource(node)) {
