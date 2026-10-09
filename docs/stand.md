@@ -57,6 +57,13 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   Belegerfassung bestellt sie genauso (Layoutrahmen 00012). Parameter und
   Vorsätze aus SoftEngines eigenen Masken (STDERFASSUNG/DWld04/951–955,
   PGEACT, Analyse auf dem Desktop), nicht in SoftEngine geprüft.
+- 09.10. Empfang lädt den Adressstamm nach dem Öffnen: eigene Quelle
+  `src-adressen-alle` (ADRESSE.GET ohne Einschränkung, Vorsatz ADR_), weil
+  die Behandlung unter derselben Nummer `src-adressstamm` nur den Kunden des
+  Belegs holt und die Bibliothek je Nummer eine Fassung hält. Terminplaner
+  bleibt beim Dokument: für IDBID0021 ist keine Abfrage belegt. Belegerfassung
+  holt die Belege des Kunden wie die Behandlung (af29c97). Beim Laden einer
+  Maske gewinnt die Bibliothek; eine alte Fassung dort vorher löschen.
 - 09.10. Umlaute aus SoftEngine kommen als HTML-Entity (`H&#246;lscher`,
   Echttest). `fieldRead` löst sie beim Lesen auf, eine Stelle, alle Masken.
   Der UTF-8-Salat (`Ã˜`) bleibt, bis der Recherche-Chat die Herkunft kennt.
