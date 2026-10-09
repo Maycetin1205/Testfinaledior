@@ -793,13 +793,13 @@
             "pairs": [
               {
                 "fromField": "11_8",
-                "toField": "11_8",
+                "toField": "BEL_11_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
               },
               {
                 "fromField": "3_8",
-                "toField": "3_8",
+                "toField": "BEL_3_8",
                 "from": "document",
                 "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
                 "unequal": true
@@ -812,19 +812,19 @@
           {
             "key": "s2",
             "title": "Beleg-Nr.",
-            "field": "3_8",
+            "field": "BEL_3_8",
             "width": 90
           },
           {
             "key": "s3",
             "title": "Datum",
-            "field": "19_10",
+            "field": "BEL_19_10",
             "width": 90
           },
           {
             "key": "s4",
             "title": "Netto",
-            "field": "1610_12",
+            "field": "BEL_1610_12",
             "width": 100
           }
         ],
@@ -1536,115 +1536,119 @@
     {
       "id": "8a88988e-9613-42b9-bb54-e96e00274af3",
       "name": "Belege Kunde",
-      "preset": "document",
-      "tableId": "BEL",
+      "preset": "erpQuery",
+      "tableId": "BELEG.GET",
       "order": {
-        "kind": "sefileloop",
-        "wildcard": false,
-        "underHeader": false,
-        "headerKey": ""
+        "kind": "none"
       },
       "delivery": {
-        "kind": "push",
-        "path": "SEFileLoop"
+        "kind": "message",
+        "restriction": {
+          "documentKind": "",
+          "address": {
+            "sourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+            "code": "11_8"
+          }
+        }
       },
       "write": {
         "kind": "none"
       },
       "fields": [
         {
-          "code": "0_1",
+          "code": "BEL_0_1",
           "name": "Jahr"
         },
         {
-          "code": "1_1",
+          "code": "BEL_1_1",
           "name": "Archiv"
         },
         {
-          "code": "0_11",
+          "code": "BEL_0_11",
           "name": "Satzschluessel"
         },
         {
-          "code": "107_30",
+          "code": "BEL_107_30",
           "name": "Firmenname"
         },
         {
-          "code": "3437_3",
+          "code": "BEL_3437_3",
           "name": "FI - Fibu gebucht"
         },
         {
-          "code": "3434_3",
+          "code": "BEL_3434_3",
           "name": "DR - Beleg gedruckt"
         },
         {
-          "code": "3_8",
+          "code": "BEL_3_8",
           "name": "Beleg-Nr."
         },
         {
-          "code": "11_8",
+          "code": "BEL_11_8",
           "name": "Ad.Nr."
         },
         {
-          "code": "19_10",
+          "code": "BEL_19_10",
           "name": "Belegdatum"
         },
         {
-          "code": "3440_60",
+          "code": "BEL_3440_60",
           "name": "Name"
         },
         {
-          "code": "1610_12",
+          "code": "BEL_1610_12",
           "name": "Netto EUR"
         },
         {
-          "code": "7335_12",
+          "code": "BEL_7335_12",
           "name": "Mwst EUR"
         },
         {
-          "code": "8204_12",
+          "code": "BEL_8204_12",
           "name": "Brutto EUR"
         },
         {
-          "code": "1574_12",
+          "code": "BEL_1574_12",
           "name": "Rohertrag EUR"
         },
         {
-          "code": "1313_8",
+          "code": "BEL_1313_8",
           "name": "Vorgang"
         },
         {
-          "code": "29_10",
+          "code": "BEL_29_10",
           "name": "Liefer-/Versanddatum"
         },
         {
-          "code": "39_8",
+          "code": "BEL_39_8",
           "name": "Projektnummer"
         },
         {
-          "code": "47_10",
+          "code": "BEL_47_10",
           "name": "Kurzname"
         },
         {
-          "code": "57_10",
+          "code": "BEL_57_10",
           "name": "Postleitzahl"
         },
         {
-          "code": "1893_2",
+          "code": "BEL_1893_2",
           "name": "Beleggruppe"
         },
         {
-          "code": "747_8",
+          "code": "BEL_747_8",
           "name": "Lieferadresse"
         },
         {
-          "code": "631_12",
+          "code": "BEL_631_12",
           "name": "Belegnummer Lieferant"
         },
         {
-          "code": "2_1",
+          "code": "BEL_2_1",
           "name": "Belegart"
         }
-      ]
+      ],
+      "fieldPrefix": "BEL_"
     },
     {
       "name": "BelegGET",
