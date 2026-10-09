@@ -71,7 +71,7 @@ function asTrimmedString(v: unknown): string {
 // user's test 2026-10-09, kontrakte.md §3); its own masks set values with
 // innerHTML, which resolves them. The blocks set text, so every value read from
 // a row is resolved here, once. Written back goes the plain text.
-const ENTITY = /&(#x[0-9a-f]+|#d+|[a-z]+);/gi
+const ENTITY = /&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi
 // The named ones a German record can carry; any other name stays as it came.
 const NAMED: Readonly<Record<string, string>> = {
   amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
