@@ -1,7 +1,7 @@
 {
   "kind": "aufbau-editor-maske",
   "fileVersion": 4,
-  "schemaVersion": 25,
+  "schemaVersion": 33,
   "tree": {
     "root": {
       "id": "root",
@@ -42,7 +42,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "label",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "Kunde",
@@ -63,7 +62,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "title",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "",
@@ -84,7 +82,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "label",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "Kunden-Nr.",
@@ -105,7 +102,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "heading",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "",
@@ -126,7 +122,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "label",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "Beleg-Nr.",
@@ -147,7 +142,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "heading",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "",
@@ -168,7 +162,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "label",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "Belegdatum",
@@ -189,7 +182,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "heading",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "",
@@ -208,7 +200,8 @@
         "gridW": 5,
         "gridH": 2,
         "label": "Entfernen",
-        "variant": "ghost"
+        "tone": "neutral",
+        "emphasis": "text"
       },
       "childIds": [],
       "chains": {
@@ -294,7 +287,8 @@
         "gridW": 6,
         "gridH": 2,
         "label": "Speichern",
-        "variant": "primary"
+        "tone": "info",
+        "emphasis": "solid"
       },
       "childIds": [],
       "chains": {
@@ -595,7 +589,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "heading",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "Frühere Belege",
@@ -616,7 +609,6 @@
         "extraSources": [],
         "followsSelection": [],
         "variant": "heading",
-        "color": "",
         "size": "",
         "align": "left",
         "text": "Positionen des Belegs",
@@ -635,7 +627,8 @@
         "gridW": 7,
         "gridH": 2,
         "label": "Übernehmen",
-        "variant": "standard"
+        "tone": "neutral",
+        "emphasis": "outline"
       },
       "childIds": [],
       "chains": {

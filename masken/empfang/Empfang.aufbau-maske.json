@@ -1,7 +1,7 @@
 {
   "kind": "aufbau-editor-maske",
   "fileVersion": 4,
-  "schemaVersion": 26,
+  "schemaVersion": 33,
   "tree": {
     "root": {
       "id": "root",
@@ -60,7 +60,7 @@
         "gridX": 12,
         "gridY": 0,
         "gridW": 12,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Suche"
       },
       "childIds": []
@@ -87,7 +87,8 @@
         "gridW": 5,
         "gridH": 2,
         "label": "+ Termin",
-        "variant": "primary"
+        "tone": "info",
+        "emphasis": "solid"
       },
       "childIds": [],
       "chains": {
@@ -279,7 +280,7 @@
         "gridX": 0,
         "gridY": 0,
         "gridW": 36,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Kunde",
         "lookup": true,
         "lookupSource": "src-adressstamm",
@@ -298,7 +299,8 @@
         "gridW": 11,
         "gridH": 2,
         "label": "+ Kunde",
-        "variant": "standard"
+        "tone": "neutral",
+        "emphasis": "outline"
       },
       "childIds": []
     },
@@ -312,7 +314,9 @@
         "gridW": 48,
         "gridH": 12,
         "appearance": "headed",
-        "heading": "Neuer Kunde"
+        "heading": "Neuer Kunde",
+        "tone": "info",
+        "emphasis": "soft"
       },
       "childIds": [
         "nk-vorname",
@@ -333,7 +337,7 @@
         "gridX": 0,
         "gridY": 0,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Vorname",
         "required": true
       },
@@ -347,7 +351,7 @@
         "gridX": 24,
         "gridY": 0,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Nachname",
         "required": true
       },
@@ -361,7 +365,7 @@
         "gridX": 0,
         "gridY": 3,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Mobil",
         "required": true
       },
@@ -375,7 +379,7 @@
         "gridX": 24,
         "gridY": 3,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "E-Mail"
       },
       "childIds": []
@@ -388,7 +392,7 @@
         "gridX": 0,
         "gridY": 6,
         "gridW": 16,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Straße",
         "required": true
       },
@@ -402,7 +406,7 @@
         "gridX": 16,
         "gridY": 6,
         "gridW": 8,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Hausnr.",
         "required": true
       },
@@ -416,7 +420,7 @@
         "gridX": 24,
         "gridY": 6,
         "gridW": 8,
-        "gridH": 2,
+        "gridH": 3,
         "label": "PLZ",
         "required": true
       },
@@ -430,7 +434,7 @@
         "gridX": 32,
         "gridY": 6,
         "gridW": 16,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Ort",
         "required": true
       },
@@ -446,7 +450,9 @@
         "gridW": 48,
         "gridH": 15,
         "appearance": "headed",
-        "heading": "Neues Tier"
+        "heading": "Neues Tier",
+        "tone": "info",
+        "emphasis": "soft"
       },
       "childIds": [
         "nt-name",
@@ -467,7 +473,7 @@
         "gridX": 0,
         "gridY": 0,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Name",
         "required": true
       },
@@ -481,7 +487,7 @@
         "gridX": 24,
         "gridY": 0,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Tierart",
         "fieldType": "select",
         "options": "Hund, Katze, Kaninchen, Meerschweinchen, Hamster, Vogel, Reptil, Sonstiges",
@@ -497,7 +503,7 @@
         "gridX": 0,
         "gridY": 3,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Rasse / Unterart"
       },
       "childIds": []
@@ -510,7 +516,7 @@
         "gridX": 24,
         "gridY": 3,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Geburtsdatum",
         "fieldType": "date"
       },
@@ -524,7 +530,7 @@
         "gridX": 0,
         "gridY": 6,
         "gridW": 16,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Geschlecht",
         "fieldType": "select",
         "options": "männlich, weiblich"
@@ -539,7 +545,7 @@
         "gridX": 16,
         "gridY": 6,
         "gridW": 8,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Kastriert",
         "fieldType": "checkbox"
       },
@@ -553,7 +559,7 @@
         "gridX": 24,
         "gridY": 6,
         "gridW": 24,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Gewicht (kg)",
         "fieldType": "number"
       },
@@ -567,7 +573,7 @@
         "gridX": 0,
         "gridY": 9,
         "gridW": 48,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Allergien / Warnhinweise"
       },
       "childIds": []
@@ -580,7 +586,7 @@
         "gridX": 0,
         "gridY": 46,
         "gridW": 16,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Datum",
         "fieldType": "date",
         "required": true
@@ -595,7 +601,7 @@
         "gridX": 16,
         "gridY": 46,
         "gridW": 16,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Uhrzeit",
         "fieldType": "time"
       },
@@ -609,7 +615,7 @@
         "gridX": 32,
         "gridY": 46,
         "gridW": 16,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Priorität",
         "fieldType": "select",
         "options": "Normal, OP, Notfall"
@@ -624,7 +630,7 @@
         "gridX": 0,
         "gridY": 49,
         "gridW": 48,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Behandlung"
       },
       "childIds": []
@@ -637,7 +643,7 @@
         "gridX": 0,
         "gridY": 52,
         "gridW": 48,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Patient ist bereits da — direkt ins Wartezimmer einchecken",
         "fieldType": "checkbox"
       },
@@ -653,7 +659,8 @@
         "gridW": 9,
         "gridH": 2,
         "label": "Abbrechen",
-        "variant": "standard"
+        "tone": "neutral",
+        "emphasis": "outline"
       },
       "childIds": [],
       "chains": {
@@ -677,7 +684,8 @@
         "gridW": 10,
         "gridH": 2,
         "label": "Termin anlegen",
-        "variant": "primary"
+        "tone": "info",
+        "emphasis": "solid"
       },
       "childIds": []
     },
@@ -718,7 +726,8 @@
               }
             ]
           }
-        ]
+        ],
+        "pick": "several"
       },
       "childIds": []
     }

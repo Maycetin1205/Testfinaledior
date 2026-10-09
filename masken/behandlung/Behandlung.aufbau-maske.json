@@ -12,49 +12,17 @@
         "documentFrame": "10000"
       },
       "childIds": [
-        "kopf-kunde-l",
         "kopf-kunde",
-        "kopf-nr-l",
-        "kopf-nr",
-        "kopf-datum-l",
-        "kopf-datum",
-        "kopf-vorgang-l",
-        "kopf-vorgang",
+        "kopf-meta",
         "entfernen",
         "speichern",
         "tiere-bereich",
-        "patient",
         "halter",
         "impfstatus",
-        "erfassung-l",
-        "erfassung",
-        "verlauf-l",
-        "verlauf",
-        "verlauf-pos-l",
-        "verlauf-positionen",
-        "uebernehmen"
+        "patient",
+        "leistungen",
+        "verlauf-bereich"
       ]
-    },
-    "kopf-kunde-l": {
-      "id": "kopf-kunde-l",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 0,
-        "gridY": 0,
-        "gridW": 16,
-        "gridH": 1,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "label",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "Kunde",
-        "source": "",
-        "textField": ""
-      },
-      "childIds": []
     },
     "kopf-kunde": {
       "id": "kopf-kunde",
@@ -62,9 +30,9 @@
       "parentId": "root",
       "values": {
         "gridX": 0,
-        "gridY": 1,
-        "gridW": 16,
-        "gridH": 2,
+        "gridY": 0,
+        "gridW": 24,
+        "gridH": 3,
         "extraSources": [],
         "followsSelection": [],
         "variant": "title",
@@ -73,133 +41,9 @@
         "align": "left",
         "text": "",
         "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
-        "textField": "107_30"
-      },
-      "childIds": []
-    },
-    "kopf-nr-l": {
-      "id": "kopf-nr-l",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 17,
-        "gridY": 0,
-        "gridW": 5,
-        "gridH": 1,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "label",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "Beleg-Nr.",
-        "source": "",
-        "textField": ""
-      },
-      "childIds": []
-    },
-    "kopf-nr": {
-      "id": "kopf-nr",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 17,
-        "gridY": 1,
-        "gridW": 5,
-        "gridH": 2,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "number",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "",
-        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
-        "textField": "3_8"
-      },
-      "childIds": []
-    },
-    "kopf-datum-l": {
-      "id": "kopf-datum-l",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 23,
-        "gridY": 0,
-        "gridW": 5,
-        "gridH": 1,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "label",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "Datum",
-        "source": "",
-        "textField": ""
-      },
-      "childIds": []
-    },
-    "kopf-datum": {
-      "id": "kopf-datum",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 23,
-        "gridY": 1,
-        "gridW": 5,
-        "gridH": 2,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "number",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "",
-        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
-        "textField": "19_10"
-      },
-      "childIds": []
-    },
-    "kopf-vorgang-l": {
-      "id": "kopf-vorgang-l",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 29,
-        "gridY": 0,
-        "gridW": 5,
-        "gridH": 1,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "label",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "Vorgang",
-        "source": "",
-        "textField": ""
-      },
-      "childIds": []
-    },
-    "kopf-vorgang": {
-      "id": "kopf-vorgang",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 29,
-        "gridY": 1,
-        "gridW": 5,
-        "gridH": 2,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "body",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "",
-        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
-        "textField": "1313_8"
+        "textField": "107_30",
+        "size": "26",
+        "symbol": ""
       },
       "childIds": []
     },
@@ -208,9 +52,9 @@
       "type": "button",
       "parentId": "root",
       "values": {
-        "gridX": 35,
-        "gridY": 1,
-        "gridW": 5,
+        "gridX": 36,
+        "gridY": 0,
+        "gridW": 6,
         "gridH": 3,
         "label": "Entfernen",
         "tone": "danger",
@@ -297,7 +141,7 @@
       "parentId": "root",
       "values": {
         "gridX": 42,
-        "gridY": 1,
+        "gridY": 0,
         "gridW": 6,
         "gridH": 3,
         "label": "Speichern",
@@ -459,9 +303,9 @@
       "parentId": "root",
       "values": {
         "gridX": 0,
-        "gridY": 4,
-        "gridW": 10,
-        "gridH": 14,
+        "gridY": 5,
+        "gridW": 12,
+        "gridH": 16,
         "appearance": "headed",
         "heading": "Tiere",
         "tone": "neutral",
@@ -478,8 +322,8 @@
       "values": {
         "gridX": 0,
         "gridY": 0,
-        "gridW": 10,
-        "gridH": 10,
+        "gridW": 12,
+        "gridH": 12,
         "source": "src-haustiere",
         "pick": "one",
         "headingField": "LFA_400_30",
@@ -506,24 +350,26 @@
       "type": "area",
       "parentId": "root",
       "values": {
-        "gridX": 11,
-        "gridY": 4,
-        "gridW": 19,
+        "gridX": 12,
+        "gridY": 5,
+        "gridW": 24,
         "gridH": 16,
-        "appearance": "headed",
+        "appearance": "box",
         "heading": "Patient",
         "tone": "neutral",
         "emphasis": "text"
       },
       "childIds": [
+        "pt-titel",
+        "pt-zeile",
         "pt-name",
         "pt-tierart",
         "pt-rasse",
         "pt-geb",
         "pt-geschlecht",
         "pt-gewicht",
-        "pt-kastriert",
         "pt-chip",
+        "pt-kastriert",
         "pt-allergie"
       ]
     },
@@ -533,8 +379,8 @@
       "parentId": "patient",
       "values": {
         "gridX": 0,
-        "gridY": 0,
-        "gridW": 10,
+        "gridY": 6,
+        "gridW": 6,
         "gridH": 3,
         "label": "Name",
         "source": "src-haustiere",
@@ -558,9 +404,9 @@
       "type": "formfield",
       "parentId": "patient",
       "values": {
-        "gridX": 10,
-        "gridY": 0,
-        "gridW": 9,
+        "gridX": 6,
+        "gridY": 6,
+        "gridW": 6,
         "gridH": 3,
         "label": "Tierart",
         "source": "src-haustiere",
@@ -584,9 +430,9 @@
       "type": "formfield",
       "parentId": "patient",
       "values": {
-        "gridX": 0,
-        "gridY": 3,
-        "gridW": 10,
+        "gridX": 12,
+        "gridY": 6,
+        "gridW": 6,
         "gridH": 3,
         "label": "Rasse",
         "source": "src-haustiere",
@@ -610,9 +456,9 @@
       "type": "formfield",
       "parentId": "patient",
       "values": {
-        "gridX": 10,
-        "gridY": 3,
-        "gridW": 9,
+        "gridX": 18,
+        "gridY": 6,
+        "gridW": 6,
         "gridH": 3,
         "label": "Geburtsdatum",
         "source": "src-haustiere",
@@ -638,8 +484,8 @@
       "parentId": "patient",
       "values": {
         "gridX": 0,
-        "gridY": 6,
-        "gridW": 7,
+        "gridY": 9,
+        "gridW": 6,
         "gridH": 3,
         "label": "Geschlecht",
         "source": "src-haustiere",
@@ -663,8 +509,8 @@
       "type": "formfield",
       "parentId": "patient",
       "values": {
-        "gridX": 7,
-        "gridY": 6,
+        "gridX": 6,
+        "gridY": 9,
         "gridW": 6,
         "gridH": 3,
         "label": "Gewicht kg",
@@ -690,8 +536,8 @@
       "type": "formfield",
       "parentId": "patient",
       "values": {
-        "gridX": 13,
-        "gridY": 6,
+        "gridX": 18,
+        "gridY": 9,
         "gridW": 6,
         "gridH": 3,
         "label": "Kastriert",
@@ -717,9 +563,9 @@
       "type": "formfield",
       "parentId": "patient",
       "values": {
-        "gridX": 0,
+        "gridX": 12,
         "gridY": 9,
-        "gridW": 10,
+        "gridW": 6,
         "gridH": 3,
         "label": "Chip-Nr.",
         "source": "src-haustiere",
@@ -743,9 +589,9 @@
       "type": "formfield",
       "parentId": "patient",
       "values": {
-        "gridX": 10,
-        "gridY": 9,
-        "gridW": 9,
+        "gridX": 0,
+        "gridY": 12,
+        "gridW": 12,
         "gridH": 3,
         "label": "Allergien",
         "source": "src-haustiere",
@@ -760,7 +606,8 @@
               }
             ]
           }
-        ]
+        ],
+        "symbol": "warning"
       },
       "childIds": []
     },
@@ -769,249 +616,21 @@
       "type": "area",
       "parentId": "root",
       "values": {
-        "gridX": 31,
-        "gridY": 4,
-        "gridW": 17,
-        "gridH": 16,
+        "gridX": 0,
+        "gridY": 22,
+        "gridW": 12,
+        "gridH": 12,
         "appearance": "headed",
         "heading": "Halter",
         "tone": "neutral",
         "emphasis": "text"
       },
       "childIds": [
-        "ha-vorname",
-        "ha-nachname",
+        "ha-name",
         "ha-mobil",
         "ha-email",
-        "ha-strasse",
-        "ha-hausnr",
-        "ha-plz",
-        "ha-ort"
+        "ha-adresse"
       ]
-    },
-    "ha-vorname": {
-      "id": "ha-vorname",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 0,
-        "gridY": 0,
-        "gridW": 8,
-        "gridH": 3,
-        "label": "Vorname",
-        "source": "src-adressstamm",
-        "valueField": "3292_30",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
-    },
-    "ha-nachname": {
-      "id": "ha-nachname",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 8,
-        "gridY": 0,
-        "gridW": 9,
-        "gridH": 3,
-        "label": "Nachname",
-        "source": "src-adressstamm",
-        "valueField": "3322_40",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
-    },
-    "ha-mobil": {
-      "id": "ha-mobil",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 0,
-        "gridY": 3,
-        "gridW": 8,
-        "gridH": 3,
-        "label": "Mobil",
-        "source": "src-adressstamm",
-        "valueField": "1114_20",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
-    },
-    "ha-email": {
-      "id": "ha-email",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 8,
-        "gridY": 3,
-        "gridW": 9,
-        "gridH": 3,
-        "label": "E-Mail",
-        "source": "src-adressstamm",
-        "valueField": "1330_60",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
-    },
-    "ha-strasse": {
-      "id": "ha-strasse",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 0,
-        "gridY": 6,
-        "gridW": 12,
-        "gridH": 3,
-        "label": "Straße",
-        "source": "src-adressstamm",
-        "valueField": "2187_46",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
-    },
-    "ha-hausnr": {
-      "id": "ha-hausnr",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 12,
-        "gridY": 6,
-        "gridW": 5,
-        "gridH": 3,
-        "label": "Hausnr.",
-        "source": "src-adressstamm",
-        "valueField": "2170_11",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
-    },
-    "ha-plz": {
-      "id": "ha-plz",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 0,
-        "gridY": 9,
-        "gridW": 5,
-        "gridH": 3,
-        "label": "PLZ",
-        "source": "src-adressstamm",
-        "valueField": "110_10",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
-    },
-    "ha-ort": {
-      "id": "ha-ort",
-      "type": "formfield",
-      "parentId": "halter",
-      "values": {
-        "gridX": 5,
-        "gridY": 9,
-        "gridW": 12,
-        "gridH": 3,
-        "label": "Ort",
-        "source": "src-adressstamm",
-        "valueField": "2233_40",
-        "followsSelection": [
-          {
-            "giverId": "",
-            "pairs": [
-              {
-                "fromField": "11_8",
-                "toField": "2_8",
-                "from": "document",
-                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
-              }
-            ]
-          }
-        ]
-      },
-      "childIds": []
     },
     "impfstatus": {
       "id": "impfstatus",
@@ -1019,11 +638,11 @@
       "parentId": "root",
       "values": {
         "gridX": 0,
-        "gridY": 19,
-        "gridW": 10,
-        "gridH": 13,
+        "gridY": 35,
+        "gridW": 12,
+        "gridH": 15,
         "appearance": "headed",
-        "heading": "Impfstatus",
+        "heading": "Impfungen",
         "tone": "neutral",
         "emphasis": "text"
       },
@@ -1043,7 +662,7 @@
       "values": {
         "gridX": 0,
         "gridY": 0,
-        "gridW": 5,
+        "gridW": 6,
         "gridH": 3,
         "label": "Tollwut",
         "source": "src-haustiere",
@@ -1068,9 +687,9 @@
       "type": "formfield",
       "parentId": "impfstatus",
       "values": {
-        "gridX": 5,
+        "gridX": 6,
         "gridY": 0,
-        "gridW": 5,
+        "gridW": 6,
         "gridH": 3,
         "label": "Datum",
         "source": "src-haustiere",
@@ -1097,7 +716,7 @@
       "values": {
         "gridX": 0,
         "gridY": 3,
-        "gridW": 5,
+        "gridW": 6,
         "gridH": 3,
         "label": "SHPPi",
         "source": "src-haustiere",
@@ -1122,9 +741,9 @@
       "type": "formfield",
       "parentId": "impfstatus",
       "values": {
-        "gridX": 5,
+        "gridX": 6,
         "gridY": 3,
-        "gridW": 5,
+        "gridW": 6,
         "gridH": 3,
         "label": "Datum",
         "source": "src-haustiere",
@@ -1150,7 +769,7 @@
       "values": {
         "gridX": 0,
         "gridY": 6,
-        "gridW": 5,
+        "gridW": 6,
         "gridH": 3,
         "label": "Leptospirose",
         "source": "src-haustiere",
@@ -1175,9 +794,9 @@
       "type": "formfield",
       "parentId": "impfstatus",
       "values": {
-        "gridX": 5,
+        "gridX": 6,
         "gridY": 6,
-        "gridW": 5,
+        "gridW": 6,
         "gridH": 3,
         "label": "Datum",
         "source": "src-haustiere",
@@ -1197,36 +816,15 @@
       },
       "childIds": []
     },
-    "erfassung-l": {
-      "id": "erfassung-l",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 11,
-        "gridY": 21,
-        "gridW": 37,
-        "gridH": 1,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "heading",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "Leistungen & Medikamente",
-        "source": "",
-        "textField": ""
-      },
-      "childIds": []
-    },
     "erfassung": {
       "id": "erfassung",
       "type": "capture",
-      "parentId": "root",
+      "parentId": "leistungen",
       "values": {
-        "gridX": 11,
-        "gridY": 22,
-        "gridW": 37,
-        "gridH": 18,
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 24,
+        "gridH": 24,
         "extraSources": [
           {
             "sourceId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
@@ -1276,7 +874,7 @@
             "key": "s1",
             "title": "Artikel-Nr.",
             "field": "18_25",
-            "width": 150
+            "width": 100
           },
           {
             "fillField": "60d6bfda-542c-4ff5-8976-95fb35b5604f::ART_51_60",
@@ -1284,7 +882,7 @@
             "key": "s2",
             "title": "Bezeichnung",
             "field": "45_60",
-            "width": 420
+            "width": 330
           },
           {
             "required": true,
@@ -1292,7 +890,7 @@
             "key": "s3",
             "title": "Menge",
             "field": "164_8",
-            "width": 80
+            "width": 75
           },
           {
             "fillField": "60d6bfda-542c-4ff5-8976-95fb35b5604f::ART_1706_5",
@@ -1300,7 +898,7 @@
             "key": "s4",
             "title": "Einheit",
             "field": "689_5",
-            "width": 70
+            "width": 75
           },
           {
             "fillField": "60d6bfda-542c-4ff5-8976-95fb35b5604f::ART_8320_9",
@@ -1315,13 +913,13 @@
             "key": "s6",
             "title": "Gesamtpreis",
             "field": "280_12",
-            "width": 110,
+            "width": 115,
             "total": true
           },
           {
             "fillField": "0695b6ad-8efb-469e-b90b-868e64abbe43::CHA_1_25",
             "subline": true,
-            "under": "s1",
+            "under": "s2",
             "editable": false,
             "key": "s7",
             "title": "Charge",
@@ -1357,36 +955,15 @@
       },
       "childIds": []
     },
-    "verlauf-l": {
-      "id": "verlauf-l",
-      "type": "text",
-      "parentId": "root",
-      "values": {
-        "gridX": 0,
-        "gridY": 32,
-        "gridW": 10,
-        "gridH": 1,
-        "extraSources": [],
-        "followsSelection": [],
-        "variant": "heading",
-        "tone": "neutral",
-        "emphasis": "text",
-        "align": "left",
-        "text": "Frühere Behandlungen",
-        "source": "",
-        "textField": ""
-      },
-      "childIds": []
-    },
     "verlauf": {
       "id": "verlauf",
       "type": "datalist",
-      "parentId": "root",
+      "parentId": "verlauf-bereich",
       "values": {
         "gridX": 0,
-        "gridY": 33,
-        "gridW": 10,
-        "gridH": 14,
+        "gridY": 0,
+        "gridW": 12,
+        "gridH": 17,
         "source": "8a88988e-9613-42b9-bb54-e96e00274af3",
         "pick": "one",
         "headingField": "19_10",
@@ -1419,33 +996,35 @@
     "verlauf-pos-l": {
       "id": "verlauf-pos-l",
       "type": "text",
-      "parentId": "root",
+      "parentId": "verlauf-bereich",
       "values": {
-        "gridX": 11,
-        "gridY": 41,
-        "gridW": 30,
-        "gridH": 1,
+        "gridX": 0,
+        "gridY": 18,
+        "gridW": 12,
+        "gridH": 2,
         "extraSources": [],
         "followsSelection": [],
         "variant": "heading",
         "tone": "neutral",
         "emphasis": "text",
         "align": "left",
-        "text": "Positionen des gewählten Belegs",
+        "text": "Positionen",
         "source": "",
-        "textField": ""
+        "textField": "",
+        "size": "",
+        "symbol": ""
       },
       "childIds": []
     },
     "verlauf-positionen": {
       "id": "verlauf-positionen",
       "type": "table",
-      "parentId": "root",
+      "parentId": "verlauf-bereich",
       "values": {
-        "gridX": 11,
-        "gridY": 42,
-        "gridW": 30,
-        "gridH": 7,
+        "gridX": 0,
+        "gridY": 20,
+        "gridW": 12,
+        "gridH": 16,
         "extraSources": [],
         "followsSelection": [
           {
@@ -1459,13 +1038,14 @@
             "key": "s1",
             "title": "Artikel-Nr.",
             "field": "18_25",
-            "width": 130
+            "width": 130,
+            "hidden": true
           },
           {
             "key": "s2",
             "title": "Bezeichnung",
             "field": "45_60",
-            "width": 300
+            "width": 200
           },
           {
             "key": "s3",
@@ -1477,7 +1057,8 @@
             "key": "s5",
             "title": "Dosierung",
             "field": "1536_100",
-            "width": 210
+            "width": 210,
+            "hidden": true
           },
           {
             "key": "s4",
@@ -1785,13 +1366,13 @@
     "uebernehmen": {
       "id": "uebernehmen",
       "type": "button",
-      "parentId": "root",
+      "parentId": "verlauf-bereich",
       "values": {
-        "gridX": 41,
-        "gridY": 42,
-        "gridW": 7,
+        "gridX": 0,
+        "gridY": 37,
+        "gridW": 12,
         "gridH": 2,
-        "label": "Übernehmen",
+        "label": "In diesen Beleg übernehmen",
         "tone": "neutral",
         "emphasis": "soft",
         "size": "normal"
@@ -1942,6 +1523,274 @@
           }
         ]
       }
+    },
+    "kopf-meta": {
+      "id": "kopf-meta",
+      "type": "text",
+      "parentId": "root",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 24,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [],
+        "variant": "muted",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44",
+        "textField": "3_8 · 19_10 · 1313_8",
+        "size": "",
+        "symbol": ""
+      },
+      "childIds": []
+    },
+    "ha-name": {
+      "id": "ha-name",
+      "type": "text",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 0,
+        "gridW": 12,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ],
+        "variant": "title",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "src-adressstamm",
+        "textField": "3292_30 3322_40",
+        "size": "17",
+        "symbol": ""
+      },
+      "childIds": []
+    },
+    "ha-mobil": {
+      "id": "ha-mobil",
+      "type": "text",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 2,
+        "gridW": 12,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ],
+        "variant": "body",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "src-adressstamm",
+        "textField": "1114_20",
+        "size": "",
+        "symbol": "phone"
+      },
+      "childIds": []
+    },
+    "ha-email": {
+      "id": "ha-email",
+      "type": "text",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 4,
+        "gridW": 12,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ],
+        "variant": "body",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "src-adressstamm",
+        "textField": "1330_60",
+        "size": "",
+        "symbol": "mail"
+      },
+      "childIds": []
+    },
+    "ha-adresse": {
+      "id": "ha-adresse",
+      "type": "text",
+      "parentId": "halter",
+      "values": {
+        "gridX": 0,
+        "gridY": 6,
+        "gridW": 12,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "",
+            "pairs": [
+              {
+                "fromField": "11_8",
+                "toField": "2_8",
+                "from": "document",
+                "fromSourceId": "3f6b2c1e-7d4a-4e9b-9c2f-5a8e1d0b7c44"
+              }
+            ]
+          }
+        ],
+        "variant": "body",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "src-adressstamm",
+        "textField": "2187_46 2170_11 110_10 2233_40",
+        "size": "",
+        "symbol": "place"
+      },
+      "childIds": []
+    },
+    "pt-titel": {
+      "id": "pt-titel",
+      "type": "text",
+      "parentId": "patient",
+      "values": {
+        "gridX": 0,
+        "gridY": 1,
+        "gridW": 18,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "variant": "title",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "src-haustiere",
+        "textField": "LFA_400_30",
+        "size": "22",
+        "symbol": ""
+      },
+      "childIds": []
+    },
+    "pt-zeile": {
+      "id": "pt-zeile",
+      "type": "text",
+      "parentId": "patient",
+      "values": {
+        "gridX": 0,
+        "gridY": 3,
+        "gridW": 18,
+        "gridH": 2,
+        "extraSources": [],
+        "followsSelection": [
+          {
+            "giverId": "tiere",
+            "pairs": [
+              {
+                "fromField": "LFA_2_8",
+                "toField": "LFA_2_8"
+              }
+            ]
+          }
+        ],
+        "variant": "muted",
+        "tone": "neutral",
+        "emphasis": "text",
+        "align": "left",
+        "text": "",
+        "source": "src-haustiere",
+        "textField": "LFA_971_30 · LFA_430_30 · LFA_2000_12",
+        "size": "",
+        "symbol": ""
+      },
+      "childIds": []
+    },
+    "leistungen": {
+      "id": "leistungen",
+      "type": "area",
+      "parentId": "root",
+      "values": {
+        "gridX": 12,
+        "gridY": 22,
+        "gridW": 24,
+        "gridH": 28,
+        "appearance": "headed",
+        "tone": "neutral",
+        "emphasis": "text",
+        "heading": "Leistungen & Medikamente"
+      },
+      "childIds": [
+        "erfassung"
+      ]
+    },
+    "verlauf-bereich": {
+      "id": "verlauf-bereich",
+      "type": "area",
+      "parentId": "root",
+      "values": {
+        "gridX": 36,
+        "gridY": 5,
+        "gridW": 12,
+        "gridH": 45,
+        "appearance": "headed",
+        "tone": "neutral",
+        "emphasis": "text",
+        "heading": "Frühere Behandlungen"
+      },
+      "childIds": [
+        "verlauf",
+        "verlauf-pos-l",
+        "verlauf-positionen",
+        "uebernehmen"
+      ]
     }
   },
   "dataSources": [
