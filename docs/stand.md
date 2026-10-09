@@ -19,6 +19,8 @@ Maske dasselbe sind; Raster mit 48 Spalten; ein Store; SoftEngine nur in
 `src/softengine/`. Maßstab fürs Können ist die Chef-Maske Empfang
 (`docs/chef-maske/empfang`), nicht für Farben oder Maße.
 
+Wie der Code gebaut ist, steht in `docs/architektur.md`.
+
 ## Entschieden
 
 Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
