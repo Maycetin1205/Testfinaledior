@@ -36,6 +36,9 @@ export const areaStyle = css`
     box-shadow: var(--se-shadow-card);
   }
   .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
+  /* A table, a list or a board inside the card lies flat on it. */
+  .appearance-box .body,
+  .appearance-headed .body { --se-surface-shadow: none; }
   .appearance-headed .body { padding: 0 ${unsafeCSS(ROOM)}px ${unsafeCSS(ROOM)}px; }
 
   /* Fläche voll, Fläche leicht and Nur Rand lay the tone on a free area and

@@ -1,4 +1,5 @@
-export const ROWS_HEIGHT = 28
+// A row of a list, as .tbl td of the sample with a little less air.
+export const ROWS_HEIGHT = 40
 
 // The grey line under a row, smaller than the row itself.
 export const SUBLINE_HEIGHT = 22

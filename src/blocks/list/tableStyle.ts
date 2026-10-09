@@ -1,10 +1,14 @@
 import { css } from 'lit'
 
+// The table of the sample docs/design/behandlung-modern.html (.tbl): a grey
+// bold head, rows apart by a hairline, no lines between the columns, the
+// figures right. On the ground of the page the table is a card of its own;
+// inside a card it lies flat (--se-surface-shadow).
 export const tableStyle = css`
       :host { min-width: 0; height: 100%; }
 
       .table {
-        --se-cell-x: 8px;
+        --se-cell-x: 10px;
         --se-input-x: 4px;
 
         position: relative;
@@ -13,16 +17,17 @@ export const tableStyle = css`
         flex-direction: column;
         height: 100%;
         background: var(--se-panel);
-        border: var(--se-border) solid var(--se-line);
-        border-radius: var(--se-radius);
+        border-radius: var(--se-radius-card);
+        box-shadow: var(--se-surface-shadow);
         overflow: hidden;
         font-family: var(--se-font);
-        font-size: var(--se-fs);
+        font-size: var(--se-fs-lg);
+        font-weight: 600;
         color: var(--se-ink);
       }
 
       .search-row {
-        padding: 4px 8px;
+        padding: 8px var(--se-cell-x);
         border-bottom: var(--se-border) solid var(--se-line-soft);
       }
       /* .vsuche-top: the magnifier stands in the field, left of the text. */
@@ -35,35 +40,37 @@ export const tableStyle = css`
       /* .vsuche-ic */
       .search-icon {
         position: absolute;
-        left: 8px;
+        left: 10px;
         top: 50%;
         transform: translateY(-50%);
         display: flex;
         color: var(--se-faint);
         pointer-events: none;
       }
-      .search-icon svg { width: 17px; height: 17px; }
-      /* 28px high as .vbtn-aktion; the text starts 8px after the magnifier. */
+      .search-icon svg { width: 16px; height: 16px; }
+      /* The search keeps its ground, as the typing line of the sample (.cell);
+         the text starts 8px after the magnifier. */
       .search-row input {
         box-sizing: border-box;
 
         width: 100%;
-        height: 28px;
-        padding: 0 8px 0 33px;
+        height: 32px;
+        padding: 0 10px 0 34px;
         font-family: var(--se-font);
         font-size: var(--se-fs);
+        font-weight: 600;
         line-height: var(--se-lh);
         color: var(--se-ink);
         background: var(--se-panel-2);
-        border: var(--se-border) solid var(--se-line);
+        border: 0;
         border-radius: var(--se-radius);
-        transition: border-color var(--se-move), box-shadow var(--se-move);
+        transition: background-color var(--se-move), box-shadow var(--se-move);
       }
+      .search-row input:hover { background: var(--se-hover); }
       .search-row input:focus {
         outline: none;
         background: var(--se-panel);
-        border-color: var(--se-accent);
-        box-shadow: var(--se-focus);
+        box-shadow: var(--se-focus-ring);
       }
 
       .head {
@@ -82,13 +89,12 @@ export const tableStyle = css`
         top: 0;
         z-index: 1;
         flex: none;
-        background: var(--se-panel-2);
-        /* The head stands apart: dark bold type, written like the rest of
-           the mask, a firm line under it. */
-        border-bottom: var(--se-border) solid var(--se-muted);
+        background: var(--se-panel);
+        /* .tbl th: small grey bold type, a hairline under it. */
+        border-bottom: var(--se-border) solid var(--se-line-soft);
         font-size: var(--se-fs-sm);
         font-weight: 700;
-        color: var(--se-ink);
+        color: var(--se-muted);
       }
 
       .body {
@@ -132,7 +138,7 @@ export const tableStyle = css`
       /* Only a row without a status takes the hover color: the status color is
          the message. */
       .body > .row:not([data-status]):hover {
-        background: var(--se-accent-soft);
+        background: var(--se-row-hover);
       }
 
       .body > .row.selectable { cursor: pointer; }
@@ -150,13 +156,8 @@ export const tableStyle = css`
       .body > .row:not([data-status]):focus-visible:hover {
         background: var(--se-selection);
       }
-      .body > .row.selected,
-      .body > .row.selected:focus:not(:focus-visible) {
-        outline: var(--se-border) solid var(--se-accent);
-        outline-offset: calc(-1 * var(--se-border));
-      }
       .row.selected > div,
-      .row:focus-visible > div { color: var(--se-ink); }
+      .row:focus-visible > div { color: var(--se-accent-dark); }
       .head > div,
       .row > div {
         padding: 0 var(--se-cell-x);
@@ -165,15 +166,6 @@ export const tableStyle = css`
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-
-      /* A 1-px line between the columns: in the head, in the rows and their
-         grey line, in the rest below. */
-      .head > [role='columnheader'] + [role='columnheader'],
-      .row > [role='cell']:not(.sub) + [role='cell']:not(.sub),
-      .row > .sub + .sub,
-      .ruler > div + div {
-        border-left: var(--se-border) solid var(--se-line-soft);
       }
 
       /* A column that stands right, with its sum: the figures line up. */
@@ -199,6 +191,7 @@ export const tableStyle = css`
         gap: var(--se-gap-sm);
         line-height: var(--sub-height);
         font-size: var(--se-fs-sm);
+        color: var(--se-ink-2);
       }
       .row > .sub.right { justify-content: flex-end; }
       .sub > .head-text { flex: none; color: var(--se-muted); }
@@ -290,10 +283,10 @@ export const tableStyle = css`
         max-width: 260px;
         max-height: 70%;
         overflow-y: auto;
-        padding: 4px;
+        padding: 6px;
         background: var(--se-panel);
-        border: var(--se-border) solid var(--se-line);
         border-radius: var(--se-radius);
+        box-shadow: var(--se-shadow-pop);
       }
       .picker-title {
         margin: 0;
@@ -311,15 +304,16 @@ export const tableStyle = css`
         padding: 7px 9px;
         font-family: var(--se-font);
         font-size: var(--se-fs);
+        font-weight: 600;
         text-align: left;
         color: var(--se-ink);
         background: none;
         border: 0;
-        border-radius: var(--se-radius);
+        border-radius: var(--se-radius-sm);
         cursor: pointer;
       }
       .picker-row:hover:not(:disabled),
-      .picker-all:hover { background: var(--se-accent-soft); }
+      .picker-all:hover { background: var(--se-hover); }
       .picker-row:disabled { cursor: default; opacity: 0.55; }
       .picker-row:not(.checked) { color: var(--se-muted); }
       .picker-check {
@@ -330,9 +324,9 @@ export const tableStyle = css`
       .picker-all {
         margin-top: 3px;
         padding-top: 6px;
-        border-top: var(--se-border) solid var(--se-line);
+        border-top: var(--se-border) solid var(--se-line-soft);
         color: var(--se-accent-dark);
-        font-weight: 600;
+        font-weight: 700;
       }
 
       .row > div { color: var(--se-ink); }
@@ -341,9 +335,9 @@ export const tableStyle = css`
         display: flex;
         align-items: center;
         gap: 14px;
-        min-height: 30px;
-        padding: 3px 10px;
-        border-top: var(--se-border) solid var(--se-line);
+        min-height: 36px;
+        padding: 4px var(--se-cell-x);
+        border-top: var(--se-border) solid var(--se-line-soft);
         font-size: var(--se-fs-sm);
         color: var(--se-muted);
         white-space: nowrap;
@@ -367,7 +361,7 @@ export const tableStyle = css`
         padding: 0 1px;
         color: inherit;
         background: var(--se-warning-soft);
-        border-radius: var(--se-radius);
+        border-radius: var(--se-radius-sm);
       }
 
       .totals {
@@ -375,24 +369,29 @@ export const tableStyle = css`
         align-items: baseline;
         gap: var(--se-gap-lg);
       }
-      .total-title { color: var(--se-muted); }
+      /* .sum-l and .sum */
+      .total-title { color: var(--se-muted); font-weight: 700; }
       .totals b {
         color: var(--se-ink);
+        font-size: var(--se-fs-name);
+        font-weight: 700;
         font-variant-numeric: tabular-nums;
       }
 
       .page-nav button {
         box-sizing: border-box;
-        height: 22px;
+        height: 26px;
         font-family: var(--se-font);
         font-size: var(--se-fs-sm);
-        padding: 2px 6px;
-        border: var(--se-border) solid var(--se-line);
-        border-radius: var(--se-radius);
-        background: var(--se-panel);
+        font-weight: 700;
+        padding: 0 8px;
+        border: 0;
+        border-radius: var(--se-radius-sm);
+        background: var(--se-panel-2);
         color: var(--se-ink);
         cursor: pointer;
       }
+      .page-nav button:hover:not(:disabled) { background: var(--se-hover); }
       .page-nav button:disabled {
         opacity: 0.3;
         cursor: default;

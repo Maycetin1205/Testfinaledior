@@ -47,6 +47,7 @@
   /* A button on that ground, under the pointer. */
   --se-hover-strong: #D8DEE6;
   --se-selection: #EBF1FF;  /* --acc-soft */
+  --se-row-hover: #F6F8FA;  /* .tbl tbody tr:hover td */
 
   --se-scrim: rgba(15, 23, 42, .34);
 
@@ -114,6 +115,9 @@
 
   --se-shadow-pop: 0 18px 60px rgba(15, 23, 42, .22);
   --se-shadow-card: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);  /* --shadow */
+  /* A table, a list or a board is a card of its own on the ground of the
+     page and lies flat inside a card, which sets this to none. */
+  --se-surface-shadow: var(--se-shadow-card);
   --se-focus: 0 0 0 3px rgba(47, 107, 255, .22);
   /* The ring of a field being typed into: the line inside, the glow outside;
      strong, as the user asked on 09.10. */
