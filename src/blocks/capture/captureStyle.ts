@@ -12,8 +12,8 @@ export const captureStyle = css`
         z-index: 1;
       }
 
-      /* The capture row, tr.entry of the sample: white, its cells keep their
-         frame (cellsInputStyle), so the operator sees where to type. */
+      /* The capture row: white, its cells without a box, like every other
+         row (user, 07.10. and 09.10.). */
       .row.capture {
         flex: none;
         background: var(--se-panel);

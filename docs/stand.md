@@ -30,9 +30,11 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   je Feld abschaltbar („Beschriftung“ in der Leiste); ohne sie ist das Feld
   eine Rasterzeile niedriger (2 statt 3). Kein Kasten mehr, die Wahl
   Kasten/Still ist weg. Ein leeres Feld zeigt einen Strich. Die Fläche beim
-  Zeigen ist deutlich, der blaue Ring beim Tippen kräftig. In der Erfassung
-  behält die Tippzeile immer einen Rahmen, wie das Suchfeld im Muster
-  (kommt mit der Erfassung).
+  Zeigen ist deutlich, der blaue Ring beim Tippen kräftig.
+- 09.10. Erfassung: keine Kästchen in Zeilen, auch nicht in der Tippzeile.
+  Die Zelle beim Tippen sieht aus wie jede andere, nur mit dem Cursor
+  (07.10. bestätigt). Ein Chat hatte der Tippzeile graue Kästchen gegeben,
+  auf Rat eines Prüf-Chats; vom Nutzer verworfen, zurückgebaut.
 - 09.10. Symbole ja, als Wahl am Baustein, im Editor gesetzt, nie fest im
   Code: „Symbol“ (Telefon, Mail, Ort und 19 weitere, Phosphor dünn) zuerst
   am Feld, links neben Beschriftung und Wert. Tiersymbole ebenso, mit

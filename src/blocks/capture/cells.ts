@@ -62,19 +62,12 @@ export const cellsInputStyle = css`
         background: transparent;
         border: var(--se-border) solid transparent;
         border-radius: var(--se-radius);
-        transition: background-color var(--se-move), box-shadow var(--se-move);
       }
 
-      /* The cells of the capture row keep their frame, as .cell of the
-         sample: a ground, a little darker under the pointer. A cell being
-         typed into is white with the blue ring, in any row. */
-      .row.capture .cell-input { background: var(--se-panel-2); }
-      .row.capture .cell-input:hover { background: var(--se-hover); }
-      .cell-input:focus {
-        outline: none;
-        background: var(--se-panel);
-        box-shadow: var(--se-focus-ring);
-      }
+      /* No box in a row, in the capture row as little as in any other
+         (user, 07.10. and 09.10.): a cell being typed into looks like any
+         other, only with the cursor. */
+      .cell-input:focus { outline: none; }
 
       .right .cell-holder > .cell-input { text-align: right; }
 
