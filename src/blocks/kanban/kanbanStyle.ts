@@ -1,7 +1,10 @@
 import { css } from 'lit'
 
-// Board, columns and cards as the reception mask draws them: a shell per
-// column with a tinted head, a round dot and a count, white cards inside.
+// Board, columns and cards in the language of the sample
+// docs/design/behandlung-modern.html: a column is a softly tinted surface
+// without a border, its head the title as text beside a dot of its color and
+// the count; the cards on it are white with a soft shadow, the avatar in its
+// circle, the name bold.
 export const kanbanStyle = css`
   :host { min-width: 0; height: 100%; display: flex; flex-direction: column; }
 
@@ -9,7 +12,7 @@ export const kanbanStyle = css`
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    gap: 15px;
+    gap: 12px;
     flex: 1;
     min-height: 0;
     overflow-x: auto;
@@ -25,8 +28,8 @@ export const kanbanStyle = css`
     min-height: 0;
     overflow: hidden;
     background: var(--tone-shell);
-    border: 1.5px solid var(--tone-line);
-    border-radius: var(--se-radius);
+    border-radius: var(--se-radius-card);
+    box-shadow: var(--se-column-edge);
     font-family: var(--se-font);
   }
 
@@ -34,65 +37,60 @@ export const kanbanStyle = css`
     flex: none;
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding: 13px 15px;
-    background: var(--tone-tint);
-    border-bottom: var(--se-border) solid var(--tone-line);
+    gap: 10px;
+    height: 48px;
+    padding: 0 16px;
   }
 
   .dot {
     flex: none;
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--tone-strong);
   }
 
   .head-text {
-    color: var(--tone-ink);
-    font-size: var(--se-fs);
-    font-weight: 600;
+    color: var(--se-ink);
+    font-size: var(--se-fs-lg);
+    font-weight: 700;
+    letter-spacing: -.01em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
+  /* .card .hd .cnt: the count as grey text. */
   .count {
-    margin-left: auto;
-    min-width: 22px;
-    padding: 1px 8px;
-    border-radius: var(--se-radius);
-    background: var(--se-panel);
-    border: var(--se-border) solid var(--tone-line);
-    text-align: center;
-    font-family: var(--se-mono);
-    font-size: var(--se-fs-sm);
-    font-weight: 600;
-    color: var(--tone-ink);
+    color: var(--se-muted);
+    font-size: var(--se-fs-lg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
 
   .body {
-    padding: 11px;
+    padding: 0 10px 10px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: var(--se-gap);
+    gap: 10px;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    scrollbar-width: thin;
   }
 
-  /* A place of a column with more than one: a box in the box. The places
-     share the height of the column: each keeps its cards and takes an equal
-     part of what is left, so an empty room is a room, not a strip. */
+  /* A place of a column with more than one: a room on the column, white,
+     its name small above the cards. The places share the height of the
+     column: each keeps its cards and takes an equal part of what is left, so
+     an empty room is a room, not a strip. */
   .place {
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
-    border: 1.5px solid var(--tone-line);
     border-radius: var(--se-radius);
-    background: var(--se-panel);
+    background: var(--se-place-ground);
     overflow: hidden;
   }
 
@@ -100,18 +98,20 @@ export const kanbanStyle = css`
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
-    background: var(--tone-soft);
+    padding: 10px 12px 4px;
   }
-  .place-head .head-text { font-size: var(--se-fs-sm); }
+  .place-head .head-text {
+    color: var(--se-muted);
+    font-size: var(--se-fs-sm);
+  }
 
   .place-count {
     flex: none;
     margin-left: auto;
-    font-family: var(--se-mono);
+    color: var(--se-muted);
     font-size: var(--se-fs-sm);
-    font-weight: 600;
-    color: var(--tone-ink);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
 
   .place-body {
@@ -119,9 +119,10 @@ export const kanbanStyle = css`
     flex-direction: column;
     flex: 1 1 auto;
     min-height: 0;
-    gap: var(--se-gap);
-    padding: 10px;
+    gap: 8px;
+    padding: 4px 8px 8px;
     overflow-y: auto;
+    scrollbar-width: thin;
   }
 
   /* Where a dragged card would land. */
@@ -136,29 +137,29 @@ export const kanbanStyle = css`
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: var(--se-gap-sm);
-    padding: 8px;
+    gap: 8px;
+    padding: 12px;
     background: var(--se-card-bg);
-    border: var(--se-border) solid var(--se-card-line);
     border-radius: var(--se-radius);
+    box-shadow: var(--se-shadow-tile);
     font-family: var(--se-font);
-    transition: border-color var(--se-move);
+    transition: box-shadow var(--se-move), background-color var(--se-move);
   }
 
-  .card:hover { border-color: var(--se-card-hover); }
+  .card:hover { box-shadow: var(--se-shadow-tile-hover); }
 
   .card.chosen {
-    border-color: var(--se-accent);
     background: var(--se-accent-soft);
+    box-shadow: var(--se-shadow-chosen);
   }
 
   .card.dragging { opacity: 0.55; }
 
-  /* The avatar beside name and subline, as .vkarte-haupt holds them. */
+  /* The avatar beside name and subline. */
   .main {
     display: flex;
     align-items: flex-start;
-    gap: 11px;
+    gap: 12px;
     min-width: 0;
   }
 
@@ -167,16 +168,16 @@ export const kanbanStyle = css`
     min-width: 0;
     display: flex;
     flex-direction: column;
+    gap: 2px;
   }
 
-  /* Name and subline on one line, as .vkarte-zeile1. */
+  /* Name and subline on one line. */
   .line {
     display: flex;
     align-items: baseline;
-    gap: 7px;
+    gap: 8px;
     min-width: 0;
   }
-
 
   .name,
   .owner {
@@ -188,33 +189,36 @@ export const kanbanStyle = css`
   }
   .name {
     color: var(--se-ink);
-    font-size: var(--se-fs-name);
-    font-weight: 600;
+    font-size: var(--se-fs-lg);
+    font-weight: 700;
   }
   .meta {
     flex: none;
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
+    font-weight: 600;
     white-space: nowrap;
   }
   .owner {
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
+    font-weight: 600;
   }
 
   .time {
     flex: none;
-    color: var(--se-faint);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
 
-  /* The flags of the card, as .vkarte-flags. */
+  /* The flags of the card. */
   .flags {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 6px;
   }
 
   .text {
@@ -222,41 +226,43 @@ export const kanbanStyle = css`
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
-    color: var(--se-ink);
+    color: var(--se-ink-2);
     font-size: var(--se-fs);
+    font-weight: 600;
     line-height: var(--se-lh);
   }
 
-  /* The line of information under the text, as .vkarte-info-zeile. */
+  /* The line of information under the text. */
   .date {
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
 
-  /* How far the time lies from now, as .vinfo; past it, as .vinfo.spaet. */
+  /* How far the time lies from now; past it, red. */
   .until {
     color: var(--se-muted);
     font-size: var(--se-fs-sm);
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
   }
   .until.late { color: var(--se-danger); }
 
-  /* The line before each hour of a column by the clock, as .vstunde. */
+  /* The line before each hour of a column by the clock. */
   .hour {
     flex: none;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 4px 0;
+    padding: 4px 4px 0;
     color: var(--se-muted);
     font-family: var(--se-font);
     font-size: var(--se-fs-xs);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .07em;
+    letter-spacing: .06em;
   }
   .hour::after {
     content: '';
@@ -265,7 +271,7 @@ export const kanbanStyle = css`
     background: var(--se-line);
   }
 
-  /* The line of now, as .vjetzt. */
+  /* The line of now. */
   .now {
     flex: none;
     display: flex;
@@ -294,33 +300,35 @@ export const kanbanStyle = css`
     background: var(--se-danger);
   }
 
-  /* The button under the card, as .vbtn-aktion: in the tone of the column it
-     leads to. */
+  /* The button under the card, a soft button (.btn.sec) in the tone of the
+     column it leads to. */
   .advance {
     box-sizing: border-box;
     width: 100%;
-    height: var(--se-control);
+    height: 32px;
     border: none;
     border-radius: var(--se-radius);
     background: var(--tone-tint);
     color: var(--tone-ink);
     font-family: var(--se-font);
     font-size: var(--se-fs);
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
+    transition: background-color var(--se-move);
   }
-  .advance:hover { filter: brightness(.96); }
+  .advance:hover { background: color-mix(in oklab, var(--tone-tint), var(--tone-strong) 10%); }
 
-  /* .va-abrechnung */
+  /* The action of the last column: the blue of the mask. */
   .advance.action {
     --tone-tint: var(--se-accent-soft);
     --tone-ink: var(--se-accent-dark);
+    --tone-strong: var(--se-accent);
   }
 
-  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before,
+  :host([preview]) [data-ff-spot]:not([data-ff-bound]):not(.avatar):empty::before,
   :host([preview]) .advance:empty::before {
     content: '—';
     color: var(--se-faint);

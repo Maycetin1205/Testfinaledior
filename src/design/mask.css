@@ -130,6 +130,13 @@
   /* A table, a list or a board is a card of its own on the ground of the
      page and lies flat inside a card, which sets this to none. */
   --se-surface-shadow: var(--se-shadow-card);
+  /* A card of the board on its column, under the pointer, chosen; the column
+     itself has a faint edge, the room of a place a white ground. */
+  --se-shadow-tile: 0 1px 2px rgba(15, 23, 42, .06), 0 2px 8px rgba(15, 23, 42, .05);
+  --se-shadow-tile-hover: 0 2px 4px rgba(15, 23, 42, .08), 0 8px 20px rgba(15, 23, 42, .08);
+  --se-shadow-chosen: inset 0 0 0 2px var(--se-accent), 0 1px 2px rgba(15, 23, 42, .06);
+  --se-column-edge: inset 0 0 0 1px rgba(15, 23, 42, .05);
+  --se-place-ground: rgba(255, 255, 255, .72);
   --se-focus: 0 0 0 3px rgba(47, 107, 255, .22);
   /* The ring of a field being typed into: the line inside, the glow outside;
      strong, as the user asked on 09.10. */
