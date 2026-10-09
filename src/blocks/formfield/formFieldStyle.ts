@@ -1,9 +1,5 @@
 import { css, unsafeCSS } from 'lit'
-import { GRID } from '../../core/block/grid'
-
-// The height of a field on the grid: one line of rows without its label, one
-// more with it.
-const rowsHigh = (rows: number): number => rows * GRID.rowPx + (rows - 1) * GRID.gapPx
+import { rowsHigh } from '../../core/block/grid'
 
 // The field of the sample docs/design/behandlung-modern.html (.f): label and
 // value stand as text, the field has no frame. Under the pointer it lies on a

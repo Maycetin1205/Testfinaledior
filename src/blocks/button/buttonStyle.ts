@@ -1,7 +1,5 @@
 import { css, unsafeCSS } from 'lit'
-import { GRID } from '../../core/block/grid'
-
-const rowsHigh = (rows: number): number => rows * GRID.rowPx + (rows - 1) * GRID.gapPx
+import { rowsHigh } from '../../core/block/grid'
 
 // The button of the sample docs/design/behandlung-modern.html (.btn): bold
 // words, the radius of a field, no line of its own. Color and emphasis come

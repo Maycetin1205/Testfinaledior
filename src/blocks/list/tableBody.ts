@@ -12,7 +12,7 @@ import { greyCellTpl, type GreyPart, type RowLayout } from '../parts/cell'
 import { widthsHandles, type WidthsHost } from './columnWidth'
 import { moveRowsFocus, focusFirstRow, focusSearchRow } from './rowActivation'
 import { recordText } from './tableModel'
-import { magnifierIcon } from '../lookup/lookupControl'
+import { icon } from '../parts/icons'
 
 export interface RowDecoration {
   status: string
@@ -267,7 +267,7 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
   return html`
       ${placement.showSearch ? html`<div class="search-row">
         <div class="search">
-          <span class="search-icon">${magnifierIcon()}</span>
+          <span class="search-icon">${icon('magnifier')}</span>
           <input
             type="search"
             aria-label="Tabelle durchsuchen"

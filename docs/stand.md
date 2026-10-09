@@ -217,17 +217,8 @@ Behandlung am 09.10. neu gelegt wie das Muster `docs/design/
 behandlung-modern.html`, 38 Bausteine; Empfang und Belegerfassung auf
 Maskenschema 33 gehoben. Alle drei im Browser mit Probedaten über SEDATA
 geprüft, die Positionen früherer Belege nicht (die Probe beantwortet kein
-GET_RELATION).
-
-Chef-Maske Behandlung nachgebaut am 08.10.: `masken/behandlung/
-Behandlung.aufbau-maske.json`, 45 Bausteine, Belegerfassung mit Kopf des
-Belegs, Tiere des Kunden (Datenliste, folgt dem Beleg), Patient und
-Impfstatus (Felder folgen dem gewählten Tier), Halter (folgt dem Beleg),
-Erfassung mit Artikelsuche und Chargen wie in der Belegerfassung, frühere
-Behandlungen (Belege des Kunden) mit ihren Positionen und „Übernehmen“.
-Acht Quellen, drei Relationen. Im Editor geladen und vermessen, nicht in
-SoftEngine. Ohne Foto (Baustein Bild fehlt) und ohne Befund, Diagnose,
-Therapie: dafür gibt es keine Quelle in den Kontrakten.
+GET_RELATION). Ohne Befund, Diagnose und Therapie: dafür gibt es keine
+Quelle in den Kontrakten.
 
 Lücken, am Nachbau gemessen, vom Nutzer am 08.10. gestrichen oder behalten.
 Was bleibt:

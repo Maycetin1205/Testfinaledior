@@ -37,7 +37,6 @@
   /* The accent of the mask: the ring of a field being typed into, a ticked
      box, a chosen row. The same blue is the color Blau. */
   --se-accent:       #2F6BFF;  /* --acc */
-  --se-accent-hover: #2558D6;  /* --acc-hover */
   --se-accent-dark:  #1E47B8;  /* --acc-ink */
   --se-accent-soft:  #EBF1FF;  /* --acc-soft */
 
@@ -52,8 +51,6 @@
   --se-scrim: rgba(15, 23, 42, .34);
 
   --se-card-bg:    #FFFFFF;  /* --card */
-  --se-card-line:  #EDF0F3;  /* --hair */
-  --se-card-hover: #C5CDD8;
 
   /* Tones: strong for a dot or a full ground, ink for text on the tint, tint
      for a head, shell for the ground of a column, line for its border, soft
@@ -123,7 +120,6 @@
   --se-radius: 8px;  /* --r-ctl */
   --se-radius-sm: 6px;  /* .cb */
   --se-radius-card: 12px;  /* --r */
-  --se-control: 28px;
 
   --se-shadow-pop: 0 18px 60px rgba(15, 23, 42, .22);
   --se-shadow-card: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);  /* --shadow */
@@ -143,11 +139,9 @@
   --se-focus-ring: inset 0 0 0 2px var(--se-accent), 0 0 0 3px rgba(47, 107, 255, .22);
 
   --se-font: "Manrope", "Segoe UI Variable Text", "Segoe UI", system-ui, Arial, sans-serif;  /* --font */
-  --se-mono: "Consolas", monospace;
 
   --se-fs-xs:    10.5px;
   --se-fs-chip:  12px;    /* .alert */
-  --se-fs-head:  11.5px;
   --se-fs-sm:    12px;    /* .f .l, the label of a field */
   --se-fs:       13px;
   --se-fs-lg:    14px;    /* body */

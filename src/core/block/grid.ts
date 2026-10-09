@@ -39,6 +39,11 @@ export function rowsForHeight(px: number): number {
   return Math.max(1, Math.ceil((px + GRID.gapPx) / (GRID.rowPx + GRID.gapPx)))
 }
 
+// The height of a block so many rows high: rows of rowPx with a gap between.
+export function rowsHigh(rows: number): number {
+  return rows * GRID.rowPx + (rows - 1) * GRID.gapPx
+}
+
 const cell = (label: string, fallback: number): Property<number> => numberProperty({
   default: fallback, label, place: 'none', min: 0,
 })
@@ -133,8 +138,7 @@ export function growRowsTemplate(
 // How short a growing block may get in a small window: its least rows, never
 // more than drawn.
 export function growMinHeightPx(minRows: number, drawnRows: number): number {
-  const rows = Math.max(1, Math.min(minRows, drawnRows))
-  return rows * GRID.rowPx + (rows - 1) * GRID.gapPx
+  return rowsHigh(Math.max(1, Math.min(minRows, drawnRows)))
 }
 
 export function nextFreeRow(positions: readonly GridSlot[]): number {
