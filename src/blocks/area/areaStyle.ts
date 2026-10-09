@@ -1,6 +1,16 @@
 import { css, unsafeCSS } from 'lit'
 import { AREA_COLUMNS, GRID, gridAreaCss } from '../../core/block/grid'
 
+// The card of the sample docs/design/behandlung-modern.html (.card): white,
+// without a border, on a soft shadow; the head carries the title as text.
+// Head and padding take whole rows of the grid, so an area holds as many rows
+// as before the new look: the head and the room below make four rows, the
+// room above and below a box one.
+const PITCH = GRID.rowPx + GRID.gapPx
+const ROOM = 12
+const HEAD = 4 * PITCH - ROOM
+const BOX_ROOM = (PITCH - GRID.gapPx) / 2
+
 export const areaStyle = css`
   :host { display: block; height: 100%; }
 
@@ -13,49 +23,59 @@ export const areaStyle = css`
     /* clip, not hidden: the box does not scroll even when a field outside of it
        takes the focus. */
     overflow: clip;
-    border-radius: var(--se-radius);
+    border-radius: var(--se-radius-card);
     font-family: var(--se-font);
     font-size: var(--se-fs);
     color: var(--se-ink);
   }
 
-  /* The box: one gap of room between the frame and what lies inside; the
-     frame itself takes no room. */
-  .appearance-box {
-    background: var(--se-panel);
-    outline: var(--se-border) solid var(--se-line-soft);
-    outline-offset: calc(-1 * var(--se-border));
+  /* Kasten and Kopfzeile: the white card. */
+  .appearance-box,
+  .appearance-headed {
+    background: var(--se-card-bg);
+    box-shadow: var(--se-shadow-card);
   }
-  .appearance-box .body { padding: var(--se-gap); }
+  .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
+  .appearance-headed .body { padding: 0 ${unsafeCSS(ROOM)}px ${unsafeCSS(ROOM)}px; }
 
   /* Fläche voll, Fläche leicht and Nur Rand lay the tone on a free area and
-     on a box: the ground and the line of the emphasis, the line drawn inside.
-     Nur Schrift leaves them as they are; they have no type. */
+     on a box: the ground and the line of the emphasis, the line drawn inside,
+     no shadow. Nur Schrift leaves them as they are. */
   .appearance-plain:not(.emphasis-text),
   .appearance-box:not(.emphasis-text) {
     background: var(--look-ground);
+    box-shadow: none;
     outline: var(--se-border) solid var(--look-edge);
     outline-offset: calc(-1 * var(--se-border));
   }
 
-  /* The box with a head, as .vraum of the reception mask: the line in the
-     tone, the head in the emphasis. Fläche leicht is .vraum-kopf. */
-  .appearance-headed {
-    background: var(--se-panel);
-    border: 1.5px solid var(--tone-line);
-  }
-  .appearance-headed .body { padding: var(--se-gap); }
-
+  /* The head, .card .hd: the title as text on the card. Fläche voll and
+     Fläche leicht lay a band of the tone under it, Nur Rand draws the card's
+     edge in the tone instead of the shadow, Nur Schrift colors the title. */
   .head {
     flex: none;
+    box-sizing: border-box;
+    height: ${unsafeCSS(HEAD)}px;
     display: flex;
     align-items: center;
     gap: var(--se-gap);
-    padding: 8px 12px;
+    padding: 0 22px;
+    color: var(--se-ink);
+    font-size: var(--se-fs-name);
+    font-weight: 700;
+    letter-spacing: -.01em;
+  }
+  .emphasis-solid .head,
+  .emphasis-soft .head {
     background: var(--look-ground);
     color: var(--look-ink);
-    font-weight: 600;
   }
+  .appearance-headed.emphasis-outline {
+    box-shadow: none;
+    outline: var(--se-border) solid var(--look-edge);
+    outline-offset: calc(-1 * var(--se-border));
+  }
+  .appearance-headed.emphasis-text:not(.tone-neutral) .head { color: var(--look-ink); }
 
   .head-text {
     min-width: 0;

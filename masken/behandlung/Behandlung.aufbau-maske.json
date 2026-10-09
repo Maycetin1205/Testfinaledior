@@ -465,7 +465,7 @@
         "appearance": "headed",
         "heading": "Tiere",
         "tone": "neutral",
-        "emphasis": "soft"
+        "emphasis": "text"
       },
       "childIds": [
         "tiere"
@@ -479,7 +479,7 @@
         "gridX": 0,
         "gridY": 0,
         "gridW": 10,
-        "gridH": 11,
+        "gridH": 10,
         "source": "src-haustiere",
         "pick": "one",
         "headingField": "LFA_400_30",
@@ -513,7 +513,7 @@
         "appearance": "headed",
         "heading": "Patient",
         "tone": "neutral",
-        "emphasis": "soft"
+        "emphasis": "text"
       },
       "childIds": [
         "pt-name",
@@ -776,7 +776,7 @@
         "appearance": "headed",
         "heading": "Halter",
         "tone": "neutral",
-        "emphasis": "soft"
+        "emphasis": "text"
       },
       "childIds": [
         "ha-vorname",
@@ -1025,7 +1025,7 @@
         "appearance": "headed",
         "heading": "Impfstatus",
         "tone": "neutral",
-        "emphasis": "soft"
+        "emphasis": "text"
       },
       "childIds": [
         "im-tollwut",
