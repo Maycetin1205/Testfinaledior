@@ -51,6 +51,12 @@ fehlt, wird nicht geraten, sondern getestet.
   Code `253_30`. Schlüssel-Scan: gleich / Präfix `code_` / Endung `_code` —
   für Lesen UND Schreiben.
 - Eine ERP-Abfrage liefert Schlüssel mit festem Vorsatz: `LFA_pos_len`.
+- **Umlaute kommen als HTML-Entity**: `H&#246;lscher` für Hölscher. Echttest
+  des Nutzers 2026-10-09, Belegerfassung, Adressfeld. SoftEngines eigene Masken
+  setzen Werte per `innerHTML` und merken es darum nicht. Gilt in:
+  `softengine/data.ts` (`decodeEntities` in `fieldRead`, jeder gelesene
+  Wert). Zurückgeschrieben wird reiner Text, wie aus einem Eingabefeld. Offen:
+  Werte, die als UTF-8-Salat ankommen (`Ã˜` für `Ø`), Herkunft ungeklärt.
 - **Ankreuzfelder sind Felder mit Länge 1 und den Werten `J` / `N`.**
   Debug-Log des Nutzers 2026-10-08, Artikelstamm, Kalkulationsspur
   `STK_A01` beim An- und Abhaken: die Ja/Nein-Felder des Artikels stehen

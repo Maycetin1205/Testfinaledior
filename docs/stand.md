@@ -57,6 +57,9 @@ Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
   Belegerfassung bestellt sie genauso (Layoutrahmen 00012). Parameter und
   Vorsätze aus SoftEngines eigenen Masken (STDERFASSUNG/DWld04/951–955,
   PGEACT, Analyse auf dem Desktop), nicht in SoftEngine geprüft.
+- 09.10. Umlaute aus SoftEngine kommen als HTML-Entity (`H&#246;lscher`,
+  Echttest). `fieldRead` löst sie beim Lesen auf, eine Stelle, alle Masken.
+  Der UTF-8-Salat (`Ã˜`) bleibt, bis der Recherche-Chat die Herkunft kennt.
 - 09.10. Erfassung: keine Kästchen in Zeilen, auch nicht in der Tippzeile.
   Die Zelle beim Tippen sieht aus wie jede andere, nur mit dem Cursor
   (07.10. bestätigt). Ein Chat hatte der Tippzeile graue Kästchen gegeben,

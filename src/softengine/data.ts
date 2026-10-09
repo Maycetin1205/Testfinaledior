@@ -67,7 +67,31 @@ function asTrimmedString(v: unknown): string {
   return String(v).trim()
 }
 
+// SoftEngine delivers a value with its umlauts as HTML entities (H&#246;lscher,
+// user's test 2026-10-09, kontrakte.md §3); its own masks set values with
+// innerHTML, which resolves them. The blocks set text, so every value read from
+// a row is resolved here, once. Written back goes the plain text.
+const ENTITY = /&(#x[0-9a-f]+|#d+|[a-z]+);/gi
+// The named ones a German record can carry; any other name stays as it came.
+const NAMED: Readonly<Record<string, string>> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  auml: 'ä', ouml: 'ö', uuml: 'ü', Auml: 'Ä', Ouml: 'Ö', Uuml: 'Ü', szlig: 'ß', euro: '€',
+}
+
+export function decodeEntities(s: string): string {
+  if (!s.includes('&')) return s
+  return s.replace(ENTITY, (whole, body: string) => {
+    if (body.startsWith('#x') || body.startsWith('#X')) return String.fromCodePoint(Number.parseInt(body.slice(2), 16))
+    if (body.startsWith('#')) return String.fromCodePoint(Number(body.slice(1)))
+    return NAMED[body] ?? whole
+  })
+}
+
 export function fieldRead(row: unknown, code: string): string {
+  return decodeEntities(fieldReadRaw(row, code))
+}
+
+function fieldReadRaw(row: unknown, code: string): string {
   if (!isObject(row) || code === '') return ''
   const key = code.trim()
   const direct = asTrimmedString(row[key])
