@@ -40,6 +40,9 @@ export interface Condition<K extends string = string> {
 
   // A second condition that has to hold as well.
   and?: Condition<K>
+
+  // The condition that decides instead when this one's own test fails.
+  otherwise?: Condition<K>
 }
 
 // What a block property may hold in the tree. A structured property keeps a
@@ -108,16 +111,23 @@ export type PropertyMap = { readonly [name: string]: Property<PropertyValue> }
 
 export type ValuesOf<P> = { [K in keyof P]: P[K] extends Property<infer V> ? V : never }
 
+// The condition's own test, without what it adds.
+function testHolds(condition: Condition, values: Readonly<Record<string, PropertyValue>>): boolean {
+  const value = values[condition.key]
+  if (condition.noneOf) return !condition.noneOf.some((v) => Object.is(value, v))
+  if ('notEquals' in condition) return !Object.is(value, condition.notEquals)
+  return Object.is(value, condition.equals)
+}
+
 export function propertyVisible(
   condition: Condition | undefined,
   values: Readonly<Record<string, PropertyValue>>,
 ): boolean {
   if (!condition) return true
-  if (condition.and && !propertyVisible(condition.and, values)) return false
-  const value = values[condition.key]
-  if (condition.noneOf) return !condition.noneOf.some((v) => Object.is(value, v))
-  if ('notEquals' in condition) return !Object.is(value, condition.notEquals)
-  return Object.is(value, condition.equals)
+  if (!testHolds(condition, values)) {
+    return condition.otherwise !== undefined && propertyVisible(condition.otherwise, values)
+  }
+  return propertyVisible(condition.and, values)
 }
 
 interface Init<V> {

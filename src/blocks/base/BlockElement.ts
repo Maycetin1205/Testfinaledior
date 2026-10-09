@@ -2,7 +2,7 @@ import { css, LitElement, type CSSResultGroup, type PropertyDeclaration } from '
 import { property } from 'lit/decorators.js'
 import type { BlockDeclaration } from '../../core/block/blockType'
 import { capability, hasCapability, type Capability } from '../../core/block/capability'
-import type { PropertyMap, PropertyValue } from '../../core/block/property'
+import type { Condition, Property, PropertyMap, PropertyValue } from '../../core/block/property'
 import { checkPropertyNames } from '../../core/block/propertyNames'
 import { registerBlockType } from '../../core/block/registry'
 import { GRID_PROPERTIES } from '../../core/block/grid'
@@ -29,22 +29,49 @@ interface BlockElementClass {
   new(): BlockElement
 }
 
+// A shared declaration as this block carries it: shown and exported only while
+// the condition holds.
+function holdsWhile<V>(property: Property<V>, when: Condition | undefined): Property<V> {
+  return when ? { ...property, when } : property
+}
+
 // The block's own properties, with the source where its capability puts it.
 function ownProperties(shape: BlockShape): PropertyMap {
   const own = Object.entries(shape.properties ?? {})
   const source = capability({ capabilities: shape.capabilities ?? [] }, 'source')
   if (!source) return Object.fromEntries(own)
   const at = own.findIndex(([key]) => key === source.after) + 1
-  return Object.fromEntries([...own.slice(0, at), [SOURCE_PROP, SOURCE_PROPERTY], ...own.slice(at)])
+  return Object.fromEntries([...own.slice(0, at), [SOURCE_PROP, holdsWhile(SOURCE_PROPERTY, source.when)], ...own.slice(at)])
+}
+
+// What holds as `then` while `test` holds, otherwise as `otherwise`.
+function either(test: Condition, then: Condition, otherwise: Condition): Condition {
+  return {
+    ...test,
+    and: test.and ? either(test.and, then, otherwise) : then,
+    otherwise: test.otherwise ? either(test.otherwise, then, otherwise) : otherwise,
+  }
+}
+
+// The source the chosen row comes from is set, as selectionSourceIdOf reads
+// it: the one recordPick names while its condition holds, otherwise the
+// block's own.
+function selectionSourceSet(capable: { capabilities: readonly Capability[] }): Condition {
+  const set = (key: string): Condition => ({ key, notEquals: '' })
+  const pick = capability(capable, 'recordPick')
+  if (pick?.sourceProp === undefined) return set(SOURCE_PROP)
+  if (!pick.when) return set(pick.sourceProp)
+  return either(pick.when, set(pick.sourceProp), set(SOURCE_PROP))
 }
 
 function allProperties(shape: BlockShape): PropertyMap {
   const capable = { capabilities: shape.capabilities ?? [] }
+  const source = capability(capable, 'source')
   return {
     ...GRID_PROPERTIES,
-    ...(hasCapability(capable, 'source') ? { extraSources: extraSourcesProperty } : null),
+    ...(source ? { extraSources: holdsWhile(extraSourcesProperty, source.when) } : null),
     ...(hasCapability(capable, 'followsSelection')
-      ? { followsSelection: followsSelectionProperty }
+      ? { followsSelection: holdsWhile(followsSelectionProperty, selectionSourceSet(capable)) }
       : null),
     ...ownProperties(shape),
   }

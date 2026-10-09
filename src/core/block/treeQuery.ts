@@ -6,8 +6,6 @@ import { propertyVisible } from './property'
 import { SOURCE_PROP } from './sourceProperty'
 import { stepAdapter } from '../data/steps/steps'
 
-export { SOURCE_PROP }
-
 interface ValueSpotsTarget {
   node: BlockNode
   spot: ValueSpot

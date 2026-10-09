@@ -19,7 +19,11 @@ function named(at: string, name: string | undefined): Named[] {
 
 function inCondition(condition: Condition | undefined, at: string): Named[] {
   if (!condition) return []
-  return [...named(`${at}.key`, condition.key), ...inCondition(condition.and, `${at}.and`)]
+  return [
+    ...named(`${at}.key`, condition.key),
+    ...inCondition(condition.and, `${at}.and`),
+    ...inCondition(condition.otherwise, `${at}.otherwise`),
+  ]
 }
 
 // The field of the parent block is one of the block holding the list for an

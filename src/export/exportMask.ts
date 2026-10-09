@@ -1,17 +1,14 @@
 import { ROOT_ID, type BlockNode, type MaskTree } from '../core/block/tree'
 import { bindingProp, capability, applies } from '../core/block/capability'
 import { blockType } from '../core/block/registry'
+import { propertyVisible } from '../core/block/property'
 import {
   bindableSpotsOf,
-  maySelectionFollows,
   isSelectionGiver,
-  SOURCE_PROP,
   carriesChanges,
-  carriesOwnSource,
 } from '../core/block/treeQuery'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { chainsForExport } from '../core/data/steps/chains'
-import { SELECTION_FOLLOW_PROP } from '../core/data/selectionFollow'
 import {
   orderedFields,
   withUniqueNames,
@@ -20,7 +17,6 @@ import {
 } from '../core/data/dataSources'
 import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
-import { EXTRA_SOURCES_PROP } from '../core/data/extraSources'
 import { pagesOfMask } from '../core/block/pages'
 import { pageRowsTemplate, ROOT_PADDING } from '../core/block/gridArea'
 import { gridAreaCss } from '../core/block/grid'
@@ -44,8 +40,6 @@ import {
   stripCssComments,
 } from './serializer'
 import { BRIDGE_SCRIPT } from './validator'
-
-const OWN_SOURCE_PROPS = new Set([SOURCE_PROP, EXTRA_SOURCES_PROP])
 
 interface MaskExport {
   html: string
@@ -89,13 +83,12 @@ function nodeToHtml(
   const previewSpots = previewSpotsOf(node)
 
   // One attribute per declared property, written the way the declaration
-  // writes it and left out when the value is the declared default.
+  // writes it and left out when the value is the declared default or the
+  // declaration's condition does not hold.
   const attrs = Object.entries(def.properties)
     .map(([key, declared]) => {
       if (declared.attribute === '') return ''
-      if (key === SELECTION_FOLLOW_PROP && !maySelectionFollows(node)) return ''
-
-      if (OWN_SOURCE_PROPS.has(key) && !carriesOwnSource(node)) return ''
+      if (!propertyVisible(declared.when, node.values)) return ''
       if (silentBindings.has(key)) return ''
 
       const fallback = declared.default

@@ -49,11 +49,17 @@ export function contractOf<A extends ContractKind>(
   )
 }
 
+// A block may carry a shared declaration with a condition of its own, as a
+// copy; it is still that declaration, known by its type.
+function isDeclaration(property: Property<unknown>, declared: Property<unknown>): boolean {
+  return property.type === declared.type
+}
+
 // What an element holds in a property its block declares, read from its
 // attribute by that declaration; nothing when its block does not list it.
 export function readDeclared<V extends PropertyValue>(el: Element, declared: Property<V>): V | undefined {
   const def = blockTypeForTag(el.tagName)
-  if (!def || !Object.values(def.properties).includes(declared)) return undefined
+  if (!def || !Object.values(def.properties).some((p) => isDeclaration(p, declared))) return undefined
   return declared.type.fromAttribute(el.getAttribute(declared.attribute), declared.default)
 }
 
@@ -62,7 +68,7 @@ export function readDeclared<V extends PropertyValue>(el: Element, declared: Pro
 // when its block does not list the property.
 export function declaredValue<V extends PropertyValue>(node: BlockNode, declared: Property<V>): V {
   const properties = registry.get(node.type)?.properties ?? {}
-  const key = Object.keys(properties).find((k) => properties[k] === declared)
+  const key = Object.keys(properties).find((k) => isDeclaration(properties[k], declared))
   if (key === undefined) return declared.default
   const read = declared.type.read(node.values[key])
   return read.ok ? read.value : declared.default

@@ -23,6 +23,14 @@ Maske dasselbe sind; Raster mit 48 Spalten; ein Store; SoftEngine nur in
 
 Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
+- 09.10. Der Export schreibt ein Attribut nur, solange das „when“ seiner
+  Eigenschaft gilt; keine Eigenschaft ist dort mehr mit Namen bekannt.
+  Quelle und Hilfsquellen tragen das „when“ der Fähigkeit „source“, „Folgt
+  der Auswahl“ die Bedingung, dass die Quelle der gewählten Zeile gesetzt
+  ist (beim Feld mit Nachschlagen dessen Quelle, sonst die eigene; dafür
+  kennt eine Bedingung „otherwise“). Einzige Folge in den Masken: Die
+  Behandlung verliert `heading="Patient"` an einem Kasten, der keinen Titel
+  zeigt.
 - 09.10. Namen von Eigenschaften sind geprüft. Was eine Fähigkeit nennt,
   prüft der Compiler gegen die Eigenschaften ihres Bausteins. Beim Start
   prüft `defineBlock` (`core/block/propertyNames.ts`) alle Namen noch
