@@ -56,15 +56,25 @@ export const cellsInputStyle = css`
         min-width: 0;
         padding: 0 var(--se-input-x);
         font-family: var(--se-font);
-        font-size: var(--se-fs);
+        font-size: var(--se-fs-lg);
+        font-weight: 600;
         color: var(--se-ink);
         background: transparent;
         border: var(--se-border) solid transparent;
         border-radius: var(--se-radius);
+        transition: background-color var(--se-move), box-shadow var(--se-move);
       }
 
-      /* A cell being typed into looks like any other, only with the cursor. */
-      .cell-input:focus { outline: none; }
+      /* The cells of the capture row keep their frame, as .cell of the
+         sample: a ground, a little darker under the pointer. A cell being
+         typed into is white with the blue ring, in any row. */
+      .row.capture .cell-input { background: var(--se-panel-2); }
+      .row.capture .cell-input:hover { background: var(--se-hover); }
+      .cell-input:focus {
+        outline: none;
+        background: var(--se-panel);
+        box-shadow: var(--se-focus-ring);
+      }
 
       .right .cell-holder > .cell-input { text-align: right; }
 

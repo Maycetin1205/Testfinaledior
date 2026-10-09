@@ -73,18 +73,28 @@ function readSorting(raw: unknown): RememberedSorting | null {
 
 export const rememberedSorting = makeOperatorState('ff_sorting_', 'ff_sortierung_', readSorting)
 
+// The digits after the comma a value shows: 23,62 has two.
+function decimalsOf(value: string): number {
+  const comma = value.trim().lastIndexOf(',')
+  return comma < 0 ? 0 : value.trim().length - comma - 1
+}
+
+// The sum shows as many digits after the comma as its values do, so prices
+// add up to 90,70 and not to 90,7.
 export function totalText(values: readonly string[], min: number, max: number): string {
   let total = 0
   let counted = 0
+  let decimals = min
   for (const value of values) {
     const number = asNumber(value)
     if (number === null) continue
     total += number
     counted++
+    decimals = Math.max(decimals, decimalsOf(value))
   }
   if (counted === 0) return ''
   return total.toLocaleString('de-DE', {
-    minimumFractionDigits: min,
+    minimumFractionDigits: Math.min(decimals, max),
     maximumFractionDigits: max,
   })
 }

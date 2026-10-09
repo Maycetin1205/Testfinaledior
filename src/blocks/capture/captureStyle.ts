@@ -12,12 +12,11 @@ export const captureStyle = css`
         z-index: 1;
       }
 
-      /* The capture row stands apart from the booked rows: a firm line above
-         it, the light ground of a field. */
+      /* The capture row, tr.entry of the sample: white, its cells keep their
+         frame (cellsInputStyle), so the operator sees where to type. */
       .row.capture {
         flex: none;
-        background: var(--se-panel-2);
-        border-top: var(--se-border) solid var(--se-muted);
+        background: var(--se-panel);
       }
 
       .row.captured { flex: none; }
@@ -52,7 +51,7 @@ export const captureStyle = css`
         color: var(--se-faint);
         background: var(--se-panel);
         border: 0;
-        border-radius: var(--se-radius);
+        border-radius: var(--se-radius-sm);
         cursor: pointer;
         opacity: 0;
       }
