@@ -144,7 +144,7 @@ const FILL_FIELD: EntryFieldChoice<CaptureColumn> = {
   withValue: (column, field) => withEntryValue(column, 'fillField', field === '' ? undefined : field),
 }
 
-export const CAPTURE_COLUMNS_BINDING: ListBinding<CaptureColumn> = {
+export const CAPTURE_COLUMNS_BINDING: ListBinding<CaptureColumn, 'columns'> = {
   ...COLUMNS_BINDING,
   entries: coerceCaptureColumns,
 

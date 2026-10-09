@@ -58,7 +58,7 @@ export function windowWidthFor(columns: number): number {
   return Math.min(900, Math.max(WINDOW_WIDTH, 160 + 180 * columns))
 }
 
-export const LOOKUP_COLUMNS_BINDING: ListBinding<Column> = {
+export const LOOKUP_COLUMNS_BINDING: ListBinding<Column, 'lookupColumns' | 'lookupSource'> = {
   prop: 'lookupColumns',
   defaultTitle: DEFAULT_TITLE,
   sourceProp: 'lookupSource',

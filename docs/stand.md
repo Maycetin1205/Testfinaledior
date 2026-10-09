@@ -23,6 +23,13 @@ Maske dasselbe sind; Raster mit 48 Spalten; ein Store; SoftEngine nur in
 
 Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
 
+- 09.10. Namen von Eigenschaften sind geprüft. Was eine Fähigkeit nennt,
+  prüft der Compiler gegen die Eigenschaften ihres Bausteins. Beim Start
+  prüft `defineBlock` (`core/block/propertyNames.ts`) alle Namen noch
+  einmal, dazu was eine Eigenschaft nennt (sourceProp, plainNameProp,
+  preset.by, nameFromParentField, when) und den Schalter von „change“; ein
+  fremder Name bricht mit Baustein, Stelle und Namen ab. „change“ nennt
+  einen Schalter der Spalten, keine Eigenschaft.
 - 09.10. Schrift Manrope steckt in der Maske, nichts wird nachgeladen
   (kontrakte.md §1): zwei Schnitte (600, 700), lateinischer Satz, als woff2
   in `mask.css`, zusammen 28 KB; Lizenz OFL in `docs/design/`.

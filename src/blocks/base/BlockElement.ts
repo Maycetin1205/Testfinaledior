@@ -1,8 +1,9 @@
 import { css, LitElement, type CSSResultGroup, type PropertyDeclaration } from 'lit'
 import { property } from 'lit/decorators.js'
 import type { BlockDeclaration } from '../../core/block/blockType'
-import { capability, hasCapability } from '../../core/block/capability'
+import { capability, hasCapability, type Capability } from '../../core/block/capability'
 import type { PropertyMap, PropertyValue } from '../../core/block/property'
+import { checkPropertyNames } from '../../core/block/propertyNames'
 import { registerBlockType } from '../../core/block/registry'
 import { GRID_PROPERTIES } from '../../core/block/grid'
 import { SOURCE_PROP, SOURCE_PROPERTY } from '../../core/block/sourceProperty'
@@ -13,8 +14,12 @@ import { startRename } from './inlineRename'
 
 // What a block states beyond its element: name, category, properties and
 // everything the editor needs. Type and tag stay on the class, where the
-// element and the other blocks read them.
-type BlockShape = Omit<BlockDeclaration, 'type' | 'tag'>
+// element and the other blocks read them. Its capabilities name only its own
+// properties.
+type BlockShape<P extends PropertyMap = PropertyMap> = Omit<BlockDeclaration, 'type' | 'tag' | 'properties' | 'capabilities'> & {
+  properties?: P
+  capabilities?: readonly Capability<keyof P & string>[]
+}
 
 interface BlockElementClass {
   readonly type: string
@@ -159,8 +164,9 @@ export abstract class BlockElement extends LitElement {
   }
 }
 
-export function defineBlock(element: BlockElementClass, shape: BlockShape): void {
+export function defineBlock<P extends PropertyMap>(element: BlockElementClass, shape: BlockShape<P>): void {
   const properties = allProperties(shape)
+  checkPropertyNames(element.type, properties, shape.capabilities ?? [])
   element.declaredProperties = properties
   declareLitProperties(element, properties)
   if (!customElements.get(element.tag)) customElements.define(element.tag, element)

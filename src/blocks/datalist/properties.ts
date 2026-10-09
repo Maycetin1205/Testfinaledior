@@ -27,7 +27,7 @@ export const dataListProperties = {
 
 export type DataListValues = ValuesOf<typeof dataListProperties>
 
-export const PICK_ONE: Condition = { key: 'pick', equals: 'one' }
+export const PICK_ONE: Condition<'pick'> = { key: 'pick', equals: 'one' }
 
 // The spots every row of the list has, in the order the editor offers them:
 // the title, the line under it and, on the right, a short value such as an

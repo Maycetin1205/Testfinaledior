@@ -19,14 +19,14 @@ export const FIELD_TYPES = ['text', 'number', 'date', 'time', 'select', 'checkbo
 export type FieldType = (typeof FIELD_TYPES)[number]
 
 // Only a text field looks up; another field type switches it off.
-export const ONLY_LOOKUP: Condition = { key: 'lookup', equals: true }
+export const ONLY_LOOKUP: Condition<'lookup'> = { key: 'lookup', equals: true }
 
 // A checkbox is never empty.
 export const NOT_CHECKBOX: Condition = { key: 'fieldType', notEquals: 'checkbox' }
 
 // A field that does not look up shows a value of its source; a checkbox
 // ticks by it.
-export const WITH_VALUE: Condition = { key: 'lookup', notEquals: true }
+export const WITH_VALUE: Condition<'lookup'> = { key: 'lookup', notEquals: true }
 
 const ONLY_CHECKBOX: Condition = { key: 'fieldType', equals: 'checkbox' }
 

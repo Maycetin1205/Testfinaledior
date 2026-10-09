@@ -22,48 +22,50 @@ export interface EventDef {
 }
 
 // One lookup window at the block, set up by these properties of the block.
-export interface BlockLookupWindow {
+export interface BlockLookupWindow<K extends string = string> {
   entriesProp?: undefined
-  columnsKey: string
-  widthKey: string
-  heightKey: string
+  columnsKey: K
+  widthKey: K
+  heightKey: K
 
-  sourceProp?: string
-  storageFieldProp?: string
-  storageTitleProp?: string
+  sourceProp?: K
+  storageFieldProp?: K
+  storageTitleProp?: K
 
   // The property the window is titled by.
-  titleProp?: string
+  titleProp?: K
 
-  when?: Condition
+  when?: Condition<K>
 }
 
 // A lookup window per entry of this list; each entry keeps its own source
 // field, columns and size.
-export interface EntryLookupWindow {
-  entriesProp: string
+export interface EntryLookupWindow<K extends string = string> {
+  entriesProp: K
 
   // The fields the window's own columns show, read from the entry: the mask
   // orders them from the source of the entry's field choice.
   windowFields: (entry: unknown) => readonly string[]
 
-  when?: Condition
+  when?: Condition<K>
 }
 
-export type LookupWindow = BlockLookupWindow | EntryLookupWindow
+export type LookupWindow<K extends string = string> = BlockLookupWindow<K> | EntryLookupWindow<K>
 
-export type Capability =
+// K: the properties a capability may name. The block declares its
+// capabilities with its own; whoever only reads them takes any name.
+export type Capability<K extends string = string> =
 
   // The block reads one source and so holds its property. helpersApart: the
   // helper sources stand in a window of their own in the bar, as the
   // capture's do, whose columns look them up. after: the block's own property
   // the source follows in the export; without it the source comes first.
-  | { kind: 'source'; when?: Condition; helpersApart?: boolean; after?: string }
+  | { kind: 'source'; when?: Condition<K>; helpersApart?: boolean; after?: K }
 
   // The block gives the row clicked in it to the blocks that follow it; the
   // row comes from sourceProp while when holds, else from the block's source.
   // gives: the block gives a row only while this holds.
-  | { kind: 'recordPick'; sourceProp?: string; when?: Condition; gives?: Condition }
+  | { kind: 'recordPick'; sourceProp?: K; when?: Condition<K>; gives?: Condition<K> }
 
   | { kind: 'followsSelection' }
 
@@ -71,16 +73,17 @@ export type Capability =
 
   | { kind: 'actionValue'; spots: readonly ValueSpot[] }
 
-  | { kind: 'list'; binding: ListBinding }
-  | { kind: 'lookupWindow'; window: LookupWindow }
+  | { kind: 'list'; binding: ListBinding<unknown, K> }
+  | { kind: 'lookupWindow'; window: LookupWindow<K> }
 
-  | { kind: 'capture'; when?: Condition }
+  | { kind: 'capture'; when?: Condition<K> }
 
+  // key: a switch of the list's entries, not a property of the block.
   | { kind: 'change'; key: string }
 
   | { kind: 'holdsSent' }
 
-  | { kind: 'compute'; prop: string }
+  | { kind: 'compute'; prop: K }
   | { kind: 'events'; list: readonly EventDef[] }
 
 type CapabilityKind = Capability['kind']
@@ -126,9 +129,10 @@ type BindableSpotProp<Props> = keyof Props extends infer K
   : never
 
 type BindableSpotsFor<Props> = ReadonlyArray<
-  Omit<BindableSpot, 'prop' | 'previewProp'> & {
+  Omit<BindableSpot, 'prop' | 'previewProp' | 'when'> & {
     prop: BindableSpotProp<Props>
     previewProp?: keyof Props & string
+    when?: Condition<keyof Props & string>
   }
 >
 

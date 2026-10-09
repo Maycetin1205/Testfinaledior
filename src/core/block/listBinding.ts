@@ -3,12 +3,13 @@ import type { PropertyMap } from './property'
 
 // A list property whose entries each show one field, like the columns of a
 // table. Only the declaring block knows an entry; the rest reads and writes it here.
-export interface ListBinding<E = unknown> {
-  prop: string
+// K: the properties of the block the list names.
+export interface ListBinding<E = unknown, K extends string = string> {
+  prop: K
 
   defaultTitle: string
 
-  sourceProp?: string
+  sourceProp?: K
 
   // The entries show no field of their own, like the columns of a board.
   fieldless?: boolean

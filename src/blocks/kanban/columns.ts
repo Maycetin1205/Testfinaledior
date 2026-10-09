@@ -168,7 +168,7 @@ const KANBAN_PLACES_BINDING: ListBinding<KanbanPlace> = {
 // The columns of a board as the editor handles them at their heads: title
 // typed on the head, tone and catch-all in the bar at the head, plus at the
 // end, moved by dragging the head. A board keeps one column at least.
-export const KANBAN_COLUMNS_BINDING: ListBinding<KanbanColumn> = {
+export const KANBAN_COLUMNS_BINDING: ListBinding<KanbanColumn, 'columns'> = {
   prop: 'columns',
   defaultTitle: 'Spalte {n}',
   fieldless: true,

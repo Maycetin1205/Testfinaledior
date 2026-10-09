@@ -215,7 +215,7 @@ const HIDDEN: EntrySwitch<Column> = {
   withValue: (column, on) => withEntryValue(column, 'hidden', on),
 }
 
-export const COLUMNS_BINDING: ListBinding<Column> = {
+export const COLUMNS_BINDING: ListBinding<Column, 'columns'> = {
   prop: 'columns',
   defaultTitle: DEFAULT_TITLE,
   entries: coerceColumns,

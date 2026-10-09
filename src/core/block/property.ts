@@ -31,14 +31,15 @@ export interface ChoiceOption {
   icon?: string
 }
 
-export interface Condition {
-  key: string
+// K: the names a condition may test, the properties of its block.
+export interface Condition<K extends string = string> {
+  key: K
   equals?: PropertyValue
   notEquals?: PropertyValue
   noneOf?: readonly PropertyValue[]
 
   // A second condition that has to hold as well.
-  and?: Condition
+  and?: Condition<K>
 }
 
 // What a block property may hold in the tree. A structured property keeps a
