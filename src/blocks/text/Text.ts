@@ -1,4 +1,4 @@
-import { html, type CSSResultGroup, type TemplateResult } from 'lit'
+import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { reportsHeight } from '../base/heightReport'
@@ -6,6 +6,7 @@ import { bindable, bindingAttr } from '../../core/block/capability'
 import { readBoundSpot } from '../../runtime/boundSpot'
 import { makeDataLink, sourceIdOf } from '../../runtime/source'
 import { lookClass, lookStyle } from '../look/look'
+import { symbolTpl } from '../look/symbol'
 import { textStyle } from './textStyle'
 import { TEXT_SIZES, textProperties, type TextValues } from './properties'
 
@@ -30,20 +31,25 @@ export class Text extends BlockElement {
   }
 
   // The size of a text is its own; color and emphasis come from the look.
+  // The symbol stands before the words, which alone are typed and bound.
   override render(): TemplateResult {
     const align = ALIGNS.includes(this.align) ? this.align : 'left'
+    const withSymbol = this.symbol !== ''
+    const look = lookClass({ tone: this.tone, emphasis: this.emphasis })
     return html`<div
-      class="text variant-${this.variant} align-${align} ${lookClass({ tone: this.tone, emphasis: this.emphasis })}"
+      class="text variant-${this.variant} align-${align} ${look}${withSymbol ? ' with-symbol' : ''}"
       style=${styleMap({ fontSize: tokenOf(TEXT_SIZES[this.size]) })}
-      data-ff-editable
-      data-ff-spot="text"
-      ?data-ff-bound=${this.textField !== ''}
-      @click=${this.reportSpot}
-      @dblclick=${(e: MouseEvent) => {
-        this.reportSpot(e)
-        this.inlineEdit(e, 'text')
-      }}
-    >${this.text}</div>`
+    >${withSymbol ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}<span
+        class="words"
+        data-ff-editable
+        data-ff-spot="text"
+        ?data-ff-bound=${this.textField !== ''}
+        @click=${this.reportSpot}
+        @dblclick=${(e: MouseEvent) => {
+          this.reportSpot(e)
+          this.inlineEdit(e, 'text')
+        }}
+      >${this.text}</span></div>`
   }
 
   override connectedCallback(): void {

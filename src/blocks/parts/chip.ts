@@ -1,14 +1,15 @@
 import { css } from 'lit'
 import { lookClass } from '../look/look'
 
-// The shape of a chip, as .vflag: a little room around its words and the
-// radius of the mask, on the ground of its emphasis, the line drawn inside.
+// The shape of a chip, as .alert of the sample: room around its words, the
+// small radius, on the ground of its emphasis, the line drawn inside; its
+// words stand 10 px in, where the words of a field and a text stand.
 // The block carries lookStyle, which gives each tone and emphasis its colors.
 // The board's chip and a text on a ground take it; Nur Schrift is no chip.
 export const chipShape = css`
   box-sizing: border-box;
-  padding: 2px 8px;
-  border-radius: var(--se-radius);
+  padding: 3px 10px;
+  border-radius: var(--se-radius-sm);
   background: var(--look-ground);
   color: var(--look-ink);
   outline: var(--se-border) solid var(--look-edge);
@@ -21,7 +22,7 @@ export const chipStyle = css`
     flex: none;
     font-family: var(--se-font);
     font-size: var(--se-fs-chip);
-    font-weight: 600;
+    font-weight: 700;
     color: var(--look-ink);
     white-space: nowrap;
   }

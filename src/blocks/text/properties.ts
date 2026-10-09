@@ -6,21 +6,22 @@ import {
   type ValuesOf,
 } from '../../core/block/property'
 import { emphasisProperty, toneProperty } from '../look/look'
+import { symbolProperty } from '../look/symbol'
 
-// The sizes of the reception mask a text may take, in px.
+// The sizes of the sample docs/design/behandlung-modern.html a text may
+// take, in px: from the label of a field up to the title of a page.
 export const TEXT_SIZES: Readonly<Record<string, string>> = {
-  '11': '--se-fs-chip',
   '12': '--se-fs-sm',
   '13': '--se-fs',
   '14': '--se-fs-lg',
   '15': '--se-fs-name',
-  '16': '--se-fs-title',
-  '19': '--se-fs-xl',
+  '17': '--se-fs-title',
+  '22': '--se-fs-xl',
+  '26': '--se-fs-xxl',
 }
 
-// The size of each role, as textStyle writes it. A label is 11.5 px, which is
-// no size to choose.
-const ROLE_SIZES = { title: '16', heading: '13', body: '13', muted: '12', number: '13' }
+// The size of each role, as textStyle writes it.
+const ROLE_SIZES = { title: '22', heading: '15', label: '12', body: '14', muted: '13', number: '14' }
 
 // Color and emphasis as at every block. Neutral leaves a plain text the ink
 // of its role; Fläche voll, Fläche leicht and Nur Rand make the text a chip.
@@ -46,6 +47,7 @@ export const textProperties = {
     preset: { by: 'variant', values: ROLE_SIZES },
   }),
   emphasis: emphasisProperty({ default: 'text' }),
+  symbol: symbolProperty(),
   align: segmentProperty([
     { value: 'left', name: 'Links' },
     { value: 'center', name: 'Mitte' },
