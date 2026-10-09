@@ -1,6 +1,7 @@
 import { html, type CSSResultGroup, type TemplateResult } from 'lit'
 import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
+import { reportsHeight } from '../base/heightReport'
 import { sectionsOf, chainsRead } from '../../core/data/steps/chains'
 import { stepAdapter } from '../../core/data/steps/steps'
 import { runEvent, searchCarrier } from '../../runtime/events'
@@ -45,6 +46,13 @@ export class Button extends BlockElement {
 
   private readonly count = (): void => { this.open = openRows(this) }
 
+  // The button is one line high, or two when large; the editor sets the
+  // rows from it.
+  constructor() {
+    super()
+    reportsHeight(this, () => this.renderRoot.querySelector('button'))
+  }
+
   override render(): TemplateResult {
     const open = this.open
     return html`<button
@@ -83,5 +91,5 @@ defineBlock(Button, {
   category: 'input',
   properties: buttonProperties,
   capabilities: [{ kind: 'events', list: [{ key: CLICK, name: 'Klick' }] }],
-  grid: { startWidth: 8, startHeight: 2, minWidth: 4, heightFixed: true },
+  grid: { startWidth: 8, startHeight: 2, minWidth: 4, heightFromContent: true },
 })

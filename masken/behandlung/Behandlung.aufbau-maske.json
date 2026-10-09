@@ -1,7 +1,7 @@
 {
   "kind": "aufbau-editor-maske",
   "fileVersion": 4,
-  "schemaVersion": 31,
+  "schemaVersion": 33,
   "tree": {
     "root": {
       "id": "root",
@@ -211,11 +211,11 @@
         "gridX": 35,
         "gridY": 1,
         "gridW": 5,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Entfernen",
-        "tone": "neutral",
+        "tone": "danger",
         "emphasis": "text",
-        "size": "normal"
+        "size": "large"
       },
       "childIds": [],
       "chains": {
@@ -299,11 +299,11 @@
         "gridX": 42,
         "gridY": 1,
         "gridW": 6,
-        "gridH": 2,
+        "gridH": 3,
         "label": "Speichern",
-        "tone": "accent",
+        "tone": "info",
         "emphasis": "solid",
-        "size": "normal"
+        "size": "large"
       },
       "childIds": [],
       "chains": {
@@ -1792,7 +1792,7 @@
         "gridH": 2,
         "label": "Übernehmen",
         "tone": "neutral",
-        "emphasis": "outline",
+        "emphasis": "soft",
         "size": "normal"
       },
       "childIds": [],

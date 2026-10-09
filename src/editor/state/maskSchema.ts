@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 32
+export const CURRENT_SCHEMA_VERSION = 33
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -298,6 +298,18 @@ function liftTo32(tree: unknown): void {
   }
 }
 
+// ---- version 33: a large button is as high as a field with its label ----
+
+const LARGE_BUTTON_ROWS_33 = 3
+
+function liftTo33(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'button' || !isPlainObject(node.values)) continue
+    if (node.values.size === 'large') node.values.gridH = LARGE_BUTTON_ROWS_33
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -315,6 +327,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 30) liftTo30(lifted.tree)
   if (raw.schemaVersion < 31) liftTo31(lifted.tree)
   if (raw.schemaVersion < 32) liftTo32(lifted.tree)
+  if (raw.schemaVersion < 33) liftTo33(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }
