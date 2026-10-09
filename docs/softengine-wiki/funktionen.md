@@ -223,7 +223,8 @@ und braucht es nicht: das ist eine Einstellung in SoftEngine.
   `Buttonbar/Temp/sedata_SCBB01_1_951.js`. Aus den ausgelieferten Dateien
   geschlossen, nicht beobachtet.
 - Einen Weg, auf dem eine Maske eine eigene Zeile in SoftEngines Debug-Log
-  schreibt, gibt es in der Installation nicht. Editor: Konsole ja.
+  schreibt, gibt es in der Installation nicht. Editor: Konsole ja; die
+  Zeitspur der Maske schreibt dorthin (`src/softengine/timeTrace.ts`).
 
 ## g) Was sonst Arbeit spart
 

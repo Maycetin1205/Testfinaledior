@@ -1,4 +1,5 @@
 import { isObject, messagesContent, dataFromContent, type JsonObject } from './data'
+import { traceDocument, traceSignIn } from './timeTrace'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SEDATA and selib are
    untyped globals of the SoftEngine host. */
@@ -115,6 +116,7 @@ function spread(delivery: boolean): void {
 }
 
 function ring(delivery: boolean): void {
+  if (delivery) traceDocument()
   if (delivery) bridge.pendingDelivery = true
   if (focusOnUs()) {
     bridge.pending = true
@@ -190,6 +192,7 @@ function registerSe(tries = 0): void {
   if (typeof g.basisHTML_REGISTER === 'function') {
     try {
       g.basisHTML_REGISTER((data: unknown) => { seConsume(data) }, document.title, '1.0')
+      traceSignIn()
       return
     } catch {
       if (tries >= 400) return
