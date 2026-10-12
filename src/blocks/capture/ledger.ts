@@ -76,6 +76,9 @@ export class CaptureLedger {
 
   get firstCell(): number { return this.row.firstCell }
 
+  // Something was typed or chosen in the capture row.
+  get touched(): boolean { return this.row.touched }
+
   rowView(): { value: string; automatic: boolean }[] { return this.row.rowView() }
 
   type(index: number, text: string): void { this.row.type(index, text) }
@@ -151,6 +154,8 @@ export class CaptureLedger {
   pendingMarks(): PendingRow[] { return this.captured.pendingMarks() }
 
   capturedStatus(index: number): RowState { return this.captured.statusAt(index) }
+
+  capturedKeyAt(index: number): string { return this.captured.keyAt(index) }
 
   bringBackCaptured(index: number): void { this.captured.bringBack(index) }
 

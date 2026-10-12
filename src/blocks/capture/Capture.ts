@@ -30,6 +30,7 @@ import { CAPTURE_COLUMNS_BINDING, greyLine, type CaptureColumn } from './column'
 import { CaptureLedger } from './ledger'
 import { captureStyle } from './captureStyle'
 import { captureProperties, type CaptureValues } from './properties'
+import { WorkingRow } from './workingRow'
 import type { SourceValue } from '../../core/block/sourceProperty'
 
 export interface Capture extends CaptureValues, SourceValue {}
@@ -51,6 +52,11 @@ export class Capture extends BlockElement
 
   @property({ attribute: false }) rawRows: unknown[] = []
 
+  private readonly _working = new WorkingRow(this)
+
+  // The capture row became a position since the last drawing.
+  private _justCaptured = false
+
   private readonly _ledger: CaptureLedger = new CaptureLedger({
     block: this,
     columns: () => this.listColumns(),
@@ -62,6 +68,7 @@ export class Capture extends BlockElement
     report: () => this.requestUpdate(),
     focusCell: (index) => this.focusCaptureCell(index),
     captured: () => {
+      this._justCaptured = true
       this.requestUpdate()
       this.focusCaptureCell(this._ledger.firstCell)
       this.showLastCaptured()
@@ -149,6 +156,7 @@ export class Capture extends BlockElement
           layout,
           captured,
           capturedState: (index) => this._ledger.capturedStatus(index),
+          chosen: (index) => this._working.chosen(this._ledger.capturedKeyAt(index)),
           correctionSlot,
           capture: captureRowFor(
             {
@@ -167,6 +175,10 @@ export class Capture extends BlockElement
         }, {
           takeCapturedRow: (index) => this._ledger.removeCaptured(index),
           bringBackCapturedRow: (index) => this._ledger.bringBackCaptured(index),
+          chooseWrittenRow: (index) => {
+            this._working.toggleWritten(this._ledger.capturedKeyAt(index), this.listColumns(), captured[index] ?? [])
+            this.requestUpdate()
+          },
         })
       },
     }
@@ -200,6 +212,15 @@ export class Capture extends BlockElement
 
   protected override updated(): void {
     reportPendingMarks(this)
+    if (!this.preview) {
+      this._working.followTyping(
+        this.listColumns(),
+        this._ledger.touched,
+        () => this._ledger.rowView().map((cell) => cell.value),
+        this._justCaptured,
+      )
+    }
+    this._justCaptured = false
   }
 
   override render(): TemplateResult {

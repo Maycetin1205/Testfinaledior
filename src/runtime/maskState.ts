@@ -7,7 +7,8 @@ interface MaskState {
   // Whom the blocks ask for data and send their actions to.
   host: MaskHost
   selection: {
-    chosen: Map<string, { row: unknown; trait: string; number: number }>
+    // made: the giver made the row itself, like a capture the row being typed.
+    chosen: Map<string, { row: unknown; trait: string; number: number; made?: true }>
     listeners: Set<(byControls: boolean) => void>
     counter: number
     messageRuns: boolean

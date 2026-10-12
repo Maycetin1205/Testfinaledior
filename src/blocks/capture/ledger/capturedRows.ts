@@ -77,6 +77,10 @@ export class CapturedRows {
       .map((z) => ({ key: z.key, values: z.values as readonly string[] }))
   }
 
+  keyAt(index: number): string {
+    return this.rows[index]?.key ?? ''
+  }
+
   statusAt(index: number): RowState {
     const row = this.rows[index]
     return this.status(

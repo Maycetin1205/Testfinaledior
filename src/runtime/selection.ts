@@ -70,6 +70,8 @@ export function relocateSelection<T>(
   keyFor?: (candidate: T) => string,
 ): number[] {
   if (giverId === '') return []
+  // A row the giver made itself is none of the delivered ones: it stays.
+  if (maskState.selection.chosen.get(giverId)?.made) return []
   const trait = selectionTrait(giverId)
   if (trait === '') return []
   const hit: number[] = []
@@ -108,6 +110,17 @@ export function setSelection(giverId: string, row: unknown, byControls = false, 
   if (selection.chosen.get(giverId)?.trait === trait) return
   selection.chosen.set(giverId, { row, trait, number: ++selection.counter })
   report(byControls)
+}
+
+// A row the giver made itself stands for its chosen row, like the position a
+// capture is typing before SoftEngine has it. A delivery keeps it; choosing a
+// delivered row replaces it.
+export function setMadeSelection(giverId: string, row: unknown, key: string): void {
+  if (giverId === '' || key === '') return
+  const selection = maskState.selection
+  if (selection.chosen.get(giverId)?.trait === key) return
+  selection.chosen.set(giverId, { row, trait: key, number: ++selection.counter, made: true })
+  report(true)
 }
 
 export function clearSelection(giverId: string): void {

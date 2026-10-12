@@ -48,6 +48,9 @@ interface CapturedPlacement {
 
   capturedState: (index: number) => RowState
 
+  // The written row that stands for the capture's chosen row.
+  chosen: (index: number) => boolean
+
   correctionSlot: number | null
 
   capture: TemplateResult
@@ -57,6 +60,8 @@ interface CapturedAct {
   takeCapturedRow: (index: number) => void
 
   bringBackCapturedRow: (index: number) => void
+
+  chooseWrittenRow: (index: number) => void
 }
 
 // The grey line of a captured row: the value under each cell where one
@@ -80,12 +85,13 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
       class=${columnStandsRight(column) ? 'right' : nothing}
       role="cell"
     >${values[slot] ?? ''}</div>`
+    // A written row is out of correction's reach; a click chooses it.
     return html`${rowsIndex === placement.correctionSlot ? placement.capture : nothing}<div
-      class="row captured${grey !== null ? ' subline' : ''}"
+      class="row captured${grey !== null ? ' subline' : ''}${fixed && placement.chosen(rowsIndex) ? ' selected' : ''}"
       role="row"
       data-status=${state.status}
       style=${styleMap(placement.cols)}
-      @click=${fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
+      @click=${fixed ? () => act.chooseWrittenRow(rowsIndex) : () => act.bringBackCapturedRow(rowsIndex)}
     >
       ${placement.columns.map((column, i) => cell(column, placement.slots[i]))}
       ${grey === null ? nothing : grey.map((part, i) => greyCellTpl(i, part))}
