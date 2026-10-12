@@ -266,7 +266,16 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   Fokuswechsel und nach Pos.-Löschung leer. `STKBELERF010` ist Nr. 10 (Name =
   `STKBELERF` + Nummer). In der Auswahlliste hat Nr. 3 „Kalk 0“, Nr. 1, 2
   und 10 „Kalk 1“. „Kalk 0“ heißt NICHT leer: Nr. 3 läuft und schreibt (s. u.).
-  Was die Spalte bedeutet, ist offen. Nr. 2 nicht angesehen.
+  Die Spalte ist die Art der Kalkulation, Auswahltabelle 1558
+  (`Konfiguration/BASIS_R00.SEDBVAR`): 0 Reine Maskenkalkulation, 1 Ziel
+  Maske aber mit Positionswerten, 2 Reine Positionskalkulation. Nr. 10 ist
+  Art 1: liest die aktuelle Position, schreibt nur Anzeigefelder (`MTMP_`).
+  Die Art ändert die Kalkulation selbst, für alle Karteikarten; abschalten
+  je Karteikarte heißt, das Feld unter „Dialog-Kalkulationen“ leeren.
+  Belegt 2026-10-12 (Nutzer, unsere Maske): `STKBELERF010` läuft bei jedem
+  Klick auf eine Zeile der Maske, immer für dieselbe Position
+  (`Artikel_mit_Varianten.006`), nicht für die angeklickte; der Ladezeiger
+  erscheint dabei.
   Belegstart (Nutzer, zwei Protokolle 2026-10-09; Achtung: unsere Maske in
   der Installation TESTVERSION, das Original in V7, also zwei Stände): beim
   Original läuft beim Öffnen `STKBELERF003 (pos=0)` und schreibt in den
