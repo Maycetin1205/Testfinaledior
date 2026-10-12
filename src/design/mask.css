@@ -140,15 +140,15 @@
 
   --se-font: "Manrope", "Segoe UI Variable Text", "Segoe UI", system-ui, Arial, sans-serif;  /* --font */
 
-  --se-fs-xs:    10.5px;
-  --se-fs-chip:  12px;    /* .alert */
-  --se-fs-sm:    12px;    /* .f .l, the label of a field */
-  --se-fs:       13px;
-  --se-fs-lg:    14px;    /* body */
-  --se-fs-name:  15px;    /* .f .v, the value of a field */
-  --se-fs-title: 17px;    /* .lines .big */
-  --se-fs-xl:    22px;    /* .pat .name */
-  --se-fs-xxl:   26px;    /* .t-title */
+  --se-fs-xs:    10px;
+  --se-fs-chip:  11.5px;    /* .alert */
+  --se-fs-sm:    11.5px;    /* .f .l, the label of a field */
+  --se-fs:       12.5px;
+  --se-fs-lg:    13.5px;    /* body */
+  --se-fs-name:  14px;    /* .f .v, the value of a field */
+  --se-fs-title: 16px;    /* .lines .big */
+  --se-fs-xl:    20px;    /* .pat .name */
+  --se-fs-xxl:   24px;    /* .t-title */
 
   --se-lh:       1.45;
   --se-lh-tight: 1.25;

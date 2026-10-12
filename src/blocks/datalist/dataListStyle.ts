@@ -28,7 +28,7 @@ export const dataListStyle = css`
     align-items: center;
     gap: 12px;
     width: 100%;
-    min-height: 52px;
+    min-height: 44px;
     padding: 8px 10px;
     border: 0;
     border-radius: var(--se-radius);
@@ -36,7 +36,7 @@ export const dataListStyle = css`
     transition: background-color var(--se-move);
     cursor: pointer;
   }
-  .row:has(.avatar) { min-height: 56px; }
+  .row:has(.avatar) { min-height: 48px; }
 
   .row:hover { background: var(--se-panel-2); }
   .row.chosen { background: var(--se-selection); }
