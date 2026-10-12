@@ -1,5 +1,6 @@
 import { css, html, nothing, type TemplateResult } from 'lit'
 import { ref } from 'lit/directives/ref.js'
+import { styleMap } from 'lit/directives/style-map.js'
 import type { Column } from '../parts/column'
 import { markHit, plainText } from '../parts/cellSearch'
 import { maskState } from '../../runtime/maskState'
@@ -115,7 +116,9 @@ function keepInSight(el: Element | undefined): void {
 }
 
 // The hits as a small table under the field: the columns of the lookup
-// window, one row per hit, the typed text marked.
+// window, one row per hit, the typed text marked. The list is the grid; head
+// and rows take its columns, so every row has the widths of the widest cell.
+// A style map, not the attribute: the width the list keeps is set beside it.
 export function suggestionListTpl(args: {
   entries: readonly SuggestionRow[]
 
@@ -130,10 +133,11 @@ export function suggestionListTpl(args: {
   onMark: (index: number) => void
 }): TemplateResult {
   const columns = args.columns.length > 0 ? args.columns : [{ key: '', title: '', field: '' }]
-  const grid = `grid-template-columns: ${columns.map(() => 'minmax(40px, auto)').join(' ')}`
+  const grid = { 'grid-template-columns': columns.map(() => 'minmax(40px, auto)').join(' ') }
   return html`<div
     class="suggestions"
     role="listbox"
+    style=${styleMap(grid)}
     ${ref((el) => {
       if (el && 'classList' in el && 'style' in el) {
         alignSuggestionsFrom(el as HTMLElement)
@@ -146,13 +150,12 @@ export function suggestionListTpl(args: {
     })}
     @mousedown=${(e: MouseEvent) => e.preventDefault()}
   >${columns.some((s) => s.title !== '')
-    ? html`<div class="suggestion-head" role="presentation" style=${grid}>${columns.map((s) => html`<div>${s.title}</div>`)}</div>`
+    ? html`<div class="suggestion-head" role="presentation">${columns.map((s) => html`<div>${s.title}</div>`)}</div>`
     : nothing
   }${args.entries.map((entry, i) => html`<div
       class=${i === args.mark ? 'suggestion marked' : 'suggestion'}
       role="option"
       aria-selected=${i === args.mark ? 'true' : 'false'}
-      style=${grid}
       ${ref((el) => { if (i === args.mark) keepInSight(el) })}
       @click=${() => args.onChoose(i)}
       @mouseenter=${() => args.onMark(i)}
@@ -162,6 +165,7 @@ export function suggestionListTpl(args: {
 export const suggestionStyle = css`
   .suggestions {
     --suggestion-row: 24px;
+    display: grid;
     position: absolute;
     top: 100%;
     left: 0;
@@ -190,6 +194,8 @@ export const suggestionStyle = css`
   .suggestion-head,
   .suggestion {
     display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: center;
     height: var(--suggestion-row);
     cursor: pointer;
