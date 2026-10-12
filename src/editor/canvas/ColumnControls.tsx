@@ -1,4 +1,5 @@
-import { useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
+import { useLayoutEffect, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { Plus } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import type { BlockNode } from '../../core/block/tree'
@@ -31,8 +32,75 @@ const DRAG_THRESHOLD = 5
 
 const HANDLE_EDGE = 6
 
-// The plus at the end of the heads, as .vspalte-zahl: white with an edge.
+// The plus beside the heads, as .vspalte-zahl: white with an edge.
 const PLUS_SIZE = 20
+
+// Between the end of the heads and the plus.
+const PLUS_GAP = 4
+
+interface ColumnPlusProps {
+  frame: RefObject<HTMLElement | null>
+
+  // The end of the head row and its middle, from the block's corner.
+  right: number
+  middle: number
+
+  onAdd: () => void
+}
+
+// The plus right beside the head row, where an area or the edge of the mask
+// would clip it: it lies on the editor's own layer over the canvas, measured
+// after each drawing and whenever something scrolls or the window changes
+// size. At the edge of the window it keeps its gap there, over the block's
+// own padding; while the head row is off the sheet, there is none.
+function ColumnPlus({ frame, right, middle, onAdd }: ColumnPlusProps) {
+  const [place, setPlace] = useState<{ left: number; top: number } | null>(null)
+
+  useLayoutEffect(() => {
+    const measure = (): void => {
+      const at = frame.current?.getBoundingClientRect()
+      const sheet = frame.current?.closest('[data-ff-canvas]')?.getBoundingClientRect()
+      const left = Math.min(
+        (at?.left ?? 0) + right + PLUS_GAP,
+        document.documentElement.clientWidth - PLUS_SIZE - PLUS_GAP,
+      )
+      const top = (at?.top ?? 0) + middle - PLUS_SIZE / 2
+      const shown = at !== undefined && sheet !== undefined
+        && left >= sheet.left && top >= sheet.top && top + PLUS_SIZE <= sheet.bottom
+      setPlace((before) => {
+        if (!shown) return null
+        return before?.left === left && before.top === top ? before : { left, top }
+      })
+    }
+    measure()
+    window.addEventListener('scroll', measure, { capture: true, passive: true })
+    window.addEventListener('resize', measure)
+    return () => {
+      window.removeEventListener('scroll', measure, { capture: true })
+      window.removeEventListener('resize', measure)
+    }
+  })
+
+  if (place === null) return null
+  return createPortal(
+    <button
+      type="button"
+      data-ff-editor-helper
+      aria-label="Spalte anfügen"
+      title="Spalte anfügen"
+      className="fixed z-30 grid place-items-center rounded border border-line bg-panel text-[hsl(var(--wb-selection))] hover:bg-[hsl(var(--wb-selection)/0.08)]"
+      style={{ left: place.left, top: place.top, width: PLUS_SIZE, height: PLUS_SIZE }}
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation()
+        onAdd()
+      }}
+    >
+      <Plus size={13} />
+    </button>,
+    document.body,
+  )
+}
 
 export function ColumnControls({
   block, selected, open, binding, element, host, container, onSelect,
@@ -213,25 +281,12 @@ export function ColumnControls({
         />
       ))}
       {selected && added !== null && (
-        <button
-          type="button"
-          aria-label="Spalte anfügen"
-          title="Spalte anfügen"
-          className="pointer-events-auto absolute grid place-items-center rounded border border-line bg-panel text-[hsl(var(--wb-selection))] hover:bg-[hsl(var(--wb-selection)/0.08)]"
-          style={{
-            left: edge - PLUS_SIZE - 4,
-            top: topLine.top + (topLine.height - PLUS_SIZE) / 2,
-            width: PLUS_SIZE,
-            height: PLUS_SIZE,
-          }}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation()
-            editor.updateProperty(block.id, binding.prop, added)
-          }}
-        >
-          <Plus size={13} />
-        </button>
+        <ColumnPlus
+          frame={host}
+          right={edge}
+          middle={topLine.top + topLine.height / 2}
+          onAdd={() => editor.updateProperty(block.id, binding.prop, added)}
+        />
       )}
       {line !== null && (
         <div
