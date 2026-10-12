@@ -239,6 +239,73 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   der SEFILELOOP-Quelle `POS` unter `BEL`): nach dem PUT_RELATION steht die Position im
   Beleg, und SoftEngine liefert von selbst neu; die neue Zeile erscheint in
   der Maske ohne Neuöffnen.
+- Belegt 2026-10-09 (Nutzer, zwei Debugprotokolle, Rechnung, WinUI): eine
+  Position per `PUT_RELATION[82!0!R!<BELNR>!!<ARTNR>!!<MENGE>!…]` mit
+  leerem Preis rechnet SoftEngine selbst durch, mit denselben Formelblöcken
+  wie die eigene Positionserfassung: `B00`, `B01` (Preisfindung, Rabatt,
+  GESAMT, EK, Rohertrag), `2564`, Stammkalkulation `STK_POSLT`
+  („NeuAnlageImBeleg“), `B04` (Belegkopf: Gewicht, Kundenrabatt),
+  IDB-Statistik `IB01` (`SE0031`–`SE0036`), `B05`. Den Preis findet
+  SoftEngine selbst (ART00111: 5 × 16,14 = 80,70). Beim PUT läuft `B01`
+  einmal mit Preis 0 und dann mit Preis; der Endstand stimmt. Die
+  Mehrwertsteuer steht in keinem der beiden Protokolle, SoftEngine rechnet
+  sie ohne Formel.
+  Nur die eigene Erfassung ruft die Feldformeln beim Verlassen der Felder
+  (`18`, `45`, `164`, `246`, `265`, `280` = Gesamtpreis rückwärts in den
+  Einzelpreis), dazu `1024`/`1031` statt `1030` und `STKBELERF010` (nur die
+  Anzeige Bestand/Lagerplatz). In dieser Installation sind sie leer oder
+  ohne Wirkung; trägt ein Kunde dort eigene Formeln ein, laufen sie beim
+  PUT nicht. Offen: ob der PUT Lagerplatz (`POS_350_8`, Original
+  `L000A001`) und Buchungsart (`POS_116_1`, Original `N`) so setzt wie die
+  Erfassung.
+  Wann welche Stammkalkulation läuft, steht in „Erfassen/Ändern Layout
+  Belegerfassung“, Karteikarte 2 Positionserfassung, „Dialog-Kalkulationen“
+  (Screenshot des Nutzers 2026-10-09): Maskeneingabe = 3
+  Standardbelegdatenkalkulation, Zeilenwechsel = 10 Standardkalkulation V710 –
+  Wechsel Tabellenzeile, Toolausführung = 2 Standardkalkulation – Toolstart,
+  Fokuswechsel und nach Pos.-Löschung leer. `STKBELERF010` ist Nr. 10 (Name =
+  `STKBELERF` + Nummer). In der Auswahlliste hat Nr. 3 „Kalk 0“, Nr. 1, 2
+  und 10 „Kalk 1“. „Kalk 0“ heißt NICHT leer: Nr. 3 läuft und schreibt (s. u.).
+  Was die Spalte bedeutet, ist offen. Nr. 2 nicht angesehen.
+  Belegstart (Nutzer, zwei Protokolle 2026-10-09; Achtung: unsere Maske in
+  der Installation TESTVERSION, das Original in V7, also zwei Stände): beim
+  Original läuft beim Öffnen `STKBELERF003 (pos=0)` und schreibt in den
+  Belegkopf `BEL_2034_3="EUR"` (bei `BEL_245_1>=3`), `BEL_1886_2` aus
+  Relation 71 (wenn leer), leert `BEL_1926_30`, `BEL_1792_16`, `BEL_1810_3`,
+  `BEL_1873_3`, `BEL_2151_5` („Intrastat NULL setzen wenn keine Meldung“)
+  und setzt `BEL_5182_1`/`BEL_5183_1="N"`. Dazu Anzeige (`MTMP_`:
+  Adressgruppe, Mobil, Web, Bank, IBAN, BIC, Gesamt-MwSt) und Bedienzustand
+  (`SET_STATUS`, `STATUS_BITMAPLEISTE`). Danach sechsmal `STKBELERF010`
+  (nur Anzeige). Beim Start unserer Maske läuft keine Stammkalkulation.
+  **Belegt 2026-10-09 (TESTVERSION):** In der Karteikarte mit Rahmen 10000
+  „StammKalk Maskeneingabe = 3“ und „Toolausführung = 2“ eingetragen. Danach
+  läuft `STKBELERF003 (pos=0)` beim Öffnen auch mit unserer Maske und schreibt
+  dieselben Kopffelder (rund 65 ms). Im Editor ist dafür nichts zu bauen; es
+  ist eine Einstellung der Installation.
+  **Belegt 2026-10-10 (V7, Lieferschein, unsere Maske):** Beim Auswählen des
+  Artikels in der Maske rechnet SoftEngine nichts; alles läuft erst mit dem
+  PUT. Eine Testmeldung des Nutzers (`GET_RELATION[1366!0!!Text]` im
+  individuellen Teil von `B00`) ging beim PUT auf, also läuft Formel 0 beim
+  PUT mit. Nach dem PUT lief `STKBELERF002` (Toolausführung) zweimal, mit den
+  Werkzeugnummern 50298 und 50299 in `BELERF_25000_6`; Nr. 2 prüft nur auf
+  Werkzeug 200 („Beleg öffnen“) und 201 („Belegart“) und tat hier nichts.
+  `IB01` (Statistik) wurde übersprungen, weil `POS_695_8` leer war (beim
+  Rechnungstest am 09.10. war es 1); vermutlich bucht ein Lieferschein keine
+  Statistik. Mit `Artikel_mit_Folgeartikel` entstand nur diese eine
+  Position; ob die eigene Erfassung einen Folgeartikel anlegt oder abfragt,
+  ist nicht getestet.
+  Die Formeln selbst stehen in „Berechnungsformeln Belege“: Formel 98
+  (SoftEngine, „Änderungen nur d. SoftENGINE“) und Formel 0 (individuell).
+  `B01` heißt dort „Standardberechnung Komplett“; die Feldformeln stehen
+  unter „Feldevents“. Je Index läuft erst 98, dann 0. Im PUT-Protokoll steht
+  nach `B01`, `B04` und `B05` jeweils `// Individueller Bereich`, also läuft
+  Formel 0 beim PUT mit. `_FORMELAUS_=1,<Bedingung>` überspringt bei
+  erfüllter Bedingung alles bis `./.` (so in beiden Protokollen). `B01`
+  enthält eine Rückfrage `BWASK:=0;18;Für diesen Artikel existiert keine
+  Lieferantenkondition!;Trotzdem erfassen?…`, die für Debitoren
+  (`BEL_11_8` zwischen `FAF_230_8` und `FAF_238_8`, hier 10000–69999)
+  übersprungen wird. Was eine solche Rückfrage beim PUT tut, ist nicht
+  getestet (Lieferantenbeleg).
 - Belegt ist ein anderer Weg: SoftEngines PAN-Layoutrahmen (z. B.
   `PAN/LAYOUTRAHMEN/Rahmen00221`) schicken nach einem Werkzeugstart
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
