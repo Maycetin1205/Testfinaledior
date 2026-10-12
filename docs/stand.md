@@ -1,9 +1,8 @@
 # Stand
 
-09.10.2026. Ersetzt den Prüfbericht vom 23.09. (in Git: bis 2f50216). Die
-Regeln stehen in `CLAUDE.md`, was über SoftEngine belegt ist in
-`docs/softengine-wiki/kontrakte.md`. Hier steht nur, was entschieden,
-gebaut und offen ist.
+09.10.2026. Ersetzt den Prüfbericht vom 23.09. (in Git: bis 2f50216). Was
+über SoftEngine belegt ist, steht in `docs/softengine-wiki/kontrakte.md`.
+Hier steht nur, was entschieden, gebaut und offen ist.
 
 ## Ziel
 
@@ -23,7 +22,7 @@ Wie der Code gebaut ist, steht in `docs/architektur.md`.
 
 ## Entschieden
 
-Je eine Zeile, mit Datum. Was in `CLAUDE.md` steht, steht hier nicht.
+Je eine Zeile, mit Datum.
 
 - 09.10. Tempo ist erledigt, die Masken sind schnell. Keine Messungen,
   keine Zeitspur, keine Vorschläge zur Geschwindigkeit, außer der Nutzer
@@ -408,7 +407,7 @@ Einzelne Punkte, ohne Reihenfolge:
   Hand, kein Farbkennzeichen der Position, kein Artikelbild, keine
   Zeilenart.
 
-Ideen, nicht freigegeben (Regel 3):
+Ideen, nicht freigegeben:
 
 - Export direkt in den SoftEngine-Ordner (`…\HtmlTemplates\BELEGERFASSUNG\
   LAYOUTRAHMEN\<Nr>`), einmal gewählt, dann jeder Export dorthin. Macht den
