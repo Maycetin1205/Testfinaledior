@@ -48,7 +48,7 @@ interface CapturedPlacement {
 
   capturedState: (index: number) => RowState
 
-  // The written row that stands for the capture's chosen row.
+  // The captured row that stands for the capture's chosen row.
   chosen: (index: number) => boolean
 
   correctionSlot: number | null
@@ -61,7 +61,7 @@ interface CapturedAct {
 
   bringBackCapturedRow: (index: number) => void
 
-  chooseWrittenRow: (index: number) => void
+  chooseCapturedRow: (index: number) => void
 }
 
 // The grey line of a captured row: the value under each cell where one
@@ -85,13 +85,15 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
       class=${columnStandsRight(column) ? 'right' : nothing}
       role="cell"
     >${values[slot] ?? ''}</div>`
-    // A written row is out of correction's reach; a click chooses it.
+    // A click chooses the row and leaves the operator in the capture row; a
+    // double click brings a row not yet written back for correction.
     return html`${rowsIndex === placement.correctionSlot ? placement.capture : nothing}<div
-      class="row captured${grey !== null ? ' subline' : ''}${fixed && placement.chosen(rowsIndex) ? ' selected' : ''}"
+      class="row captured${grey !== null ? ' subline' : ''}${placement.chosen(rowsIndex) ? ' selected' : ''}"
       role="row"
       data-status=${state.status}
       style=${styleMap(placement.cols)}
-      @click=${fixed ? () => act.chooseWrittenRow(rowsIndex) : () => act.bringBackCapturedRow(rowsIndex)}
+      @click=${() => act.chooseCapturedRow(rowsIndex)}
+      @dblclick=${fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
     >
       ${placement.columns.map((column, i) => cell(column, placement.slots[i]))}
       ${grey === null ? nothing : grey.map((part, i) => greyCellTpl(i, part))}

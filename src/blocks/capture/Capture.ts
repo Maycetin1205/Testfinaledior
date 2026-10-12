@@ -178,8 +178,8 @@ export class Capture extends BlockElement
         }, {
           takeCapturedRow: (index) => this._ledger.removeCaptured(index),
           bringBackCapturedRow: (index) => this._ledger.bringBackCaptured(index),
-          chooseWrittenRow: (index) => {
-            this._working.toggleWritten(this._ledger.capturedKeyAt(index), this.listColumns(), captured[index] ?? [])
+          chooseCapturedRow: (index) => {
+            this._working.toggleCaptured(this._ledger.capturedKeyAt(index), this.listColumns(), captured[index] ?? [])
             this.requestUpdate()
           },
         })
