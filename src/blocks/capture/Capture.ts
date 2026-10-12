@@ -52,6 +52,9 @@ export class Capture extends BlockElement
 
   @property({ attribute: false }) rawRows: unknown[] = []
 
+  // A capture never pages; the list reads it as every list does.
+  readonly paging = false
+
   private readonly _working = new WorkingRow(this)
 
   // The capture row became a position since the last drawing.

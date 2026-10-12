@@ -4,8 +4,8 @@ export const captureStyle = css`
       /* Anchor for the lookup window in the editor, which covers the whole block. */
       :host { position: relative; }
 
-      /* The capture row sticks to the bottom with paging too: otherwise the
-         operator would type out of sight. */
+      /* The capture row sticks to the bottom of the scrolling list: otherwise
+         the operator would type out of sight. */
       .body > .row.capture {
         position: sticky;
         bottom: 0;
