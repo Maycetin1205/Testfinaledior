@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
+import { OPENER } from '@/editor/widgets/Button'
 import { ColorSwatch } from '@/editor/widgets/ColorSwatch'
 import { Popover } from '@/editor/widgets/Popover'
 import type { ChoiceOption } from '../../core/block/property'
@@ -32,10 +33,10 @@ export function SwatchChoice({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        className={OPENER}
       >
         <span
-          className="h-[14px] w-[14px] rounded border border-line"
+          className="h-[16px] w-[16px] rounded-[var(--radius-small)] border border-line"
           style={{ backgroundColor: chosen?.color }}
         />
         <ChevronDown size={13} aria-hidden className="text-muted" />
@@ -44,10 +45,10 @@ export function SwatchChoice({
         <Popover
           name={label}
           anchor={button}
-          width={options.length * SWATCH_STEP + 14}
+          width={options.length * SWATCH_STEP + 18}
           onClose={() => setOpen(false)}
         >
-          <div className="flex flex-wrap gap-[6px] p-[2px]">
+          <div className="flex flex-wrap gap-[6px] p-[4px]">
             {options.map((o) => (
               <ColorSwatch
                 key={o.value}

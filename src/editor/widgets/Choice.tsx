@@ -31,7 +31,7 @@ export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
           ref={ref}
           value={value}
           onChange={(e) => onChoose(e.currentTarget.value)}
-          className={cn(INPUT_EDGE, 'h-control cursor-pointer appearance-none py-0 pl-2 pr-7')}
+          className={cn(INPUT_EDGE, 'h-control cursor-pointer appearance-none py-0 pl-[10px] pr-[28px]')}
           {...rest}
         >
           {emptyText !== undefined && <option value="">{emptyText}</option>}
@@ -46,7 +46,7 @@ export const Choice = forwardRef<HTMLSelectElement, ChoiceProps>(
         <ChevronDown
           size={13}
           aria-hidden
-          className="pointer-events-none absolute right-2 text-muted"
+          className="pointer-events-none absolute right-[9px] text-muted"
         />
       </span>
     )

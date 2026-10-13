@@ -133,10 +133,10 @@ export function SourceList({ block, part = 'all' }: SourceListProps) {
     <div className="flex flex-col gap-2">
       {part !== 'helpers' && sourcesSelection(first, 'Datenquelle', (v) => ed.updateProperty(block.id, SOURCE_PROP, v))}
 
-      {/* A card per helper source: the source on top, below it a sentence per
-          key pair, "Artikelnummer = Spalte Artikelnummer". */}
+      {/* A part per helper source, a hairline under it: the source on top,
+          below it a sentence per key pair, "Artikelnummer = Spalte Artikelnummer". */}
       {part !== 'own' && extra.map((q, i) => (
-        <div key={i} className="flex flex-col gap-1.5 rounded border border-line p-2">
+        <div key={i} className="flex flex-col gap-[6px] border-b border-line-soft pb-[8px]">
           <div className="flex items-center gap-1">
             <PickerControl
               name={`Hilfsquelle ${i + 1}`}

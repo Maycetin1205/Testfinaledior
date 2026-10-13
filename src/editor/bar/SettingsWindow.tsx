@@ -14,16 +14,17 @@ import { SourceList } from './SourceList'
 
 const SETTINGS_WIDTH = 380
 
-// A group of the settings window: its name on a strip with a line above and
-// below, then its controls.
+// A group of the settings window, as a part of a card of the mask (.sub-hd):
+// its name as bold text, a hairline above every group but the first, then its
+// controls.
 function Group({ name, children }: { name: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col">
-      <div className="flex h-[28px] items-center border-y border-line bg-control px-[10px] text-dense font-semibold text-muted">
+    <section className="flex flex-col border-t border-line-soft first:border-t-0">
+      <div className="flex h-[36px] items-center px-[12px] text-ui font-bold text-ink">
         {name}
       </div>
       {/* Each control on a line of its own, the ticks of switches side by side. */}
-      <div className="flex flex-wrap items-center gap-x-[14px] gap-y-[4px] px-[10px] py-[6px] [&>:not([data-switch])]:basis-full">{children}</div>
+      <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[6px] px-[12px] pb-[12px] [&>:not([data-switch])]:basis-full">{children}</div>
     </section>
   )
 }
@@ -78,7 +79,7 @@ export function SettingsWindow({
       onOpen={() => setOpenedWith(followSeen)}
     >
       {(close) => (
-        <div className="-m-1 flex flex-col">
+        <div className="flex flex-col">
           {hasSource && (
             <Group name="Quelle">
               {carriesOwnSource(block) && <SourceList block={block} part={helpersApart ? 'own' : 'all'} />}

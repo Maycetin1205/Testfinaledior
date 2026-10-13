@@ -1,5 +1,5 @@
 import { FileText, Link2 } from '@/editor/icons/icon'
-import { Button } from '@/editor/widgets/Button'
+import { Button, PRESSED } from '@/editor/widgets/Button'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { BlockNode } from '../../core/block/tree'
 import { SELECTION_FOLLOW_PROP } from '../../core/data/selectionFollow'
@@ -22,7 +22,7 @@ export function FollowPick({ block }: { block: BlockNode }) {
         aria-label="Folgt der Auswahl"
         title="Folgt der Auswahl"
         aria-pressed={waiting}
-        className={waiting ? 'border-accent bg-accent-soft text-ink' : undefined}
+        className={waiting ? PRESSED : undefined}
         onClick={() => ed.pickFollowFor(waiting ? null : block.id)}
       >
         <Link2 size={15} />

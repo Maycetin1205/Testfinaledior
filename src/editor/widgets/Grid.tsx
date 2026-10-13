@@ -11,9 +11,10 @@ import { Trash2 } from '@/editor/icons/icon'
 import { cn } from './cn'
 import { OnEscape, useCloseOnEscape } from './useCloseOnEscape'
 
-// A list as SoftEngine shows one: a strip that names it, a head, a line per
-// entry with lines between rows and columns. A click marks the whole line, a
-// double click types into it, the empty last line takes a new entry.
+// A list as SoftEngine shows one, drawn as a table of the mask (.tbl): a strip
+// that names it, a head, a line per entry with a hairline between rows and
+// none between columns. A click marks the whole line, a double click types
+// into it, the empty last line takes a new entry.
 
 interface GridColumn {
   name: string
@@ -23,8 +24,8 @@ interface GridColumn {
   right?: boolean
 }
 
-const TH = 'h-[26px] truncate border-b border-r border-line bg-control px-[10px] text-left text-dense font-semibold text-muted last:border-r-0'
-export const TD = 'h-[29px] border-b border-r border-line/70 p-0 last:border-r-0'
+const TH = 'h-[28px] truncate border-b border-line-soft bg-panel px-[10px] text-left text-dense font-bold text-muted'
+export const TD = 'h-[29px] border-b border-line-soft p-0'
 const TEXT = 'block truncate px-[10px]'
 // A cell typed into looks like any other, only with the cursor, as in the
 // capture of the mask.
@@ -34,11 +35,13 @@ export const MARKED = 'bg-accent text-panel'
 // The line being typed in: white again, so the text reads as in a field.
 const TYPING = 'bg-panel'
 
+// The name of a part of a window, as the head of a part of a card of the mask
+// (.sub-hd): bold text on white, a hairline below.
 export function Strip({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
-    <div className="flex h-[30px] shrink-0 items-center gap-[8px] border-b border-line bg-control px-[12px] text-dense font-semibold text-muted">
+    <div className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-line-soft bg-panel px-[12px] text-ui font-bold text-ink">
       <span className="flex min-w-0 items-center gap-[8px] truncate">{children}</span>
-      {right !== undefined && <span className="ml-auto flex shrink-0 items-center font-normal">{right}</span>}
+      {right !== undefined && <span className="ml-auto flex shrink-0 items-center text-dense font-semibold text-muted">{right}</span>}
     </div>
   )
 }

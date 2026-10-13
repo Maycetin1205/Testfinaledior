@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, ChevronDown, Trash2, type Icon } from '@/editor/icons/icon'
-import { Button } from '@/editor/widgets/Button'
+import { Button, OPENER } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
 import { useCloseOnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { BlockNode } from '../../core/block/tree'
@@ -165,7 +165,7 @@ export function ColumnBar({
       {onRemove && (
         <>
           <Separator vertical />
-          <Button onlyIcon title={removeLabel} aria-label={removeLabel} onClick={onRemove}>
+          <Button onlyIcon kind="risk" title={removeLabel} aria-label={removeLabel} onClick={onRemove}>
             <Trash2 size={14} />
           </Button>
         </>
@@ -196,7 +196,7 @@ function FieldChoice({ field, groups, sourcesChoice, nameOf }: {
           const r = button.current?.getBoundingClientRect()
           setAt(at !== null || !r ? null : { top: r.bottom + 4, left: r.left })
         }}
-        className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        className={OPENER}
       >
         {/* An empty button carries its name: two bare chevrons side by side
             tell nothing apart. */}

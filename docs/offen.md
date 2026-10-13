@@ -70,7 +70,15 @@ Jeder Schritt lässt das Verhalten der Maske gleich; der Referenzabzug
    Masken auf einer Seite sollen.
 
 Stand 13.10.: Schritt 1 Teil 1 (Toolbar, Palette, Reiter) gebaut und
-abgenommen (9c90662). Dazugekommen am 13.10., aus einer fremden Prüfung
+abgenommen (9c90662). Teil 2 (Leiste und ihre Fenster) gebaut 13.10.,
+Abnahme offen: kleine Fenster ohne Rand mit Schatten, Gruppen als fette
+Überschrift mit Haarlinie, Ankreuzkästchen der Maske (`TickBox`), Feldcodes
+als leiser Text statt grauer Pille, Fenster in der Mitte mit Rundung 12 px,
+Tabellen in Fenstern ohne senkrechte Linien. Das Datenfenster trägt Rahmen,
+Reiter und Linien damit schon. Für Teil 3 bleibt sein Inneres (Zeile Art und
+Liefert, Import mit `Checkbox`) und die markierte Zeile einer Liste: sie
+bleibt voll blau, weil `ActionsSection.tsx` und `TermLine.tsx` das Blau
+selbst schreiben. Dazugekommen am 13.10., aus einer fremden Prüfung
 der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
 
 6. Zahlen in Tabelle und Erfassung. Gebaut 13.10., Abnahme offen. Eine

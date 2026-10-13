@@ -30,6 +30,7 @@ export default {
         control: 'hsl(var(--wb-control) / <alpha-value>)',
         line: 'hsl(var(--wb-line) / <alpha-value>)',
         'line-soft': 'hsl(var(--wb-line-soft) / <alpha-value>)',
+        'box-line': 'hsl(var(--wb-box-line) / <alpha-value>)',
         hover: 'hsl(var(--wb-hover) / <alpha-value>)',
         ink: 'hsl(var(--wb-ink) / <alpha-value>)',
         'ink-2': 'hsl(var(--wb-ink-2) / <alpha-value>)',

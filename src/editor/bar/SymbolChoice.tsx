@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
+import { OPENER } from '@/editor/widgets/Button'
 import { Popover } from '@/editor/widgets/Popover'
 import { cn } from '@/editor/widgets/cn'
 import type { ChoiceOption } from '../../core/block/property'
@@ -45,10 +46,10 @@ export function SymbolChoice({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] text-ink transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        className={OPENER}
       >
         {chosen?.icon === undefined
-          ? <span className="text-dense text-muted">{label}</span>
+          ? <span className="text-muted">{label}</span>
           : <Outline path={chosen.icon} size={16} />}
         <ChevronDown size={13} aria-hidden className="text-muted" />
       </button>
@@ -59,7 +60,7 @@ export function SymbolChoice({
           width={Math.min(options.length, SYMBOLS_PER_LINE) * SYMBOL_STEP + 14}
           onClose={() => setOpen(false)}
         >
-          <div className="flex flex-wrap gap-[4px] p-[2px]">
+          <div className="flex flex-wrap gap-[4px]">
             {options.map((o) => (
               <button
                 key={o.value}
@@ -72,10 +73,12 @@ export function SymbolChoice({
                   setOpen(false)
                 }}
                 className={cn(
-                  'flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded text-ink',
-                  'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-                  o.value === value ? 'bg-accent-soft ring-1 ring-accent' : 'hover:bg-control',
-                  o.icon === undefined && 'border border-dashed border-line',
+                  // The chosen one as a chosen card of the mask: soft blue,
+                  // a blue edge inside.
+                  'flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[var(--radius-small)] text-ink transition-colors',
+                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent',
+                  o.value === value ? 'bg-accent-soft text-accent-ink ring-2 ring-inset ring-accent' : 'hover:bg-hover',
+                  o.icon === undefined && 'border border-dashed border-box-line',
                 )}
               >
                 <Outline path={o.icon} size={18} />

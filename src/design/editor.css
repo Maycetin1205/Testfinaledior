@@ -13,6 +13,7 @@
     --wb-control: 210 16.7% 95.3%;    /* #F1F3F5 --se-panel-2, the ground of a place to type */
     --wb-line: 215 18.8% 87.5%;       /* #D9DEE5 --se-line */
     --wb-line-soft: 210 20% 94.1%;    /* #EDF0F3 --se-line-soft, the hairline between surfaces */
+    --wb-box-line: 214.7 19.6% 81%;   /* #C5CDD8 --se-box-line, the edge of an empty checkbox */
     --wb-hover: 216 25% 92.2%;        /* #E6EAF0 --se-hover */
     --wb-ink: 222.2 47.4% 11.2%;      /* #0F172A --se-ink */
     --wb-ink-2: 215.3 25% 26.7%;      /* #334155 --se-ink-2 */
@@ -31,6 +32,8 @@
 
     /* Pixels, not rem: the corner must not grow with the font size. */
     --radius: 8px;                    /* --se-radius */
+    --radius-small: 6px;              /* --se-radius-sm, a checkbox, a line of a list */
+    --radius-card: 12px;              /* --se-radius-card, a window */
 
     /* The ground around the mask; the mask itself lies on --se-bg, so its
        edge stays visible. */

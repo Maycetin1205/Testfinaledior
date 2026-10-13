@@ -8,11 +8,13 @@ interface BadgeProps {
   className?: string
 }
 
+// What an entry is called in SoftEngine, like a field code: quiet text beside
+// the name, as .tbl .code of the mask, no ground of its own.
 export function Badge({ children, technical = true, className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'min-w-0 shrink-0 truncate rounded bg-control px-1.5 text-dense text-muted',
+        'min-w-0 shrink-0 truncate text-dense text-muted',
         technical && 'font-mono',
         className,
       )}

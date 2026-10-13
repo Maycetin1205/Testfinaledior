@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ChevronDown } from '@/editor/icons/icon'
+import { OPENER } from '@/editor/widgets/Button'
 import { ColorSwatch } from '@/editor/widgets/ColorSwatch'
 import { Popover } from '@/editor/widgets/Popover'
 import { Segment } from '@/editor/widgets/Segment'
@@ -41,24 +42,24 @@ export function FontChoice({ block, fonts }: { block: BlockNode; fonts: readonly
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
-        className="flex h-control shrink-0 items-center gap-[6px] rounded border border-line bg-panel px-[6px] transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        className={OPENER}
       >
         {fonts.map((d) => {
           const option = d.property.type.options?.find((o) => o.value === shownOf(d))
           return option?.color !== undefined
-            ? <span key={d.key} className="h-[14px] w-[14px] rounded border border-line" style={{ backgroundColor: option.color }} />
+            ? <span key={d.key} className="h-[16px] w-[16px] rounded-[var(--radius-small)] border border-line" style={{ backgroundColor: option.color }} />
             : <span key={d.key} className="tabular-nums">{option?.name ?? ''}</span>
         })}
         <ChevronDown size={13} aria-hidden className="text-muted" />
       </button>
       {open && (
         <Popover name={name} anchor={button} width={FONT_WIDTH} onClose={() => setOpen(false)}>
-          <div className="flex flex-col gap-[8px] p-[6px]">
+          <div className="flex flex-col gap-[10px] p-[4px]">
             {fonts.map((d) => {
               const options = d.property.type.options ?? []
               const shown = shownOf(d)
               return (
-                <div key={d.key} className="flex flex-col gap-[4px]">
+                <div key={d.key} className="flex flex-col gap-[6px]">
                   <span className="text-dense font-semibold text-muted">
                     {d.property.label}
                   </span>

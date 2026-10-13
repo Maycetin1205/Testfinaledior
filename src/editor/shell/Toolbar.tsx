@@ -14,7 +14,7 @@ import { loadMaskFromFile, saveMaskAsFile } from '../state/maskFile'
 import { useEditor } from '../state/useEditor'
 import { useView } from '../state/useView'
 import { Field } from '@/editor/widgets/Field'
-import { Button } from '@/editor/widgets/Button'
+import { Button, PRESSED } from '@/editor/widgets/Button'
 import { Separator } from '@/editor/widgets/Separator'
 import { useInputSession } from '../controls/useInputSession'
 
@@ -134,7 +134,7 @@ export function Toolbar() {
       </Button>
       <Button
         aria-pressed={dataOpen}
-        className={dataOpen ? 'border-accent bg-accent-soft text-accent hover:bg-accent-soft' : undefined}
+        className={dataOpen ? PRESSED : undefined}
         onClick={() => ed.showData(!dataOpen)}
       >
         <Database size={14} /> Daten

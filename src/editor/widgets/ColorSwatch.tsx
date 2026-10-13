@@ -20,11 +20,12 @@ export function ColorSwatch({ color, name, chosen, onChoose }: ColorSwatchProps)
       onClick={onChoose}
       style={{ backgroundColor: color }}
       className={cn(
-        'flex h-6 w-6 shrink-0 items-center justify-center rounded border border-line',
-        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent focus-visible:ring-offset-1',
+        // The chosen color with the blue outline a focused button of the mask has.
+        'flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-[var(--radius-small)] border border-line',
+        'outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent',
         chosen
-          ? 'ring-1 ring-accent ring-offset-1'
-          : 'hover:ring-1 hover:ring-muted hover:ring-offset-1',
+          ? 'outline outline-2 outline-accent'
+          : 'hover:outline hover:outline-2 hover:outline-box-line',
       )}
     >
       {chosen && <Check size={13} strokeWidth={3} className="text-panel" />}

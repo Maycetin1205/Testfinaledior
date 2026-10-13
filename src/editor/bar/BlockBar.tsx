@@ -102,7 +102,7 @@ export function BlockBar({ block, def, onRemove }: BlockBarProps) {
       {onRemove && (
         <>
           <Separator vertical />
-          <Button onlyIcon title="Baustein löschen" aria-label="Baustein löschen" onClick={onRemove}>
+          <Button onlyIcon kind="risk" title="Baustein löschen" aria-label="Baustein löschen" onClick={onRemove}>
             <Trash2 size={14} />
           </Button>
         </>

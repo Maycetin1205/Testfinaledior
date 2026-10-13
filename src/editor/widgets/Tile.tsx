@@ -1,5 +1,5 @@
-import { Check } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
+import { TickBox } from './TickBox'
 
 interface TileProps {
   label: string
@@ -17,18 +17,15 @@ export function Tile({ label, on, id, onToggle }: TileProps) {
       aria-checked={on}
       onClick={() => onToggle(!on)}
       className={cn(
-        'flex h-control min-w-0 max-w-full shrink-0 items-center gap-1.5 rounded border px-[10px]',
-        'text-ui transition-colors',
-        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-        on
-          ? 'border-accent bg-accent-soft font-[550] text-ink'
-          : 'border-line bg-panel text-ink hover:border-accent',
+        // White with a line as a silent button; the box alone tells on from
+        // off, as the checkbox of the mask does.
+        'flex h-control min-w-0 max-w-full shrink-0 items-center gap-[8px] rounded border border-line bg-panel px-[10px]',
+        'text-ui font-semibold text-ink transition-colors hover:bg-hover',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
       )}
     >
       {/* Off is an empty box, not a greyed tile: the tile is not locked. */}
-      {on
-        ? <Check size={12} aria-hidden className="shrink-0" />
-        : <span aria-hidden className="h-[12px] w-[12px] shrink-0 rounded border border-line" />}
+      <TickBox on={on} />
       <span className="min-w-0 truncate">{label}</span>
     </button>
   )

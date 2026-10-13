@@ -34,7 +34,9 @@ interface ListProps {
   onChoose: (value: string) => void
 }
 
-const ROW = 'flex w-full items-baseline gap-3 rounded px-2 py-1 text-left text-ui transition-colors'
+// A line as in the small windows of the mask (.picker-row): the hover ground of
+// a field, the chosen one in the soft blue of a chosen row.
+const ROW = 'flex w-full items-baseline gap-[8px] rounded-[var(--radius-small)] px-[9px] py-[6px] text-left text-ui font-semibold transition-colors'
 
 function fits(text: string, search: string): boolean {
   return text.toLowerCase().includes(search)
@@ -71,7 +73,9 @@ export function List({
   return (
     <div className={cn('flex flex-col', fill && 'min-h-0 flex-1')}>
       {searchable && (
-        <div className="flex items-center gap-1.5 border-b border-line px-2 py-1">
+        // The search of the mask's capture (.cell): a soft ground, white with
+        // the blue edge while it is typed into.
+        <div className="mb-[4px] flex shrink-0 items-center gap-[6px] rounded border border-transparent bg-control px-[9px] transition-colors focus-within:border-accent focus-within:bg-panel focus-within:shadow-focus">
           <Search size={13} aria-hidden className="shrink-0 text-muted" />
           <input
             ref={searchRef}
@@ -79,7 +83,7 @@ export function List({
             onChange={(e) => setSearch(e.currentTarget.value)}
             placeholder="Suchen…"
             aria-label="Suchen"
-            className="h-control min-w-0 flex-1 bg-transparent text-ui text-ink outline-none placeholder:text-muted"
+            className="h-control min-w-0 flex-1 bg-transparent text-ui font-semibold text-ink outline-none placeholder:text-muted"
           />
         </div>
       )}
@@ -89,10 +93,10 @@ export function List({
         <button
           type="button"
           onClick={() => onChoose('')}
-          className={cn(ROW, 'text-muted hover:bg-accent-soft hover:text-ink',
-            value === '' && 'font-medium text-ink')}
+          className={cn(ROW, 'text-muted hover:bg-hover hover:text-ink',
+            value === '' && 'text-ink')}
         >
-          <span className="w-3 shrink-0">{value === '' && <Check size={12} />}</span>
+          <span className="w-[12px] shrink-0 text-accent">{value === '' && <Check size={12} />}</span>
           <span className="min-w-0 flex-1 truncate">{emptyText}</span>
         </button>
       )}
@@ -100,7 +104,7 @@ export function List({
       {filtered.map((g) => (
         <div key={g.key} className="flex flex-col">
           {g.name !== undefined && g.name !== '' && (
-            <p className="flex items-baseline gap-2 px-2 pb-0.5 pt-1.5 text-dense font-semibold text-muted">
+            <p className="flex items-baseline gap-[8px] px-[9px] pb-[2px] pt-[8px] text-dense font-semibold text-muted">
               <span className="min-w-0 truncate">{g.name}</span>
               {g.badge !== undefined && g.badge !== '' && (
                 <Badge className="font-normal normal-case tracking-normal">{g.badge}</Badge>
@@ -119,11 +123,11 @@ export function List({
                   ROW,
                   e.disabled
                     ? 'cursor-not-allowed text-muted opacity-[.45]'
-                    : 'text-ink hover:bg-accent-soft',
-                  chosen && 'bg-accent-soft font-medium',
+                    : 'text-ink hover:bg-hover',
+                  chosen && 'bg-accent-soft text-accent-ink hover:bg-accent-soft',
                 )}
               >
-                <span className="w-3 shrink-0 text-accent">
+                <span className="w-[12px] shrink-0 text-accent">
                   {chosen && <Check size={12} />}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{e.name}</span>

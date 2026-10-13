@@ -28,7 +28,7 @@ export function Segment({
       id={id}
       role="radiogroup"
       aria-label={name}
-      className="flex h-control w-fit items-center gap-px rounded border border-line bg-panel p-px"
+      className="flex h-control w-fit items-center gap-[2px] rounded border border-line bg-panel p-[2px]"
     >
       {options.map((o) => {
         const chosen = o.value === value
@@ -42,12 +42,13 @@ export function Segment({
             title={o.icon === undefined ? undefined : o.name}
             onClick={() => onChoose(o.value)}
             className={cn(
-              'flex h-full shrink-0 items-center justify-center whitespace-nowrap rounded text-dense transition-colors',
-              'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-              o.icon === undefined ? 'px-2' : 'px-1.5',
+              // The chosen one blue as the active page, the others on white.
+              'flex h-full shrink-0 items-center justify-center whitespace-nowrap rounded-[var(--radius-small)] text-ui font-semibold transition-colors',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent',
+              o.icon === undefined ? 'px-[10px]' : 'px-[7px]',
               chosen
-                ? 'bg-accent font-semibold text-panel'
-                : 'text-muted hover:text-ink',
+                ? 'bg-accent text-panel'
+                : 'text-muted hover:bg-hover hover:text-ink',
             )}
           >
             {o.icon ?? o.name}

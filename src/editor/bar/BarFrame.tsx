@@ -14,7 +14,7 @@ export function BarFrame({ children }: { children: ReactNode }) {
   if (!strip) return null
   return createPortal(
     <div
-      className="flex w-max items-center gap-[4px] whitespace-nowrap"
+      className="flex w-max items-center gap-[6px] whitespace-nowrap"
       onPointerDown={hold}
       onClick={hold}
       onDoubleClick={hold}
@@ -30,8 +30,8 @@ export function BarFrame({ children }: { children: ReactNode }) {
 // a screen reader.
 export function BarSign({ type, name }: { type: string; name: string }) {
   return (
-    <span role="img" aria-label={name} className="flex h-control items-center px-[6px]">
-      {createElement(BLOCK_ICONS[type] ?? Component, { size: 14, className: 'text-muted', 'aria-hidden': true })}
+    <span role="img" aria-label={name} className="flex h-control items-center px-[4px]">
+      {createElement(BLOCK_ICONS[type] ?? Component, { size: 16, className: 'text-ink-2', 'aria-hidden': true })}
     </span>
   )
 }

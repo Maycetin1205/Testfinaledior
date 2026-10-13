@@ -1,6 +1,6 @@
 import { createElement, useEffect, useRef, useState, type ReactNode } from 'react'
 import { type Icon } from '@/editor/icons/icon'
-import { Button } from '@/editor/widgets/Button'
+import { Button, PRESSED } from '@/editor/widgets/Button'
 import { Popover } from '@/editor/widgets/Popover'
 import { LabelsShown } from './labelsShown'
 
@@ -20,7 +20,7 @@ export function BarWindow({ label, icon, width = 340, defaultOpen = false, flush
   useEffect(() => { if (open) onOpen?.() }, [open, onOpen])
   const button = useRef<HTMLButtonElement>(null)
   const toggle = () => setOpen(!open)
-  const pressed = open ? 'border-accent bg-accent-soft text-ink' : undefined
+  const pressed = open ? PRESSED : undefined
   return (
     <>
       {icon
@@ -52,7 +52,8 @@ export function BarWindow({ label, icon, width = 340, defaultOpen = false, flush
       {open && (
         <Popover name={label} anchor={button} width={width} maxHeight={480} onClose={() => setOpen(false)}>
           <LabelsShown.Provider value>
-            <div className={flush ? undefined : "p-[6px]"}>{children(() => setOpen(false))}</div>
+            {/* Flush, the content reaches over the window's own padding to its edges. */}
+            <div className={flush ? '-m-[6px]' : 'p-[4px]'}>{children(() => setOpen(false))}</div>
           </LabelsShown.Provider>
         </Popover>
       )}

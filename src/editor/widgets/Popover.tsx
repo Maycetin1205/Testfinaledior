@@ -136,7 +136,9 @@ export function Popover({
       }}
       className={cn(
         // A column, so a part that allows it can shrink and scroll on its own.
-        'flex flex-col overflow-y-auto rounded border border-line bg-panel p-1 text-ink shadow-overlay',
+        // The small window of the mask (.column-picker): white, no edge, the
+        // shadow of what floats.
+        'flex flex-col overflow-y-auto rounded bg-panel p-[6px] text-ink shadow-overlay',
 
         slot === null && 'opacity-0',
       )}
