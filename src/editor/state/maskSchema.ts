@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 33
+export const CURRENT_SCHEMA_VERSION = 34
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -310,6 +310,22 @@ function liftTo33(tree: unknown): void {
   }
 }
 
+// ---- version 34: a text has no display switches any more ----
+
+// Einzeilig, Unten ausrichten, Leer zeigt Strich, Null oder weniger rot, Zahl,
+// Summenlinie and Ohne Auswahl are gone (13.10.).
+const TEXT_SWITCHES_34 = [
+  'oneLine', 'bottom', 'emptyDash', 'redBelowZero', 'figureFormat', 'sumRule', 'withoutChoice', 'withoutHint',
+]
+
+function liftTo34(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'text' || !isPlainObject(node.values)) continue
+    for (const key of TEXT_SWITCHES_34) delete node.values[key]
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -328,6 +344,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 31) liftTo31(lifted.tree)
   if (raw.schemaVersion < 32) liftTo32(lifted.tree)
   if (raw.schemaVersion < 33) liftTo33(lifted.tree)
+  if (raw.schemaVersion < 34) liftTo34(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

@@ -14,7 +14,6 @@ export const textStyle = css`
     flex-direction: column;
   }
   .frame > .text { flex: none; }
-  .frame.away { visibility: hidden; }
 
   /* Beschriftung: the Rubrik over the text, as .label over the value of a
      field: the same type on a 14 px line, 6 px above it and 1 px under it,
@@ -38,38 +37,7 @@ export const textStyle = css`
     text-transform: uppercase;
     letter-spacing: var(--se-tracking-caps);
     line-height: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
-
-  /* Unten ausrichten: the text at the bottom of its frame, its last baseline
-     one row of the grid above the edge, so texts of any size whose frames end
-     on one row stand on one line, and a sum rule under it keeps clear of the
-     figures. */
-  .frame.bottom > .text,
-  .frame.bottom > .with-label { margin-top: auto; }
-  .frame.bottom > .text,
-  .frame.bottom > .with-label > .text {
-    padding-bottom: 12px;
-    text-box-trim: trim-end;
-    text-box-edge: text alphabetic;
-  }
-
-  /* Summenlinie: the rule over the frame and the double rule under it, as
-     under the total of an invoice. They take no room, so a text beside
-     keeps its line. */
-  .frame.sum-rule { position: relative; }
-  .frame.sum-rule::before,
-  .frame.sum-rule::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-  }
-  .frame.sum-rule::before { top: 0; border-top: var(--se-rule); }
-  .frame.sum-rule::after { bottom: 0; border-bottom: 3px double var(--se-ink); }
 
   .text {
     box-sizing: border-box;
@@ -121,12 +89,9 @@ export const textStyle = css`
 
   /* .t-meta */
   .variant-muted {
-    overflow: hidden;
     color: var(--se-muted);
     font-size: var(--se-fs);
     font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   /* .tbl .n */
@@ -213,36 +178,12 @@ export const textStyle = css`
   }
   .text:not(.emphasis-text) .symbol { color: inherit; }
   .symbol .icon { width: 1.15em; height: 1.15em; }
-  .with-symbol .words {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  .with-symbol .words { min-width: 0; }
 
-  /* Einzeilig: one line, what is too long ends in an ellipsis. */
-  .one-line,
-  .one-line .words {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Leer zeigt Strich: a quiet dash where the value would stand. */
+  /* In the editor, a bound value under its label: a quiet dash where the
+     value will stand. */
   .empty .words::after {
     content: "–";
     color: var(--se-label);
   }
-
-  /* Ohne Auswahl: the hint stands in place of the value, quiet. */
-  .text.hinting {
-    color: var(--se-muted);
-    font-size: var(--se-fs);
-    font-weight: 600;
-    letter-spacing: normal;
-    text-transform: none;
-  }
-
-  /* Null oder weniger rot. */
-  .text.not-positive,
-  .text.not-positive.emphasis-text { color: var(--se-danger-ink); }
 `

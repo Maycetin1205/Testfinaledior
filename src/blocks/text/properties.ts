@@ -27,17 +27,7 @@ const ROLE_SIZES = {
   title: '22', heading: '15', label: '12', body: '14', muted: '13', number: '14', hint: '12', amount: '26',
 }
 
-const WITH_SOURCE = { key: 'source', notEquals: '' }
-
 const WITH_LABEL = { key: 'showLabel', equals: true }
-
-// A switch of the settings window, group Anzeige.
-const shows = (label: string, attribute: string) => booleanProperty({
-  default: false,
-  label,
-  place: 'display',
-  attribute,
-})
 
 // Color and emphasis as at every block. Neutral leaves a plain text the ink
 // of its role; Fläche voll, Fläche leicht and Nur Rand make the text a chip.
@@ -103,49 +93,6 @@ export const textProperties = {
     label: 'Textfeld',
     place: 'none',
     attribute: 'textfield',
-  }),
-  // One line; what is too long ends in an ellipsis.
-  oneLine: shows('Einzeilig', 'oneline'),
-  // At the bottom of the frame, the baseline a fixed step above its edge, so
-  // texts of different sizes whose frames end on one row share the baseline.
-  bottom: shows('Unten ausrichten', 'bottom'),
-  // An empty value shows a quiet dash instead of a gap.
-  emptyDash: shows('Leer zeigt Strich', 'emptydash'),
-  // A number of zero or less stands red, like a stock that ran out.
-  redBelowZero: shows('Null oder weniger rot', 'redbelowzero'),
-  // A number as delivered, or as an amount: two digits after the comma,
-  // the thousands point, with € or without. Anything else stays as it is.
-  figureFormat: choiceProperty([
-    { value: '', name: 'Wie geliefert' },
-    { value: 'amount', name: 'Betrag' },
-    { value: 'euro', name: 'Betrag mit €' },
-  ], {
-    default: '',
-    label: 'Zahl',
-    place: 'display',
-    attribute: 'figureformat',
-  }),
-  // A rule over the frame and a double rule under it, as under the total of
-  // an invoice.
-  sumRule: shows('Summenlinie', 'sumrule'),
-  // What a text that follows a selection shows while no row is chosen.
-  withoutChoice: choiceProperty([
-    { value: 'empty', name: 'Leer lassen' },
-    { value: 'hint', name: 'Hinweis zeigen' },
-    { value: 'hide', name: 'Ausblenden' },
-  ], {
-    default: 'empty',
-    label: 'Ohne Auswahl',
-    place: 'display',
-    attribute: 'withoutchoice',
-    when: WITH_SOURCE,
-  }),
-  withoutHint: textProperty({
-    default: '',
-    label: 'Hinweis',
-    place: 'display',
-    attribute: 'withouthint',
-    when: { key: 'withoutChoice', equals: 'hint', and: WITH_SOURCE },
   }),
 }
 

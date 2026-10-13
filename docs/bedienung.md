@@ -90,11 +90,8 @@ Alle in der Blatt-Sprache (13.10., `entschieden.md`):
   Felds; sie trägt den Namen des gebundenen Felds, bis man sie überschreibt
   (leer gemacht, kommt der Name zurück); der Wert zeigt im Editor dann „–“.
   Wächst ein Baustein, den man gerade ändert, rücken die Bausteine darunter
-  nach unten, der Bereich wächst mit. Unter
-  Einstellungen, Anzeige: Einzeilig, Unten ausrichten, Leer zeigt Strich,
-  Null oder weniger rot, Summenlinie, Zahl (Wie geliefert, Betrag, Betrag
-  mit €); mit Quelle dazu „Ohne Auswahl“: Leer lassen, Hinweis zeigen (mit
-  „Hinweis“) oder Ausblenden.
+  nach unten, der Bereich wächst mit. Ein Text bricht um, wenn er zu lang
+  ist; Anzeige-Wahlen hat er keine.
 
 ## Die Masken
 

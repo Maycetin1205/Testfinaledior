@@ -7,6 +7,11 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Der Text hat keine Anzeige-Wahlen mehr (Nutzer): Einzeilig, Unten
+  ausrichten, Leer zeigt Strich, Null oder weniger rot, Zahl, Summenlinie
+  und Ohne Auswahl sind aus dem Code; ein Text endet nie mehr in „…“.
+  Fassung 34 nimmt die Werte aus gespeicherten Masken. Ersetzt die beiden
+  Einträge vom selben Tag zu diesen Wahlen weiter unten.
 - 13.10. Felder tragen standardmäßig eine Linie unter dem Wert, damit man
   sieht, wo man tippt (Nutzer); Art „Ohne“ nimmt sie weg. Texte bekommen
   nie eine Linie: die Linie heißt „hier tippen“.

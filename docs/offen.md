@@ -47,10 +47,8 @@ wirft ihn weg.
 1. J: Text mit Beschriftung, wie das Feld. Commit. Danach Export und
    Referenzabzug unverändert für Masken ohne Beschriftung. Erledigt 13.10.
    Danach, vom Nutzer 13.10. gewollt:
-   - Text-Einstellungen aufräumen: Zahl, Null oder weniger rot, Summenlinie
-     nur bei den Rollen Zahl und Betrag; vorher prüfen, dass keine Maske eine
-     Einstellung verliert (der Export lässt verborgene Wahlen weg).
-     „Trenner“ (Feldwahl, mehrere Felder) klar benennen. Die Rolle
+   - Text-Anzeige-Wahlen: ganz entfernt 13.10. (`entschieden.md`). Offen:
+     „Trenner“ (Feldwahl, mehrere Felder) klar benennen; die Rolle
      „Beschriftung“ heißt wie der Haken.
    - Export Stufe 1: den Stil der Bausteine beim Bauen zusammenpressen
      (gemessen 13.10.: Laufzeit 2400 → 450 Zeilen, 258 → 239 KB), den Stil
