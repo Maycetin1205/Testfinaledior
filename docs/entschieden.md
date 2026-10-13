@@ -7,6 +7,9 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Ein Bereich schneidet nur in der Maske ab, was über seinen Rand
+  ragt; auf der Leinwand nicht, damit Markierung und Griffe eines Bausteins
+  am Rand des Bereichs ganz zu sehen sind. Die Maske bleibt, wie sie war.
 - 13.10. Die Erfassung schreibt jede Zeile, sobald sie erfasst ist, wie
   SoftEngines eigene Erfassung beim Verlassen der Zeile: über die Kette am
   Ereignis „Zeile erfasst“, die der Ersteller anhängt. Keine Relation fest

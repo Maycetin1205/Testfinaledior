@@ -86,6 +86,11 @@ C. Rahmen im Bereich: der Nutzer sieht, dass Bausteine im Bereich ihre
    Baustein, Editor oder SoftEngine, ein Bild vom Nutzer. Dann prüfen:
    `overflow: clip` in `src/blocks/area/areaStyle.ts` (`.frame`, `.body`)
    schneidet, was über den Rand eines Bausteins hinausragt.
+   Gebaut 13.10.: reproduziert im Editor (Text „Name“ in Zeile 0 des Bands
+   der Belegerfassung markiert: obere Linie fehlt, Griffe halb). Ursache
+   war der Clip an `.frame` und `.body`; er gilt jetzt nur in der Maske
+   (`:host(:not([preview]))`, `src/blocks/area/areaStyle.ts`). Maske
+   pixelgleich, Export und Referenzabzug unverändert.
 D. `masken/belegerfassung/Rahmen10000.basis.source.html` ist der Export
    vom 05.10. (Petrol, alte Belegerfassung), nicht der der Blatt-Maske.
    Der Nutzer exportiert die Belegerfassung aus dem Editor neu nach V7;

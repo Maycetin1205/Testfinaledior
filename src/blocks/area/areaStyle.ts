@@ -23,14 +23,19 @@ export const areaStyle = css`
     min-height: 0;
     display: flex;
     flex-direction: column;
-    /* clip, not hidden: the box does not scroll even when a field outside of it
-       takes the focus. */
-    overflow: clip;
     border-radius: var(--se-radius-card);
     font-family: var(--se-font);
     font-size: var(--se-fs);
     color: var(--se-ink);
   }
+
+  /* In the mask the area cuts what reaches over its edge; clip, not hidden:
+     the box does not scroll even when a field outside of it takes the focus.
+     On the canvas it does not cut: the editor draws the selection and the
+     grips of a block over the block's edge, and at the edge of the area the
+     cut would take them away. */
+  :host(:not([preview])) .frame,
+  :host(:not([preview])) .body { overflow: clip; }
 
   /* Kasten and Kopfzeile: the white card. */
   .appearance-box,
@@ -108,7 +113,6 @@ export const areaStyle = css`
     box-sizing: border-box;
     flex: 1 1 auto;
     min-height: 0;
-    overflow: clip;
     ${unsafeCSS(gridAreaCss(`var(${AREA_COLUMNS}, ${GRID.columns})`))};
   }
 
