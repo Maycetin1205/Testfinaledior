@@ -249,6 +249,15 @@ export const tableStyle = css`
         word-break: normal;
         hyphens: none;
       }
+      /* A narrow column: its head keeps its words whole by going smaller and
+         tighter instead of being cut off. */
+      .head > div { container-type: inline-size; }
+      @container (max-width: 84px) {
+        .head-text {
+          font-size: var(--se-fs-xs);
+          letter-spacing: .02em;
+        }
+      }
 
       /* A grid child of its own that hangs over the column line, which alone is
          too thin to grab; inside the head cell its overflow would clip it. */

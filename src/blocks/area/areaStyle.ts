@@ -38,6 +38,13 @@ export const areaStyle = css`
     background: var(--se-card-bg);
     box-shadow: var(--se-shadow-card);
   }
+  /* On the white sheet a white card needs an edge: the hairline of the
+     sheet, drawn inside, so the card keeps its size. */
+  .appearance-box.emphasis-text,
+  .appearance-headed.emphasis-text {
+    outline: var(--se-border) solid var(--se-line);
+    outline-offset: calc(-1 * var(--se-border));
+  }
   .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
   .appearance-headed .body { padding: 0 ${unsafeCSS(ROOM)}px ${unsafeCSS(ROOM)}px; }
 
