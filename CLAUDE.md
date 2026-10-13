@@ -17,3 +17,12 @@ zeigt, ist die Maske.
   Commit sagen, was sich aenderte.
 - Git: kein force-push. `se-quelle/` ist fremd und bleibt draussen.
   Sicherungsstand vor dem Aufraeumen: c0c375a (master bis 24.09.).
+
+## Doku
+
+- `docs/offen.md`: was als Naechstes kommt, der einzige Plan.
+  `docs/entschieden.md`: Entscheidungen mit Datum. `docs/bedienung.md`:
+  wie der Editor bedient wird. `docs/architektur.md`: wie der Code gebaut
+  ist. `docs/softengine-wiki/`: alles ueber SoftEngine (`kontrakte.md`
+  nur per Echttest belegt, `funktionen.md` nur abgelesen).
+- Aenderungen unter `masken/` bleiben uncommittet.
