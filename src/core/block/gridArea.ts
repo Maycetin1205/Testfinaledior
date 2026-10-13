@@ -15,10 +15,6 @@ import {
 import { isPagesBlock, childrenInFlow, pageOf } from './pages'
 import { subtreeIds } from './treeOps'
 
-// The room between the edge of the page and its grid, in the editor as in
-// the mask: one gap of the mask (--se-gap).
-export const ROOT_PADDING = 8
-
 export function isGridArea(node: BlockNode): boolean {
   return node.id === ROOT_ID || isPagesBlock(node)
     || blockType(node.type)?.gridArea === true

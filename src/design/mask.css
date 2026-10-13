@@ -1,6 +1,6 @@
-/* The tokens of the mask. The look is the sample docs/design/behandlung-modern.html,
-   approved 08.10.2026; the comment behind a value names its variable there.
-   Light only. */
+/* The tokens of the mask. The look is the sheet of Rahmen10000, approved
+   13.10.2026 (docs/entschieden.md): a white sheet on the grey window, royal
+   blue as the accent, ruled tables like an invoice. Light only. */
 
 /* Manrope, two weights, embedded: the mask loads nothing (kontrakte.md, 1).
    Latin subset, SIL Open Font License 1.1, see docs/design/manrope-OFL.txt. */
@@ -20,75 +20,79 @@
 :root {
   color-scheme: light;
 
-  --se-bg:        #F4F5F7;  /* --ground */
-  --se-panel:     #FFFFFF;  /* --card */
-  --se-panel-2:   #F1F3F5;  /* --fill */
+  /* The window is the ground, the mask a white sheet on it. */
+  --se-bg:        #E7E8EB;
+  --se-panel:     #FFFFFF;
+  --se-panel-2:   #F3F4F6;
 
-  --se-ink:       #0F172A;  /* --ink */
-  --se-ink-2:     #334155;  /* --ink2 */
-  --se-muted:     #64748B;  /* --mut */
-  --se-faint:     #9AA5B4;  /* svg.i in a line */
-  --se-empty:     #B6BFCB;  /* .f .v.empty::before, the dash of an empty field */
+  /* Ink: almost black, two greys under it. */
+  --se-ink:       #12161D;
+  --se-ink-2:     #39404B;
+  --se-muted:     #626974;
+  --se-faint:     #A0A6AF;
+  --se-empty:     #BCC1C8;  /* the dash of an empty field */
+  /* The small caps over a value, the Rubrik: light, but readable. */
+  --se-label:     #7D848E;
 
-  --se-line:      #D9DEE5;  /* .tog */
-  --se-line-soft: #EDF0F3;  /* --hair */
-  --se-box-line:  #C5CDD8;  /* .cb, the box of a checkbox */
+  --se-line:      #D5D9DF;
+  --se-line-soft: #ECEEF1;
+  --se-box-line:  #C6CBD2;  /* the box of a checkbox */
 
-  /* The accent of the mask: the ring of a field being typed into, a ticked
-     box, a chosen row. The same blue is the color Blau. */
-  --se-accent:       #2F6BFF;  /* --acc */
-  --se-accent-dark:  #1E47B8;  /* --acc-ink */
-  --se-accent-soft:  #EBF1FF;  /* --acc-soft */
+  /* Royal blue, the ink of a fountain pen: the ring of a field being typed
+     into, a ticked box, a chosen row, Speichern. The same blue is Blau. */
+  --se-accent:       #2A45C8;
+  --se-accent-dark:  #1D3299;
+  --se-accent-soft:  #EEF1FD;
 
-  /* The ground of a field under the pointer: clearly darker than --fill of
-     the sample, which was too faint (user 09.10.). */
-  --se-hover:     #E6EAF0;
-  /* A button on that ground, under the pointer. */
-  --se-hover-strong: #D8DEE6;
-  --se-selection: #EBF1FF;  /* --acc-soft */
-  --se-row-hover: #F6F8FA;  /* .tbl tbody tr:hover td */
+  /* The ground of a field under the pointer, and of a button on it. */
+  --se-hover:        #EFF1F4;
+  --se-hover-strong: #E2E5EA;
+  --se-selection:    #EEF1FD;
+  --se-row-hover:    #F7F8FA;
+  /* Marked text. */
+  --se-selection-ground: #D9DFF9;
 
-  --se-scrim: rgba(15, 23, 42, .34);
+  --se-scrim: rgba(18, 22, 29, .34);
 
-  --se-card-bg:    #FFFFFF;  /* --card */
+  --se-card-bg:    #FFFFFF;
 
   /* Tones: strong for a dot or a full ground, ink for text on the tint, tint
      for a head, shell for the ground of a column, line for its border, soft
      behind a chip. */
-  --se-neutral:       #64748B;  /* --mut */
-  --se-neutral-ink:   #334155;  /* --ink2 */
-  --se-neutral-tint:  #F1F3F5;  /* --fill */
+  --se-neutral:       #626974;
+  --se-neutral-ink:   #39404B;
+  --se-neutral-tint:  #F3F4F6;
   --se-neutral-shell: #F8F9FA;
-  --se-neutral-line:  #E2E6EB;
-  --se-neutral-soft:  #E8EBF0;  /* --fill-2 */
+  --se-neutral-line:  #E2E5EA;
+  --se-neutral-soft:  #E9EBEF;
 
-  --se-info:          #2F6BFF;  /* --acc */
-  --se-info-ink:      #1E47B8;  /* --acc-ink */
-  --se-info-tint:     #EBF1FF;  /* --acc-soft */
-  --se-info-shell:    #F7F9FF;
-  --se-info-line:     #D6E2FF;
-  --se-info-soft:     #EBF1FF;  /* --acc-soft */
+  --se-info:          #2A45C8;
+  --se-info-ink:      #1D3299;
+  --se-info-tint:     #EEF1FD;
+  --se-info-shell:    #F7F8FE;
+  --se-info-line:     #D5DCF7;
+  --se-info-soft:     #EEF1FD;
 
-  --se-success:       #15803D;  /* --green */
+  --se-success:       #15803D;
   --se-success-ink:   #116B33;
-  --se-success-tint:  #E7F6EC;  /* --green-soft */
+  --se-success-tint:  #E7F6EC;
   --se-success-shell: #F5FBF7;
   --se-success-line:  #CDEBD6;
-  --se-success-soft:  #E7F6EC;  /* --green-soft */
+  --se-success-soft:  #E7F6EC;
 
-  --se-warning:       #B45309;  /* --amber */
+  --se-warning:       #B45309;
   --se-warning-ink:   #92400E;
-  --se-warning-tint:  #FEF3E2;  /* --amber-soft */
+  --se-warning-tint:  #FEF3E2;
   --se-warning-shell: #FFFBF4;
   --se-warning-line:  #F8DDB5;
-  --se-warning-soft:  #FEF3E2;  /* --amber-soft */
+  --se-warning-soft:  #FEF3E2;
 
-  --se-danger:        #D23B2F;  /* --red */
-  --se-danger-ink:    #B42318;
-  --se-danger-tint:   #FDEEEC;  /* --red-soft */
+  --se-danger:        #C8372B;
+  --se-danger-ink:    #A82217;
+  --se-danger-tint:   #FCEDEB;
   --se-danger-shell:  #FFFFFF;
-  --se-danger-line:   #F7D3CE;
-  --se-danger-soft:   #FDEEEC;  /* --red-soft */
+  --se-danger-line:   #F5D1CC;
+  --se-danger-soft:   #FCEDEB;
 
   /* Petrol, the sixth color the user chose on 08.10.; the choice Petrol. */
   --se-petrol:      #0E7C86;
@@ -97,12 +101,12 @@
 
   /* The outline of an animal in the color of its kind, on a circle of the
      same color, soft. */
-  --se-animal-dog:         #3B5BDB;  /* --dog */
-  --se-animal-dog-soft:    #E9EDFB;  /* --dog-soft */
-  --se-animal-cat:         #B7791F;  /* --cat */
-  --se-animal-cat-soft:    #FBF1DD;  /* --cat-soft */
-  --se-animal-rabbit:      #4F7C2C;  /* --rabbit */
-  --se-animal-rabbit-soft: #ECF4E4;  /* --rabbit-soft */
+  --se-animal-dog:         #3B5BDB;
+  --se-animal-dog-soft:    #E9EDFB;
+  --se-animal-cat:         #B7791F;
+  --se-animal-cat-soft:    #FBF1DD;
+  --se-animal-rabbit:      #4F7C2C;
+  --se-animal-rabbit-soft: #ECF4E4;
   --se-animal-bird:        #0E7C86;
   --se-animal-bird-soft:   #E3F1F2;
   --se-animal-rat:         #8E5A9B;
@@ -113,42 +117,63 @@
   --se-animal-fish-soft:   #E8F0FE;
   --se-animal-horse:       #8B5E34;
   --se-animal-horse-soft:  #F4ECE4;
-  --se-animal-paw:         #64748B;
+  --se-animal-paw:         #626974;
   --se-animal-paw-soft:    #EEF1F4;
 
   --se-border: 1px;
-  --se-radius: 8px;  /* --r-ctl */
-  --se-radius-sm: 6px;  /* .cb */
-  --se-radius-card: 12px;  /* --r */
+  --se-radius: 6px;
+  --se-radius-sm: 5px;
+  --se-radius-card: 10px;
 
-  --se-shadow-pop: 0 18px 60px rgba(15, 23, 42, .22);
-  --se-shadow-card: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);  /* --shadow */
+  /* The lines of the sheet: the strong rule under a head and over a sum, the
+     hairline that closes a part. */
+  --se-rule: 1.5px solid var(--se-ink);
+  --se-hair: var(--se-border) solid var(--se-line);
+
+  /* The sheet: 10 px of window around it, its padding, its shadow, its thin
+     scrollbar. A band at its top bleeds into the padding up to its edges. */
+  --se-window-room: 10px;
+  --se-sheet-top: 22px;
+  --se-sheet-x: 26px;
+  --se-sheet-bottom: 20px;
+  --se-shadow-sheet: 0 1px 2px rgba(18, 22, 29, .06), 0 12px 32px -14px rgba(18, 22, 29, .16);
+  --se-scrollbar: #C3C8CF;
+  /* The band at the top of the sheet: a quiet grey, hardly darker than it. */
+  --se-band-ground: #F4F5F7;
+
+  --se-shadow-pop: 0 18px 50px rgba(18, 22, 29, .20), 0 2px 6px rgba(18, 22, 29, .08);
+  --se-shadow-card: 0 1px 2px rgba(18, 22, 29, .05), 0 6px 20px rgba(18, 22, 29, .06);
   /* A table, a list or a board is a card of its own on the ground of the
      page and lies flat inside a card, which sets this to none. */
   --se-surface-shadow: var(--se-shadow-card);
   /* A card of the board on its column, under the pointer, chosen; the column
      itself has a faint edge, the room of a place a white ground. */
-  --se-shadow-tile: 0 1px 2px rgba(15, 23, 42, .06), 0 2px 8px rgba(15, 23, 42, .05);
-  --se-shadow-tile-hover: 0 2px 4px rgba(15, 23, 42, .08), 0 8px 20px rgba(15, 23, 42, .08);
-  --se-shadow-chosen: inset 0 0 0 2px var(--se-accent), 0 1px 2px rgba(15, 23, 42, .06);
-  --se-column-edge: inset 0 0 0 1px rgba(15, 23, 42, .05);
+  --se-shadow-tile: 0 1px 2px rgba(18, 22, 29, .06), 0 2px 8px rgba(18, 22, 29, .05);
+  --se-shadow-tile-hover: 0 2px 4px rgba(18, 22, 29, .08), 0 8px 20px rgba(18, 22, 29, .08);
+  --se-shadow-chosen: inset 0 0 0 2px var(--se-accent), 0 1px 2px rgba(18, 22, 29, .06);
+  --se-column-edge: inset 0 0 0 1px rgba(18, 22, 29, .05);
   --se-place-ground: rgba(255, 255, 255, .72);
-  --se-focus: 0 0 0 3px rgba(47, 107, 255, .22);
-  /* The ring of a field being typed into: the line inside, the glow outside;
-     strong, as the user asked on 09.10. */
-  --se-focus-ring: inset 0 0 0 2px var(--se-accent), 0 0 0 3px rgba(47, 107, 255, .22);
+  --se-focus: 0 0 0 3px rgba(42, 69, 200, .20);
+  /* The ring of a field being typed into: the line inside, the halo outside. */
+  --se-focus-ring: inset 0 0 0 1.5px var(--se-accent), 0 0 0 3px rgba(42, 69, 200, .16);
 
-  --se-font: "Manrope", "Segoe UI Variable Text", "Segoe UI", system-ui, Arial, sans-serif;  /* --font */
+  --se-font: "Manrope", "Segoe UI Variable Text", "Segoe UI", system-ui, Arial, sans-serif;
 
+  /* The sizes a text offers carry their name: 12 is 12 px. */
   --se-fs-xs:    10px;
-  --se-fs-chip:  11.5px;    /* .alert */
-  --se-fs-sm:    11.5px;    /* .f .l, the label of a field */
-  --se-fs:       12.5px;
-  --se-fs-lg:    13.5px;    /* body */
-  --se-fs-name:  14px;    /* .f .v, the value of a field */
-  --se-fs-title: 16px;    /* .lines .big */
-  --se-fs-xl:    20px;    /* .pat .name */
-  --se-fs-xxl:   24px;    /* .t-title */
+  --se-fs-head:  10.5px;  /* the Kopf over a value */
+  --se-fs-rubric: 11px;   /* the Rubrik, a column head */
+  --se-fs-chip:  11.5px;
+  --se-fs-sm:    12px;
+  --se-fs:       13px;
+  --se-fs-lg:    14px;
+  --se-fs-name:  15px;
+  --se-fs-title: 17px;
+  --se-fs-xl:    22px;
+  --se-fs-xxl:   26px;
+
+  /* The Rubrik and a column head: capitals, spaced. */
+  --se-tracking-caps: .07em;
 
   --se-lh:       1.45;
   --se-lh-tight: 1.25;
@@ -157,5 +182,5 @@
   --se-gap:    8px;
   --se-gap-lg: 12px;
 
-  --se-move: .12s;
+  --se-move: .14s;
 }

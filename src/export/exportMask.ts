@@ -18,7 +18,7 @@ import {
 import { deliveryAdapter } from '../core/data/deliveries/deliveries'
 import type { RelationTemplate } from '../core/data/relations'
 import { pagesOfMask } from '../core/block/pages'
-import { pageRowsTemplate, ROOT_PADDING } from '../core/block/gridArea'
+import { pageRowsTemplate } from '../core/block/gridArea'
 import { gridAreaCss } from '../core/block/grid'
 import tokensCssRaw from '../design/mask.css?raw'
 import {
@@ -189,7 +189,6 @@ export function exportMask(
   ))
 
   const rows = pageRowsTemplate(tree)
-  const rootPadding = `${ROOT_PADDING}px`
 
   const html = [
     '<!DOCTYPE html>',
@@ -202,14 +201,19 @@ export function exportMask(
     '<style>',
     tokensCss,
     '',
-    '/* Page frame and root grid, the same as the editor canvas */',
-    'html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; }',
+    '/* The window is the ground, the mask a sheet on it; its grid as on the editor canvas */',
+    'html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--se-bg); }',
+    'body { box-sizing: border-box; padding: var(--se-window-room); }',
 
     `.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto;`
-      + ` background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs);`
-      + ` line-height: var(--se-lh); color: var(--se-ink);`
-      + ` ${gridAreaCss()};${rows ? ` grid-template-rows: ${rows};` : ''} padding: ${rootPadding}; }`,
+      + ` background: var(--se-panel); border-radius: var(--se-radius-card); box-shadow: var(--se-shadow-sheet);`
+      + ` font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink);`
+      + ` font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; caret-color: var(--se-accent);`
+      + ` scrollbar-width: thin; scrollbar-color: var(--se-scrollbar) transparent;`
+      + ` ${gridAreaCss()};${rows ? ` grid-template-rows: ${rows};` : ''}`
+      + ` padding: var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom); }`,
     '.ff-root * { font-family: inherit; font-size: inherit; }',
+    '.ff-root ::selection { background: var(--se-selection-ground); color: var(--se-ink); }',
     '</style>',
     '</head>',
     '<body>',

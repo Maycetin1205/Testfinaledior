@@ -131,6 +131,8 @@ export abstract class BlockElement extends LitElement {
   static declaredProperties: PropertyMap = {}
 
   static override styles: CSSResultGroup = css`
+    /* Marked text as on the sheet around the block. */
+    ::selection { background: var(--se-selection-ground); color: var(--se-ink); }
     :host { display: block; }
     :host([hidden]) { display: none; }
 

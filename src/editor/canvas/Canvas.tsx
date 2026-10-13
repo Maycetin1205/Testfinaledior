@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState, type DragEvent } from 'react'
 import { gridAreaStyle } from '../../core/block/grid'
-import { ROOT_PADDING } from '../../core/block/gridArea'
 import { useEditor } from '../state/useEditor'
 import { NodeList } from './NodeList'
 import { isNewBlockDrag } from './dnd'
@@ -51,8 +50,12 @@ export function Canvas() {
 
           className="relative min-h-0 w-full flex-1 overflow-hidden rounded border border-line"
 
+          // The window of the mask: its ground, and on it the sheet, as the
+          // export draws them (exportMask.ts).
           style={{
             minHeight: 400,
+            boxSizing: 'border-box',
+            padding: 'var(--se-window-room)',
             background: 'var(--se-bg)',
             fontFamily: 'var(--se-font)',
             fontSize: 'var(--se-fs)',
@@ -66,9 +69,15 @@ export function Canvas() {
             className="h-full min-h-0 overflow-auto"
             style={{
               ...gridAreaStyle(),
-              padding: ROOT_PADDING,
+              padding: 'var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom)',
               boxSizing: 'border-box',
-              background: 'var(--se-bg)',
+              background: 'var(--se-panel)',
+              borderRadius: 'var(--se-radius-card)',
+              boxShadow: 'var(--se-shadow-sheet)',
+              fontVariantNumeric: 'tabular-nums',
+              caretColor: 'var(--se-accent)',
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'var(--se-scrollbar) transparent',
             }}
             onDragOver={onGridDragOver}
             onDrop={(e) => {

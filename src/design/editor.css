@@ -8,36 +8,37 @@
      hex value and the --se-* token. They hold hsl channels, not colors, so
      both hsl(var(--wb-…)) and Tailwind's opacity use them. */
   :root {
-    --wb-ground: 220 15.8% 96.3%;     /* #F4F5F7 --se-bg */
+    --wb-ground: 220 15.8% 96.3%;     /* #F4F5F7 --se-band-ground */
     --wb-panel: 0 0% 100%;            /* #FFFFFF --se-panel */
-    --wb-control: 210 16.7% 95.3%;    /* #F1F3F5 --se-panel-2, the ground of a place to type */
-    --wb-line: 215 18.8% 87.5%;       /* #D9DEE5 --se-line */
-    --wb-line-soft: 210 20% 94.1%;    /* #EDF0F3 --se-line-soft, the hairline between surfaces */
-    --wb-box-line: 214.7 19.6% 81%;   /* #C5CDD8 --se-box-line, the edge of an empty checkbox */
-    --wb-hover: 216 25% 92.2%;        /* #E6EAF0 --se-hover */
-    --wb-ink: 222.2 47.4% 11.2%;      /* #0F172A --se-ink */
-    --wb-ink-2: 215.3 25% 26.7%;      /* #334155 --se-ink-2 */
-    --wb-muted: 215.4 16.3% 46.9%;    /* #64748B --se-muted */
+    --wb-control: 220 14.3% 95.9%;    /* #F3F4F6 --se-panel-2, the ground of a place to type */
+    --wb-line: 216 13.5% 85.5%;       /* #D5D9DF --se-line */
+    --wb-line-soft: 216 15.2% 93.5%;  /* #ECEEF1 --se-line-soft, the hairline between surfaces */
+    --wb-box-line: 215 11.8% 80%;     /* #C6CBD2 --se-box-line, the edge of an empty checkbox */
+    --wb-hover: 216 18.5% 94.7%;      /* #EFF1F4 --se-hover */
+    --wb-ink: 218.2 23.4% 9.2%;       /* #12161D --se-ink */
+    --wb-ink-2: 216.7 13.6% 25.9%;    /* #39404B --se-ink-2 */
+    --wb-muted: 216.7 8.4% 42%;       /* #626974 --se-muted */
+    --wb-label: 215.3 7% 52.4%;       /* #7D848E --se-label, the Rubrik */
 
-    --wb-accent: 222.7 100% 59.2%;    /* #2F6BFF --se-accent */
-    --wb-accent-soft: 222 100% 96.1%; /* #EBF1FF --se-accent-soft */
-    --wb-accent-ink: 224 72% 42%;     /* #1E47B8 --se-accent-dark */
-    --wb-error: 4.4 64.4% 50.4%;      /* #D23B2F --se-danger */
-    --wb-error-soft: 7.1 81% 95.9%;   /* #FDEEEC --se-danger-soft */
+    --wb-accent: 229.7 65.3% 47.5%;   /* #2A45C8 --se-accent */
+    --wb-accent-soft: 228 78.9% 96.3%; /* #EEF1FD --se-accent-soft */
+    --wb-accent-ink: 229.8 68.1% 35.7%; /* #1D3299 --se-accent-dark */
+    --wb-error: 4.6 64.6% 47.6%;      /* #C8372B --se-danger */
+    --wb-error-soft: 7.1 73.9% 95.5%; /* #FCEDEB --se-danger-soft */
     --wb-pending: 26 90.5% 37.1%;     /* #B45309 --se-warning */
     --wb-pending-soft: 36.4 93.3% 94.1%; /* #FEF3E2 --se-warning-soft */
 
     /* The chosen block on the canvas: the one blue of the mask. */
-    --wb-selection: 222.7 100% 59.2%; /* #2F6BFF --se-accent */
+    --wb-selection: 229.7 65.3% 47.5%; /* #2A45C8 --se-accent */
 
     /* Pixels, not rem: the corner must not grow with the font size. */
-    --radius: 8px;                    /* --se-radius */
-    --radius-small: 6px;              /* --se-radius-sm, a checkbox, a line of a list */
-    --radius-card: 12px;              /* --se-radius-card, a window */
+    --radius: 6px;                    /* --se-radius */
+    --radius-small: 5px;              /* --se-radius-sm, a checkbox, a line of a list */
+    --radius-card: 10px;              /* --se-radius-card, a window */
 
-    /* The ground around the mask; the mask itself lies on --se-bg, so its
-       edge stays visible. */
-    --canvas-bg: 214.3 21.9% 87.5%;   /* #D8DEE6 --se-hover-strong */
+    /* The ground around the canvas: the window of the mask, on which the
+       canvas lays the white sheet. */
+    --canvas-bg: 225 9.1% 91.4%;      /* #E7E8EB --se-bg */
   }
 
   * {
