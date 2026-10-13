@@ -132,15 +132,11 @@
   --se-rule: 1.5px solid var(--se-ink);
   --se-hair: var(--se-border) solid var(--se-line);
 
-  /* The sheet: 10 px of window around it, its padding, its shadow, its thin
-     scrollbar. A band at its top bleeds into the padding up to its edges. */
-  --se-window-room: 10px;
+  /* The sheet is the whole window (user, 13.10.: no ground around it, the
+     room is for the mask): its padding and its thin scrollbar. */
   --se-sheet-top: 22px;
   --se-sheet-x: 26px;
   --se-sheet-bottom: 20px;
-  /* On a wide screen the sheet stops growing and stands in the middle. */
-  --se-sheet-max: 1680px;
-  --se-shadow-sheet: 0 1px 2px rgba(18, 22, 29, .06), 0 12px 32px -14px rgba(18, 22, 29, .16);
   --se-scrollbar: #C3C8CF;
   /* The band at the top of the sheet: a quiet grey, hardly darker than it. */
   --se-band-ground: #F4F5F7;

@@ -7,6 +7,11 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Das Blatt ist das ganze Fenster: kein grauer Grund drumherum, keine
+  Rundung, kein Schatten, keine Höchstbreite (Nutzer: die Fläche wird
+  genutzt). Der Innenrand 22/26/20 px bleibt. Das Band bleibt in seinem
+  Rahmen, es ragt nicht mehr bis an die Blattkanten; so deckt sich im
+  Editor der Rahmen mit dem Grau.
 - 13.10. Blatt-Sprache freigegeben, Vorlage ist die von Hand verfeinerte
   Belegerfassung (Desktop, Rahmen10000.basis.source.html): die Maske ist ein
   weißes Blatt (Rundung 10, weicher Schatten, Innenrand 22/26/20 px) auf

@@ -64,12 +64,9 @@ export const areaStyle = css`
      under it; the columns inside stay those of the sheet. It belongs at the
      top of the page, over the whole width. */
   .appearance-band {
-    height: calc(100% + var(--se-sheet-top));
-    margin: calc(-1 * var(--se-sheet-top)) calc(-1 * var(--se-sheet-x)) 0;
-    padding: 18px var(--se-sheet-x) 14px;
     background: var(--se-band-ground);
     border-bottom: var(--se-hair);
-    border-radius: 0;
+    border-radius: var(--se-radius);
   }
 
   /* The head, .card .hd: the title as text on the card. Fläche voll and
