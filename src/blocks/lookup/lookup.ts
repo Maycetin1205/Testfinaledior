@@ -6,6 +6,7 @@ import { rowsToSelection } from '../../runtime/selection'
 import { maskState } from '../../runtime/maskState'
 import {
   DIALOG_FRAME_TAG,
+  WINDOW_HEIGHT,
   WINDOW_WIDTH,
   type DialogFrame,
 } from '../dialog/DialogFrame'
@@ -56,6 +57,23 @@ export function validMetrics(v: unknown, fallback: number): number {
 
 export function windowWidthFor(columns: number): number {
   return Math.min(900, Math.max(WINDOW_WIDTH, 160 + 180 * columns))
+}
+
+function wholeNumber(v: unknown): number | undefined {
+  return typeof v === 'number' && Number.isFinite(v) ? Math.round(v) : undefined
+}
+
+// The window of an entry, as of a capture column: the size the builder
+// dragged it to, else as wide as its columns need. The editor and the mask
+// open it by this one rule.
+export function entryWindowSize(
+  entry: { windowWidth?: number; windowHeight?: number },
+  columns: number,
+): { width: number; height: number } {
+  return {
+    width: wholeNumber(entry.windowWidth) ?? windowWidthFor(columns),
+    height: wholeNumber(entry.windowHeight) ?? WINDOW_HEIGHT,
+  }
 }
 
 export const LOOKUP_COLUMNS_BINDING: ListBinding<Column, 'lookupColumns' | 'lookupSource'> = {

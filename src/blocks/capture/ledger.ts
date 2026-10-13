@@ -34,6 +34,9 @@ interface CaptureHost {
   focusCell: (index: number) => void
 
   captured: () => void
+
+  // A row joined those below the line: it waits to be written.
+  rowAdded: () => void
 }
 
 // Everything the capture holds, in four parts: the capture row, the rows
@@ -75,6 +78,8 @@ export class CaptureLedger {
   get suggestions(): readonly Entry[] { return this.row.suggestions }
 
   get firstCell(): number { return this.row.firstCell }
+
+  get openCell(): number { return this.row.openCell }
 
   // Something was typed or chosen in the capture row.
   get touched(): boolean { return this.row.touched }
@@ -153,6 +158,8 @@ export class CaptureLedger {
 
   pendingMarks(): PendingRow[] { return this.captured.pendingMarks() }
 
+  hasFailed(): boolean { return this.captured.hasFailed() }
+
   capturedStatus(index: number): RowState { return this.captured.statusAt(index) }
 
   capturedKeyAt(index: number): string { return this.captured.keyAt(index) }
@@ -183,8 +190,8 @@ export class CaptureLedger {
 
   failed(kind: PendingKind, key: string): void { this.outbound.failed(kind, key) }
 
-  // A run is through: captured rows carry their record now, changes wait
-  // for the document to show them.
+  // Rows of a run are through, each as soon as it went out: captured rows
+  // carry their record now, changes wait for the document to show them.
   runDone(kind: PendingKind, written: readonly WrittenRow[]): void {
     const keys = written.map((z) => z.key)
     this.outbound.done(kind, keys)

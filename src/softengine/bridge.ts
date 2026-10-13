@@ -1,3 +1,4 @@
+import { KEEPS_TYPING_ATTR } from '../core/block/typingMarks'
 import { isObject, messagesContent, dataFromContent, type JsonObject } from './data'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- SEDATA and selib are
@@ -36,6 +37,7 @@ function refreshDataBase(): void {
 interface BridgeState {
   listeners: Set<(delivery: boolean) => void>
   answerListeners: Set<(raw: unknown) => void>
+  arrivalListeners: Set<() => void>
   pending: boolean
   pendingDelivery: boolean
   afterRun: ReturnType<typeof setInterval> | null
@@ -47,6 +49,7 @@ interface BridgeState {
 const bridge: BridgeState = {
   listeners: new Set(),
   answerListeners: new Set(),
+  arrivalListeners: new Set(),
   pending: false,
   pendingDelivery: false,
   afterRun: null,
@@ -76,10 +79,18 @@ function focusOnUs(): boolean {
   return typable(deepestActive())
 }
 
+// A delivery waits while the operator types into a field it would
+// overwrite. Where the block keeps the typing itself (the capture row), the
+// delivery comes at once, and with it the new rows and sums.
+function typingHeld(): boolean {
+  const active = deepestActive()
+  return typable(active) && !active?.hasAttribute(KEEPS_TYPING_ATTR)
+}
+
 function afterRunStart(): void {
   if (bridge.afterRun !== null) return
   bridge.afterRun = setInterval(() => {
-    if (focusOnUs()) return
+    if (typingHeld()) return
     afterRunStop()
     if (!bridge.pending) return
     bridge.pending = false
@@ -105,6 +116,23 @@ export function onSeAnswer(cb: (raw: unknown) => void): () => void {
   return () => { bridge.answerListeners.delete(cb) }
 }
 
+// SoftEngine handed the document over, new or unchanged: it has answered
+// what was written before.
+export function onSeArrival(cb: () => void): () => void {
+  bridge.arrivalListeners.add(cb)
+  return () => { bridge.arrivalListeners.delete(cb) }
+}
+
+function arrived(): void {
+  bridge.arrivalListeners.forEach((cb) => { hostCall(cb) })
+}
+
+// A write goes out: a document held back from before it is no answer to it,
+// so it does not count as a delivery when it is shown.
+export function writeGoesOut(): void {
+  bridge.pendingDelivery = false
+}
+
 function spread(delivery: boolean): void {
   let complete = true
   bridge.listeners.forEach((cb) => {
@@ -116,7 +144,7 @@ function spread(delivery: boolean): void {
 
 function ring(delivery: boolean): void {
   if (delivery) bridge.pendingDelivery = true
-  if (focusOnUs()) {
+  if (typingHeld()) {
     bridge.pending = true
     afterRunStart()
     return
@@ -136,8 +164,6 @@ export function freshDataRequest(): void {
   const requested = typeof g.ReloadInputJSON === 'function'
     && hostCall(() => g.ReloadInputJSON())
   if (!requested) refreshDataBase()
-
-  bridge.pendingDelivery = false
   ring(false)
 }
 
@@ -178,6 +204,7 @@ function seConsume(raw: unknown): void {
   if (!isObject(g.SEDATA)) g.SEDATA = {}
   g.SEDATA.Daten = data
   refreshDataBase()
+  arrived()
 
   const signature = signatureOf(data)
   if (signature !== '' && signature === bridge.lastSignature) return
@@ -210,9 +237,9 @@ export function startSe(): void {
 
   g.enableCustomFind = false
 
-  g.Erstellen = () => { refreshDataBase(); ring(dataAreNew()) }
+  g.Erstellen = () => { refreshDataBase(); arrived(); ring(dataAreNew()) }
   g.initData = g.Erstellen
-  g.ReloadData = () => { ring(dataAreNew()) }
+  g.ReloadData = () => { arrived(); ring(dataAreNew()) }
   buildFocusBridge()
   registerSe()
 

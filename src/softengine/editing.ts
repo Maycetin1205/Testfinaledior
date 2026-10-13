@@ -1,3 +1,4 @@
+import { LEADS_TO_TYPING_ATTR } from '../core/block/typingMarks'
 import { hostCall, seWindow, typable } from './bridge'
 
 // SoftEngine's own masks announce editing before the cursor goes into a field
@@ -22,6 +23,11 @@ function origin(evt: Event): unknown {
   return evt.composedPath()[0] ?? evt.target
 }
 
+// A field, or a spot whose click puts the cursor into one.
+function towardsTyping(spot: unknown): boolean {
+  return typable(spot) || (spot instanceof Element && spot.closest(`[${LEADS_TO_TYPING_ATTR}]`) !== null)
+}
+
 // Before the click lands, so SoftEngine knows before it reacts. Only a click
 // on something else in the mask ends the editing; a lost window focus does
 // not, because that is exactly what the theft looks like.
@@ -30,6 +36,6 @@ export function announceEditing(): void {
   editing.installed = true
   const enter = (): void => { if (!editing.on && tell(ENTER)) editing.on = true }
   const leave = (): void => { if (editing.on && tell(LEAVE)) editing.on = false }
-  window.addEventListener('pointerdown', (evt) => { if (typable(origin(evt))) enter(); else leave() }, true)
+  window.addEventListener('pointerdown', (evt) => { if (towardsTyping(origin(evt))) enter(); else leave() }, true)
   window.addEventListener('focusin', (evt) => { if (typable(origin(evt))) enter() }, true)
 }

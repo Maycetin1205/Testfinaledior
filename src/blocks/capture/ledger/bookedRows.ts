@@ -68,8 +68,10 @@ export class BookedRows {
     this.status = status
   }
 
+  // A row out with the document is not pending: it goes once.
   get changedRows(): readonly { record: string; values: readonly string[] }[] {
-    return this.rowsOf(recordsIn(this.changes))
+    return this.rowsOf(recordsIn(this.changes)
+      .filter((record) => this.status('changed', record, 'changed').status !== 'writes'))
   }
 
   private rowsOf(records: readonly string[]): { record: string; values: readonly string[] }[] {

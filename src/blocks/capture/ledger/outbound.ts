@@ -42,13 +42,14 @@ export class Outbound {
     this.report()
   }
 
-  // A run is through: nothing of its kind is writing any more, and the keys
-  // it wrote have no error left.
+  // These rows are through: they are writing no longer and have no error
+  // left. Rows of another run going out at the same time keep their mark.
   done(kind: PendingKind, keys: readonly string[]): void {
-    this.writing.get(kind)?.clear()
+    const writing = this.writing.get(kind)
     const open = this.errors.get(kind)
-    if (open) {
-      for (const key of keys) open.delete(key)
+    for (const key of keys) {
+      writing?.delete(key)
+      open?.delete(key)
     }
     this.report()
   }

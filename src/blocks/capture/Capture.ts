@@ -19,10 +19,11 @@ import {
   type RowDecoration,
   type RowsBelow,
 } from '../list'
-import { validMetrics, closeLookupFor, coerceLookupColumns } from '../lookup/lookup'
-import { WINDOW_WIDTH, WINDOW_HEIGHT } from '../dialog/DialogFrame'
+import { closeLookupFor, coerceLookupColumns } from '../lookup/lookup'
 import { suggestionStyle } from '../lookup/suggestionList'
 import { reportPendingMarks } from '../../runtime/pendingState'
+import { runEvent } from '../../runtime/events'
+import { LEADS_TO_TYPING_ATTR } from '../../core/block/typingMarks'
 import { enterCell, cellsInputStyle, cellsFields } from './cells'
 import { captureRowFor } from './controls'
 import { capturedRowsTpl, captureDecoration } from './body'
@@ -32,6 +33,10 @@ import { captureStyle } from './captureStyle'
 import { captureProperties, type CaptureValues } from './properties'
 import { WorkingRow } from './workingRow'
 import type { SourceValue } from '../../core/block/sourceProperty'
+
+// The event of a row captured: Enter or Tab past the last cell, arrow down
+// out of the row, or a correction captured again.
+const ROW_CAPTURED = 'onRowCaptured'
 
 export interface Capture extends CaptureValues, SourceValue {}
 
@@ -76,7 +81,14 @@ export class Capture extends BlockElement
       this.focusCaptureCell(this._ledger.firstCell)
       this.showLastCaptured()
     },
+    rowAdded: () => this.writeCaptured(),
   })
+
+  // A run of the chain on "Zeile erfasst" is out; a row captured meanwhile
+  // asks for one more.
+  private _writing = false
+
+  private _writeAgain = false
 
   private readonly _list: RecordList = new RecordList(this, {
     cellValue: (rawIndex, slot) => this._ledger.cellValue(rawIndex, slot),
@@ -128,6 +140,46 @@ export class Capture extends BlockElement
     })
   }
 
+  // Like SoftEngine's own entry, which creates the position when the row is
+  // left (13.10.): the chain on "Zeile erfasst" runs as soon as a row is
+  // captured. One run at a time; a row captured while a run is out goes with
+  // the next. Each run takes the rows still pending, so a row goes once
+  // (runEvent marks it out before its steps run). After a failed row the
+  // capture does not try again by itself: the rows behind it wait, in their
+  // order, until the operator corrects it, takes it away or saves.
+  private writeCaptured(): void {
+    if (this._writing) {
+      this._writeAgain = true
+      return
+    }
+    this._writing = true
+    void (async () => {
+      try {
+        // The ledger finishes the capture before the run reads its rows.
+        await Promise.resolve()
+        do {
+          this._writeAgain = false
+          if (this._ledger.hasFailed()) break
+          await runEvent(this, ROW_CAPTURED, {}).catch(() => undefined)
+        } while (this._writeAgain)
+      } finally {
+        this._writing = false
+      }
+    })()
+  }
+
+  // The operator stays in the capture row: a click on a row below the line or
+  // on the empty room under the rows puts the cursor back where typing goes
+  // on, so the next position needs no hunt for the row.
+  private backToTyping(): void {
+    if (!this.preview) this.focusCaptureCell(this._ledger.openCell)
+  }
+
+  private readonly roomClick = (e: Event): void => {
+    const spot = e.composedPath()[0]
+    if (spot instanceof Element && spot.closest('.ruler') !== null) this.backToTyping()
+  }
+
   private showLastCaptured(): void {
     void this.updateComplete.then(() => {
       const body = this.shadowRoot?.querySelector<HTMLElement>('.body')
@@ -166,8 +218,6 @@ export class Capture extends BlockElement
               block: this,
               preview: this.preview,
               sourceId: this.source,
-              windowWidth: validMetrics(this.windowWidth, WINDOW_WIDTH),
-              windowHeight: validMetrics(this.windowHeight, WINDOW_HEIGHT),
             },
             view,
             cols,
@@ -175,11 +225,15 @@ export class Capture extends BlockElement
             correctionSlot === null && (rulerTicks ?? 1) <= 0,
           ),
         }, {
-          takeCapturedRow: (index) => this._ledger.removeCaptured(index),
+          takeCapturedRow: (index) => {
+            this._ledger.removeCaptured(index)
+            this.backToTyping()
+          },
           bringBackCapturedRow: (index) => this._ledger.bringBackCaptured(index),
           chooseCapturedRow: (index) => {
             this._working.toggleCaptured(this._ledger.capturedKeyAt(index), this.listColumns(), captured[index] ?? [])
             this.requestUpdate()
+            this.backToTyping()
           },
         })
       },
@@ -199,11 +253,13 @@ export class Capture extends BlockElement
   override connectedCallback(): void {
     super.connectedCallback()
     document.addEventListener('keydown', this.maskKey)
+    this.renderRoot.addEventListener('click', this.roomClick)
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
     document.removeEventListener('keydown', this.maskKey)
+    this.renderRoot.removeEventListener('click', this.roomClick)
     closeLookupFor(this)
   }
 
@@ -215,6 +271,8 @@ export class Capture extends BlockElement
   protected override updated(): void {
     reportPendingMarks(this)
     if (!this.preview) {
+      // A click on the empty room under the rows leads into the capture row.
+      this.renderRoot.querySelector('.ruler')?.setAttribute(LEADS_TO_TYPING_ATTR, '')
       this._working.followTyping(
         this.listColumns(),
         this._ledger.touched,
@@ -235,7 +293,11 @@ defineBlock(Capture, {
   category: 'input',
   properties: captureProperties,
   capabilities: [
-    ...listCapabilities(CAPTURE_COLUMNS_BINDING, { kind: 'source', helpersApart: true }),
+    ...listCapabilities(
+      CAPTURE_COLUMNS_BINDING,
+      { kind: 'source', helpersApart: true },
+      [{ key: ROW_CAPTURED, name: 'Zeile erfasst' }],
+    ),
     { kind: 'capture' },
     { kind: 'change', key: 'editable' },
     { kind: 'holdsSent' },

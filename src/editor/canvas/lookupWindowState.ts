@@ -4,6 +4,7 @@ import { coerceCaptureColumns, windowColumnsIn, type CaptureColumn } from '../..
 import {
   automaticColumns,
   coerceLookupColumns,
+  entryWindowSize,
   windowWidthFor,
   openLookup,
 } from '../../blocks/lookup/lookup'
@@ -126,8 +127,7 @@ function statePerEntry(
     title: title !== '' ? title : `Spalte ${slot + 1}`,
     columns,
     provided: coerceLookupColumns(entry.windowColumns).length > 0,
-    width: asNumber(entry.windowWidth) ?? windowWidthFor(columns.length),
-    height: asNumber(entry.windowHeight) ?? WINDOW_HEIGHT,
+    ...entryWindowSize(entry, columns.length),
     setColumns: (next) => write((column) =>
       withEntryValue(column, 'windowColumns', next.length === 0 ? undefined : [...next])),
     setMetrics: (axis, value) => write((column) =>

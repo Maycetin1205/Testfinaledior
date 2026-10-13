@@ -7,6 +7,7 @@ import { walkOrder, type RowLayout } from '../../parts/cell'
 import { plainText, rowFits } from '../../parts/cellSearch'
 import {
   automaticColumns,
+  entryWindowSize,
   lookupEntries,
   sourcesRows,
   type Entry,
@@ -45,6 +46,11 @@ export interface LookupSpot {
   entries: readonly Entry[]
 
   searchText: string
+
+  // The size the editor shows for this column's window.
+  width: number
+
+  height: number
 }
 
 interface CaptureRowHost {
@@ -203,6 +209,15 @@ export class CaptureRow {
     return walkOrder(this.host.layout())[0] ?? 0
   }
 
+  // Where typing goes on: the first cell the operator fills that is still
+  // empty, the first cell when there is none.
+  get openCell(): number {
+    const view = this.rowView()
+    const open = walkOrder(this.host.layout())
+      .find((slot) => view[slot]?.automatic !== true && (view[slot]?.value ?? '') === '')
+    return open ?? this.firstCell
+  }
+
   // What the lookup window of a cell shows. Nothing when the column names no
   // field of a helper source, or that source holds no rows.
   lookupAt(index: number): LookupSpot | null {
@@ -219,6 +234,7 @@ export class CaptureRow {
       columns: windowColumnsIn(context, index),
       entries: this.entriesIn(context, index),
       searchText: this.valueIn(context, index),
+      ...entryWindowSize(column, this.windowColumnsAt(index).length),
     }
   }
 

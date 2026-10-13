@@ -22,6 +22,7 @@ function typingCellTpl(
     inputClass: cellsClass(ledger.isChanged(rawIndex, slot) ? 'changed' : 'quiet'),
     holderClass: 'cell-holder',
     marksOnEntering: true,
+    keepsTyping: true,
     slot,
     suggestions: [],
     columns: [],
@@ -80,17 +81,20 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
   return html`${placement.captured.map((values, rowsIndex) => {
     const state = placement.capturedState(rowsIndex)
 
-    const fixed = state.status === 'written'
+    // Out with the document or written: no longer to be corrected.
+    const fixed = state.status === 'written' || state.status === 'writes'
     const grey = greyParts(placement.layout, placement.slots, values)
     const cell = (slot: number): TemplateResult => {
       const figure = figureAt(placement.layout, slot)
       return html`<div class=${figure !== null ? 'right' : nothing} role="cell">${shownValue(figure, values[slot] ?? '')}</div>`
     }
-    // A click chooses the row and leaves the operator in the capture row; a
-    // double click brings a row not yet written back for correction.
+    // A click chooses the row and leaves the operator in the capture row
+    // (LEADS_TO_TYPING_ATTR, src/core/block/typingMarks.ts); a double click
+    // brings a row not yet written back for correction.
     return html`${rowsIndex === placement.correctionSlot ? placement.capture : nothing}<div
       class="row captured${grey !== null ? ' subline' : ''}${placement.chosen(rowsIndex) ? ' selected' : ''}"
       role="row"
+      data-ff-leads-to-typing
       data-status=${state.status}
       style=${styleMap(placement.cols)}
       @click=${() => act.chooseCapturedRow(rowsIndex)}

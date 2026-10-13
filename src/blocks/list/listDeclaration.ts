@@ -1,6 +1,6 @@
 import { booleanProperty, type ValuesOf } from '../../core/block/property'
 import { DAY_FIELD_PROPERTY } from '../../core/block/dayFieldProperty'
-import type { Capability } from '../../core/block/capability'
+import type { Capability, EventDef } from '../../core/block/capability'
 import type { ListBinding } from '../../core/block/listBinding'
 import { columnsProperty } from '../parts/column'
 import { KEY_F4, ROW_DOUBLE, ROW_CHOSEN } from './rowActivation'
@@ -46,9 +46,12 @@ type ListValues = ValuesOf<ReturnType<typeof listProperties>>
 // reads them into its own column shape.
 export type ListSettings = Omit<ListValues, 'columns'>
 
+// ownEvents: events of the block itself, after those of every list. A block
+// has one events capability; a second one would never be read.
 export function listCapabilities<K extends string>(
   binding: ListBinding<unknown, K>,
   source: Capability<K> = { kind: 'source' },
+  ownEvents: readonly EventDef[] = [],
 ): Capability<K>[] {
   return [
     source,
@@ -61,6 +64,7 @@ export function listCapabilities<K extends string>(
         { key: ROW_CHOSEN, name: 'Zeile gewählt' },
         { key: ROW_DOUBLE, name: 'Zeile doppelt geklickt' },
         { key: KEY_F4, name: 'F4 – Aktion an der Zeile' },
+        ...ownEvents,
       ],
     },
   ]

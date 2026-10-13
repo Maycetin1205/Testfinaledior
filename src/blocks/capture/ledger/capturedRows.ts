@@ -32,6 +32,9 @@ interface CapturedRowsHost {
   focusCell: (index: number) => void
 
   captured: () => void
+
+  // A row joined those below the line: it waits to be written.
+  rowAdded: () => void
 }
 
 type Status = (kind: PendingKind, key: string, base: RowsStatus) => RowState
@@ -70,11 +73,22 @@ export class CapturedRows {
     return `e${this.nextKey}`
   }
 
-  // Only what stands below the line goes out, never the capture row.
+  // Only what stands below the line goes out, never the capture row, and a
+  // row only once: one out with the document or written is no longer pending.
   pendingMarks(): PendingRow[] {
     return this.rows
-      .filter((z) => z.written === undefined)
+      .filter((z) => z.written === undefined && !this.isOut(z))
       .map((z) => ({ key: z.key, values: z.values as readonly string[] }))
+  }
+
+  private isOut(row: CapturedRow): boolean {
+    return this.status('captured', row.key, 'captured').status === 'writes'
+  }
+
+  // A row whose write failed: the rows behind it wait, so the document keeps
+  // their order.
+  hasFailed(): boolean {
+    return this.rows.some((row) => this.status('captured', row.key, 'captured').status === 'error')
   }
 
   keyAt(index: number): string {
@@ -113,17 +127,21 @@ export class CapturedRows {
     const missing = missingRequired(context.columns, values, walkOrder(this.host.layout()))
     if (missing !== -1) return { missing }
     if (back) {
+      // A new key: the corrected row is a new position, a failed write of
+      // the old one does not stick to it.
       this.rows = [
         ...this.rows.slice(0, back.slot),
-        { key: back.row.key, values, ...this.row.helpersNow() },
+        { key: this.topKey, values, ...this.row.helpersNow() },
         ...this.rows.slice(back.slot),
       ]
+      this.nextKey += 1
       this.correction = null
     } else {
       this.rows = [...this.rows, { key: this.topKey, values, ...this.row.helpersNow() }]
       this.nextKey += 1
     }
     this.row.clear()
+    this.host.rowAdded()
     return 'captured'
   }
 
@@ -132,7 +150,7 @@ export class CapturedRows {
   bringBack(index: number): void {
     const context = this.host.context()
     const row = this.rows[index]
-    if (!row || row.written !== undefined) return
+    if (!row || row.written !== undefined || this.isOut(row)) return
     const before = this.capture(context)
     if (typeof before === 'object') {
       this.host.focusCell(before.missing)

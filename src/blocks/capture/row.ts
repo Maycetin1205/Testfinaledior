@@ -110,6 +110,7 @@ function captureInputTpl(
     inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
     holderClass: 'cell-holder',
     marksOnEntering: true,
+    keepsTyping: true,
     slot,
     suggestions: list ? placement.suggestions : [],
     columns: list ? placement.windowColumns(slot) : [],

@@ -30,6 +30,10 @@ interface InputSpotPlacement {
   // A filled field is marked whole when the cursor comes in, also by click.
   marksOnEntering?: boolean
 
+  // The block keeps what is typed here itself, so a delivery need not wait
+  // for the cursor to leave (KEEPS_TYPING_ATTR, src/core/block/typingMarks.ts).
+  keepsTyping?: boolean
+
   beside?: TemplateResult
 }
 
@@ -74,6 +78,7 @@ export function inputSpotTpl(
       class=${placement.inputClass}
       type="text"
       data-column=${placement.slot ?? nothing}
+      ?data-ff-keeps-typing=${placement.keepsTyping === true}
       aria-label=${placement.title !== '' ? placement.title : nothing}
       placeholder=${placement.placeholder !== '' ? placement.placeholder : nothing}
       .value=${placement.value}

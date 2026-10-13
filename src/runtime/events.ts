@@ -1,7 +1,7 @@
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import { sectionsOf, chainsRead } from '../core/data/steps/chains'
 import { stepAdapter, type RuntimeStep } from '../core/data/steps/steps'
-import type { WrittenRow, RunReportElement, PendingKind } from '../core/block/capability'
+import type { RunReportElement, PendingKind } from '../core/block/capability'
 import { selectionFor } from './selection'
 import { maskState } from './maskState'
 import { contractOf, readActionValue } from '../core/block/registry'
@@ -41,10 +41,14 @@ interface Transcript {
   previousResult: string
 }
 
-// The rows a section runs over, and whom it reports each row to.
+// The rows a section runs over, and whom it reports each row to. open: the
+// row still waits to be written; asked again right before the row runs,
+// because another run, of a button or of the capture itself, may have
+// taken it meanwhile.
 interface ListRun {
   rows: RunRow[]
   report: RunReportElement
+  open: (key: string) => boolean
 }
 
 function bookedRows(raw: readonly { record: string; values: readonly string[] }[]): RunRow[] {
@@ -61,10 +65,15 @@ function rowsOfList(carrier: RowsCarrier, kind: PendingKind): ListRun | undefine
         key: capture.capturedKey[slot] ?? String(slot),
         values,
       })),
+      open: (key) => capture.capturedKey.includes(key),
     }
   }
   const change = contractOf(carrier, 'change')
-  return change && { report: change, rows: bookedRows(change.changedRows) }
+  return change && {
+    report: change,
+    rows: bookedRows(change.changedRows),
+    open: (key) => change.changedRows.some((row) => row.record === key),
+  }
 }
 
 function rowsContext(context: PlaceholderValues, row: RunRow): PlaceholderValues {
@@ -179,9 +188,6 @@ export async function runEvent(
   locks.add(eventKey)
   try {
     const sections = sectionsOf(steps)
-    const reports: {
-      report: RunReportElement; kind: PendingKind; finished: WrittenRow[]
-    }[] = []
     let written = false
     let cancelled = false
 
@@ -206,32 +212,31 @@ export async function runEvent(
         cancelled = true
         break
       }
-      if (list.rows.length === 0) continue
-      const report = { report: list.report, kind: section.kind, finished: [] as WrittenRow[] }
-      reports.push(report)
+      // Each row goes once: it is marked out before its steps run and done
+      // as soon as they ran, so no other run takes it meanwhile. A failed
+      // row stays, marked, and ends the run.
       for (const row of list.rows) {
+        if (!list.open(row.key)) continue
         list.report.rowWrites(section.kind, row.key)
 
         const result = await runSteps(el, steps, rowsContext(context, row),
           (blockId, columnsIndex) =>
             (blockId === section.blockId ? String(row.values[columnsIndex] ?? '') : ''),
-          section.slots, transcript)
-        if (result.written) written = true
+          section.slots, transcript).catch((): null => null)
+        if (result?.written === true) written = true
 
-        if (result.failed) {
+        if (result === null || result.failed) {
           list.report.rowFailed(section.kind, row.key)
           cancelled = true
           break
         }
-        report.finished.push({
+        list.report.runDone(section.kind, [{
           key: row.key,
           record: recordOfRun(result.transcript, row),
-        })
+        }])
       }
       if (cancelled) break
     }
-
-    for (const { report, kind, finished } of reports) report.runDone(kind, finished)
 
     if (written) maskState.host.requestFreshData()
     return { ran: true, written, cancelled, busy: false }

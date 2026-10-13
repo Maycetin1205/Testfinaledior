@@ -12,8 +12,8 @@ import { captureRowTpl } from './row'
 // The lookup window draws its rows with the table block.
 import '../table/Table'
 
-// Where the capture row is drawn and how big its lookup window opens. The
-// ledger answers everything else.
+// Where the capture row is drawn. The ledger answers everything else, also
+// how big a column's lookup window opens.
 interface CaptureRowPlacement {
   ledger: CaptureLedger
 
@@ -22,10 +22,6 @@ interface CaptureRowPlacement {
   preview: boolean
 
   sourceId: string
-
-  windowWidth: number
-
-  windowHeight: number
 }
 
 function openWindow(placement: CaptureRowPlacement, index: number): void {
@@ -39,8 +35,8 @@ function openWindow(placement: CaptureRowPlacement, index: number): void {
     storageTitle: spot.title,
     columns: spot.columns,
     title: spot.title,
-    width: placement.windowWidth,
-    height: placement.windowHeight,
+    width: spot.width,
+    height: spot.height,
     entries: spot.entries,
 
     backFocus: () => placement.ledger.focusCell(index),

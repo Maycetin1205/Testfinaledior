@@ -1,12 +1,12 @@
 import type { RelationAnswer, RuntimeRelation } from '../../core/data/relations'
 import type { RuntimeQuery } from '../../core/data/deliveries/message'
-import { onSeAnswer, seWindow, startSe } from '../bridge'
+import { onSeAnswer, onSeArrival, seWindow, startSe, writeGoesOut } from '../bridge'
 import { isObject, rowsFromQueryAnswer } from '../data'
 import { extractRecordAnswer, newSeMessageResult, resultFromAnswer, seMessageKeys } from './answer'
 
 // Sending to SoftEngine and waiting for the answer. The answers carry no
 // sender, so one question is out at a time: GET relations and ERP queries
-// share one queue.
+// share one queue. Writes have a turn of their own, below.
 
 interface RelationOptions {
   // The answer is the raw record, not one value out of it.
@@ -155,24 +155,54 @@ function sendGet(job: GetJob): void {
   }
 }
 
+// SoftEngine calculates a written position before it delivers the document
+// anew (B01, STK_POSLT, IB01: 09.10. and 13.10.). A second write into that
+// calculation nests in it (10.10., two questions of the formulas at once).
+// So a write goes out only once SoftEngine handed over the document after
+// the write before, or WRITE_WAIT_MS passed without it. A write itself sends
+// and is done; it gets no answer.
+const WRITE_WAIT_MS = 10_000
+
+const writes = { turn: Promise.resolve() }
+
+const NOT_SENT: RelationAnswer = { value: '', raw: undefined, failed: true }
+
+function sendWrite(template: RuntimeRelation, params: readonly string[]): {
+  answer: RelationAnswer
+  answered: Promise<void>
+} {
+  const g = seWindow()
+  if (typeof g.basisHTML_SND_MSG !== 'function') return { answer: NOT_SENT, answered: Promise.resolve() }
+  let stop = (): void => {}
+  const answered = new Promise<void>((resolve) => {
+    const clock = setTimeout(() => { stop() }, WRITE_WAIT_MS)
+    const unsubscribe = onSeArrival(() => { stop() })
+    stop = () => {
+      clearTimeout(clock)
+      unsubscribe()
+      resolve()
+    }
+  })
+  writeGoesOut()
+  try {
+    g.basisHTML_SND_MSG(template.verb, { NR: template.nr, PARAMS: [...params] })
+  } catch {
+    stop()
+    return { answer: NOT_SENT, answered }
+  }
+  return { answer: { value: '', raw: undefined }, answered }
+}
+
 export function relationRun(
   template: RuntimeRelation,
   params: readonly string[],
   options: RelationOptions = {},
 ): Promise<RelationAnswer> {
   startSe()
-  const g = seWindow()
   if (template.verb !== 'GET_RELATION') {
-    if (typeof g.basisHTML_SND_MSG !== 'function') {
-      return Promise.resolve({ value: '', raw: undefined, failed: true })
-    }
-    try {
-      g.basisHTML_SND_MSG(template.verb, { NR: template.nr, PARAMS: [...params] })
-    } catch {
-      return Promise.resolve({ value: '', raw: undefined, failed: true })
-    }
-
-    return Promise.resolve({ value: '', raw: undefined })
+    const sent = writes.turn.then(() => sendWrite(template, params))
+    writes.turn = sent.then((write) => write.answered)
+    return sent.then((write) => write.answer)
   }
   return new Promise((resolve) => {
     hostCalls.queue.push({ template, params: [...params], resolve, options })
