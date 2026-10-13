@@ -132,8 +132,6 @@ der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
 
 ## Einzelpunkte, ohne Reihenfolge
 
-- Pfeil runter in der Erfassung öffnet keine Vorschlagsliste (Tippen oder
-  F5). Der Nutzer prüft in SoftEngine, ob das stimmt.
 - Tag-Feld je Baustein: wie heute, nicht entschieden.
 - Datenquellen: eigenes Gespräch. Die Analyse der SoftEngine-Vorlagen des
   Nutzers ist noch nicht im Projekt.
