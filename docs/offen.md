@@ -79,6 +79,7 @@ B. Refresh nach dem Schreiben dauert Sekunden. Gemessen am Debug des
    (Punkt D). In der Maske gibt es die Quelle nicht mehr; vorher (Commit
    af29c97) war sie eine ERP-Abfrage `BELEG.GET` für eine Tabelle, nicht
    bestellt. Nichts geändert; der Verdacht trägt nicht.
+   Liegt (Nutzer, 13.10.): weiter erst mit einem neuen Debug.
 C. Rahmen im Bereich: der Nutzer sieht, dass Bausteine im Bereich ihre
    Rahmen verlieren. Headless (13.10., Behandlung und Belegerfassung): das
    markierte Feld im Bereich zeigt Rahmen, Griffe und Hover; Knopf und
@@ -100,11 +101,15 @@ E. Artikelinfo bei neuen Zeilen zeigt beim Nutzer nichts (headless ja).
 F. Design-Reste: Name im Band etwa 4 px höher als in der Vorlage; schmale
    Spaltenköpfe der Behandlung brauchen breitere Spalten (Maskenarbeit).
 G. Ereignisse der Erfassung, später: „Zeile geändert“, „Zeile gelöscht“,
-   „Positionen“ als Ganzes.
-H. Aufgeschoben vom Nutzer: START_TOOL 444 „Artikel hinzufügen“ und
+   „Positionen“ als Ganzes. Bleibt später (Nutzer, 13.10.).
+H. Gestrichen (Nutzer, 13.10.): START_TOOL 444 „Artikel hinzufügen“ und
    Schreiben ohne PUT 82.
 I. Danach das Refactoring unten (Schritte 2 bis 4), dann Export abspecken
    (Schritt 7).
+J. Text mit Beschriftung: der Text bekommt wie das Feld den Haken
+   „Beschriftung“ und die Rubrik klein in Versalien über dem Text, im
+   selben Maß und Ton wie beim Feld, damit Feld und Text mit Beschriftung
+   auf einer Linie stehen. Ohne Haken bleibt der Text wie heute.
 
 ## Refactoring, zuerst
 
