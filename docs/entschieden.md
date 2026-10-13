@@ -7,6 +7,12 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Bausteine überlappen nie: ein Zug, eine Größe oder ein neuer
+  Baustein auf belegte Zellen wird abgelehnt (Rahmen rot statt blau, der
+  Baustein bleibt). Die Regel, dass eine Liste sich kürzt, wenn ein Baustein
+  auf ihre untere Hälfte fällt, ist weg. Der gezogene Baustein geht mit der
+  Maus, der Zielrahmen liegt über allem. Pfeiltasten verschieben den
+  markierten Baustein um eine Zelle, mit Umschalt ändern sie die Größe.
 - 13.10. Das Blatt ist das ganze Fenster: kein grauer Grund drumherum, keine
   Rundung, kein Schatten, keine Höchstbreite (Nutzer: die Fläche wird
   genutzt). Der Innenrand 22/26/20 px bleibt. Das Band bleibt in seinem

@@ -71,21 +71,14 @@ export function growMinHeightStyle(node: BlockNode): Record<string, string> {
   return { minHeight: `${growMinHeightPx(spec.minHeight, gridSlotRead(node.values).h)}px` }
 }
 
-// A block laid on the lower part of a list on the page shortens the list so
-// it ends above the block.
-function growersEndAbove(tree: MaskTree, id: string): MaskTree {
-  const node = tree[id]
-  if (!node || node.parentId !== ROOT_ID || growsOnPage(node)) return tree
-  const pos = gridSlotRead(node.values)
-  let next = tree
-  for (const other of childrenInFlow(tree, ROOT_ID)) {
-    if (other.id === id || !growsOnPage(other)) continue
+// Whether another block of the area already stands on a cell of the slot.
+// Blocks never overlap: a move, a size or a new block that would is refused.
+export function slotTaken(tree: MaskTree, parentId: string, slot: GridSlot, exceptId: string | null): boolean {
+  return childrenInFlow(tree, parentId).some((other) => {
+    if (other.id === exceptId) return false
     const g = gridSlotRead(other.values)
-    const besideX = pos.x + pos.w <= g.x || g.x + g.w <= pos.x
-    if (besideX || pos.y <= g.y || pos.y >= g.y + g.h) continue
-    next = { ...next, [other.id]: { ...other, values: { ...other.values, gridH: pos.y - g.y } } }
-  }
-  return next
+    return slot.x < g.x + g.w && g.x < slot.x + slot.w && slot.y < g.y + g.h && g.y < slot.y + slot.h
+  })
 }
 
 export function freeRowOn(tree: MaskTree, parentId: string): number {
@@ -171,6 +164,7 @@ export function cellMoveIn(
   const ny = Math.max(0, y)
 
   if (sameArea && nx === cur.x && ny === cur.y && w === cur.w && h === cur.h) return null
+  if (slotTaken(tree, parentId, { x: nx, y: ny, w, h }, id)) return null
 
   if (!sameArea && (!node.parentId || !tree[node.parentId] || !tree[parentId])) return null
   const next: MaskTree = { ...tree }
@@ -186,7 +180,7 @@ export function cellMoveIn(
     parentId: parentId,
     values: { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: h },
   }
-  return growersEndAbove(keptInside(next, id, w), id)
+  return keptInside(next, id, w)
 }
 
 // A new place and size in the same area, kept inside the columns.
@@ -206,6 +200,7 @@ export function slotResize(
   const y = Math.max(0, slot.y)
   const h = Math.max(1, slot.h)
   if (x === cur.x && y === cur.y && w === cur.w && h === cur.h) return null
+  if (slotTaken(tree, node.parentId, { x, y, w, h }, id)) return null
   return keptInside({
     ...tree,
     [id]: { ...node, values: { ...node.values, gridX: x, gridY: y, gridW: w, gridH: h } },
@@ -229,13 +224,14 @@ export function newBlockOnCell(
   const w = Math.min(spec.startWidth, columns)
   const nx = Math.max(0, Math.min(x, columns - w))
   const ny = Math.max(0, y)
+  if (slotTaken(tree, parentId, { x: nx, y: ny, w, h: spec.startHeight }, null)) return null
   node.values = { ...node.values, gridX: nx, gridY: ny, gridW: w, gridH: spec.startHeight }
   return {
-    tree: growersEndAbove({
+    tree: {
       ...tree,
       ...nodes,
       [parent.id]: { ...parent, childIds: [...parent.childIds, node.id] },
-    }, node.id),
+    },
     node,
   }
 }

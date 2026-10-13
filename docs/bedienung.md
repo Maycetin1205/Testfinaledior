@@ -24,7 +24,10 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 - Markieren durch Klick, Verschieben durch Ziehen, Größe an den Kanten am
   Raster, Löschen mit Entf, Duplizieren mit Strg+D. Ein markierter Bereich
   wird mit allem gezogen, was darin liegt, auch wenn man einen Baustein
-  darin anfasst (13.10.).
+  darin anfasst (13.10.). Beim Ziehen geht der Baustein mit der Maus, der
+  Zielrahmen zeigt die Zellen: blau frei, rot belegt; auf belegten Zellen
+  bleibt der Baustein, wo er war. Pfeiltasten verschieben den markierten
+  Baustein um eine Zelle, Umschalt+Pfeil ändert die Größe.
 - Feld binden: Klick auf die Stelle, die Feldliste der Quelle erscheint
   dort. Gebundene Stellen gepunktet unterstrichen.
 - Aktionen: je Ereignis die Schritte als Zeilen; das Schrittfenster in der

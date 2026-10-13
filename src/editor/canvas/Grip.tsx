@@ -2,16 +2,17 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 import { cn } from '@/editor/widgets/cn'
 import type { Edge } from './useBlockResize'
 
-// An edge takes the pointer along its whole length; its mark sits in the middle.
+// An edge takes the pointer along its whole length, 10 px wide so it is
+// easy to hit; its mark sits in the middle.
 const GRIP_PLACE: Record<Edge, string> = {
-  n: '-top-1 inset-x-[4px] h-[7px] cursor-ns-resize',
-  s: '-bottom-1 inset-x-[4px] h-[7px] cursor-ns-resize',
-  e: '-right-1 inset-y-[4px] w-[7px] cursor-ew-resize',
-  w: '-left-1 inset-y-[4px] w-[7px] cursor-ew-resize',
-  ne: '-right-1 -top-1 h-[7px] w-[7px] cursor-nesw-resize',
-  se: '-bottom-1 -right-1 h-[7px] w-[7px] cursor-nwse-resize',
-  sw: '-bottom-1 -left-1 h-[7px] w-[7px] cursor-nesw-resize',
-  nw: '-left-1 -top-1 h-[7px] w-[7px] cursor-nwse-resize',
+  n: '-top-[5px] inset-x-[6px] h-[10px] cursor-ns-resize',
+  s: '-bottom-[5px] inset-x-[6px] h-[10px] cursor-ns-resize',
+  e: '-right-[5px] inset-y-[6px] w-[10px] cursor-ew-resize',
+  w: '-left-[5px] inset-y-[6px] w-[10px] cursor-ew-resize',
+  ne: '-right-[5px] -top-[5px] h-[10px] w-[10px] cursor-nesw-resize',
+  se: '-bottom-[5px] -right-[5px] h-[10px] w-[10px] cursor-nwse-resize',
+  sw: '-bottom-[5px] -left-[5px] h-[10px] w-[10px] cursor-nesw-resize',
+  nw: '-left-[5px] -top-[5px] h-[10px] w-[10px] cursor-nwse-resize',
 }
 
 interface GripProps {
@@ -34,7 +35,7 @@ export function Grip({ edge, onStart, onReset }: GripProps) {
       }}
       className={cn('pointer-events-auto absolute z-30 flex items-center justify-center', GRIP_PLACE[edge])}
     >
-      <span className="h-[7px] w-[7px] bg-[hsl(var(--wb-selection))]" />
+      <span className="h-[8px] w-[8px] bg-[hsl(var(--wb-selection))] ring-1 ring-[hsl(var(--wb-panel))]" />
     </div>
   )
 }

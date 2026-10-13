@@ -1,7 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import type { BlockNode } from '../../core/block/tree'
 import { gridSlotRead } from '../../core/block/grid'
-import { columnsOf } from '../../core/block/gridArea'
+import { columnsOf, slotTaken } from '../../core/block/gridArea'
 import { mayContain } from '../../core/block/registry'
 import type { EditorStore } from '../state/EditorStore'
 import type { DndState } from './dndState'
@@ -61,7 +61,7 @@ export function dragPosition(
   const id = node.id
   const own: AreasHit = { parentId, area: gridEl }
   let active = false
-  let last: { target: AreasHit; x: number; y: number } | null = null
+  let last: { target: AreasHit; x: number; y: number; free: boolean } | null = null
 
   const targetArea = (x: number, y: number): AreasHit => {
     const hit = areaUnderPointer(editor.tree, editor.rootId, x, y)
@@ -88,20 +88,25 @@ export function dragPosition(
       active = true
       dnd.setDragId(id)
     }
+    // The block goes with the pointer; the ghost shows the cells it would take.
+    dnd.setDragOffset({ dx: ev.clientX - startX, dy: ev.clientY - startY })
     const target = targetArea(ev.clientX, ev.clientY)
     const cell = cellFromPointer(target.area, ev.clientX - grab.x, ev.clientY - grab.y)
     const w = Math.min(pos.w, columnsOf(editor.tree, target.parentId))
     const x = Math.max(0, Math.min(cell.x, columnsOf(editor.tree, target.parentId) - w))
     const capacity = rowsCapacity(editor.tree, target.parentId, target.area)
     const y = rowInBox(capacity, cell.y, pos.h)
-    last = { target, x, y }
-    dnd.setDropTarget({ parentId: target.parentId, x, y, w, h: pos.h })
+    const free = !slotTaken(editor.tree, target.parentId, { x, y, w, h: pos.h }, id)
+    last = { target, x, y, free }
+    dnd.setDropTarget({ parentId: target.parentId, x, y, w, h: pos.h, free })
   }
 
+  // Let go on taken cells: the block stays where it was. Either way the
+  // click that ends a drag is no click on the block.
   const onUp = (): void => {
     cleanUp()
-    if (active && last) {
-      editor.moveNodeToCell(id, last.target.parentId, last.x, last.y)
+    if (active) {
+      if (last && last.free) editor.moveNodeToCell(id, last.target.parentId, last.x, last.y)
       swallowNextClick()
     }
     dnd.reset()

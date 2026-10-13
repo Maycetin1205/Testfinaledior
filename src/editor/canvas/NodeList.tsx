@@ -7,17 +7,21 @@ import { BlockHost } from './BlockHost'
 import { useDnd } from './dndState'
 import { dragPosition } from './dragPosition'
 
-function GridGhost({ slot }: { slot: GridSlot }) {
+// The cells a dragged block would take: blue where they are free, red where
+// another block stands. It lies over every block, so it shows everywhere.
+function GridGhost({ slot, free }: { slot: GridSlot; free: boolean }) {
+  const tone = free ? '--wb-selection' : '--wb-error'
   return (
     <div
       aria-hidden
       data-ff-editor-helper
       style={{
         ...gridSlotStyle(slot),
+        position: 'relative',
+        zIndex: 40,
         pointerEvents: 'none',
-        // .dropzone.is-drop-aktiv: 2px dashed, 8 % of the color underneath.
-        background: 'hsl(var(--wb-selection) / 0.08)',
-        border: '2px dashed hsl(var(--wb-selection))',
+        background: `hsl(var(${tone}) / 0.10)`,
+        border: `2px dashed hsl(var(${tone}))`,
         borderRadius: 'var(--radius)',
       }}
     />
@@ -37,7 +41,7 @@ export function NodeList({ parentId }: { parentId: string }) {
   return (
     <>
       {nodes.map((node) => <CanvasNode key={node.id} node={node} parentId={parentId} />)}
-      {ghost && <GridGhost slot={ghost} />}
+      {ghost && <GridGhost slot={ghost} free={ghost.free} />}
     </>
   )
 }
@@ -56,6 +60,8 @@ function CanvasNode({ node, parentId }: { node: BlockNode; parentId: string }) {
   const ed = useEditor()
   const dnd = useDnd()
   const isContainer = blockType(node.type)?.takesChildren ?? false
+  // While dragged, the block goes with the pointer, lifted over the others.
+  const carried = dnd.dragId === node.id ? dnd.dragOffset : null
 
   return (
     <div
@@ -66,9 +72,18 @@ function CanvasNode({ node, parentId }: { node: BlockNode; parentId: string }) {
         dragPosition(ed, dnd, e, node, parentId)
       }}
       style={{
-        opacity: dnd.dragId === node.id ? 0.4 : 1,
         ...gridSlotStyle(gridSlotRead(node.values)),
         ...areaColumnsStyle(node),
+        ...(carried
+          ? {
+            position: 'relative' as const,
+            zIndex: 50,
+            pointerEvents: 'none' as const,
+            opacity: 0.9,
+            transform: `translate(${carried.dx}px, ${carried.dy}px)`,
+            filter: 'drop-shadow(0 8px 20px hsl(var(--wb-ink) / 0.18))',
+          }
+          : {}),
       }}
     >
       <BlockHost

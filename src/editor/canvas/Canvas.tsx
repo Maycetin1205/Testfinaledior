@@ -3,7 +3,7 @@ import { gridAreaStyle } from '../../core/block/grid'
 import { useEditor } from '../state/useEditor'
 import { NodeList } from './NodeList'
 import { isNewBlockDrag } from './dnd'
-import { commitDrop, DndContext, sameTarget, type DndState, type DropTarget } from './dndState'
+import { commitDrop, DndContext, sameTarget, type DndState, type DragOffset, type DropTarget } from './dndState'
 import { gridTarget } from './gridDnd'
 import { areaUnderPointer } from './gridArea'
 import { PopupPage } from './PopupPage'
@@ -17,16 +17,21 @@ export function Canvas() {
     rememberDropTarget((before) => (sameTarget(before, target) ? before : target))
   }, [])
 
+  const [dragOffset, setDragOffset] = useState<DragOffset | null>(null)
+
   const dnd = useMemo<DndState>(() => ({
     dragId,
     dropTarget,
+    dragOffset,
     setDragId,
     setDropTarget,
+    setDragOffset,
     reset: () => {
       setDragId(null)
       setDropTarget(null)
+      setDragOffset(null)
     },
-  }), [dragId, dropTarget, setDropTarget])
+  }), [dragId, dropTarget, dragOffset, setDropTarget])
 
   const mainPage = ed.pages.find((p) => p.id === ed.activePageId)?.isMainPage ?? true
 
@@ -50,12 +55,12 @@ export function Canvas() {
 
           className="relative min-h-0 w-full flex-1 overflow-hidden rounded border border-line"
 
-          // The window of the mask: its ground, and on it the sheet, as the
-          // export draws them (exportMask.ts).
+          // The window of the mask: the white sheet to its edges, as the
+          // export draws it (exportMask.ts). The canvas ground shows only
+          // below a mask shorter than the canvas.
           style={{
             minHeight: 400,
             boxSizing: 'border-box',
-            padding: 'var(--se-window-room)',
             background: 'var(--se-bg)',
             fontFamily: 'var(--se-font)',
             fontSize: 'var(--se-fs)',
@@ -69,13 +74,9 @@ export function Canvas() {
             className="h-full min-h-0 overflow-auto"
             style={{
               ...gridAreaStyle(),
-              maxWidth: 'var(--se-sheet-max)',
-              margin: '0 auto',
               padding: 'var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom)',
               boxSizing: 'border-box',
               background: 'var(--se-panel)',
-              borderRadius: 'var(--se-radius-card)',
-              boxShadow: 'var(--se-shadow-sheet)',
               fontVariantNumeric: 'tabular-nums',
               caretColor: 'var(--se-accent)',
               scrollbarWidth: 'thin',
