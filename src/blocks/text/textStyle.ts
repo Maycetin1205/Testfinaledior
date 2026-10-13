@@ -5,6 +5,43 @@ import { chipShape } from '../parts/chip'
 // stands 10 px in from its frame, where the words of a field and a chip
 // stand, so inside a card everything begins on the line of the title.
 export const textStyle = css`
+  /* The frame is the room of the block on the grid; the text in it is as
+     high as its lines. */
+  .frame {
+    box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .frame > .text { flex: none; }
+  .frame.away { visibility: hidden; }
+
+  /* Unten ausrichten: the text at the bottom of its frame, its last baseline
+     one row of the grid above the edge, so texts of any size whose frames end
+     on one row stand on one line, and a sum rule under it keeps clear of the
+     figures. */
+  .frame.bottom > .text {
+    margin-top: auto;
+    padding-bottom: 12px;
+    text-box-trim: trim-end;
+    text-box-edge: text alphabetic;
+  }
+
+  /* Summenlinie: the rule over the frame and the double rule under it, as
+     under the total of an invoice. They take no room, so a text beside
+     keeps its line. */
+  .frame.sum-rule { position: relative; }
+  .frame.sum-rule::before,
+  .frame.sum-rule::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+  .frame.sum-rule::before { top: 0; border-top: var(--se-rule); }
+  .frame.sum-rule::after { bottom: 0; border-bottom: 3px double var(--se-ink); }
+
   .text {
     box-sizing: border-box;
     font-family: var(--se-font);
@@ -71,6 +108,44 @@ export const textStyle = css`
     font-weight: 600;
   }
 
+  /* Rubrik: small capitals, spaced and light, over or beside a value. */
+  .variant-rubric {
+    padding-top: 3px;
+    color: var(--se-label);
+    font-size: var(--se-fs-rubric);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--se-tracking-caps);
+  }
+
+  /* Kopf: a Rubrik, smaller, tight over its value. */
+  .variant-head {
+    color: var(--se-label);
+    font-size: var(--se-fs-head);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--se-tracking-caps);
+    --text-line-height: 1.1;
+  }
+
+  /* Hilfe: a quiet line under a part of the sheet. */
+  .variant-hint {
+    color: var(--se-label);
+    font-size: var(--se-fs-sm);
+    font-weight: 600;
+  }
+
+  /* Betrag: a large figure, tight. */
+  .variant-amount {
+    color: var(--se-ink);
+    font-size: var(--se-fs-xxl);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    --text-line-height: 1.2;
+  }
+
   .align-center { text-align: center; }
   .align-right { text-align: right; }
 
@@ -114,4 +189,31 @@ export const textStyle = css`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  /* Einzeilig: one line, what is too long ends in an ellipsis. */
+  .one-line,
+  .one-line .words {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Leer zeigt Strich: a quiet dash where the value would stand. */
+  .empty .words::after {
+    content: "–";
+    color: var(--se-label);
+  }
+
+  /* Ohne Auswahl: the hint stands in place of the value, quiet. */
+  .text.hinting {
+    color: var(--se-muted);
+    font-size: var(--se-fs);
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* Null oder weniger rot. */
+  .text.not-positive,
+  .text.not-positive.emphasis-text { color: var(--se-danger-ink); }
 `

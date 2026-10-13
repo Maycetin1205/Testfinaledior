@@ -52,6 +52,19 @@ export const areaStyle = css`
     outline-offset: calc(-1 * var(--se-border));
   }
 
+  /* Band: the head of the sheet, like the head of a letter. It reaches over
+     the padding of the sheet to its edges, on a quiet grey with a hairline
+     under it; the columns inside stay those of the sheet. It belongs at the
+     top of the page, over the whole width. */
+  .appearance-band {
+    height: calc(100% + var(--se-sheet-top));
+    margin: calc(-1 * var(--se-sheet-top)) calc(-1 * var(--se-sheet-x)) 0;
+    padding: 18px var(--se-sheet-x) 14px;
+    background: var(--se-band-ground);
+    border-bottom: var(--se-hair);
+    border-radius: 0;
+  }
+
   /* The head, .card .hd: the title as text on the card. Fläche voll and
      Fläche leicht lay a band of the tone under it, Nur Rand draws the card's
      edge in the tone instead of the shadow, Nur Schrift colors the title. */

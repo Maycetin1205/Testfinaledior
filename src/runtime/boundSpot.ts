@@ -41,3 +41,14 @@ export function readBoundSpot(el: HTMLElement, bindingAttr: string): BoundSpot {
     : makeFieldReader(el)(row, code)
   return { kind: 'value', value, row, source, sourceId, cleanCode }
 }
+
+// Whether a block with a source has a row to show: the row it follows is
+// chosen, or, following nothing, its source holds a row. A block without a
+// source always has.
+export function hasRowToShow(el: HTMLElement): boolean {
+  const ownSource = sourceIdOf(el)
+  if (ownSource === '') return true
+  const host = maskState.host
+  const source = host.source(ownSource)
+  return source !== undefined && firstRowToSelection(el, host.rows(source)) !== undefined
+}

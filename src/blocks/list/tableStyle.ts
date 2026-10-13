@@ -1,9 +1,9 @@
 import { css } from 'lit'
 
-// The table of the sample docs/design/behandlung-modern.html (.tbl): a grey
-// bold head, rows apart by a hairline, no lines between the columns, the
-// figures right. On the ground of the page the table is a card of its own;
-// inside a card it lies flat (--se-surface-shadow).
+// The table and the capture are ruled like an invoice on the sheet: no card,
+// the head in grey bold capitals over the strong rule, rows apart by a faint
+// line, faint lines between the columns, a hairline under the whole, the
+// figures right. The empty room below is ruled on to the bottom.
 export const tableStyle = css`
       :host { min-width: 0; height: 100%; }
 
@@ -17,8 +17,7 @@ export const tableStyle = css`
         flex-direction: column;
         height: 100%;
         background: var(--se-panel);
-        border-radius: var(--se-radius-card);
-        box-shadow: var(--se-surface-shadow);
+        border-bottom: var(--se-hair);
         overflow: hidden;
         font-family: var(--se-font);
         font-size: var(--se-fs-lg);
@@ -90,10 +89,11 @@ export const tableStyle = css`
         z-index: 1;
         flex: none;
         background: var(--se-panel);
-        /* .tbl th: small grey bold type, a hairline under it. */
-        border-bottom: var(--se-border) solid var(--se-line-soft);
-        font-size: var(--se-fs-sm);
+        border-bottom: var(--se-head-rule);
+        font-size: var(--se-fs-rubric);
         font-weight: 700;
+        text-transform: var(--se-head-case);
+        letter-spacing: var(--se-head-tracking);
         color: var(--se-muted);
       }
 
@@ -174,6 +174,13 @@ export const tableStyle = css`
         font-variant-numeric: tabular-nums;
       }
       .head > div.right { justify-content: flex-end; text-align: right; }
+
+      /* The faint lines between the columns, through head, rows and the
+         ruled room below; in a grey line between its own cells. */
+      .head > div + div,
+      .row > [role='cell']:not(.sub) + [role='cell']:not(.sub),
+      .row > .sub + .sub,
+      .ruler > div + div { box-shadow: var(--se-col-edge); }
 
       /* A record with a grey line is two lines high: the row on top and,
          under a cell of it, the column anchored there, as wide as the cell.

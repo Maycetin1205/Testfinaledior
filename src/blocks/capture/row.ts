@@ -37,6 +37,9 @@ interface CapturePlacement {
 
   windowColumns: (index: number) => readonly Column[]
 
+  // The quiet words an empty cell shows.
+  placeholder: (index: number) => string
+
   listToTop: boolean
 }
 
@@ -103,7 +106,7 @@ function captureInputTpl(
   return html`${inputSpotTpl({
     value,
     title: column.title,
-    placeholder: '',
+    placeholder: placement.placeholder(slot),
     inputClass: cellsClass(placement.automatic(slot) ? 'automatic' : 'quiet'),
     holderClass: 'cell-holder',
     marksOnEntering: true,

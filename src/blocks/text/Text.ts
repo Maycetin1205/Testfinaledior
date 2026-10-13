@@ -1,9 +1,11 @@
 import { html, nothing, type CSSResultGroup, type TemplateResult } from 'lit'
+import { state } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { reportsHeight } from '../base/heightReport'
 import { bindable, bindingAttr } from '../../core/block/capability'
-import { readBoundSpot } from '../../runtime/boundSpot'
+import { asNumber } from '../../core/data/number'
+import { hasRowToShow, readBoundSpot } from '../../runtime/boundSpot'
 import { makeDataLink, sourceIdOf, spotValue } from '../../runtime/source'
 import { makeFieldReader } from '../../runtime/foreignSources'
 import { bindingFields } from '../../core/block/binding'
@@ -19,6 +21,12 @@ const TEXT_BINDING = bindingAttr('text')
 // Without a choice of its own the role decides.
 const tokenOf = (token: string | undefined): string | undefined => (token ? `var(${token})` : undefined)
 
+// A number of zero or less, read the German way; any other text is none.
+function notPositive(text: string): boolean {
+  const n = asNumber(text)
+  return n !== null && n <= 0
+}
+
 export interface Text extends TextValues {}
 
 export class Text extends BlockElement {
@@ -27,6 +35,10 @@ export class Text extends BlockElement {
 
   static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, textStyle]
 
+  // In the mask: the text follows a selection and no row is chosen, or its
+  // source holds no row.
+  @state() withoutRow = false
+
   constructor() {
     super()
     reportsHeight(this, () => this.renderRoot.querySelector('.text'))
@@ -34,13 +46,31 @@ export class Text extends BlockElement {
 
   // The size of a text is its own; color and emphasis come from the look.
   // The symbol stands before the words, which alone are typed and bound.
+  // The frame is the block's room on the grid: the text stands at its top or
+  // its bottom, the sum rule lies on its edges.
   override render(): TemplateResult {
     const align = ALIGNS.includes(this.align) ? this.align : 'left'
     const withSymbol = this.symbol !== ''
     const look = lookClass({ tone: this.tone, emphasis: this.emphasis })
-    return html`<div
-      class="text variant-${this.variant} align-${align} ${look}${withSymbol ? ' with-symbol' : ''}"
-      style=${styleMap({ fontSize: tokenOf(TEXT_SIZES[this.size]) })}
+    const waiting = !this.preview && this.withoutRow ? this.withoutChoice : 'empty'
+    const hinting = waiting === 'hint' && this.withoutHint !== ''
+    const words = hinting ? this.withoutHint : this.text
+    const empty = !hinting && words.trim() === ''
+    const marks = [
+      this.oneLine ? 'one-line' : '',
+      hinting ? 'hinting' : '',
+      this.emptyDash && empty ? 'empty' : '',
+      this.redBelowZero && !hinting && notPositive(words) ? 'not-positive' : '',
+    ].filter((mark) => mark !== '').join(' ')
+    const frame = [
+      'frame',
+      this.bottom ? 'bottom' : '',
+      this.sumRule ? 'sum-rule' : '',
+      waiting === 'hide' ? 'away' : '',
+    ].filter((mark) => mark !== '').join(' ')
+    return html`<div class=${frame}><div
+      class="text variant-${this.variant} align-${align} ${look}${withSymbol ? ' with-symbol' : ''}${marks === '' ? '' : ` ${marks}`}"
+      style=${styleMap({ fontSize: hinting ? undefined : tokenOf(TEXT_SIZES[this.size]) })}
     >${withSymbol ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}<span
         class="words"
         data-ff-editable
@@ -51,7 +81,7 @@ export class Text extends BlockElement {
           this.reportSpot(e)
           this.inlineEdit(e, 'text')
         }}
-      >${this.text}</span></div>`
+      >${words}</span></div></div>`
   }
 
   override connectedCallback(): void {
@@ -69,6 +99,7 @@ export class Text extends BlockElement {
 // the data list does, the empty ones left out.
 const link = makeDataLink<Text>({
   hydrate: (el) => {
+    el.withoutRow = !hasRowToShow(el)
     const spot = readBoundSpot(el, TEXT_BINDING)
     if (spot.kind === 'unbound') return
     if (spot.kind !== 'value') {

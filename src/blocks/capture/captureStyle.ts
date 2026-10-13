@@ -12,11 +12,12 @@ export const captureStyle = css`
         z-index: 1;
       }
 
-      /* The capture row: white, its cells without a box, like every other
-         row (user, 07.10. and 09.10.). */
+      /* The capture row: tinted, a line over it, its cells without a box
+         like every other row (user, 07.10. and 09.10.). */
       .row.capture {
         flex: none;
-        background: var(--se-panel);
+        background: var(--se-capture-ground);
+        box-shadow: var(--se-capture-edge);
       }
 
       .row.captured { flex: none; }

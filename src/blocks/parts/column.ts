@@ -19,6 +19,9 @@ export type Column = {
 
   total?: boolean
 
+  // The builder says the column holds numbers.
+  figure?: boolean
+
   hidden?: boolean
 
   // The builder typed the title; a picked field leaves it alone.
@@ -59,16 +62,19 @@ export interface Figure {
   decimals: number | null
 }
 
-// A column holds numbers when it carries a sum or a calculation of its block
-// names it: the facts of a column that say so. Its field code does not (it is
-// place and length), and a value that merely looks like a number, like an
-// article number, stands left with its text, so a column never mixes its
-// edges. The column a calculation is told from shows that calculation's
-// digits after the comma; any other as delivered. Null for text.
+// A column holds numbers when it carries a sum, a calculation of its block
+// names it, or the builder said so (Zahl): the facts of a column that say so.
+// Its field code does not (it is place and length), and a value that merely
+// looks like a number, like an article number, stands left with its text, so
+// a column never mixes its edges. The column a calculation is told from
+// shows that calculation's digits after the comma; any other as delivered.
+// Null for text.
 export function figureOf(column: Column, calculations: readonly Calculation[]): Figure | null {
   const decimals = leadDecimals(calculations, column.key)
   if (decimals !== undefined) return { decimals }
-  return column.total === true || namesColumn(calculations, column.key) ? { decimals: null } : null
+  return column.total === true || column.figure === true || namesColumn(calculations, column.key)
+    ? { decimals: null }
+    : null
 }
 
 // What a cell shows of its value: a number of a column of numbers the mask's
@@ -116,7 +122,7 @@ function asWidth(v: unknown): number | undefined {
   return rounded < COLUMNS_MIN_WIDTH ? COLUMNS_MIN_WIDTH : rounded
 }
 
-const KNOWN_FACTS: readonly string[] = ['key', 'title', 'field', 'width', 'total', 'hidden', 'titleTyped']
+const KNOWN_FACTS: readonly string[] = ['key', 'title', 'field', 'width', 'total', 'figure', 'hidden', 'titleTyped']
 
 // A column entry may carry facts of the block that declared it: the capture
 // keeps its own per column. They travel through untouched.
@@ -136,6 +142,8 @@ function asColumn(raw: unknown, index: number): Column {
       ...(width === undefined ? {} : { width }),
 
       ...(typeof raw.total === 'boolean' ? { total: raw.total } : {}),
+
+      ...(typeof raw.figure === 'boolean' ? { figure: raw.figure } : {}),
 
       ...(typeof raw.hidden === 'boolean' ? { hidden: raw.hidden } : {}),
 
@@ -228,6 +236,16 @@ const TOTAL: EntrySwitch<Column> = {
   withValue: (column, on) => withEntryValue(column, 'total', on),
 }
 
+// A column of numbers without a sum or a calculation, like the price of an
+// article: right, with the thousands point.
+const FIGURE: EntrySwitch<Column> = {
+  key: 'figure',
+  name: 'Zahl: rechts, mit Tausenderpunkt',
+  short: 'Zahl',
+  valueOf: (column) => column.figure,
+  withValue: (column, on) => withEntryValue(column, 'figure', on),
+}
+
 const HIDDEN: EntrySwitch<Column> = {
   key: 'hidden',
   name: 'In der Maske ausblenden',
@@ -249,7 +267,7 @@ export const COLUMNS_BINDING: ListBinding<Column, 'columns'> = {
 
   entryHeads: true,
 
-  entryFlag: [TOTAL, HIDDEN],
+  entryFlag: [TOTAL, FIGURE, HIDDEN],
 }
 
 export function columnsProperty(): Property<Column[]> {

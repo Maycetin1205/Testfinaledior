@@ -1,9 +1,12 @@
 import type { TemplateResult } from 'lit'
+import { readDeclared } from '../../core/block/registry'
 import { openLookup } from '../lookup/lookup'
 import { keyOf } from '../lookup/suggestionState'
 import type { ColumnView } from '../parts/column'
 import type { RowLayout } from '../parts/cell'
+import type { CaptureColumn } from './column'
 import type { CaptureLedger } from './ledger'
+import { captureProperties } from './properties'
 import { captureRowTpl } from './row'
 
 // The lookup window draws its rows with the table block.
@@ -79,6 +82,19 @@ function key(placement: CaptureRowPlacement, index: number, e: KeyboardEvent): v
   if (keep) e.preventDefault()
 }
 
+// The quiet words in the empty cells of the row being typed: the title of a
+// required column, the hint of the block in the first column that is not.
+function placeholders(block: HTMLElement, view: ColumnView): (slot: number) => string {
+  const hint = readDeclared(block, captureProperties.rowHint) ?? ''
+  const required = (i: number): boolean => (view.columns[i] as CaptureColumn).required === true
+  const hintAt = view.slots.find((_, i) => !required(i))
+  return (slot) => {
+    const i = view.slots.indexOf(slot)
+    if (i !== -1 && required(i)) return view.columns[i].title
+    return slot === hintAt ? hint : ''
+  }
+}
+
 export function captureRowFor(
   placement: CaptureRowPlacement,
   view: ColumnView,
@@ -102,6 +118,7 @@ export function captureRowFor(
     mark: ledger.mark,
     typed: (i) => ledger.typedAt(i),
     windowColumns: (i) => ledger.windowColumnsAt(i),
+    placeholder: placement.preview ? () => '' : placeholders(placement.block, view),
     listToTop,
   }, {
     typing: (i, text) => ledger.type(i, text),

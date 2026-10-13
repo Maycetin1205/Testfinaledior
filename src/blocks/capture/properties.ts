@@ -1,4 +1,4 @@
-import { numberProperty, type ValuesOf } from '../../core/block/property'
+import { numberProperty, textProperty, type ValuesOf } from '../../core/block/property'
 import { calculationsProperty } from '../../core/data/calculation'
 import { listProperties } from '../list'
 import { captureColumnsProperty } from './column'
@@ -26,6 +26,14 @@ export const captureProperties = {
     label: 'Fensterhöhe',
     place: 'none',
     attribute: 'lookupheight',
+  }),
+  // The row being typed shows the title of each required column as a quiet
+  // placeholder, and this hint in the first column that is not required.
+  rowHint: textProperty({
+    default: '',
+    label: 'Hinweis in der Tippzeile',
+    place: 'display',
+    attribute: 'rowhint',
   }),
 }
 

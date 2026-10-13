@@ -72,8 +72,8 @@ export const cellsInputStyle = css`
       .right .cell-holder > .cell-input { text-align: right; }
 
       .cell-input::placeholder { color: transparent; }
-      .row.capture .cell-input::placeholder { color: var(--se-faint); }
-      .row:focus-within .cell-input::placeholder { color: var(--se-faint); }
+      .row.capture .cell-input::placeholder { color: var(--se-placeholder); }
+      .row:focus-within .cell-input::placeholder { color: var(--se-placeholder); }
 
       /* Taken from the chosen record and shown like any other value: a tint or
          italics made the row look foreign. */
