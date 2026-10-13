@@ -70,8 +70,9 @@ Jeder Schritt lässt das Verhalten der Maske gleich; der Referenzabzug
    Masken auf einer Seite sollen.
 
 Stand 13.10.: Schritt 1 Teil 1 (Toolbar, Palette, Reiter) gebaut und
-abgenommen (9c90662). Teil 2 (Leiste und ihre Fenster) gebaut 13.10.,
-Abnahme offen: kleine Fenster ohne Rand mit Schatten, Gruppen als fette
+abgenommen (9c90662). Teil 2 (Leiste und ihre Fenster) gebaut und
+abgenommen 13.10. (9a6340a, Kästchen 20 px wie im Muster a3884d4): kleine
+Fenster ohne Rand mit Schatten, Gruppen als fette
 Überschrift mit Haarlinie, Ankreuzkästchen der Maske (`TickBox`), Feldcodes
 als leiser Text statt grauer Pille, Fenster in der Mitte mit Rundung 12 px,
 Tabellen in Fenstern ohne senkrechte Linien. Das Datenfenster trägt Rahmen,
