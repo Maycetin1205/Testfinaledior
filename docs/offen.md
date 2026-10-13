@@ -34,7 +34,45 @@ muss so sein, dass ein eigener Programmierer ihn übernehmen kann.
   Nach dem Bau sieht er ihn in SoftEngine.
 - Änderungen unter `masken/` bleiben uncommittet.
 
-## Stand 13.10. abends: offen, in dieser Reihenfolge
+## Plan für Opus-Chats, Stand 13.10. abends
+
+Ein Chat je Zeile, in dieser Reihenfolge. Der Nutzer schreibt in den Chat
+nur: „Lies docs/offen.md, baue Chat N aus dem Plan für Opus-Chats, halte
+dich an den Rahmen für jeden Auftrag.“ Details stehen unter den Buchstaben
+im Abschnitt danach. Im Arbeitsbaum liegt ein angefangener Stand von J
+(`src/blocks/text/Text.ts`, `properties.ts`, `textStyle.ts`, uncommittet):
+Chat 1 nimmt ihn als Ausgangspunkt, prüft ihn und bringt ihn zu Ende oder
+wirft ihn weg.
+
+1. J: Text mit Beschriftung, wie das Feld. Commit. Danach Export und
+   Referenzabzug unverändert für Masken ohne Beschriftung. Erledigt 13.10.
+2. D: alte Exportdatei in `masken/belegerfassung` durch den aktuellen
+   Export ersetzen (Dateinamen bleiben, uncommittet). Dann exportiert der
+   Nutzer nach V7 und testet F4 (A) mit einem doppelten Artikel.
+3. E: Artikelinfo nach Auswahl aus der Liste. Verdacht: Schlüssel aus
+   SoftEngine sind auf Feldlänge mit Leerzeichen gefüllt, die Tippzeile
+   nicht; Vergleich getrimmt, an einer Stelle. Headless mit gefüllten
+   Schlüsseln prüfen. Commit.
+4. K: Nach F4 rückte die Tippzeile beim Nutzer nicht nach oben, bis eine
+   neue Zeile geschrieben war; headless (scratchpad `f4.mjs`, Lieferung
+   nach dem PUT 53) rückt sie. Also kommt bei ihm nach PUT 53 keine
+   Lieferung an oder sie wird nicht gezeigt. Prüfen: `bridge.ts`
+   (`ring`, `typingHeld`, Signatur), `events.ts` (`requestFreshData`),
+   `rowActivation.ts` (F4 bei laufender Kette: `busy` wird still
+   verschluckt; mehrere F4 kurz nacheinander gehen verloren). Mindestens:
+   F4 während eine Kette läuft wird nicht verschluckt, sondern nach ihr
+   ausgeführt. Commit.
+5. F: Name im Band auf die Linie der Vorlage, breitere Spalten in der
+   Behandlung. Commit (Code) und Maske (uncommittet).
+6. I: Refactoring Schritte 2, 3, 4 (je ein Chat), dann Schritt 7 Export
+   abspecken.
+7. B nur mit neuem Debug des Nutzers. G später. H gestrichen.
+8. `docs/softengine-wiki/kontrakte.md` eindampfen: nur das Belegte bleibt,
+   je Kontrakt drei Zeilen (was, wie, wann belegt), keine Geschichte, keine
+   Vermutungen; was nur abgelesen ist, kommt nach `funktionen.md` oder
+   fliegt raus. Kein Kontrakt geht verloren. Commit.
+
+## Stand 13.10. abends: Einzelheiten zu den Buchstaben
 
 Was heute auffiel, gemessen und gelesen; Opus arbeitet die Liste ab,
 Punkt für Punkt, je Punkt ein Commit (ohne `masken/`).
@@ -110,6 +148,8 @@ J. Text mit Beschriftung: der Text bekommt wie das Feld den Haken
    „Beschriftung“ und die Rubrik klein in Versalien über dem Text, im
    selben Maß und Ton wie beim Feld, damit Feld und Text mit Beschriftung
    auf einer Linie stehen. Ohne Haken bleibt der Text wie heute.
+   Gebaut 13.10.: Rubrik und Wert pixelgleich mit dem Feld. Mit „Unten
+   ausrichten“ braucht der Text mit Beschriftung vier Zeilen Höhe.
 
 ## Refactoring, zuerst
 

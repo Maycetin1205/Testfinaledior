@@ -48,13 +48,14 @@ export class Text extends BlockElement {
 
   constructor() {
     super()
-    reportsHeight(this, () => this.renderRoot.querySelector('.text'))
+    reportsHeight(this, () => this.renderRoot.querySelector('.with-label') ?? this.renderRoot.querySelector('.text'))
   }
 
   // The size of a text is its own; color and emphasis come from the look.
   // The symbol stands before the words, which alone are typed and bound.
   // The frame is the block's room on the grid: the text stands at its top or
-  // its bottom, the sum rule lies on its edges.
+  // its bottom, the sum rule lies on its edges. With its label the text
+  // stands under it, both as high as their lines.
   override render(): TemplateResult {
     const align = ALIGNS.includes(this.align) ? this.align : 'left'
     const withSymbol = this.symbol !== ''
@@ -75,7 +76,7 @@ export class Text extends BlockElement {
       this.sumRule ? 'sum-rule' : '',
       waiting === 'hide' ? 'away' : '',
     ].filter((mark) => mark !== '').join(' ')
-    return html`<div class=${frame}><div
+    const text = html`<div
       class="text variant-${this.variant} align-${align} ${look}${withSymbol ? ' with-symbol' : ''}${marks === '' ? '' : ` ${marks}`}"
       style=${styleMap({ fontSize: hinting ? undefined : tokenOf(TEXT_SIZES[this.size]) })}
     >${withSymbol ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}<span
@@ -88,7 +89,14 @@ export class Text extends BlockElement {
           this.reportSpot(e)
           this.inlineEdit(e, 'text')
         }}
-      >${words}</span></div></div>`
+      >${words}</span></div>`
+    if (!this.showLabel) return html`<div class=${frame}>${text}</div>`
+    return html`<div class=${frame}><div class="with-label"><span
+      class="label"
+      style=${styleMap({ textAlign: align })}
+      data-ff-editable
+      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
+    >${this.label}</span>${text}</div></div>`
   }
 
   override connectedCallback(): void {

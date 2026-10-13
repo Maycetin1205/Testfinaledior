@@ -16,12 +16,41 @@ export const textStyle = css`
   .frame > .text { flex: none; }
   .frame.away { visibility: hidden; }
 
+  /* Beschriftung: the Rubrik over the text, as .label over the value of a
+     field: the same type on a 14 px line, 6 px above it and 1 px under it,
+     so a text and a field with their labels stand on one line and are as
+     high. */
+  .frame > .with-label {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1px;
+    padding-top: 6px;
+  }
+  .with-label > .text { flex: none; }
+  .label {
+    min-width: 0;
+    padding-inline: 10px;
+    color: var(--se-label);
+    font-family: var(--se-font);
+    font-size: var(--se-fs-rubric);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--se-tracking-caps);
+    line-height: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   /* Unten ausrichten: the text at the bottom of its frame, its last baseline
      one row of the grid above the edge, so texts of any size whose frames end
      on one row stand on one line, and a sum rule under it keeps clear of the
      figures. */
-  .frame.bottom > .text {
-    margin-top: auto;
+  .frame.bottom > .text,
+  .frame.bottom > .with-label { margin-top: auto; }
+  .frame.bottom > .text,
+  .frame.bottom > .with-label > .text {
     padding-bottom: 12px;
     text-box-trim: trim-end;
     text-box-edge: text alphabetic;

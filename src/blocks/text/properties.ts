@@ -29,6 +29,8 @@ const ROLE_SIZES = {
 
 const WITH_SOURCE = { key: 'source', notEquals: '' }
 
+const WITH_LABEL = { key: 'showLabel', equals: true }
+
 // A switch of the settings window, group Anzeige.
 const shows = (label: string, attribute: string) => booleanProperty({
   default: false,
@@ -80,6 +82,20 @@ export const textProperties = {
     label: 'Text',
     place: 'block',
     attribute: 'text',
+  }),
+  // The label stands small above the text, as over the value of a field, so
+  // a text and a field with their labels stand on one line.
+  showLabel: booleanProperty({
+    default: false,
+    label: 'Beschriftung',
+    attribute: 'showlabel',
+  }),
+  label: textProperty({
+    default: 'Beschriftung',
+    label: 'Beschriftung',
+    place: 'block',
+    attribute: 'label',
+    when: WITH_LABEL,
   }),
   textField: fieldProperty({
     default: '',

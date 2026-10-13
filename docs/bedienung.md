@@ -83,7 +83,9 @@ Alle in der Blatt-Sprache (13.10., `entschieden.md`):
 - Popup: eigene Seite, geöffnet und geschlossen über Aktionen.
 - Text: Rolle (Titel, Überschrift, Beschriftung, Text, Nebentext, Zahl,
   Rubrik, Kopf, Hilfe, Betrag), Farbe, Art, Größe, Symbol, ein oder mehrere
-  Felder in einer Zeile; Fläche oder Rand macht ihn zum Chip. Unter
+  Felder in einer Zeile; Fläche oder Rand macht ihn zum Chip. Haken
+  „Beschriftung“: kleine Rubrik über dem Text, auf einer Linie mit der des
+  Felds. Unter
   Einstellungen, Anzeige: Einzeilig, Unten ausrichten, Leer zeigt Strich,
   Null oder weniger rot, Summenlinie, Zahl (Wie geliefert, Betrag, Betrag
   mit €); mit Quelle dazu „Ohne Auswahl“: Leer lassen, Hinweis zeigen (mit
