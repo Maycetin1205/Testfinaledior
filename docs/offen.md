@@ -69,6 +69,17 @@ Jeder Schritt lässt das Verhalten der Maske gleich; der Referenzabzug
    ein Zustand für die ganze Seite, nicht je Maske. Stört erst, wenn zwei
    Masken auf einer Seite sollen.
 
+Stand 13.10., Blatt-Sprache: gebaut in vier Commits, Abnahme offen. Die
+Bausteine sprechen die Sprache der Vorlage Rahmen10000 (`entschieden.md`,
+13.10.): Grundwerte in `mask.css`, die Maske als Blatt auf dem
+Fenstergrund (auch auf der Leinwand), Text mit Rubrik, Kopf, Hilfe, Betrag
+und den Anzeige-Wahlen, Bereich als Band, Erfassung und Tabelle als
+Rechnung, eine Regel für Zeilen, ein Fokusring, Beträge je Spalte und Text.
+Die Belegerfassung in `masken/` ist danach neu gelegt; ihr Export sieht aus
+wie die Vorlage, ohne eigenes CSS. Behandlung und Empfang tragen die
+Sprache ohne Umbau; in der Behandlung werden schmale Spaltenköpfe in
+Versalien abgeschnitten, die Spalten dort brauchen mehr Breite.
+
 Stand 13.10.: Schritt 1 Teil 1 (Toolbar, Palette, Reiter) gebaut und
 abgenommen (9c90662). Teil 2 (Leiste und ihre Fenster) gebaut und
 abgenommen 13.10. (9a6340a, Kästchen 20 px wie im Muster a3884d4): kleine
@@ -92,9 +103,10 @@ der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
    (`numberText`). Offen: der Feldcode sagt nichts über die Art, darum
    bleibt eine Tabellenspalte ohne Summe und Berechnung links (Menge,
    Einzelpreis in der Behandlung), und Einzelpreis zeigt die
-   Nachkommastellen, die SoftEngine liefert („12,5“). Beides braucht eine
-   Wahl je Spalte im Editor, eigener Schritt. Die Tippzeile zeigt ihre
-   Werte roh („5124,84“), erst die erfasste Zeile formatiert.
+   Nachkommastellen, die SoftEngine liefert („12,5“). Seit 13.10. gibt es
+   dafür je Spalte die Schalter Zahl, Betrag und €; die Behandlung nutzt
+   sie noch nicht. Die Tippzeile zeigt ihre Werte roh („5124,84“), erst die
+   erfasste Zeile formatiert.
 7. Export abspecken, in der Datei (Laden aus der Installation ist
    verworfen, 13.10.). Gemessen an der Belegerfassung: Maske 14 KB,
    Quellen 1 KB, Stil 4 KB, Schrift 37 KB, Laufzeit 245 KB. Zuerst die
@@ -171,7 +183,8 @@ sagt nur: „Lies docs/offen.md und baue Schritt N. Halte dich an den Rahmen.“
   nie eine Schicht, die der Linter verbietet. Keine neuen Abhängigkeiten.
   Kein neues Verhalten, das der Schritt nicht nennt. Keine neuen Tests.
 - Werte für Aussehen nur aus `src/design/mask.css` und `editor.css`, Muster
-  ist `docs/design/behandlung-modern.html`. Nur hell. Keine Chips, Pills,
+  ist die Blatt-Sprache (13.10., `entschieden.md`; zu sehen an
+  `masken/belegerfassung`). Nur hell. Keine Chips, Pills,
   Badges als Deko. Keine Kästchen in Zeilen der Erfassung.
 - `npm run check` und `npm test` grün. Ändert sich der Export gewollt:
   `REFERENCE_REFRESH=1 npm test` und im Commit sagen, was. Ändert er sich

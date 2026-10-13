@@ -10,7 +10,8 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
   Rückgängig, Wiederholen, Exportieren, Daten; rechts die Seitenreiter
   (Hauptseite, Popups).
 - Links der Streifen mit den Bausteinen: anklicken oder ziehen.
-- Mitte die Maske in echter Größe auf neutralem Grau.
+- Mitte die Maske in echter Größe: ein weißes Blatt auf dem grauen Grund
+  des Fensters, wie in SoftEngine.
 - Daten als Fenster über der Maske, nie modal: Quellen, Relationen, Import,
   Bibliothek. Quellen als Liste, rechts Einstellungen und Felder.
 - Am markierten Baustein eine Leiste direkt über der Oberkante: Symbol und
@@ -32,7 +33,9 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
   Reihenfolge durch Ziehen, Plus rechts neben dem letzten Kopf; Klick auf
   einen Kopf öffnet die Spaltenleiste. Erfassung dazu je Spalte: Eingabe,
   Füllfeld, Nachschlagen, Unterzeile; Berechnung am Kopf der Ergebnisspalte
-  als Satz.
+  als Satz. Unter „Anzeige“ in der Spaltenleiste: Zahl (rechts, mit
+  Tausenderpunkt), Betrag (zwei Stellen nach dem Komma), € (Zeichen
+  dahinter).
 - Kanban: Spaltentitel tippen, Plus fügt an, die erste Karte ist das
   Muster; Klick auf einen Spaltenkopf: Farbe, Wert im ERP, Auffangspalte,
   Plätze.
@@ -44,30 +47,39 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 
 ## Die Bausteine
 
-Alle im Aussehen des Musters `design/behandlung-modern.html`:
+Alle in der Blatt-Sprache (13.10., `entschieden.md`):
 
-- Bereich: Form Frei, Kasten oder Kopfzeile mit Titel; Farbe, Art. Innen
-  das Raster der Seite.
+- Bereich: Form Frei, Kasten, Kopfzeile mit Titel oder Band (der Kopf des
+  Blatts, oben über die ganze Breite bis an die Kanten, grauer Grund);
+  Farbe, Art. Innen das Raster der Seite.
 - Knopf: Farbe, Art, Größe (Klein und Normal 28 px, Groß 44 px).
 - Datum: Tageswahl.
 - Feld: Text, Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld
-  (Haken `J`, kein Haken `N`, je Feld einstellbar). Beschriftung über dem
-  Wert, abschaltbar; Symbol links. Leer zeigt einen Strich.
-- Tabelle: immer mit Kopf, Blättern, Sortieren per Klick, Spaltenwahl per
-  Rechtsklick auf den Kopf.
+  (Haken `J`, kein Haken `N`, je Feld einstellbar). Beschriftung als
+  Rubrik über dem Wert, abschaltbar; Symbol links. Leer zeigt einen Strich.
+- Tabelle: liniert wie eine Rechnung, immer mit Kopf, der beim Rollen
+  stehen bleibt; Blättern, Sortieren per Klick, Spaltenwahl per Rechtsklick
+  auf den Kopf.
 - Erfassung: ein Kopf, Hauptzeile und graue Unterzeile je Zelle; Tab und
   Enter erfassen, Pfeile wechseln Haupt- und Unterzeile, Escape bricht ab.
   Klick auf eine neue Position zeigt sie, Doppelklick korrigiert. Die
   Liste blättert nie; neue Positionen bleiben unten sichtbar. Keine
-  Kästchen in Zeilen.
+  Kästchen in Zeilen. Die Tippzeile ist getönt; Pflichtspalten zeigen ihren
+  Titel leise, die erste andere Spalte den „Hinweis in der Tippzeile“
+  (Einstellungen, Anzeige). Auf der Seite wächst sie mit dem Fenster.
 - Kanban: Plätze je Spalte, mehrere Felder je Platz mit Trenner, Knopf je
   Spalte (Aus, Weiter oder Aktion), Spalte nach Uhrzeit mit Stundenlinien
   und Jetzt-Linie.
 - Datenliste: Auswahl Eine Zeile, Mehrere oder Keine; je Zeile Tiersymbol
   oder Symbol, Titel, Unterzeile, Rechts.
 - Popup: eigene Seite, geöffnet und geschlossen über Aktionen.
-- Text: Rolle, Farbe, Art, Größe, Symbol, ein oder mehrere Felder in einer
-  Zeile; Fläche oder Rand macht ihn zum Chip.
+- Text: Rolle (Titel, Überschrift, Beschriftung, Text, Nebentext, Zahl,
+  Rubrik, Kopf, Hilfe, Betrag), Farbe, Art, Größe, Symbol, ein oder mehrere
+  Felder in einer Zeile; Fläche oder Rand macht ihn zum Chip. Unter
+  Einstellungen, Anzeige: Einzeilig, Unten ausrichten, Leer zeigt Strich,
+  Null oder weniger rot, Summenlinie, Zahl (Wie geliefert, Betrag, Betrag
+  mit €); mit Quelle dazu „Ohne Auswahl“: Leer lassen, Hinweis zeigen (mit
+  „Hinweis“) oder Ausblenden.
 
 ## Die Masken
 
@@ -79,5 +91,9 @@ nicht alle in SoftEngine.
 - `behandlung/Behandlung.aufbau-maske.json`: Layoutrahmen 10000, Tiere des
   Kunden, Patient, Halter, Impfungen, frühere Behandlungen, Erfassung;
   schreibt Positionen (PUT 82, PUT 53).
-- `belegerfassung/`: Belegerfassung als Maskendatei und als
-  handgeschriebener Export (`Rahmen10000.basis.*`).
+- `belegerfassung/Belegerfassung.aufbau-maske.json`: Layoutrahmen 10000
+  in der Blatt-Sprache (13.10.), gebaut wie die Vorlage: Band mit Name,
+  Beleg-Nr., Anschrift und Daten (Quellen Belegfenster und Adresse),
+  Erfassung, Artikel der Position, Zahlungsbedingung mit Speichern (PUT 82),
+  Summen mit Gesamtbetrag. Daneben noch der alte handgeschriebene Export
+  vom 06.10. (`Rahmen10000.basis.*`).

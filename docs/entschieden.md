@@ -7,6 +7,39 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Blatt-Sprache freigegeben, Vorlage ist die von Hand verfeinerte
+  Belegerfassung (Desktop, Rahmen10000.basis.source.html): die Maske ist ein
+  weißes Blatt (Rundung 10, weicher Schatten, Innenrand 22/26/20 px) auf
+  dem grauen Fenstergrund #E7E8EB, höchstens 1680 px breit, dann mittig.
+  Tinte #12161D, Königsblau #2A45C8 als Akzent (Fokus, Auswahl,
+  Speichern), Rundung 6/5/10, Fokusring 1,5 px innen mit 3 px Hof, überall
+  derselbe. Ersetzt Blau #2F6BFF und Grund #F4F5F7 vom 08./09.10. Der
+  Editor trägt dasselbe Blatt auf der Leinwand.
+- 13.10. Schriftgrößen tragen ihren Namen: die Wahl 12 ist 12 px usw. Die
+  größte bleibt 26 px (die Vorlage hatte 28 unter dem Namen 26).
+- 13.10. Erfassung und Tabelle sind linierte Rechnungstabellen, keine
+  Karte: Kopf in Versalien 11 px über einer 1,5-px-Tintenlinie, die beim
+  Rollen stehen bleibt, durchscheinende Spaltenlinien, Haarlinie unten,
+  Tippzeile getönt mit Linie darüber. Ersetzt „Tabelle, Liste und Kanban
+  sind auf dem Seitengrund eine Karte“ (09.10.); auch die Datenliste liegt
+  flach. Keine Kästchen und kein Ring in Zellen bleibt (09.10.).
+- 13.10. Eine Regel für Zeilen: Zeigen #F7F8FA, gewählt hellblau mit 3 px
+  Akzentstrich links, in Tabelle, Datenliste, Erfassung und an der
+  Kanban-Karte. Der Grund einer Zeile läuft als ein Band unter den
+  Spaltenlinien durch.
+- 13.10. Was die Vorlage von Hand setzte, sind Wahlen im Editor, ohne
+  eigenes CSS in der Maske: Text-Rollen Rubrik, Kopf, Hilfe, Betrag; am
+  Text Einzeilig, Unten ausrichten, Leer zeigt Strich, Null oder weniger
+  rot, Summenlinie, Ohne Auswahl (Leer lassen, Hinweis zeigen, Ausblenden),
+  Zahl (Wie geliefert, Betrag, Betrag mit €); Bereich in der Form Band;
+  Erfassung mit Hinweis in der Tippzeile; je Spalte Zahl, Betrag und €.
+- 13.10. Unten ausrichten setzt die Grundlinie eine Rasterzeile (12 px) über
+  die Unterkante; Texte jeder Größe, deren Rahmen auf derselben Zeile
+  enden, stehen so auf einer Linie, ohne Feinschieben von Hand.
+- 13.10. Die Mitte wächst schon: jede Liste direkt auf der Seite bekommt
+  Zeilen, die mit dem Fenster wachsen (pageRowsTemplate). Keine eigene Wahl.
+- 13.10. Fenster und Popups tragen das Blatt: Rundung 10, Schatten der
+  Fenster, Kopf wie der einer Karte (52 px, 15 px fett).
 - 13.10. Pfeil runter in einer leeren Zeile der Erfassung öffnet keine
   Vorschlagsliste; so macht es SoftEngine auch (vom Nutzer dort geprüft).
   Die Liste kommt beim Tippen oder mit F5. Bleibt so.
