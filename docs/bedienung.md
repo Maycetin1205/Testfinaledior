@@ -22,7 +22,9 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 - Ein Weg je Ding: Was auf der Fläche steht (Beschriftung, Titel,
   Spaltenkopf, Kartenzeile, Text), wird nur dort geändert, per Doppelklick.
 - Markieren durch Klick, Verschieben durch Ziehen, Größe an den Kanten am
-  Raster, Löschen mit Entf, Duplizieren mit Strg+D.
+  Raster, Löschen mit Entf, Duplizieren mit Strg+D. Ein markierter Bereich
+  wird mit allem gezogen, was darin liegt, auch wenn man einen Baustein
+  darin anfasst (13.10.).
 - Feld binden: Klick auf die Stelle, die Feldliste der Quelle erscheint
   dort. Gebundene Stellen gepunktet unterstrichen.
 - Aktionen: je Ereignis die Schritte als Zeilen; das Schrittfenster in der

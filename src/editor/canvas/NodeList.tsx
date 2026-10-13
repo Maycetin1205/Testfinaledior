@@ -42,6 +42,16 @@ export function NodeList({ parentId }: { parentId: string }) {
   )
 }
 
+// Whether the chosen block is a Bereich this node lies in, however deep.
+function underChosen(ed: ReturnType<typeof useEditor>, parentId: string): boolean {
+  let id: string | null = parentId
+  while (id !== null && id !== ed.rootId) {
+    if (ed.selectedId === id) return true
+    id = ed.getNode(id)?.parentId ?? null
+  }
+  return false
+}
+
 function CanvasNode({ node, parentId }: { node: BlockNode; parentId: string }) {
   const ed = useEditor()
   const dnd = useDnd()
@@ -49,7 +59,12 @@ function CanvasNode({ node, parentId }: { node: BlockNode; parentId: string }) {
 
   return (
     <div
-      onPointerDown={(e) => dragPosition(ed, dnd, e, node, parentId)}
+      onPointerDown={(e) => {
+        // A chosen Bereich moves as one with what lies in it: a grab on one
+        // of its blocks goes up to the Bereich, which takes the drag.
+        if (underChosen(ed, parentId)) return
+        dragPosition(ed, dnd, e, node, parentId)
+      }}
       style={{
         opacity: dnd.dragId === node.id ? 0.4 : 1,
         ...gridSlotStyle(gridSlotRead(node.values)),
