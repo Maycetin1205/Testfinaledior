@@ -73,16 +73,19 @@ Stand 13.10.: Schritt 1 Teil 1 (Toolbar, Palette, Reiter) gebaut und
 abgenommen (9c90662). Dazugekommen am 13.10., aus einer fremden Prüfung
 der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
 
-6. Zahlen in Tabelle und Erfassung. Eine Spalte steht heute nur dann
-   rechts, wenn sie eine Summe hat (`columnStandsRight` in
-   `src/blocks/parts/column.ts`); Menge und Einzelpreis stehen darum links.
-   Ausrichtung nach Art des Werts (Zahl rechts), nicht nach Summe.
-   `numberText` in `src/core/data/number.ts` schreibt ohne Tausenderpunkt
-   und ohne feste Nachkommastellen, SoftEngine liefert mit („5.124,84“
-   neben „5124,84“). Ein Anzeigeformat für alle Zahlen der Maske
-   (de-DE, Tausenderpunkt, Nachkommastellen je Feld); was an SoftEngine
-   geschickt wird, bleibt wie heute. Leer bleibt der Strich, 0 wird „0,00“.
-   Export ändert sich gewollt. Ein Chat.
+6. Zahlen in Tabelle und Erfassung. Gebaut 13.10., Abnahme offen. Eine
+   Spalte ist eine Zahl, wenn sie eine Summe hat oder eine Berechnung des
+   Bausteins sie nennt (`figureOf` in `src/blocks/parts/column.ts`); sie
+   steht rechts und zeigt de-DE mit Tausenderpunkt (`shownFigure` in
+   `src/core/data/number.ts`). Die Spalte, aus der die Berechnung erzählt
+   wird, zeigt deren Nachkommastellen (Gesamtpreis 2, 0 wird „0,00“), jede
+   andere so viele, wie der Wert mitbringt. Getipptes und PUT unverändert
+   (`numberText`). Offen: der Feldcode sagt nichts über die Art, darum
+   bleibt eine Tabellenspalte ohne Summe und Berechnung links (Menge,
+   Einzelpreis in der Behandlung), und Einzelpreis zeigt die
+   Nachkommastellen, die SoftEngine liefert („12,5“). Beides braucht eine
+   Wahl je Spalte im Editor, eigener Schritt. Die Tippzeile zeigt ihre
+   Werte roh („5124,84“), erst die erfasste Zeile formatiert.
 7. Export abspecken, in der Datei (Laden aus der Installation ist
    verworfen, 13.10.). Gemessen an der Belegerfassung: Maske 14 KB,
    Quellen 1 KB, Stil 4 KB, Schrift 37 KB, Laufzeit 245 KB. Zuerst die

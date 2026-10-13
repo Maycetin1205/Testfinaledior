@@ -3,8 +3,8 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { columnEditable } from './column'
-import { columnStandsRight, type Column } from '../parts/column'
-import { greyCellTpl, type GreyPart, type RowLayout } from '../parts/cell'
+import { shownValue, type Column } from '../parts/column'
+import { figureAt, greyCellTpl, type GreyPart, type RowLayout } from '../parts/cell'
 import { WITHOUT_DECORATION, type RowDecoration } from '../list'
 import type { CaptureLedger, RowState } from './ledger'
 
@@ -37,7 +37,6 @@ function typingCellTpl(
 }
 
 interface CapturedPlacement {
-  columns: readonly Column[]
   slots: readonly number[]
 
   cols: Readonly<Record<string, string>>
@@ -70,7 +69,9 @@ function greyParts(layout: RowLayout, slots: readonly number[], values: readonly
   const parts = slots.map((slot): GreyPart | null => {
     const sub = layout.under.get(slot)
     const value = sub === undefined ? '' : values[sub.slot] ?? ''
-    return sub === undefined || value === '' ? null : { column: sub.column, content: value, typable: false }
+    if (sub === undefined || value === '') return null
+    const figure = figureAt(layout, sub.slot)
+    return { column: sub.column, figure, content: shownValue(figure, value), typable: false }
   })
   return parts.some((part) => part !== null) ? parts : null
 }
@@ -81,10 +82,10 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
 
     const fixed = state.status === 'written'
     const grey = greyParts(placement.layout, placement.slots, values)
-    const cell = (column: Column, slot: number): TemplateResult => html`<div
-      class=${columnStandsRight(column) ? 'right' : nothing}
-      role="cell"
-    >${values[slot] ?? ''}</div>`
+    const cell = (slot: number): TemplateResult => {
+      const figure = figureAt(placement.layout, slot)
+      return html`<div class=${figure !== null ? 'right' : nothing} role="cell">${shownValue(figure, values[slot] ?? '')}</div>`
+    }
     // A click chooses the row and leaves the operator in the capture row; a
     // double click brings a row not yet written back for correction.
     return html`${rowsIndex === placement.correctionSlot ? placement.capture : nothing}<div
@@ -95,7 +96,7 @@ export function capturedRowsTpl(placement: CapturedPlacement, act: CapturedAct):
       @click=${() => act.chooseCapturedRow(rowsIndex)}
       @dblclick=${fixed ? nothing : () => act.bringBackCapturedRow(rowsIndex)}
     >
-      ${placement.columns.map((column, i) => cell(column, placement.slots[i]))}
+      ${placement.slots.map((slot) => cell(slot))}
       ${grey === null ? nothing : grey.map((part, i) => greyCellTpl(i, part))}
       <button
         class="row-remove"

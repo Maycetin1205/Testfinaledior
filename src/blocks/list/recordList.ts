@@ -13,6 +13,7 @@ import { sendPropChange } from '../base/BlockElement'
 import { reportsHeads } from '../base/headsReport'
 import {
   columnsView,
+  figureOf,
   type Column,
   type ColumnView,
 } from '../parts/column'
@@ -170,11 +171,13 @@ export class RecordList implements ReactiveController {
   rowLayout(): RowLayout {
     const visible = this.visibleView()
     const columns = this.el.listColumns()
+    const calculations = this.el.listCalculations()
+    const figures = columns.map((column) => figureOf(column, calculations))
     const under = new Map<number, { column: Column; slot: number }>()
     for (const [anchor, slot] of this.hooks?.greyLine(visible.slots) ?? []) {
       under.set(anchor, { column: columns[slot], slot })
     }
-    if (under.size === 0) return { main: visible, under }
+    if (under.size === 0) return { main: visible, under, figures }
     const grey = new Set([...under.values()].map((sub) => sub.slot))
     const main: { columns: Column[]; slots: number[] } = { columns: [], slots: [] }
     visible.columns.forEach((column, i) => {
@@ -182,7 +185,7 @@ export class RecordList implements ReactiveController {
       main.columns.push(column)
       main.slots.push(visible.slots[i])
     })
-    return { main, under }
+    return { main, under, figures }
   }
 
   private subHeight(): number {
@@ -274,6 +277,7 @@ export class RecordList implements ReactiveController {
 
     const view = tableRenderModel({
       columns,
+      figures: layout.figures,
       rendered: visible.columns,
       slots: visible.slots,
       widthOf: (i) => this._widths.widthOf(i),

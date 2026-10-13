@@ -1,5 +1,5 @@
 import { html, nothing, type TemplateResult } from 'lit'
-import { columnStandsRight, type Column, type ColumnView } from './column'
+import type { Column, ColumnView, Figure } from './column'
 
 // The cell: where it stands in a row and in the grey line under it, how Tab
 // and the arrows walk from one to the next, and the cell of the grey line.
@@ -10,6 +10,14 @@ export interface RowLayout {
   main: ColumnView
 
   under: ReadonlyMap<number, { column: Column; slot: number }>
+
+  // What each column holds, by its place among all columns: a figure stands
+  // right, null is text.
+  figures: readonly (Figure | null)[]
+}
+
+export function figureAt(layout: RowLayout, slot: number): Figure | null {
+  return layout.figures[slot] ?? null
 }
 
 // The cells Tab walks: the row from left to right, then its grey line.
@@ -45,6 +53,8 @@ export function stripeOf(layout: RowLayout, slot: number): number[] {
 export interface GreyPart {
   column: Column
 
+  figure: Figure | null
+
   content: TemplateResult | string
 
   typable: boolean
@@ -57,7 +67,7 @@ export interface GreyPart {
 export function greyCellTpl(at: number, part: GreyPart | null, spot?: number): TemplateResult {
   const classes = [
     'sub',
-    part !== null && columnStandsRight(part.column) ? 'right' : '',
+    part !== null && part.figure !== null ? 'right' : '',
     part?.column.hidden === true ? 'hidden' : '',
     part?.typable === true ? 'typable' : '',
   ].filter((k) => k !== '').join(' ')

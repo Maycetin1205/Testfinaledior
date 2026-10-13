@@ -147,6 +147,17 @@ function columnsOf(b: Calculation): string[] {
   return [b.lead, ...b.terms.flatMap((t) => (t.kind === 'row' ? [t.value] : []))]
 }
 
+// Whether a sentence names the column, as its lead or as a term.
+export function namesColumn(calculations: readonly Calculation[], column: string): boolean {
+  return column !== '' && calculations.some((b) => columnsOf(b).includes(column))
+}
+
+// The digits after the comma of the first sentence told from the column;
+// undefined when none is.
+export function leadDecimals(calculations: readonly Calculation[], column: string): number | undefined {
+  return column === '' ? undefined : calculations.find((b) => b.lead === column)?.decimals
+}
+
 export function columnSlots(
   calculations: readonly Calculation[],
   slotOf: (column: string) => number,

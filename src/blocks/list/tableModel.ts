@@ -7,12 +7,15 @@ import {
   ROWS_HEIGHT,
   type RowMetrics,
 } from './pageSize'
-import { sortIndices, TOTAL_DECIMALS, totalText } from './sorting'
-import { columnsTemplate, type Column, type ColumnsGrid } from '../parts/column'
+import { sortIndices, totalText } from './sorting'
+import { columnsTemplate, type Column, type ColumnsGrid, type Figure } from '../parts/column'
 import { rowFits } from '../parts/cellSearch'
 
 interface ViewQuestion {
   columns: readonly Column[]
+
+  // What each column holds, by its place among all columns.
+  figures: readonly (Figure | null)[]
 
   rendered?: readonly Column[]
   slots?: readonly number[]
@@ -70,8 +73,7 @@ function totalsOf(
     if (column.total !== true) return
     const text = totalText(
       visible.map((row) => question.valueAt(row, i)),
-      TOTAL_DECIMALS.min,
-      TOTAL_DECIMALS.max,
+      question.figures[i]?.decimals ?? null,
     )
     if (text !== '') out.push({ title: column.title, text })
   })

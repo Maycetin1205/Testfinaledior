@@ -6,6 +6,8 @@ import {
   type ListBinding,
 } from '../../core/block/listBinding'
 import { listProperty, type Property } from '../../core/block/property'
+import { leadDecimals, namesColumn, type Calculation } from '../../core/data/calculation'
+import { shownFigure } from '../../core/data/number'
 import { isUnread } from '../../core/unread'
 
 export type Column = {
@@ -50,11 +52,30 @@ export function columnsView(
 
 export const FIELD_KEY_PREFIX = 'field:'
 
-// A column stands right when it carries a sum: the one fact of a column that
-// says it holds numbers. Everything else stands left, a value that merely
-// looks like a number too, so a column never mixes its edges.
-export function columnStandsRight(column: Column): boolean {
-  return column.total === true
+// A column of numbers: it stands right, and shows each value with the
+// thousands point and its digits after the comma, fixed or, with null, as
+// many as the value brings.
+export interface Figure {
+  decimals: number | null
+}
+
+// A column holds numbers when it carries a sum or a calculation of its block
+// names it: the facts of a column that say so. Its field code does not (it is
+// place and length), and a value that merely looks like a number, like an
+// article number, stands left with its text, so a column never mixes its
+// edges. The column a calculation is told from shows that calculation's
+// digits after the comma; any other as delivered. Null for text.
+export function figureOf(column: Column, calculations: readonly Calculation[]): Figure | null {
+  const decimals = leadDecimals(calculations, column.key)
+  if (decimals !== undefined) return { decimals }
+  return column.total === true || namesColumn(calculations, column.key) ? { decimals: null } : null
+}
+
+// What a cell shows of its value: a number of a column of numbers the mask's
+// way, anything else as it is. Only for the eye: typing and writing keep the
+// value.
+export function shownValue(figure: Figure | null, value: string): string {
+  return figure === null ? value : shownFigure(value, figure.decimals)
 }
 
 const COLUMNS_MIN = 1

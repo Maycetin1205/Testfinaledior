@@ -7,6 +7,10 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Eine Spalte ist eine Zahl, wenn sie eine Summe hat oder eine
+  Berechnung sie nennt, nie nach dem Aussehen des Werts (so rutschten am
+  05.10. Artikelnummern nach rechts). Zahlen zeigt die Maske de-DE mit
+  Tausenderpunkt; Eingabefelder und PUT bleiben roh.
 - 13.10. Refactoring des Editors ausdrücklich gewollt, Reihenfolge in
   `offen.md`. Urteil: Kern, Bausteine, Datenweg, Export, Laufzeit bleiben;
   umgebaut werden Editor-Oberfläche, Rückmeldungen, Aktionsfenster, das

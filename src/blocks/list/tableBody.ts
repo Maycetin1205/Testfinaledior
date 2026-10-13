@@ -3,12 +3,12 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { columnsChoiceTpl, type ColumnsChoiceAct, type ColumnsChoicePlacement } from './columnPicker'
 import { markHit } from '../parts/cellSearch'
 import {
-  columnStandsRight,
+  shownValue,
   type Column,
   type ColumnView,
   type ColumnsGrid,
 } from '../parts/column'
-import { greyCellTpl, type GreyPart, type RowLayout } from '../parts/cell'
+import { figureAt, greyCellTpl, type GreyPart, type RowLayout } from '../parts/cell'
 import { widthsHandles, type WidthsHost } from './columnWidth'
 import { moveRowsFocus, focusFirstRow, focusSearchRow } from './rowActivation'
 import { recordText } from './tableModel'
@@ -135,9 +135,10 @@ function partOf(
 ): CellPart {
   const value = rawIndex !== null ? placement.valueAt(rawIndex, slot) : ''
   const own = rawIndex === null ? null : decoration.cell(slot, column, value)
+  const shown = shownValue(figureAt(placement.layout, slot), value)
   return {
     value,
-    content: own ?? markHit(value, placement.searchText),
+    content: own ?? markHit(shown, placement.searchText),
     typable: own !== null,
   }
 }
@@ -152,7 +153,7 @@ function cellTpl(
   const main = partOf(placement, decoration, rawIndex, s, slot)
   const classes = [
     s.hidden === true ? 'hidden' : '',
-    columnStandsRight(s) ? 'right' : '',
+    figureAt(placement.layout, slot) !== null ? 'right' : '',
     main.typable ? 'typable' : '',
   ].filter((k) => k !== '').join(' ')
   return html`<div class=${classes === '' ? nothing : classes} role="cell">${main.content}</div>`
@@ -171,8 +172,9 @@ function greyParts(
     const sub = placement.layout.under.get(slot)
     if (sub === undefined) return null
     const part = partOf(placement, decoration, rawIndex, sub.column, sub.slot)
+    const figure = figureAt(placement.layout, sub.slot)
     return part.typable || part.value !== ''
-      ? { column: sub.column, content: part.content, typable: part.typable }
+      ? { column: sub.column, figure, content: part.content, typable: part.typable }
       : null
   })
   return parts.some((part) => part !== null) ? parts : null
@@ -245,7 +247,7 @@ function headCellTpl(
   i: number,
 ): TemplateResult {
   return html`<div
-    class=${[s.hidden === true ? 'hidden' : '', columnStandsRight(s) ? 'right' : '']
+    class=${[s.hidden === true ? 'hidden' : '', figureAt(placement.layout, slot) !== null ? 'right' : '']
       .filter((k) => k !== '').join(' ') || nothing}
     role="columnheader"
     data-ff-editable

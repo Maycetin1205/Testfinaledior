@@ -4,8 +4,8 @@ import type { SuggestionRow } from '../lookup/suggestionList'
 import { inputSpotTpl } from '../lookup/inputSpot'
 import { cellsClass } from './cells'
 import { windowColumnsOr } from '../lookup/lookup'
-import { columnStandsRight, FIELD_KEY_PREFIX, type Column } from '../parts/column'
-import { greyCellTpl, type RowLayout } from '../parts/cell'
+import { FIELD_KEY_PREFIX, type Column } from '../parts/column'
+import { figureAt, greyCellTpl, type RowLayout } from '../parts/cell'
 import type { CaptureColumn } from './column'
 import { splitBinding } from '../../core/block/blockType'
 import type { Calculation } from '../../core/data/calculation'
@@ -62,9 +62,11 @@ export function captureRowTpl(
       const sub = under.get(slot)
       if (sub === undefined) return greyCellTpl(i, null)
       // In the editor the name alone stands there, as the head of its column.
-      if (placement.preview) return greyCellTpl(i, { column: sub.column, content: '', typable: false }, sub.slot)
+      const figure = figureAt(placement.layout, sub.slot)
+      if (placement.preview) return greyCellTpl(i, { column: sub.column, figure, content: '', typable: false }, sub.slot)
       return greyCellTpl(i, {
         column: sub.column,
+        figure,
         content: captureInputTpl(placement, act, sub.column, sub.slot),
         typable: true,
       })
@@ -83,7 +85,7 @@ function captureCellTpl(
   if (placement.preview) {
     return html`<div class=${column.hidden === true ? 'hidden' : nothing} role="cell" data-ff-place=${column.key}></div>`
   }
-  return html`<div class=${columnStandsRight(column) ? 'right' : nothing} role="cell">${
+  return html`<div class=${figureAt(placement.layout, slot) !== null ? 'right' : nothing} role="cell">${
     captureInputTpl(placement, act, column, slot)
   }</div>`
 }

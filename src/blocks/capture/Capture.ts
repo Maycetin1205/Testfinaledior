@@ -153,7 +153,6 @@ export class Capture extends BlockElement
       render: ({ view, cols, layout, rulerTicks }) => {
         const correctionSlot = this._ledger.correctionSlot
         return capturedRowsTpl({
-          columns: view.columns,
           slots: view.slots,
           cols,
           layout,
