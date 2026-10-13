@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Search } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { Badge } from './Badge'
+import { LINE_CHOSEN, LINE_HOVER } from './lineLook'
 
 interface ListEntry {
   value: string
@@ -34,8 +35,8 @@ interface ListProps {
   onChoose: (value: string) => void
 }
 
-// A line as in the small windows of the mask (.picker-row): the hover ground of
-// a field, the chosen one in the soft blue of a chosen row.
+// A line as in the small windows of the mask (.picker-row), hovered and chosen
+// as every line of the editor (lineLook.ts).
 const ROW = 'flex w-full items-baseline gap-[8px] rounded-[var(--radius-small)] px-[9px] py-[6px] text-left text-ui font-semibold transition-colors'
 
 function fits(text: string, search: string): boolean {
@@ -93,8 +94,7 @@ export function List({
         <button
           type="button"
           onClick={() => onChoose('')}
-          className={cn(ROW, 'text-muted hover:bg-hover hover:text-ink',
-            value === '' && 'text-ink')}
+          className={cn(ROW, 'text-muted hover:text-ink', LINE_HOVER, value === '' && LINE_CHOSEN)}
         >
           <span className="w-[12px] shrink-0 text-accent">{value === '' && <Check size={12} />}</span>
           <span className="min-w-0 flex-1 truncate">{emptyText}</span>
@@ -123,8 +123,8 @@ export function List({
                   ROW,
                   e.disabled
                     ? 'cursor-not-allowed text-muted opacity-[.45]'
-                    : 'text-ink hover:bg-hover',
-                  chosen && 'bg-accent-soft text-accent-ink hover:bg-accent-soft',
+                    : cn('text-ink', LINE_HOVER),
+                  chosen && LINE_CHOSEN,
                 )}
               >
                 <span className="w-[12px] shrink-0 text-accent">

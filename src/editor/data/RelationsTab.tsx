@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Search } from '@/editor/icons/icon'
-import { Grid, GridLine, GridNewLine, Strip, TD } from '@/editor/widgets/Grid'
+import { Field } from '@/editor/widgets/Field'
+import { Grid, GridLine, GridNewLine, Strip, STRIP_FIELD, TD } from '@/editor/widgets/Grid'
 import { blockName } from '../../core/block/blockName'
 import { relationIdsOf } from '../../core/block/treeQuery'
 import {
@@ -57,12 +58,12 @@ export function RelationsTab() {
     <>
       <div className="flex min-w-0 flex-1 flex-col">
         <Strip right={hits.length}>
-          <Search size={13} aria-hidden />
-          <input
+          <Search size={13} aria-hidden className="text-muted" />
+          <Field
             aria-label="Relationen durchsuchen"
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
-            className="h-[22px] w-[240px] rounded border border-line bg-panel px-[6px] font-normal text-ui text-ink outline-none focus:border-accent"
+            className={STRIP_FIELD}
           />
         </Strip>
         <Grid columns={COLUMNS} onEmpty={() => setMarkedId(null)}>
@@ -94,11 +95,11 @@ export function RelationsTab() {
         </Grid>
       </div>
 
-      <div className="flex w-[300px] shrink-0 flex-col border-l border-line">
+      <div className="flex w-[300px] shrink-0 flex-col border-l border-line-soft">
         <Strip>{marked?.name ?? 'Relation'}</Strip>
         {marked && (
           <>
-            <div className="break-all border-b border-line px-[12px] py-[8px] font-mono text-dense">
+            <div className="break-all border-b border-line-soft px-[12px] py-[8px] font-mono text-dense">
               {relationSyntaxAsText(marked)}
             </div>
             <Strip right={marked.parameter.length}>Stellen</Strip>
@@ -116,7 +117,7 @@ export function RelationsTab() {
             </div>
             {usage.length > 0 && (
               <>
-                <div className="border-t border-line"><Strip>Benutzt von</Strip></div>
+                <div className="border-t border-line-soft"><Strip>Benutzt von</Strip></div>
                 <div className="px-[12px] py-[8px] text-dense">{usage.join(', ')}</div>
               </>
             )}

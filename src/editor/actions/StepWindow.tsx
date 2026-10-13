@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
-import { Plus, Trash2 } from '@/editor/icons/icon'
+import { Trash2 } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
-import { Grid, INPUT, Strip, TD } from '@/editor/widgets/Grid'
+import { Field } from '@/editor/widgets/Field'
+import { Grid, GridAddLine, INPUT, NAME, SETTINGS, Strip, TD } from '@/editor/widgets/Grid'
+import { LINE_HOVER } from '@/editor/widgets/lineLook'
 import { Segment } from '@/editor/widgets/Segment'
 import { Window } from '@/editor/widgets/Window'
 import { relationGroup, relationSyntaxAsText, type RelationTemplate } from '../../core/data/relations'
@@ -92,7 +94,7 @@ export function StepWindow({ nr, step, tab: firstTab, chain, context, onApply, o
     <Window
       title={`Schritt ${nr}`}
       beside={(
-        <span className="min-w-0 truncate border-l border-line pl-[14px] font-mono text-dense text-muted" title={head}>
+        <span className="min-w-0 truncate border-l border-line-soft pl-[14px] font-mono text-dense text-muted" title={head}>
           {head}
         </span>
       )}
@@ -136,19 +138,19 @@ function ToolBody({ step, onChange }: { step: StartToolStep; onChange: (step: St
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <Strip>START_TOOL</Strip>
-      <div className="grid grid-cols-[112px_160px] items-center gap-[8px] border-b border-line px-[12px] py-[8px]">
-        <span className="text-dense text-muted">Nummer</span>
-        <input
+      <div className={cn(SETTINGS, 'grid-cols-[112px_160px]')}>
+        <span className={NAME}>Nummer</span>
+        <Field
           aria-label="Werkzeugnummer"
           value={step.toolNumber}
           onChange={(e) => onChange({ ...step, toolNumber: e.currentTarget.value })}
-          className="h-control rounded border border-line bg-panel px-[8px] font-mono text-ui outline-none focus:border-accent"
+          className="font-mono"
         />
       </div>
       <Strip>Parameter</Strip>
       <Grid columns={[{ name: 'Nr.', width: 44, right: true }, { name: 'Eingabe' }]}>
         {params.map((p, i) => (
-          <tr key={i} className="group hover:bg-accent-soft focus-within:bg-panel">
+          <tr key={i} className={cn('group focus-within:bg-panel', LINE_HOVER)}>
             <td className={cn(TD, 'px-[10px] text-right font-mono text-dense text-muted')}>{i + 1}</td>
             <td className={cn(TD, 'relative')}>
               <input
@@ -170,12 +172,9 @@ function ToolBody({ step, onChange }: { step: StartToolStep; onChange: (step: St
             </td>
           </tr>
         ))}
-        <tr className="cursor-pointer text-muted hover:bg-accent-soft" onClick={() => onChange({ ...step, toolParameter: [...params, ''] })}>
-          <td className={TD} />
-          <td className={cn(TD, 'px-[10px]')}>
-            <span className="flex items-center gap-[8px]"><Plus size={13} className="text-accent" /> Parameter hinzufügen</span>
-          </td>
-        </tr>
+        <GridAddLine onAdd={() => onChange({ ...step, toolParameter: [...params, ''] })}>
+          Parameter hinzufügen
+        </GridAddLine>
       </Grid>
     </div>
   )
@@ -197,7 +196,7 @@ function PopupBody({ step, popups, onChange }: {
     <div className="flex min-h-0 flex-1 flex-col">
       <Strip>Popup</Strip>
       <div className="grid grid-cols-[112px_260px] items-center gap-[8px] px-[12px] py-[8px]">
-        <span className="text-dense text-muted">Aktion</span>
+        <span className={NAME}>Aktion</span>
         <Segment
           name="Aktion"
           options={[
@@ -210,7 +209,7 @@ function PopupBody({ step, popups, onChange }: {
         />
         {step.kind !== 'MASK_CLOSE' && (
           <>
-            <span className="text-dense text-muted">Popup</span>
+            <span className={NAME}>Popup</span>
             <PickerControl
               name="Popup"
               className="w-full"

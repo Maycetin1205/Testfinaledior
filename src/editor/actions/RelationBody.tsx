@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { Search } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
-import { Grid, Strip, TD } from '@/editor/widgets/Grid'
+import { Field } from '@/editor/widgets/Field'
+import { Grid, Strip, STRIP_FIELD, TD } from '@/editor/widgets/Grid'
+import { LINE_HOVER } from '@/editor/widgets/lineLook'
 import { relationParameterDefault } from '../../core/data/actions'
 import {
   relationFitsToSearch,
@@ -44,9 +47,9 @@ export function RelationBody({ step, group, template, relations, reach, onChange
 
   return (
     <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_280px]">
-      <div className="flex min-h-0 flex-col border-r border-line">
+      <div className="flex min-h-0 flex-col border-r border-line-soft">
         <Strip>Relation</Strip>
-        <div className="border-b border-line px-[12px] py-[8px]">
+        <div className="border-b border-line-soft px-[12px] py-[8px]">
           <PickerControl
             name="Relation"
             className="w-full"
@@ -83,17 +86,18 @@ function RelationList({ relations, onChoose }: {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <Strip right={hits.length}>
-        <input
+        <Search size={13} aria-hidden className="text-muted" />
+        <Field
           aria-label="Relationen durchsuchen"
           autoFocus
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
-          className="h-[22px] w-[260px] rounded border border-line bg-panel px-[6px] font-normal text-ui text-ink outline-none focus:border-accent"
+          className={STRIP_FIELD}
         />
       </Strip>
       <Grid columns={[{ name: 'Syntax', mono: true }, { name: 'Bezeichnung', width: 300 }]}>
         {hits.map((r) => (
-          <tr key={r.id} className="cursor-pointer hover:bg-accent-soft" onClick={() => onChoose(r.id)}>
+          <tr key={r.id} className={cn('cursor-pointer', LINE_HOVER)} onClick={() => onChoose(r.id)}>
             <td className={cn(TD, 'truncate px-[10px] font-mono text-dense')} title={relationSyntaxAsText(r)}>{relationSyntaxAsText(r)}</td>
             <td className={cn(TD, 'truncate px-[10px]')}>{r.name}</td>
           </tr>

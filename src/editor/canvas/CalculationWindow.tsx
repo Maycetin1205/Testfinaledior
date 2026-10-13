@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Plus } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
-import { Grid, Strip, TD } from '@/editor/widgets/Grid'
+import { Field } from '@/editor/widgets/Field'
+import { Grid, GridAddLine, NAME, SETTINGS, Strip, TD } from '@/editor/widgets/Grid'
 import { Window } from '@/editor/widgets/Window'
 import { capability, hasCapability } from '../../core/block/capability'
 import { blockType, declaredValue } from '../../core/block/registry'
@@ -137,7 +137,7 @@ function CalculationWindow({ calculation, names, onApply, onRemove, onClose }: {
     <Window
       title="Berechnung"
       beside={(
-        <span className="min-w-0 truncate border-l border-line pl-[14px] font-mono text-dense text-muted">
+        <span className="min-w-0 truncate border-l border-line-soft pl-[14px] font-mono text-dense text-muted">
           {sentenceText(finished, names)}
         </span>
       )}
@@ -156,7 +156,7 @@ function CalculationWindow({ calculation, names, onApply, onRemove, onClose }: {
       onClose={onClose}
     >
       <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_320px]">
-        <div className="flex min-h-0 flex-col border-r border-line">
+        <div className="flex min-h-0 flex-col border-r border-line-soft">
           <Strip right={`${complete.length} Größen`}>Satz</Strip>
           <Grid columns={COLUMNS} onEmpty={() => setSelected(null)}>
             <tr className="cursor-default">
@@ -191,30 +191,26 @@ function CalculationWindow({ calculation, names, onApply, onRemove, onClose }: {
                 }}
               />
             ))}
-            <tr
-              className="cursor-pointer text-muted hover:bg-accent-soft"
-              onClick={() => {
+            <GridAddLine
+              onAdd={() => {
                 setTerms([...terms, EMPTY_TERM])
                 setSelected(terms.length)
                 setOpen({ at: terms.length, list: 'origin' })
               }}
             >
-              <td className={TD} />
-              <td className={cn(TD, 'px-[10px]')} colSpan={3}>
-                <span className="flex items-center gap-[8px]"><Plus size={13} className="text-accent" /> Größe hinzufügen</span>
-              </td>
-            </tr>
+              Größe hinzufügen
+            </GridAddLine>
           </Grid>
         </div>
         <div className="flex min-h-0 flex-col overflow-y-auto">
           <Strip>Ergebnis</Strip>
-          <div className="break-words border-b border-line px-[12px] py-[9px] font-mono text-dense leading-[19px] text-ink">
+          <div className="break-words border-b border-line-soft px-[12px] py-[9px] font-mono text-dense leading-[19px] text-ink">
             {sentenceText(finished, names)}
           </div>
           <Strip>Rundung</Strip>
-          <div className="grid grid-cols-[112px_72px] items-center gap-[8px] border-b border-line px-[12px] py-[8px]">
-            <span className="text-dense text-muted">Stellen</span>
-            <input
+          <div className={cn(SETTINGS, 'grid-cols-[112px_72px]')}>
+            <span className={NAME}>Stellen</span>
+            <Field
               aria-label="Stellen"
               inputMode="numeric"
               value={draft.decimals}
@@ -224,7 +220,7 @@ function CalculationWindow({ calculation, names, onApply, onRemove, onClose }: {
                   setDraft({ ...draft, decimals })
                 }
               }}
-              className="h-control rounded border border-line bg-panel px-[8px] text-right font-mono text-ui outline-none focus:border-accent"
+              className="text-right font-mono"
             />
           </div>
           {units?.kind === 'units' && (

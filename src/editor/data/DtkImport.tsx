@@ -3,6 +3,7 @@ import { Button } from '@/editor/widgets/Button'
 import { Checkbox } from '@/editor/widgets/Checkbox'
 import { cn } from '@/editor/widgets/cn'
 import { Strip } from '@/editor/widgets/Grid'
+import { LINE_HOVER } from '@/editor/widgets/lineLook'
 import { keyDisplay } from '../../core/data/dataSources'
 import type { DtkTable } from '../../core/data/dtkImport'
 import { useDataSources } from '../state/useDataSources'
@@ -49,10 +50,10 @@ export function DtkImport({ fileName, tables, onClose }: {
               checked={!locked && ticked.has(t.key)}
               disabled={locked}
               onChange={() => toggle(t.key)}
-              className={cn('border-b border-line/70 px-[12px] py-[5px]', !locked && 'hover:bg-accent-soft')}
+              className={cn('h-[40px] border-b border-line-soft px-[12px]', !locked && LINE_HOVER)}
             >
               <span className="flex items-baseline gap-[8px]">
-                <span className="truncate font-medium">{t.name !== '' ? t.name : keyDisplay(t.key)}</span>
+                <span className="truncate font-semibold">{t.name !== '' ? t.name : keyDisplay(t.key)}</span>
                 <span className="shrink-0 font-mono text-dense text-muted">{keyDisplay(t.key)}</span>
                 <span className="ml-auto shrink-0 text-dense text-muted">{t.fields.length} Felder</span>
               </span>
@@ -60,7 +61,7 @@ export function DtkImport({ fileName, tables, onClose }: {
           )
         })}
       </div>
-      <div className="flex shrink-0 justify-end gap-[8px] border-t border-line bg-control px-[14px] py-[8px]">
+      <div className="flex shrink-0 justify-end gap-[8px] border-t border-line-soft bg-panel px-[18px] py-[10px]">
         <Button onClick={onClose}>Abbrechen</Button>
         {tables.length > 0 && (
           <Button kind="primary" disabled={count === 0} onClick={adopt}>

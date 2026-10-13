@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Grid, GridLine, GridNewLine, Strip } from '@/editor/widgets/Grid'
+import { cn } from '@/editor/widgets/cn'
+import { Grid, GridLine, GridNewLine, NAME, SETTINGS, Strip } from '@/editor/widgets/Grid'
 import { DECIMALS_MAX, type UnitsTerm } from '../../core/data/calculation'
 import { asNumber, numberText } from '../../core/data/number'
 import { PickerControl } from '../controls/PickerControl'
@@ -30,8 +31,8 @@ export function UnitsPane({ term, names, onChange }: {
   return (
     <>
       <Strip>{UNITS}</Strip>
-      <div className="grid grid-cols-[112px_minmax(0,1fr)] items-center gap-[8px] border-b border-line px-[12px] py-[8px]">
-        <span className="text-dense text-muted">Einheit 1</span>
+      <div className={cn(SETTINGS, 'grid-cols-[112px_minmax(0,1fr)]')}>
+        <span className={NAME}>Einheit 1</span>
         <PickerControl
           name="Einheit 1"
           className="w-full"
@@ -39,7 +40,7 @@ export function UnitsPane({ term, names, onChange }: {
           value={term.first === undefined ? '' : encodeOrigin(term.first)}
           onChoose={(v) => choose('first', v)}
         />
-        <span className="text-dense text-muted">Einheit 2</span>
+        <span className={NAME}>Einheit 2</span>
         <PickerControl
           name="Einheit 2"
           className="w-full"

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { Plus, Trash2 } from '@/editor/icons/icon'
+import { Trash2 } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
-import { Grid, INPUT, MARKED, TD } from '@/editor/widgets/Grid'
+import { Grid, GridAddLine, INPUT, MARKED, TD } from '@/editor/widgets/Grid'
+import { LINE_HOVER } from '@/editor/widgets/lineLook'
 import type { ListGroup } from '@/editor/widgets/List'
 import { OnEscape } from '@/editor/widgets/useCloseOnEscape'
 import type { Parameter } from '../../core/data/actions'
@@ -40,7 +41,7 @@ const COLUMNS = [
 export function Result({ template, filled, reach }: { template: RelationTemplate; filled: Filled; reach: Reach }) {
   const all = [...filled.parameter, ...filled.extraParameter]
   return (
-    <div className="break-all border-b border-line px-[12px] py-[9px] font-mono text-dense leading-[19px] text-muted">
+    <div className="break-all border-b border-line-soft px-[12px] py-[9px] font-mono text-dense leading-[19px] text-muted">
       {template.verb}[{template.nr}
       {all.map((b, k) => {
         const entry = placeEntry(b, reach)
@@ -159,18 +160,14 @@ export function Places({ template, filled, reach, extras = true, fill = true, on
         )
       })}
       {extras && template.extraParameterAllowed === true && (
-        <tr
-          className="cursor-pointer text-muted hover:bg-accent-soft"
-          onClick={() => {
+        <GridAddLine
+          onAdd={() => {
             onChange({ ...filled, extraParameter: [...filled.extraParameter, EMPTY] })
             setSelected(all.length)
           }}
         >
-          <td className={TD} />
-          <td className={cn(TD, 'px-[10px]')} colSpan={3}>
-            <span className="flex items-center gap-[8px]"><Plus size={13} className="text-accent" /> Stelle hinzufügen</span>
-          </td>
-        </tr>
+          Stelle hinzufügen
+        </GridAddLine>
       )}
     </Grid>
   )
@@ -214,7 +211,7 @@ function PlaceLine({
   }
 
   return (
-    <tr onClick={onSelect} className={cn('group cursor-default', on ? MARKED : 'hover:bg-accent-soft')}>
+    <tr onClick={onSelect} className={cn('group cursor-default', on ? MARKED : LINE_HOVER)}>
       {on && open === null && <OnEscape run={onDone} />}
       <td className={cn(TD, 'px-[10px] text-right font-mono text-dense', !on && 'text-muted')}>{nr}</td>
       <td className={cn(TD, 'truncate px-[10px] font-mono text-dense')} title={raw}>{raw}</td>
@@ -234,7 +231,7 @@ function PlaceLine({
             )
           : <span className="block truncate px-[10px]">{originText}</span>}
       </td>
-      <td className={cn(TD, 'relative', on && typed && 'bg-panel text-ink')}>
+      <td className={cn(TD, 'relative')}>
         {on && typed
           ? (
               <input

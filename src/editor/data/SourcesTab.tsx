@@ -34,7 +34,7 @@ export function SourcesTab() {
 
   return (
     <>
-      <div className="flex w-[340px] shrink-0 flex-col border-r border-line">
+      <div className="flex w-[340px] shrink-0 flex-col border-r border-line-soft">
         <Strip>Quellen</Strip>
         <Grid columns={SOURCE_COLUMNS}>
           {store.list.map((s) => (

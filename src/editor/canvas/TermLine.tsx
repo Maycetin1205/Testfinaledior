@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { Trash2 } from '@/editor/icons/icon'
 import { cn } from '@/editor/widgets/cn'
 import { INPUT, MARKED, TD } from '@/editor/widgets/Grid'
+import { binArea, LINE_HOVER } from '@/editor/widgets/lineLook'
 import { Segment } from '@/editor/widgets/Segment'
 import type { Term } from '../../core/data/calculation'
 import { ChoiceCell } from '../origin/ChoiceCell'
@@ -36,7 +37,7 @@ export function TermLine({
   const sign = term.divides ? '÷' : '×'
 
   return (
-    <tr onClick={onSelect} className={cn('group cursor-default', on ? MARKED : 'hover:bg-accent-soft')}>
+    <tr onClick={onSelect} className={cn('group cursor-default', on ? MARKED : LINE_HOVER)}>
       <td className={cn(TD, 'px-[10px] text-right font-mono text-dense', !on && 'text-muted')}>{nr}</td>
       <td className={cn(TD, 'px-[6px]')}>
         {on
@@ -66,7 +67,7 @@ export function TermLine({
             )
           : <span className="block truncate px-[10px]">{originText(origin, names)}</span>}
       </td>
-      <td className={cn(TD, 'relative', on && typed && 'bg-panel text-ink')}>
+      <td className={cn(TD, 'relative')}>
         {on && typed
           ? (
               <input
@@ -103,10 +104,7 @@ export function TermLine({
           aria-label={`Größe ${nr} entfernen`}
           title="Entfernen"
           onClick={(e) => { e.stopPropagation(); onRemove() }}
-          className={cn(
-            'absolute inset-y-0 right-0 flex items-center px-[8px]',
-            on ? 'bg-accent text-panel hover:text-error-soft' : 'hidden bg-accent-soft text-muted hover:text-error group-hover:flex',
-          )}
+          className={binArea(on)}
         >
           <Trash2 size={13} />
         </button>

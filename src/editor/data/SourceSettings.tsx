@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
-import { Strip } from '@/editor/widgets/Grid'
+import { INPUT_EDGE } from '@/editor/widgets/Field'
+import { NAME, Strip } from '@/editor/widgets/Grid'
 import { relationParameterDefault, type Parameter } from '../../core/data/actions'
 import { splitBinding } from '../../core/block/blockType'
 import { choiceOf, fieldPrefixFromInput, type DataSource } from '../../core/data/dataSources'
@@ -18,7 +19,9 @@ import { useRelations } from '../state/useRelations'
 import { deliveries, deliveryOf, NEW_POSITIONS, withDelivery, withPreset, withSettings, type SourceData } from './sourceEdit'
 
 const EMPTY: Parameter = { source: 'fixed', value: '' }
-const PICKER = 'h-[24px] text-dense'
+// Lower than a control, so the line stands as high as the strip beside it
+// and the heads of both tables meet.
+const PICKER = 'h-[28px]'
 
 function useSource(source: DataSource) {
   const store = useDataSources()
@@ -57,7 +60,7 @@ export function SourceSettings({ source }: { source: DataSource }) {
     save(withSettings(source, { choice: { restriction: { ...restriction, ...change } } }))
 
   return (
-    <div className="flex h-[30px] shrink-0 items-center gap-[18px] overflow-hidden border-b border-line bg-control px-[12px]">
+    <div className="flex h-[36px] shrink-0 items-center gap-[18px] overflow-hidden border-b border-line-soft bg-panel px-[12px]">
       <Setting name="Art">
         <PickerControl
           name="Art"
@@ -151,7 +154,7 @@ export function SourceBelow({ source }: { source: DataSource }) {
   const { store, listed, getValue, template, saveValue } = useSource(source)
   if (template) {
     return (
-      <div className="flex max-h-[45%] shrink-0 flex-col border-t border-line">
+      <div className="flex max-h-[45%] shrink-0 flex-col border-t border-line-soft">
         <Strip>Stellen der Relation</Strip>
         <Places
           template={template}
@@ -201,7 +204,7 @@ function openRecordFields(sources: readonly DataSource[], ownId: string): ListGr
 function Setting({ name, children }: { name: string; children: ReactNode }) {
   return (
     <div className="flex shrink-0 items-center gap-[8px]">
-      <span className="text-dense text-muted">{name}</span>
+      <span className={NAME}>{name}</span>
       {children}
     </div>
   )
@@ -233,7 +236,7 @@ function TextCell({ name, value, valid, onSave }: {
       }}
       onBlur={commit}
       className={cn(
-        'h-[24px] w-[110px] rounded border border-line bg-panel px-[8px] font-mono text-dense outline-none focus:border-accent',
+        INPUT_EDGE, PICKER, 'w-[110px] px-[8px] font-mono',
         ok ? 'text-ink' : 'text-error',
       )}
     />
@@ -245,7 +248,7 @@ function MaskFields({ source }: { source: DataSource }) {
   const store = useDataSources()
   const [text, setText] = useState('')
   return (
-    <div className="flex shrink-0 flex-col border-t border-line">
+    <div className="flex shrink-0 flex-col border-t border-line-soft">
       <Strip>Felder einlesen</Strip>
       <div className="flex flex-col gap-[6px] p-[8px]">
         <textarea
@@ -253,7 +256,7 @@ function MaskFields({ source }: { source: DataSource }) {
           value={text}
           rows={3}
           onChange={(e) => setText(e.currentTarget.value)}
-          className="w-full rounded border border-line bg-panel p-[6px] font-mono text-dense outline-none focus:border-accent"
+          className={cn(INPUT_EDGE, 'p-[8px] font-mono text-dense')}
         />
         <Button
           className="self-start"

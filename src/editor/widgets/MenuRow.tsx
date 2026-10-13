@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@/editor/widgets/cn'
+import { LINE_CHOSEN, LINE_HOVER } from './lineLook'
 
 interface MenuRowProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
@@ -25,7 +26,7 @@ export function MenuRow({
         'flex h-control w-full min-w-0 items-center gap-[8px] rounded-[var(--radius-small)] px-[9px] text-left text-ui font-semibold text-ink',
         'transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent',
         'disabled:pointer-events-none disabled:opacity-[.45]',
-        active ? 'bg-accent-soft text-accent-ink' : 'hover:bg-hover',
+        active ? LINE_CHOSEN : LINE_HOVER,
         className,
       )}
       {...rest}

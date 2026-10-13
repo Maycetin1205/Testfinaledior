@@ -7,8 +7,9 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
-import { Trash2 } from '@/editor/icons/icon'
+import { Plus, Trash2 } from '@/editor/icons/icon'
 import { cn } from './cn'
+import { binArea, LINE_HOVER, ROW_CHOSEN } from './lineLook'
 import { OnEscape, useCloseOnEscape } from './useCloseOnEscape'
 
 // A list as SoftEngine shows one, drawn as a table of the mask (.tbl): a strip
@@ -30,8 +31,8 @@ const TEXT = 'block truncate px-[10px]'
 // A cell typed into looks like any other, only with the cursor, as in the
 // capture of the mask.
 export const INPUT = 'h-[28px] w-full min-w-0 bg-transparent px-[10px] text-ui text-ink outline-none'
-// The marked line, as .is-aktiv: the whole line in the accent, the text white.
-export const MARKED = 'bg-accent text-panel'
+// The marked line, as every chosen line of the editor (lineLook.ts).
+export const MARKED = ROW_CHOSEN
 // The line being typed in: white again, so the text reads as in a field.
 const TYPING = 'bg-panel'
 
@@ -45,6 +46,14 @@ export function Strip({ children, right }: { children: ReactNode; right?: ReactN
     </div>
   )
 }
+
+// Under a strip, the settings of a part: a name and its control per line, the
+// name as the label of a field of the mask (.f .l); the caller sets the columns.
+export const SETTINGS = 'grid items-center gap-[8px] border-b border-line-soft px-[12px] py-[8px]'
+export const NAME = 'text-dense font-semibold text-muted'
+// A field in a strip, like a search: lower than a control, so the strip keeps
+// its height.
+export const STRIP_FIELD = 'h-[28px] w-[260px]'
 
 const ColumnsOf = createContext<readonly GridColumn[]>([])
 
@@ -128,10 +137,7 @@ function Bin({ name, marked, onRemove }: { name: string; marked: boolean; onRemo
       aria-label={name}
       title="Löschen"
       onClick={(e) => { e.stopPropagation(); onRemove() }}
-      className={cn(
-        'absolute inset-y-0 right-0 flex items-center px-[8px]',
-        marked ? 'bg-accent text-panel hover:text-error-soft' : 'hidden bg-accent-soft text-muted hover:text-error group-hover:flex',
-      )}
+      className={binArea(marked)}
     >
       <Trash2 size={13} />
     </button>
@@ -197,7 +203,7 @@ export function GridLine({ cells, names = [], marked, tips = false, valid, onMar
       onKeyDown={onKey}
       className={cn(
         'group cursor-default outline-none',
-        draft !== null ? TYPING : marked ? MARKED : 'hover:bg-accent-soft',
+        draft !== null ? TYPING : marked ? MARKED : LINE_HOVER,
       )}
     >
       {draft !== null
@@ -244,7 +250,7 @@ export function GridNewLine({ names, valid, onAdd }: {
     if (typed && onAdd(v)) setV(empty)
   }
   return (
-    <tr className="hover:bg-accent-soft focus-within:bg-panel">
+    <tr className={cn(LINE_HOVER, 'focus-within:bg-panel')}>
       {columns.map((c, k) => (
         <td key={k} className={TD}>
           <input
@@ -259,6 +265,20 @@ export function GridNewLine({ names, valid, onAdd }: {
         </td>
       ))}
       {typed && <OnEscape run={() => setV(empty)} />}
+    </tr>
+  )
+}
+
+// The line under the last entry that adds one: a plus and what it adds, in
+// the cells after the first.
+export function GridAddLine({ children, onAdd }: { children: ReactNode; onAdd: () => void }) {
+  const columns = useContext(ColumnsOf)
+  return (
+    <tr className={cn('cursor-pointer text-muted hover:text-ink', LINE_HOVER)} onClick={onAdd}>
+      <td className={TD} />
+      <td className={cn(TD, 'px-[10px]')} colSpan={columns.length - 1}>
+        <span className="flex items-center gap-[8px]"><Plus size={13} className="text-accent" /> {children}</span>
+      </td>
     </tr>
   )
 }

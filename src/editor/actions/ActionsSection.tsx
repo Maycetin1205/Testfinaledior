@@ -3,6 +3,7 @@ import { ArrowUp, Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
 import { Field } from '@/editor/widgets/Field'
+import { LINE_CHOSEN, LINE_HOVER } from '@/editor/widgets/lineLook'
 import type { EventDef } from '../../core/block/capability'
 import { isWindowPage, pagesOfMask } from '../../core/block/pages'
 import type { BlockNode } from '../../core/block/tree'
@@ -90,7 +91,7 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
               <button
                 type="button"
                 onClick={() => ed.openStep({ blockId: block.id, eventKey: ev.key, stepId: null, tab: 'PUT' })}
-                className="flex h-[30px] w-full items-center gap-[8px] px-[8px] text-left text-muted hover:bg-accent-soft hover:text-ink"
+                className={cn('flex h-[30px] w-full items-center gap-[8px] px-[8px] text-left text-muted hover:text-ink', LINE_HOVER)}
               >
                 <Plus size={13} className="text-accent" /> Schritt hinzufügen
               </button>
@@ -129,7 +130,7 @@ export function OpenStepWindow() {
   )
 }
 
-const LINE = 'group flex h-[30px] items-center gap-[8px] border-b border-line/70 px-[8px]'
+const LINE = 'group flex h-[30px] items-center gap-[8px] border-b border-line-soft px-[8px]'
 
 // What a step does, in a few words, and its short form on the right.
 function stepWords(step: Step, context: StepContext): { words: string; short: string; known: boolean } {
@@ -212,7 +213,7 @@ function Clickable({ open, onClick, children }: { open: boolean; onClick: () => 
       aria-expanded={open}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter') onClick() }}
-      className={cn(LINE, 'cursor-pointer', open ? 'bg-accent text-panel' : 'hover:bg-accent-soft')}
+      className={cn(LINE, 'cursor-pointer', open ? LINE_CHOSEN : LINE_HOVER)}
     >
       {children}
     </div>
