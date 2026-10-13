@@ -84,14 +84,15 @@ export const textProperties = {
     attribute: 'text',
   }),
   // The label stands small above the text, as over the value of a field, so
-  // a text and a field with their labels stand on one line.
+  // a text and a field with their labels stand on one line. Left empty it
+  // names the bound fields.
   showLabel: booleanProperty({
     default: false,
     label: 'Beschriftung',
     attribute: 'showlabel',
   }),
   label: textProperty({
-    default: 'Beschriftung',
+    default: '',
     label: 'Beschriftung',
     place: 'block',
     attribute: 'label',

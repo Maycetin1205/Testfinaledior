@@ -64,6 +64,7 @@ Beim Export:
 | `exportMask()` geht von `ROOT_ID` durch den Baum, `nodeToHtml()` je Knoten | `src/export/exportMask.ts` |
 | Ein Attribut je deklarierter Eigenschaft: `declared.attribute="…"`, Wert aus `declared.type.toAttribute()`. Weggelassen bei `attribute === ''`, bei unerfülltem `when` und beim Default | `src/export/exportMask.ts` |
 | Gebundene Stelle mit `previewProp`: statt des Werts der Feldname | `src/export/bindingPreview.ts` |
+| Gebundene Stelle mit `nameProp` (Beschriftung des Texts): leer gelassen trägt sie den Feldnamen | `src/export/bindingPreview.ts`, im Editor `useLitElement.ts` |
 | Lage im Raster als `style`, Aktionen als `data-ff-actions` | `src/export/nodeStyle.ts`, `src/core/data/steps/chains.ts` |
 | In der Maske meldet die Laufzeit dieselben Klassen an | `src/blocks/register.ts` |
 | Lit liest das Attribut mit dem Konverter aus `declareLitProperties()`, der `declared.type.fromAttribute(raw, default)` ruft; fehlendes Attribut = Default | `src/blocks/base/BlockElement.ts` |
@@ -76,7 +77,7 @@ Zurück, vom Baustein zum Editor. Alle vier Ereignisse sind `CustomEvent` ohne `
 | `ff-prop-change` | `sendPropChange()`, `src/blocks/base/BlockElement.ts` | `src/editor/canvas/useLitElement.ts` | `updateProperty` (z. B. Text direkt auf der Fläche umbenannt) |
 | `ff-spot-click` | `sendSpotClick()`, nur bei `preview`, `src/blocks/base/BlockElement.ts` | `src/editor/canvas/useLitElement.ts` merkt sich die Stelle; `src/editor/canvas/BlockHost.tsx` und `src/editor/canvas/useFieldBinding.tsx` werten sie aus | Feld binden oder Nachschlagefenster öffnen |
 | `ff-heads-placed` | `src/blocks/base/headsReport.ts`, nur bei `preview` | `src/editor/canvas/useHeadsPlaced.ts` für `ColumnControls.tsx` und `LookupColumns.tsx` | Griffe über Spaltenköpfen |
-| `ff-height-reported` | `src/blocks/base/heightReport.ts`, nur bei `preview` | `src/editor/canvas/useLitElement.ts`, nur bei `grid.heightFromContent` | `fitNodeHeight()` setzt die Zeilen, ohne Historienschritt |
+| `ff-height-reported` | `src/blocks/base/heightReport.ts`, nur bei `preview` | `src/editor/canvas/useLitElement.ts`, nur bei `grid.heightFromContent` | `fitNodeHeight()` setzt die Zeilen, ohne Historienschritt; beim zuletzt von Hand geänderten Baustein rückt `slotGrownPushing()` (`src/core/block/gridArea.ts`) das Darunter nach unten |
 
 ## 4. Ein Baustein
 

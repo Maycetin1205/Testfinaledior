@@ -167,6 +167,9 @@
   --se-focus: 0 0 0 3px rgba(42, 69, 200, .20);
   /* The ring of a field being typed into: the line inside, the halo outside. */
   --se-focus-ring: inset 0 0 0 1.5px var(--se-accent), 0 0 0 3px rgba(42, 69, 200, .16);
+  /* The line under the value of a field, as under a signature; blue while typing. */
+  --se-field-line: inset 0 -1px 0 var(--se-line);
+  --se-field-line-typing: inset 0 -1px 0 var(--se-accent);
 
   --se-font: "Manrope", "Segoe UI Variable Text", "Segoe UI", system-ui, Arial, sans-serif;
 

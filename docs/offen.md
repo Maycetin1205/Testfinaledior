@@ -46,6 +46,16 @@ wirft ihn weg.
 
 1. J: Text mit Beschriftung, wie das Feld. Commit. Danach Export und
    Referenzabzug unverändert für Masken ohne Beschriftung. Erledigt 13.10.
+   Danach, vom Nutzer 13.10. gewollt:
+   - Text-Einstellungen aufräumen: Zahl, Null oder weniger rot, Summenlinie
+     nur bei den Rollen Zahl und Betrag; vorher prüfen, dass keine Maske eine
+     Einstellung verliert (der Export lässt verborgene Wahlen weg).
+     „Trenner“ (Feldwahl, mehrere Felder) klar benennen. Die Rolle
+     „Beschriftung“ heißt wie der Haken.
+   - Export Stufe 1: den Stil der Bausteine beim Bauen zusammenpressen
+     (gemessen 13.10.: Laufzeit 2400 → 450 Zeilen, 258 → 239 KB), den Stil
+     des Exports ebenso; über den TypeScript-Parser, ohne neues Werkzeug.
+     Nur genutzte Bausteine einbetten (Stufe 2) nicht jetzt.
 2. D: alte Exportdatei in `masken/belegerfassung` durch den aktuellen
    Export ersetzen (Dateinamen bleiben, uncommittet). Dann exportiert der
    Nutzer nach V7 und testet F4 (A) mit einem doppelten Artikel.
@@ -148,8 +158,9 @@ J. Text mit Beschriftung: der Text bekommt wie das Feld den Haken
    „Beschriftung“ und die Rubrik klein in Versalien über dem Text, im
    selben Maß und Ton wie beim Feld, damit Feld und Text mit Beschriftung
    auf einer Linie stehen. Ohne Haken bleibt der Text wie heute.
-   Gebaut 13.10.: Rubrik und Wert pixelgleich mit dem Feld. Mit „Unten
-   ausrichten“ braucht der Text mit Beschriftung vier Zeilen Höhe.
+   Gebaut 13.10.: Rubrik und Wert pixelgleich mit dem Feld. Nachgebessert
+   13.10.: die Beschriftung ist der Feldname, der Wert zeigt im Editor „–“,
+   das Darunter rückt nach unten, wenn der Text wächst.
 
 ## Refactoring, zuerst
 

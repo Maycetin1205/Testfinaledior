@@ -280,7 +280,7 @@ export class FormField extends BlockElement implements ValueCarrier {
     const empty = (valueBindable ? this.value : this._lookup.inField) === ''
     const sign = this.lookup ? undefined : SIGNS[kind]
     return html`<div
-      class=${classMap({ field: true, labelled: this.showLabel, [`kind-${kind}`]: true, lookup: this.lookup })}
+      class=${classMap({ field: true, labelled: this.showLabel, [`kind-${kind}`]: true, lookup: this.lookup, line: this.appearance !== 'plain' })}
       @click=${this.onFieldClick}
     >
       ${this.symbol !== '' ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}

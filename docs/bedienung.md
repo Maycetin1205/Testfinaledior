@@ -62,6 +62,8 @@ Alle in der Blatt-Sprache (13.10., `entschieden.md`):
 - Feld: Text, Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld
   (Haken `J`, kein Haken `N`, je Feld einstellbar). Beschriftung als
   Rubrik über dem Wert, abschaltbar; Symbol links. Leer zeigt einen Strich.
+  Art: Linie (Standard, Haarlinie unter dem Wert, blau beim Tippen) oder
+  Ohne; das Ankreuzfeld hat keine.
 - Tabelle: liniert wie eine Rechnung, immer mit Kopf, der beim Rollen
   stehen bleibt; Blättern, Sortieren per Klick, Spaltenwahl per Rechtsklick
   auf den Kopf.
@@ -85,7 +87,10 @@ Alle in der Blatt-Sprache (13.10., `entschieden.md`):
   Rubrik, Kopf, Hilfe, Betrag), Farbe, Art, Größe, Symbol, ein oder mehrere
   Felder in einer Zeile; Fläche oder Rand macht ihn zum Chip. Haken
   „Beschriftung“: kleine Rubrik über dem Text, auf einer Linie mit der des
-  Felds. Unter
+  Felds; sie trägt den Namen des gebundenen Felds, bis man sie überschreibt
+  (leer gemacht, kommt der Name zurück); der Wert zeigt im Editor dann „–“.
+  Wächst ein Baustein, den man gerade ändert, rücken die Bausteine darunter
+  nach unten, der Bereich wächst mit. Unter
   Einstellungen, Anzeige: Einzeilig, Unten ausrichten, Leer zeigt Strich,
   Null oder weniger rot, Summenlinie, Zahl (Wie geliefert, Betrag, Betrag
   mit €); mit Quelle dazu „Ohne Auswahl“: Leer lassen, Hinweis zeigen (mit

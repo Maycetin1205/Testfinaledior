@@ -15,6 +15,7 @@ import { HEIGHT_REPORTED, type HeightReported } from '../../blocks/base/heightRe
 import { boundNames } from '../../core/data/boundField'
 import type { SourceInReach } from '../../core/data/extraSources'
 import type { EditorStore } from '../state/EditorStore'
+import { capacityOf } from './gridArea'
 
 const HELPER_MARK = ' ↗'
 
@@ -77,7 +78,7 @@ export function useLitElement({
     // A block as high as its content reports that height; its rows follow.
     const onHeightReported = (e: Event) => {
       const { height } = (e as CustomEvent<HeightReported>).detail
-      editor.fitNodeHeight(blockRef.current.id, rowsForHeight(height))
+      editor.fitNodeHeight(blockRef.current.id, rowsForHeight(height), (areaId) => capacityOf(editor.tree, areaId))
     }
     if (gridMetricsOf(def).heightFromContent) el.addEventListener(HEIGHT_REPORTED, onHeightReported)
 
@@ -107,6 +108,9 @@ export function useLitElement({
         el.setDeclared(spot.previewProp ?? spot.prop, names)
       } else {
         el.setDeclared(bindingProp(spot.prop), '')
+      }
+      if (spot.nameProp !== undefined && String(block.values[spot.nameProp] ?? '') === '') {
+        el.setDeclared(spot.nameProp, boundNames(value, sources))
       }
     }
 

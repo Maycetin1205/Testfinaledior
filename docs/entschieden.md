@@ -7,6 +7,15 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Felder tragen standardmäßig eine Linie unter dem Wert, damit man
+  sieht, wo man tippt (Nutzer); Art „Ohne“ nimmt sie weg. Texte bekommen
+  nie eine Linie: die Linie heißt „hier tippen“.
+- 13.10. Muss ein Baustein wachsen, den der Nutzer gerade ändert, rückt
+  alles von seiner Unterkante abwärts im ganzen Bereich nach unten, die
+  Zeilen bleiben in Linie; der Bereich wächst mit. Beim Laden und beim
+  bloßen Wählen rückt nichts.
+- 13.10. Die Beschriftung des Texts ist der Name des gebundenen Felds, bis
+  der Nutzer sie überschreibt; der Wert zeigt im Editor dann „–“.
 - 13.10. Ein Bereich schneidet nur in der Maske ab, was über seinen Rand
   ragt; auf der Leinwand nicht, damit Markierung und Griffe eines Bausteins
   am Rand des Bereichs ganz zu sehen sind. Die Maske bleibt, wie sie war.

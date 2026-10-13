@@ -207,6 +207,52 @@ export function slotResize(
   }, id, w)
 }
 
+// A block that grows by its content where another stands below it: what
+// stands from its lower edge down moves down by as many rows, across the whole
+// area, so the rows of the area stay in line. An area that then holds more
+// rows than it has grows the same way. capacity tells the rows an area holds,
+// null where it has no bottom, like the page.
+export function slotGrownPushing(
+  tree: MaskTree,
+  id: string,
+  rows: number,
+  capacity: (areaId: string) => number | null,
+): MaskTree | null {
+  const node = tree[id]
+  if (!node || !node.parentId) return null
+  const cur = gridSlotRead(node.values)
+  const free = slotResize(tree, id, { ...cur, h: rows })
+  if (rows <= cur.h) return free
+  if (free) return areaFitted(free, node.parentId, capacity)
+  const parent = tree[node.parentId]
+  if (!parent || !isGridArea(parent)) return null
+  const below = cur.y + cur.h
+  const by = rows - cur.h
+  const next: MaskTree = { ...tree, [id]: { ...node, values: { ...node.values, gridH: rows } } }
+  for (const other of childrenInFlow(tree, node.parentId)) {
+    const pos = gridSlotRead(other.values)
+    if (other.id === id || pos.y < below) continue
+    next[other.id] = { ...other, values: { ...other.values, gridY: pos.y + by } }
+  }
+  return areaFitted(next, node.parentId, capacity)
+}
+
+// An area that holds more rows than it has grows by the rows over.
+function areaFitted(
+  tree: MaskTree,
+  areaId: string,
+  capacity: (areaId: string) => number | null,
+): MaskTree {
+  const area = tree[areaId]
+  const holds = area ? capacity(areaId) : null
+  if (!area || holds === null) return tree
+  const reach = childrenInFlow(tree, areaId)
+    .map((n) => gridSlotRead(n.values))
+    .reduce((max, p) => Math.max(max, p.y + p.h), 0)
+  if (reach <= holds) return tree
+  return slotGrownPushing(tree, areaId, gridSlotRead(area.values).h + reach - holds, capacity) ?? tree
+}
+
 export function newBlockOnCell(
   tree: MaskTree,
   type: string,

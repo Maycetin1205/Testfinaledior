@@ -62,12 +62,15 @@ export class Text extends BlockElement {
     const look = lookClass({ tone: this.tone, emphasis: this.emphasis })
     const waiting = !this.preview && this.withoutRow ? this.withoutChoice : 'empty'
     const hinting = waiting === 'hint' && this.withoutHint !== ''
-    const words = hinting ? this.withoutHint : asAmount(this.text, this.figureFormat)
+    // In the editor a bound value under its label shows the dash of an empty
+    // field: the label names the field already.
+    const dashOnly = this.preview && this.showLabel && this.textField !== ''
+    const words = dashOnly ? '' : hinting ? this.withoutHint : asAmount(this.text, this.figureFormat)
     const empty = !hinting && words.trim() === ''
     const marks = [
       this.oneLine ? 'one-line' : '',
       hinting ? 'hinting' : '',
-      this.emptyDash && empty ? 'empty' : '',
+      (this.emptyDash || dashOnly) && empty ? 'empty' : '',
       this.redBelowZero && !hinting && notPositive(this.text) ? 'not-positive' : '',
     ].filter((mark) => mark !== '').join(' ')
     const frame = [
@@ -96,7 +99,7 @@ export class Text extends BlockElement {
       style=${styleMap({ textAlign: align })}
       data-ff-editable
       @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
-    >${this.label}</span>${text}</div></div>`
+    >${this.label === '' && this.preview ? 'Beschriftung' : this.label}</span>${text}</div></div>`
   }
 
   override connectedCallback(): void {
@@ -138,7 +141,7 @@ defineBlock(Text, {
   capabilities: [
     { kind: 'source', after: 'text' },
     { kind: 'followsSelection' },
-    bindable<typeof textProperties>([{ prop: 'text', name: 'Text', several: true }]),
+    bindable<typeof textProperties>([{ prop: 'text', name: 'Text', several: true, nameProp: 'label' }]),
   ],
   grid: { startWidth: 12, startHeight: 2, minWidth: 2, minHeight: 1, heightFromContent: true },
 })

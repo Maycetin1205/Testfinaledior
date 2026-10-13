@@ -11,6 +11,17 @@ export function previewSpotsOf(node: BlockNode): Map<string, BindableSpot> {
     : [[spot.previewProp, spot] as const])))
 }
 
+export function nameSpotsOf(node: BlockNode): Map<string, BindableSpot> {
+  return new Map(bindableSpotsOf(node).flatMap((spot) => (spot.nameProp === undefined
+    ? []
+    : [[spot.nameProp, spot] as const])))
+}
+
+// The names of the fields bound to the spot, for its property left empty.
+export function namesRaw(node: BlockNode, spot: BindableSpot, sources: readonly DataSource[]): string {
+  return boundNames(String(node.values[bindingProp(spot.prop)] ?? ''), ownSourcesOf(node, sources))
+}
+
 export function previewRaw(
   node: BlockNode,
   spot: BindableSpot,

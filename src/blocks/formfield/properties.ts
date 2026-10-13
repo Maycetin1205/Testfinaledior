@@ -57,6 +57,12 @@ export const formFieldProperties = {
     label: 'Beschriftung',
     attribute: 'showlabel',
   }),
+  // Art: a hairline under the value, as under a signature, shows where to
+  // type. The checkbox has its box.
+  appearance: choiceProperty([
+    { value: 'line', name: 'Linie' },
+    { value: 'plain', name: 'Ohne' },
+  ], { default: 'line', label: 'Art', attribute: 'appearance', when: NOT_CHECKBOX }),
   symbol: symbolProperty({ when: NOT_CHECKBOX }),
   label: textProperty({
     default: 'Feldname',

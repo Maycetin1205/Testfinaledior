@@ -21,7 +21,7 @@ import {
   pagesOfMask,
   type PagesEntry,
 } from '../../core/block/pages'
-import { newBlockOnCell, cellMoveIn, slotResize } from '../../core/block/gridArea'
+import { newBlockOnCell, cellMoveIn, slotGrownPushing, slotResize } from '../../core/block/gridArea'
 import { selectionOnPage, selectionTarget } from '../../core/block/selection'
 import { deepClone } from '../../core/deepClone'
 import { EditorPersistence } from './editorStore/persistence'
@@ -47,6 +47,10 @@ export class EditorStore extends Subject<EditorStore> {
 
   private _tree: MaskTree = emptyTree()
   private _selectedId: string | null = null
+
+  // The block last changed by hand. Only it pushes what stands below it when
+  // it grows, so loading a mask or choosing a block moves nothing.
+  private _changedId: string | null = null
 
   private _activePageId: string = ROOT_ID
   private _version = 0
@@ -267,7 +271,10 @@ export class EditorStore extends Subject<EditorStore> {
 
   updateProperty(id: string, name: string, raw: unknown): boolean {
     const outcome = propertyUpdated(this._tree, this.pages, id, name, raw)
-    if (outcome.kind === 'changed') this.apply(outcome.tree)
+    if (outcome.kind === 'changed') {
+      this._changedId = id
+      this.apply(outcome.tree)
+    }
     return outcome.kind !== 'refused'
   }
 
@@ -295,15 +302,19 @@ export class EditorStore extends Subject<EditorStore> {
 
   resizeNodeToSlot(id: string, slot: GridSlot): void {
     const next = slotResize(this._tree, id, slot)
-    if (next) this.apply(next)
+    if (!next) return
+    this._changedId = id
+    this.apply(next)
   }
 
   // A block as high as its content reports that height; its rows follow
   // without a step in the history, the next step carries them along.
-  fitNodeHeight(id: string, rows: number): void {
+  fitNodeHeight(id: string, rows: number, capacity: (areaId: string) => number | null): void {
     const node = this._tree[id]
     if (!node) return
-    const next = slotResize(this._tree, id, { ...gridSlotRead(node.values), h: rows })
+    const next = id === this._changedId
+      ? slotGrownPushing(this._tree, id, rows, capacity)
+      : slotResize(this._tree, id, { ...gridSlotRead(node.values), h: rows })
     if (!next) return
     this._tree = next
     this.notify(this)
