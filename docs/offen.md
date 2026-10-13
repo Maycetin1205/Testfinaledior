@@ -69,6 +69,16 @@ B. Refresh nach dem Schreiben dauert Sekunden. Gemessen am Debug des
    `src/export/exportMask.ts`, Bestellung der Quellen); in der
    Belegerfassung prüfen, ob ein Baustein „Belege Kunde“ braucht. Echttest:
    Debug mit und ohne Schleife, Abstand PUT → Relation 1911.
+   Geprüft 13.10.: der Export bestellt schon heute nur Quellen, die ein
+   Baustein oder eine Kette liest (`collectDataSources()` →
+   `sourceIdsUsedBy()`); `bridge.ts` und `hostQueue.ts` bestellen nichts.
+   Die SEvariablen in V7 (`VORLAGEN_INDIV/Belegerfassung/LAYOUTRAHMEN/10000`,
+   13.10. 15:22) haben keine Schleife „Belege Kunde“, nur VAR (BEL,
+   WINDOW_VARIABLE, ADR) und Belegpositionen. Die 7 Felder stehen nur in
+   der alten Datei `masken/belegerfassung/Rahmen10000.basis.SEvariablen.json`
+   (Punkt D). In der Maske gibt es die Quelle nicht mehr; vorher (Commit
+   af29c97) war sie eine ERP-Abfrage `BELEG.GET` für eine Tabelle, nicht
+   bestellt. Nichts geändert; der Verdacht trägt nicht.
 C. Rahmen im Bereich: der Nutzer sieht, dass Bausteine im Bereich ihre
    Rahmen verlieren. Headless (13.10., Behandlung und Belegerfassung): das
    markierte Feld im Bereich zeigt Rahmen, Griffe und Hover; Knopf und
