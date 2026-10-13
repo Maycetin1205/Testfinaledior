@@ -149,3 +149,37 @@ der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
   dann jeder Export dorthin. Macht den Test in SoftEngine zu zehn Sekunden.
 - Probedaten aus einem SoftEngine-Debug-Log: der Editor zeigt die Maske
   mit den Daten, die SoftEngine wirklich geschickt hat.
+
+## Rahmen für jeden Auftrag
+
+Gilt für jeden Chat, der einen Schritt aus dieser Datei baut. Der Nutzer
+sagt nur: „Lies docs/offen.md und baue Schritt N. Halte dich an den Rahmen.“
+
+- Lies zuerst `docs/offen.md` (den Schritt und diesen Rahmen),
+  `docs/architektur.md` und die im Schritt genannten Dateien vollständig.
+- Fasse nur an, was der Schritt nennt. Nie `masken/`, nie `src/design/mask.css`,
+  nie eine Schicht, die der Linter verbietet. Keine neuen Abhängigkeiten.
+  Kein neues Verhalten, das der Schritt nicht nennt. Keine neuen Tests.
+- Werte für Aussehen nur aus `src/design/mask.css` und `editor.css`, Muster
+  ist `docs/design/behandlung-modern.html`. Nur hell. Keine Chips, Pills,
+  Badges als Deko. Keine Kästchen in Zeilen der Erfassung.
+- `npm run check` und `npm test` grün. Ändert sich der Export gewollt:
+  `REFERENCE_REFRESH=1 npm test` und im Commit sagen, was. Ändert er sich
+  ungewollt: zurück.
+- Ändert sich die Struktur, zieh `docs/architektur.md` nach. Ist etwas
+  entschieden, eine Zeile in `docs/entschieden.md`. Ist der Schritt fertig,
+  trag es hier beim Schritt ein.
+- Im Browser prüfen (http://localhost:5300, Maske aus `masken/` laden),
+  Screenshot vorher und nachher, Pfade im Bericht.
+- Ein Commit je Schritt, deutsch, ohne `masken/`, nicht pushen. Bericht
+  kurz, deutsch, für einen Nicht-Programmierer: was anders ist, was gleich
+  blieb, Check und Test grün. Frag nicht nach, entscheide nach Muster.
+
+## Prüfauftrag
+
+Für einen zweiten Chat nach einem Schritt. Der Nutzer sagt: „Prüfe den
+letzten Commit gegen docs/offen.md Schritt N und den Rahmen.“ Der Prüfer
+liest den Diff (`git show HEAD`), den Schritt und den Rahmen, führt
+`npm run check` und `npm test` aus, lädt eine Maske aus `masken/` im
+Browser und meldet nur Verstöße und Fehler, je einen Satz mit Datei und
+Zeile. Nichts umbauen, nichts committen. Kein Befund heißt: abgenommen.
