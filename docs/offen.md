@@ -128,8 +128,17 @@ der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
    Öffnen und Schließen. Termin schreiben, neuer Kunde (155/01) und neues
    Tier (160/03) stehen nicht in den Kontrakten; erst der Kontrakt, dann
    der Bau.
-4. Belegerfassung (10.10.): zwischen den PUTs warten; Summen nach dem
-   Schreiben nachladen.
+4. Belegerfassung: gebaut 13.10., Abnahme in SoftEngine offen. Jede Zeile
+   wird beim Erfassen geschrieben (Ereignis „Zeile erfasst“ der Erfassung,
+   in `masken/belegerfassung` derselbe PUT 82 wie am Knopf Speichern); der
+   nächste PUT wartet auf die Lieferung, höchstens 10 s; die Lieferung
+   kommt auch, während in der Tippzeile getippt wird, und bringt Positionen
+   und Summen mit. Für den Echttest: liefert SoftEngine nach jedem PUT neu,
+   und trägt `WINDOW_VARIABLE` dann die neuen Summen? Zeigt „Artikel der
+   Position“ die Tippzeile und die neue Position? Headless ja (Beispiel-
+   daten und die Datei vom Desktop), beim Nutzer nicht; Ursache im
+   Code nicht gefunden. Zeigt es weiter nichts, braucht es eine Antwort von
+   `ARTIKEL.GET` aus SoftEngine (Schlüssel und Werte einer Zeile).
 5. Position löschen per F4 wie in SoftEngine, eigener Schritt. Kein ✕ an
    den Zeilen (12.10.).
 6. IDB-Inhalte: XML und DTK liefern nur die Struktur; die Zeilen kommen

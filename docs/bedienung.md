@@ -67,8 +67,11 @@ Alle in der Blatt-Sprache (13.10., `entschieden.md`):
   auf den Kopf.
 - Erfassung: ein Kopf, Hauptzeile und graue Unterzeile je Zelle; Tab und
   Enter erfassen, Pfeile wechseln Haupt- und Unterzeile, Escape bricht ab.
-  Klick auf eine neue Position zeigt sie, Doppelklick korrigiert. Die
-  Liste blättert nie; neue Positionen bleiben unten sichtbar. Keine
+  Klick auf eine neue Position zeigt sie, der Cursor bleibt in der
+  Tippzeile; Doppelklick korrigiert. Ereignis „Zeile erfasst“
+  (Einstellungen, Aktionen): die Kette daran läuft für jede erfasste Zeile
+  sofort, eine nach der anderen, z. B. PUT 82. Die Liste blättert nie; neue
+  Positionen bleiben unten sichtbar. Keine
   Kästchen in Zeilen. Die Tippzeile ist getönt; Pflichtspalten zeigen ihren
   Titel leise, die erste andere Spalte den „Hinweis in der Tippzeile“
   (Einstellungen, Anzeige). Auf der Seite wächst sie mit dem Fenster.
@@ -99,6 +102,7 @@ nicht alle in SoftEngine.
 - `belegerfassung/Belegerfassung.aufbau-maske.json`: Layoutrahmen 10000
   in der Blatt-Sprache (13.10.), gebaut wie die Vorlage: Band mit Name,
   Beleg-Nr., Anschrift und Daten (Quellen Belegfenster und Adresse),
-  Erfassung, Artikel der Position, Zahlungsbedingung mit Speichern (PUT 82),
-  Summen mit Gesamtbetrag. Daneben noch der alte handgeschriebene Export
+  Erfassung, die jede Zeile beim Erfassen schreibt (PUT 82 an „Zeile
+  erfasst“), Artikel der Position, Zahlungsbedingung mit Speichern (PUT 82,
+  für das, was liegen blieb), Summen mit Gesamtbetrag. Daneben noch der alte handgeschriebene Export
   vom 06.10. (`Rahmen10000.basis.*`).

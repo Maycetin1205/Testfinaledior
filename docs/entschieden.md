@@ -7,6 +7,21 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 13.10. Die Erfassung schreibt jede Zeile, sobald sie erfasst ist, wie
+  SoftEngines eigene Erfassung beim Verlassen der Zeile: über die Kette am
+  Ereignis „Zeile erfasst“, die der Ersteller anhängt. Keine Relation fest
+  im Baustein; Speichern bleibt für das, was liegen blieb.
+- 13.10. Zwischen zwei Schreibvorgängen wartet die Maske, bis SoftEngine den
+  Beleg neu übergeben hat, höchstens 10 s. Gilt für jede Kette.
+- 13.10. Nach einer gescheiterten Zeile schreibt die Erfassung nicht von
+  selbst weiter; die Zeilen dahinter warten in ihrer Reihenfolge, bis der
+  Bediener korrigiert, wegnimmt oder speichert.
+- 13.10. Eine Lieferung wartet nicht mehr, solange in der Tippzeile der
+  Erfassung getippt wird; in anderen Feldern weiter schon.
+- 13.10. Ein Klick auf eine neue Position oder in den leeren Raum unter den
+  Zeilen setzt den Cursor zurück in die Tippzeile.
+- 13.10. Das Suchfenster einer Erfassungsspalte ist in der Maske so groß wie
+  im Editor.
 - 13.10. Bausteine überlappen nie: ein Zug, eine Größe oder ein neuer
   Baustein auf belegte Zellen wird abgelehnt (Rahmen rot statt blau, der
   Baustein bleibt). Die Regel, dass eine Liste sich kürzt, wenn ein Baustein

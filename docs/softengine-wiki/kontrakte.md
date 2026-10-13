@@ -315,6 +315,19 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   (`BEL_11_8` zwischen `FAF_230_8` und `FAF_238_8`, hier 10000–69999)
   übersprungen wird. Was eine solche Rückfrage beim PUT tut, ist nicht
   getestet (Lieferantenbeleg).
+- Belegt 2026-10-13 (Debugprotokoll des Nutzers, SoftEngines eigene
+  Positionserfassung, kein HTML): SoftEngine rechnet schon bei der
+  Artikelwahl (`B00`, `B01`) und bei jeder Feldänderung wieder (`B01`),
+  legt die Position aber erst beim Verlassen der Zeile an: Stammkalkulation
+  `STK_POSLT` mit „NeuAnlageImBeleg“, danach `B04`, `IB01`, `B05`,
+  `STKBELERF010`. Die Maske hält es darum so: jede Zeile wird beim
+  Erfassen geschrieben (Ereignis „Zeile erfasst“ der Erfassung, die Kette
+  hängt der Ersteller an, z. B. PUT 82), und der nächste Schreibvorgang geht
+  erst hinaus, wenn SoftEngine den Beleg neu übergeben hat, spätestens nach
+  10 s. Ob die Lieferung nach dem PUT die Summen in `WINDOW_VARIABLE` neu
+  trägt, ist nicht per Echttest belegt. Gilt in:
+  `blocks/capture/Capture.ts`, `runtime/events.ts`,
+  `softengine/relations/hostQueue.ts`.
 - Belegt ist ein anderer Weg: SoftEngines PAN-Layoutrahmen (z. B.
   `PAN/LAYOUTRAHMEN/Rahmen00221`) schicken nach einem Werkzeugstart
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen
