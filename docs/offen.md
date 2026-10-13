@@ -69,6 +69,30 @@ Jeder Schritt lässt das Verhalten der Maske gleich; der Referenzabzug
    ein Zustand für die ganze Seite, nicht je Maske. Stört erst, wenn zwei
    Masken auf einer Seite sollen.
 
+Stand 13.10.: Schritt 1 Teil 1 (Toolbar, Palette, Reiter) gebaut und
+abgenommen (9c90662). Dazugekommen am 13.10., aus einer fremden Prüfung
+der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
+
+6. Zahlen in Tabelle und Erfassung. Eine Spalte steht heute nur dann
+   rechts, wenn sie eine Summe hat (`columnStandsRight` in
+   `src/blocks/parts/column.ts`); Menge und Einzelpreis stehen darum links.
+   Ausrichtung nach Art des Werts (Zahl rechts), nicht nach Summe.
+   `numberText` in `src/core/data/number.ts` schreibt ohne Tausenderpunkt
+   und ohne feste Nachkommastellen, SoftEngine liefert mit („5.124,84“
+   neben „5124,84“). Ein Anzeigeformat für alle Zahlen der Maske
+   (de-DE, Tausenderpunkt, Nachkommastellen je Feld); was an SoftEngine
+   geschickt wird, bleibt wie heute. Leer bleibt der Strich, 0 wird „0,00“.
+   Export ändert sich gewollt. Ein Chat.
+7. Export abspecken, in der Datei (Laden aus der Installation ist
+   verworfen, 13.10.). Gemessen an der Belegerfassung: Maske 14 KB,
+   Quellen 1 KB, Stil 4 KB, Schrift 37 KB, Laufzeit 245 KB. Zuerst die
+   Laufzeit je Baustein vermessen und Fett finden (die Erfassung allein
+   wiegt fast 100 KB). Dann entscheiden, ob nur genutzte Bausteine
+   eingebettet werden; das braucht die Laufzeit in Teilen, die zusammen
+   passen, und bringt bei einer Maske mit Erfassung etwa 40 KB. Schrift:
+   Manrope bleibt (Entscheidung des Nutzers offen: zwei Schnitte 37 KB,
+   ein Schnitt etwa 19 KB, Segoe 0 KB).
+
 ## Bausteine und Masken, danach
 
 1. Aussehen-Wahlen (Farbe, Art, Größe aus `src/blocks/look/look.ts`) an
