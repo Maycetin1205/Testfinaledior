@@ -8,12 +8,12 @@ export function TickBox({ on, className }: { on: boolean; className?: string }) 
     <span
       aria-hidden
       className={cn(
-        'flex h-[16px] w-[16px] shrink-0 items-center justify-center rounded-[var(--radius-small)] border-[1.5px] transition-colors',
+        'flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-[var(--radius-small)] border-[1.5px] transition-colors',
         on ? 'border-accent bg-accent text-panel' : 'border-box-line bg-panel',
         className,
       )}
     >
-      {on && <Check size={11} strokeWidth={3} />}
+      {on && <Check size={12} strokeWidth={3} />}
     </span>
   )
 }
