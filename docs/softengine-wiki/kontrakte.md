@@ -328,6 +328,12 @@ aus der Liste heraus und kann sie nicht scheitern lassen.
   trägt, ist nicht per Echttest belegt. Gilt in:
   `blocks/capture/Capture.ts`, `runtime/events.ts`,
   `softengine/relations/hostQueue.ts`.
+- Relation 53 löscht eine Position. Belegt 2026-10-13 (Echttest Nutzer,
+  Belegerfassung, Kette „F4 – Aktion an der Zeile“) mit BELART, BELNR und
+  ARTNR der gewählten Zeile. Die übrigen Parameter (`POS_128_6`,
+  `POS_11_6`, `POS_1_1`, `POS_645_10`, `POS_0_1`, `POS_17_1`, `SNR`) sind
+  ungedeutet; ob die Satznummer die Zeile trifft, wenn ein Artikel zweimal
+  im Beleg steht, ist per Echttest offen.
 - Belegt ist ein anderer Weg: SoftEngines PAN-Layoutrahmen (z. B.
   `PAN/LAYOUTRAHMEN/Rahmen00221`) schicken nach einem Werkzeugstart
   `basisHTML_SND_MSG('HTMLEVENT', { art: 'RELOADHTML' })`. Nach seinem Namen

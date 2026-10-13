@@ -34,6 +34,63 @@ muss so sein, dass ein eigener Programmierer ihn übernehmen kann.
   Nach dem Bau sieht er ihn in SoftEngine.
 - Änderungen unter `masken/` bleiben uncommittet.
 
+## Stand 13.10. abends: offen, in dieser Reihenfolge
+
+Was heute auffiel, gemessen und gelesen; Opus arbeitet die Liste ab,
+Punkt für Punkt, je Punkt ein Commit (ohne `masken/`).
+
+A. F4 löscht unzuverlässig. Unser PUT 53 (`masken/belegerfassung`, Kette
+   „F4 – Aktion an der Zeile“) nennt SoftEngine nur BELART, BELNR und die
+   Artikelnummer der gewählten Zeile; die Positionsfelder der Relation
+   (`POS_128_6, POS_11_6, POS_1_1, POS_645_10, POS_0_1, POS_17_1, SNR`)
+   gehen leer. Steht ein Artikel zweimal im Beleg, trifft es die falsche
+   Zeile oder keine. Die Satznummer `645_10` liefert SoftEngine schon
+   (Quelle Belegpositionen). Bau: die Kette gibt `645_10` der gewählten
+   Zeile mit, die übrigen Felder bestellt die Quelle und gibt sie mit, wo
+   die Lieferung sie trägt. Echttest beim Nutzer: zweimal derselbe
+   Artikel, F4 auf der zweiten Zeile. Relation 53 danach in
+   `kontrakte.md` eintragen (heute: ungedeutet, nur „löscht“ belegt).
+   Gebaut 13.10. (nur Maske, uncommittet): die Kette gibt `128_6`, `11_6`,
+   `1_1`, `645_10`, `0_1`, `17_1` der gewählten Zeile mit, die Quelle
+   Belegpositionen bestellt sie (wie die Chef-Maske, `JsonBeleg.json`);
+   `SNR` bleibt leer. Relation 53 steht in `kontrakte.md` §7. Offen: der
+   Echttest.
+B. Refresh nach dem Schreiben dauert Sekunden. Gemessen am Debug des
+   Nutzers (13.10., 15:08, PUT 82): PUT 20:287, SoftEngine fertig
+   gerechnet 20:650, dann 1,86 s ohne Zeile, dann 22:507 die
+   Bildnachschläge (Relation 1911) für jeden Artikel des Belegs, das ist
+   der Bau der Lieferung für unsere Maske. PUT 53: Rechnen 57 ms, danach
+   dasselbe Loch. SoftEngines eigenes Layout: Lieferung 80 ms nach der
+   Position. Die Maske wartet nicht (hostQueue, bridge gelesen: höchstens
+   0,8 s, wenn ein Feld den Fokus hält). Verdacht: die Schleife „Belege
+   Kunde“ (alle Belege des Kunden, 7 Felder) in den SEvariablen, SoftEngine
+   baut sie bei jeder Lieferung neu. Bau: die Schleife nur bestellen, wenn
+   ein Baustein sie liest (ist das heute so? prüfen in
+   `src/export/exportMask.ts`, Bestellung der Quellen); in der
+   Belegerfassung prüfen, ob ein Baustein „Belege Kunde“ braucht. Echttest:
+   Debug mit und ohne Schleife, Abstand PUT → Relation 1911.
+C. Rahmen im Bereich: der Nutzer sieht, dass Bausteine im Bereich ihre
+   Rahmen verlieren. Headless (13.10., Behandlung und Belegerfassung): das
+   markierte Feld im Bereich zeigt Rahmen, Griffe und Hover; Knopf und
+   Tabelle im Bereich zeichnen normal. Nicht reproduziert. Offen: welcher
+   Baustein, Editor oder SoftEngine, ein Bild vom Nutzer. Dann prüfen:
+   `overflow: clip` in `src/blocks/area/areaStyle.ts` (`.frame`, `.body`)
+   schneidet, was über den Rand eines Bausteins hinausragt.
+D. `masken/belegerfassung/Rahmen10000.basis.source.html` ist der Export
+   vom 05.10. (Petrol, alte Belegerfassung), nicht der der Blatt-Maske.
+   Der Nutzer exportiert die Belegerfassung aus dem Editor neu nach V7;
+   die alte Datei im Ordner fliegt raus oder wird ersetzt.
+E. Artikelinfo bei neuen Zeilen zeigt beim Nutzer nichts (headless ja).
+   Braucht eine echte Antwort von `ARTIKEL.GET` aus dem Debug.
+F. Design-Reste: Name im Band etwa 4 px höher als in der Vorlage; schmale
+   Spaltenköpfe der Behandlung brauchen breitere Spalten (Maskenarbeit).
+G. Ereignisse der Erfassung, später: „Zeile geändert“, „Zeile gelöscht“,
+   „Positionen“ als Ganzes.
+H. Aufgeschoben vom Nutzer: START_TOOL 444 „Artikel hinzufügen“ und
+   Schreiben ohne PUT 82.
+I. Danach das Refactoring unten (Schritte 2 bis 4), dann Export abspecken
+   (Schritt 7).
+
 ## Refactoring, zuerst
 
 Urteil vom 13.10.: Kern, Bausteine, Datenweg, Export, Laufzeit und
