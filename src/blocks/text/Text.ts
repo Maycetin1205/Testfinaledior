@@ -4,13 +4,14 @@ import { styleMap } from 'lit/directives/style-map.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { reportsHeight } from '../base/heightReport'
 import { bindable, bindingAttr } from '../../core/block/capability'
-import { asNumber } from '../../core/data/number'
+import { asNumber, shownNumber } from '../../core/data/number'
 import { hasRowToShow, readBoundSpot } from '../../runtime/boundSpot'
 import { makeDataLink, sourceIdOf, spotValue } from '../../runtime/source'
 import { makeFieldReader } from '../../runtime/foreignSources'
 import { bindingFields } from '../../core/block/binding'
 import { lookClass, lookStyle } from '../look/look'
 import { symbolTpl } from '../look/symbol'
+import { AMOUNT_DECIMALS, EURO_SUFFIX } from '../parts/column'
 import { textStyle } from './textStyle'
 import { TEXT_SIZES, textProperties, type TextValues } from './properties'
 
@@ -20,6 +21,12 @@ const TEXT_BINDING = bindingAttr('text')
 
 // Without a choice of its own the role decides.
 const tokenOf = (token: string | undefined): string | undefined => (token ? `var(${token})` : undefined)
+
+// A number as an amount, the German way; anything else as it is.
+function asAmount(text: string, format: string): string {
+  const n = format === '' ? null : asNumber(text)
+  return n === null ? text : shownNumber(n, AMOUNT_DECIMALS) + (format === 'euro' ? EURO_SUFFIX : '')
+}
 
 // A number of zero or less, read the German way; any other text is none.
 function notPositive(text: string): boolean {
@@ -54,13 +61,13 @@ export class Text extends BlockElement {
     const look = lookClass({ tone: this.tone, emphasis: this.emphasis })
     const waiting = !this.preview && this.withoutRow ? this.withoutChoice : 'empty'
     const hinting = waiting === 'hint' && this.withoutHint !== ''
-    const words = hinting ? this.withoutHint : this.text
+    const words = hinting ? this.withoutHint : asAmount(this.text, this.figureFormat)
     const empty = !hinting && words.trim() === ''
     const marks = [
       this.oneLine ? 'one-line' : '',
       hinting ? 'hinting' : '',
       this.emptyDash && empty ? 'empty' : '',
-      this.redBelowZero && !hinting && notPositive(words) ? 'not-positive' : '',
+      this.redBelowZero && !hinting && notPositive(this.text) ? 'not-positive' : '',
     ].filter((mark) => mark !== '').join(' ')
     const frame = [
       'frame',

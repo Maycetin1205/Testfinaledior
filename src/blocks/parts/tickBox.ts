@@ -29,7 +29,7 @@ export const tickBoxStyle = css`
   }
   .box input:hover { border-color: var(--se-muted); }
   .box input:checked { background: var(--se-accent); border-color: var(--se-accent); }
-  .box input:focus-visible { outline: none; box-shadow: var(--se-focus); }
+  .box input:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
   .box .icon {
     position: relative;
     width: 12px;

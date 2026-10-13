@@ -75,7 +75,8 @@ function totalsOf(
       visible.map((row) => question.valueAt(row, i)),
       question.figures[i]?.decimals ?? null,
     )
-    if (text !== '') out.push({ title: column.title, text })
+    const suffix = question.figures[i]?.suffix ?? ''
+    if (text !== '') out.push({ title: column.title, text: text + suffix })
   })
   return out
 }

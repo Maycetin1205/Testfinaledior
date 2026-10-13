@@ -52,7 +52,7 @@ export default {
         sm: ['13px', { lineHeight: '1.45' }],
         'ui-title': ['13px', { lineHeight: '1.45' }],
         label: ['11.5px', { lineHeight: '1.45' }], // .vfeld-label
-        title: ['16px', { lineHeight: '1.45' }], // .vmodal-titel
+        title: ['15px', { lineHeight: '1.45' }], // --se-fs-name, the head of a card
       },
       letterSpacing: {
         label: '.04em', // .vfeld-label
@@ -69,15 +69,15 @@ export default {
       },
       boxShadow: {
         // The one shadow, for what floats: popover and dialog.
-        overlay: '0 18px 60px hsl(var(--wb-ink) / .22)', // --se-shadow-pop
-        focus: '0 0 0 3px hsl(var(--wb-accent) / .22)', // --se-focus
+        overlay: '0 18px 50px hsl(var(--wb-ink) / .20), 0 2px 6px hsl(var(--wb-ink) / .08)', // --se-shadow-pop
+        focus: '0 0 0 3px hsl(var(--wb-accent) / .20)', // --se-focus
         // The marked line of a list: a stroke on its left edge.
         mark: 'inset 3px 0 0 hsl(var(--wb-accent))',
         // A cell being typed in: a fine edge inside it.
         cell: 'inset 0 0 0 1px hsl(var(--wb-accent))',
       },
       transitionDuration: {
-        DEFAULT: '120ms', // .vbtn
+        DEFAULT: '140ms', // --se-move
       },
     },
   },

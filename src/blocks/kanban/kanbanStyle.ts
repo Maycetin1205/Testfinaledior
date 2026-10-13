@@ -146,10 +146,15 @@ export const kanbanStyle = css`
     transition: box-shadow var(--se-move), background-color var(--se-move);
   }
 
-  .card:hover { box-shadow: var(--se-shadow-tile-hover); }
+  /* As a row of every list: a ground under the pointer, chosen soft blue
+     with the accent bar at the left edge. */
+  .card:hover {
+    background: var(--se-row-hover);
+    box-shadow: var(--se-shadow-tile-hover);
+  }
 
   .card.chosen {
-    background: var(--se-accent-soft);
+    background: var(--se-selection);
     box-shadow: var(--se-shadow-chosen);
   }
 
@@ -320,6 +325,7 @@ export const kanbanStyle = css`
     transition: background-color var(--se-move);
   }
   .advance:hover { background: color-mix(in oklab, var(--tone-tint), var(--tone-strong) 10%); }
+  .advance:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
 
   /* The action of the last column: the blue of the mask. */
   .advance.action {

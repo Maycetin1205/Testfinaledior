@@ -1,9 +1,9 @@
 import { css, unsafeCSS } from 'lit'
 import { rowsHigh } from '../../core/block/grid'
 
-// The field of the sample docs/design/behandlung-modern.html (.f): label and
-// value stand as text, the field has no frame. Under the pointer it lies on a
-// ground, while typed into it is white with the blue ring.
+// The field of the sheet: the label a Rubrik over the value, both as text,
+// the field has no frame. Under the pointer it lies on a ground, while typed
+// into it is white with the blue ring.
 export const fieldStyle = css`
   .field {
     position: relative;
@@ -32,14 +32,16 @@ export const fieldStyle = css`
     box-shadow: var(--se-focus-ring);
   }
 
-  /* .f .l */
+  /* The label as a Rubrik: small capitals, spaced, light. */
   .label {
     grid-column: 2;
     grid-row: 1;
     min-width: 0;
-    color: var(--se-muted);
-    font-size: var(--se-fs-sm);
+    color: var(--se-label);
+    font-size: var(--se-fs-rubric);
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--se-tracking-caps);
     line-height: 14px;
     white-space: nowrap;
     overflow: hidden;
@@ -72,7 +74,7 @@ export const fieldStyle = css`
     background: transparent;
     color: var(--se-ink);
     font-family: var(--se-font);
-    font-size: var(--se-fs-name);
+    font-size: var(--se-fs-lg);
     font-weight: 600;
     line-height: 20px;
     font-variant-numeric: tabular-nums;
@@ -87,7 +89,7 @@ export const fieldStyle = css`
   /* .f .v.empty::before */
   .dash {
     color: var(--se-empty);
-    font-size: var(--se-fs-name);
+    font-size: var(--se-fs-lg);
     font-weight: 600;
     line-height: 20px;
     pointer-events: none;
@@ -184,7 +186,7 @@ export const fieldStyle = css`
     transition: background-color var(--se-move), color var(--se-move);
   }
   .magnifier:hover { background: var(--se-hover-strong); color: var(--se-ink); }
-  .magnifier:focus-visible { outline: 2px solid var(--se-accent); outline-offset: -2px; }
+  .magnifier:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
   .magnifier svg { width: 16px; height: 16px; }
 
   /* The checkbox: .f.check, the box (tickBoxStyle) and its text in the
@@ -204,7 +206,7 @@ export const fieldStyle = css`
   .text {
     min-width: 0;
     color: var(--se-ink);
-    font-size: var(--se-fs-name);
+    font-size: var(--se-fs-lg);
     font-weight: 600;
     line-height: 20px;
     white-space: nowrap;

@@ -55,5 +55,5 @@ export const buttonStyle = css`
     line-height: var(--se-lh);
   }
 
-  button:focus-visible { outline: 2px solid var(--se-accent); outline-offset: 2px; }
+  button:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
 `

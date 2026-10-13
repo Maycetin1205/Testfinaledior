@@ -9,6 +9,9 @@ import { AREA_COLUMNS, GRID, gridAreaCss } from '../../core/block/grid'
 const PITCH = GRID.rowPx + GRID.gapPx
 const ROOM = 12
 const HEAD = 4 * PITCH - ROOM
+
+// The head of a card, which a window of the mask wears as well.
+export const CARD_HEAD_PX = HEAD
 const BOX_ROOM = (PITCH - GRID.gapPx) / 2
 
 export const areaStyle = css`
@@ -36,9 +39,6 @@ export const areaStyle = css`
     box-shadow: var(--se-shadow-card);
   }
   .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
-  /* A table, a list or a board inside the card lies flat on it. */
-  .appearance-box .body,
-  .appearance-headed .body { --se-surface-shadow: none; }
   .appearance-headed .body { padding: 0 ${unsafeCSS(ROOM)}px ${unsafeCSS(ROOM)}px; }
 
   /* Fläche voll, Fläche leicht and Nur Rand lay the tone on a free area and

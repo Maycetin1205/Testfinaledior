@@ -69,6 +69,8 @@ export function Canvas() {
             className="h-full min-h-0 overflow-auto"
             style={{
               ...gridAreaStyle(),
+              maxWidth: 'var(--se-sheet-max)',
+              margin: '0 auto',
               padding: 'var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom)',
               boxSizing: 'border-box',
               background: 'var(--se-panel)',

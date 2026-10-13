@@ -14,7 +14,8 @@ export const captureStyle = css`
 
       /* The capture row: tinted, a line over it, its cells without a box
          like every other row (user, 07.10. and 09.10.). */
-      .row.capture {
+      .row.capture,
+      .body > .row.capture:hover {
         flex: none;
         background: var(--se-capture-ground);
         box-shadow: var(--se-capture-edge);

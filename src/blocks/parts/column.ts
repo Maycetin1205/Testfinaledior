@@ -7,7 +7,7 @@ import {
 } from '../../core/block/listBinding'
 import { listProperty, type Property } from '../../core/block/property'
 import { leadDecimals, namesColumn, type Calculation } from '../../core/data/calculation'
-import { shownFigure } from '../../core/data/number'
+import { asNumber, shownFigure } from '../../core/data/number'
 import { isUnread } from '../../core/unread'
 
 export type Column = {
@@ -21,6 +21,10 @@ export type Column = {
 
   // The builder says the column holds numbers.
   figure?: boolean
+
+  // Its numbers are amounts: two digits after the comma, with € or without.
+  amount?: boolean
+  euro?: boolean
 
   hidden?: boolean
 
@@ -60,6 +64,9 @@ export const FIELD_KEY_PREFIX = 'field:'
 // many as the value brings.
 export interface Figure {
   decimals: number | null
+
+  // What stands behind a number, like " €".
+  suffix?: string
 }
 
 // A column holds numbers when it carries a sum, a calculation of its block
@@ -69,19 +76,31 @@ export interface Figure {
 // a column never mixes its edges. The column a calculation is told from
 // shows that calculation's digits after the comma; any other as delivered.
 // Null for text.
+// Betrag shows two digits after the comma, whatever the column holds; with €
+// the sign stands behind.
 export function figureOf(column: Column, calculations: readonly Calculation[]): Figure | null {
-  const decimals = leadDecimals(calculations, column.key)
-  if (decimals !== undefined) return { decimals }
+  const suffix = column.euro === true ? EURO_SUFFIX : ''
+  const decimals = column.amount === true ? AMOUNT_DECIMALS : leadDecimals(calculations, column.key)
+  if (decimals !== undefined) return { decimals, suffix }
   return column.total === true || column.figure === true || namesColumn(calculations, column.key)
-    ? { decimals: null }
+    ? { decimals: null, suffix }
     : null
+}
+
+export const AMOUNT_DECIMALS = 2
+
+export const EURO_SUFFIX = ' €'
+
+// A number with what stands behind it; anything else as it is.
+export function withSuffix(shown: string, value: string, suffix: string | undefined): string {
+  return suffix && asNumber(value) !== null ? shown + suffix : shown
 }
 
 // What a cell shows of its value: a number of a column of numbers the mask's
 // way, anything else as it is. Only for the eye: typing and writing keep the
 // value.
 export function shownValue(figure: Figure | null, value: string): string {
-  return figure === null ? value : shownFigure(value, figure.decimals)
+  return figure === null ? value : withSuffix(shownFigure(value, figure.decimals), value, figure.suffix)
 }
 
 const COLUMNS_MIN = 1
@@ -122,7 +141,9 @@ function asWidth(v: unknown): number | undefined {
   return rounded < COLUMNS_MIN_WIDTH ? COLUMNS_MIN_WIDTH : rounded
 }
 
-const KNOWN_FACTS: readonly string[] = ['key', 'title', 'field', 'width', 'total', 'figure', 'hidden', 'titleTyped']
+const KNOWN_FACTS: readonly string[] = [
+  'key', 'title', 'field', 'width', 'total', 'figure', 'amount', 'euro', 'hidden', 'titleTyped',
+]
 
 // A column entry may carry facts of the block that declared it: the capture
 // keeps its own per column. They travel through untouched.
@@ -144,6 +165,10 @@ function asColumn(raw: unknown, index: number): Column {
       ...(typeof raw.total === 'boolean' ? { total: raw.total } : {}),
 
       ...(typeof raw.figure === 'boolean' ? { figure: raw.figure } : {}),
+
+      ...(typeof raw.amount === 'boolean' ? { amount: raw.amount } : {}),
+
+      ...(typeof raw.euro === 'boolean' ? { euro: raw.euro } : {}),
 
       ...(typeof raw.hidden === 'boolean' ? { hidden: raw.hidden } : {}),
 
@@ -246,6 +271,22 @@ const FIGURE: EntrySwitch<Column> = {
   withValue: (column, on) => withEntryValue(column, 'figure', on),
 }
 
+const AMOUNT: EntrySwitch<Column> = {
+  key: 'amount',
+  name: 'Betrag: zwei Stellen nach dem Komma',
+  short: 'Betrag',
+  valueOf: (column) => column.amount,
+  withValue: (column, on) => withEntryValue(column, 'amount', on),
+}
+
+const EURO: EntrySwitch<Column> = {
+  key: 'euro',
+  name: 'Mit € hinter der Zahl',
+  short: '€',
+  valueOf: (column) => column.euro,
+  withValue: (column, on) => withEntryValue(column, 'euro', on),
+}
+
 const HIDDEN: EntrySwitch<Column> = {
   key: 'hidden',
   name: 'In der Maske ausblenden',
@@ -267,7 +308,7 @@ export const COLUMNS_BINDING: ListBinding<Column, 'columns'> = {
 
   entryHeads: true,
 
-  entryFlag: [TOTAL, FIGURE, HIDDEN],
+  entryFlag: [TOTAL, FIGURE, AMOUNT, EURO, HIDDEN],
 }
 
 export function columnsProperty(): Property<Column[]> {

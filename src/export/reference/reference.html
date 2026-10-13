@@ -48,6 +48,8 @@
 
   --se-selection-ground: #D9DFF9;
 
+  --se-mark-bar: inset 3px 0 0 var(--se-accent);
+
   --se-scrim: rgba(18, 22, 29, .34);
 
   --se-card-bg:    #FFFFFF;
@@ -122,6 +124,8 @@
   --se-sheet-top: 22px;
   --se-sheet-x: 26px;
   --se-sheet-bottom: 20px;
+
+  --se-sheet-max: 1680px;
   --se-shadow-sheet: 0 1px 2px rgba(18, 22, 29, .06), 0 12px 32px -14px rgba(18, 22, 29, .16);
   --se-scrollbar: #C3C8CF;
 
@@ -130,7 +134,7 @@
   --se-head-case: uppercase;
   --se-head-tracking: var(--se-tracking-caps);
   --se-head-rule: var(--se-rule);
-  --se-col-rule: #F0F1F4;
+  --se-col-rule: rgba(18, 22, 29, .06);
   --se-col-edge: inset 1px 0 0 var(--se-col-rule);
   --se-capture-ground: #F5F7FE;
   --se-capture-edge: inset 0 1px 0 var(--se-info-line);
@@ -139,11 +143,9 @@
   --se-shadow-pop: 0 18px 50px rgba(18, 22, 29, .20), 0 2px 6px rgba(18, 22, 29, .08);
   --se-shadow-card: 0 1px 2px rgba(18, 22, 29, .05), 0 6px 20px rgba(18, 22, 29, .06);
 
-  --se-surface-shadow: var(--se-shadow-card);
-
   --se-shadow-tile: 0 1px 2px rgba(18, 22, 29, .06), 0 2px 8px rgba(18, 22, 29, .05);
   --se-shadow-tile-hover: 0 2px 4px rgba(18, 22, 29, .08), 0 8px 20px rgba(18, 22, 29, .08);
-  --se-shadow-chosen: inset 0 0 0 2px var(--se-accent), 0 1px 2px rgba(18, 22, 29, .06);
+  --se-shadow-chosen: inset 3px 0 0 var(--se-accent), 0 1px 2px rgba(18, 22, 29, .06);
   --se-column-edge: inset 0 0 0 1px rgba(18, 22, 29, .05);
   --se-place-ground: rgba(255, 255, 255, .72);
   --se-focus: 0 0 0 3px rgba(42, 69, 200, .20);
@@ -179,7 +181,7 @@
 /* The window is the ground, the mask a sheet on it; its grid as on the editor canvas */
 html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--se-bg); }
 body { box-sizing: border-box; padding: var(--se-window-room); }
-.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto; background: var(--se-panel); border-radius: var(--se-radius-card); box-shadow: var(--se-shadow-sheet); font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; caret-color: var(--se-accent); scrollbar-width: thin; scrollbar-color: var(--se-scrollbar) transparent; display:grid;grid-template-columns:repeat(48, 1fr);grid-auto-rows:12px;gap:4px;align-content:start; grid-template-rows: repeat(3, 12px) repeat(34, minmax(0, 1fr)); padding: var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom); }
+.ff-root { box-sizing: border-box; width: 100%; max-width: var(--se-sheet-max); height: 100%; margin: 0 auto; overflow: auto; background: var(--se-panel); border-radius: var(--se-radius-card); box-shadow: var(--se-shadow-sheet); font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; caret-color: var(--se-accent); scrollbar-width: thin; scrollbar-color: var(--se-scrollbar) transparent; display:grid;grid-template-columns:repeat(48, 1fr);grid-auto-rows:12px;gap:4px;align-content:start; grid-template-rows: repeat(3, 12px) repeat(34, minmax(0, 1fr)); padding: var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom); }
 .ff-root * { font-family: inherit; font-size: inherit; }
 .ff-root ::selection { background: var(--se-selection-ground); color: var(--se-ink); }
 </style>

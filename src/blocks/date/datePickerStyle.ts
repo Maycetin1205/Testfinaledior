@@ -90,7 +90,7 @@ export const dateStyle = css`
   .today:hover { background: color-mix(in oklab, var(--se-neutral-soft), var(--se-neutral) 9%); }
 
   .arrow:focus-visible,
-  .today:focus-visible { outline: 2px solid var(--se-accent); outline-offset: 2px; }
+  .today:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
 
   /* The day button goes first, then the field narrows: the stepper needs
      196px at full width, the day button 78px more. */

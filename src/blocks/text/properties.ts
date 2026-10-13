@@ -96,6 +96,18 @@ export const textProperties = {
   emptyDash: shows('Leer zeigt Strich', 'emptydash'),
   // A number of zero or less stands red, like a stock that ran out.
   redBelowZero: shows('Null oder weniger rot', 'redbelowzero'),
+  // A number as delivered, or as an amount: two digits after the comma,
+  // the thousands point, with € or without. Anything else stays as it is.
+  figureFormat: choiceProperty([
+    { value: '', name: 'Wie geliefert' },
+    { value: 'amount', name: 'Betrag' },
+    { value: 'euro', name: 'Betrag mit €' },
+  ], {
+    default: '',
+    label: 'Zahl',
+    place: 'display',
+    attribute: 'figureformat',
+  }),
   // A rule over the frame and a double rule under it, as under the total of
   // an invoice.
   sumRule: shows('Summenlinie', 'sumrule'),
@@ -113,7 +125,7 @@ export const textProperties = {
   }),
   withoutHint: textProperty({
     default: '',
-    label: 'Hinweis ohne Auswahl',
+    label: 'Hinweis',
     place: 'display',
     attribute: 'withouthint',
     when: { key: 'withoutChoice', equals: 'hint', and: WITH_SOURCE },

@@ -205,7 +205,7 @@ export function exportMask(
     'html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--se-bg); }',
     'body { box-sizing: border-box; padding: var(--se-window-room); }',
 
-    `.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto;`
+    `.ff-root { box-sizing: border-box; width: 100%; max-width: var(--se-sheet-max); height: 100%; margin: 0 auto; overflow: auto;`
       + ` background: var(--se-panel); border-radius: var(--se-radius-card); box-shadow: var(--se-shadow-sheet);`
       + ` font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink);`
       + ` font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; caret-color: var(--se-accent);`

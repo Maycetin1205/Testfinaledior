@@ -70,7 +70,7 @@ export function Window<K extends string>({
           <header className="flex h-[52px] shrink-0 items-stretch gap-[14px] border-b border-line-soft pr-[12px]">
             {tabsInHead && tabs
               ? <Tabs tabs={tabs} tab={tab} onTab={onTab} inHead />
-              : <h2 className="flex shrink-0 items-center pl-[18px] text-title font-bold">{title}</h2>}
+              : <h2 className="flex shrink-0 items-center pl-[22px] text-title font-bold tracking-[-.01em]">{title}</h2>}
             <div className="flex min-w-0 flex-1 items-center">{beside}</div>
             <div className="flex shrink-0 items-center gap-[8px]">
               {buttons}

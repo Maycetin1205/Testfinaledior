@@ -2,6 +2,7 @@ import { css, html, LitElement, type PropertyValues, type TemplateResult } from 
 import { property } from 'lit/decorators.js'
 import { maskState } from '../../runtime/maskState'
 import { icon } from '../parts/icons'
+import { CARD_HEAD_PX } from '../area/areaStyle'
 
 export const DIALOG_FRAME_TAG = 'ff-dialog'
 export const DIALOG_CLOSE_EVENT = 'ff-dialog-close'
@@ -79,14 +80,14 @@ export class DialogFrame extends LitElement {
       border-radius: var(--se-radius-card);
       box-shadow: var(--se-shadow-pop);
     }
-    /* The head of a card of the sample (.card .hd), a little larger: the
-       title as text, the cross on the right. */
+    /* The head of a card (areaStyle): the title as text, the cross on the
+       right. */
     .head {
       flex: none;
       display: flex;
       align-items: center;
       gap: 8px;
-      height: 60px;
+      height: ${CARD_HEAD_PX}px;
       box-sizing: border-box;
       padding: 0 14px 0 22px;
     }
@@ -96,7 +97,7 @@ export class DialogFrame extends LitElement {
       overflow: hidden;
       color: var(--se-ink);
 
-      font-size: var(--se-fs-title);
+      font-size: var(--se-fs-name);
       font-weight: 700;
       letter-spacing: -.01em;
       text-overflow: ellipsis;
@@ -120,7 +121,7 @@ export class DialogFrame extends LitElement {
       background: var(--se-panel-2);
       color: var(--se-ink);
     }
-    .close:focus-visible { outline: 2px solid var(--se-accent); outline-offset: 2px; }
+    .close:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
     .close .icon { width: 18px; height: 18px; }
     .content {
       flex: 1 1 auto;

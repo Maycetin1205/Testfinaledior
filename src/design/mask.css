@@ -51,6 +51,8 @@
   --se-row-hover:    #F7F8FA;
   /* Marked text. */
   --se-selection-ground: #D9DFF9;
+  /* The bar at the left edge of a chosen line of a list. */
+  --se-mark-bar: inset 3px 0 0 var(--se-accent);
 
   --se-scrim: rgba(18, 22, 29, .34);
 
@@ -136,6 +138,8 @@
   --se-sheet-top: 22px;
   --se-sheet-x: 26px;
   --se-sheet-bottom: 20px;
+  /* On a wide screen the sheet stops growing and stands in the middle. */
+  --se-sheet-max: 1680px;
   --se-shadow-sheet: 0 1px 2px rgba(18, 22, 29, .06), 0 12px 32px -14px rgba(18, 22, 29, .16);
   --se-scrollbar: #C3C8CF;
   /* The band at the top of the sheet: a quiet grey, hardly darker than it. */
@@ -144,11 +148,12 @@
   /* The invoice: a table and the capture are ruled like the lines of an
      invoice, without a card. The head in capitals over the strong rule,
      faint lines between the columns, the row being typed tinted with a line
-     over it, its placeholders readable. */
+     over it, its placeholders readable. The column line is ink seen through,
+     so a tinted row runs through under it as one band. */
   --se-head-case: uppercase;
   --se-head-tracking: var(--se-tracking-caps);
   --se-head-rule: var(--se-rule);
-  --se-col-rule: #F0F1F4;
+  --se-col-rule: rgba(18, 22, 29, .06);
   --se-col-edge: inset 1px 0 0 var(--se-col-rule);
   --se-capture-ground: #F5F7FE;
   --se-capture-edge: inset 0 1px 0 var(--se-info-line);
@@ -156,14 +161,11 @@
 
   --se-shadow-pop: 0 18px 50px rgba(18, 22, 29, .20), 0 2px 6px rgba(18, 22, 29, .08);
   --se-shadow-card: 0 1px 2px rgba(18, 22, 29, .05), 0 6px 20px rgba(18, 22, 29, .06);
-  /* A table, a list or a board is a card of its own on the ground of the
-     page and lies flat inside a card, which sets this to none. */
-  --se-surface-shadow: var(--se-shadow-card);
   /* A card of the board on its column, under the pointer, chosen; the column
      itself has a faint edge, the room of a place a white ground. */
   --se-shadow-tile: 0 1px 2px rgba(18, 22, 29, .06), 0 2px 8px rgba(18, 22, 29, .05);
   --se-shadow-tile-hover: 0 2px 4px rgba(18, 22, 29, .08), 0 8px 20px rgba(18, 22, 29, .08);
-  --se-shadow-chosen: inset 0 0 0 2px var(--se-accent), 0 1px 2px rgba(18, 22, 29, .06);
+  --se-shadow-chosen: inset 3px 0 0 var(--se-accent), 0 1px 2px rgba(18, 22, 29, .06);
   --se-column-edge: inset 0 0 0 1px rgba(18, 22, 29, .05);
   --se-place-ground: rgba(255, 255, 255, .72);
   --se-focus: 0 0 0 3px rgba(42, 69, 200, .20);

@@ -1,10 +1,9 @@
 import { css } from 'lit'
 
-// The list of the sample docs/design/behandlung-modern.html (.dl): rows
-// without lines between them, the avatar in its tinted circle, the name bold,
-// the line under it grey, a short value on the right. Under the pointer a row
-// lies on a ground, the chosen one is blue. On the ground of the page the
-// list is a card of its own, inside a card it lies flat.
+// The list on the sheet: rows apart by a hairline, the avatar in its tinted
+// circle, the name bold, the line under it grey, a short value on the right.
+// Under the pointer a row lies on a ground, the chosen one on soft blue with
+// the accent bar at its left edge. It lies flat, as a table does.
 export const dataListStyle = css`
   :host { min-width: 0; height: 100%; }
 
@@ -14,8 +13,6 @@ export const dataListStyle = css`
     overflow: auto;
     scrollbar-width: thin;
     background: var(--se-panel);
-    border-radius: var(--se-radius-card);
-    box-shadow: var(--se-surface-shadow);
     font-family: var(--se-font);
     font-size: var(--se-fs-lg);
     color: var(--se-ink);
@@ -31,15 +28,19 @@ export const dataListStyle = css`
     min-height: 44px;
     padding: 8px 10px;
     border: 0;
-    border-radius: var(--se-radius);
+    border-bottom: var(--se-border) solid var(--se-line-soft);
+    border-radius: 0;
     background: transparent;
     transition: background-color var(--se-move);
     cursor: pointer;
   }
   .row:has(.avatar) { min-height: 48px; }
 
-  .row:hover { background: var(--se-panel-2); }
-  .row.chosen { background: var(--se-selection); }
+  .row:hover { background: var(--se-row-hover); }
+  .row.chosen {
+    background: var(--se-selection);
+    box-shadow: var(--se-mark-bar);
+  }
   .row.chosen .name { color: var(--se-accent-dark); }
 
   /* Keine: the rows are only read. */
@@ -48,8 +49,8 @@ export const dataListStyle = css`
 
   .row:focus-visible,
   .row:has(input:focus-visible) {
-    outline: 2px solid var(--se-accent);
-    outline-offset: -2px;
+    outline: none;
+    box-shadow: var(--se-focus-ring);
   }
 
   /* .t1 and .t2: the name, the line under it. */

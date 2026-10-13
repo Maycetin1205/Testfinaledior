@@ -158,6 +158,9 @@ export const tableStyle = css`
       }
       .row.selected > div,
       .row:focus-visible > div { color: var(--se-accent-dark); }
+      /* The chosen row, as in every list of the mask: soft blue with the
+         accent bar at its left edge. */
+      .row.selected { box-shadow: var(--se-mark-bar); }
       .head > div,
       .row > div {
         padding: 0 var(--se-cell-x);
@@ -399,6 +402,7 @@ export const tableStyle = css`
         cursor: pointer;
       }
       .page-nav button:hover:not(:disabled) { background: var(--se-hover); }
+      .page-nav button:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
       .page-nav button:disabled {
         opacity: 0.3;
         cursor: default;
