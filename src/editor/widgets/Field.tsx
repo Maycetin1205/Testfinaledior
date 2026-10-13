@@ -1,10 +1,10 @@
 import { forwardRef, type InputHTMLAttributes } from 'react'
 import { cn } from '@/editor/widgets/cn'
 
-// .vsuche-top .vinput: the field of the reception mask, white once it has the
-// focus, with the accent edge and ring of .vinput:focus.
+// A field of the mask (behandlung-modern.html): the soft ground of a place to
+// type, white once it has the focus, with the blue edge and ring of .f.focus.
 export const INPUT_EDGE =
-  'w-full min-w-0 rounded border border-line bg-control text-ui font-normal text-ink transition-colors'
+  'w-full min-w-0 rounded border border-line bg-control text-ui font-semibold text-ink transition-colors'
   + ' placeholder:text-muted'
   + ' focus-visible:border-accent focus-visible:bg-panel focus-visible:shadow-focus focus-visible:outline-none'
   + ' disabled:cursor-not-allowed disabled:opacity-[.45]'
@@ -17,7 +17,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(
     <input
       ref={ref}
       type={type}
-      className={cn(INPUT_EDGE, 'h-control px-2', className)}
+      className={cn(INPUT_EDGE, 'h-control px-[10px]', className)}
       {...rest}
     />
   ),

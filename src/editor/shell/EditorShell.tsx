@@ -16,15 +16,15 @@ export function EditorShell() {
 
   return (
     <div className="flex h-screen w-screen flex-col bg-ground text-ink">
-      <header className="flex shrink-0 items-center gap-[12px] overflow-x-auto border-b border-line bg-panel px-[12px] py-[8px]">
+      <header className="flex shrink-0 items-center gap-[12px] overflow-x-auto border-b border-line-soft bg-panel px-[12px] py-[8px]">
         <Toolbar />
         <div className="flex-1" />
         <PageBar />
       </header>
 
       <div className="flex min-h-0 flex-1">
-        {/* As wide as .vnav. */}
-        <aside className="w-[72px] shrink-0 overflow-y-auto bg-[hsl(var(--wb-nav))]">
+        {/* As wide as .vnav; a white surface with a hairline at its edge. */}
+        <aside className="w-[72px] shrink-0 overflow-y-auto border-r border-line-soft bg-panel">
           <BlockPalette />
         </aside>
 

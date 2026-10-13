@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-// The design values stand in docs/chef-maske/empfang/index.basis.source.html;
-// the comment names where.
+// The design values: font, colors, control, radius and shadows are the
+// mask's, from src/design/mask.css (sample docs/design/behandlung-modern.html);
+// the sizes of text still stand in docs/chef-maske/empfang/index.basis.source.html.
+// The comment names where.
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
@@ -10,8 +12,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        // The chain of * in the mask: fonts of the machine, nothing is loaded.
+        // The chain of --se-font: Manrope from the @font-face in mask.css,
+        // which main.tsx loads, then the fonts of the machine.
         sans: [
+          '"Manrope"',
           '"Segoe UI Variable Text"',
           '"Segoe UI"',
           'system-ui',
@@ -25,7 +29,10 @@ export default {
         panel: 'hsl(var(--wb-panel) / <alpha-value>)',
         control: 'hsl(var(--wb-control) / <alpha-value>)',
         line: 'hsl(var(--wb-line) / <alpha-value>)',
+        'line-soft': 'hsl(var(--wb-line-soft) / <alpha-value>)',
+        hover: 'hsl(var(--wb-hover) / <alpha-value>)',
         ink: 'hsl(var(--wb-ink) / <alpha-value>)',
+        'ink-2': 'hsl(var(--wb-ink-2) / <alpha-value>)',
         muted: 'hsl(var(--wb-muted) / <alpha-value>)',
         accent: 'hsl(var(--wb-accent) / <alpha-value>)',
         'accent-soft': 'hsl(var(--wb-accent-soft) / <alpha-value>)',
@@ -50,7 +57,7 @@ export default {
         label: '.04em', // .vfeld-label
       },
       spacing: {
-        control: '28px', // .vdaynav .vbtn-icon, .vbtn-aktion
+        control: '32px', // .tog of the sample
       },
       borderRadius: {
         // Every radius name resolves to the one editor radius, whichever a file writes.
@@ -61,8 +68,8 @@ export default {
       },
       boxShadow: {
         // The one shadow, for what floats: popover and dialog.
-        overlay: '0 18px 60px rgba(16,40,48,.28)', // --schatten-pop
-        focus: '0 0 0 3px color-mix(in oklab, hsl(var(--wb-accent)) 18%, transparent)', // .vinput:focus
+        overlay: '0 18px 60px hsl(var(--wb-ink) / .22)', // --se-shadow-pop
+        focus: '0 0 0 3px hsl(var(--wb-accent) / .22)', // --se-focus
         // The marked line of a list: a stroke on its left edge.
         mark: 'inset 3px 0 0 hsl(var(--wb-accent))',
         // A cell being typed in: a fine edge inside it.

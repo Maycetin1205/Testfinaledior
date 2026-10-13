@@ -68,7 +68,7 @@ export function Toolbar() {
         inputMode="numeric"
         maxLength={FRAME_SPOTS}
         aria-label="Nummer des Belegerfassungs-Layoutrahmens"
-        className="w-16"
+        className="w-[68px]"
         onChange={(e) => {
           frameSession.begin()
           ed.updateProperty(ROOT_ID, DOCUMENT_FRAME_PROP, e.currentTarget.value)
@@ -134,7 +134,7 @@ export function Toolbar() {
       </Button>
       <Button
         aria-pressed={dataOpen}
-        className={dataOpen ? 'border-accent bg-accent-soft' : undefined}
+        className={dataOpen ? 'border-accent bg-accent-soft text-accent hover:bg-accent-soft' : undefined}
         onClick={() => ed.showData(!dataOpen)}
       >
         <Database size={14} /> Daten

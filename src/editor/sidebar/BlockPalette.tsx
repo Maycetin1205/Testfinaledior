@@ -14,7 +14,7 @@ function symbolOf(type: string) {
 
 const CATEGORY_ORDER: Category[] = ['layout', 'input', 'display']
 
-// The blocks as the dark strip of the reception mask's navigation: a click adds
+// The blocks as a light strip, a symbol over each name: a click adds
 // one, a drag lays it where it lands.
 export function BlockPalette() {
   const ed = useEditor()
@@ -38,7 +38,7 @@ export function BlockPalette() {
   }
 
   return (
-    <nav className="flex flex-col gap-[2px] px-[2px] py-[6px]">
+    <nav className="flex flex-col gap-[2px] px-[4px] py-[6px]">
       {definitions.map((def) => (
         <PaletteItem
           key={def.type}
@@ -68,7 +68,7 @@ function PaletteItem({ def, onAdd }: PaletteItemProps) {
         setNewBlockDrag(e.dataTransfer, def.type)
         e.dataTransfer.effectAllowed = 'copy'
       }}
-      className="flex w-full min-w-0 flex-col items-center gap-[4px] rounded py-[8px] text-[hsl(var(--wb-nav-ink))] transition-colors hover:bg-[hsl(var(--wb-nav-hover))] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+      className="flex w-full min-w-0 flex-col items-center gap-[4px] rounded py-[8px] text-ink-2 transition-colors hover:bg-hover hover:text-ink active:bg-accent-soft active:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
     >
       {createElement(symbolOf(def.type), { size: 20 })}
       <span className="w-full truncate text-center text-label">{def.name}</span>

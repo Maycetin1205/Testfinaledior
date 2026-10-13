@@ -26,11 +26,12 @@ export function Tabs({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       className={cn(
-        // As high as a button of the toolbar; a long name ends in an ellipsis
-        // at the width of the mask name field.
-        'h-control max-w-40 shrink-0 truncate rounded px-[10px] text-ui font-[550] transition-colors',
-        'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent',
-        active ? 'bg-accent text-panel' : 'text-muted hover:bg-ground hover:text-ink',
+        // As high as a button of the toolbar and dressed like one: the active
+        // page blue as the primary button, the others white with a line. A long
+        // name ends in an ellipsis at the width of the mask name field.
+        'h-control max-w-40 shrink-0 truncate rounded border px-[12px] text-ui font-semibold transition-colors',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+        active ? 'border-accent bg-accent text-panel' : 'border-line bg-panel text-ink hover:bg-hover',
         className,
       )}
     >
