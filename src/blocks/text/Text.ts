@@ -41,7 +41,7 @@ export class Text extends BlockElement {
     const align = ALIGNS.includes(this.align) ? this.align : 'left'
     const withSymbol = this.symbol !== ''
     const text = html`<div
-      class="text variant-${this.variant} align-${align}${withSymbol ? ' with-symbol' : ''}"
+      class="text variant-${this.variant} align-${align}${this.appearance === 'line' ? ' lined' : ''}${withSymbol ? ' with-symbol' : ''}"
       style=${styleMap({ fontSize: tokenOf(TEXT_SIZES[this.size]) })}
     >${withSymbol ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}<span
         class="words"

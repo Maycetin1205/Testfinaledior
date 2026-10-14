@@ -5,9 +5,9 @@
 import { splitBinding } from '../../core/block/binding'
 import { numberText } from '../../core/data/number'
 
-export const CURRENT_SCHEMA_VERSION = 34
+export const CURRENT_SCHEMA_VERSION = 35
 
-const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+const LIFTABLE = [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -326,6 +326,18 @@ function liftTo34(tree: unknown): void {
   }
 }
 
+// ---- version 35: the largest size of a text is 30 px ----
+
+// The paper look (14.10.) draws the largest size in 30 px instead of 26; the
+// size keeps carrying its name.
+function liftTo35(tree: unknown): void {
+  if (!isPlainObject(tree)) return
+  for (const node of Object.values(tree)) {
+    if (!isPlainObject(node) || node.type !== 'text' || !isPlainObject(node.values)) continue
+    if (String(node.values.size) === '26') node.values.size = '30'
+  }
+}
+
 // Null for a mask before version 20 or from a newer editor: neither is read.
 export function liftState(raw: unknown): Record<string, unknown> | null {
   if (!isPlainObject(raw) || typeof raw.schemaVersion !== 'number') return null
@@ -345,6 +357,7 @@ export function liftState(raw: unknown): Record<string, unknown> | null {
   if (raw.schemaVersion < 32) liftTo32(lifted.tree)
   if (raw.schemaVersion < 33) liftTo33(lifted.tree)
   if (raw.schemaVersion < 34) liftTo34(lifted.tree)
+  if (raw.schemaVersion < 35) liftTo35(lifted.tree)
   lifted.schemaVersion = CURRENT_SCHEMA_VERSION
   return lifted
 }

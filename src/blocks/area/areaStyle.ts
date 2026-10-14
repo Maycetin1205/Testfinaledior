@@ -1,14 +1,14 @@
 import { css, unsafeCSS } from 'lit'
 import { AREA_COLUMNS, GRID, gridAreaCss } from '../../core/block/grid'
 
-// Sections, not cards (Tonprobe 3, 14.10.): a Kopfzeile is a section of the
-// sheet, its title over a hairline; a Kasten a light grey box, no line, no
-// shadow. Head and padding take whole rows of the grid, so an area holds as
-// many rows as before the new look: the head and the room below make four
-// rows, the room above and below a box one.
+// The paper look (14.10.): a Kasten and a Kopfzeile lie white on the paper
+// of the sheet, in a hairline drawn inside; the Kopfzeile carries its title
+// in small capitals of the accent over a hairline; the band is the ink. Head
+// and padding take whole rows of the grid: the head and the room below make
+// three rows, the room above and below a box one.
 const PITCH = GRID.rowPx + GRID.gapPx
 const ROOM = 12
-const HEAD = 4 * PITCH - ROOM
+const HEAD = 3 * PITCH - ROOM
 
 // The head of a card, which a window of the mask wears as well.
 export const CARD_HEAD_PX = HEAD
@@ -37,50 +37,49 @@ export const areaStyle = css`
   :host(:not([preview])) .frame,
   :host(:not([preview])) .body { overflow: clip; }
 
-  /* Every area but a free one is a box with a line (14.10., the user on
-     sections without one: „randlos, leer“). Kasten: white in the line.
-     Kopfzeile: a group box, its title on a light head over the line. */
+  /* Every area but a free one and the band is a box with a line (14.10.,
+     the user on sections without one: „randlos, leer“): white on the paper,
+     the line drawn inside, so the box keeps the size of its room. Kopfzeile:
+     the box with its title over a hairline. */
   .appearance-box,
-  .appearance-headed,
-  .appearance-band {
-    border: var(--se-hair);
-    border-radius: var(--se-radius);
+  .appearance-headed {
+    background: var(--se-panel);
+    box-shadow: var(--se-edge);
   }
-  .appearance-box { background: var(--se-panel); }
-  .appearance-headed .head {
-    background: var(--se-head-ground);
-    border-bottom: var(--se-border) solid var(--se-head-line);
-    border-radius: var(--se-radius) var(--se-radius) 0 0;
-  }
+  .appearance-headed .head { border-bottom: var(--se-hair); }
   .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
   .appearance-headed .body { padding: 0 ${unsafeCSS(ROOM)}px ${unsafeCSS(ROOM)}px; }
 
   /* Fläche voll, Fläche leicht and Nur Rand lay the tone on a free area and
-     on a box: the ground and the line of the emphasis; on the free area the
-     line is drawn inside, the box takes it as its own. A light box keeps a
-     line in its tone. Nur Schrift leaves them as they are. */
-  .appearance-plain:not(.emphasis-text) {
+     on a box: the ground and the line of the emphasis, the line drawn inside,
+     over the hairline of a box. A light box keeps a line in its tone. Nur
+     Schrift leaves them as they are. */
+  .appearance-plain:not(.emphasis-text),
+  .appearance-box:not(.emphasis-text) {
     background: var(--look-ground);
     outline: var(--se-border) solid var(--look-edge);
     outline-offset: calc(-1 * var(--se-border));
   }
-  .appearance-box:not(.emphasis-text) {
-    background: var(--look-ground);
-    border-color: var(--look-edge);
-  }
-  .appearance-box.emphasis-soft { border-color: var(--tone-line); }
+  .appearance-box.emphasis-soft { outline-color: var(--tone-line); }
 
-  /* Band: the head of the sheet, like the head of a letter: the light
-     blue-grey of a head, in its line; the columns inside stay those of the
-     sheet. It belongs at the top of the page, over the whole width. */
+  /* Band: the head of the sheet, like the head of a letter: a full ground in
+     the color of the area, the ink when Neutral; its texts are white and
+     stand in the middle of their rows (user, 14.10.). The columns inside
+     stay those of the sheet. It belongs at the top of the page, over the
+     whole width. */
   .appearance-band {
-    background: var(--se-head-ground);
-    border-color: var(--se-head-line);
+    --se-ink: var(--se-band-ink);
+    --se-ink-2: var(--se-band-ink-2);
+    --se-text-justify: center;
+    background: var(--tone-strong);
+    border-radius: 0;
   }
+  .appearance-band.tone-neutral { background: var(--se-band-ground); }
+  .appearance-band .body { padding: 0 ${unsafeCSS(ROOM)}px; }
 
-  /* The head: the title as text over the section. Fläche voll and Fläche
-     leicht lay a band of the tone under it, Nur Rand draws the section's edge
-     in the tone, Nur Schrift colors the title. */
+  /* The head: the title in small capitals of the accent over the section.
+     Fläche voll and Fläche leicht lay a band of the tone under it, Nur Rand
+     draws the section's edge in the tone, Nur Schrift colors the title. */
   .head {
     flex: none;
     box-sizing: border-box;
@@ -88,18 +87,22 @@ export const areaStyle = css`
     display: flex;
     align-items: center;
     gap: var(--se-gap);
-    padding: 0 22px;
-    color: var(--se-ink);
-    font-size: var(--se-fs-name);
+    padding: 0 ${unsafeCSS(ROOM)}px;
+    color: var(--se-accent);
+    font-size: var(--se-fs-rubric);
     font-weight: 700;
-    letter-spacing: -.01em;
+    letter-spacing: .07em;
+    text-transform: uppercase;
   }
   .emphasis-solid .head,
   .emphasis-soft .head {
     background: var(--look-ground);
     color: var(--look-ink);
   }
-  .appearance-headed.emphasis-outline { border-color: var(--look-edge); }
+  .appearance-headed.emphasis-outline {
+    outline: var(--se-border) solid var(--look-edge);
+    outline-offset: calc(-1 * var(--se-border));
+  }
   .appearance-headed.emphasis-text:not(.tone-neutral) .head { color: var(--look-ink); }
 
   .head-text {

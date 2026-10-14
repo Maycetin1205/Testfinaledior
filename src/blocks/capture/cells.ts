@@ -57,7 +57,7 @@ export const cellsInputStyle = css`
         padding: 0 var(--se-input-x);
         font-family: var(--se-font);
         font-size: var(--se-fs-lg);
-        font-weight: 600;
+        font-weight: 400;
         color: var(--se-ink);
         background: transparent;
         border: var(--se-border) solid transparent;
@@ -69,7 +69,7 @@ export const cellsInputStyle = css`
          other, only with the cursor. */
       .cell-input:focus { outline: none; }
 
-      .right .cell-holder > .cell-input { text-align: right; }
+      .right .cell-holder > .cell-input { text-align: right; font-weight: 600; }
 
       /* The quiet words of an empty cell: plain, as a label, not semibold
          as a value. */

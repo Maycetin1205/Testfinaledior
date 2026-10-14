@@ -39,7 +39,8 @@ function tone(value: ToneValue, name: string): Tone {
 
 const TONES: readonly Tone[] = [
   tone('neutral', 'Neutral'),
-  tone('info', 'Blau'),
+  // The color of the mask, the green of the accent (14.10.; before, blue).
+  tone('info', 'Akzent'),
   tone('success', 'Grün'),
   tone('warning', 'Ocker'),
   tone('danger', 'Rot'),

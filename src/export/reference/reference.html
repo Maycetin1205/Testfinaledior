@@ -8,72 +8,73 @@
 :root {
   color-scheme: light;
 
-  --se-bg:        #DCDFE4;
+  --se-bg:        #F4F2ED;
   --se-panel:     #FFFFFF;
-  --se-panel-2:   #EBEDF1;
+  --se-panel-2:   #F6F5F0;
 
-  --se-head-ground: #E4E9F6;
-  --se-head-line:   #BFC9E3;
+  --se-ink:       #1A1A17;
+  --se-ink-2:     #5F5E57;
+  --se-faint:     #A3A199;
 
-  --se-ink:       #12161D;
-  --se-ink-2:     #39404B;
-  --se-faint:     #A0A6AF;
+  --se-line:      #CFCCC2;
+  --se-line-soft: #E4E1D8;
+  --se-box-line:  #B9B6AB;
 
-  --se-line:      #AFB6C0;
-  --se-line-soft: #D9DDE3;
-  --se-box-line:  #9EA6B1;
+  --se-accent:       #1E6E4E;
+  --se-accent-dark:  #165539;
+  --se-accent-soft:  #E1EEE6;
 
-  --se-accent:       #2A45C8;
-  --se-accent-dark:  #1D3299;
-  --se-accent-soft:  #EEF1FD;
-
-  --se-hover:        #EFF1F4;
-  --se-hover-strong: #E2E5EA;
-  --se-row-hover:    #F2F4F7;
+  --se-hover:        #E9E7E0;
+  --se-hover-strong: #DDDAD1;
+  --se-row-hover:    #F1F6F3;
 
   --se-selection:    var(--se-accent-soft);
   --se-mark-bar: inset 3px 0 0 var(--se-accent);
 
-  --se-selection-ground: #D9DFF9;
+  --se-selection-ground: #CFE4D8;
 
-  --se-scrim: rgba(18, 22, 29, .34);
+  --se-scrim: rgba(26, 26, 23, .34);
 
   --se-card-bg:    #FFFFFF;
 
-  --se-neutral:       #626974;
-  --se-neutral-ink:   #39404B;
-  --se-neutral-tint:  #F3F4F6;
-  --se-neutral-shell: #F8F9FA;
-  --se-neutral-line:  #E2E5EA;
-  --se-neutral-soft:  #E9EBEF;
+  --se-band-ground: #1A1A17;
+  --se-band-ink:    #FFFFFF;
+  --se-band-ink-2:  rgba(255, 255, 255, .72);
 
-  --se-info:          #2A45C8;
-  --se-info-ink:      #1D3299;
-  --se-info-tint:     #EEF1FD;
-  --se-info-shell:    #F7F8FE;
-  --se-info-line:     #D5DCF7;
-  --se-info-soft:     #EEF1FD;
+  --se-neutral:       #5F5E57;
+  --se-neutral-ink:   #3A3935;
+  --se-neutral-tint:  #F6F5F0;
+  --se-neutral-shell: #F6F5F0;
+  --se-neutral-line:  #CFCCC2;
+  --se-neutral-soft:  #E9E7E0;
 
-  --se-success:       #15803D;
-  --se-success-ink:   #116B33;
-  --se-success-tint:  #E7F6EC;
-  --se-success-shell: #F5FBF7;
-  --se-success-line:  #CDEBD6;
-  --se-success-soft:  #E7F6EC;
+  --se-info:          #1E6E4E;
+  --se-info-ink:      #165539;
+  --se-info-tint:     #E1EEE6;
+  --se-info-shell:    #F3F8F5;
+  --se-info-line:     #BAD6C7;
+  --se-info-soft:     #E1EEE6;
 
-  --se-warning:       #B45309;
-  --se-warning-ink:   #92400E;
-  --se-warning-tint:  #FEF3E2;
-  --se-warning-shell: #FFFBF4;
-  --se-warning-line:  #F8DDB5;
-  --se-warning-soft:  #FEF3E2;
+  --se-success:       #1E6E4E;
+  --se-success-ink:   #165539;
+  --se-success-tint:  #E1EEE6;
+  --se-success-shell: #F3F8F5;
+  --se-success-line:  #BAD6C7;
+  --se-success-soft:  #E1EEE6;
 
-  --se-danger:        #C8372B;
-  --se-danger-ink:    #A82217;
-  --se-danger-tint:   #FCEDEB;
+  --se-warning:       #9A5B0A;
+  --se-warning-ink:   #7A4708;
+  --se-warning-tint:  #F6EBD6;
+  --se-warning-shell: #FBF6EC;
+  --se-warning-line:  #E9D3A6;
+  --se-warning-soft:  #F6EBD6;
+
+  --se-danger:        #A8302A;
+  --se-danger-ink:    #86241F;
+  --se-danger-tint:   #F6E3E1;
   --se-danger-shell:  #FFFFFF;
-  --se-danger-line:   #F5D1CC;
-  --se-danger-soft:   #FCEDEB;
+  --se-danger-line:   #E6BDB9;
+  --se-danger-soft:   #F6E3E1;
 
   --se-petrol:      #0E7C86;
   --se-petrol-ink:  #0B5E66;
@@ -99,23 +100,23 @@
   --se-animal-paw-soft:    #EEF1F4;
 
   --se-border: 1px;
-  --se-radius: 3px;
-  --se-radius-sm: 3px;
-  --se-radius-card: 6px;
+  --se-radius: 0;
+  --se-radius-sm: 0;
+  --se-radius-card: 0;
 
-  --se-rule: 1.5px solid var(--se-ink);
+  --se-rule: 2px solid var(--se-ink);
   --se-hair: var(--se-border) solid var(--se-line);
 
-  --se-sheet-top: 22px;
-  --se-sheet-x: 26px;
-  --se-sheet-bottom: 20px;
-  --se-scrollbar: #C3C8CF;
+  --se-sheet-top: 24px;
+  --se-sheet-x: 28px;
+  --se-sheet-bottom: 24px;
+  --se-scrollbar: #B9B6AB;
 
   --se-head-rule: var(--se-rule);
-  --se-col-rule: rgba(18, 22, 29, .14);
+  --se-col-rule: rgba(26, 26, 23, .08);
   --se-col-edge: inset 1px 0 0 var(--se-col-rule);
-  --se-capture-ground: #F7F8FA;
-  --se-capture-edge: inset 0 1px 0 var(--se-line);
+  --se-capture-ground: #E1EEE6;
+  --se-capture-edge: inset 3px 0 0 var(--se-accent), inset 0 1px 0 var(--se-line);
   --se-placeholder: var(--se-ink-2);
 
   --se-shadow-pop: 0 0 0 var(--se-border) var(--se-line);
@@ -127,26 +128,26 @@
 
   --se-edge: inset 0 0 0 var(--se-border) var(--se-line);
 
-  --se-shadow-lift: 0 8px 24px rgba(18, 22, 29, .16), 0 2px 6px rgba(18, 22, 29, .10);
+  --se-shadow-lift: 0 8px 24px rgba(26, 26, 23, .16), 0 2px 6px rgba(26, 26, 23, .10);
   --se-place-ground: rgba(255, 255, 255, .72);
 
-  --se-focus-ring: inset 0 0 0 1.5px var(--se-accent), 0 0 0 3px color-mix(in srgb, var(--se-accent) 16%, transparent);
+  --se-focus-ring: inset 0 0 0 1.5px var(--se-accent), 0 0 0 3px color-mix(in srgb, var(--se-accent) 18%, transparent);
 
   --se-field-line: inset 0 -1px 0 var(--se-line);
   --se-field-line-typing: inset 0 -1px 0 var(--se-accent);
 
-  --se-font: "Segoe UI", Arial, sans-serif;
+  --se-font: "Bahnschrift", "Segoe UI", Arial, sans-serif;
 
   --se-fs-xs:    10px;
-  --se-fs-head:  12px;
-  --se-fs-rubric: 12px;
+  --se-fs-head:  11px;
+  --se-fs-rubric: 11px;
   --se-fs-sm:    12px;
   --se-fs:       13px;
   --se-fs-lg:    14px;
   --se-fs-name:  15px;
   --se-fs-title: 17px;
   --se-fs-xl:    22px;
-  --se-fs-xxl:   26px;
+  --se-fs-xxl:   30px;
 
   --se-lh:       1.45;
   --se-lh-tight: 1.25;
@@ -158,9 +159,9 @@
   --se-move: 120ms;
 }
 
-/* The mask is the whole window, a white sheet to its edges; its grid as on the editor canvas */
-html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--se-panel); }
-.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto; background: var(--se-panel); font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; caret-color: var(--se-accent); scrollbar-width: thin; scrollbar-color: var(--se-scrollbar) transparent; display:grid;grid-template-columns:repeat(48, 1fr);grid-auto-rows:12px;gap:4px;align-content:start; grid-template-rows: repeat(3, 12px) repeat(34, minmax(0, 1fr)); padding: var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom); }
+/* The sheet is paper to the window's edges; its grid as on the editor canvas. */
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--se-bg); }
+.ff-root { box-sizing: border-box; width: 100%; height: 100%; overflow: auto; background: var(--se-bg); font-family: var(--se-font); font-size: var(--se-fs); line-height: var(--se-lh); color: var(--se-ink); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; caret-color: var(--se-accent); scrollbar-width: thin; scrollbar-color: var(--se-scrollbar) transparent; display:grid;grid-template-columns:repeat(48, 1fr);grid-auto-rows:12px;gap:4px;align-content:start; grid-template-rows: repeat(3, 12px) repeat(34, minmax(0, 1fr)); padding: var(--se-sheet-top) var(--se-sheet-x) var(--se-sheet-bottom); }
 .ff-root * { font-family: inherit; font-size: inherit; }
 .ff-root ::selection { background: var(--se-selection-ground); color: var(--se-ink); }
 </style>

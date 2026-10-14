@@ -7,11 +7,12 @@ import { allBlockTypes } from '../../core/block/registry'
 // How many settings the builder can reach at the blocks: every property the
 // editor shows somewhere (bar, window, column head, block) and every switch,
 // field choice and place choice at an entry of a list. The ceiling falls with
-// every chat that strikes a setting (offen.md, 5g and 5h) and rises only with
-// a line in entschieden.md that names the mask which needs the new setting.
+// every chat that strikes a setting (5g and 5h) and rises only with a line
+// here that names the mask which needs the new setting.
 // 14.10.: 77 settings, 29 of them never touched by any of the three masks;
-// 58 after 5g; 60 with the label of a text back (user, 14.10.).
-const CEILING = 60
+// 58 after 5g; 60 with the label of a text back (user, 14.10.); 61 with the
+// Art (Ohne, Linie) of a text, which Belegerfassung needs (user, 14.10.).
+const CEILING = 61
 
 function settingsOf(def: BlockType): number {
   const shown = Object.values(def.properties).filter((p) => p.place !== 'none').length
@@ -27,6 +28,6 @@ test('der Editor zeigt nicht mehr Einstellungen als die Decke erlaubt', () => {
   const counts = allBlockTypes().map((def) => `${def.name} ${settingsOf(def)}`)
   const total = allBlockTypes().reduce((sum, def) => sum + settingsOf(def), 0)
   expect(total, `${total} Einstellungen (${counts.join(', ')}), die Decke ist ${CEILING}; `
-    + 'eine neue Einstellung braucht eine Zeile in docs/entschieden.md mit der Maske, die sie braucht')
+    + 'eine neue Einstellung braucht eine Zeile bei der Decke mit der Maske, die sie braucht')
     .toBeLessThanOrEqual(CEILING)
 })

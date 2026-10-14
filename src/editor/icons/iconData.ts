@@ -180,6 +180,11 @@ export const NODE = {
     ["path", { d: "m21 21-4.34-4.34" }],
     ["circle", { cx: "11", cy: "11", r: "8" }],
   ],
+  SeparatorHorizontal: [
+    ["path", { d: "m16 16-4 4-4-4" }],
+    ["path", { d: "M3 12h18" }],
+    ["path", { d: "m8 8 4-4 4 4" }],
+  ],
   SquareDashed: [
     ["path", { d: "M5 3a2 2 0 0 0-2 2" }],
     ["path", { d: "M19 3a2 2 0 0 1 2 2" }],

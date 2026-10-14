@@ -1,23 +1,26 @@
 import { css } from 'lit'
 
 // The roles of the sample docs/design/behandlung-modern.html. A text stands
-// 10 px in from its frame, where the words of a field stand, so inside a
-// card everything begins on the line of the title.
+// at the edge of its frame, flush with the inner edge of the box around it
+// (paper look, 14.10.).
 export const textStyle = css`
   /* The frame is the room of the block on the grid; the text in it is as
-     high as its lines. */
+     high as its lines and stands at its top, unless the area around it
+     centers its texts, as the band does. */
   .frame {
     box-sizing: border-box;
     height: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: var(--se-text-justify, flex-start);
   }
   .frame > .text { flex: none; }
 
   /* Beschriftung: the Rubrik over the text, as .label over the value of a
      field: the same type on a 14 px line, 6 px above it and 1 px under it,
      so a text and a field with their labels stand on one line and are as
-     high. A label is the second ink, plain; a value the first, semibold. */
+     high. A label is the second ink in small capitals; a value the first,
+     semibold. */
   .frame > .with-label {
     flex: none;
     display: flex;
@@ -28,17 +31,19 @@ export const textStyle = css`
   .with-label > .text { flex: none; }
   .label {
     min-width: 0;
-    padding-inline: 10px;
+    padding-inline: 0;
     color: var(--se-ink-2);
     font-family: var(--se-font);
     font-size: var(--se-fs-rubric);
-    font-weight: 400;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
     line-height: 14px;
   }
 
   .text {
     box-sizing: border-box;
-    padding-inline: 10px;
+    padding-inline: 0;
     font-family: var(--se-font);
 
     --text-line-height: var(--se-lh);
@@ -99,12 +104,15 @@ export const textStyle = css`
     font-weight: 600;
   }
 
-  /* Rubrik: a label over or beside a value, plain in the second ink. */
+  /* Rubrik: a label over or beside a value, in small capitals of the
+     accent. */
   .variant-rubric {
     padding-top: 2px;
-    color: var(--se-ink-2);
+    color: var(--se-accent);
     font-size: var(--se-fs-rubric);
-    font-weight: 400;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
   }
 
   /* Kopf: a Rubrik, tight over its value. */
@@ -135,6 +143,18 @@ export const textStyle = css`
 
   .align-center { text-align: center; }
   .align-right { text-align: right; }
+
+  /* Linie: the text stands on a hairline, as on a form; while it is bound
+     and empty the line still shows where the value will be. The least
+     height counts the room under the words as well (border-box), so the
+     line stays where it is when a value comes or goes (user, 14.10.: it
+     slid down by those 3 px). */
+  .text.lined {
+    --text-line-room: 3px;
+    padding-bottom: var(--text-line-room);
+    min-height: calc(1em * var(--text-line-height) + var(--text-line-room));
+    box-shadow: var(--se-field-line);
+  }
 
   /* The symbol before the words, as in .lines .row: in the middle of the
      first line, a little larger than the type, faint. */

@@ -1,15 +1,15 @@
 import { css } from 'lit'
 
-// The table and the capture are ruled like an invoice, in a box with a line
-// (14.10.): the head semibold in the second ink on a light ground over the
-// line, rows apart by a faint line, faint lines between the columns, the
-// figures right. Under the rows there are, empty rows rule the room down to
-// the foot.
+// The table and the capture are ruled like a ledger, white on the paper
+// (paper look, 14.10.): the head in small capitals of the second ink over the
+// strong rule, rows apart by a faint line, faint lines between the columns,
+// the figures right and semibold, a hairline under all. Under the rows there
+// are, empty rows rule the room down to the foot.
 export const tableStyle = css`
       :host { min-width: 0; height: 100%; }
 
       .table {
-        --se-cell-x: 10px;
+        --se-cell-x: 12px;
         --se-input-x: 4px;
 
         position: relative;
@@ -18,12 +18,11 @@ export const tableStyle = css`
         flex-direction: column;
         height: 100%;
         background: var(--se-panel);
-        border: var(--se-hair);
-        border-radius: var(--se-radius);
+        border-bottom: var(--se-hair);
         overflow: hidden;
         font-family: var(--se-font);
         font-size: var(--se-fs-lg);
-        font-weight: 600;
+        font-weight: 400;
         color: var(--se-ink);
       }
 
@@ -90,10 +89,12 @@ export const tableStyle = css`
         top: 0;
         z-index: 1;
         flex: none;
-        background: var(--se-head-ground);
-        border-bottom: var(--se-border) solid var(--se-head-line);
+        background: var(--se-panel);
+        border-bottom: var(--se-head-rule);
         font-size: var(--se-fs-rubric);
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: .07em;
+        text-transform: uppercase;
         color: var(--se-ink-2);
       }
 
@@ -159,10 +160,12 @@ export const tableStyle = css`
         text-overflow: ellipsis;
       }
 
-      /* A column that stands right, with its sum: the figures line up. */
+      /* A column that stands right, with its sum: the figures line up,
+         semibold. */
       .row > div.right {
         text-align: right;
         font-variant-numeric: tabular-nums;
+        font-weight: 600;
       }
       .head > div.right { justify-content: flex-end; text-align: right; }
 

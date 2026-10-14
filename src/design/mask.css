@@ -1,99 +1,100 @@
-/* The tokens of the mask. The look is "Fachsoftware", chosen 14.10.2026
-   (docs/entschieden.md, Tonprobe 3 with the requirements "Leben"): a white
-   sheet on the grey window, the type of Windows, one ink in three steps,
-   lines instead of shadows, small radii, ruled tables like an invoice. The
-   accent shows at three places only: the main button, the chosen row and
-   the focus ring. Light only. */
+/* The tokens of the mask. The look is paper, ink and green, taken over from
+   Fable's Belegerfassung (user, 14.10.2026): the sheet is paper, a box lies
+   on it white in a hairline, one ink in three steps, the accent a deep
+   green, no radii, the lists ruled like a ledger under a strong rule, labels
+   and heads in small capitals. Light only. */
 
-/* No font of its own: Segoe UI is the type of Windows and of SoftEngine and
-   lies on every machine, so the mask still loads nothing (kontrakte.md, 1). */
+/* No font of its own: Bahnschrift lies on every Windows from 10 on, Segoe UI
+   stands in where it does not, so the mask still loads nothing
+   (kontrakte.md, 1). */
 
 :root {
   color-scheme: light;
 
-  /* The window is the ground, the mask a white sheet on it. */
-  --se-bg:        #DCDFE4;
+  /* The sheet is paper; a box and a list lie on it white. A shade lighter
+     than Fable's #EFEDE6 (user, 14.10.). */
+  --se-bg:        #F4F2ED;
   --se-panel:     #FFFFFF;
-  --se-panel-2:   #EBEDF1;
-
-  /* The head of a group box, of a table and the band at the top of the
-     sheet: a light blue-grey in a line of the same family, so the parts of
-     the mask stand apart from the sheet (14.10., the user on the grey of
-     before: no lines, no contrast, no color). */
-  --se-head-ground: #E4E9F6;
-  --se-head-line:   #BFC9E3;
+  --se-panel-2:   #F6F5F0;
 
   /* Ink in three steps: a title and a value, a label and a column head,
      what only shows the way (a symbol, a sign). */
-  --se-ink:       #12161D;
-  --se-ink-2:     #39404B;
-  --se-faint:     #A0A6AF;
+  --se-ink:       #1A1A17;
+  --se-ink-2:     #5F5E57;
+  --se-faint:     #A3A199;
 
-  /* Lines a reader sees: the line of a box and under a head, the softer one
-     between rows (14.10.; before, #D5D9DF and #ECEEF1 vanished on white). */
-  --se-line:      #AFB6C0;
-  --se-line-soft: #D9DDE3;
-  --se-box-line:  #9EA6B1;  /* the box of a checkbox */
+  /* Lines: the hairline of a box and under a head, the softer one between
+     rows. */
+  --se-line:      #CFCCC2;
+  --se-line-soft: #E4E1D8;
+  --se-box-line:  #B9B6AB;  /* the box of a checkbox */
 
-  /* Royal blue, the ink of a fountain pen. The accent of the mask, at three
-     places only: the main button, the chosen row (its ground and the bar at
-     its left edge), the ring of a field being typed into. */
-  --se-accent:       #2A45C8;
-  --se-accent-dark:  #1D3299;
-  --se-accent-soft:  #EEF1FD;
+  /* A deep green, the accent of the mask: the main button, the chosen row
+     (its ground and the bar at its left edge), the ring of a field being
+     typed into, the row being captured, a Rubrik and the title of a
+     Kopfzeile. */
+  --se-accent:       #1E6E4E;
+  --se-accent-dark:  #165539;
+  --se-accent-soft:  #E1EEE6;
 
   /* The ground of a field under the pointer, and of a button on it; a row or
      a card under the pointer lifts from the sheet. */
-  --se-hover:        #EFF1F4;
-  --se-hover-strong: #E2E5EA;
-  --se-row-hover:    #F2F4F7;
+  --se-hover:        #E9E7E0;
+  --se-hover-strong: #DDDAD1;
+  --se-row-hover:    #F1F6F3;
   /* The chosen row: the soft accent, the bar at its left edge. */
   --se-selection:    var(--se-accent-soft);
   --se-mark-bar: inset 3px 0 0 var(--se-accent);
   /* Marked text. */
-  --se-selection-ground: #D9DFF9;
+  --se-selection-ground: #CFE4D8;
 
-  --se-scrim: rgba(18, 22, 29, .34);
+  --se-scrim: rgba(26, 26, 23, .34);
 
   --se-card-bg:    #FFFFFF;
 
+  /* The band at the top of the sheet: the ink is its ground, its type white. */
+  --se-band-ground: #1A1A17;
+  --se-band-ink:    #FFFFFF;
+  --se-band-ink-2:  rgba(255, 255, 255, .72);
+
   /* Tones: strong for a dot or a full ground, ink for text on the tint, tint
      for a head, shell for the ground of a column, line for its border, soft
-     behind a chip. */
-  --se-neutral:       #626974;
-  --se-neutral-ink:   #39404B;
-  --se-neutral-tint:  #F3F4F6;
-  --se-neutral-shell: #F8F9FA;
-  --se-neutral-line:  #E2E5EA;
-  --se-neutral-soft:  #E9EBEF;
+     behind a chip. Akzent (info) and Grün (success) are both the green of
+     the accent. */
+  --se-neutral:       #5F5E57;
+  --se-neutral-ink:   #3A3935;
+  --se-neutral-tint:  #F6F5F0;
+  --se-neutral-shell: #F6F5F0;
+  --se-neutral-line:  #CFCCC2;
+  --se-neutral-soft:  #E9E7E0;
 
-  --se-info:          #2A45C8;
-  --se-info-ink:      #1D3299;
-  --se-info-tint:     #EEF1FD;
-  --se-info-shell:    #F7F8FE;
-  --se-info-line:     #D5DCF7;
-  --se-info-soft:     #EEF1FD;
+  --se-info:          #1E6E4E;
+  --se-info-ink:      #165539;
+  --se-info-tint:     #E1EEE6;
+  --se-info-shell:    #F3F8F5;
+  --se-info-line:     #BAD6C7;
+  --se-info-soft:     #E1EEE6;
 
-  --se-success:       #15803D;
-  --se-success-ink:   #116B33;
-  --se-success-tint:  #E7F6EC;
-  --se-success-shell: #F5FBF7;
-  --se-success-line:  #CDEBD6;
-  --se-success-soft:  #E7F6EC;
+  --se-success:       #1E6E4E;
+  --se-success-ink:   #165539;
+  --se-success-tint:  #E1EEE6;
+  --se-success-shell: #F3F8F5;
+  --se-success-line:  #BAD6C7;
+  --se-success-soft:  #E1EEE6;
 
-  --se-warning:       #B45309;
-  --se-warning-ink:   #92400E;
-  --se-warning-tint:  #FEF3E2;
-  --se-warning-shell: #FFFBF4;
-  --se-warning-line:  #F8DDB5;
-  --se-warning-soft:  #FEF3E2;
+  --se-warning:       #9A5B0A;
+  --se-warning-ink:   #7A4708;
+  --se-warning-tint:  #F6EBD6;
+  --se-warning-shell: #FBF6EC;
+  --se-warning-line:  #E9D3A6;
+  --se-warning-soft:  #F6EBD6;
 
-  --se-danger:        #C8372B;
-  --se-danger-ink:    #A82217;
-  --se-danger-tint:   #FCEDEB;
+  --se-danger:        #A8302A;
+  --se-danger-ink:    #86241F;
+  --se-danger-tint:   #F6E3E1;
   --se-danger-shell:  #FFFFFF;
-  --se-danger-line:   #F5D1CC;
-  --se-danger-soft:   #FCEDEB;
+  --se-danger-line:   #E6BDB9;
+  --se-danger-soft:   #F6E3E1;
 
   /* Petrol, the sixth color the user chose on 08.10.; the choice Petrol. */
   --se-petrol:      #0E7C86;
@@ -121,34 +122,35 @@
   --se-animal-paw:         #626974;
   --se-animal-paw-soft:    #EEF1F4;
 
+  /* No radii: a field, a button, a box and a window are square. */
   --se-border: 1px;
-  --se-radius: 3px;       /* a field, a button */
-  --se-radius-sm: 3px;    /* a checkbox, a line of a list */
-  --se-radius-card: 6px;  /* a box, a window, a column of the board */
+  --se-radius: 0;
+  --se-radius-sm: 0;
+  --se-radius-card: 0;
 
-  /* The lines of the sheet: the strong rule under a head and over a sum, the
-     hairline that closes a part. */
-  --se-rule: 1.5px solid var(--se-ink);
+  /* The lines of the sheet: the strong rule under the head of a list and
+     over a sum, the hairline that closes a part. */
+  --se-rule: 2px solid var(--se-ink);
   --se-hair: var(--se-border) solid var(--se-line);
 
   /* The sheet is the whole window (user, 13.10.: no ground around it, the
      room is for the mask): its padding and its thin scrollbar. */
-  --se-sheet-top: 22px;
-  --se-sheet-x: 26px;
-  --se-sheet-bottom: 20px;
-  --se-scrollbar: #C3C8CF;
+  --se-sheet-top: 24px;
+  --se-sheet-x: 28px;
+  --se-sheet-bottom: 24px;
+  --se-scrollbar: #B9B6AB;
 
-  /* The invoice: a table and the capture are ruled like the lines of an
-     invoice, without a card. The head over the strong rule, faint lines
-     between the columns, only the rows there are and under them the bare
-     sheet; the row being typed on a quiet ground with a line over it, its
-     placeholders readable. The column line is ink seen through, so a tinted
-     row runs through under it as one band. */
+  /* The ledger: a table and the capture are ruled like the lines of an
+     account book. The head over the strong rule, faint lines between the
+     columns; the row being typed on the soft accent with the accent bar at
+     its left edge and a line over it, its placeholders readable. The column
+     line is ink seen through, so a tinted row runs through under it as one
+     band. */
   --se-head-rule: var(--se-rule);
-  --se-col-rule: rgba(18, 22, 29, .14);
+  --se-col-rule: rgba(26, 26, 23, .08);
   --se-col-edge: inset 1px 0 0 var(--se-col-rule);
-  --se-capture-ground: #F7F8FA;
-  --se-capture-edge: inset 0 1px 0 var(--se-line);
+  --se-capture-ground: #E1EEE6;
+  --se-capture-edge: inset 3px 0 0 var(--se-accent), inset 0 1px 0 var(--se-line);
   --se-placeholder: var(--se-ink-2);
 
   /* Lines, not shadows: a window, a card and a column of the board wear the
@@ -160,33 +162,33 @@
   --se-shadow-tile-hover: 0 0 0 var(--se-border) var(--se-box-line);
   --se-shadow-chosen: var(--se-mark-bar), 0 0 0 var(--se-border) var(--se-line);
   --se-column-edge: inset 0 0 0 var(--se-border) var(--se-line);
-  /* The hairline drawn inside, so the element keeps its size: a button of
-     the board. */
+  /* The hairline drawn inside, so the element keeps its size: a box, a
+     Kopfzeile, a button of the board. */
   --se-edge: inset 0 0 0 var(--se-border) var(--se-line);
   /* The one shadow of the mask: a card of the board lifts while it is dragged. */
-  --se-shadow-lift: 0 8px 24px rgba(18, 22, 29, .16), 0 2px 6px rgba(18, 22, 29, .10);
+  --se-shadow-lift: 0 8px 24px rgba(26, 26, 23, .16), 0 2px 6px rgba(26, 26, 23, .10);
   --se-place-ground: rgba(255, 255, 255, .72);
   /* The ring of a field being typed into: the line inside, the halo outside,
      both of the accent. */
-  --se-focus-ring: inset 0 0 0 1.5px var(--se-accent), 0 0 0 3px color-mix(in srgb, var(--se-accent) 16%, transparent);
-  /* The line under the value of a field, as under a signature; of the accent
-     while typing. */
+  --se-focus-ring: inset 0 0 0 1.5px var(--se-accent), 0 0 0 3px color-mix(in srgb, var(--se-accent) 18%, transparent);
+  /* The hairline under a text of the Art Linie, as under a signature; of the
+     accent while typing. */
   --se-field-line: inset 0 -1px 0 var(--se-line);
   --se-field-line-typing: inset 0 -1px 0 var(--se-accent);
 
-  --se-font: "Segoe UI", Arial, sans-serif;
+  --se-font: "Bahnschrift", "Segoe UI", Arial, sans-serif;
 
   /* The sizes a text offers carry their name: 12 is 12 px. */
   --se-fs-xs:    10px;
-  --se-fs-head:  12px;    /* the Kopf over a value */
-  --se-fs-rubric: 12px;   /* the Rubrik, a label, a column head */
+  --se-fs-head:  11px;    /* the Kopf over a value */
+  --se-fs-rubric: 11px;   /* the Rubrik, a label, a column head, a Kopfzeile */
   --se-fs-sm:    12px;
   --se-fs:       13px;
   --se-fs-lg:    14px;
   --se-fs-name:  15px;
   --se-fs-title: 17px;
   --se-fs-xl:    22px;
-  --se-fs-xxl:   26px;
+  --se-fs-xxl:   30px;
 
   --se-lh:       1.45;
   --se-lh-tight: 1.25;

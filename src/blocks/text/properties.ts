@@ -8,8 +8,8 @@ import {
 } from '../../core/block/property'
 import { symbolProperty } from '../look/symbol'
 
-// The sizes of the sample docs/design/behandlung-modern.html a text may
-// take, in px: from the label of a field up to the title of a page.
+// The sizes a text may take, in px: from the label of a field up to the
+// title of a page. 30 was 26 up to the paper look (schema 35).
 export const TEXT_SIZES: Readonly<Record<string, string>> = {
   '12': '--se-fs-sm',
   '13': '--se-fs',
@@ -17,13 +17,13 @@ export const TEXT_SIZES: Readonly<Record<string, string>> = {
   '15': '--se-fs-name',
   '17': '--se-fs-title',
   '22': '--se-fs-xl',
-  '26': '--se-fs-xxl',
+  '30': '--se-fs-xxl',
 }
 
 // The size of each role, as textStyle writes it. Rubrik and Kopf are
 // smaller than any size to choose.
 const ROLE_SIZES = {
-  title: '22', heading: '15', label: '12', body: '14', muted: '13', number: '14', hint: '12', amount: '26',
+  title: '22', heading: '15', label: '12', body: '14', muted: '13', number: '14', hint: '12', amount: '30',
 }
 
 const WITH_LABEL = { key: 'showLabel', equals: true }
@@ -62,6 +62,16 @@ export const textProperties = {
     default: 'left',
     label: 'Ausrichtung',
     attribute: 'align',
+  }),
+  // Linie: the text stands on a hairline, a line the builder lays under a
+  // value (Belegerfassung, user 14.10.).
+  appearance: choiceProperty([
+    { value: 'plain', name: 'Ohne' },
+    { value: 'line', name: 'Linie' },
+  ], {
+    default: 'plain',
+    label: 'Art',
+    attribute: 'appearance',
   }),
   text: textProperty({
     default: 'Text',
