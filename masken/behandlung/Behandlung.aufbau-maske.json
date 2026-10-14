@@ -251,9 +251,8 @@
                 "value": ""
               },
               {
-                "source": "captureCell",
-                "value": "s7",
-                "blockId": "erfassung"
+                "source": "fixed",
+                "value": ""
               },
               {
                 "source": "fixed",
@@ -830,16 +829,6 @@
             "sourceId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
             "partnerId": "",
             "pairs": []
-          },
-          {
-            "sourceId": "0695b6ad-8efb-469e-b90b-868e64abbe43",
-            "partnerId": "60d6bfda-542c-4ff5-8976-95fb35b5604f",
-            "pairs": [
-              {
-                "fromField": "ART_1_25",
-                "toField": "CHA_26_25"
-              }
-            ]
           }
         ],
         "followsSelection": [],
@@ -915,15 +904,6 @@
             "field": "280_12",
             "width": 115,
             "total": true
-          },
-          {
-            "fillField": "0695b6ad-8efb-469e-b90b-868e64abbe43::CHA_1_25",
-            "subline": true,
-            "under": "s2",
-            "editable": false,
-            "key": "s7",
-            "title": "Charge",
-            "field": "1695_60"
           }
         ],
         "search": false,
@@ -2099,48 +2079,6 @@
           "code": "ART_8329_9",
           "name": "Brutto",
           "length": 5
-        }
-      ]
-    },
-    {
-      "id": "0695b6ad-8efb-469e-b90b-868e64abbe43",
-      "name": "Chargen (Kopie)",
-      "preset": "erpQuery",
-      "tableId": "CHARGE.GET",
-      "order": {
-        "kind": "none"
-      },
-      "delivery": {
-        "kind": "message"
-      },
-      "write": {
-        "kind": "none"
-      },
-      "fieldPrefix": "CHA_",
-      "fields": [
-        {
-          "code": "CHA_1_25",
-          "name": "Chargennummer"
-        },
-        {
-          "code": "CHA_26_25",
-          "name": "Artikelnummer"
-        },
-        {
-          "code": "CHA_77_60",
-          "name": "Bezeichnung"
-        },
-        {
-          "code": "CHA_61_8",
-          "name": "Lieferant"
-        },
-        {
-          "code": "CHA_1054_10",
-          "name": "Mindesthalbarkeitsdatum"
-        },
-        {
-          "code": "CHA_198_10",
-          "name": "Lagerbestand"
         }
       ]
     },
