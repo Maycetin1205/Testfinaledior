@@ -109,7 +109,12 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Masken), Leinwand auf grauem Grund, rechter Spalte „Eigenschaften“;
    der Rahmen in einem eigenen, kühleren Ton; ein schmaler Kopf. Ein Chat
    baut D als Bild wie A bis C; der Nutzer vergleicht und entscheidet.
-   Kein Code in diesem Chat.
+   Kein Code in diesem Chat. Erledigt 14.10.:
+   `docs/design/editor-entwurf-d.html` mit `editor-entwurf-d.png` (Text
+   „Name“ markiert) und `editor-entwurf-d-erfassung.png` (Erfassung
+   markiert, links der Reiter „Masken“); `#maske` hinter der Adresse der
+   HTML zeigt die Spalte ohne Markierung. Die Wahl des Nutzers zwischen A
+   bis D steht aus; sie kommt nach `entschieden.md`, dann Chat 6.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -165,39 +170,6 @@ war nur eine Idee und steht nicht im Plan (14.10.).
 
 ## Einzelheiten zu den Chats
 
-Chat 5b, Entwurf D. Ein HTML-Bild `docs/design/editor-entwurf-d.html` mit
-PNG, 1680 x 1050, wie A bis C gebaut (Werte aus `mask.css`, Symbole aus
-`iconData.ts`, die Belegerfassung auf der Leinwand, Text „Name“
-markiert), dazu ein zweites PNG `editor-entwurf-d-erfassung.png` mit der
-markierten Erfassung, damit man die Aktionen in der rechten Spalte sieht.
-Aufbau:
-
-- Kopf, eine Zeile, 44 px: links Name der Maske und Rahmen-Nummer, in der
-  Mitte die Seitenreiter (Hauptseite, Popups, Plus), rechts Rückgängig,
-  Wiederholen, ein stiller Speichern-Zustand („Gespeichert 11:05“ statt
-  eines Knopfs; Strg+S bleibt), Daten, Umrisse, Exportieren als einziger
-  blauer Knopf.
-- Linke Spalte, 232 px, zwei Reiter: „Bausteine“ (Symbol und Name je
-  Baustein, Erklärzeile aus C als Tipp) und „Masken“ (die Liste aus Chat 4
-  mit Ordnern, Vorlagen und „Export nach“ unten, wie B).
-- Mitte: die Leinwand auf dem Fenstergrund `--se-bg`, das Blatt weiß mit
-  Haarlinie, wie heute.
-- Rechte Spalte, 300 px, „Eigenschaften“: Kopf mit Symbol und Name des
-  markierten Bausteins und dem Papierkorb; dann die Wahlen der heutigen
-  Leiste als Zeilen mit Beschriftung links und Wahl rechts (Rolle, Farbe
-  und Größe, Art, Symbol, Ausrichtung, Beschriftung); darunter die Gruppen
-  aus „Einstellungen“ als aufklappbare Abschnitte (Quelle, Hilfsquelle,
-  Anzeige, Suchfenster, Folgt der Auswahl, Aktionen), jede mit Haarlinie
-  und fetter Überschrift wie in den heutigen Fenstern. Nichts markiert:
-  Name, Rahmen, Zielordner der Maske. Der Baustein-Bezug („Folgt der
-  Auswahl“ per Klick auf den Geber) bleibt, wie er ist.
-- Ton des Rahmens: Kopf und beide Spalten auf `--se-panel-2` mit
-  Haarlinien `--se-line`, Schrift `--se-ink-2`, Überschriften in Versalien
-  11 px wie die Rubriken der Maske; das Blatt bleibt der einzige weiße
-  Fleck. Dieselbe Schrift, dasselbe Blau, sonst nichts Neues; keine
-  dunkle Oberfläche.
-- Fenster bleiben nur für Aufgaben: Daten, Schritt, Suchfenster, Spalten.
-
 Chat 6a, Hülle und linke Spalte. Nach dem gewählten Entwurf:
 `src/design/editor.css`, `src/editor/shell/EditorShell.tsx`, `Toolbar.tsx`,
 `src/editor/sidebar/`, `src/editor/masks/MasksWindow.tsx` wird der Reiter
@@ -221,8 +193,23 @@ jede Wahl der Leiste mit ihrem Namen als Rubrik darüber, die Masken als
 Tabelle im Fenster; B die Masken als Streifen mit „Export nach“ unten,
 „Masken“ blendet ihn ein und aus, die Bausteine nur als Symbol mit Tipp;
 C das Fenster „Bausteine“ mit einer Zeile je Baustein, kein Streifen an
-der Seite. In allen dreien steht die Leiste weiter im festen Streifen
-unter der Toolbar (seit 06.10.), und jedes Symbol gibt es schon
+der Seite. In A bis C steht die Leiste weiter im festen Streifen unter
+der Toolbar (seit 06.10.). D: ein Kopf von 44 px mit Name und Rahmen
+links, den Seiten als Reitern in der Mitte, „Gespeichert 11:05“ statt
+eines Knopfs (Strg+S bleibt) und Exportieren als einzigem blauen Knopf;
+„Neu“ steht als Zeichen im Reiter „Masken“ neben „Ordner wählen“ und
+„Datei laden“. Linke Spalte 232 px mit den Reitern „Bausteine“ (Tipp mit
+der Erklärzeile aus C) und „Masken“ (wie B). Rechte Spalte 300 px
+„Eigenschaften“: Kopf mit Symbol, Art, Text des Bausteins und Papierkorb,
+die Wahlen der Leiste als Zeilen (Beschriftung links, Wahl rechts, lange
+Beschriftungen brechen um statt abgeschnitten zu werden), darunter die
+Gruppen aus „Einstellungen“ zum Auf- und Zuklappen; eine zugeklappte
+nennt rechts kurz, was darin steht („2 Quellen“, „nichts“). Ein Ereignis
+ohne Schritt zeigt nur seinen Namen und ein Plus. Ohne Markierung zeigt
+die Spalte Name, Rahmen und Zielordner der Maske. Kopf und Spalten auf
+`--se-panel-2` mit Haarlinien `--se-line`, das Blatt ist der einzige
+weiße Fleck. Fenster bleiben nur für Aufgaben: Daten, Schritt,
+Suchfenster, Spalten. Jedes Symbol gibt es schon
 (`src/editor/icons/iconData.ts`).
 
 Chat 7, Aktionsfenster. `src/editor/actions/StepWindow.tsx` (22 Stellen)
@@ -263,7 +250,9 @@ nichts Neues erfinden:
   Feldwahl des Texts klar benennen; „Pflicht“ am Feld ist als Wahl da und
   in der Maske nicht zu sehen; im Empfang bricht der Titel „Kleintierpraxis
   am Lindenhof“ bei 1440 px um und liegt über „Empfang heute“, sein Umriss
-  ist zu niedrig (seit Chat 1 im Editor zu sehen).
+  ist zu niedrig (seit Chat 1 im Editor zu sehen); bei einer Leinwand von
+  1148 px (Entwurf D) zeigt die Belegerfassung „Besta“ statt „Bestand“,
+  und der Betrag „Gesamtbetrag“ liegt über seiner Beschriftung.
 - Jeder Durchsicht-Chat endet mit zwei Bildern je Maske, in der die Art
   vorkommt: Editor und Export, vorher und nachher.
 
