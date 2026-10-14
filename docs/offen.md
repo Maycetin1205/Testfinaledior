@@ -144,7 +144,32 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Schatten nur beim Ziehen. Bilder
    `docs/design/2026-10-14-fachsoftware-{belegerfassung,empfang}.png`.
    Das Aussehen ist jetzt zu, nur noch Durchsicht mit Bild vorher und
-   nachher. Reste stehen bei Chat 7b, 8 und 11.
+   nachher. Reste stehen bei Chat 5e, 8 und 11. Geprüft 14.10. (Fable):
+   abgenommen; die Belegerfassung mit Daten sieht aus wie ein
+   Windows-Programm von heute. Der Nutzer sieht Empfang und Behandlung
+   als „Windows 1999“: Ursache sind drei Dinge, die über die Probe
+   hinausgingen, siehe 5e. Und im Editor ist die Erfassung bis auf die
+   Tippzeile leer, weil die Probedaten erst in 7b kämen; die kommen
+   darum jetzt als 5f.
+5e. Nachbesserung, klein, ein Chat. Drei Stellen, an denen 5d über die
+   Probe 3 hinausging und die Maske kahl wurde: Knöpfe zweiter Ordnung
+   („Anmelden →“, „Ins Zimmer →“, „Rechnung erstellen“, „In diesen Beleg
+   übernehmen“) sind weiße Kästen mit schwarzem Rand und fettem Text wie
+   1999; sie werden eine hellgraue Fläche ohne Rand (`--se-panel-2`,
+   wie „Heute“ im Empfang), Text halbfett in Tinte, unter der Maus eine
+   Stufe dunkler; nur der Hauptknopf ist blau. Das Band oben bekommt
+   seinen leichten Grund `--se-panel-2` zurück, flach, ohne Rundung, mit
+   Haarlinie unten; die Probe 3 hatte ihn, 5d hat ihn genommen. Kasten
+   und Karte (Behandlung: „Tiername“-Karte) tragen statt eines
+   1-px-Rahmens auf Weiß den Grund `--se-panel-2` ohne Rand, wenn sie
+   auf dem Blatt liegen, und bleiben weiß mit Haarlinie im Kanban auf
+   grauer Spalte. Keine weiteren Werte. Bilder vorher/nachher,
+   `REFERENCE_REFRESH=1`, Standbilder `docs/design/2026-10-14-fachsoftware-*.png`
+   erneuern.
+5f. Probedaten im Editor, vorgezogen aus 7b (Nutzer, 14.10.: „wieso
+   habe ich keine Zeilen mehr in der Erfassung“). Einzelheiten unten bei
+   Chat 7b; der Chat heißt 5f und kommt vor 6a. Bis dahin zeigt die
+   Erfassung im Editor nur Kopf und Tippzeile.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -153,7 +178,8 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
    `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
-7b. Probedaten im Editor. Heute zeigt die Leinwand Platzhalter
+7b. Probedaten im Editor, als 5f vorgezogen (siehe oben; die
+   Einzelheiten stehen hier). Heute zeigt die Leinwand Platzhalter
    („Tiername“, „Zahlungsbedingung 1“), darum sieht jede Maske im Editor
    aus wie ein Mockup. Der Editor-Host (`src/runtime/previewHost.ts`, der
    heute nichts liefert) liefert je Quelle ein paar plausible Zeilen aus
