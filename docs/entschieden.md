@@ -7,6 +7,21 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Die Bestellung als vierte Maske ist gestrichen, sie war nur eine
+  Idee (Nutzer). Phase 2 heißt jetzt „Vor dem ersten Kunden“: die Maske
+  meldet gescheitertes Schreiben (hebt „abgelehntes Schreiben bleibt
+  unsichtbar“ vom 23.09. auf), dann ein Pilotkunde mit der
+  Belegerfassung. Was danach kommt, entscheidet der Nutzer.
+- 14.10. Masken werden im Editor als Ordner verwaltet (Nutzer): einmal
+  gewählter Ordner, Liste der Masken, Vorlagen als Unterordner, Zielordner
+  für den Export je Maske. Ersetzt Laden und Speichern über Dateidialoge;
+  der Browser-Speicherplatz bleibt Notnagel.
+- 14.10. Der Editor bekommt ein eigenes Gesicht (Nutzer: „sieht aus wie
+  KI-Slop“): drei Entwürfe als Bilder, der Nutzer wählt, dann der Bau.
+  Für die Editor-Hülle sind Entwürfe als HTML-Bilder erlaubt, anders als
+  bei der Maske (12.10.); die Blatt-Sprache gilt auch für die Hülle.
+- 14.10. Rückmeldungen sind sparsam (Nutzer): eine je Vorfall, eine Zeile
+  oder ein kleines Fenster mit „OK“, nie mehrere hintereinander.
 - 14.10. Rückmeldungen (Chat 2): was schiefgeht, sagt ein kleines Fenster
   in der Sprache der Maske (`Notice`), kein Browser-Dialog; einzige
   Ausnahme ist die Rückfrage bei „Neu“, und die nur, wenn Bausteine auf

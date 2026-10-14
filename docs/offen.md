@@ -10,9 +10,8 @@ des Codes in `architektur.md`, alles über SoftEngine in
 
 Der Nutzer und seine Kollegen bauen Masken für Kunden, exportieren, der
 Kunde benutzt sie in SoftEngine. SoftEngine bleibt Daten und Logik, der
-Editor macht die Oberfläche: Belegerfassung, Empfang, Behandlungszimmer,
-Bestellung, und danach, was Kunden sonst brauchen. Die Masken liegen in
-`masken/`.
+Editor macht die Oberfläche: Belegerfassung, Empfang, Behandlungszimmer
+und danach, was Kunden sonst brauchen. Die Masken liegen in `masken/`.
 
 Zwei Maßstäbe: der Editor erzeugt keinen Durchfall (man sieht, was man
 tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
@@ -47,7 +46,10 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   ändert oder der Nutzer einen Stand gesichert haben will.
 - Keine neuen Tests, außer dem Ladetest in Chat 3. Kein Thema
   Geschwindigkeit. Kein Chat, der nur aufräumt, ohne dass der Nutzer
-  danach etwas sieht; Ausnahmen sind Chat 4 und Chat 15, beide gewollt.
+  danach etwas sieht; Ausnahmen sind Chat 7 und Chat 18, beide gewollt.
+- Rückmeldungen sind sparsam: eine Meldung je Vorfall, eine Zeile oder
+  ein kleines Fenster mit „OK“, nie mehrere hintereinander, keine
+  Browser-Dialoge außer der Rückfrage bei „Neu“ (Nutzer, 14.10.).
 - Jeder Chat endet mit einem Bild vorher und nachher. Der Nutzer sagt ja
   oder nein; bei nein wird zurückgebaut, nicht diskutiert.
 
@@ -63,35 +65,60 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 2. Rückmeldungen. Der Export sagt, welche Prüfung scheitert. Eine Datei,
    die nicht lädt, sagt warum. „Neu“ fragt nach. Die leere Leinwand zeigt,
    was zu tun ist. Dazu: der Export nennt Stellen, deren Feld die Quelle
-   nicht hat. Erledigt 14.10.
+   nicht hat. Erledigt 14.10., geprüft 14.10. Rest für Revue Text: die
+   Meldung „mit Lücken“ nennt den Baustein nur mit seiner Art („Text“);
+   sie soll Beschriftung oder Text mitnennen, sonst findet man ihn unter
+   48 Texten nicht.
 3. Masken sichern. Ein Test lädt jede Maske aus `masken/` (Heber,
    Prüfung, Export) und schlägt an, wenn eine nicht mehr lädt. Die Masken
    werden committet.
-4. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
+4. Maskenordner und Vorlagen. Statt Laden und Speichern über Dateidialoge
+   und einem Speicherplatz im Browser: der Nutzer wählt einmal einen
+   Ordner, der Editor zeigt links alle Masken darin mit Name,
+   Rahmen-Nummer und Datum, Unterordner als Ordner, „Vorlagen“ als
+   eigener Ordner. Klick öffnet, Speichern schreibt dorthin, „Als Vorlage
+   sichern“, „Neu aus Vorlage“. Je Maske ein Zielordner für den Export,
+   dann ist der Weg nach V7 ein Klick.
+5. Gesicht des Editors, Entwürfe. Der Editor sieht aus wie KI-Slop
+   (Nutzer, 14.10.): generische Knöpfe, Palette mit Symbol und Wort,
+   nichts, was nach Produkt aussieht. Ein Chat baut drei Entwürfe der
+   Editor-Hülle als Bilder (Toolbar, Palette, Maskenliste aus Chat 4,
+   Leiste am Baustein, ein Fenster), in der Blatt-Sprache, nur hell. Der
+   Nutzer zeigt auf einen. Kein Code in diesem Chat.
+6. Gesicht des Editors, Bau. Der gewählte Entwurf wird gebaut. Die Maske
+   bleibt pixelgleich, Export und Referenzabzug unverändert.
+7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
    `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
-5. Revue Text.
-6. Revue Feld.
-7. Revue Bereich, dazu der neue Baustein Linie: eine Haarlinie,
-   waagerecht oder senkrecht, Farbe aus den Wahlen, eine Rasterzeile hoch
-   oder eine Spalte breit. Für Masken, die Gruppen trennen wollen, ohne
-   einen Bereich zu zeichnen.
-8. Revue Erfassung.
-9. Revue Tabelle.
-10. Revue Knopf.
-11. Revue Datenliste.
-12. Revue Kanban.
-13. Revue Popup.
-14. Revue Datum.
-15. Doppeltes Zeichnen. Lit meldet, dass `ff-capture` und `ff-table` nach
+8. Revue Text.
+9. Revue Feld.
+10. Revue Bereich, dazu der neue Baustein Linie: eine Haarlinie,
+    waagerecht oder senkrecht, Farbe aus den Wahlen, eine Rasterzeile hoch
+    oder eine Spalte breit. Für Masken, die Gruppen trennen wollen, ohne
+    einen Bereich zu zeichnen.
+11. Revue Erfassung.
+12. Revue Tabelle.
+13. Revue Knopf.
+14. Revue Datenliste.
+15. Revue Kanban.
+16. Revue Popup.
+17. Revue Datum.
+18. Doppeltes Zeichnen. Lit meldet, dass `ff-capture` und `ff-table` nach
     einem Update ein weiteres planen. Ursache finden, beheben. Nichts wird
     sichtbar, aber jede spätere Änderung an der Erfassung wird sicherer.
 
-### Phase 2: Bestellung
+### Phase 2: Vor dem ersten Kunden
 
-16. Die Bestellung als vierte Maske, mit den heutigen Bausteinen, in
-    `masken/bestellung`. Was dabei fehlt, wird danach als eigener Chat
-    gebaut, nicht vorher auf Vorrat.
+19. Die Maske redet. Antwortet SoftEngine nicht oder lehnt es ein
+    Schreiben ab, zeigt die Maske es leise an der Stelle, wo es passiert
+    ist (die Zeile der Erfassung, der Knopf). Heute bleibt beides
+    unsichtbar (23.09.). Für einen Kunden geht das nicht.
+20. Pilotkunde mit der Belegerfassung, Standardmaske als Rückweg. Vorher
+    einmal mit einem dicken Beleg (hunderte Positionen) und einem großen
+    Artikelstamm testen. Braucht den Nutzer und seinen CTO.
+
+Was danach kommt, entscheidet der Nutzer. Die Bestellung als vierte Maske
+war nur eine Idee und steht nicht im Plan (14.10.).
 
 ### Liegt, bis es stört
 
@@ -118,7 +145,42 @@ für jede `*.aufbau-maske.json` unter `masken/` `liftState()`,
 `CLAUDE.md` und dieser Plan: Masken werden committet. Im selben Commit die
 drei Masken.
 
-Chat 4, Aktionsfenster. `src/editor/actions/StepWindow.tsx` (22 Stellen)
+Chat 4, Maskenordner und Vorlagen. Heute: ein Platz im Browser
+(`aufbau_editor_mask`, `src/editor/state/maskStorage.ts`), dazu
+`showSaveFilePicker` und ein Datei-Input (`src/editor/state/fileOnDisk.ts`,
+`maskFile.ts`, `src/editor/shell/Toolbar.tsx`). Bau: `showDirectoryPicker`
+(Chromium und Edge), der Griff auf den Ordner wird in IndexedDB gemerkt
+und beim Start wieder geholt (Rechte erneut erfragen, wenn der Browser es
+verlangt). Der Editor liest alle `*.aufbau-maske.json` im Ordner und
+seinen Unterordnern, zeigt sie in einem Streifen links neben der Palette
+oder in einem Fenster „Masken“ (Entscheidung in Chat 5 mitnehmen, bis
+dahin ein Fenster), nach Ordner gruppiert, „Vorlagen“ als Unterordner.
+Öffnen per Klick, Speichern schreibt in dieselbe Datei, „Als Vorlage
+sichern“ kopiert nach `Vorlagen/`, „Neu aus Vorlage“ öffnet eine Kopie
+ohne Namen. Der Browser-Speicherplatz bleibt als Notnagel, wenn kein
+Ordner gewählt ist. Je Maske ein Zielordner für den Export (in der
+Maskendatei als Pfadtext, `exportTarget`), Export schreibt direkt dorthin,
+wenn der Griff da ist, sonst wie heute herunterladen. Dateiform der Maske
+unverändert; der Ladetest aus Chat 3 läuft weiter über `masken/`.
+
+Chat 5, Gesicht des Editors, Entwürfe. Drei HTML-Bilder der Editor-Hülle
+unter `docs/design/editor-entwurf-{a,b,c}.html` mit je einem PNG, 1680 px
+breit, mit der Belegerfassung auf der Leinwand (Bild
+`docs/design/2026-10-14-belegerfassung.png` als Inhalt). Alle drei in der
+Blatt-Sprache (`src/design/mask.css`: Manrope, Tinte, Königsblau, Rundung
+6/10), nur hell, ohne Chips und Badges. Unterschiede: Palette als
+Streifen mit Symbolen und Namen, als schmale Leiste nur mit Symbolen und
+Tooltip, oder als Fenster; Toolbar dicht oder luftig; Maskenliste aus
+Chat 4 als Streifen oder Fenster. Kein Code im Editor in diesem Chat. Der
+Nutzer wählt; die Wahl kommt nach `entschieden.md`.
+
+Chat 6, Gesicht des Editors, Bau. Der gewählte Entwurf aus Chat 5 wird
+gebaut: `src/design/editor.css`, `src/editor/shell/`, `src/editor/sidebar/`,
+`src/editor/bar/`, `src/editor/widgets/`. Dieselben Farben und Maße wie
+die Maske, aus `mask.css` übernommen. Was nicht im Entwurf ist, bleibt,
+wie es ist. Maske pixelgleich, Export und Referenzabzug unverändert.
+
+Chat 7, Aktionsfenster. `src/editor/actions/StepWindow.tsx` (22 Stellen)
 und `ActionsSection.tsx` (12 Stellen) unterscheiden Schrittarten einzeln.
 Die Schrittarten sind Adapter (`src/core/data/steps/stepAdapter.ts`); jeder
 Adapter bekommt ein Fensterstück, das Fenster fragt den Adapter. Dabei
@@ -127,7 +189,7 @@ weniger auf einmal: leere Stellen einer Relation eingeklappt, die rohe
 braucht. Keine Funktion fällt weg, die eine Maske in `masken/` nutzt. Ein
 bis zwei Chats; Referenzabzug unverändert.
 
-Chat 7, Linie. Neuer Baustein `src/blocks/line/` nach dem Muster von
+Chat 10, Linie. Neuer Baustein `src/blocks/line/` nach dem Muster von
 Knopf (`architektur.md` §6): Wahl Richtung (waagerecht, senkrecht), Farbe
 aus `look.ts`, Stärke Haarlinie oder 1,5 px wie die Kopflinie der
 Erfassung. Raster: waagerecht eine Zeile hoch, senkrecht eine Spalte
@@ -135,7 +197,7 @@ breit. In den Referenzbaum aufnehmen, `REFERENCE_REFRESH=1 npm test`.
 Nicht noch einmal: die Summenlinie am Text (13.10. entfernt) bleibt weg,
 dafür ist die Linie da.
 
-Chats 5 bis 14, Revue. Je Baustein dieselbe Prüfliste, Befunde beheben,
+Chats 8 bis 17, Revue. Je Baustein dieselbe Prüfliste, Befunde beheben,
 nichts Neues erfinden:
 
 - Im Editor: sichtbar auf der Leinwand, auch leer? Leiste verständlich,
@@ -152,7 +214,7 @@ nichts Neues erfinden:
 - Bekannte Reste: Text mit Beschriftung rechtsbündig setzt die Rubrik
   links (Belegerfassung, „Beleg-Nr.“); Name im Band 4 px höher als in der
   Vorlage; schmale Spaltenköpfe der Behandlung brauchen breitere Spalten
-  (Maske, Chat 9 darf `masken/behandlung` anfassen); „Trenner“ in der
+  (Maske, Chat 12 darf `masken/behandlung` anfassen); „Trenner“ in der
   Feldwahl des Texts klar benennen; „Pflicht“ am Feld ist als Wahl da und
   in der Maske nicht zu sehen; im Empfang bricht der Titel „Kleintierpraxis
   am Lindenhof“ bei 1440 px um und liegt über „Empfang heute“, sein Umriss
@@ -160,17 +222,24 @@ nichts Neues erfinden:
 - Jeder Revue-Chat endet mit zwei Bildern je Maske, in der die Art
   vorkommt: Editor und Export, vorher und nachher.
 
-Chat 15, Doppeltes Zeichnen. Konsole: „Element ff-capture scheduled an
+Chat 18, Doppeltes Zeichnen. Konsole: „Element ff-capture scheduled an
 update after an update completed“, dasselbe für `ff-table`. Eine
 Eigenschaft wird während des Zeichnens gesetzt. Ursache in
 `src/blocks/capture/Capture.ts`, `src/blocks/list/recordList.ts`,
 `src/blocks/base/heightReport.ts` oder `headsReport.ts`. Beheben, Maske
 pixelgleich.
 
-Chat 16, Bestellung. Erst die drei Sätze je Baustein im Chat (das teilt
-er mit X, das ist neu, das wird überflüssig), dann der Bau in `masken/`.
-Quellen und Relationen nur aus `kontrakte.md`; was dort nicht steht, wird
-nicht gebaut, sondern als Frage an den Nutzer notiert.
+Chat 19, die Maske redet. Heute: `runEvent(...).catch(() => {})` an
+sieben Stellen (`src/blocks/button/Button.ts`, `formfield/valueBinding.ts`,
+`kanban/board.ts`, `list/rowActivation.ts`), die Schreibwarteschlange
+(`src/softengine/relations/hostQueue.ts`) gibt nach 10 s auf, ohne dass
+die Maske es zeigt; abgelehntes Schreiben bleibt unsichtbar (23.09.).
+Bau: ein Zustand „gescheitert“ je Zeile der Erfassung und je Knopf, leise
+in der Blatt-Sprache (Tinte rot aus `mask.css`, ein kurzer Text an der
+Stelle, kein Fenster), verschwindet beim nächsten Erfolg. Die sieben
+Stellen melden statt zu schlucken. Export ändert sich gewollt
+(`REFERENCE_REFRESH=1`), Echttest beim Nutzer: SoftEngine geschlossen,
+dann speichern.
 
 ## Einzelpunkte, ohne Reihenfolge
 
