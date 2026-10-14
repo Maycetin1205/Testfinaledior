@@ -1,28 +1,17 @@
 # Aufbau-Editor
 
 Visueller Baukasten fuer HTML-Masken des ERP SoftEngine (WinUI, Edge
-WebView2). Export: `index.basis.source.html` + `index.basis.SEvariablen.json`.
-Dieselben Lit-Elemente laufen im Editor und in der Maske; was der Editor
-zeigt, ist die Maske.
+WebView2). Export: `Rahmen<Nr>.basis.source.html` + `.SEvariablen.json`.
+Dieselben Lit-Elemente laufen im Editor und in der Maske.
 
-## Befehle
-
-- `npm run dev`: Port 5300, fest. `build:runtime` laeuft vor `dev`, `build`
-  und `test` und schreibt nach `src/export/generated/`.
-- Vor jedem Commit: `npm run check` und `npm test`, beide gruen. Masken ab
-  Schema 20 (seit 24.09.) und Kundendateien jeder Fassung muessen danach
-  weiter laden. Der Uebersetzer der Kundendatei
-  (`src/editor/state/librarySchema.ts`) verliert nie eine Stufe.
-- Aendert sich der Export gewollt: `REFERENCE_REFRESH=1 npm test` und im
-  Commit sagen, was sich aenderte.
-- Git: kein force-push. `se-quelle/` ist fremd und bleibt draussen.
-  Sicherungsstand vor dem Aufraeumen: c0c375a (master bis 24.09.).
-
-## Doku
-
-- `docs/offen.md`: was als Naechstes kommt, der einzige Plan.
-  `docs/entschieden.md`: Entscheidungen mit Datum. `docs/bedienung.md`:
-  wie der Editor bedient wird. `docs/architektur.md`: wie der Code gebaut
-  ist. `docs/softengine-wiki/`: alles ueber SoftEngine (`kontrakte.md`
-  nur per Echttest belegt, `funktionen.md` nur abgelesen).
-- `masken/` gehoert dem Nutzer und liegt nicht im Projekt (seit 14.10.).
+- `npm run dev`, Port 5300. Vor jedem Commit `npm run check` und `npm test`
+  gruen. Aendert sich der Export gewollt: `REFERENCE_REFRESH=1 npm test`,
+  im Commit sagen, was.
+- Nichts Neues ohne Maske, die es braucht: keine neue Einstellung, kein
+  Schalter, kein Fenster, keine Zusatzidee. Die Decke steht in
+  `src/editor/state/settingsInventory.test.ts`.
+- Das Aussehen wird nicht nebenbei geaendert: erst ein Bild, dann das Ja
+  des Nutzers, dann der Bau. Keine erfundenen Daten im Editor.
+- `masken/` gehoert dem Nutzer und liegt nicht im Projekt.
+- Was SoftEngine wirklich tut, steht in `docs/softengine-wiki/kontrakte.md`,
+  nur per Echttest belegt. Git: kein force-push, `se-quelle/` bleibt draussen.
