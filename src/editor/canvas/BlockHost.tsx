@@ -40,7 +40,8 @@ const NO_SOURCES: readonly SourceInReach[] = []
 
 export function BlockHost({ block, selected, onSelect, grid = false, children }: BlockHostProps) {
   const editor = useEditorInstance()
-  const follower = useView().followPickFor
+  const view = useView()
+  const follower = view.followPickFor
   const rootRef = useRef<HTMLDivElement | null>(null)
   const def = blockType(block.type)
   const isContainer = def?.takesChildren ?? false
@@ -125,6 +126,9 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       }}
       onDoubleClick={onDoubleClick}
       data-block-id={block.id}
+      // The quiet edge and the edge under the pointer (editor.css); the
+      // chosen block and the one to follow draw over it.
+      className={view.outlines ? 'block-outline' : undefined}
       style={{
         display: 'block',
         position: 'relative',
@@ -133,7 +137,7 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
         cursor: selected ? 'default' : 'pointer',
         outline: selected
           ? '2px solid hsl(var(--wb-selection))'
-          : toFollow ? '2px dashed hsl(var(--wb-selection))' : '2px solid transparent',
+          : toFollow ? '2px dashed hsl(var(--wb-selection))' : undefined,
         outlineOffset: 1,
         borderRadius: 'var(--radius)',
         userSelect: 'none',

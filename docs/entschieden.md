@@ -7,6 +7,13 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Umrisse (Chat 1): jeder Baustein hat auf der Leinwand eine leise
+  Haarlinie, unter der Maus blau (nur der innerste Baustein, nicht der
+  Bereich darum), markiert wie bisher kräftig blau. Schalter „Umrisse“ in
+  der Toolbar, Vorgabe an; der Browser merkt ihn unter eigenem Schlüssel,
+  er bleibt beim Laden einer anderen Maske. Aus heißt wie vorher, auch
+  ohne Blau unter der Maus. Grund: ein leerer Bereich „Frei“ und ein
+  leerer Text waren unsichtbar. Die Maske hat keinen Umriss.
 - 14.10. Echttest in V7 bestanden (Nutzer): Band, Anschrift, Beleg-Nr.,
   Summen, „Artikel der Position“ nach Auswahl aus der Liste, F4 löscht
   die richtige Zeile. A, E und K sind damit erledigt, ohne Debug.

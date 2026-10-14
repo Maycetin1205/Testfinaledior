@@ -1,14 +1,18 @@
 # Bedienung
 
-Wie der Editor bedient wird und was die Bausteine können. Stand 13.10.2026.
+Wie der Editor bedient wird und was die Bausteine können. Stand 14.10.2026.
 Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 `entschieden.md`.
 
 ## Der Editor
 
 - Oben eine Zeile: Name der Maske, Rahmen-Nummer, Neu, Speichern, Laden,
-  Rückgängig, Wiederholen, Exportieren, Daten; rechts die Seitenreiter
-  (Hauptseite, Popups).
+  Rückgängig, Wiederholen, Exportieren, Daten, Umrisse; rechts die
+  Seitenreiter (Hauptseite, Popups).
+- Umrisse: jeder Baustein hat auf der Leinwand eine leise Linie, auch
+  leer; unter der Maus wird sie blau, markiert kräftig blau. Der Schalter
+  „Umrisse“ blendet sie aus und bleibt, wie man ihn lässt, auch nach dem
+  Neuladen. In der Maske gibt es keine Umrisse.
 - Links der Streifen mit den Bausteinen: anklicken oder ziehen.
 - Mitte die Maske in echter Größe: ein weißes Blatt auf dem grauen Grund
   des Fensters, wie in SoftEngine.

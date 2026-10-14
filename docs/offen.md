@@ -58,7 +58,7 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 1. Umrisse. Jeder Baustein ist auf der Leinwand zu sehen, auch leer: ein
    leiser Umriss um jeden Baustein, deutlicher beim Zeigen, kräftig beim
    Markieren. Ein Schalter „Umrisse“ in der Toolbar, Vorgabe an, gemerkt.
-   In der Maske ändert sich nichts.
+   In der Maske ändert sich nichts. Erledigt 14.10.
 2. Rückmeldungen. Der Export sagt, welche Prüfung scheitert. Eine Datei,
    die nicht lädt, sagt warum. „Neu“ fragt nach. Die leere Leinwand zeigt,
    was zu tun ist.
@@ -110,15 +110,6 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 
 ## Einzelheiten zu den Chats
 
-Chat 1, Umrisse. Heute: `src/editor/canvas/BlockHost.tsx` zeichnet den
-Rahmen eines unmarkierten Bausteins mit `outline: 2px solid transparent`;
-ein leerer Bereich der Form „Frei“ und ein leerer Text sind unsichtbar.
-Bau: Umriss aus `editor.css` (Haarlinie, leise), beim Zeigen deutlicher,
-nur im Editor (`preview`), Schalter in `src/editor/shell/Toolbar.tsx`,
-Zustand in `src/editor/state/editorStore/viewState.ts`, gemerkt wie der
-übrige Ansichtszustand. Maske pixelgleich, Export und Referenzabzug
-unverändert.
-
 Chat 2, Rückmeldungen. `src/editor/shell/Toolbar.tsx`: `return` ohne
 Meldung, wenn `validateMaskHtml()` eine Prüfung nicht besteht; die
 Prüfungen tragen schon Namen und Details (`src/export/validator.ts`).
@@ -169,7 +160,9 @@ nichts Neues erfinden:
   Vorlage; schmale Spaltenköpfe der Behandlung brauchen breitere Spalten
   (Maske, Chat 9 darf `masken/behandlung` anfassen); „Trenner“ in der
   Feldwahl des Texts klar benennen; „Pflicht“ am Feld ist als Wahl da und
-  in der Maske nicht zu sehen.
+  in der Maske nicht zu sehen; im Empfang bricht der Titel „Kleintierpraxis
+  am Lindenhof“ bei 1440 px um und liegt über „Empfang heute“, sein Umriss
+  ist zu niedrig (seit Chat 1 im Editor zu sehen).
 - Jeder Revue-Chat endet mit zwei Bildern je Maske, in der die Art
   vorkommt: Editor und Export, vorher und nachher.
 

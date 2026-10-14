@@ -1,5 +1,6 @@
 import type { LookupWindow } from '../../../core/block/capability'
 import type { StepTab } from '../../actions/StepWindow'
+import { loadOutlines, persistOutlines } from '../maskStorage'
 
 // Which step window is open: for a step of a block's chain, or for a new one.
 export interface OpenStep {
@@ -22,9 +23,9 @@ export interface OpenLookup {
   slot: number
 }
 
-// What the editor shows besides the mask: the open windows and the block
-// waiting for a click. That is no change to the mask, so it reports to its
-// own signal and plans no save.
+// What the editor shows besides the mask: the open windows, the block
+// waiting for a click and the outlines. That is no change to the mask, so it
+// reports to its own signal and plans no save.
 export class EditorView {
   private readonly changed: () => void
 
@@ -38,6 +39,8 @@ export class EditorView {
 
   private _dataWindow = false
 
+  private _outlines = loadOutlines()
+
   constructor(changed: () => void) {
     this.changed = changed
   }
@@ -48,6 +51,17 @@ export class EditorView {
   showData(open: boolean): void {
     if (this._dataWindow === open) return
     this._dataWindow = open
+    this.changed()
+  }
+
+  // A quiet edge around every block on the canvas, also an empty one; the
+  // browser keeps the choice. The mask never shows it.
+  get outlines(): boolean { return this._outlines }
+
+  showOutlines(on: boolean): void {
+    if (this._outlines === on) return
+    this._outlines = on
+    persistOutlines(on)
     this.changed()
   }
 

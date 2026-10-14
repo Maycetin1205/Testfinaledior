@@ -66,6 +66,7 @@ export const RectangleHorizontal = iconFactory('rectangle-horizontal', NODE.Rect
 export const Redo2 = iconFactory('redo-2', NODE.Redo2)
 export const Save = iconFactory('save', NODE.Save)
 export const Search = iconFactory('search', NODE.Search)
+export const SquareDashed = iconFactory('square-dashed', NODE.SquareDashed)
 export const SquareKanban = iconFactory('square-kanban', NODE.SquareKanban)
 export const Table = iconFactory('table', NODE.Table)
 export const TextCursorInput = iconFactory('text-cursor-input', NODE.TextCursorInput)

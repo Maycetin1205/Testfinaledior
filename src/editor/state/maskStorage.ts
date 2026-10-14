@@ -16,6 +16,10 @@ const LIBRARY_KEY = 'aufbau_editor_library'
 // The customer file moves from the key it had before 23.09.: data sources
 // always come along.
 const FORMER_LIBRARY_KEY = 'aufbau_editor_datencenter'
+
+// Whether the canvas outlines its blocks: a matter of the editor, not of the
+// mask, so it has its own key and stays when another mask is loaded.
+const OUTLINES_KEY = 'aufbau_editor_outlines'
 export const SAVE_DEBOUNCE_MS = 500
 
 export interface StoredMask {
@@ -133,6 +137,15 @@ export function persistMask(mask: StoredMask): void {
     selectedId: mask.selectedId,
     activePageId: mask.activePageId,
   }))
+}
+
+// On until the maker switches them off.
+export function loadOutlines(): boolean {
+  return read(OUTLINES_KEY) !== 'off'
+}
+
+export function persistOutlines(on: boolean): void {
+  write(OUTLINES_KEY, on ? 'on' : 'off')
 }
 
 export function persistLibrary(library: StoredLibrary): string {

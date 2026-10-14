@@ -382,6 +382,10 @@ export class EditorStore extends Subject<EditorStore> {
 
   showData(open: boolean): void { this._shows.showData(open) }
 
+  get outlines(): boolean { return this._shows.outlines }
+
+  showOutlines(on: boolean): void { this._shows.showOutlines(on) }
+
   // ----- where the work is kept -----
 
   get maskOnDisk() { return this._kept.maskOnDisk }

@@ -1,4 +1,4 @@
-import { Database, Download, FilePlus, FolderOpen, Redo2, Save, Undo2 } from '@/editor/icons/icon'
+import { Database, Download, FilePlus, FolderOpen, Redo2, Save, SquareDashed, Undo2 } from '@/editor/icons/icon'
 import { useRef } from 'react'
 import {
   DOCUMENT_FRAME_PROP,
@@ -25,7 +25,9 @@ const MASK_NAMES = {
 
 export function Toolbar() {
   const ed = useEditor()
-  const dataOpen = useView().dataWindow
+  const view = useView()
+  const dataOpen = view.dataWindow
+  const outlines = view.outlines
   const fileRef = useRef<HTMLInputElement>(null)
 
   const nameSession = useInputSession(() => ed.beginTransaction(), () => ed.endTransaction())
@@ -138,6 +140,14 @@ export function Toolbar() {
         onClick={() => ed.showData(!dataOpen)}
       >
         <Database size={14} /> Daten
+      </Button>
+      <Button
+        aria-pressed={outlines}
+        className={outlines ? PRESSED : undefined}
+        title="Umriss um jeden Baustein, nur im Editor"
+        onClick={() => ed.showOutlines(!outlines)}
+      >
+        <SquareDashed size={14} /> Umrisse
       </Button>
     </div>
   )

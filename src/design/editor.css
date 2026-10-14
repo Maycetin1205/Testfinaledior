@@ -56,3 +56,17 @@
     color: hsl(var(--wb-ink));
   }
 }
+
+@layer components {
+  /* The edge of every block on the canvas while "Umrisse" is on, so an empty
+     one can be found: a quiet hairline, blue under the pointer. The pointer
+     marks only the innermost block, not the area around it. The chosen
+     block wears its own blue edge (BlockHost.tsx); the mask has none. */
+  .block-outline {
+    outline: 1px solid hsl(var(--wb-line));
+  }
+
+  .block-outline:hover:not(:has(.block-outline:hover)) {
+    outline-color: hsl(var(--wb-selection));
+  }
+}
