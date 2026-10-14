@@ -127,7 +127,12 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    getönte Flächen und Pillen (dafür ein viertes Bild, der Empfang). Je
    Probe auch die Editor-Hülle nach D. Kein Code. Der Nutzer wählt; die
    Wahl gilt für Maske und Editor, dann ein Chat für die Übernahme in
-   `mask.css` und `editor.css` vor Chat 6a.
+   `mask.css` und `editor.css` vor Chat 6a. Erledigt 14.10.:
+   `docs/design/tonprobe-{1,2,3}.png` (Belegerfassung mit Probedaten,
+   Position „Bravecto“ gewählt), `tonprobe-{1,3}-empfang.png`,
+   `tonprobe-{1,2,3}-editor.png` (Hülle D, Leinwand im Ton der Probe);
+   die Werte in `docs/design/tonprobe/`. Die Wahl des Nutzers steht aus;
+   sie kommt nach `entschieden.md`.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -192,36 +197,24 @@ war nur eine Idee und steht nicht im Plan (14.10.).
 
 ## Einzelheiten zu den Chats
 
-Chat 5c, Tonprobe. Die Maske und die Entwürfe sehen nach KI aus, und
-der Nutzer hat gefragt, woran (14.10.). Antwort von außen, in der
-Reihenfolge der Wirkung: die Schrift Manrope (die Hausschrift der
-KI-Entwürfe; SoftEngine selbst ist ein Windows-Programm mit Segoe UI),
-die Beschriftungen in gesperrten Versalien („STRASSE“, „BELEG-NR.“, das
-Merkmal der Tailwind-Vorlagen), Rundungen von 6 bis 10 px und Schatten
-statt Linien, ein Blau und sonst nur Grau. Das sind Werte in
-`src/design/mask.css`, keine neue Designsprache; die Struktur der Maske
-bleibt. Bau: drei Bilder der exportierten Belegerfassung mit Daten des
-Referenzabzugs, 1680 px breit, `docs/design/tonprobe-{1,2,3}.png`:
-1 wie heute; 2 Schrift Segoe UI (System, 0 KB, Rückfall Arial), die
-Rubriken und Spaltenköpfe in normaler Schreibweise ohne Sperrung, Werte
-und Größen sonst gleich; 3 „Fachsoftware“: wie 2, dazu Rundung 3 px für
-Felder und Knöpfe, 6 px für Karten und Fenster, Haarlinie `--se-line`
-statt Schatten an Karten und Fenstern, Tabellenzeilen 30 statt 40 px und
-Kopfzeilen dichter, eine Tinte für Text (Beschriftung 12 px normal in
-`--se-ink-2`, Wert 14 px halbfett in `--se-ink`, statt fünf Grautönen),
-Karten als Abschnitte mit Überschrift und Linie darunter statt weißer
-Kästen, leere Felder ohne „–“ (die Beschriftung bleibt, der Wert ist
-leer), im Kanban neutrale Spalten mit Farbpunkt im Kopf statt getönter
-Flächen und „Priorität“ als Wort mit Punkt statt Pille. Für Probe 3 ein
-viertes Bild: der Empfang, weil der Kanban die bunteste Stelle ist. Dazu
-je Probe dasselbe Bild der Editor-Hülle nach Entwurf D, damit man beide
-zusammen sieht. Für die Proben darf `mask.css` in einer Kopie unter
-`docs/design/` geändert werden, nicht im Code. Der Nutzer wählt; die Wahl
-kommt nach `entschieden.md` und gilt dann für Maske und Editor. Wird 2
-oder 3 gewählt, ist der erste Bau-Chat danach die Übernahme in
-`mask.css` und `editor.css` (ein Chat, `REFERENCE_REFRESH=1`, neue
-Bilder `docs/design/<Datum>-*.png` als eingefrorener Stand); die Schrift
-fällt dann aus dem Export, 37 KB weniger.
+Übernahme der Tonprobe, nach der Wahl des Nutzers (Chat 5c erledigt
+14.10.). Wird 2 oder 3 gewählt, ist der erste Bau-Chat danach die
+Übernahme (ein Chat, `REFERENCE_REFRESH=1`, neue Bilder
+`docs/design/<Datum>-*.png` als eingefrorener Stand); die Schrift fällt
+dann aus dem Export, 37 KB weniger. Die Werte liegen in
+`docs/design/tonprobe/`: `mask-N.css` ist `mask.css` mit markierten
+Zeilen („Probe 2“, „Probe 3“), `huelle-N.css` das, was Entwurf D selbst
+festschreibt. Befund der Probe: nicht alles steht in `mask.css`.
+`bausteine-N.css` nennt je Regel die Datei, in der der Wert heute fest
+steht: Versalien in `textStyle.ts`, `formFieldStyle.ts`,
+`kanbanStyle.ts`, `suggestionList.ts`; Stärke der Beschriftung dort und
+in `tableStyle.ts`; Zeilenhöhe `ROWS_HEIGHT` in
+`src/blocks/list/pageSize.ts` (heute 32, gestreckt auf 34); Strich im
+leeren Feld, Abschnitte statt Karten (`areaStyle.ts`), Spalten, Knopf
+und Pille im Kanban (`kanbanStyle.ts`, `src/blocks/parts/chip.ts`). Die
+Übernahme fasst diese Dateien an, nicht nur `mask.css` und `editor.css`;
+wo es geht, wird der feste Wert ein Wert aus `mask.css`. Die
+Probedaten der Bilder sind erfunden und nicht im Code.
 
 Urteil zu Entwurf D (14.10., Fable): D ist der erste Entwurf, der wie
 ein Werkzeug aussieht: Rahmen und Blatt sind unterscheidbar, die rechte

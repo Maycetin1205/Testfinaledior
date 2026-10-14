@@ -1,0 +1,20 @@
+/* Tonprobe 3 „Fachsoftware“, in der Editor-Huelle nach Entwurf D
+   (docs/design/editor-entwurf-d.html). Rundungen, Linien und Tinte kommen
+   aus mask-3.css; hier nur, was der Entwurf fest schreibt. */
+
+/* Wie Probe 2: Rubriken in normaler Schreibweise. */
+.rubric {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Eine Tinte: Beschriftungen normal, Werte halbfett. */
+.r .lb,
+.ev .eh .en,
+.grp .gh .sum,
+.step .sh,
+.step .nr,
+.head .saved,
+.masks .line.add {
+  font-weight: 400;
+}

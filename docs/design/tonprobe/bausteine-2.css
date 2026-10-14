@@ -1,0 +1,21 @@
+/* Tonprobe 2, im Inneren der Bausteine. Diese Stellen schreiben Versalien und
+   Sperrung fest in ihren Stil, mask.css erreicht sie nicht. Fuer die Bilder
+   legt das Skript dieses Blatt in jeden Baustein (Shadow DOM), am Code
+   aendert sich nichts. Bei einer Uebernahme werden sie Werte aus mask.css:
+
+   - src/blocks/text/textStyle.ts: .label, .variant-rubric, .variant-head
+   - src/blocks/formfield/formFieldStyle.ts: .label
+   - src/blocks/kanban/kanbanStyle.ts: .hour, .now
+   - src/blocks/lookup/suggestionList.ts: .suggestion-head
+
+   Der Spaltenkopf von Tabelle und Erfassung folgt schon --se-head-case. */
+
+.label,
+.variant-rubric,
+.variant-head,
+.hour,
+.now,
+.suggestion-head {
+  text-transform: none;
+  letter-spacing: normal;
+}
