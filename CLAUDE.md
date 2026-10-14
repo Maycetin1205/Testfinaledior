@@ -25,7 +25,4 @@ zeigt, ist die Maske.
   wie der Editor bedient wird. `docs/architektur.md`: wie der Code gebaut
   ist. `docs/softengine-wiki/`: alles ueber SoftEngine (`kontrakte.md`
   nur per Echttest belegt, `funktionen.md` nur abgelesen).
-- Masken unter `masken/` werden committet (seit 14.10.), im selben
-  Commit wie der Schritt, der sie aendert. `npm test` laedt jede davon
-  (`src/editor/state/masksLoad.test.ts`) und schlaegt an, wenn eine nicht
-  mehr laedt oder dabei einen Baustein, eine Quelle oder Relation verliert.
+- `masken/` gehoert dem Nutzer und liegt nicht im Projekt (seit 14.10.).

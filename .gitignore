@@ -19,3 +19,6 @@ se-quelle/
 
 # Die Export-Laufzeit entsteht vor Entwicklung, Build und Tests aus den Quellen.
 src/export/generated/
+
+# Die Masken gehoeren dem Nutzer und liegen nicht im Projekt (14.10.).
+masken/

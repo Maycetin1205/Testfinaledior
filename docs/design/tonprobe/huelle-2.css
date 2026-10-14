@@ -1,8 +1,0 @@
-/* Tonprobe 2, in der Editor-Huelle nach Entwurf D
-   (docs/design/editor-entwurf-d.html): die Rubriken der Spalten und Reiter
-   in normaler Schreibweise. Alles andere kommt aus mask-2.css. */
-
-.rubric {
-  text-transform: none;
-  letter-spacing: normal;
-}
