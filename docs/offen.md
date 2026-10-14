@@ -70,7 +70,10 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
 5. Revue Text.
 6. Revue Feld.
-7. Revue Bereich.
+7. Revue Bereich, dazu der neue Baustein Linie: eine Haarlinie,
+   waagerecht oder senkrecht, Farbe aus den Wahlen, eine Rasterzeile hoch
+   oder eine Spalte breit. Für Masken, die Gruppen trennen wollen, ohne
+   einen Bereich zu zeichnen.
 8. Revue Erfassung.
 9. Revue Tabelle.
 10. Revue Knopf.
@@ -133,8 +136,19 @@ drei Masken.
 Chat 4, Aktionsfenster. `src/editor/actions/StepWindow.tsx` (22 Stellen)
 und `ActionsSection.tsx` (12 Stellen) unterscheiden Schrittarten einzeln.
 Die Schrittarten sind Adapter (`src/core/data/steps/stepAdapter.ts`); jeder
-Adapter bekommt ein Fensterstück, das Fenster fragt den Adapter. Ein bis
-zwei Chats; Referenzabzug unverändert.
+Adapter bekommt ein Fensterstück, das Fenster fragt den Adapter. Dabei
+weniger auf einmal: leere Stellen einer Relation eingeklappt, die rohe
+`PUT_RELATION[...]`-Zeile erst auf Klick, zuerst das, was fast jede Kette
+braucht. Keine Funktion fällt weg, die eine Maske in `masken/` nutzt. Ein
+bis zwei Chats; Referenzabzug unverändert.
+
+Chat 7, Linie. Neuer Baustein `src/blocks/line/` nach dem Muster von
+Knopf (`architektur.md` §6): Wahl Richtung (waagerecht, senkrecht), Farbe
+aus `look.ts`, Stärke Haarlinie oder 1,5 px wie die Kopflinie der
+Erfassung. Raster: waagerecht eine Zeile hoch, senkrecht eine Spalte
+breit. In den Referenzbaum aufnehmen, `REFERENCE_REFRESH=1 npm test`.
+Nicht noch einmal: die Summenlinie am Text (13.10. entfernt) bleibt weg,
+dafür ist die Linie da.
 
 Chats 5 bis 14, Revue. Je Baustein dieselbe Prüfliste, Befunde beheben,
 nichts Neues erfinden:
@@ -143,7 +157,10 @@ nichts Neues erfinden:
   Wahlen mit Namen, die der Maskenbauer versteht? Einstellungsfenster
   vollständig, nichts abgeschnitten (heute bei der Erfassung: „Hinweis in
   der Tip…“ und der Knopf „Neue Positi“), nichts über den oberen Rand
-  hinaus? Feld binden in zwei Klicks?
+  hinaus? Feld binden in zwei Klicks? Weniger auf einmal: zuerst, was
+  fast jeder braucht, der Rest hinter „Mehr“; eine Wahl, die keine Maske
+  nutzt und niemand vermisst, fliegt raus (im Chat benennen, Nutzer sagt
+  ja).
 - In der Maske: mit Daten und ohne Daten richtig? Mit sehr langen Werten?
   Mit Beschriftung und ohne? Ein Baustein, der leer ist, zeigt einen Strich
   oder nichts, nie seinen Platzhalter aus dem Editor.

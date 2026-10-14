@@ -27,6 +27,13 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
   Rückmeldungen, Masken sichern, Aktionsfenster, Revue je Baustein), dann
   die Bestellung als vierte Maske. Export abspecken, Schriftfrage und
   Kontrakte eindampfen liegen, bis sie stören. Schrift bleibt eingebettet.
+- 14.10. Neue Bausteine nur aus Bedarf einer Maske, nicht auf Vorrat;
+  Ausnahme Linie (waagerecht, senkrecht), die kommt mit der Revue des
+  Bereichs. Hebt „Weg: Trennlinie“ vom 23.09. auf. Grund: Gruppen trennen,
+  ohne einen Bereich zu zeichnen, braucht jede Maske irgendwann.
+- 14.10. Fenster und Leisten zeigen weniger auf einmal: zuerst das
+  Häufige, der Rest hinter „Mehr“. Keine Funktion fällt weg, die eine
+  Maske in `masken/` nutzt; ungenutzte Wahlen nur mit Ja des Nutzers.
 - 14.10. Fable plant und prüft, Opus 5.5 baut (Nutzer, wegen der Token).
 - 14.10. Prüfbericht für den CTO: liegt, kommt erst auf Wunsch des
   Nutzers.
