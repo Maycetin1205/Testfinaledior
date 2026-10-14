@@ -31,9 +31,10 @@ export function validateMaskHtml(html: string): CheckResult[] {
   const styles = (html.match(/<style[\s>]/g) ?? []).length
   check('genau 1 <style>', styles === 1, `gefunden: ${styles}`)
 
+  // A mask without a block needs no runtime and carries none.
   check(
     'Laufzeit eingebettet',
-    html.includes('customElements.define'),
+    html.includes('customElements.define') || !/<ff-[a-z]/.test(html),
     'ohne die Laufzeit bleibt jeder Baustein stumm',
   )
 

@@ -1,8 +1,10 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { chromium, type Browser } from 'playwright-core'
-import { expect, test } from 'vitest'
+import { afterAll, beforeAll, expect, test } from 'vitest'
 import '../blocks/register'
+import { allBlockTypes, mayContain } from '../core/block/registry'
+import { ROOT_ID, ROOT_TYPE, type MaskTree } from '../core/block/tree'
 import { exportMask } from './exportMask'
 import { referenceTree, REFERENCE_SOURCES, REFERENCE_RELATION } from './reference/referenceMask'
 
@@ -20,20 +22,25 @@ async function browserStart(): Promise<Browser> {
   }
 }
 
-test('die exportierte Referenzmaske startet im Browser ohne Fehler', async () => {
-  const tree = referenceTree()
-  const { html } = exportMask(tree, 'Referenzmaske', REFERENCE_SOURCES, REFERENCE_RELATION)
+let browser: Browser
+beforeAll(async () => {
   mkdirSync(STORE, { recursive: true })
-  const file = path.join(STORE, 'reference.start.html')
+  browser = await browserStart()
+}, 60_000)
+afterAll(async () => { await browser?.close() })
+
+// Opens the exported mask and checks: no error, every block of the tree
+// registered, and each one present has drawn something.
+async function expectStarts(name: string, tree: MaskTree, html: string): Promise<void> {
+  const file = path.join(STORE, `${name}.start.html`)
   writeFileSync(file, html)
 
   const tags = [...new Set(Object.values(tree).map((b) => b.type))]
-    .filter((type) => type !== 'root')
+    .filter((type) => type !== ROOT_TYPE)
     .map((type) => `ff-${type}`)
 
-  const browser = await browserStart()
+  const page = await browser.newPage()
   try {
-    const page = await browser.newPage()
     const error: string[] = []
     page.on('pageerror', (e) => error.push(e.message))
     page.on('console', (m) => { if (m.type() === 'error') error.push(m.text()) })
@@ -41,7 +48,7 @@ test('die exportierte Referenzmaske startet im Browser ohne Fehler', async () =>
     await page.waitForTimeout(800)
 
     const withoutBridge = error.filter((f) => !/basis\.html\.interface\.js|Failed to load resource/.test(f))
-    expect(withoutBridge, 'Fehler beim Start der Maske').toEqual([])
+    expect(withoutBridge, `${name}: Fehler beim Start der Maske`).toEqual([])
 
     const state = await page.evaluate((names: string[]) => names.map((tag) => {
       const present = [...document.querySelectorAll(tag)]
@@ -54,10 +61,43 @@ test('die exportierte Referenzmaske startet im Browser ohne Fehler', async () =>
       }
     }), tags)
     for (const s of state) {
-      expect(s.registered, `${s.tag} ist nicht als Element angemeldet`).toBe(true)
-      if (s.rendered !== null) expect(s.rendered, `${s.tag} hat nichts gezeichnet`).toBe(true)
+      expect(s.registered, `${name}: ${s.tag} ist nicht als Element angemeldet`).toBe(true)
+      if (s.rendered !== null) expect(s.rendered, `${name}: ${s.tag} hat nichts gezeichnet`).toBe(true)
     }
   } finally {
-    await browser.close()
+    await page.close()
   }
+}
+
+// One block of the type, under the root or under the first block that takes it.
+function aloneTree(type: string): MaskTree {
+  const tree: MaskTree = {
+    [ROOT_ID]: { id: ROOT_ID, type: ROOT_TYPE, values: {}, parentId: null, childIds: [] },
+  }
+  let parentId = ROOT_ID
+  if (!mayContain(ROOT_TYPE, type)) {
+    const parent = allBlockTypes().find((p) => p.type !== type && mayContain(ROOT_TYPE, p.type) && mayContain(p.type, type))
+    if (!parent) throw new Error(`Baustein ${type} ist nirgends platzierbar`)
+    tree.p = { id: 'p', type: parent.type, values: {}, parentId: ROOT_ID, childIds: [] }
+    tree[ROOT_ID].childIds.push('p')
+    parentId = 'p'
+  }
+  tree.b = { id: 'b', type, values: {}, parentId, childIds: [] }
+  tree[parentId].childIds.push('b')
+  return tree
+}
+
+test('die exportierte Referenzmaske startet im Browser ohne Fehler', async () => {
+  const tree = referenceTree()
+  const { html } = exportMask(tree, 'Referenzmaske', REFERENCE_SOURCES, REFERENCE_RELATION)
+  await expectStarts('reference', tree, html)
 }, 60_000)
+
+// The export carries only the runtime parts of the blocks in the mask: each
+// block starts with its own, without the code of the others.
+test('jeder Baustein startet allein mit seinem Teil der Laufzeit', async () => {
+  for (const def of allBlockTypes()) {
+    const tree = aloneTree(def.type)
+    await expectStarts(def.type, tree, exportMask(tree, def.type, [], []).html)
+  }
+}, 120_000)

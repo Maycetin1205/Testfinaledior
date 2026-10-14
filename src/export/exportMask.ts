@@ -30,7 +30,7 @@ import { collectRelation } from './usedRelations'
 import { buildSevariablen } from './sevariablen'
 import { namesRaw, nameSpotsOf, previewRaw, previewSpotsOf } from './bindingPreview'
 import { styleAttr } from './nodeStyle'
-import runtimeRaw from './generated/runtime.js?raw'
+import { runtimeFor } from './runtime'
 import {
   escapeHtmlAttr,
   escapeHtmlText,
@@ -136,6 +136,20 @@ function nodeToHtml(
     : `${open}\n${children}\n${pad}</${def.tag}>`
 }
 
+// The types of the blocks that leave with the mask: the runtime brings these.
+function typesInMask(tree: MaskTree): Set<string> {
+  const types = new Set<string>()
+  const visit = (id: string) => {
+    const node = tree[id]
+    const def = node ? blockType(node.type) : undefined
+    if (!node || (id !== ROOT_ID && !def)) return
+    if (id !== ROOT_ID) types.add(node.type)
+    if (id === ROOT_ID || def?.takesChildren) node.childIds.forEach(visit)
+  }
+  visit(ROOT_ID)
+  return types
+}
+
 export function exportMask(
   tree: MaskTree,
   title = 'Maske',
@@ -165,7 +179,7 @@ export function exportMask(
 
   const tokensCss = stripCssComments(tokensCssRaw)
 
-  const runtimeJs = guardScriptContent(escapeNonAsciiJs(runtimeRaw))
+  const runtimeJs = guardScriptContent(escapeNonAsciiJs(runtimeFor(typesInMask(tree))))
 
   const sourcesJs = guardJsonScript(escapeNonAsciiJs(
     'window.FF_DATA_SOURCES = ' + JSON.stringify(used.map((s) => ({
@@ -227,9 +241,7 @@ export function exportMask(
     sourcesJs,
     relationJs,
     '</script>',
-    '<script>',
-    runtimeJs,
-    '</script>',
+    ...(runtimeJs === '' ? [] : ['<script>', runtimeJs, '</script>']),
     '</body>',
     '</html>',
   ].join('\n')

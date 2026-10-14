@@ -52,7 +52,7 @@ export function Toolbar() {
     const folder = target === '' ? null : await exportFolder(target)
     let exported: { html: string; sevariablen: string }
     try {
-      // The export carries the whole mask runtime; the editor loads it on the first export only.
+      // The export carries all parts of the mask runtime; the editor loads it on the first export only.
       const { exportMask } = await import('../../export/exportMask')
       exported = exportMask(ed.tree, maskNameOf(ed.tree), ed.dataSources.list, ed.relation.list)
     } catch (error) {
