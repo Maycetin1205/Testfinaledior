@@ -121,10 +121,13 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 5c. Tonprobe. Woran man „KI“ sieht (Nutzer, 14.10.): Schrift Manrope,
    Beschriftungen in gesperrten Versalien, Rundungen und Schatten. Drei
    Bilder derselben Belegerfassung mit Daten: wie heute; Segoe UI und
-   normale Schreibweise; dazu kleinere Rundungen und Linien statt
-   Schatten. Je Probe auch die Editor-Hülle nach D. Kein Code. Der Nutzer
-   wählt; die Wahl gilt für Maske und Editor, dann ein Chat für die
-   Übernahme in `mask.css` und `editor.css` vor Chat 6a.
+   normale Schreibweise; „Fachsoftware“: dazu kleinere Rundungen, Linien
+   statt Schatten, dichtere Zeilen, eine Tinte statt fünf Grautöne,
+   Abschnitte statt Karten, keine Striche in leeren Feldern, Kanban ohne
+   getönte Flächen und Pillen (dafür ein viertes Bild, der Empfang). Je
+   Probe auch die Editor-Hülle nach D. Kein Code. Der Nutzer wählt; die
+   Wahl gilt für Maske und Editor, dann ein Chat für die Übernahme in
+   `mask.css` und `editor.css` vor Chat 6a.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -133,6 +136,15 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
    `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
+7b. Probedaten im Editor. Heute zeigt die Leinwand Platzhalter
+   („Tiername“, „Zahlungsbedingung 1“), darum sieht jede Maske im Editor
+   aus wie ein Mockup. Der Editor-Host (`src/runtime/previewHost.ts`, der
+   heute nichts liefert) liefert je Quelle ein paar plausible Zeilen aus
+   einer festen Probedatei (`src/editor/probedaten/`: Tiere, Halter,
+   Artikel, Positionen, Termine, mit deutschen Namen und Beträgen), nach
+   Feldcode zugeordnet; unbekannte Felder bleiben Platzhalter. Nur im
+   Editor, der Export kennt die Daten nicht. Später ersetzbar durch
+   Daten aus einem SoftEngine-Log (Idee unten). Ein Chat.
 Durchsicht heißt: jeder Baustein wird einmal durchgesehen und in Ordnung
 gebracht, nach der Prüfliste unten. Ähnliche Bausteine teilen sich einen
 Chat (14.10., der Nutzer will nicht 17 Chats takten).
@@ -192,11 +204,18 @@ bleibt. Bau: drei Bilder der exportierten Belegerfassung mit Daten des
 Referenzabzugs, 1680 px breit, `docs/design/tonprobe-{1,2,3}.png`:
 1 wie heute; 2 Schrift Segoe UI (System, 0 KB, Rückfall Arial), die
 Rubriken und Spaltenköpfe in normaler Schreibweise ohne Sperrung, Werte
-und Größen sonst gleich; 3 wie 2, dazu Rundung 3 px für Felder und
-Knöpfe, 6 px für Karten und Fenster, Haarlinie `--se-line` statt
-Schatten an Karten und Fenstern, Kopfzeilen der Tabellen etwas dichter.
-Dazu je Probe dasselbe Bild der Editor-Hülle nach Entwurf D, damit man
-beide zusammen sieht. Für die Proben darf `mask.css` in einer Kopie unter
+und Größen sonst gleich; 3 „Fachsoftware“: wie 2, dazu Rundung 3 px für
+Felder und Knöpfe, 6 px für Karten und Fenster, Haarlinie `--se-line`
+statt Schatten an Karten und Fenstern, Tabellenzeilen 30 statt 40 px und
+Kopfzeilen dichter, eine Tinte für Text (Beschriftung 12 px normal in
+`--se-ink-2`, Wert 14 px halbfett in `--se-ink`, statt fünf Grautönen),
+Karten als Abschnitte mit Überschrift und Linie darunter statt weißer
+Kästen, leere Felder ohne „–“ (die Beschriftung bleibt, der Wert ist
+leer), im Kanban neutrale Spalten mit Farbpunkt im Kopf statt getönter
+Flächen und „Priorität“ als Wort mit Punkt statt Pille. Für Probe 3 ein
+viertes Bild: der Empfang, weil der Kanban die bunteste Stelle ist. Dazu
+je Probe dasselbe Bild der Editor-Hülle nach Entwurf D, damit man beide
+zusammen sieht. Für die Proben darf `mask.css` in einer Kopie unter
 `docs/design/` geändert werden, nicht im Code. Der Nutzer wählt; die Wahl
 kommt nach `entschieden.md` und gilt dann für Maske und Editor. Wird 2
 oder 3 gewählt, ist der erste Bau-Chat danach die Übernahme in
@@ -301,6 +320,11 @@ nichts Neues erfinden:
 - In der Maske: mit Daten und ohne Daten richtig? Mit sehr langen Werten?
   Mit Beschriftung und ohne? Ein Baustein, der leer ist, zeigt einen Strich
   oder nichts, nie seinen Platzhalter aus dem Editor.
+- Hausfarbe je Maske (Chat 8 oder 9, wo es billig ist): ein Wert an
+  der Wurzel der Maske wählt den Akzent aus den Farben in `look.ts`
+  (Blau, Petrol, Grün, Ocker), der Export setzt `--se-accent` und seine
+  Abstufungen in der Maske um; Vorgabe Blau. Kunde A grün, Kunde B
+  petrol, ohne eigenes CSS. Keine freien Farben.
 - Bekannte Reste: Text mit Beschriftung rechtsbündig setzt die Rubrik
   links (Belegerfassung, „Beleg-Nr.“); Name im Band 4 px höher als in der
   Vorlage; schmale Spaltenköpfe der Behandlung brauchen breitere Spalten
