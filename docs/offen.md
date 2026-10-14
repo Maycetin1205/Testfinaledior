@@ -133,6 +133,14 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    `tonprobe-{1,2,3}-editor.png` (Hülle D, Leinwand im Ton der Probe);
    die Werte in `docs/design/tonprobe/`. Die Wahl des Nutzers steht aus;
    sie kommt nach `entschieden.md`.
+5d. Übernahme: Probe 3 und Entwurf D sind gewählt (Nutzer, 14.10.).
+   Ein Chat übernimmt die Werte der Probe 3 in `mask.css`, `editor.css`
+   und die Bausteine, mit den Auflagen „Leben“ unten (Kontrast, Akzent
+   an drei Stellen, keine leeren Zeilen, Kanban-Streifen, Bewegung).
+   `REFERENCE_REFRESH=1`, neue Bilder `docs/design/<Datum>-*.png` als
+   eingefrorener Stand. Danach ist das Aussehen endgültig zu: keine
+   Proben, keine Entwürfe mehr, nur noch Durchsicht mit Bild vorher und
+   nachher.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -215,6 +223,43 @@ und Pille im Kanban (`kanbanStyle.ts`, `src/blocks/parts/chip.ts`). Die
 Übernahme fasst diese Dateien an, nicht nur `mask.css` und `editor.css`;
 wo es geht, wird der feste Wert ein Wert aus `mask.css`. Die
 Probedaten der Bilder sind erfunden und nicht im Code.
+
+Chat 5d, die Übernahme mit „Leben“. Gewählt: Probe 3 und Entwurf D.
+Der Nutzer sieht Probe 3 als „tot“; Ursache ist nicht die Ruhe, sondern
+fehlender Kontrast, leere Gitter und ein Akzent ohne Absicht. Auflagen,
+zusätzlich zu den Werten der Probe 3:
+
+- Kontrast: Titel 22 px halbfett in `--se-ink`, Werte in `--se-ink`,
+  Beschriftungen in `--se-ink-2` (eine Stufe dunkler als Probe 3, nicht
+  `--se-label`), Spaltenköpfe halbfett in `--se-ink-2`. Drei Stufen,
+  nicht fünf.
+- Akzent mit Absicht: die Hausfarbe der Maske (Wert an der Wurzel,
+  Vorgabe Blau, Wahl aus `look.ts`; der Export setzt `--se-accent` und
+  seine Abstufungen) erscheint an genau drei Stellen: Hauptknopf,
+  gewählte Zeile (Grund und 3-px-Strich), Fokusring. Sonst nirgends.
+- Keine leeren Zeilen: Erfassung und Tabelle zeichnen nur Zeilen, die es
+  gibt, dann die Tippzeile, darunter Fläche ohne Linien
+  (`src/blocks/list/tableBody.ts`, `pageSize.ts`: `pageRowsTemplate`
+  füllt nicht mehr mit Leerzeilen auf; die Liste wächst weiter mit dem
+  Fenster, aber leer). Im Editor zeigt die Erfassung drei Probezeilen
+  aus Chat 7b, bis dahin eine graue Hilfslinie am unteren Rand des
+  Rahmens, damit man seine Größe sieht.
+- Kanban: statt der Pille ein 3-px-Streifen links an der Karte in der
+  Farbe des Kennzeichens (Notfall rot, OP ocker), der Text „Notfall“
+  bleibt als Wort mit Punkt; der getönte Tierkreis bleibt; der Farbpunkt
+  im Spaltenkopf 8 px; die „Jetzt“-Linie bleibt rot.
+- Bewegung: Zeile und Karte unter der Maus heben sich (`--se-row-hover`),
+  Knopf unter der Maus eine Stufe dunkler, Fokusring sofort, alles mit
+  `transition: 120ms ease` auf Grund und Rand; beim Ziehen im Kanban
+  hebt sich die Karte mit Schatten (die einzige Stelle mit Schatten).
+- Das Band oben (Bereich in der Form Band) flach, ohne Rundung, mit
+  Haarlinie unten statt eigenem Grund, wenn es die Probe 3 noch rund
+  zeigt.
+
+Export ändert sich gewollt (`REFERENCE_REFRESH=1`); Masken in `masken/`
+laden weiter (Ladetest). Bilder: Belegerfassung und Empfang als Export,
+je einmal mit Probedaten des Referenzabzugs, nach `docs/design/<Datum>-*.png`;
+die alten `2026-10-14-*.png` bleiben als Vorher.
 
 Urteil zu Entwurf D (14.10., Fable): D ist der erste Entwurf, der wie
 ein Werkzeug aussieht: Rahmen und Blatt sind unterscheidbar, die rechte

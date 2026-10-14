@@ -27,6 +27,15 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
   beim Lesen kein Baustein, keine Quelle und keine Relation wegfällt und
   ihr Export die Prüfung besteht. Wird eine Maske aufgegeben, kommt sie
   aus `masken/` heraus; der Test wird nicht gelockert.
+- 14.10. Gewählt (Nutzer): Tonprobe 3 „Fachsoftware“ (Segoe UI, normale
+  Schreibweise, Rundung 3/6, Linien statt Schatten, dichte Zeilen, eine
+  Tinte, Abschnitte statt Karten, Kanban ohne getönte Flächen) und
+  Entwurf D für den Editor (rechte Spalte „Eigenschaften“). Dazu die
+  Auflagen „Leben“ (Nutzer: „sieht tot aus“): drei Kontraststufen, der
+  Akzent an genau drei Stellen, keine leeren Gitterzeilen, Farbstreifen
+  an der Kanban-Karte, Bewegung unter der Maus. Nach der Übernahme
+  (Chat 5d) ist das Aussehen endgültig zu: keine Proben, keine Entwürfe
+  mehr; Änderungen nur noch in der Durchsicht mit Bild vorher/nachher.
 - 14.10. Der eingefrorene Stand der Maske wird für eine Tonprobe
   geöffnet, nur in den Werten (Schrift, Schreibweise der Beschriftungen,
   Rundung, Linie statt Schatten), nicht in der Struktur. Grund: der
