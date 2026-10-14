@@ -186,7 +186,7 @@ function rowTpl(
   const grey = greyParts(placement, decoration, rawIndex)
   return html`<div
     class="row${
-      rawIndex !== null && placement.showsRows && !placement.preview ? ' selectable' : ''}${
+      rawIndex !== null && placement.showsRows ? ' selectable' : ''}${
       rawIndex !== null && rawIndex === placement.selectionIndex ? ' selected' : ''}${
       grey !== null ? ' subline' : ''}${
       decoration.className === '' ? '' : ' ' + decoration.className}"

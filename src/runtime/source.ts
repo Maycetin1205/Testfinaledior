@@ -1,13 +1,12 @@
 import { bindingFields, bindingJoiner } from '../core/block/binding'
 import { DAY_FIELD_PROPERTY } from '../core/block/dayFieldProperty'
 import { readDeclared } from '../core/block/registry'
-import { SOURCE_PROP, SOURCE_PROPERTY } from '../core/block/sourceProperty'
+import { SOURCE_PROPERTY } from '../core/block/sourceProperty'
 import { BLOCK_ID_ATTR } from '../core/data/actions'
 import type { RuntimeSource } from '../core/data/dataSources'
-import { EXTRA_SOURCES_PROP, extraSourcesProperty } from '../core/data/extraSources'
 import { maskState } from './maskState'
 import { followsFormField, onSelectionList, traitOf } from './selection'
-import { keyedByFormField, makeFieldReader, usableExtraSources, type FieldReader } from './foreignSources'
+import { keyedByFormField, makeFieldReader, type FieldReader } from './foreignSources'
 import { onChosenDay, chosenDay, dayKey } from './chosenDay'
 import { wireFetchingSources } from './fetchingSources'
 
@@ -55,30 +54,6 @@ export function spotValue(typed: string, binding: string, row: unknown, read: Fi
     .map((field) => read(row, field))
     .filter((v) => v.trim() !== '')
     .join(bindingJoiner(binding))
-}
-
-// In the editor a block names its sources in its properties, its attributes
-// stay unwritten, and the host holds sample rows instead of a delivery: the
-// rows of the block's own source, and a reader for them with its helper
-// sources. Null without a source.
-export function readSamples(el: HTMLElement): DataPreamble | null {
-  const sourceId: unknown = Reflect.get(el, SOURCE_PROP)
-  const source = typeof sourceId === 'string' && sourceId !== '' ? maskState.host.source(sourceId) : undefined
-  if (!source) return null
-  const extra = extraSourcesProperty.type.read(Reflect.get(el, EXTRA_SOURCES_PROP))
-  return {
-    source,
-    rows: maskState.host.rows(source),
-    read: makeFieldReader(el, usableExtraSources(extra.ok ? extra.value : [])),
-  }
-}
-
-// What a bound spot shows in the editor: its fields in the first sample row
-// of the block's source; empty when the samples hold none of them.
-export function sampleValue(el: HTMLElement, binding: string): string {
-  const samples = readSamples(el)
-  const row = samples?.rows[0]
-  return samples === null || row === undefined ? '' : spotValue('', binding, row, samples.read)
 }
 
 // A row keeps its key across deliveries: the record number where it is

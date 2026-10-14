@@ -7,6 +7,13 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Keine Probedaten im Editor (Nutzer, nachdrücklich). Hebt Chat 5f
+  vom selben Tag auf: `src/editor/probedaten/` ist weg, `previewHost`
+  liefert wieder nichts, eine gebundene Stelle zeigt die Namen ihrer
+  Felder, Erfassung und Tabelle zeigen Kopf, Tippzeile und Linien bis
+  zum Fuß. Die Idee „Probedaten aus einem SoftEngine-Log“ ist damit auch
+  vom Tisch. Was leer aussieht, wird am Aussehen behoben, nicht mit
+  erfundenen Daten.
 - 14.10. Streichen gebaut (Chat 5g), Decke 58. Wie: Weitere Quellen hat
   nur ein Baustein, dessen Fähigkeit `source` `helpers` nennt (Erfassung
   „apart“, Kanban „beside“). Die Stellen von Karte und Datenliste sind

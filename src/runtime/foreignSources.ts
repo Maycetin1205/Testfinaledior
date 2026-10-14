@@ -2,7 +2,6 @@ import {
   completePairs,
   extraSourcesProperty,
   sourceUsable,
-  type ExtraSource,
   type KeyPair,
 } from '../core/data/extraSources'
 import { splitBinding } from '../core/block/blockType'
@@ -51,10 +50,13 @@ function keyFrom(values: readonly string[]): string {
   return parts.join(KEY_DIVIDER)
 }
 
-// Helper sources as a block reads them: only usable ones, with complete
-// pairs, a source never its own partner.
-export function usableExtraSources(declared: readonly ExtraSource[]): ExtraSource[] {
-  return declared
+// The helper sources of a block, read by the same declaration the editor
+// writes: only usable ones, with complete pairs, a source never its own partner.
+export function extraSourcesOf(
+  el: HTMLElement,
+): { sourceId: string; partnerId: string; pairs: KeyPair[] }[] {
+  const { type, attribute } = extraSourcesProperty
+  return type.fromAttribute(el.getAttribute(attribute), [])
     .filter(sourceUsable)
     .map((q) => ({
       sourceId: q.sourceId,
@@ -63,22 +65,14 @@ export function usableExtraSources(declared: readonly ExtraSource[]): ExtraSourc
     }))
 }
 
-// The helper sources of a block, read by the same declaration the editor
-// writes.
-export function extraSourcesOf(el: HTMLElement): ExtraSource[] {
-  const { type, attribute } = extraSourcesProperty
-  return usableExtraSources(type.fromAttribute(el.getAttribute(attribute), []))
-}
-
 // Whether a helper source of the block takes its key from this form field.
 export function keyedByFormField(el: HTMLElement, blockId: string): boolean {
   return extraSourcesOf(el).some((q) => q.pairs.some((p) => p.from === 'formField' && p.fromField === blockId))
 }
 
-// A reader for the fields of a row, those of the helper sources included; in
-// the editor the block hands its helper sources over itself.
-export function makeFieldReader(el: HTMLElement, extra: readonly ExtraSource[] = extraSourcesOf(el)): FieldReader {
+export function makeFieldReader(el: HTMLElement): FieldReader {
   const host = maskState.host
+  const extra = extraSourcesOf(el)
   if (extra.length === 0) return (row, value) => host.readField(row, splitBinding(value).code)
 
   const lookup = new Map<string, Lookup>()

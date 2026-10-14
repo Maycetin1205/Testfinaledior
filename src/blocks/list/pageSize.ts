@@ -55,7 +55,7 @@ interface Split {
 interface SplitQuestion {
   visible: readonly number[]
 
-  // False in the editor without sample rows: there are no rows, not even
+  // False in the editor: there are no data, so there are no rows, not even
   // empty ones.
   showsRows: boolean
   perPage: number

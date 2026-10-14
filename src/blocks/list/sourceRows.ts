@@ -3,7 +3,6 @@ import { maskState } from '../../runtime/maskState'
 import { relocateSelection, giverIdOf, traitOf, rowsToSelection } from '../../runtime/selection'
 import {
   readDataPreamble,
-  readSamples,
   makeDataLink,
   recordOf,
   sourceIdOf,
@@ -88,26 +87,6 @@ function fillRows(el: RowsElement, delivery: boolean): void {
 }
 
 const link = makeDataLink<RowsElement>({ hydrate: fillRows })
-
-// In the editor the list shows the sample rows of its source, computed as the
-// mask computes its rows. The rows stand as they were while nothing changed.
-export function fillSampleRows(el: RowsElement): void {
-  const samples = readSamples(el)
-  const rows = samples?.rows ?? []
-  const columns = el.listColumns()
-  const calculations = el.listCalculations()
-  const dataRows = rows.map((row) => rowComputed(
-    columns,
-    calculations,
-    (slot) => {
-      const field = columns[slot]?.field ?? ''
-      return field === '' || samples === null ? '' : samples.read(row, field)
-    },
-  ))
-  if (JSON.stringify(dataRows) === JSON.stringify(el.dataRows)) return
-  el.rawRows = rows
-  el.dataRows = dataRows
-}
 
 export const followSource = link.connect
 export const unfollowSource = link.disconnect

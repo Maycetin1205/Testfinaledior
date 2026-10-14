@@ -3,7 +3,7 @@ import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { bindable } from '../../core/block/capability'
 import { chooseSelection, giverIdOf, relocateSelection, rowsToSelection } from '../../runtime/selection'
-import { makeDataLink, readDataPreamble, rowKeys, sampleValue, spotValue } from '../../runtime/source'
+import { makeDataLink, readDataPreamble, rowKeys, spotValue } from '../../runtime/source'
 import { animalAvatarTpl, avatarStyle } from '../parts/card'
 import { tickBoxStyle, tickBoxTpl } from '../parts/tickBox'
 import { dataListStyle } from './dataListStyle'
@@ -89,10 +89,10 @@ export class DataList extends BlockElement {
     return this.avatarField === '' ? nothing : animalAvatarTpl(species)
   }
 
-  // In the editor a bound avatar shows the animal of the samples, else nothing.
+  // In the editor a bound avatar shows the paw the mask draws for an animal it
+  // does not know; without a field nothing.
   private sampleAvatar(): TemplateResult | typeof nothing {
-    const species = sampleValue(this, this.avatarField)
-    return species === '' ? nothing : this.avatar(species)
+    return this.avatar('')
   }
 
   // In the mask a spot without a value falls away.

@@ -4,12 +4,12 @@ import { startRename } from '../base/inlineRename'
 import { reportsHeads } from '../base/headsReport'
 import { bindable } from '../../core/block/capability'
 import { lookStyle, toneValue } from '../look/look'
-import { readSamples, sampleValue, spotValue, type DataPreamble } from '../../runtime/source'
+import { spotValue, type DataPreamble } from '../../runtime/source'
 import { animalAvatarTpl, avatarStyle } from '../parts/card'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
 import { cardsByClock, SAMPLE_HOUR_LINE, SAMPLE_UNTIL, type Until } from './clock'
 import { KANBAN_COLUMNS_BINDING, type KanbanPlace } from './columns'
-import { spotOf, type Spot } from './places'
+import type { Spot } from './places'
 import { kanbanStyle } from './kanbanStyle'
 import { CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
 
@@ -41,32 +41,25 @@ export class Kanban extends BlockElement {
     return { ...bound, avatar: this.avatarField === '' ? '' : read(row, this.avatarField) }
   }
 
-  // In the editor a spot shows the sample of its column where it has one,
-  // else what the editor gives it; a spot without a field stands empty.
-  private spot(
-    prop: CardSpot,
-    className: string,
-    values: Readonly<Record<string, string>> | null,
-    sample: Readonly<Record<string, string>> | null,
-  ): TemplateResult {
+  // In the editor a spot shows what the editor gives it, the names of its
+  // fields; a spot without a field stands empty.
+  private spot(prop: CardSpot, className: string, values: Readonly<Record<string, string>> | null): TemplateResult {
     if (values !== null) return html`<span class=${className}>${values[prop]}</span>`
-    const sampled = sample?.[prop] ?? ''
     return html`<span
       class=${className}
       data-ff-spot=${prop}
       ?data-ff-bound=${this[`${prop}Field`] !== ''}
       @click=${this.reportSpot}
       @dblclick=${this.reportSpot}
-    >${sampled.trim() !== '' ? sampled : this.spotTexts[prop] ?? ''}</span>`
+    >${this.spotTexts[prop] ?? ''}</span>`
   }
 
   // The avatar shows the outline of the animal its field names, in the color
-  // of that kind. In the editor it shows the animal of the samples, else
-  // nothing.
-  private avatar(values: Readonly<Record<string, string>> | null, sample: Readonly<Record<string, string>> | null): TemplateResult | typeof nothing {
+  // of that kind. In the editor, with a field, it shows the outline the mask
+  // draws for an animal it does not know; without a field nothing.
+  private avatar(values: Readonly<Record<string, string>> | null): TemplateResult | typeof nothing {
     if (values !== null) return animalAvatarTpl(values.avatar)
-    const species = sample?.avatar || sampleValue(this, this.avatarField)
-    return species === '' ? nothing : animalAvatarTpl(species)
+    return this.avatarField === '' ? nothing : animalAvatarTpl('')
   }
 
   // The button under the cards of a column, as the column sets it: on to the
@@ -132,12 +125,7 @@ export class Kanban extends BlockElement {
   // with the subline on the same line and the second title below, the time at
   // the right; then the text, the date, how far its time lies from now, the
   // button.
-  private cardContent(
-    column: number,
-    card: CardData | null,
-    until: Until | null,
-    sample: Readonly<Record<string, string>> | null = null,
-  ): TemplateResult {
+  private cardContent(column: number, card: CardData | null, until: Until | null): TemplateResult {
     const values = card === null ? null : card.values
     const shows = (prop: CardSpot | 'avatar'): boolean => this.shows(values, prop)
     const line = shows('heading') || shows('subline')
@@ -145,21 +133,21 @@ export class Kanban extends BlockElement {
     return html`
       ${main
         ? html`<div class="main">
-            ${shows('avatar') ? this.avatar(values, sample) : nothing}
+            ${shows('avatar') ? this.avatar(values) : nothing}
             <div class="ident">
               ${line
                 ? html`<div class="line">
-                    ${shows('heading') ? this.spot('heading', 'name', values, sample) : nothing}
-                    ${shows('subline') ? this.spot('subline', 'meta', values, sample) : nothing}
+                    ${shows('heading') ? this.spot('heading', 'name', values) : nothing}
+                    ${shows('subline') ? this.spot('subline', 'meta', values) : nothing}
                   </div>`
                 : nothing}
-              ${shows('heading2') ? this.spot('heading2', 'owner', values, sample) : nothing}
+              ${shows('heading2') ? this.spot('heading2', 'owner', values) : nothing}
             </div>
-            ${shows('time') ? this.spot('time', 'time', values, sample) : nothing}
+            ${shows('time') ? this.spot('time', 'time', values) : nothing}
           </div>`
         : nothing}
-      ${shows('text') ? this.spot('text', 'text', values, sample) : nothing}
-      ${shows('date') ? this.spot('date', 'date', values, sample) : nothing}
+      ${shows('text') ? this.spot('text', 'text', values) : nothing}
+      ${shows('date') ? this.spot('date', 'date', values) : nothing}
       ${until ? html`<span class="until${until.late ? ' late' : ''}">${until.text}</span>` : nothing}
       ${this.button(column, card)}`
   }
@@ -184,15 +172,6 @@ export class Kanban extends BlockElement {
     >${this.cardContent(column, card, until)}</div>`
   }
 
-  // In the editor the card of a column shows the first sample row the data
-  // puts into that column, so each column shows another record.
-  private sampleIn(column: number): Readonly<Record<string, string>> | null {
-    const samples = readSamples(this)
-    const field = this.columnsField.trim()
-    const row = samples?.rows.find((r) => spotOf(this.columns, field, r).column === column)
-    return samples === null || row === undefined ? null : this.cardValues(row, samples.read)
-  }
-
   // The cards of a place; a column by the clock orders them by their time.
   private cardsAt(spot: Spot): TemplateResult | TemplateResult[] {
     const byTime = this.columns[spot.column]?.byTime === true
@@ -201,7 +180,7 @@ export class Kanban extends BlockElement {
       // column is typed on it. The other places stand empty, as in the mask.
       if (spot.place !== 0) return []
       return html`${byTime ? SAMPLE_HOUR_LINE : nothing}<div class="card">${
-        this.cardContent(spot.column, null, byTime ? SAMPLE_UNTIL : null, this.sampleIn(spot.column))
+        this.cardContent(spot.column, null, byTime ? SAMPLE_UNTIL : null)
       }</div>`
     }
     const cards = this.board.cardsAt(spot)

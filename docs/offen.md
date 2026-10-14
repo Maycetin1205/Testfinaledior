@@ -192,21 +192,12 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Sätzen einer Tabelle oder Erfassung trägt wieder Linien im Abstand der
    Zeilen bis zum Fuß, im Editor und in der Maske; hebt „keine leeren
    Zeilen“ aus 5d auf (`entschieden.md`).
-   Probedaten, erledigt 14.10.: die Daten des Maßstab-Bilds liegen in
-   `src/editor/probedaten/probedaten.ts`, je SoftEngine-Tabelle eine Liste
-   (Beleg, Fenster, Adresse, Positionen, Artikel, Chargen, Belege, Halter,
-   Tiere, Termine). Der Editor-Host (`previewHost()`) liefert sie je
-   Quelle nach ihrer Tabelle, die Felder nach Feldcode; gebundene Stellen
-   zeigen den Wert der ersten Zeile, Erfassung und Tabelle alle Zeilen,
-   das Kanban je Spalte die erste Zeile, die dorthin gehört (Bello, Rocky,
-   Balu, Emma). Ein Feld ohne Wert behält seinen Namen. Nur im Editor,
-   Export und Referenzabzug unverändert. Standbilder
-   `docs/design/2026-10-14-fachsoftware-*.png` erneuert (Linien). Bilder
-   `sichtprobe/chat5f-probedaten/vergleich.png`. Geprüft 14.10. (Fable):
-   abgenommen; check und Tests grün, Export unverändert, die drei Masken
-   im Editor wie im Maßstab-Bild. Rest für 6a: die gepunktete Linie unter
-   jedem gebundenen Wert lässt mit Daten jede Zahl wie einen Link
-   aussehen; wie die Umrisse nur bei Auswahl oder unter der Maus zeigen.
+   Probedaten: gebaut 14.10. (bbd99d2), am selben Tag auf Verlangen des
+   Nutzers restlos wieder ausgebaut (Fable). Keine erfundenen Daten im
+   Editor, nie wieder, auch nicht als Schalter (`entschieden.md`). Eine
+   gebundene Stelle zeigt die Namen ihrer Felder, Erfassung und Tabelle
+   Kopf, Tippzeile und Linien bis zum Fuß. Was leer aussieht, wird am
+   Aussehen behoben (Ränder, Flächen, Gewicht), siehe 5i.
 5g. Streichen, Teil 1: Bausteine, Farben, Schritte. Erledigt 14.10.,
    Decke 58. Weg: am Text Farbe, Art, Beschriftung (der Text ist kein
    Chip mehr); am Feld Art und die Haken-Werte (J und N fest); an

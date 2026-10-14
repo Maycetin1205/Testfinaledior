@@ -21,7 +21,7 @@ interface ViewQuestion {
 
   widthOf?: (index: number) => number | undefined
 
-  // False in the editor without sample rows: then the list draws no rows.
+  // False in the editor: there the list has no data and draws no rows.
   showsRows: boolean
 
   empty: boolean
@@ -134,7 +134,7 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
     rows,
 
     // The rows a page still has room for under the records; in the editor
-    // without sample rows the room under the head is simply ruled.
+    // the room under the head is simply bare.
     rulerTicks: showsRows ? rulerTicks(free, rows.length) : null,
 
     totals: totalsOf(question, allVisible),
