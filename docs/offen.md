@@ -115,6 +115,16 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    markiert, links der Reiter „Masken“); `#maske` hinter der Adresse der
    HTML zeigt die Spalte ohne Markierung. Die Wahl des Nutzers zwischen A
    bis D steht aus; sie kommt nach `entschieden.md`, dann Chat 6.
+   Urteil 14.10. (Fable): D empfohlen, mit vier Auflagen für Chat 6a
+   (echte Breite des Blatts, einklappbare Spalten, rechte Spalte 320 px,
+   „Neue Maske“ als Knopf, Tipps an den Bausteinen).
+5c. Tonprobe. Woran man „KI“ sieht (Nutzer, 14.10.): Schrift Manrope,
+   Beschriftungen in gesperrten Versalien, Rundungen und Schatten. Drei
+   Bilder derselben Belegerfassung mit Daten: wie heute; Segoe UI und
+   normale Schreibweise; dazu kleinere Rundungen und Linien statt
+   Schatten. Je Probe auch die Editor-Hülle nach D. Kein Code. Der Nutzer
+   wählt; die Wahl gilt für Maske und Editor, dann ein Chat für die
+   Übernahme in `mask.css` und `editor.css` vor Chat 6a.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -170,11 +180,59 @@ war nur eine Idee und steht nicht im Plan (14.10.).
 
 ## Einzelheiten zu den Chats
 
+Chat 5c, Tonprobe. Die Maske und die Entwürfe sehen nach KI aus, und
+der Nutzer hat gefragt, woran (14.10.). Antwort von außen, in der
+Reihenfolge der Wirkung: die Schrift Manrope (die Hausschrift der
+KI-Entwürfe; SoftEngine selbst ist ein Windows-Programm mit Segoe UI),
+die Beschriftungen in gesperrten Versalien („STRASSE“, „BELEG-NR.“, das
+Merkmal der Tailwind-Vorlagen), Rundungen von 6 bis 10 px und Schatten
+statt Linien, ein Blau und sonst nur Grau. Das sind Werte in
+`src/design/mask.css`, keine neue Designsprache; die Struktur der Maske
+bleibt. Bau: drei Bilder der exportierten Belegerfassung mit Daten des
+Referenzabzugs, 1680 px breit, `docs/design/tonprobe-{1,2,3}.png`:
+1 wie heute; 2 Schrift Segoe UI (System, 0 KB, Rückfall Arial), die
+Rubriken und Spaltenköpfe in normaler Schreibweise ohne Sperrung, Werte
+und Größen sonst gleich; 3 wie 2, dazu Rundung 3 px für Felder und
+Knöpfe, 6 px für Karten und Fenster, Haarlinie `--se-line` statt
+Schatten an Karten und Fenstern, Kopfzeilen der Tabellen etwas dichter.
+Dazu je Probe dasselbe Bild der Editor-Hülle nach Entwurf D, damit man
+beide zusammen sieht. Für die Proben darf `mask.css` in einer Kopie unter
+`docs/design/` geändert werden, nicht im Code. Der Nutzer wählt; die Wahl
+kommt nach `entschieden.md` und gilt dann für Maske und Editor. Wird 2
+oder 3 gewählt, ist der erste Bau-Chat danach die Übernahme in
+`mask.css` und `editor.css` (ein Chat, `REFERENCE_REFRESH=1`, neue
+Bilder `docs/design/<Datum>-*.png` als eingefrorener Stand); die Schrift
+fällt dann aus dem Export, 37 KB weniger.
+
+Urteil zu Entwurf D (14.10., Fable): D ist der erste Entwurf, der wie
+ein Werkzeug aussieht: Rahmen und Blatt sind unterscheidbar, die rechte
+Spalte zeigt alle Wahlen ohne Abschneiden, die Aktionen liegen offen.
+Empfohlen, mit vier Auflagen für den Bau, siehe Chat 6a. Die Wahl des
+Nutzers steht aus.
+
 Chat 6a, Hülle und linke Spalte. Nach dem gewählten Entwurf:
 `src/design/editor.css`, `src/editor/shell/EditorShell.tsx`, `Toolbar.tsx`,
 `src/editor/sidebar/`, `src/editor/masks/MasksWindow.tsx` wird der Reiter
 „Masken“ der linken Spalte. Die Leiste bleibt vorerst, wo sie ist.
-Maske pixelgleich, Export und Referenzabzug unverändert.
+Maske pixelgleich, Export und Referenzabzug unverändert. Auflagen aus
+dem Urteil zu D:
+
+- Das Blatt bleibt in echter Größe. D zeigt die Belegerfassung bei
+  1148 px, weil zwei Spalten 532 px nehmen; die Maske ist aber für die
+  Breite des SoftEngine-Fensters gelegt (1680 und mehr), und bei 1148 px
+  fallen unten „Bestand“ und „Gesamtbetrag“ übereinander. Darum: die
+  Leinwand rollt waagerecht, die Breite des Blatts ist wählbar
+  („Fensterbreite“, 1680, 1920; Vorgabe 1680, gemerkt wie die Umrisse),
+  und beide Spalten lassen sich mit einem Klick auf ihren Kopf
+  einklappen; eingeklappt bleibt ein 36-px-Streifen mit den Reitern.
+- Die rechte Spalte ist 320 px breit, damit „Hinweis in der Tippzeile“
+  in eine Zeile passt.
+- „Neu“ steht als beschrifteter Knopf oben im Reiter „Masken“ („Neue
+  Maske“), nicht nur als Symbol; der erste Klick auf Speichern ohne
+  Ordner zeigt den Reiter „Masken“ mit seiner Erklärung (Rest aus
+  Chat 4).
+- Jeder Baustein im Reiter „Bausteine“ trägt die Erklärzeile aus C als
+  Tipp; die Zeile des markierten Bausteins ist in der Liste markiert.
 
 Chat 6b, rechte Spalte mit den Wahlen der Leiste. `src/editor/bar/`
 (`BlockBar.tsx`, `BarControl.tsx`, `BarFrame.tsx`) zieht in eine Spalte

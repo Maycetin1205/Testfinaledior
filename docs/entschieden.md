@@ -27,6 +27,14 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
   beim Lesen kein Baustein, keine Quelle und keine Relation wegfällt und
   ihr Export die Prüfung besteht. Wird eine Maske aufgegeben, kommt sie
   aus `masken/` heraus; der Test wird nicht gelockert.
+- 14.10. Der eingefrorene Stand der Maske wird für eine Tonprobe
+  geöffnet, nur in den Werten (Schrift, Schreibweise der Beschriftungen,
+  Rundung, Linie statt Schatten), nicht in der Struktur. Grund: der
+  Nutzer sieht sofort „KI“, und die Ursache sind genau diese vier Werte
+  (Manrope, gesperrte Versalien, Rundung 6 bis 10 px, Schatten). Eine
+  Probe mit Segoe UI, der Schrift von Windows und SoftEngine, kostet
+  nichts und passt zum Wirt. Die Wahl des Nutzers nach den drei Bildern
+  ist dann der neue eingefrorene Stand.
 - 14.10. Urteil zu den Entwürfen A, B, C der Editor-Hülle (Fable, von
   außen): dreimal dieselbe Einrichtung umgestellt, keiner hebt das
   Slop-Gefühl auf. Zwei Entscheidungen werden aufgehoben: „Kein
