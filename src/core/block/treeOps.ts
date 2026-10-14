@@ -13,13 +13,16 @@ import {
   type PropertyValue,
 } from './property'
 import { DOCUMENT_FRAME_PROP } from './documentFrame'
+import { EXPORT_TARGET_PROP } from './exportTarget'
 import { MASK_NAME_PROP } from './maskName'
 import type { Unread } from '../unread'
 
-// The root is no block; it keeps the mask's own name and frame number.
+// The root is no block; it keeps the mask's own name, frame number and the
+// folder its export goes to.
 const ROOT_PROPERTIES: PropertyMap = {
   [MASK_NAME_PROP]: textProperty({ default: '', label: 'Name der Maske', place: 'none' }),
   [DOCUMENT_FRAME_PROP]: textProperty({ default: '', label: 'Layoutrahmen', place: 'none' }),
+  [EXPORT_TARGET_PROP]: textProperty({ default: '', label: 'Zielordner des Exports', place: 'none' }),
 }
 
 function createRootNode(): BlockNode {

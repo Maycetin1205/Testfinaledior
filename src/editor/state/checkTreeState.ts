@@ -3,6 +3,7 @@ import { ROOT_ID, ROOT_TYPE, type BlockNode, type MaskTree } from '../../core/bl
 import { blockType } from '../../core/block/registry'
 import { capability } from '../../core/block/capability'
 import { DOCUMENT_FRAME_PROP } from '../../core/block/documentFrame'
+import { EXPORT_TARGET_PROP } from '../../core/block/exportTarget'
 import { MASK_NAME_PROP } from '../../core/block/maskName'
 import { chainsClean } from '../../core/data/steps/chains'
 import { isUnread } from '../../core/unread'
@@ -26,7 +27,7 @@ export function checkTreeState(raw: {
     if (id === ROOT_ID ? node.type !== ROOT_TYPE || node.parentId !== null : !def) continue
     const values = id === ROOT_ID
       ? Object.fromEntries(Object.entries(node.values).filter(([key, value]) =>
-          [MASK_NAME_PROP, DOCUMENT_FRAME_PROP].includes(key) && typeof value === 'string')) as Record<string, PropertyValue>
+          [MASK_NAME_PROP, DOCUMENT_FRAME_PROP, EXPORT_TARGET_PROP].includes(key) && typeof value === 'string')) as Record<string, PropertyValue>
       : valuesClean(node.type, node.values)
     const events = chainsClean(node.chains, (capability(def, 'events')?.list ?? []).map((event) => event.key))
     read[id] = { id, type: node.type, parentId: node.parentId, values,

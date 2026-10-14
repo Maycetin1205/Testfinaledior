@@ -1,6 +1,7 @@
 import { ROOT_ID } from '../../../core/block/tree'
 import { FileOnDisk } from '../fileOnDisk'
 import type { EditorSnapshot } from '../history'
+import { MaskFolder } from '../maskFolder'
 import { packMask } from '../maskFile'
 import {
   emptyMask,
@@ -14,9 +15,9 @@ import {
 } from '../maskStorage'
 import { SavePlanner } from '../savePlanner'
 
-// Where the work lives: the browser store always, and the two files the
-// builder picked on disk. A change plans a write a moment later; the files
-// are written again only once they were picked.
+// Where the work lives: the browser store always, the file of the mask in the
+// folder of masks or the two files the builder picked on disk. A change plans
+// a write a moment later; the files are written only once they are known.
 export class EditorPersistence {
   private readonly state: () => EditorSnapshot
 
@@ -25,6 +26,14 @@ export class EditorPersistence {
   readonly maskOnDisk = new FileOnDisk()
 
   readonly libraryOnDisk = new FileOnDisk()
+
+  readonly folder = new MaskFolder()
+
+  // The mask as the browser store last kept it, and when it changed there;
+  // a click on a block keeps it again but changes nothing, nor the time.
+  private keptText: string | null = null
+
+  private _keptAt = 0
 
   constructor(state: () => EditorSnapshot) {
     this.state = state
@@ -36,6 +45,14 @@ export class EditorPersistence {
     return { library: loadLibraryFromStorage(), mask: loadFromStorage() ?? emptyMask() }
   }
 
+  started(mask: StoredMask, library: StoredLibrary): void {
+    this.maskOnDisk.expect(mask.file)
+    this.keptText = packMask(mask.tree, library.dataSources, library.relation)
+    this._keptAt = mask.savedAt
+  }
+
+  get keptAt(): number { return this._keptAt }
+
   plan(): void {
     this.planner.plan()
   }
@@ -46,12 +63,19 @@ export class EditorPersistence {
 
   private write(): void {
     const state = this.state()
+    const text = packMask(state.tree, state.dataSources, state.relation)
+    if (text !== this.keptText) {
+      this.keptText = text
+      this._keptAt = Date.now()
+    }
     persistMask({
       tree: state.tree,
       selectedId: state.selectedId,
       activePageId: state.activePageId ?? ROOT_ID,
+      file: this.maskOnDisk.path,
+      savedAt: this._keptAt,
     })
-    void this.maskOnDisk.writeAgain(packMask(state.tree, state.dataSources, state.relation))
+    void this.maskOnDisk.writeAgain(text)
     void this.libraryOnDisk.writeAgain(persistLibrary({
       dataSources: state.dataSources,
       relation: state.relation,

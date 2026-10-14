@@ -1,12 +1,16 @@
-import type { MaskTree } from '../../core/block/tree'
+import { EXPORT_TARGET_PROP } from '../../core/block/exportTarget'
+import { MASK_NAME_PROP, maskNameOf } from '../../core/block/maskName'
+import { ROOT_ID, type MaskTree } from '../../core/block/tree'
 import { checkDataSources, type DataSource } from '../../core/data/dataSources'
 import { checkRelationTemplates, type RelationTemplate } from '../../core/data/relations'
 import { collectDataSources } from '../../export/usedSources'
 import { collectRelation } from '../../export/usedRelations'
 import { writeFile } from './fileOnDisk'
+import { canPickFolder, reasonOf } from './folderOnDisk'
 import type { EditorStore } from './EditorStore'
 import { checkTreeState } from './checkTreeState'
 import { LIBRARY_FILE_KIND } from './libraryFile'
+import type { MaskEntry } from './maskFolder'
 import { CURRENT_SCHEMA_VERSION, liftState } from './maskSchema'
 
 const MASK_FILE_KIND = 'aufbau-editor-maske'
@@ -20,6 +24,12 @@ export interface MaskContent {
   tree: MaskTree
   dataSources: DataSource[]
   relation: RelationTemplate[]
+}
+
+// A file in the folder of masks and where in the folder it lies.
+export interface MaskFileAt {
+  file: FileSystemFileHandle
+  path: string
 }
 
 // Why a file does not load, as the end of a sentence that starts with its name.
@@ -53,12 +63,98 @@ function maskFileName(): string {
   return `aufbau-maske-${new Date().toISOString().slice(0, 10)}.json`
 }
 
-export function saveMaskAsFile(editor: EditorStore): void {
-  void writeFile(
-    editor.maskOnDisk,
-    maskFileName(),
-    packMask(editor.tree, editor.dataSources.list, editor.relation.list),
-  )
+function packed(editor: EditorStore, tree: MaskTree = editor.tree): string {
+  return packMask(tree, editor.dataSources.list, editor.relation.list)
+}
+
+// The mask without some values of its root, as a copy that is not this mask.
+function treeWithout(tree: MaskTree, names: readonly string[]): MaskTree {
+  const root = tree[ROOT_ID]
+  if (!root) return tree
+  const values = Object.fromEntries(Object.entries(root.values).filter(([name]) => !names.includes(name)))
+  return { ...tree, [ROOT_ID]: { ...root, values } }
+}
+
+// „Speichern": into the mask's own file; a mask without one gets a new file
+// at the top of the folder of masks, which is picked the first time. A
+// browser that cannot open a folder picks a file or downloads, as before.
+// The button wears a check when it is done; what fails, one notice says.
+export async function saveMask(editor: EditorStore): Promise<void> {
+  const disk = editor.maskOnDisk
+  if (!disk.attached && !canPickFolder()) {
+    await writeFile(disk, maskFileName(), packed(editor))
+    return
+  }
+  try {
+    if (!disk.attached && !(await editor.folderReady())) return
+  } catch (error) {
+    editor.showNotice({ title: 'Nicht gespeichert', lead: `Der Ordner der Masken ließ sich nicht öffnen: ${reasonOf(error)}.` })
+    return
+  }
+  const text = packed(editor)
+  try {
+    if (disk.attached) {
+      await disk.write(text)
+    } else {
+      editor.keepIn(await editor.maskFolder.saveNew(maskNameOf(editor.tree), text), text)
+    }
+  } catch (error) {
+    editor.showNotice({
+      title: 'Nicht gespeichert',
+      lead: (disk.attached
+        ? `„${disk.name}“ ließ sich nicht schreiben: ${reasonOf(error)}.`
+        : `Im Ordner „${editor.maskFolder.name}“ ließ sich keine Datei anlegen: ${reasonOf(error)}.`)
+        + ' Die Maske bleibt im Browser; „Speichern“ versucht es noch einmal.',
+    })
+    return
+  }
+  editor.markDone('saved')
+}
+
+// „Als Vorlage sichern": a copy of the mask in the folder „Vorlagen“, under
+// its name, without the folder its export goes to on this machine.
+export async function saveAsTemplate(editor: EditorStore): Promise<void> {
+  try {
+    if (!(await editor.folderReady())) return
+    await editor.maskFolder.saveTemplate(
+      maskNameOf(editor.tree),
+      packed(editor, treeWithout(editor.tree, [EXPORT_TARGET_PROP])),
+    )
+  } catch (error) {
+    editor.showNotice({ title: 'Nicht als Vorlage gesichert', lead: `${reasonOf(error)}.` })
+    return
+  }
+  editor.markDone('template')
+}
+
+async function readEntry(entry: MaskEntry): Promise<UnpackResult> {
+  let text: string
+  try {
+    text = await (await entry.file.getFile()).text()
+  } catch {
+    return { ok: false, why: 'ließ sich nicht lesen.' }
+  }
+  return packMaskFrom(text)
+}
+
+// A mask of the folder on the canvas, with its file; why not, else null.
+export async function openMaskFile(editor: EditorStore, entry: MaskEntry): Promise<string | null> {
+  const result = await readEntry(entry)
+  if (!result.ok) return result.why
+  editor.replaceMask(result.content, { file: entry.file, path: entry.path })
+  return null
+}
+
+// „Neu aus Vorlage": a copy of the template without a name, without a file
+// and without the folder of an export; the first „Speichern" gives it a file.
+export async function newMaskFrom(editor: EditorStore, entry: MaskEntry): Promise<string | null> {
+  const result = await readEntry(entry)
+  if (!result.ok) return result.why
+  editor.replaceMask({
+    ...result.content,
+    tree: treeWithout(result.content.tree, [MASK_NAME_PROP, EXPORT_TARGET_PROP]),
+  })
+  return null
 }
 
 // Why the file did not load, or null when the mask is on the canvas.
@@ -75,7 +171,7 @@ export async function loadMaskFromFile(editor: EditorStore, file: File): Promise
   return null
 }
 
-function packMaskFrom(text: string): UnpackResult {
+export function packMaskFrom(text: string): UnpackResult {
   try {
     return unpack(text)
   } catch (error) {

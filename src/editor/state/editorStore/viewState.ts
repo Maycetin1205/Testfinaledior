@@ -1,6 +1,12 @@
 import type { LookupWindow } from '../../../core/block/capability'
 import type { StepTab } from '../../actions/StepWindow'
+import type { NoticeText } from '../../widgets/Notice'
 import { loadOutlines, persistOutlines } from '../maskStorage'
+
+// What a button did a moment ago; it wears a check for that long.
+export type Deed = 'saved' | 'exported' | 'template'
+
+const DONE_MS = 1600
 
 // Which step window is open: for a step of a block's chain, or for a new one.
 export interface OpenStep {
@@ -23,9 +29,10 @@ export interface OpenLookup {
   slot: number
 }
 
-// What the editor shows besides the mask: the open windows, the block
-// waiting for a click and the outlines. That is no change to the mask, so it
-// reports to its own signal and plans no save.
+// What the editor shows besides the mask: the open windows, the notice, the
+// check on a button that just did its deed, the block waiting for a click and
+// the outlines. That is no change to the mask, so it reports to its own
+// signal and plans no save.
 export class EditorView {
   private readonly changed: () => void
 
@@ -38,6 +45,14 @@ export class EditorView {
   private _followPickFor: string | null = null
 
   private _dataWindow = false
+
+  private _masksWindow = false
+
+  private _notice: NoticeText | null = null
+
+  private _done: Deed | null = null
+
+  private doneTimer: ReturnType<typeof setTimeout> | null = null
 
   private _outlines = loadOutlines()
 
@@ -52,6 +67,38 @@ export class EditorView {
     if (this._dataWindow === open) return
     this._dataWindow = open
     this.changed()
+  }
+
+  // The window "Masken": the masks of the folder, closed until "Masken" is clicked.
+  get masksWindow(): boolean { return this._masksWindow }
+
+  showMasks(open: boolean): void {
+    if (this._masksWindow === open) return
+    this._masksWindow = open
+    this.changed()
+  }
+
+  // What went wrong with saving, loading or exporting, until it is read; one
+  // at a time, a later one takes its place.
+  get notice(): NoticeText | null { return this._notice }
+
+  showNotice(notice: NoticeText | null): void {
+    if (this._notice === notice) return
+    this._notice = notice
+    this.changed()
+  }
+
+  get done(): Deed | null { return this._done }
+
+  markDone(deed: Deed): void {
+    if (this.doneTimer !== null) clearTimeout(this.doneTimer)
+    this._done = deed
+    this.changed()
+    this.doneTimer = setTimeout(() => {
+      this.doneTimer = null
+      this._done = null
+      this.changed()
+    }, DONE_MS)
   }
 
   // A quiet edge around every block on the canvas, also an empty one; the

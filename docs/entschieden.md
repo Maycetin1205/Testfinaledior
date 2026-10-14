@@ -7,6 +7,22 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Maskenordner (Chat 4): die Liste der Masken ist bis Chat 5 ein
+  Fenster „Masken“. Klick öffnet eine Maske mit ihrer Datei; jede
+  Änderung geht danach dorthin, bloßes Öffnen schreibt nichts, auch nicht
+  die Höhen, die der Editor beim Öffnen anpasst. Klick auf eine Vorlage
+  öffnet eine Kopie ohne Namen und ohne Zielordner und fragt wie „Neu“.
+  „Speichern“ legt eine Maske ohne Datei oben im Ordner ab, unter ihrem
+  Namen, ohne etwas zu überschreiben; „Als Vorlage sichern“ überschreibt
+  die Vorlage gleichen Namens. Der Zielordner des Exports steht in der
+  Maske als Name, den Ordner selbst kennt nur der Browser, der ihn gewählt
+  hat; zwei Ordner gleichen Namens heißen „10000“ und „10000 (2)“. Kennt
+  ein Rechner den Ordner nicht, wird heruntergeladen, und ein Fenster
+  sagt es. Nach einem Neustart findet der Editor die Datei der Maske
+  wieder; hat sie sich außerhalb geändert, gewinnt die Datei, „Rückgängig“
+  holt die Fassung des Browsers. „Rückgängig“ nach dem Öffnen bringt die
+  Maske davor samt ihrer Datei zurück und schreibt nie die eine in die
+  Datei der anderen.
 - 14.10. Ladetest (Chat 3): eine Maske in `masken/` gilt als geladen, wenn
   beim Lesen kein Baustein, keine Quelle und keine Relation wegfällt und
   ihr Export die Prüfung besteht. Wird eine Maske aufgegeben, kommt sie

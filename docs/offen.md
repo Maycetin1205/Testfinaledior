@@ -79,7 +79,8 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Rahmen-Nummer und Datum, Unterordner als Ordner, „Vorlagen“ als
    eigener Ordner. Klick öffnet, Speichern schreibt dorthin, „Als Vorlage
    sichern“, „Neu aus Vorlage“. Je Maske ein Zielordner für den Export,
-   dann ist der Weg nach V7 ein Klick.
+   dann ist der Weg nach V7 ein Klick. Erledigt 14.10. (Fenster
+   „Masken“; Streifen oder Fenster entscheidet Chat 5).
 5. Gesicht des Editors, Entwürfe. Der Editor sieht aus wie KI-Slop
    (Nutzer, 14.10.): generische Knöpfe, Palette mit Symbol und Wort,
    nichts, was nach Produkt aussieht. Ein Chat baut drei Entwürfe der
@@ -139,24 +140,6 @@ war nur eine Idee und steht nicht im Plan (14.10.).
   Nutzer sie will.
 
 ## Einzelheiten zu den Chats
-
-Chat 4, Maskenordner und Vorlagen. Heute: ein Platz im Browser
-(`aufbau_editor_mask`, `src/editor/state/maskStorage.ts`), dazu
-`showSaveFilePicker` und ein Datei-Input (`src/editor/state/fileOnDisk.ts`,
-`maskFile.ts`, `src/editor/shell/Toolbar.tsx`). Bau: `showDirectoryPicker`
-(Chromium und Edge), der Griff auf den Ordner wird in IndexedDB gemerkt
-und beim Start wieder geholt (Rechte erneut erfragen, wenn der Browser es
-verlangt). Der Editor liest alle `*.aufbau-maske.json` im Ordner und
-seinen Unterordnern, zeigt sie in einem Streifen links neben der Palette
-oder in einem Fenster „Masken“ (Entscheidung in Chat 5 mitnehmen, bis
-dahin ein Fenster), nach Ordner gruppiert, „Vorlagen“ als Unterordner.
-Öffnen per Klick, Speichern schreibt in dieselbe Datei, „Als Vorlage
-sichern“ kopiert nach `Vorlagen/`, „Neu aus Vorlage“ öffnet eine Kopie
-ohne Namen. Der Browser-Speicherplatz bleibt als Notnagel, wenn kein
-Ordner gewählt ist. Je Maske ein Zielordner für den Export (in der
-Maskendatei als Pfadtext, `exportTarget`), Export schreibt direkt dorthin,
-wenn der Griff da ist, sonst wie heute herunterladen. Dateiform der Maske
-unverändert; der Ladetest aus Chat 3 läuft weiter über `masken/`.
 
 Chat 5, Gesicht des Editors, Entwürfe. Drei HTML-Bilder der Editor-Hülle
 unter `docs/design/editor-entwurf-{a,b,c}.html` mit je einem PNG, 1680 px
@@ -257,8 +240,6 @@ dann speichern.
 
 ## Ideen, nicht freigegeben
 
-- Export direkt in den SoftEngine-Ordner, einmal gewählt, dann jeder
-  Export dorthin. Macht den Test in SoftEngine zu zehn Sekunden.
 - Probedaten aus einem SoftEngine-Debug-Log: der Editor zeigt die Maske
   mit den Daten, die SoftEngine wirklich geschickt hat.
 

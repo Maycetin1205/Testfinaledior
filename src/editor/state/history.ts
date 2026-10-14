@@ -1,6 +1,7 @@
 import type { MaskTree } from '../../core/block/tree'
 import type { DataSource } from '../../core/data/dataSources'
 import type { RelationTemplate } from '../../core/data/relations'
+import type { FilePlace } from './fileOnDisk'
 
 export interface EditorSnapshot {
   tree: MaskTree
@@ -8,6 +9,10 @@ export interface EditorSnapshot {
   activePageId?: string
   dataSources: readonly DataSource[]
   relation: readonly RelationTemplate[]
+  // The file the mask was kept in at that step: Rückgängig after opening a
+  // mask brings back the mask before and its file, and never writes the one
+  // into the other's file.
+  file?: FilePlace
 }
 
 const HISTORY_LIMIT = 50

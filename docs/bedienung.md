@@ -6,7 +6,7 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 
 ## Der Editor
 
-- Oben eine Zeile: Name der Maske, Rahmen-Nummer, Neu, Speichern, Laden,
+- Oben eine Zeile: Name der Maske, Rahmen-Nummer, Neu, Speichern, Masken,
   Rückgängig, Wiederholen, Exportieren, Daten, Umrisse; rechts die
   Seitenreiter (Hauptseite, Popups).
 - Umrisse: der Baustein unter der Maus zeigt eine leise blaue Linie in
@@ -16,9 +16,23 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
   der Maske gibt es keine Umrisse.
 - Neu: fragt nach, wenn Bausteine auf der Leinwand stehen; „Rückgängig“
   holt die Maske zurück. Eine leere Maske sagt in der Mitte, was zu tun
-  ist: Baustein anklicken oder ziehen, oder „Laden“.
-- Laden: lädt eine Datei nicht, sagt ein kleines Fenster warum (keine
-  Maske, Kundendatei, zu alte oder neuere Fassung, beschädigt).
+  ist: Baustein anklicken oder ziehen, oder eine Maske unter „Masken“.
+- Masken: ein Fenster mit allen Masken des Ordners, den man einmal wählt
+  (etwa `masken`), auch in Unterordnern, je Ordner eine Gruppe; je Maske
+  Name, Rahmen-Nummer und Datum, die offene blau markiert. Klick öffnet
+  sie. Unter „Vorlagen“ öffnet ein Klick eine Kopie ohne Namen, die beim
+  ersten „Speichern“ eine eigene Datei bekommt. „Als Vorlage sichern“ legt
+  die offene Maske nach `Vorlagen/`. „Datei laden“ lädt eine einzelne
+  Maske von woanders. Lädt eine Datei nicht, sagt ein kleines Fenster
+  warum (keine Maske, Kundendatei, zu alte oder neuere Fassung,
+  beschädigt). Nach einem Neustart fragt der Browser meist einmal, ob der
+  Editor den Ordner wieder benutzen darf: „Ordner freigeben“.
+- Zielordner: unten im Fenster „Masken“ wählt man je Maske den Ordner, in
+  den „Exportieren“ schreibt, etwa
+  `VORLAGEN_INDIV\Belegerfassung\LAYOUTRAHMEN\10000` in V7. Ohne
+  Zielordner wird heruntergeladen wie bisher. Die Maske merkt sich den
+  Namen des Ordners; auf einem anderen Rechner wählt man ihn dort einmal
+  neu.
 - Links der Streifen mit den Bausteinen: anklicken oder ziehen.
 - Mitte die Maske in echter Größe: ein weißes Blatt auf dem grauen Grund
   des Fensters, wie in SoftEngine.
@@ -54,15 +68,22 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 - Kanban: Spaltentitel tippen, Plus fügt an, die erste Karte ist das
   Muster; Klick auf einen Spaltenkopf: Farbe, Wert im ERP, Auffangspalte,
   Plätze.
-- Speichern: 500 ms nach der letzten Änderung in den Browser und in die
-  zwei Dateien, die einmal gewählt wurden. Der Port 5300 ist fest, weil der
-  Browserspeicher am Origin hängt.
+- Speichern (auch Strg+S): schreibt die Maske in ihre Datei im Ordner der
+  Masken; eine Maske ohne Datei landet oben im Ordner unter ihrem Namen,
+  nie über eine andere; beim ersten Mal wird der Ordner gewählt. Danach
+  geht jede Änderung 500 ms später von selbst in die Datei und in den
+  Browser; eine nur geöffnete Maske bleibt unangetastet, bis man etwas
+  ändert. Der Knopf zeigt kurz „Gespeichert“. Der Port 5300 ist fest,
+  weil der Browserspeicher am Origin hängt.
 - Export: ein Knopf, die Rahmen-Nummer entscheidet die Dateinamen
   (`Rahmen<Nr>.basis.source.html`, `Rahmen<Nr>.basis.SEvariablen.json`).
-  Besteht die fertige Maske eine Prüfung nicht, wird nichts
-  heruntergeladen, und ein kleines Fenster nennt die Prüfung. Hat eine
-  Quelle ein gebundenes Feld nicht, wird heruntergeladen, und das Fenster
-  nennt Baustein, Feld und Quelle: die Stelle bleibt in der Maske leer.
+  Mit Zielordner landen beide dort, sonst werden sie heruntergeladen; der
+  Knopf zeigt kurz „Exportiert“. Besteht die fertige Maske eine Prüfung
+  nicht, geht nichts hinaus, und ein kleines Fenster nennt die Prüfung.
+  Hat eine Quelle ein gebundenes Feld nicht, geht die Maske hinaus, und
+  das Fenster nennt Baustein, Feld und Quelle: die Stelle bleibt in der
+  Maske leer. Ist der Zielordner hier nicht gewählt oder gesperrt, wird
+  heruntergeladen, und das Fenster sagt es.
 
 ## Die Bausteine
 
@@ -109,7 +130,7 @@ Alle in der Blatt-Sprache (13.10., `entschieden.md`):
 
 ## Die Masken
 
-In `masken/`, im Editor über „Laden“; im Browser mit Beispieldaten geprüft,
+In `masken/`, im Editor unter „Masken“ (Ordner `masken` wählen); im Browser mit Beispieldaten geprüft,
 nicht alle in SoftEngine.
 
 - `empfang/Empfang.aufbau-maske.json`: Kanban mit Terminplaner (IDBID0021)

@@ -3,7 +3,7 @@ import { blockType } from '../../core/block/registry'
 import { gridMetricsOf, gridSlotRead } from '../../core/block/grid'
 import { capacityOf } from '../canvas/gridArea'
 import { useEditorInstance } from './EditorContext'
-import { saveMaskAsFile } from './maskFile'
+import { saveMask } from './maskFile'
 
 type Editor = ReturnType<typeof useEditorInstance>
 
@@ -122,7 +122,7 @@ export function useKeyboardShortcuts() {
 
       switch (effect) {
         case 'save':
-          saveMaskAsFile(editor)
+          void saveMask(editor)
           break
         case 'delete':
           if (chosen) editor.removeBlock(chosen)

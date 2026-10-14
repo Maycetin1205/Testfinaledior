@@ -1,22 +1,25 @@
 import { Database, Download, FilePlus, FolderOpen, Redo2, Save, SquareDashed, Undo2 } from '@/editor/icons/icon'
-import { useRef, useState } from 'react'
 import {
   DOCUMENT_FRAME_PROP,
   FRAME_SPOTS,
   documentFileNames,
   frameNumberOf,
 } from '../../core/block/documentFrame'
+import { exportTargetOf } from '../../core/block/exportTarget'
 import { ROOT_ID } from '../../core/block/tree'
 import { MASK_NAME_PROP, MASK_NAME_DEFAULT, maskNameOf } from '../../core/block/maskName'
 import { failedChecks, validateMaskHtml } from '../../export/validator'
 import { lostBindings } from '../../export/lostBindings'
 import { downloadFile } from '../state/downloadFile'
-import { loadMaskFromFile, saveMaskAsFile } from '../state/maskFile'
+import { exportFolder, writeExport } from '../state/exportTarget'
+import { canPickFolder } from '../state/folderOnDisk'
+import { saveMask } from '../state/maskFile'
 import { useEditor } from '../state/useEditor'
 import { useView } from '../state/useView'
 import { Field } from '@/editor/widgets/Field'
 import { Button, PRESSED } from '@/editor/widgets/Button'
-import { Notice, type NoticeText } from '@/editor/widgets/Notice'
+import { DoneLabel } from '@/editor/widgets/DoneLabel'
+import { Notice } from '@/editor/widgets/Notice'
 import { Separator } from '@/editor/widgets/Separator'
 import { useInputSession } from '../controls/useInputSession'
 
@@ -29,29 +32,33 @@ export function Toolbar() {
   const ed = useEditor()
   const view = useView()
   const dataOpen = view.dataWindow
+  const masksOpen = view.masksWindow
   const outlines = view.outlines
-  const fileRef = useRef<HTMLInputElement>(null)
-  // What the last export or load has to say, until it is read.
-  const [notice, setNotice] = useState<NoticeText | null>(null)
 
   const nameSession = useInputSession(() => ed.beginTransaction(), () => ed.endTransaction())
   const frameSession = useInputSession(() => ed.beginTransaction(), () => ed.endTransaction())
   const maskName = String(ed.tree[ROOT_ID]?.values[MASK_NAME_PROP] ?? '')
   const frameRaw = String(ed.tree[ROOT_ID]?.values[DOCUMENT_FRAME_PROP] ?? '')
   const frame = frameNumberOf(ed.tree)
+  const target = canPickFolder() ? exportTargetOf(ed.tree) : ''
 
   // With a frame number the mask leaves as a Belegerfassungs-Layoutrahmen.
-  // Nothing leaves when a check fails; the notice names the check.
+  // Nothing leaves when a check fails; the notice names the check. With a
+  // target folder known here, both files go into it, else they are
+  // downloaded; one notice says what went wrong or stays empty.
   const handleExport = async () => {
+    // Asked first, while the click still counts as the builder's: only then
+    // may the browser ask again for a folder kept from an earlier start.
+    const folder = target === '' ? null : await exportFolder(target)
     let exported: { html: string; sevariablen: string }
     try {
       // The export carries the whole mask runtime; the editor loads it on the first export only.
       const { exportMask } = await import('../../export/exportMask')
       exported = exportMask(ed.tree, maskNameOf(ed.tree), ed.dataSources.list, ed.relation.list)
     } catch (error) {
-      setNotice({
+      ed.showNotice({
         title: 'Export abgebrochen',
-        lead: 'Nichts heruntergeladen. Beim Bauen der Maske ging etwas schief:',
+        lead: 'Nichts exportiert. Beim Bauen der Maske ging etwas schief:',
         lines: [{ name: error instanceof Error ? error.message : String(error) }],
       })
       return
@@ -59,33 +66,53 @@ export function Toolbar() {
     const { html, sevariablen } = exported
     const failed = failedChecks(validateMaskHtml(html))
     if (failed.length > 0) {
-      setNotice({
+      ed.showNotice({
         title: 'Export abgebrochen',
         lead: failed.length === 1
-          ? 'Nichts heruntergeladen. Diese Prüfung der fertigen Maske ist nicht bestanden:'
-          : 'Nichts heruntergeladen. Diese Prüfungen der fertigen Maske sind nicht bestanden:',
+          ? 'Nichts exportiert. Diese Prüfung der fertigen Maske ist nicht bestanden:'
+          : 'Nichts exportiert. Diese Prüfungen der fertigen Maske sind nicht bestanden:',
         lines: failed.map((c) => ({ name: c.name, detail: c.detail })),
       })
       return
     }
 
     const names = frame === '' ? MASK_NAMES : documentFileNames(frame)
-    downloadFile(names.html, html, 'text/html')
-    downloadFile(names.sevariablen, sevariablen, 'application/json')
+    const why = folder === null
+      ? null
+      : folder.ok
+        ? await writeExport(folder.folder, [{ name: names.html, text: html }, { name: names.sevariablen, text: sevariablen }])
+        : folder.why
+    const written = folder !== null && why === null
+    if (!written) {
+      downloadFile(names.html, html, 'text/html')
+      downloadFile(names.sevariablen, sevariablen, 'application/json')
+    }
 
     const lost = lostBindings(ed.tree, ed.dataSources.list)
-    if (lost.length > 0) {
-      setNotice({
-        title: 'Exportiert, mit Lücken',
-        lead: lost.length === 1
-          ? 'Die Maske ist heruntergeladen. Diese Stelle bleibt in der Maske leer, weil ihre Quelle das Feld nicht hat:'
-          : 'Die Maske ist heruntergeladen. Diese Stellen bleiben in der Maske leer, weil ihre Quelle das Feld nicht hat:',
-        lines: lost.map((l) => ({
-          name: l.blockName,
-          detail: l.sourceName === '' ? `Feld ${l.code}, ohne Quelle` : `Feld ${l.code} fehlt in „${l.sourceName}“`,
-        })),
+    const gaps = lost.length === 0 ? '' : lost.length === 1
+      ? ' Diese Stelle bleibt in der Maske leer, weil ihre Quelle das Feld nicht hat:'
+      : ' Diese Stellen bleiben in der Maske leer, weil ihre Quelle das Feld nicht hat:'
+    const lines = lost.map((l) => ({
+      name: l.blockName,
+      detail: l.sourceName === '' ? `Feld ${l.code}, ohne Quelle` : `Feld ${l.code} fehlt in „${l.sourceName}“`,
+    }))
+    if (why !== null) {
+      ed.showNotice({
+        title: 'Heruntergeladen statt in den Zielordner',
+        lead: `Der Zielordner „${target}“ ${why} Die Maske ist darum heruntergeladen.${gaps}`,
+        lines,
       })
+      return
     }
+    if (lost.length > 0) {
+      ed.showNotice({
+        title: 'Exportiert, mit Lücken',
+        lead: (written ? `Die Maske liegt im Ordner „${target}“.` : 'Die Maske ist heruntergeladen.') + gaps,
+        lines,
+      })
+      return
+    }
+    ed.markDone('exported')
   }
 
   return (
@@ -128,30 +155,17 @@ export function Toolbar() {
       >
         <FilePlus size={14} /> Neu
       </Button>
-      <Button onClick={() => saveMaskAsFile(ed)}>
-        <Save size={14} /> Speichern
+      <Button onClick={() => void saveMask(ed)} title="In die Datei der Maske im Ordner der Masken (Strg+S)">
+        <DoneLabel done={view.done === 'saved'} icon={<Save size={14} />} label="Speichern" doneLabel="Gespeichert" />
       </Button>
-      <Button onClick={() => fileRef.current?.click()}>
-        <FolderOpen size={14} /> Laden
+      <Button
+        aria-pressed={masksOpen}
+        className={masksOpen ? PRESSED : undefined}
+        title="Alle Masken des Ordners, Vorlagen und der Zielordner des Exports"
+        onClick={() => ed.showMasks(!masksOpen)}
+      >
+        <FolderOpen size={14} /> Masken
       </Button>
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".json,application/json"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          try {
-            if (file) {
-              void loadMaskFromFile(ed, file).then((why) => {
-                if (why !== null) setNotice({ title: 'Maske nicht geladen', lead: `„${file.name}“ ${why}` })
-              })
-            }
-          } finally {
-            e.target.value = ''
-          }
-        }}
-      />
 
       <div className="flex items-center">
         <Button
@@ -180,8 +194,9 @@ export function Toolbar() {
         kind="primary"
         onClick={() => void handleExport()}
         disabled={ed.blockCount === 0}
+        title={target === '' ? 'Lädt die Maske herunter' : `Schreibt die Maske in den Ordner „${target}“`}
       >
-        <Download size={14} /> Exportieren
+        <DoneLabel done={view.done === 'exported'} icon={<Download size={14} />} label="Exportieren" doneLabel="Exportiert" />
       </Button>
       <Button
         aria-pressed={dataOpen}
@@ -199,7 +214,7 @@ export function Toolbar() {
         <SquareDashed size={14} /> Umrisse
       </Button>
 
-      {notice && <Notice notice={notice} onClose={() => setNotice(null)} />}
+      {view.notice && <Notice notice={view.notice} onClose={() => ed.showNotice(null)} />}
     </div>
   )
 }

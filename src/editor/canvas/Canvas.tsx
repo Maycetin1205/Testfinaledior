@@ -114,7 +114,7 @@ function EmptyCanvas() {
     >
       <p className="text-title font-bold text-ink">Die Maske ist leer</p>
       <p>Einen Baustein im Streifen links anklicken oder hierher ziehen.</p>
-      <p>Oder eine gespeicherte Maske mit „Laden“ öffnen, etwa aus dem Ordner „masken“.</p>
+      <p>Oder eine gespeicherte Maske unter „Masken“ öffnen, etwa aus dem Ordner „masken“.</p>
     </div>
   )
 }

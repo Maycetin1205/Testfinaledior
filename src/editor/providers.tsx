@@ -10,6 +10,11 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   const [editor] = useState(() => new EditorStore())
 
+  // The folder of masks of the last time, and the file of the mask in it.
+  useEffect(() => {
+    void editor.reopenFolder()
+  }, [editor])
+
   useEffect(() => {
     const rescue = (): void => {
       editor.saveNow()

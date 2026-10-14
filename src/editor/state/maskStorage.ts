@@ -26,6 +26,11 @@ export interface StoredMask {
   tree: MaskTree
   selectedId: string | null
   activePageId: string
+  // The file in the folder of masks the mask belongs to, and when the browser
+  // last kept it: at the next start the editor finds the file again and
+  // knows which of the two is newer.
+  file: string | null
+  savedAt: number
 }
 
 export interface StoredLibrary {
@@ -113,9 +118,12 @@ function readState(raw: string): StoredMask | null {
     if (state === null) return null
     const tree = checkTreeState({ tree: state.tree, selectedId: state.selectedId })
     if (tree === null) return null
+    const kept = parsed as { file?: unknown; savedAt?: unknown }
     return {
       ...tree,
       activePageId: typeof state.activePageId === 'string' ? state.activePageId : ROOT_ID,
+      file: typeof kept.file === 'string' ? kept.file : null,
+      savedAt: typeof kept.savedAt === 'number' ? kept.savedAt : 0,
     }
   } catch {
     return null
@@ -127,6 +135,8 @@ export function emptyMask(): StoredMask {
     tree: emptyTree(),
     selectedId: null,
     activePageId: ROOT_ID,
+    file: null,
+    savedAt: 0,
   }
 }
 
@@ -136,6 +146,8 @@ export function persistMask(mask: StoredMask): void {
     tree: mask.tree,
     selectedId: mask.selectedId,
     activePageId: mask.activePageId,
+    file: mask.file,
+    savedAt: mask.savedAt,
   }))
 }
 

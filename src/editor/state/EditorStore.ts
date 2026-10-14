@@ -7,7 +7,9 @@ import { type SourceInReach } from '../../core/data/extraSources'
 import { DataSourceStore } from './DataSourceStore'
 import { firstSourceInReach, sourcesInReach } from '../../core/block/sourcesInReach'
 import { gestureBracket, History, type EditorSnapshot, type GestureBracket } from './history'
-import { type MaskContent } from './maskFile'
+import { packMask, packMaskFrom, type MaskContent, type MaskFileAt } from './maskFile'
+import type { MaskFolder } from './maskFolder'
+import type { NoticeText } from '../widgets/Notice'
 import { missingOn } from './libraryFile'
 import { RelationStore } from './RelationStore'
 import { Subject } from './Subject'
@@ -32,7 +34,7 @@ import {
   inSubtree,
   propertyUpdated,
 } from './editorStore/treeEdits'
-import { EditorView, type OpenCalculation, type OpenLookup, type OpenStep } from './editorStore/viewState'
+import { EditorView, type Deed, type OpenCalculation, type OpenLookup, type OpenStep } from './editorStore/viewState'
 
 export type { OpenCalculation, OpenLookup, OpenStep } from './editorStore/viewState'
 
@@ -66,6 +68,8 @@ export class EditorStore extends Subject<EditorStore> {
 
   private _restoring = false
 
+  private _reopening: Promise<void> | null = null
+
   constructor() {
     super()
     const { library, mask } = EditorPersistence.load()
@@ -74,6 +78,7 @@ export class EditorStore extends Subject<EditorStore> {
     this._tree = mask.tree
     this._activePageId = mask.activePageId
     this._selectedId = this.selectionOnActivePage(mask.selectedId)
+    this._kept.started(mask, library)
     this._hydrated = true
 
     for (const store of [this.dataSources, this.relation]) {
@@ -173,6 +178,7 @@ export class EditorStore extends Subject<EditorStore> {
       activePageId: this.activePageId,
       dataSources: this.dataSources.list,
       relation: this.relation.list,
+      file: this.maskOnDisk.place,
     }
   }
 
@@ -186,8 +192,10 @@ export class EditorStore extends Subject<EditorStore> {
     }
   }
 
+  // Every step of the builder; from the first one on, the mask's file follows.
   private pushHistory(): void {
     this._history.record(() => this.snapshot())
+    this.maskOnDisk.stir()
   }
 
   beginTransaction(): void {
@@ -220,6 +228,7 @@ export class EditorStore extends Subject<EditorStore> {
 
   private restoreFrom(state: EditorSnapshot): void {
     this.setLibraries(state)
+    if (state.file) this.maskOnDisk.restore(state.file)
     this._tree = state.tree
     this._activePageId = state.activePageId ?? ROOT_ID
     this._selectedId = this.selectionOnActivePage(state.selectedId)
@@ -338,9 +347,11 @@ export class EditorStore extends Subject<EditorStore> {
     this.notify(this)
   }
 
-  // The file it came from gets no handle, so the file picked for the mask
-  // before is not written over; the next „Speichern" asks for a file again.
-  replaceMask(content: MaskContent): void {
+  // A mask from the folder of masks keeps its file: the next change goes
+  // there, opening alone writes nothing. Any other file gets no handle, so the
+  // file of the mask before is not written over; the next „Speichern" gives
+  // the mask a file of its own.
+  replaceMask(content: MaskContent, from: MaskFileAt | null = null): void {
     this.pushHistory()
     this.maskOnDisk.forget()
     this.setLibraries({
@@ -350,7 +361,16 @@ export class EditorStore extends Subject<EditorStore> {
     this._tree = content.tree
     this._selectedId = null
     this._activePageId = ROOT_ID
+    if (from !== null) {
+      this.maskOnDisk.remember(from.file, from.path, packMask(this._tree, this.dataSources.list, this.relation.list))
+    }
     this.notify(this)
+  }
+
+  // A file of the folder of masks becomes the mask's own, as after opening it.
+  keepIn(at: MaskFileAt, holds: string | null): void {
+    this.maskOnDisk.remember(at.file, at.path, holds)
+    this._kept.plan()
   }
 
   // ----- what the editor shows besides the mask -----
@@ -386,13 +406,88 @@ export class EditorStore extends Subject<EditorStore> {
 
   showOutlines(on: boolean): void { this._shows.showOutlines(on) }
 
+  get masksWindow(): boolean { return this._shows.masksWindow }
+
+  showMasks(open: boolean): void { this._shows.showMasks(open) }
+
+  get notice(): NoticeText | null { return this._shows.notice }
+
+  showNotice(notice: NoticeText | null): void { this._shows.showNotice(notice) }
+
+  get done(): Deed | null { return this._shows.done }
+
+  markDone(deed: Deed): void { this._shows.markDone(deed) }
+
   // ----- where the work is kept -----
 
   get maskOnDisk() { return this._kept.maskOnDisk }
 
   get libraryOnDisk() { return this._kept.libraryOnDisk }
 
+  get maskFolder(): MaskFolder { return this._kept.folder }
+
   saveNow(): void {
     this._kept.now()
+  }
+
+  // At the start: the folder of masks of the last time, and in it the file
+  // of the mask on the canvas.
+  reopenFolder(): Promise<void> {
+    this._reopening ??= (async () => {
+      await this.maskFolder.restore()
+      await this.rejoin()
+    })()
+    return this._reopening
+  }
+
+  // Open for writing after one click at most, the mask's file found again.
+  // False when the builder closed the picker or the browser said no.
+  async folderReady(): Promise<boolean> {
+    if (!(await this.maskFolder.ready())) return false
+    await this.rejoin()
+    return true
+  }
+
+  // Another folder in place of the one before: the place the mask on the
+  // canvas expected there means nothing in it.
+  async pickMaskFolder(): Promise<void> {
+    const picked = await this.maskFolder.pick()
+    if (picked === 'switched' && !this.maskOnDisk.attached) this.maskOnDisk.forget()
+    if (picked !== 'closed') await this.rejoin()
+  }
+
+  // The file of the mask on the canvas, found again in the folder after a
+  // start. Holds it the mask, it is taken. Changed it after the browser last
+  // kept the mask, from outside, the file wins; „Rückgängig" brings back what
+  // the browser had. Else the browser's mask is newer and goes into the file.
+  private async rejoin(): Promise<void> {
+    const disk = this.maskOnDisk
+    const path = disk.path
+    if (path === null || disk.attached || this.maskFolder.state !== 'open') return
+    const file = await this.maskFolder.fileAt(path)
+    let data: { text: string; modified: number } | null = null
+    if (file !== null) {
+      try {
+        const read = await file.getFile()
+        data = { text: await read.text(), modified: read.lastModified }
+      } catch {
+        data = null
+      }
+    }
+    if (disk.path !== path || disk.attached) return
+    if (file === null || data === null) {
+      disk.forget()
+      return
+    }
+    if (data.text === packMask(this._tree, this.dataSources.list, this.relation.list)) {
+      disk.remember(file, path, data.text)
+      return
+    }
+    const read = data.modified > this._kept.keptAt ? packMaskFrom(data.text) : null
+    if (read?.ok) {
+      this.replaceMask(read.content, { file, path })
+      return
+    }
+    this.keepIn({ file, path }, null)
   }
 }

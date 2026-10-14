@@ -7,6 +7,7 @@ import { LookupColumns } from '../canvas/LookupColumns'
 import { PageBar } from '../canvas/PageBar'
 import { BlockPalette } from '../sidebar/BlockPalette'
 import { DataWindow } from '../data/DataWindow'
+import { MasksWindow } from '../masks/MasksWindow'
 import { BarStrip } from '../bar/BarStrip'
 import { Toolbar } from './Toolbar'
 
@@ -37,6 +38,7 @@ export function EditorShell() {
       </div>
 
       {view.dataWindow && <DataWindow onClose={() => view.showData(false)} />}
+      {view.masksWindow && <MasksWindow onClose={() => view.showMasks(false)} />}
 
       <LookupColumns />
       <OpenCalculationWindow />
