@@ -67,7 +67,9 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   Schrittart, jedes Fenster braucht eine Zeile in `entschieden.md`, die
   die Maske nennt, die es braucht. Die Zahl steht als Decke in
   `src/editor/state/settingsInventory.test.ts`; der Test schlägt an, wenn
-  sie steigt. Chats 5g und 5h senken sie auf 44.
+  sie steigt. Chat 5g senkt sie auf 58. Was die Maske kann (Blättern,
+  Sortieren, Spaltenwahl, Tag filtern, Einziger Treffer), bleibt; was nur
+  der Editor anbietet und keine Maske nutzt, geht (Nutzer, 14.10.).
 
 ## Plan: ein Chat je Zeile
 
@@ -208,42 +210,48 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Text: weg Farbe, Art, Beschriftung (Schalter und Text), Weitere
    Quellen; bleibt Rolle, Größe, Symbol, Ausrichtung, Text. Ein Text ist
    kein Chip mehr (`emphasis`, `tone` aus `textProperties`).
-   Feld: weg Beschriftung-Schalter, Art (Linie/Ohne), Wert mit Haken,
-   Wert ohne Haken (J und N fest, hebt 08.10. auf), Einzigen Treffer
-   übernehmen, Weitere Quellen; bleibt Feldtyp, Nachschlagen, Symbol,
-   Beschriftung, Auswahl-Optionen, Feld, Quelle, Gespeichert wird,
-   Pflicht.
+   Feld: weg Art (Linie/Ohne), Wert mit Haken, Wert ohne Haken (J und N
+   fest, hebt 08.10. auf), Weitere Quellen; bleibt Feldtyp, Nachschlagen,
+   Beschriftung samt Schalter, Symbol, Auswahl-Optionen, Feld, Quelle,
+   Gespeichert wird, Einzigen Treffer übernehmen, Pflicht (Nutzer,
+   14.10.: Beschriftung und Einziger Treffer bleiben).
    Datenliste: weg die getippten Stellen Titel, Unterzeile, Rechts, das
    Symbol, Weitere Quellen; bleibt Auswahl. Eine Stelle ist gebunden oder
    leer.
-   Kanban: weg Avatar (Tiersymbol/Bild), Art des Chips, die sieben
-   getippten Stellen; bleibt Einsortieren nach, Tag filtern nach, Spalten,
-   Farbe des Chips. Die Spalte behält Titel, Knopftext, Knopf, Nach
-   Uhrzeit, Farbe, Auffangspalte, Plätze (alle genutzt).
+   Kanban: weg die sieben getippten Stellen, der Schalter Avatar
+   (Tiersymbol/Bild; ein Bild gibt es erst, wenn SoftEngine eines liefert,
+   siehe Einzelpunkte), und der Chip ganz (Nutzer, 14.10.: „Chips weg“):
+   Stelle, Feld, Farbe des Chips, Art des Chips, `parts/chip.ts`, der
+   Streifen am Kartenrand aus 5d. Auf der Karte des Empfangs verschwindet
+   damit „Notfall“/„OP“; will der Nutzer es sehen, wird das Feld an eine
+   Zeile der Karte gebunden (`masken/empfang`, nur mit seinem Ja). Bleibt
+   Einsortieren nach, Tag filtern nach, Spalten. Die Spalte behält Titel,
+   Knopftext, Knopf, Nach Uhrzeit, Farbe, Auffangspalte, Plätze (alle
+   genutzt).
+   Avatar (Kanban und Datenliste): bleibt, aber ohne gebundenes Feld
+   gibt es keinen Kreis, auch im Editor nicht (Nutzer, 14.10.: „dann eben
+   einfach kein Avatar“). Der gepunktete Kreis zum Binden entfällt;
+   gebunden wird über die Feldwahl „Avatar“ bzw. „Tiersymbol“ in der
+   Gruppe Quelle (`place: 'source'` statt `'none'`, zählt als zwei
+   Einstellungen). Ein gebundener Avatar zeigt im Editor den Umriss des
+   Tiers aus den Probedaten (5f), sonst nichts.
    Farben: weg Petrol (`ACCENT` in `look.ts`, der Sonderweg ohne eigene
    Töne); bleiben Neutral, Blau, Grün, Ocker, Rot.
    Schritte: weg Maske schließen, Werkzeug starten, BW-Link; bleiben
    Relation, Popup öffnen, Popup schließen. Chat 7 (Aktionsfenster) wird
    dadurch kleiner.
-   Bereich, Knopf, Datum, Popup: nichts, alles genutzt. Decke im Test
-   auf den neuen Stand senken. Export ändert sich (Attribute fallen weg):
+   Listen: Suchzeile aus als Vorgabe (jede Maske schaltet sie ab).
+   Blättern, Sortieren per Klick, Spaltenwahl, Tag filtern nach bleiben
+   (Nutzer, 14.10.; 24.09. steht). Weitere Quellen an der Tabelle weg.
+   Bereich, Knopf, Datum, Popup: nichts, alles genutzt. Decke im Test auf
+   58 senken. Export ändert sich (Attribute fallen weg):
    `REFERENCE_REFRESH=1`, im Commit benannt. Bilder vorher und nachher
-   je Maske, pixelgleich.
-5h. Streichen, Teil 2: Listen (Tabelle, Erfassung). Weg Blättern (jede
-   Maske schaltet es ab; hebt „Blättern bleibt“ vom 24.09. auf, samt
-   `pagesSplit`), Sortieren per Klick (Tabelle sortiert immer, Erfassung
-   nie), Spaltenwahl (samt `columnPicker.ts` und dem Rechtsklick; hebt
-   24.09. auf), Tag filtern nach (bleibt nur am Kanban), Weitere Quellen
-   an der Tabelle. Suchzeile bleibt, aber aus als Vorgabe (jede Maske
-   schaltet sie ab). Schalter je Spalte: weg Eingabe erlaubt (nie aus),
-   Unterzeile samt Platzwahl (nie; hebt 07.10. auf, samt `greyLine`,
-   `placedUnder`, `UNDER` in `capture/column.ts` und dem Zeichnen der
-   grauen Zeile), €; bleiben Summe, Pflicht, Zahl, Betrag, Ausblenden,
-   Füllfeld. Zahl und Betrag werden in 6b eine Wahl „Art“. Danach
-   zeigt die Erfassung im Editor genau: Spalten, Suchzeile, Hinweis in
-   der Tippzeile, Berechnungen. Decke senken, `REFERENCE_REFRESH=1`,
-   Bilder je Maske, pixelgleich bis auf die Tabelle der Behandlung
-   (ihr Blättern-Fuß fällt weg).
+   je Maske, pixelgleich bis auf den Chip im Empfang.
+   Offen, Nutzer entscheidet: drei Schalter je Spalte der Erfassung, die
+   keine der 13 Spalten nutzt: „Eingabe erlaubt“ (steht überall an),
+   „Unterzeile“ samt Platzwahl (die graue zweite Zeile vom 07.10., samt
+   `greyLine`, `placedUnder`, `UNDER` in `capture/column.ts`), „€“.
+   Sagt er raus, kommen sie zu 5g; die Decke sinkt dann auf 54.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
