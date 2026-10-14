@@ -96,9 +96,25 @@ export function Canvas() {
             {mainPage && <NodeList parentId={ed.rootId} />}
           </div>
 
+          {mainPage && ed.blockCount === 0 && dropTarget === null && <EmptyCanvas />}
           {!mainPage && <PopupPage popupId={ed.activePageId} />}
         </div>
       </div>
     </DndContext.Provider>
+  )
+}
+
+// What an empty mask asks for, in the middle of the sheet; it gives way to
+// the cells of a block being dragged in and lets the drop through.
+function EmptyCanvas() {
+  return (
+    <div
+      data-ff-editor-helper
+      className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-[4px] text-center text-ui text-muted"
+    >
+      <p className="text-title font-bold text-ink">Die Maske ist leer</p>
+      <p>Einen Baustein im Streifen links anklicken oder hierher ziehen.</p>
+      <p>Oder eine gespeicherte Maske mit „Laden“ öffnen, etwa aus dem Ordner „masken“.</p>
+    </div>
   )
 }

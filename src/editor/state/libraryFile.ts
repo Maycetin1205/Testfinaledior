@@ -4,7 +4,7 @@ import { writeFile } from './fileOnDisk'
 import type { EditorStore } from './EditorStore'
 import { LIBRARY_SCHEMA_VERSION, liftLibrary } from './librarySchema'
 
-const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
+export const LIBRARY_FILE_KIND = 'aufbau-editor-bibliothek'
 
 const LIBRARY_FILE_VERSION = 2
 

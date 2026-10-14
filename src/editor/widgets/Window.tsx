@@ -44,7 +44,8 @@ export function Window<K extends string>({
   // The tabs stand in the head and the title is only read out.
   tabsInHead?: boolean
   width: number
-  height: number
+  // Without a height the window is as high as its content.
+  height?: number
   panel?: boolean
   // Above the window it was opened from.
   level?: number
@@ -61,7 +62,11 @@ export function Window<K extends string>({
           aria-label={title}
           data-ff-popover-family={family}
           {...(panel ? { 'data-ff-data-panel': '' } : { 'data-ff-editor-helper': '' })}
-          style={{ width: `min(${width}px, 96vw)`, height: `min(${height}px, 92vh)`, zIndex: level }}
+          style={{
+            width: `min(${width}px, 96vw)`,
+            ...(height === undefined ? { maxHeight: '92vh' } : { height: `min(${height}px, 92vh)` }),
+            zIndex: level,
+          }}
           className="fixed left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[var(--radius-card)] bg-panel text-ui text-ink shadow-overlay"
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}

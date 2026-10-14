@@ -14,6 +14,11 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
   blau. Der Schalter „Umrisse“ zeigt zusätzlich alle Bausteine blass
   gestrichelt; Vorgabe aus, die Wahl bleibt auch nach dem Neuladen. In
   der Maske gibt es keine Umrisse.
+- Neu: fragt nach, wenn Bausteine auf der Leinwand stehen; „Rückgängig“
+  holt die Maske zurück. Eine leere Maske sagt in der Mitte, was zu tun
+  ist: Baustein anklicken oder ziehen, oder „Laden“.
+- Laden: lädt eine Datei nicht, sagt ein kleines Fenster warum (keine
+  Maske, Kundendatei, zu alte oder neuere Fassung, beschädigt).
 - Links der Streifen mit den Bausteinen: anklicken oder ziehen.
 - Mitte die Maske in echter Größe: ein weißes Blatt auf dem grauen Grund
   des Fensters, wie in SoftEngine.
@@ -54,6 +59,10 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
   Browserspeicher am Origin hängt.
 - Export: ein Knopf, die Rahmen-Nummer entscheidet die Dateinamen
   (`Rahmen<Nr>.basis.source.html`, `Rahmen<Nr>.basis.SEvariablen.json`).
+  Besteht die fertige Maske eine Prüfung nicht, wird nichts
+  heruntergeladen, und ein kleines Fenster nennt die Prüfung. Hat eine
+  Quelle ein gebundenes Feld nicht, wird heruntergeladen, und das Fenster
+  nennt Baustein, Feld und Quelle: die Stelle bleibt in der Maske leer.
 
 ## Die Bausteine
 

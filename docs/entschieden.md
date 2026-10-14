@@ -7,6 +7,14 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Rückmeldungen (Chat 2): was schiefgeht, sagt ein kleines Fenster
+  in der Sprache der Maske (`Notice`), kein Browser-Dialog; einzige
+  Ausnahme ist die Rückfrage bei „Neu“, und die nur, wenn Bausteine auf
+  der Leinwand stehen. Scheitert eine Prüfung des Exports, wird nichts
+  heruntergeladen. Fehlt einer Quelle ein gebundenes Feld, wird trotzdem
+  heruntergeladen und die Stelle genannt: die Maske ist brauchbar, nur
+  diese Stelle bleibt leer. Grund: der Editor schwieg bisher in allen
+  drei Fällen.
 - 14.10. Umrisse (Chat 1, nachgebessert am selben Tag, Nutzer: „sehen
   schlimm aus“): unter der Maus zeigt jeder Baustein eine leise blaue
   Haarlinie in seiner echten Größe (nur der innerste, nicht der Bereich

@@ -62,7 +62,8 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    nachgebessert 14.10.
 2. Rückmeldungen. Der Export sagt, welche Prüfung scheitert. Eine Datei,
    die nicht lädt, sagt warum. „Neu“ fragt nach. Die leere Leinwand zeigt,
-   was zu tun ist.
+   was zu tun ist. Dazu: der Export nennt Stellen, deren Feld die Quelle
+   nicht hat. Erledigt 14.10.
 3. Masken sichern. Ein Test lädt jede Maske aus `masken/` (Heber,
    Prüfung, Export) und schlägt an, wenn eine nicht mehr lädt. Die Masken
    werden committet.
@@ -110,14 +111,6 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   Nutzer sie will.
 
 ## Einzelheiten zu den Chats
-
-Chat 2, Rückmeldungen. `src/editor/shell/Toolbar.tsx`: `return` ohne
-Meldung, wenn `validateMaskHtml()` eine Prüfung nicht besteht; die
-Prüfungen tragen schon Namen und Details (`src/export/validator.ts`).
-`src/editor/state/maskFile.ts`: `loadMaskFromFile()` tut bei einer Datei,
-die nicht lädt, nichts. „Neu“ löscht ohne Rückfrage. Eine Meldung in der
-Maskensprache (kleines Fenster, `src/editor/widgets/`), keine
-Browser-Dialoge außer der Rückfrage bei „Neu“.
 
 Chat 3, Masken sichern. Ein Test `src/editor/state/masksLoad.test.ts`:
 für jede `*.aufbau-maske.json` unter `masken/` `liftState()`,
@@ -192,9 +185,6 @@ nicht gebaut, sondern als Frage an den Nutzer notiert.
 - Lieferung „per GET“ erzeugt eine Quelle, die die Maske ablehnt
   (`src/core/data/dataSources.ts`); berührt Relation 69, nur mit Ja des
   Nutzers.
-- Eine Bindung, deren Feld die Quelle nicht mehr hat, ist im Export leer,
-  ohne Warnung (`src/editor/canvas/useLitElement.ts`). Gehört zu Chat 2,
-  wenn es dort billig ist.
 - Suchfenster liest seine Spalten noch über die Schlüssel seiner
   Fähigkeit (`src/editor/canvas/lookupWindowState.ts`), der Rest vom
   Datenweg.
