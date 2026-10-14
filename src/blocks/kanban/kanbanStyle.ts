@@ -321,28 +321,29 @@ export const kanbanStyle = css`
     background: var(--se-danger);
   }
 
-  /* The button under the card: white in the hairline, the first ink; a
-     step darker under the pointer. Neither the tone of a column nor the
-     accent: the board's buttons are no main button. */
+  /* The button under the card, a second button (Chat 5e): the grey ground
+     of the day button Heute without a line, the first ink half bold; a step
+     darker under the pointer. The lighter --se-panel-2 would vanish on a
+     card under the pointer. Neither the tone of a column nor the accent:
+     only the main button is blue. */
   .advance {
     box-sizing: border-box;
     width: 100%;
     height: 32px;
     border: none;
     border-radius: var(--se-radius);
-    background: var(--se-panel);
-    box-shadow: var(--se-edge);
+    background: var(--se-neutral-soft);
     color: var(--se-ink);
     font-family: var(--se-font);
     font-size: var(--se-fs);
-    font-weight: 700;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
     transition: background-color var(--se-move);
   }
-  .advance:hover { background: var(--se-hover); }
+  .advance:hover { background: color-mix(in oklab, var(--se-neutral-soft), var(--se-neutral) 9%); }
   .advance:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
 
   :host([preview]) [data-ff-spot]:not([data-ff-bound]):not(.avatar):empty::before,

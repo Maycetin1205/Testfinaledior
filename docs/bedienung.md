@@ -92,11 +92,13 @@ Beschriftungen normal geschrieben in der zweiten Tinte, Werte halbfett,
 Linien statt Schatten. Die blaue Hausfarbe nur am Hauptknopf, an der
 gewählten Zeile und am Fokusring. Zeile und Karte unter der Maus heben sich.
 
-- Bereich: Form Frei, Kasten (weiß mit Haarlinie), Kopfzeile (ein
+- Bereich: Form Frei, Kasten (hellgrau, ohne Rand), Kopfzeile (ein
   Abschnitt: Titel über einer Haarlinie, kein Kasten) oder Band (der Kopf
-  des Blatts, oben über die ganze Breite, flach mit Haarlinie darunter);
-  Farbe, Art. Innen das Raster der Seite.
-- Knopf: Farbe, Art, Größe (Klein und Normal 28 px, Groß 44 px).
+  des Blatts, oben über die ganze Breite, flach auf hellgrauem Grund mit
+  Haarlinie darunter); Farbe, Art. Innen das Raster der Seite.
+- Knopf: Farbe, Art, Größe (Klein und Normal 28 px, Groß 44 px). Der
+  Hauptknopf ist „Fläche voll“ in Blau; ein Knopf zweiter Ordnung ist
+  „Fläche leicht“ in Neutral: grau wie „Heute“, ohne Rand, halbfett.
 - Datum: Tageswahl.
 - Feld: Text, Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld
   (Haken `J`, kein Haken `N`, je Feld einstellbar). Beschriftung als
@@ -120,8 +122,9 @@ gewählten Zeile und am Fokusring. Zeile und Karte unter der Maus heben sich.
   Titel leise, die erste andere Spalte den „Hinweis in der Tippzeile“
   (Einstellungen, Anzeige). Auf der Seite wächst sie mit dem Fenster.
 - Kanban: Plätze je Spalte, mehrere Felder je Platz mit Trenner, Knopf je
-  Spalte (Aus, Weiter oder Aktion), Spalte nach Uhrzeit mit Stundenlinien
-  und Jetzt-Linie. Der Chip ist ein Wort mit Punkt; eine Karte mit Chip
+  Spalte (Aus, Weiter oder Aktion; grau wie „Heute“, ohne Rand, halbfett),
+  Spalte nach Uhrzeit mit Stundenlinien und Jetzt-Linie. Die Karten sind
+  weiß mit Haarlinie. Der Chip ist ein Wort mit Punkt; eine Karte mit Chip
   trägt links einen Streifen in seiner Farbe. Beim Ziehen hebt sich die
   Karte mit Schatten.
 - Datenliste: Auswahl Eine Zeile, Mehrere oder Keine; je Zeile Tiersymbol

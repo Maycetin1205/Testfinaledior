@@ -151,21 +151,18 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    hinausgingen, siehe 5e. Und im Editor ist die Erfassung bis auf die
    Tippzeile leer, weil die Probedaten erst in 7b kämen; die kommen
    darum jetzt als 5f.
-5e. Nachbesserung, klein, ein Chat. Drei Stellen, an denen 5d über die
-   Probe 3 hinausging und die Maske kahl wurde: Knöpfe zweiter Ordnung
-   („Anmelden →“, „Ins Zimmer →“, „Rechnung erstellen“, „In diesen Beleg
-   übernehmen“) sind weiße Kästen mit schwarzem Rand und fettem Text wie
-   1999; sie werden eine hellgraue Fläche ohne Rand (`--se-panel-2`,
-   wie „Heute“ im Empfang), Text halbfett in Tinte, unter der Maus eine
-   Stufe dunkler; nur der Hauptknopf ist blau. Das Band oben bekommt
-   seinen leichten Grund `--se-panel-2` zurück, flach, ohne Rundung, mit
-   Haarlinie unten; die Probe 3 hatte ihn, 5d hat ihn genommen. Kasten
-   und Karte (Behandlung: „Tiername“-Karte) tragen statt eines
-   1-px-Rahmens auf Weiß den Grund `--se-panel-2` ohne Rand, wenn sie
-   auf dem Blatt liegen, und bleiben weiß mit Haarlinie im Kanban auf
-   grauer Spalte. Keine weiteren Werte. Bilder vorher/nachher,
-   `REFERENCE_REFRESH=1`, Standbilder `docs/design/2026-10-14-fachsoftware-*.png`
-   erneuern.
+5e. Nachbesserung: Knöpfe zweiter Ordnung, Band, Kasten. Erledigt 14.10.:
+   die Knöpfe im Kanban und „Fläche leicht“ in Neutral („In diesen Beleg
+   übernehmen“) sind grau wie „Heute“, ohne Rand, halbfett in Tinte,
+   unter der Maus eine Stufe dunkler; das Band liegt wieder auf
+   `--se-panel-2` mit Haarlinie unten; der Kasten („Patient“ in der
+   Behandlung) ist `--se-panel-2` ohne Rand, die Karten im Kanban bleiben
+   weiß mit Haarlinie. Abweichung vom Auftrag: der Knopf trägt den Grund
+   von „Heute“ (`--se-neutral-soft`), nicht `--se-panel-2`; der wäre auf
+   einer Karte unter der Maus und im Kasten unsichtbar (`entschieden.md`).
+   Der Referenzabzug bleibt gleich (die Stile stecken in der Laufzeit).
+   Standbilder `docs/design/2026-10-14-fachsoftware-*.png` erneuert. Der
+   Export in V7 zeigt es nach dem nächsten „Exportieren“.
 5f. Probedaten im Editor, vorgezogen aus 7b (Nutzer, 14.10.: „wieso
    habe ich keine Zeilen mehr in der Erfassung“). Einzelheiten unten bei
    Chat 7b; der Chat heißt 5f und kommt vor 6a. Bis dahin zeigt die
@@ -197,7 +194,10 @@ Chat (14.10., der Nutzer will nicht 17 Chats takten).
 8. Durchsicht der kleinen Bausteine: Text, Feld, Datum, Knopf. Rest aus
    5d: der Name in der Belegerfassung steht mit Größe 26 in der Maske,
    die Rolle Titel hat 22; mit dem Nutzer klären, ob die Maske auf 22
-   geht (`masken/` ändern).
+   geht (`masken/` ändern). Rest aus 5e: „+ Kunde“ und „Abbrechen“ im
+   Fenster „Neuen Termin anlegen“ (Empfang) stehen auf „Nur Rand“, also
+   weiß mit Linie und fett; mit dem Nutzer klären, ob sie „Fläche
+   leicht“ werden (`masken/empfang` ändern).
 9. Durchsicht Bereich und Popup, dazu der neue Baustein Linie: eine
    Haarlinie, waagerecht oder senkrecht, Farbe aus den Wahlen, eine
    Rasterzeile hoch oder eine Spalte breit. Für Masken, die Gruppen
@@ -210,7 +210,8 @@ Chat (14.10., der Nutzer will nicht 17 Chats takten).
     und Streifen, „Art des Chips“ ändert darum nichts mehr (raus, wenn
     der Nutzer ja sagt); die Farbe des Chips gilt für alle Karten, „OP
     ocker, Notfall rot“ ginge nur mit einer Farbe je Wert, und die ist
-    seit 07.10. gestrichen.
+    seit 07.10. gestrichen. Rest aus 5e: der Wert `--se-edge` in
+    `mask.css` nutzt seit 5e niemand mehr.
 
 ### Phase 2: Vor dem ersten Kunden
 

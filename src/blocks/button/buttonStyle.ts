@@ -37,8 +37,12 @@ export const buttonStyle = css`
   }
 
   button:hover { background: var(--look-ground-hover); border-color: var(--look-edge-hover); }
-  /* Fläche leicht darkens a little under the pointer, as .btn.sec:hover,
-     and keeps its edge away. */
+  /* Fläche leicht is the second button (Chat 5e): half bold; neutral, the
+     first ink on the grey of the day button Heute, as the buttons of the
+     board. It darkens a step under the pointer, as .btn.sec:hover, and
+     keeps its edge away. */
+  button.emphasis-soft { font-weight: 600; }
+  button.emphasis-soft.tone-neutral { color: var(--se-ink); }
   button.emphasis-soft:hover {
     background: color-mix(in oklab, var(--tone-soft), var(--tone-strong) 9%);
     border-color: transparent;

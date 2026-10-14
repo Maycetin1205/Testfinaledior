@@ -2,7 +2,7 @@ import { css, unsafeCSS } from 'lit'
 import { AREA_COLUMNS, GRID, gridAreaCss } from '../../core/block/grid'
 
 // Sections, not cards (Tonprobe 3, 14.10.): a Kopfzeile is a section of the
-// sheet, its title over a hairline; a Kasten a white box in the hairline, no
+// sheet, its title over a hairline; a Kasten a light grey box, no line, no
 // shadow. Head and padding take whole rows of the grid, so an area holds as
 // many rows as before the new look: the head and the room below make four
 // rows, the room above and below a box one.
@@ -37,13 +37,9 @@ export const areaStyle = css`
   :host(:not([preview])) .frame,
   :host(:not([preview])) .body { overflow: clip; }
 
-  /* Kasten: a white box on the sheet, the hairline drawn inside, so the box
-     keeps its size. */
-  .appearance-box {
-    background: var(--se-card-bg);
-    outline: var(--se-border) solid var(--se-line);
-    outline-offset: calc(-1 * var(--se-border));
-  }
+  /* Kasten: a light grey box on the white sheet, without a line (Chat 5e);
+     the cards of the board stay white in the hairline on their grey column. */
+  .appearance-box { background: var(--se-panel-2); }
   /* Kopfzeile: a section, no box: the title over a hairline, what it holds
      on the sheet below. */
   .appearance-headed .head { border-bottom: var(--se-hair); }
@@ -60,11 +56,12 @@ export const areaStyle = css`
     outline-offset: calc(-1 * var(--se-border));
   }
 
-  /* Band: the head of the sheet, like the head of a letter: flat on the
-     sheet, without a ground or a corner of its own, a hairline under it; the
-     columns inside stay those of the sheet. It belongs at the top of the
-     page, over the whole width. */
+  /* Band: the head of the sheet, like the head of a letter: flat on a light
+     grey ground, without a corner, a hairline under it (Tonprobe 3, back in
+     Chat 5e); the columns inside stay those of the sheet. It belongs at the
+     top of the page, over the whole width. */
   .appearance-band {
+    background: var(--se-panel-2);
     border-bottom: var(--se-hair);
     border-radius: 0;
   }

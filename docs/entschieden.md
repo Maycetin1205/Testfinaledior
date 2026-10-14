@@ -7,6 +7,13 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Nachbesserung (Chat 5e): Knöpfe zweiter Ordnung (Kanban,
+  „Fläche leicht“ in Neutral) tragen den Grund von „Heute“
+  (`--se-neutral-soft`), keinen Rand, halbfette Schrift in Tinte, unter der
+  Maus eine Stufe dunkler. Nicht `--se-panel-2`: das ist der Grund einer
+  Karte unter der Maus und jetzt des Kastens, der Knopf verschwände darin.
+  Band auf `--se-panel-2`, flach, Haarlinie unten. Kasten auf
+  `--se-panel-2` ohne Rand; Karten im Kanban bleiben weiß mit Haarlinie.
 - 14.10. Übernahme der Probe 3 (Chat 5d), endgültiger Stand der Maske:
   Bilder `docs/design/2026-10-14-fachsoftware-*.png`. Der Akzent steht nur
   an Hauptknopf, gewählter Zeile (Grund und Strich, die Schrift bleibt
