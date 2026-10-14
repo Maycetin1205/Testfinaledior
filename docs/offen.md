@@ -60,6 +60,14 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   Liste von Auflagen. Eine Auflage, die etwas wegnimmt, braucht ein Bild,
   das zeigt, dass es ohne besser ist: fünf Runden „weniger“ (Schatten,
   Rundung, Großschrift, Grund, Zeilen) haben die Leinwand leer gemacht.
+- Nichts Neues ohne Maske, die es braucht (14.10.). Inventur vom 14.10.:
+  der Editor zeigt 77 Einstellungen an den Bausteinen, 29 davon hat keine
+  der drei Masken je angefasst; dazu 6 Schrittarten, 3 davon nie benutzt,
+  und 6 Farben, eine nie. Jede neue Eigenschaft, jeder Schalter, jede
+  Schrittart, jedes Fenster braucht eine Zeile in `entschieden.md`, die
+  die Maske nennt, die es braucht. Die Zahl steht als Decke in
+  `src/editor/state/settingsInventory.test.ts`; der Test schlägt an, wenn
+  sie steigt. Chats 5g und 5h senken sie auf 44.
 
 ## Plan: ein Chat je Zeile
 
@@ -192,6 +200,50 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    „Tiername“. Bilder vorher und nachher, dazu
    `docs/design/2026-10-14-fachsoftware-*.png` erneuern (Linien). Kommt
    vor 6a.
+5g. Streichen, Teil 1: Bausteine, Farben, Schritte. Weg ist weg, samt
+   dem Code dahinter (Leiste, Fenster, Baustein, Export, Laden); die
+   Masken laden danach weiter (`readValues` lässt unbekannte Namen
+   fallen) und sehen gleich aus. Grund je Posten: in keiner der drei
+   Masken je benutzt (Inventur 14.10.).
+   Text: weg Farbe, Art, Beschriftung (Schalter und Text), Weitere
+   Quellen; bleibt Rolle, Größe, Symbol, Ausrichtung, Text. Ein Text ist
+   kein Chip mehr (`emphasis`, `tone` aus `textProperties`).
+   Feld: weg Beschriftung-Schalter, Art (Linie/Ohne), Wert mit Haken,
+   Wert ohne Haken (J und N fest, hebt 08.10. auf), Einzigen Treffer
+   übernehmen, Weitere Quellen; bleibt Feldtyp, Nachschlagen, Symbol,
+   Beschriftung, Auswahl-Optionen, Feld, Quelle, Gespeichert wird,
+   Pflicht.
+   Datenliste: weg die getippten Stellen Titel, Unterzeile, Rechts, das
+   Symbol, Weitere Quellen; bleibt Auswahl. Eine Stelle ist gebunden oder
+   leer.
+   Kanban: weg Avatar (Tiersymbol/Bild), Art des Chips, die sieben
+   getippten Stellen; bleibt Einsortieren nach, Tag filtern nach, Spalten,
+   Farbe des Chips. Die Spalte behält Titel, Knopftext, Knopf, Nach
+   Uhrzeit, Farbe, Auffangspalte, Plätze (alle genutzt).
+   Farben: weg Petrol (`ACCENT` in `look.ts`, der Sonderweg ohne eigene
+   Töne); bleiben Neutral, Blau, Grün, Ocker, Rot.
+   Schritte: weg Maske schließen, Werkzeug starten, BW-Link; bleiben
+   Relation, Popup öffnen, Popup schließen. Chat 7 (Aktionsfenster) wird
+   dadurch kleiner.
+   Bereich, Knopf, Datum, Popup: nichts, alles genutzt. Decke im Test
+   auf den neuen Stand senken. Export ändert sich (Attribute fallen weg):
+   `REFERENCE_REFRESH=1`, im Commit benannt. Bilder vorher und nachher
+   je Maske, pixelgleich.
+5h. Streichen, Teil 2: Listen (Tabelle, Erfassung). Weg Blättern (jede
+   Maske schaltet es ab; hebt „Blättern bleibt“ vom 24.09. auf, samt
+   `pagesSplit`), Sortieren per Klick (Tabelle sortiert immer, Erfassung
+   nie), Spaltenwahl (samt `columnPicker.ts` und dem Rechtsklick; hebt
+   24.09. auf), Tag filtern nach (bleibt nur am Kanban), Weitere Quellen
+   an der Tabelle. Suchzeile bleibt, aber aus als Vorgabe (jede Maske
+   schaltet sie ab). Schalter je Spalte: weg Eingabe erlaubt (nie aus),
+   Unterzeile samt Platzwahl (nie; hebt 07.10. auf, samt `greyLine`,
+   `placedUnder`, `UNDER` in `capture/column.ts` und dem Zeichnen der
+   grauen Zeile), €; bleiben Summe, Pflicht, Zahl, Betrag, Ausblenden,
+   Füllfeld. Zahl und Betrag werden in 6b eine Wahl „Art“. Danach
+   zeigt die Erfassung im Editor genau: Spalten, Suchzeile, Hinweis in
+   der Tippzeile, Berechnungen. Decke senken, `REFERENCE_REFRESH=1`,
+   Bilder je Maske, pixelgleich bis auf die Tabelle der Behandlung
+   (ihr Blättern-Fuß fällt weg).
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -447,6 +499,12 @@ sagt nur: „Lies docs/offen.md, baue Chat N, halte dich an den Rahmen.“
   sagt. Nie `src/design/mask.css`, nie eine Schicht, die der Linter
   verbietet. Keine neuen Abhängigkeiten. Kein neues Verhalten, das der
   Schritt nicht nennt. Keine neuen Tests außer Chat 3.
+- Keine neue Eigenschaft, kein neuer Schalter, keine neue Schrittart,
+  kein neues Fenster, außer der Schritt bestellt es. Die Decke in
+  `src/editor/state/settingsInventory.test.ts` sinkt, wenn ein Schritt
+  streicht; sie steigt nur mit einer Zeile in `entschieden.md`, die die
+  Maske nennt, die die Einstellung braucht. Was eine Maske nicht braucht,
+  wird nicht gebaut, auch nicht „für später“.
 - Das Design der Maske ist eingefroren (`entschieden.md`, 14.10., Bilder
   in `docs/design/2026-10-14-fachsoftware-*.png`). Werte für Aussehen nur aus
   `src/design/mask.css` und `editor.css`. Nur hell. Keine Chips, Pills,
@@ -473,3 +531,7 @@ liest den Diff (`git show HEAD`), den Schritt und den Rahmen, führt
 `npm run check` und `npm test` aus, lädt eine Maske aus `masken/` im
 Browser und meldet nur Verstöße und Fehler, je einen Satz mit Datei und
 Zeile. Nichts umbauen, nichts committen. Kein Befund heißt: abgenommen.
+Hat der Schritt die Decke in `settingsInventory.test.ts` angehoben, ist
+er abgelehnt, außer `entschieden.md` nennt die Maske, die die neue
+Einstellung braucht. Hat er gestrichen und die Decke nicht gesenkt, ist
+das ein Befund.

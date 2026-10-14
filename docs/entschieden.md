@@ -7,6 +7,22 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Nichts Neues ohne Maske, die es braucht. Inventur: 77
+  Einstellungen an den Bausteinen, 29 nie von einer Maske angefasst; 6
+  Schrittarten, 3 nie; 6 Farben, eine nie. Die Zahl steht als Decke in
+  `settingsInventory.test.ts`; sie sinkt mit jedem Streichen und steigt nur
+  mit einem Eintrag hier, der die Maske nennt. Gestrichen wird (Chats 5g,
+  5h): am Text Farbe, Art und Beschriftung; am Feld Beschriftung-Schalter,
+  Art, die Werte mit und ohne Haken (J und N fest, hebt 08.10. auf),
+  Einziger Treffer; an Datenliste und Kanban die getippten Stellen, der
+  Avatar-Schalter, die Art des Chips; Weitere Quellen außer an Erfassung
+  und Kanban; die Farbe Petrol; die Schritte Maske schließen, Werkzeug
+  starten, BW-Link; an den Listen Blättern (hebt 24.09. auf), Sortieren
+  per Klick, Spaltenwahl (hebt 24.09. auf), Tag filtern nach, die graue
+  Unterzeile samt Platzwahl (hebt 07.10. auf), Eingabe erlaubt, €. Die
+  Suchzeile ist aus als Vorgabe. Grund: der Nutzer sieht „überall unnötige
+  Funktionen und Einstellungen“, und die Zahlen geben ihm recht; was eine
+  Maske später braucht, kommt dann zurück.
 - 14.10. Leere Zeilen kommen zurück: unter den Sätzen einer Tabelle oder
   Erfassung stehen Linien im Abstand der Zeilen bis zum Fuß, im Editor und
   in der Maske. Hebt „nur echte Zeilen“ aus 5d auf (Fable, eigene Regel,
