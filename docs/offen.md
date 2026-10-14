@@ -55,10 +55,11 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 
 ### Phase 1: Kein Durchfall
 
-1. Umrisse. Jeder Baustein ist auf der Leinwand zu sehen, auch leer: ein
-   leiser Umriss um jeden Baustein, deutlicher beim Zeigen, kräftig beim
-   Markieren. Ein Schalter „Umrisse“ in der Toolbar, Vorgabe an, gemerkt.
-   In der Maske ändert sich nichts. Erledigt 14.10.
+1. Umrisse. Jeder Baustein ist auf der Leinwand zu finden, auch leer:
+   unter der Maus eine leise Linie in echter Größe, kräftig beim
+   Markieren; der Schalter „Umrisse“ zeigt alle blass gestrichelt, Vorgabe
+   aus, gemerkt. In der Maske ändert sich nichts. Erledigt 14.10.,
+   nachgebessert 14.10.
 2. Rückmeldungen. Der Export sagt, welche Prüfung scheitert. Eine Datei,
    die nicht lädt, sagt warum. „Neu“ fragt nach. Die leere Leinwand zeigt,
    was zu tun ist.

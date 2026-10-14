@@ -126,9 +126,10 @@ export function BlockHost({ block, selected, onSelect, grid = false, children }:
       }}
       onDoubleClick={onDoubleClick}
       data-block-id={block.id}
-      // The quiet edge and the edge under the pointer (editor.css); the
-      // chosen block and the one to follow draw over it.
-      className={view.outlines ? 'block-outline' : undefined}
+      // The edge under the pointer, always; the dashed edge around every
+      // block only while "Umrisse" is on (editor.css). The chosen block and
+      // the one to follow draw over both.
+      className={view.outlines ? 'block-outline block-outline--all' : 'block-outline'}
       style={{
         display: 'block',
         position: 'relative',

@@ -9,10 +9,11 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 - Oben eine Zeile: Name der Maske, Rahmen-Nummer, Neu, Speichern, Laden,
   Rückgängig, Wiederholen, Exportieren, Daten, Umrisse; rechts die
   Seitenreiter (Hauptseite, Popups).
-- Umrisse: jeder Baustein hat auf der Leinwand eine leise Linie, auch
-  leer; unter der Maus wird sie blau, markiert kräftig blau. Der Schalter
-  „Umrisse“ blendet sie aus und bleibt, wie man ihn lässt, auch nach dem
-  Neuladen. In der Maske gibt es keine Umrisse.
+- Umrisse: der Baustein unter der Maus zeigt eine leise blaue Linie in
+  seiner echten Größe, auch wenn er leer ist; markiert ist er kräftig
+  blau. Der Schalter „Umrisse“ zeigt zusätzlich alle Bausteine blass
+  gestrichelt; Vorgabe aus, die Wahl bleibt auch nach dem Neuladen. In
+  der Maske gibt es keine Umrisse.
 - Links der Streifen mit den Bausteinen: anklicken oder ziehen.
 - Mitte die Maske in echter Größe: ein weißes Blatt auf dem grauen Grund
   des Fensters, wie in SoftEngine.

@@ -139,9 +139,9 @@ export function persistMask(mask: StoredMask): void {
   }))
 }
 
-// On until the maker switches them off.
+// Off until the maker switches them on.
 export function loadOutlines(): boolean {
-  return read(OUTLINES_KEY) !== 'off'
+  return read(OUTLINES_KEY) === 'on'
 }
 
 export function persistOutlines(on: boolean): void {
