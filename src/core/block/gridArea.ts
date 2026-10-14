@@ -8,7 +8,6 @@ import {
   gridSlotRead,
   GRID,
   gridMetricsOf,
-  growMinHeightPx,
   growRowsTemplate,
   type GridSlot,
 } from './grid'
@@ -62,13 +61,6 @@ export function pageRowsTemplate(tree: MaskTree): string | null {
     slot: gridSlotRead(n.values),
     grows: growsOnPage(n),
   })))
-}
-
-// The least height of a list that grows on the page.
-export function growMinHeightStyle(node: BlockNode): Record<string, string> {
-  if (!growsOnPage(node)) return {}
-  const spec = gridMetricsOf(blockType(node.type))
-  return { minHeight: `${growMinHeightPx(spec.minHeight, gridSlotRead(node.values).h)}px` }
 }
 
 // Whether another block of the area already stands on a cell of the slot.

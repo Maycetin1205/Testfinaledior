@@ -109,11 +109,13 @@ export function gridSlotStyle(pos: GridSlot): Record<string, string | number> {
   }
 }
 
-const GROW_ROW = 'minmax(0, 1fr)'
+const GROW_ROW = `minmax(${GRID.rowPx}px, 1fr)`
 
 // The rows of the page: a row that only growing blocks cover shares the
-// height the window has left, every other row stays one fixed step. Null
-// when nothing grows.
+// height the window has left, but stays at least one fixed step, so a list
+// is never shorter than drawn in the editor; a mask higher than the window
+// rolls (user, 14.10.: a block below took the height of the list). Every
+// other row stays one fixed step. Null when nothing grows.
 export function growRowsTemplate(
   slots: readonly { slot: GridSlot; grows: boolean }[],
 ): string | null {
@@ -135,11 +137,6 @@ export function growRowsTemplate(
   return runs.join(' ')
 }
 
-// How short a growing block may get in a small window: its least rows, never
-// more than drawn.
-export function growMinHeightPx(minRows: number, drawnRows: number): number {
-  return rowsHigh(Math.max(1, Math.min(minRows, drawnRows)))
-}
 
 export function nextFreeRow(positions: readonly GridSlot[]): number {
   return positions.reduce((max, p) => Math.max(max, p.y + p.h), 0)
