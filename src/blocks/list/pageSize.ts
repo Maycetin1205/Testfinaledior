@@ -28,7 +28,8 @@ export interface RowMetrics {
 }
 
 // The rows are not stretched to the height of the list: only the rows there
-// are stand on the sheet, and the room they leave stays bare below them.
+// are stand on the sheet, and the room they leave is ruled below them
+// (tableStyle.ts), so an empty list still shows where its rows will be.
 function rowMetrics(
   bodyHeight: number,
   headHeight: number,

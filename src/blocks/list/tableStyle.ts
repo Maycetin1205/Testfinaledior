@@ -108,11 +108,19 @@ export const tableStyle = css`
 
       .body > .row { flex: none; }
 
-      /* The room under the records: bare sheet down to the hairline at the
-         bottom, no empty rows and no column lines. */
+      /* The room under the records: ruled like the rows, a hairline every
+         record down to the foot, as a ledger keeps its lines where no entry
+         is yet (14.10., reverses the bare sheet of 5d). No column lines. */
       .ruler {
         flex: 1 1 auto;
         min-height: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent calc(var(--record-height) - var(--se-border)),
+          var(--se-line-soft) calc(var(--record-height) - var(--se-border)),
+          var(--se-line-soft) var(--record-height)
+        );
       }
 
       .row {

@@ -54,6 +54,12 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   Browser-Dialoge außer der Rückfrage bei „Neu“ (Nutzer, 14.10.).
 - Jeder Chat endet mit einem Bild vorher und nachher. Der Nutzer sagt ja
   oder nein; bei nein wird zurückgebaut, nicht diskutiert.
+- Bild statt Regel (14.10., nach 5e): Maßstab für das Aussehen ist das
+  Bild der Belegerfassung mit Daten,
+  `docs/design/2026-10-14-fachsoftware-belegerfassung.png`, nicht eine
+  Liste von Auflagen. Eine Auflage, die etwas wegnimmt, braucht ein Bild,
+  das zeigt, dass es ohne besser ist: fünf Runden „weniger“ (Schatten,
+  Rundung, Großschrift, Grund, Zeilen) haben die Leinwand leer gemacht.
 
 ## Plan: ein Chat je Zeile
 
@@ -162,16 +168,41 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    einer Karte unter der Maus und im Kasten unsichtbar (`entschieden.md`).
    Der Referenzabzug bleibt gleich (die Stile stecken in der Laufzeit).
    Standbilder `docs/design/2026-10-14-fachsoftware-*.png` erneuert. Der
-   Export in V7 zeigt es nach dem nächsten „Exportieren“.
-5f. Probedaten im Editor, vorgezogen aus 7b (Nutzer, 14.10.: „wieso
-   habe ich keine Zeilen mehr in der Erfassung“). Einzelheiten unten bei
-   Chat 7b; der Chat heißt 5f und kommt vor 6a. Bis dahin zeigt die
-   Erfassung im Editor nur Kopf und Tippzeile.
+   Export in V7 zeigt es nach dem nächsten „Exportieren“. Geprüft 14.10.
+   (Fable): abgenommen, check und Tests grün, gebaut wie bestellt, die
+   Abweichung beim Grund der Knöpfe ist richtig. Der Nutzer sieht den
+   Editor danach als „extrem leer und tot“. Ursache ist nicht 5e: unter
+   der Tippzeile der Erfassung klafft seit 5d ein weißes Loch von 450 px
+   (Regel „keine leeren Zeilen“, Fable, falsch), und jedes Feld zeigt
+   seinen Platzhalter, weil der Editor keine Daten hat. Beides ist 5f.
+5f. Leben im Editor, in zwei Teilen. Vorher-Bild: die Erfassung endet
+   nach der Tippzeile, darunter nichts bis zum Fuß; die Felder zeigen
+   „Straße Hausnummer“, die Karten „Tiername“.
+   Zeilen, erledigt 14.10. (Fable, `tableStyle.ts`): der Raum unter den
+   Sätzen einer Tabelle oder Erfassung trägt wieder Linien im Abstand der
+   Zeilen bis zum Fuß, im Editor und in der Maske; hebt „keine leeren
+   Zeilen“ aus 5d auf (`entschieden.md`).
+   Probedaten, der Chat 5f, Einzelheiten unten bei 7b: Quelle der Daten
+   ist `sichtprobe/chat5c-tonprobe/probedaten.mjs` (Beleg, Positionen,
+   Artikel, Termine, dieselben wie im Maßstab-Bild); sie ziehen nach
+   `src/editor/probedaten/` um, der Editor-Host liefert sie nach Feldcode.
+   Maßstab: die Belegerfassung im Editor sieht aus wie
+   `docs/design/2026-10-14-fachsoftware-belegerfassung.png`, mit Linien
+   unter den sechs Positionen; der Empfang zeigt Tiere und Halter statt
+   „Tiername“. Bilder vorher und nachher, dazu
+   `docs/design/2026-10-14-fachsoftware-*.png` erneuern (Linien). Kommt
+   vor 6a.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
    verschwinden. Die Maske bleibt pixelgleich, Export und Referenzabzug
-   unverändert. Setzt die Wahl des Nutzers nach 5b voraus.
+   unverändert. Setzt die Wahl des Nutzers nach 5b voraus. In 6b
+   schrumpfen die Schalter je Spalte (Nutzer, 14.10.: neun Schalter sind
+   zu viel): „Zahl“, „Betrag“ und „€“ werden eine Wahl „Art“ (Text, Zahl,
+   Betrag, Betrag in €); „Summe“ erscheint nur bei Zahl und Betrag;
+   „Spaltenwahl“ gehört zur Liste, nicht zur Spalte. Je Spalte bleiben
+   Art, Eingabe erlaubt, Pflicht, Unterzeile, Ausblenden. Die Datei der
+   Maske ändert sich nicht, nur was der Editor zeigt.
 7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
    `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.

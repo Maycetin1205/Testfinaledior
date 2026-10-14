@@ -104,7 +104,7 @@ interface BodyAct {
   rowDouble: (rawIndex: number | null) => void
 }
 
-// The room under the records, bare down to the foot: no empty rows, no
+// The room under the records, ruled down to the foot (tableStyle.ts), no
 // column lines. A click there is still a click into the list.
 function ruler(placement: BodyPlacement): TemplateResult {
   const style = placement.rulerTicks === null

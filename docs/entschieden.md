@@ -7,6 +7,21 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Leere Zeilen kommen zurück: unter den Sätzen einer Tabelle oder
+  Erfassung stehen Linien im Abstand der Zeilen bis zum Fuß, im Editor und
+  in der Maske. Hebt „nur echte Zeilen“ aus 5d auf (Fable, eigene Regel,
+  falsch): ohne sie klafft im Editor ein weißes Loch, wo die Positionen
+  hinkommen, und ein Programm für Belege zeigt seine Zeilen auch leer
+  (Nutzer, 14.10.: „wieso habe ich keine Zeilen mehr“, „extrem leer und
+  tot“).
+- 14.10. Bild statt Regel: Maßstab für das Aussehen ist das Bild der
+  Belegerfassung mit Daten
+  (`docs/design/2026-10-14-fachsoftware-belegerfassung.png`), nicht eine
+  Liste von Auflagen. Fünf Runden Auflagen, die etwas wegnahmen, haben die
+  Leinwand leerer gemacht, nicht besser.
+- 14.10. Schalter je Spalte: „Zahl“, „Betrag“ und „€“ werden eine Wahl
+  „Art“; „Summe“ nur bei Zahlen; „Spaltenwahl“ steht bei der Liste. Bau in
+  Chat 6b, die Datei der Maske bleibt gleich.
 - 14.10. Nachbesserung (Chat 5e): Knöpfe zweiter Ordnung (Kanban,
   „Fläche leicht“ in Neutral) tragen den Grund von „Heute“
   (`--se-neutral-soft`), keinen Rand, halbfette Schrift in Tinte, unter der
