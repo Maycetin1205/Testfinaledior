@@ -202,7 +202,11 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Balu, Emma). Ein Feld ohne Wert behält seinen Namen. Nur im Editor,
    Export und Referenzabzug unverändert. Standbilder
    `docs/design/2026-10-14-fachsoftware-*.png` erneuert (Linien). Bilder
-   `sichtprobe/chat5f-probedaten/vergleich.png`.
+   `sichtprobe/chat5f-probedaten/vergleich.png`. Geprüft 14.10. (Fable):
+   abgenommen; check und Tests grün, Export unverändert, die drei Masken
+   im Editor wie im Maßstab-Bild. Rest für 6a: die gepunktete Linie unter
+   jedem gebundenen Wert lässt mit Daten jede Zahl wie einen Link
+   aussehen; wie die Umrisse nur bei Auswahl oder unter der Maus zeigen.
 5g. Streichen, Teil 1: Bausteine, Farben, Schritte. Erledigt 14.10.,
    Decke 58. Weg: am Text Farbe, Art, Beschriftung (der Text ist kein
    Chip mehr); am Feld Art und die Haken-Werte (J und N fest); an
@@ -219,7 +223,14 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Belegerfassung und Behandlung pixelgleich, im Empfang fehlen „Notfall“,
    „OP“ und der rote Streifen. Rest: `--se-petrol*` in `mask.css`
    nutzt niemand mehr (wie `--se-edge`, Chat 11). Bilder
-   `sichtprobe/chat5g-streichen/vergleich.png`.
+   `sichtprobe/chat5g-streichen/vergleich.png`. Geprüft 14.10. (Fable):
+   abgenommen; check und Tests grün, Decke 58, Referenzabzug gewollt
+   erneuert, Leisten von Text und Feld kurz und richtig. Reste: das
+   Standbild `docs/design/2026-10-14-fachsoftware-empfang.png` zeigt noch
+   Chip und Streifen (in 6a mit den Editor-Bildern erneuern); die Masken
+   unter `masken/` tragen die gestrichenen Werte noch als tote Schlüssel,
+   beim nächsten Speichern fallen sie weg (spätestens Chat 10 bereinigt
+   alle drei).
    Offen, Nutzer entscheidet: drei Schalter je Spalte der Erfassung, die
    keine der 13 Spalten nutzt: „Eingabe erlaubt“ (steht überall an),
    „Unterzeile“ samt Platzwahl (die graue zweite Zeile vom 07.10., samt
