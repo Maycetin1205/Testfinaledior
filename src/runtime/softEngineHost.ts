@@ -1,5 +1,4 @@
 import { freshDataRequest, hasSeData, onSeData, startSe } from '../softengine/bridge'
-import { sendBwLink, sendMaskClose, sendStartTool } from '../softengine/commands'
 import { announceEditing } from '../softengine/editing'
 import { fieldRead, fieldWrite } from '../softengine/data'
 import { fetchRows } from '../softengine/fetchRows'
@@ -22,9 +21,6 @@ export const softEngineHost: MaskHost = {
   relation: runtimeRelation,
   resolveParameter: parameterResolve,
   runRelation: relationRun,
-  sendStartTool,
-  sendBwLink,
-  closeMask: sendMaskClose,
   requestFreshData: freshDataRequest,
 
   fetchRows,

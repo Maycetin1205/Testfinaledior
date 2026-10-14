@@ -6,7 +6,7 @@ import { choiceProperty, type ChoiceOption, type Property } from '../../core/blo
 // tokens of mask.css. A block takes the choices it needs as properties and
 // sets lookClass on the element that carries its look.
 
-type ToneValue = 'accent' | 'neutral' | 'info' | 'success' | 'warning' | 'danger'
+type ToneValue = 'neutral' | 'info' | 'success' | 'warning' | 'danger'
 
 interface Tone {
   value: ToneValue
@@ -23,7 +23,7 @@ interface Tone {
   soft: string
 }
 
-function tone(value: Exclude<ToneValue, 'accent'>, name: string): Tone {
+function tone(value: ToneValue, name: string): Tone {
   const token = `--se-${value}`
   return {
     value,
@@ -37,24 +37,7 @@ function tone(value: Exclude<ToneValue, 'accent'>, name: string): Tone {
   }
 }
 
-// The value accent is Petrol, the sixth color the user chose on 08.10. as
-// the accent. Since the new look (09.10.) the accent of the mask is the blue
-// of Blau (--se-accent); Petrol stays a color to choose. It has no tint,
-// shell and line of its own and takes them as red does: its soft color, on
-// white.
-const ACCENT: Tone = {
-  value: 'accent',
-  name: 'Petrol',
-  strong: '--se-petrol',
-  ink: '--se-petrol-ink',
-  tint: '--se-petrol-soft',
-  shell: '--se-panel',
-  line: '--se-petrol-soft',
-  soft: '--se-petrol-soft',
-}
-
 const TONES: readonly Tone[] = [
-  ACCENT,
   tone('neutral', 'Neutral'),
   tone('info', 'Blau'),
   tone('success', 'Grün'),

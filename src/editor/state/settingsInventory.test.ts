@@ -9,8 +9,9 @@ import { allBlockTypes } from '../../core/block/registry'
 // field choice and place choice at an entry of a list. The ceiling falls with
 // every chat that strikes a setting (offen.md, 5g and 5h) and rises only with
 // a line in entschieden.md that names the mask which needs the new setting.
-// 14.10.: 77 settings, 29 of them never touched by any of the three masks.
-const CEILING = 77
+// 14.10.: 77 settings, 29 of them never touched by any of the three masks;
+// 58 after 5g.
+const CEILING = 58
 
 function settingsOf(def: BlockType): number {
   const shown = Object.values(def.properties).filter((p) => p.place !== 'none').length

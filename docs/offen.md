@@ -203,56 +203,29 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Export und Referenzabzug unverändert. Standbilder
    `docs/design/2026-10-14-fachsoftware-*.png` erneuert (Linien). Bilder
    `sichtprobe/chat5f-probedaten/vergleich.png`.
-5g. Streichen, Teil 1: Bausteine, Farben, Schritte. Weg ist weg, samt
-   dem Code dahinter (Leiste, Fenster, Baustein, Export, Laden); die
-   Masken laden danach weiter (`readValues` lässt unbekannte Namen
-   fallen) und sehen gleich aus. Grund je Posten: in keiner der drei
-   Masken je benutzt (Inventur 14.10.).
-   Text: weg Farbe, Art, Beschriftung (Schalter und Text), Weitere
-   Quellen; bleibt Rolle, Größe, Symbol, Ausrichtung, Text. Ein Text ist
-   kein Chip mehr (`emphasis`, `tone` aus `textProperties`).
-   Feld: weg Art (Linie/Ohne), Wert mit Haken, Wert ohne Haken (J und N
-   fest, hebt 08.10. auf), Weitere Quellen; bleibt Feldtyp, Nachschlagen,
-   Beschriftung samt Schalter, Symbol, Auswahl-Optionen, Feld, Quelle,
-   Gespeichert wird, Einzigen Treffer übernehmen, Pflicht (Nutzer,
-   14.10.: Beschriftung und Einziger Treffer bleiben).
-   Datenliste: weg die getippten Stellen Titel, Unterzeile, Rechts, das
-   Symbol, Weitere Quellen; bleibt Auswahl. Eine Stelle ist gebunden oder
-   leer.
-   Kanban: weg die sieben getippten Stellen, der Schalter Avatar
-   (Tiersymbol/Bild; ein Bild gibt es erst, wenn SoftEngine eines liefert,
-   siehe Einzelpunkte), und der Chip ganz (Nutzer, 14.10.: „Chips weg“):
-   Stelle, Feld, Farbe des Chips, Art des Chips, `parts/chip.ts`, der
-   Streifen am Kartenrand aus 5d. Auf der Karte des Empfangs verschwindet
-   damit „Notfall“/„OP“; will der Nutzer es sehen, wird das Feld an eine
-   Zeile der Karte gebunden (`masken/empfang`, nur mit seinem Ja). Bleibt
-   Einsortieren nach, Tag filtern nach, Spalten. Die Spalte behält Titel,
-   Knopftext, Knopf, Nach Uhrzeit, Farbe, Auffangspalte, Plätze (alle
-   genutzt).
-   Avatar (Kanban und Datenliste): bleibt, aber ohne gebundenes Feld
-   gibt es keinen Kreis, auch im Editor nicht (Nutzer, 14.10.: „dann eben
-   einfach kein Avatar“). Der gepunktete Kreis zum Binden entfällt;
-   gebunden wird über die Feldwahl „Avatar“ bzw. „Tiersymbol“ in der
-   Gruppe Quelle (`place: 'source'` statt `'none'`, zählt als zwei
-   Einstellungen). Ein gebundener Avatar zeigt im Editor den Umriss des
-   Tiers aus den Probedaten (5f), sonst nichts.
-   Farben: weg Petrol (`ACCENT` in `look.ts`, der Sonderweg ohne eigene
-   Töne); bleiben Neutral, Blau, Grün, Ocker, Rot.
-   Schritte: weg Maske schließen, Werkzeug starten, BW-Link; bleiben
-   Relation, Popup öffnen, Popup schließen. Chat 7 (Aktionsfenster) wird
-   dadurch kleiner.
-   Listen: Suchzeile aus als Vorgabe (jede Maske schaltet sie ab).
-   Blättern, Sortieren per Klick, Spaltenwahl, Tag filtern nach bleiben
-   (Nutzer, 14.10.; 24.09. steht). Weitere Quellen an der Tabelle weg.
-   Bereich, Knopf, Datum, Popup: nichts, alles genutzt. Decke im Test auf
-   58 senken. Export ändert sich (Attribute fallen weg):
-   `REFERENCE_REFRESH=1`, im Commit benannt. Bilder vorher und nachher
-   je Maske, pixelgleich bis auf den Chip im Empfang.
+5g. Streichen, Teil 1: Bausteine, Farben, Schritte. Erledigt 14.10.,
+   Decke 58. Weg: am Text Farbe, Art, Beschriftung (der Text ist kein
+   Chip mehr); am Feld Art und die Haken-Werte (J und N fest); an
+   Datenliste und Kanban die getippten Stellen und das Symbol, am Kanban
+   der Avatar-Schalter und der Chip samt Streifen (`parts/chip.ts`);
+   Weitere Quellen an Text, Feld, Datenliste, Tabelle (die Fähigkeit
+   `source` nennt `helpers` nur noch an Erfassung und Kanban); die
+   Farbe Petrol; die Schritte Maske schließen, Werkzeug starten, BW-Link
+   samt `softengine/commands.ts`. Die Suchzeile ist aus als Vorgabe. Das
+   Tiersymbol wird in Einstellungen, Quelle gewählt („Avatar“,
+   „Tiersymbol“), ohne Feld kein Kreis; im Editor zeigt es das Tier der
+   Probedaten. Was eine gebundene Stelle ohne eigene Eigenschaft im
+   Editor zeigt, trägt `spotTexts` am Element. Masken laden weiter,
+   Belegerfassung und Behandlung pixelgleich, im Empfang fehlen „Notfall“,
+   „OP“ und der rote Streifen. Rest: `--se-petrol*` in `mask.css`
+   nutzt niemand mehr (wie `--se-edge`, Chat 11). Bilder
+   `sichtprobe/chat5g-streichen/vergleich.png`.
    Offen, Nutzer entscheidet: drei Schalter je Spalte der Erfassung, die
    keine der 13 Spalten nutzt: „Eingabe erlaubt“ (steht überall an),
    „Unterzeile“ samt Platzwahl (die graue zweite Zeile vom 07.10., samt
    `greyLine`, `placedUnder`, `UNDER` in `capture/column.ts`), „€“.
-   Sagt er raus, kommen sie zu 5g; die Decke sinkt dann auf 54.
+   Sagt er raus, streicht sie ein Nachtrag zu 5g; die Decke sinkt dann
+   auf 54.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -288,12 +261,8 @@ Chat (14.10., der Nutzer will nicht 17 Chats takten).
     Zeichnen: Lit meldet, dass `ff-capture` und `ff-table` nach einem
     Update ein weiteres planen; Ursache finden, beheben. Darf
     `masken/behandlung` anfassen (breitere Spalten).
-11. Durchsicht Kanban. Reste aus 5d: der Chip ist jetzt Wort mit Punkt
-    und Streifen, „Art des Chips“ ändert darum nichts mehr (raus, wenn
-    der Nutzer ja sagt); die Farbe des Chips gilt für alle Karten, „OP
-    ocker, Notfall rot“ ginge nur mit einer Farbe je Wert, und die ist
-    seit 07.10. gestrichen. Rest aus 5e: der Wert `--se-edge` in
-    `mask.css` nutzt seit 5e niemand mehr.
+11. Durchsicht Kanban. Rest aus 5e und 5g: `--se-edge` und
+    `--se-petrol*` in `mask.css` nutzt niemand mehr.
 
 ### Phase 2: Vor dem ersten Kunden
 

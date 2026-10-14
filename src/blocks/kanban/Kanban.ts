@@ -4,15 +4,14 @@ import { startRename } from '../base/inlineRename'
 import { reportsHeads } from '../base/headsReport'
 import { bindable } from '../../core/block/capability'
 import { lookStyle, toneValue } from '../look/look'
-import { readSamples, spotValue, type DataPreamble } from '../../runtime/source'
-import { animalAvatarTpl, avatarSpotTpl, avatarStyle, imageAvatarTpl } from '../parts/card'
-import { chipClass, chipStyle } from '../parts/chip'
+import { readSamples, sampleValue, spotValue, type DataPreamble } from '../../runtime/source'
+import { animalAvatarTpl, avatarStyle } from '../parts/card'
 import { Board, boardRegister, boardUnregister, type CardData } from './board'
 import { cardsByClock, SAMPLE_HOUR_LINE, SAMPLE_UNTIL, type Until } from './clock'
 import { KANBAN_COLUMNS_BINDING, type KanbanPlace } from './columns'
 import { spotOf, type Spot } from './places'
 import { kanbanStyle } from './kanbanStyle'
-import { AVATAR_SPOT, CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
+import { CARD_SPOTS, kanbanProperties, type CardSpot, type KanbanValues } from './properties'
 
 const COUNT_IN_EDITOR = '—'
 const CLOCK_TICK = 30_000
@@ -20,13 +19,12 @@ const CLOCK_TICK = 30_000
 export interface Kanban extends KanbanValues {}
 
 // One block draws the columns, their places and the cards. In the editor every
-// place holds the card as the mask draws it; its spots are typed or bound right
-// there.
+// place holds the card as the mask draws it; its spots are bound right there.
 export class Kanban extends BlockElement {
   static readonly type = 'kanban'
   static readonly tag = 'ff-kanban'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, avatarStyle, kanbanStyle, chipStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, avatarStyle, kanbanStyle]
 
   readonly board = new Board(this)
 
@@ -38,12 +36,13 @@ export class Kanban extends BlockElement {
   }
 
   cardValues(row: unknown, read: DataPreamble['read']): Record<string, string> {
-    const typedOrBound = Object.fromEntries(CARD_SPOTS.map(({ prop }) =>
-      [prop, spotValue(this[prop], this[`${prop}Field`], row, read)]))
-    return { ...typedOrBound, avatar: this.avatarField === '' ? '' : read(row, this.avatarField) }
+    const bound = Object.fromEntries(CARD_SPOTS.map(({ prop }) =>
+      [prop, spotValue('', this[`${prop}Field`], row, read)]))
+    return { ...bound, avatar: this.avatarField === '' ? '' : read(row, this.avatarField) }
   }
 
-  // In the editor a spot shows the sample of its column where it has one.
+  // In the editor a spot shows the sample of its column where it has one,
+  // else what the editor gives it; a spot without a field stands empty.
   private spot(
     prop: CardSpot,
     className: string,
@@ -52,30 +51,22 @@ export class Kanban extends BlockElement {
   ): TemplateResult {
     if (values !== null) return html`<span class=${className}>${values[prop]}</span>`
     const sampled = sample?.[prop] ?? ''
-    const shown = sampled.trim() !== '' ? sampled : this[prop]
     return html`<span
       class=${className}
-      data-ff-editable
       data-ff-spot=${prop}
       ?data-ff-bound=${this[`${prop}Field`] !== ''}
       @click=${this.reportSpot}
-      @dblclick=${(e: MouseEvent) => {
-        this.reportSpot(e)
-        this.inlineEdit(e, prop)
-      }}
-    >${shown}</span>`
+      @dblclick=${this.reportSpot}
+    >${sampled.trim() !== '' ? sampled : this.spotTexts[prop] ?? ''}</span>`
   }
 
-  // The avatar shows its field: the outline of the animal it names, in the
-  // color of that kind, or the picture at the address it holds; a picture that
-  // does not load leaves the avatar empty. In the editor a bound avatar shows
-  // the outline the mask draws for an animal it does not know; a picture only
-  // the mask has.
-  private avatar(values: Readonly<Record<string, string>> | null): TemplateResult {
-    const image = this.avatarKind === 'image'
-    if (values !== null) return image ? imageAvatarTpl(values.avatar) : animalAvatarTpl(values.avatar)
-    const bound = this.avatarField !== ''
-    return avatarSpotTpl(AVATAR_SPOT.prop, bound, bound && !image, (e) => this.reportSpot(e))
+  // The avatar shows the outline of the animal its field names, in the color
+  // of that kind. In the editor it shows the animal of the samples, else
+  // nothing.
+  private avatar(values: Readonly<Record<string, string>> | null, sample: Readonly<Record<string, string>> | null): TemplateResult | typeof nothing {
+    if (values !== null) return animalAvatarTpl(values.avatar)
+    const species = sample?.avatar || sampleValue(this, this.avatarField)
+    return species === '' ? nothing : animalAvatarTpl(species)
   }
 
   // The button under the cards of a column, as the column sets it: on to the
@@ -121,32 +112,26 @@ export class Kanban extends BlockElement {
     })
   }
 
-  // A spot the builder gave something: a text typed on it or a field.
-  private spotShaped(prop: CardSpot | typeof AVATAR_SPOT.prop): boolean {
-    if (prop === AVATAR_SPOT.prop) return this.avatarField !== ''
-    return this[prop] !== '' || this[`${prop}Field`] !== ''
+  private spotBound(prop: CardSpot): boolean {
+    return this[`${prop}Field`] !== ''
   }
 
   // Whether a spot of the card shows. Without values the card is the one the
   // builder shapes: while the board is marked every spot shows, otherwise
-  // only the shaped ones, and with none shaped every spot, so the card never
-  // stands empty. In the mask a spot without a value falls away.
-  private shows(values: Readonly<Record<string, string>> | null, prop: CardSpot | typeof AVATAR_SPOT.prop): boolean {
+  // only the bound ones, and with none bound every spot, so the card never
+  // stands empty. The avatar shows only with its field. In the mask a spot
+  // without a value falls away.
+  private shows(values: Readonly<Record<string, string>> | null, prop: CardSpot | 'avatar'): boolean {
     if (values !== null) return (values[prop] ?? '').trim() !== ''
-    const onlyShaped = !this.editable
-      && (this.spotShaped(AVATAR_SPOT.prop) || CARD_SPOTS.some((s) => this.spotShaped(s.prop)))
-    return !onlyShaped || this.spotShaped(prop)
-  }
-
-  // The classes of a card: with a flag it wears a stripe of the flag's color.
-  private cardClass(values: Readonly<Record<string, string>> | null): string {
-    return this.shows(values, 'chip') ? `card flagged tone-${toneValue(this.chipTone)}` : 'card'
+    if (prop === 'avatar') return this.avatarField !== ''
+    const onlyBound = !this.editable && CARD_SPOTS.some((s) => this.spotBound(s.prop))
+    return !onlyBound || this.spotBound(prop)
   }
 
   // The card as .vkarte of the reception mask: avatar, beside it the title
   // with the subline on the same line and the second title below, the time at
-  // the right; then the chip, the text, the date, how far its time lies from
-  // now, the button.
+  // the right; then the text, the date, how far its time lies from now, the
+  // button.
   private cardContent(
     column: number,
     card: CardData | null,
@@ -154,13 +139,13 @@ export class Kanban extends BlockElement {
     sample: Readonly<Record<string, string>> | null = null,
   ): TemplateResult {
     const values = card === null ? null : card.values
-    const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean => this.shows(values, prop)
+    const shows = (prop: CardSpot | 'avatar'): boolean => this.shows(values, prop)
     const line = shows('heading') || shows('subline')
     const main = shows('avatar') || line || shows('heading2') || shows('time')
     return html`
       ${main
         ? html`<div class="main">
-            ${shows('avatar') ? this.avatar(values) : nothing}
+            ${shows('avatar') ? this.avatar(values, sample) : nothing}
             <div class="ident">
               ${line
                 ? html`<div class="line">
@@ -173,9 +158,6 @@ export class Kanban extends BlockElement {
             ${shows('time') ? this.spot('time', 'time', values, sample) : nothing}
           </div>`
         : nothing}
-      ${shows('chip')
-        ? html`<div class="flags">${this.spot('chip', chipClass(this.chipTone, this.chipEmphasis), values, sample)}</div>`
-        : nothing}
       ${shows('text') ? this.spot('text', 'text', values, sample) : nothing}
       ${shows('date') ? this.spot('date', 'date', values, sample) : nothing}
       ${until ? html`<span class="until${until.late ? ' late' : ''}">${until.text}</span>` : nothing}
@@ -186,7 +168,7 @@ export class Kanban extends BlockElement {
     const board = this.board
     const chosen = card.key === board.chosen
     return html`<div
-      class="${this.cardClass(card.values)}${chosen ? ' chosen' : ''}${card.key === board.dragging ? ' dragging' : ''}"
+      class="card${chosen ? ' chosen' : ''}${card.key === board.dragging ? ' dragging' : ''}"
       role="button"
       tabindex="0"
       aria-pressed=${String(chosen)}
@@ -218,7 +200,7 @@ export class Kanban extends BlockElement {
       // One sample card per column, in its first place: the button of the
       // column is typed on it. The other places stand empty, as in the mask.
       if (spot.place !== 0) return []
-      return html`${byTime ? SAMPLE_HOUR_LINE : nothing}<div class=${this.cardClass(null)}>${
+      return html`${byTime ? SAMPLE_HOUR_LINE : nothing}<div class="card">${
         this.cardContent(spot.column, null, byTime ? SAMPLE_UNTIL : null, this.sampleIn(spot.column))
       }</div>`
     }
@@ -298,10 +280,10 @@ defineBlock(Kanban, {
   category: 'display',
   properties: kanbanProperties,
   capabilities: [
-    { kind: 'source' },
+    { kind: 'source', helpers: 'beside' },
     { kind: 'recordPick' },
     { kind: 'list', binding: KANBAN_COLUMNS_BINDING },
-    bindable<typeof kanbanProperties>([...CARD_SPOTS, AVATAR_SPOT]),
+    bindable<typeof kanbanProperties>(CARD_SPOTS),
     {
       kind: 'events',
       list: [

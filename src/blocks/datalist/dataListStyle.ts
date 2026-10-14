@@ -94,7 +94,7 @@ export const dataListStyle = css`
   :host([preview]) .row { cursor: default; }
   :host([preview]) input { pointer-events: none; }
 
-  :host([preview]) [data-ff-spot]:not([data-ff-bound]):not(.avatar):empty::before {
+  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before {
     content: '—';
     color: var(--se-faint);
   }

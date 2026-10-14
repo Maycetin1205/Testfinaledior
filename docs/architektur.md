@@ -10,7 +10,7 @@ Für Programmierer, die TypeScript, React und Web Components kennen, dieses Repo
 - Die HTML ist geschlossen: Stile, Datenquellen, Relationen und die ganze Laufzeit stehen darin; die Schrift ist Segoe UI, die auf jedem Windows liegt (`--se-font` in `src/design/mask.css`). Einziges fremdes Skript ist die Brücke von SoftEngine (`BRIDGE_SCRIPT` in `src/export/validator.ts`).
 - Die Bausteine sind Lit-Elemente unter `src/blocks/`. Der Editor hängt dieselben Elemente auf die Leinwand, deren Tags der Export in die HTML schreibt.
 - Der Schalter zwischen Editor und Maske ist das Attribut `preview` (`BlockElement.preview` in `src/blocks/base/BlockElement.ts`). Der Editor setzt es vor dem Einhängen (`src/editor/canvas/useLitElement.ts`); `nodeToHtml()` im Export kennt es nicht und schreibt es nie.
-- Daten fragt ein Baustein über `maskState.host` (`src/runtime/maskState.ts`). Vorbelegt ist `softEngineHost` (`src/runtime/softEngineHost.ts`); der Editor setzt beim Anlegen seines Stores `previewHost()` (`src/editor/providers.tsx`, `src/runtime/previewHost.ts`). Der liefert nichts aus und meldet keine Lieferung, hält aber Probezeilen je Quelle: die Liste der Tabelle, die die Quelle nennt, aus `src/editor/probedaten/probedaten.ts` (`editorSamples()`, `src/editor/probedaten/samples.ts`), die Felder nach Feldcode. Im Editor liest ein Baustein sie mit `readSamples()` (`src/runtime/source.ts`) über seine Eigenschaften, nicht über Attribute: gebundene Stellen zeigen den Wert der ersten Zeile (`sampleValue()`, gesetzt in `src/editor/canvas/useLitElement.ts`), Erfassung und Tabelle alle Zeilen (`fillSampleRows()`, `src/blocks/list/sourceRows.ts`), das Kanban je Spalte die erste Zeile, die dorthin gehört. Ein Feld ohne Wert zeigt seinen Namen. Der Export kennt die Probezeilen nicht.
+- Daten fragt ein Baustein über `maskState.host` (`src/runtime/maskState.ts`). Vorbelegt ist `softEngineHost` (`src/runtime/softEngineHost.ts`); der Editor setzt beim Anlegen seines Stores `previewHost()` (`src/editor/providers.tsx`, `src/runtime/previewHost.ts`). Der liefert nichts aus und meldet keine Lieferung, hält aber Probezeilen je Quelle: die Liste der Tabelle, die die Quelle nennt, aus `src/editor/probedaten/probedaten.ts` (`editorSamples()`, `src/editor/probedaten/samples.ts`), die Felder nach Feldcode. Im Editor liest ein Baustein sie mit `readSamples()` (`src/runtime/source.ts`) über seine Eigenschaften, nicht über Attribute: gebundene Stellen zeigen den Wert der ersten Zeile (`sampleValue()`; `src/editor/canvas/useLitElement.ts` setzt ihn in `spotTexts` am Element und, wo die Stelle eine eigene Eigenschaft hat wie der Text, auch dort), Erfassung und Tabelle alle Zeilen (`fillSampleRows()`, `src/blocks/list/sourceRows.ts`), das Kanban je Spalte die erste Zeile, die dorthin gehört. Ein Feld ohne Wert zeigt seinen Namen. Der Export kennt die Probezeilen nicht.
 
 ## 2. Schichten
 
@@ -65,7 +65,6 @@ Beim Export:
 | `exportMask()` geht von `ROOT_ID` durch den Baum, `nodeToHtml()` je Knoten | `src/export/exportMask.ts` |
 | Ein Attribut je deklarierter Eigenschaft: `declared.attribute="…"`, Wert aus `declared.type.toAttribute()`. Weggelassen bei `attribute === ''`, bei unerfülltem `when` und beim Default | `src/export/exportMask.ts` |
 | Gebundene Stelle mit `previewProp`: statt des Werts der Feldname | `src/export/bindingPreview.ts` |
-| Gebundene Stelle mit `nameProp` (Beschriftung des Texts): leer gelassen trägt sie den Feldnamen | `src/export/bindingPreview.ts`, im Editor `useLitElement.ts` |
 | Lage im Raster als `style`, Aktionen als `data-ff-actions` | `src/export/nodeStyle.ts`, `src/core/data/steps/chains.ts` |
 | In der Maske meldet die Laufzeit dieselben Klassen an | `src/blocks/register.ts` |
 | Lit liest das Attribut mit dem Konverter aus `declareLitProperties()`, der `declared.type.fromAttribute(raw, default)` ruft; fehlendes Attribut = Default | `src/blocks/base/BlockElement.ts` |
@@ -88,7 +87,7 @@ Beispiel `src/blocks/formfield/`: `FormField.ts` (Klasse), `properties.ts` (Dekl
 - `properties.ts`: ein Objekt `formFieldProperties`, gebaut mit den Fabriken aus `src/core/block/property.ts` (`textProperty`, `choiceProperty`, `segmentProperty`, `booleanProperty`, `numberProperty`, `fieldProperty`, `sourceProperty`, `listProperty`). Jede Deklaration trägt `type` (`read`, `toAttribute`, `fromAttribute`, `control`), `default`, `label`, `place`, `attribute`, optional `when`, `preset`, `sourceProp`, `plainNameProp`.
 - Typen: `interface FormField extends FormFieldValues {}` mit `FormFieldValues = ValuesOf<typeof formFieldProperties>`. Der Linter erlaubt diese Verschmelzung nur unter `src/blocks/` (`eslint.config.js`, Zeilen 81–85). Die Werte stehen ab dem Konstruktor (`startValues()` in `src/blocks/base/BlockElement.ts`).
 - `defineBlock(FormField, { … })` am Dateiende (`src/blocks/base/BlockElement.ts`):
-  - `allProperties()` fügt `gridX`, `gridY`, `gridW`, `gridH` hinzu (`GRID_PROPERTIES`, `src/core/block/grid.ts`), bei Fähigkeit `source` die Eigenschaften `source` und `extraSources`, bei `followsSelection` deren Eigenschaft.
+  - `allProperties()` fügt `gridX`, `gridY`, `gridW`, `gridH` hinzu (`GRID_PROPERTIES`, `src/core/block/grid.ts`), bei Fähigkeit `source` die Eigenschaft `source` und, wenn sie `helpers` nennt (nur Erfassung und Kanban), `extraSources`, bei `followsSelection` deren Eigenschaft.
   - `checkPropertyNames()` (`src/core/block/propertyNames.ts`) prüft jeden Namen, den Deklarationen und Fähigkeiten nennen, und wirft beim Laden des Moduls.
   - legt die Lit-Properties an, meldet das Custom Element an und trägt den Baustein mit `registerBlockType()` in die Registry ein (`src/core/block/registry.ts`).
 - Weitere Felder (`BlockDeclaration`, `src/core/block/blockType.ts`): `name`, `category`, `takesChildren`, `allowedParent`, `inPalette`, `page`, `grid`.
@@ -133,7 +132,7 @@ Nicht anfassen: Registry, `EditorStore`, `BlockHost`, Leiste, Palette (`BlockPal
 
 Ein Knoten trägt `chains: ActionChains`, Ereignisschlüssel → Liste von `Step` (`src/core/block/tree.ts`, `src/core/data/steps/steps.ts`). Welche Ereignisse ein Baustein hat, sagt seine Fähigkeit `events`.
 
-1. Datei in `src/core/data/steps/` mit `XStep extends StepBase`, `RuntimeXStep` und `const x: StepAdapter<'X'>` (`src/core/data/steps/stepAdapter.ts`). Kleinste Vorlage: `src/core/data/steps/maskClose.ts`.
+1. Datei in `src/core/data/steps/` mit `XStep extends StepBase`, `RuntimeXStep` und `const x: StepAdapter<'X'>` (`src/core/data/steps/stepAdapter.ts`). Kleinste Vorlage: `src/core/data/steps/popupClose.ts`.
    - `read(raw, base)`: gespeicherten Schritt prüfen; gerufen von `chainsClean()` (`src/core/data/steps/chains.ts`).
    - `export(step, refs)`: Form in der Maske; Seiten und Spalten über `refs`; gerufen von `chainsForExport()`.
    - `readExported(raw, resultName)`: exportierten Schritt in der Maske prüfen; gerufen von `chainsRead()`.

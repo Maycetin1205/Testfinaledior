@@ -21,6 +21,8 @@ import {
   FIELD_TYPES,
   NOT_CHECKBOX,
   ONLY_LOOKUP,
+  TICKED,
+  UNTICKED,
   WITH_VALUE,
   formFieldProperties,
   type FieldType,
@@ -172,11 +174,11 @@ export class FormField extends BlockElement implements ValueCarrier {
   // A checkbox holds one of its two values in the field's value, as a text
   // field holds its text: the tick writes it, and the actions read it.
   private get ticked(): boolean {
-    return this.value === this.checkedValue
+    return this.value === TICKED
   }
 
   private tick(on: boolean): void {
-    this.value = on ? this.checkedValue : this.uncheckedValue
+    this.value = on ? TICKED : UNTICKED
   }
 
   private onTextClick(): void {
@@ -228,7 +230,7 @@ export class FormField extends BlockElement implements ValueCarrier {
   // unticked one, also in an action before the box was ever clicked.
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed)
-    if (fieldTypeOf(this.fieldType) === 'checkbox' && !this.ticked) this.value = this.uncheckedValue
+    if (fieldTypeOf(this.fieldType) === 'checkbox' && !this.ticked) this.value = UNTICKED
   }
 
   protected override updated(changed: PropertyValues): void {
@@ -277,7 +279,7 @@ export class FormField extends BlockElement implements ValueCarrier {
     const empty = (valueBindable ? this.value : this._lookup.inField) === ''
     const sign = this.lookup ? undefined : SIGNS[kind]
     return html`<div
-      class=${classMap({ field: true, labelled: this.showLabel, [`kind-${kind}`]: true, lookup: this.lookup, line: this.appearance !== 'plain' })}
+      class=${classMap({ field: true, labelled: this.showLabel, [`kind-${kind}`]: true, lookup: this.lookup })}
       @click=${this.onFieldClick}
     >
       ${this.symbol !== '' ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}

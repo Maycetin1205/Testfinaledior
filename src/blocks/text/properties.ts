@@ -1,12 +1,10 @@
 import {
-  booleanProperty,
   choiceProperty,
   fieldProperty,
   segmentProperty,
   textProperty,
   type ValuesOf,
 } from '../../core/block/property'
-import { emphasisProperty, toneProperty } from '../look/look'
 import { symbolProperty } from '../look/symbol'
 
 // The sizes of the sample docs/design/behandlung-modern.html a text may
@@ -27,10 +25,7 @@ const ROLE_SIZES = {
   title: '22', heading: '15', label: '12', body: '14', muted: '13', number: '14', hint: '12', amount: '26',
 }
 
-const WITH_LABEL = { key: 'showLabel', equals: true }
-
-// Color and emphasis as at every block. Neutral leaves a plain text the ink
-// of its role; Fläche voll, Fläche leicht and Nur Rand make the text a chip.
+// A text takes the ink and weight of its role.
 export const textProperties = {
   variant: choiceProperty([
     { value: 'title', name: 'Titel' },
@@ -48,7 +43,6 @@ export const textProperties = {
     label: 'Rolle',
     attribute: 'variant',
   }),
-  tone: toneProperty({ default: 'neutral', place: 'font' }),
   size: choiceProperty(Object.keys(TEXT_SIZES).map((value) => ({ value, name: value })), {
     default: '',
     label: 'Größe',
@@ -56,7 +50,6 @@ export const textProperties = {
     attribute: 'size',
     preset: { by: 'variant', values: ROLE_SIZES },
   }),
-  emphasis: emphasisProperty({ default: 'text' }),
   symbol: symbolProperty(),
   align: segmentProperty([
     { value: 'left', name: 'Links' },
@@ -72,21 +65,6 @@ export const textProperties = {
     label: 'Text',
     place: 'block',
     attribute: 'text',
-  }),
-  // The label stands small above the text, as over the value of a field, so
-  // a text and a field with their labels stand on one line. Left empty it
-  // names the bound fields.
-  showLabel: booleanProperty({
-    default: false,
-    label: 'Beschriftung',
-    attribute: 'showlabel',
-  }),
-  label: textProperty({
-    default: '',
-    label: 'Beschriftung',
-    place: 'block',
-    attribute: 'label',
-    when: WITH_LABEL,
   }),
   textField: fieldProperty({
     default: '',

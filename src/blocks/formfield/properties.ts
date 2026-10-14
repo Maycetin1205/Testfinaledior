@@ -28,7 +28,10 @@ export const NOT_CHECKBOX: Condition = { key: 'fieldType', notEquals: 'checkbox'
 // ticks by it.
 export const WITH_VALUE: Condition<'lookup'> = { key: 'lookup', notEquals: true }
 
-const ONLY_CHECKBOX: Condition = { key: 'fieldType', equals: 'checkbox' }
+// What a tick writes into the field, and what no tick writes: the yes/no
+// fields of SoftEngine hold J and N.
+export const TICKED = 'J'
+export const UNTICKED = 'N'
 
 export const formFieldProperties = {
   fieldType: choiceProperty([
@@ -57,12 +60,6 @@ export const formFieldProperties = {
     label: 'Beschriftung',
     attribute: 'showlabel',
   }),
-  // Art: a hairline under the value, as under a signature, shows where to
-  // type. The checkbox has its box.
-  appearance: choiceProperty([
-    { value: 'line', name: 'Linie' },
-    { value: 'plain', name: 'Ohne' },
-  ], { default: 'line', label: 'Art', attribute: 'appearance', when: NOT_CHECKBOX }),
   symbol: symbolProperty({ when: NOT_CHECKBOX }),
   label: textProperty({
     default: 'Feldname',
@@ -88,22 +85,6 @@ export const formFieldProperties = {
     place: 'source',
     attribute: 'valuefield',
     when: WITH_VALUE,
-  }),
-  // What a tick writes into the field, and what no tick writes: the yes/no
-  // fields of SoftEngine hold J and N, another field may hold 1 and 0.
-  checkedValue: textProperty({
-    default: 'J',
-    label: 'Wert mit Haken',
-    place: 'source',
-    attribute: 'checkedvalue',
-    when: ONLY_CHECKBOX,
-  }),
-  uncheckedValue: textProperty({
-    default: 'N',
-    label: 'Wert ohne Haken',
-    place: 'source',
-    attribute: 'uncheckedvalue',
-    when: ONLY_CHECKBOX,
   }),
   lookupSource: sourceProperty({
     default: '',

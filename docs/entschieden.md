@@ -7,6 +7,18 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Streichen gebaut (Chat 5g), Decke 58. Wie: Weitere Quellen hat
+  nur ein Baustein, dessen Fähigkeit `source` `helpers` nennt (Erfassung
+  „apart“, Kanban „beside“). Die Stellen von Karte und Datenliste sind
+  nur noch gebunden; was der Editor dort zeigt (Probewert oder Feldname),
+  setzt er in `spotTexts` am Element, weil es keine getippte Eigenschaft
+  mehr gibt, die es tragen könnte. Das Tiersymbol ist kein Punkt zum
+  Anklicken mehr, sondern die Feldwahl „Avatar“ bzw. „Tiersymbol“ unter
+  Quelle; in der Maske steht es wie bisher in jeder Zeile (unbekanntes
+  Tier als Pfote), im Editor nur mit einem Tier aus den Probedaten. Petrol
+  fällt aus den Wahlen; alte Masken mit Petrol laden mit der Vorgabe der
+  Farbe, die Heber bleiben unverändert. Die Suchzeile ist aus als Vorgabe;
+  alle Listen der drei Masken hatten sie ausdrücklich aus.
 - 14.10. Probedaten im Editor (Chat 5f): der Editor-Host liefert je Quelle
   die Zeilen der SoftEngine-Tabelle, die sie nennt, aus
   `src/editor/probedaten/`; Felder nach Feldcode, ein Feld ohne Wert zeigt

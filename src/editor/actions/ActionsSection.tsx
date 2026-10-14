@@ -2,14 +2,12 @@ import { useMemo, type ReactNode } from 'react'
 import { ArrowUp, Plus, X } from '@/editor/icons/icon'
 import { Button } from '@/editor/widgets/Button'
 import { cn } from '@/editor/widgets/cn'
-import { Field } from '@/editor/widgets/Field'
 import { LINE_CHOSEN, LINE_HOVER } from '@/editor/widgets/lineLook'
 import type { EventDef } from '../../core/block/capability'
 import { isWindowPage, pagesOfMask } from '../../core/block/pages'
 import type { BlockNode } from '../../core/block/tree'
 import type { RelationTemplate } from '../../core/data/relations'
 import type { Step } from '../../core/data/steps/steps'
-import { useInputSession } from '../controls/useInputSession'
 import { useDataSources } from '../state/useDataSources'
 import { useEditor } from '../state/useEditor'
 import { useRelations } from '../state/useRelations'
@@ -20,8 +18,7 @@ import { StepWindow, type StepContext, type StepTab } from './StepWindow'
 
 // The tab a step opens on.
 function tabOf(step: Step, relations: readonly RelationTemplate[]): StepTab {
-  if (step.kind === 'START_TOOL') return 'TOOL'
-  if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE' || step.kind === 'MASK_CLOSE') return 'POPUP'
+  if (step.kind === 'POPUP_OPEN' || step.kind === 'POPUP_CLOSE') return 'POPUP'
   return relations.find((r) => step.kind === 'RELATION' && r.id === step.relationId)?.verb === 'GET_RELATION' ? 'GET' : 'PUT'
 }
 
@@ -79,7 +76,6 @@ export function ActionsSection({ block, events }: { block: BlockNode; events: re
                   context={context}
                   open={opened?.blockId === block.id && opened.stepId === step.id}
                   onOpen={() => ed.openStep({ blockId: block.id, eventKey: ev.key, stepId: step.id, tab: tabOf(step, relations) })}
-                  onChange={(next) => set(chain.map((s) => (s.id === step.id ? next : s)))}
                   onUp={i === 0 ? undefined : () => {
                     const next = [...chain]
                     next.splice(i - 1, 0, ...next.splice(i, 1))
@@ -139,30 +135,23 @@ function stepWords(step: Step, context: StepContext): { words: string; short: st
       const t = context.relations.find((r) => r.id === step.relationId)
       return { words: t?.name ?? 'Relation', short: t ? `${VERB_SHORT[t.verb]} ${t.nr}` : '', known: t !== undefined }
     }
-    case 'START_TOOL':
-      return { words: 'START_TOOL', short: step.toolNumber, known: step.toolNumber !== '' }
     case 'POPUP_OPEN':
     case 'POPUP_CLOSE': {
       const name = context.popups.find((p) => p.value === step.popupId)?.name
       const verb = step.kind === 'POPUP_OPEN' ? 'öffnen' : 'schließen'
       return { words: name ? `Popup ${name} ${verb}` : `Popup ${verb}`, short: '', known: name !== undefined }
     }
-    case 'MASK_CLOSE':
-      return { words: 'Maske schließen', short: '', known: true }
-    case 'BW_LINK':
-      return { words: 'BW-Befehl', short: '', known: true }
   }
 }
 
 // One step as a line: its number, what it does, on the right its short form,
 // and while the pointer is on it, up and remove. The open one is marked whole.
-function StepLine({ nr, step, context, open, onOpen, onChange, onUp, onRemove }: {
+function StepLine({ nr, step, context, open, onOpen, onUp, onRemove }: {
   nr: number
   step: Step
   context: StepContext
   open: boolean
   onOpen: () => void
-  onChange: (step: Step) => void
   onUp?: () => void
   onRemove: () => void
 }) {
@@ -179,18 +168,6 @@ function StepLine({ nr, step, context, open, onOpen, onChange, onUp, onRemove }:
     </span>
   )
   const number = <span className="w-[16px] shrink-0 text-right font-mono text-dense opacity-70">{nr}</span>
-
-  // A BW command of an older mask stays as it was: typed in its line.
-  if (step.kind === 'BW_LINK') {
-    return (
-      <div className={LINE}>
-        {number}
-        <span className="shrink-0">BW-Befehl</span>
-        <InlineText name="Befehl" value={step.command} onChange={(command) => onChange({ ...step, command })} />
-        {ends}
-      </div>
-    )
-  }
 
   const { words, short, known } = stepWords(step, context)
   return (
@@ -217,27 +194,5 @@ function Clickable({ open, onClick, children }: { open: boolean; onClick: () => 
     >
       {children}
     </div>
-  )
-}
-
-function InlineText({ name, value, onChange }: {
-  name: string
-  value: string
-  onChange: (value: string) => void
-}) {
-  const ed = useEditor()
-  const session = useInputSession(() => ed.beginTransaction(), () => ed.endTransaction())
-  return (
-    <Field
-      aria-label={name}
-      title={name}
-      value={value}
-      className="h-[24px]"
-      onChange={(e) => {
-        session.begin()
-        onChange(e.currentTarget.value)
-      }}
-      onBlur={session.finish}
-    />
   )
 }

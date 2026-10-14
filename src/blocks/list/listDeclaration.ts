@@ -13,7 +13,7 @@ export function listProperties(sortsByClick: boolean) {
   return {
     columns: columnsProperty(),
     search: booleanProperty({
-      default: true,
+      default: false,
       label: 'Suchzeile',
       place: 'display',
       attribute: 'search',

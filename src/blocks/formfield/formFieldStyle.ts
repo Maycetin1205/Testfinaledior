@@ -58,10 +58,10 @@ export const fieldStyle = css`
   }
   .value > * { grid-area: 1 / 1; }
 
-  /* Art Linie: a hairline under the value, as under a signature, so the eye
-     finds where to type; blue while typing. */
-  .field.line .value { box-shadow: var(--se-field-line); }
-  .field.line:focus-within .value { box-shadow: var(--se-field-line-typing); }
+  /* A hairline under the value, as under a signature, so the eye finds
+     where to type; blue while typing. A checkbox has its box instead. */
+  .field .value { box-shadow: var(--se-field-line); }
+  .field:focus-within .value { box-shadow: var(--se-field-line-typing); }
 
   /* .f .v */
   .ctrl,

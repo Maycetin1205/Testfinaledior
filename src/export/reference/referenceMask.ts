@@ -80,8 +80,6 @@ const CHAIN: Step[] = [
     ],
     extraParameter: [{ source: 'fixed', value: 'X' }],
   },
-  { id: 's2', kind: 'START_TOOL', resultName: '', toolNumber: '42', toolParameter: ['a b'] },
-  { id: 's3', kind: 'BW_LINK', resultName: '', command: '0,REFRESH' },
   { id: 's4', kind: 'POPUP_OPEN', resultName: '', popupId: 'p1' },
 ]
 
@@ -141,7 +139,7 @@ export function referenceTree(): MaskTree {
     k1: node('k1', 'kanban', ROOT_ID, {
       gridX: 18, gridY: 3, gridW: 30, gridH: 22, source: 'q-pos', columnsField: '18_25',
       columns: [{ heading: 'Offen', tone: 'info', catchAll: false, places: [{ name: 'Offen', value: 'ART-B' }] }],
-      heading: 'Karte', headingField: '45_60',
+      headingField: '45_60',
     }),
     tx1: node('tx1', 'text', ROOT_ID, { gridX: 34, gridY: 0, gridW: 14, gridH: 3 }),
     d1: node('d1', 'date', ROOT_ID, { gridX: 0, gridY: 0, gridW: 10, gridH: 2 }),

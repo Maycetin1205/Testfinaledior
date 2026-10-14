@@ -69,7 +69,7 @@ function allProperties(shape: BlockShape): PropertyMap {
   const source = capability(capable, 'source')
   return {
     ...GRID_PROPERTIES,
-    ...(source ? { extraSources: holdsWhile(extraSourcesProperty, source.when) } : null),
+    ...(source?.helpers ? { extraSources: holdsWhile(extraSourcesProperty, source.when) } : null),
     ...(hasCapability(capable, 'followsSelection')
       ? { followsSelection: holdsWhile(followsSelectionProperty, selectionSourceSet(capable)) }
       : null),
@@ -154,6 +154,12 @@ export abstract class BlockElement extends LitElement {
   // block connects. It changes what the block shows, not where its data comes from.
   @property({ type: Boolean, reflect: true })
   preview = false
+
+  // In the editor: what each bound spot shows, by the spot's name, the value
+  // of its fields in the samples or else their names. The editor sets it;
+  // a spot that is a property of the block gets the same there.
+  @property({ attribute: false })
+  spotTexts: Readonly<Record<string, string>> = {}
 
   constructor() {
     super()

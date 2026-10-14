@@ -60,7 +60,7 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
   Wert, steht dort sein Name. Die Zeilen lassen sich im Editor nicht
   wählen; der Export enthält keine Probedaten.
 - Aktionen: je Ereignis die Schritte als Zeilen; das Schrittfenster in der
-  Mitte, Reiter GET Relation, PUT Relation, Werkzeug, Popup; erst die
+  Mitte, Reiter GET Relation, PUT Relation, Popup; erst die
   Herkunft, dann das Feld; „Übernehmen“ schreibt.
 - Folgt der Auswahl: in der Leiste anklicken, dann auf den Geber klicken.
 - Tabelle und Erfassung: Spaltenkopf tippen, Breite am Spaltenrand,
@@ -106,15 +106,15 @@ gewählten Zeile und am Fokusring. Zeile und Karte unter der Maus heben sich.
   „Fläche leicht“ in Neutral: grau wie „Heute“, ohne Rand, halbfett.
 - Datum: Tageswahl.
 - Feld: Text, Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld
-  (Haken `J`, kein Haken `N`, je Feld einstellbar). Beschriftung als
-  Rubrik über dem Wert, abschaltbar; Symbol links. Leer zeigt nur die
-  Beschriftung, keinen Strich.
-  Art: Linie (Standard, Haarlinie unter dem Wert, blau beim Tippen) oder
-  Ohne; das Ankreuzfeld hat keine.
+  (Haken `J`, kein Haken `N`, fest). Beschriftung als Rubrik über dem
+  Wert, abschaltbar; Symbol links. Leer zeigt nur die Beschriftung, keinen
+  Strich. Unter dem Wert eine Haarlinie, blau beim Tippen; das
+  Ankreuzfeld hat seinen Kasten.
 - Tabelle: liniert wie eine Rechnung, immer mit Kopf, der beim Rollen
-  stehen bleibt; nur die Zeilen, die es gibt, darunter leeres Blatt bis zur
-  Haarlinie am unteren Rand (im Editor nur Kopf und diese Linie); Blättern,
-  Sortieren per Klick, Spaltenwahl per Rechtsklick auf den Kopf.
+  stehen bleibt; nur die Zeilen, die es gibt, darunter Linien im Abstand
+  der Zeilen bis zum Fuß (im Editor mit den Probezeilen); Blättern,
+  Sortieren per Klick, Spaltenwahl per Rechtsklick auf den Kopf. Die
+  Suchzeile ist aus, bis man sie unter „Anzeige“ einschaltet.
 - Erfassung: ein Kopf, Hauptzeile und graue Unterzeile je Zelle; Tab und
   Enter erfassen, Pfeile wechseln Haupt- und Unterzeile, Escape bricht ab.
   Klick auf eine neue Position zeigt sie, der Cursor bleibt in der
@@ -122,25 +122,27 @@ gewählten Zeile und am Fokusring. Zeile und Karte unter der Maus heben sich.
   (Einstellungen, Aktionen): die Kette daran läuft für jede erfasste Zeile
   sofort, eine nach der anderen, z. B. PUT 82. Die Liste blättert nie; neue
   Positionen bleiben unten sichtbar. Keine
-  Kästchen in Zeilen, keine leeren Zeilen: unter den Positionen die
-  Tippzeile, darunter leeres Blatt. Die Tippzeile liegt auf leisem Grau; Pflichtspalten zeigen ihren
+  Kästchen in Zeilen: unter den Positionen die Tippzeile, darunter Linien
+  bis zum Fuß. Die Tippzeile liegt auf leisem Grau; Pflichtspalten zeigen ihren
   Titel leise, die erste andere Spalte den „Hinweis in der Tippzeile“
   (Einstellungen, Anzeige). Auf der Seite wächst sie mit dem Fenster.
 - Kanban: Plätze je Spalte, mehrere Felder je Platz mit Trenner, Knopf je
   Spalte (Aus, Weiter oder Aktion; grau wie „Heute“, ohne Rand, halbfett),
   Spalte nach Uhrzeit mit Stundenlinien und Jetzt-Linie. Die Karten sind
-  weiß mit Haarlinie. Der Chip ist ein Wort mit Punkt; eine Karte mit Chip
-  trägt links einen Streifen in seiner Farbe. Beim Ziehen hebt sich die
-  Karte mit Schatten.
-- Datenliste: Auswahl Eine Zeile, Mehrere oder Keine; je Zeile Tiersymbol
-  oder Symbol, Titel, Unterzeile, Rechts.
+  weiß mit Haarlinie. Die Stellen der Karte werden nur gebunden (Klick auf
+  die Stelle), getippt wird dort nichts; ohne Feld bleibt eine Stelle
+  leer. Das Tiersymbol (Avatar) wird unter Einstellungen, Quelle,
+  „Avatar“ gewählt; ohne Feld gibt es keinen Kreis. Hilfsquellen hat nur
+  das Kanban und die Erfassung. Beim Ziehen hebt sich die Karte mit
+  Schatten.
+- Datenliste: Auswahl Eine Zeile, Mehrere oder Keine; je Zeile Titel,
+  Unterzeile, Rechts, gebunden wie am Kanban; das Tiersymbol unter
+  Einstellungen, Quelle, „Tiersymbol“, ohne Feld kein Kreis.
 - Popup: eigene Seite, geöffnet und geschlossen über Aktionen.
 - Text: Rolle (Titel, Überschrift, Beschriftung, Text, Nebentext, Zahl,
-  Rubrik, Kopf, Hilfe, Betrag), Farbe, Art, Größe, Symbol, ein oder mehrere
-  Felder in einer Zeile; Fläche oder Rand macht ihn zum Chip. Haken
-  „Beschriftung“: kleine Rubrik über dem Text, auf einer Linie mit der des
-  Felds; sie trägt den Namen des gebundenen Felds, bis man sie überschreibt
-  (leer gemacht, kommt der Name zurück); der Wert zeigt im Editor dann „–“.
+  Rubrik, Kopf, Hilfe, Betrag), Größe, Symbol, Ausrichtung, ein oder
+  mehrere Felder in einer Zeile. Die Farbe ist die der Rolle; eine
+  Beschriftung über dem Wert ist ein eigener Text mit der Rolle Rubrik.
   Wächst ein Baustein, den man gerade ändert, rücken die Bausteine darunter
   nach unten, der Bereich wächst mit. Ein Text bricht um, wenn er zu lang
   ist; Anzeige-Wahlen hat er keine.

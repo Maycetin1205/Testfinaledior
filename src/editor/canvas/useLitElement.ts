@@ -102,6 +102,7 @@ export function useLitElement({
 
     // A bound spot shows its fields in the first sample row, as the mask
     // shows them with data; where the samples hold none, it names its fields.
+    const texts: Record<string, string> = {}
     for (const spot of bindableSpots) {
       const value = block.values[bindingProp(spot.prop)]
       if (typeof value !== 'string' || value === '') continue
@@ -109,14 +110,13 @@ export function useLitElement({
       const names = boundNames(value, sources, HELPER_MARK)
       if (names !== '') {
         const sample = sampleValue(el, value)
-        el.setDeclared(spot.previewProp ?? spot.prop, sample !== '' ? sample : names)
+        texts[spot.prop] = sample !== '' ? sample : names
+        el.setDeclared(spot.previewProp ?? spot.prop, texts[spot.prop])
       } else {
         el.setDeclared(bindingProp(spot.prop), '')
       }
-      if (spot.nameProp !== undefined && String(block.values[spot.nameProp] ?? '') === '') {
-        el.setDeclared(spot.nameProp, boundNames(value, sources))
-      }
     }
+    el.spotTexts = texts
 
     el.editable = !!selected
 

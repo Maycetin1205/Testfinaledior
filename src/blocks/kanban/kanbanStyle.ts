@@ -3,8 +3,7 @@ import { css } from 'lit'
 // Board, columns and cards as Fachsoftware (Tonprobe 3, 14.10.): a column is
 // a quiet grey surface in the hairline, its color only in the dot of its
 // head beside the title and the count; the cards on it are white in the
-// hairline, the avatar in its tinted circle, the name bold. A card with a
-// flag wears a stripe of the flag's color at its left edge. Under the
+// hairline, the avatar in its tinted circle, the name bold. Under the
 // pointer a card lifts; dragged, it rises on the one shadow of the mask.
 export const kanbanStyle = css`
   :host { min-width: 0; height: 100%; display: flex; flex-direction: column; }
@@ -160,20 +159,6 @@ export const kanbanStyle = css`
     box-shadow: var(--se-shadow-chosen);
   }
 
-  /* The flag of the card as a stripe at its left edge, in the color of the
-     flag. On a chosen card it lies over the accent bar; the ground shows the
-     choice. */
-  .card.flagged::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 3px;
-    border-radius: var(--se-radius) 0 0 var(--se-radius);
-    background: var(--tone-strong);
-  }
-
   /* The card being dragged rises from its column. */
   .card.dragging {
     z-index: 1;
@@ -237,13 +222,6 @@ export const kanbanStyle = css`
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-  }
-
-  /* The flags of the card. */
-  .flags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
   }
 
   .text {
@@ -346,7 +324,7 @@ export const kanbanStyle = css`
   .advance:hover { background: color-mix(in oklab, var(--se-neutral-soft), var(--se-neutral) 9%); }
   .advance:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
 
-  :host([preview]) [data-ff-spot]:not([data-ff-bound]):not(.avatar):empty::before,
+  :host([preview]) [data-ff-spot]:not([data-ff-bound]):empty::before,
   :host([preview]) .advance:empty::before {
     content: '—';
     color: var(--se-faint);

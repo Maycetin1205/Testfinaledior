@@ -295,7 +295,7 @@ defineBlock(Capture, {
   capabilities: [
     ...listCapabilities(
       CAPTURE_COLUMNS_BINDING,
-      { kind: 'source', helpersApart: true },
+      { kind: 'source', helpers: 'apart' },
       [{ key: ROW_CAPTURED, name: 'Zeile erfasst' }],
     ),
     { kind: 'capture' },

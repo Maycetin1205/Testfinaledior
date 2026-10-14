@@ -7,10 +7,6 @@ export interface BindableSpot {
   when?: Condition
   previewProp?: string
 
-  // A property, like a label, that left empty carries the names of the
-  // fields bound to the spot.
-  nameProp?: string
-
   // The spot takes several fields and shows their values in a row.
   several?: true
 }
@@ -60,11 +56,13 @@ export type LookupWindow<K extends string = string> = BlockLookupWindow<K> | Ent
 // capabilities with its own; whoever only reads them takes any name.
 export type Capability<K extends string = string> =
 
-  // The block reads one source and so holds its property. helpersApart: the
-  // helper sources stand in a window of their own in the bar, as the
-  // capture's do, whose columns look them up. after: the block's own property
-  // the source follows in the export; without it the source comes first.
-  | { kind: 'source'; when?: Condition<K>; helpersApart?: boolean; after?: K }
+  // The block reads one source and so holds its property. helpers: it reads
+  // helper sources too, keyed by its rows, under its source in the bar
+  // ("beside", as the kanban) or in a group of their own ("apart", as the
+  // capture, whose columns look them up); without, it reads its source
+  // alone. after: the block's own property the source follows in the
+  // export; without it the source comes first.
+  | { kind: 'source'; when?: Condition<K>; helpers?: 'beside' | 'apart'; after?: K }
 
   // The block gives the row clicked in it to the blocks that follow it; the
   // row comes from sourceProp while when holds, else from the block's source.
@@ -133,10 +131,9 @@ type BindableSpotProp<Props> = keyof Props extends infer K
   : never
 
 type BindableSpotsFor<Props> = ReadonlyArray<
-  Omit<BindableSpot, 'prop' | 'previewProp' | 'nameProp' | 'when'> & {
+  Omit<BindableSpot, 'prop' | 'previewProp' | 'when'> & {
     prop: BindableSpotProp<Props>
     previewProp?: keyof Props & string
-    nameProp?: keyof Props & string
     when?: Condition<keyof Props & string>
   }
 >

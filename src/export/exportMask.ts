@@ -28,7 +28,7 @@ import {
 } from './usedSources'
 import { collectRelation } from './usedRelations'
 import { buildSevariablen } from './sevariablen'
-import { namesRaw, nameSpotsOf, previewRaw, previewSpotsOf } from './bindingPreview'
+import { previewRaw, previewSpotsOf } from './bindingPreview'
 import { styleAttr } from './nodeStyle'
 import runtimeRaw from './generated/runtime.js?raw'
 import {
@@ -81,7 +81,6 @@ function nodeToHtml(
   )
 
   const previewSpots = previewSpotsOf(node)
-  const nameSpots = nameSpotsOf(node)
 
   // One attribute per declared property, written the way the declaration
   // writes it and left out when the value is the declared default or the
@@ -95,12 +94,9 @@ function nodeToHtml(
       const fallback = declared.default
       const held = node.values[key] ?? fallback
 
-      const named = nameSpots.get(key)
       const raw = previewSpots.has(key)
         ? previewRaw(node, previewSpots.get(key)!, sources, fallback)
-        : named && String(held) === ''
-          ? namesRaw(node, named, sources)
-          : declared.type.toAttribute(held)
+        : declared.type.toAttribute(held)
 
       if (raw === declared.type.toAttribute(fallback)) return ''
       return ` ${declared.attribute}="${escapeHtmlAttr(raw)}"`

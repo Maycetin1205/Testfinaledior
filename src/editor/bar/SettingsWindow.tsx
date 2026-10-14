@@ -42,8 +42,9 @@ interface SettingsWindowProps {
   // The block's search window, when it opens here and not per column.
   searchWindow: LookupWindow | undefined
 
-  // The helper sources stand in a group of their own.
-  helpersApart: boolean
+  // The block's helper sources: under its source, or in a group of their
+  // own once it has a source; none when the block reads its source alone.
+  helpers: 'beside' | 'apart' | undefined
 
   // What the block follows, when it follows and is not waiting for a click.
   follow: SelectionFollow | undefined
@@ -54,7 +55,7 @@ interface SettingsWindowProps {
 // The window „Einstellungen" at the bar: what the surface cannot show, in
 // groups. Nothing when the block has nothing to set.
 export function SettingsWindow({
-  block, controls, sourceProps, shows, lookupProps, searchWindow, helpersApart, follow, events,
+  block, controls, sourceProps, shows, lookupProps, searchWindow, helpers, follow, events,
 }: SettingsWindowProps) {
   const ed = useEditor()
   // What the block followed when the bar came up: a different one means a
@@ -63,6 +64,7 @@ export function SettingsWindow({
 
   const hasSource = carriesOwnSource(block) || sourceProps.length > 0
   const hasSearch = searchWindow !== undefined || lookupProps.length > 0
+  const helpersApart = helpers === 'apart'
   const groups = [hasSource, helpersApart, shows.length > 0, hasSearch, follow !== undefined, events.length > 0]
   if (!groups.some(Boolean)) return null
 
@@ -82,7 +84,7 @@ export function SettingsWindow({
         <div className="flex flex-col">
           {hasSource && (
             <Group name="Quelle">
-              {carriesOwnSource(block) && <SourceList block={block} part={helpersApart ? 'own' : 'all'} />}
+              {carriesOwnSource(block) && <SourceList block={block} part={helpers === 'beside' ? 'all' : 'own'} />}
               {controls(sourceProps)}
             </Group>
           )}

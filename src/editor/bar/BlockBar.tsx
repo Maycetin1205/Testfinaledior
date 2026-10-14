@@ -74,7 +74,8 @@ export function BlockBar({ block, def, onRemove }: BlockBarProps) {
   // A window per column opens at the column head, not here.
   const windowShown = searchWindow !== undefined && searchWindow.entriesProp === undefined
     && propertyVisible(searchWindow.when, block.values)
-  const helpersApart = capability(def, 'source')?.helpersApart === true && carriesOwnSource(block)
+  // Helper sources in a group of their own wait for the block's own source.
+  const helpers = carriesOwnSource(block) ? capability(def, 'source')?.helpers : undefined
   const follows = maySelectionFollows(block) && followOffered(ed.tree, block, library)
   const follow = follows ? followOf(block) : undefined
   const waiting = ed.followPickFor === block.id
@@ -93,7 +94,7 @@ export function BlockBar({ block, def, onRemove }: BlockBarProps) {
         shows={at('display')}
         lookupProps={at('lookup')}
         searchWindow={windowShown ? searchWindow : undefined}
-        helpersApart={helpersApart && declaredValue(block, SOURCE_PROPERTY) !== ''}
+        helpers={helpers === 'apart' && declaredValue(block, SOURCE_PROPERTY) === '' ? undefined : helpers}
         follow={follow !== undefined && !waiting ? follow : undefined}
         events={capability(def, 'events')?.list ?? []}
       />

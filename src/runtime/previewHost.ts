@@ -32,9 +32,6 @@ export function previewHost(samples: Samples): MaskHost {
     relation: () => undefined,
     resolveParameter: () => '',
     runRelation: () => Promise.resolve({ value: '', raw: undefined, failed: true }),
-    sendStartTool: () => false,
-    sendBwLink: () => false,
-    closeMask: () => false,
     requestFreshData: () => {},
 
     fetchRows: () => {},

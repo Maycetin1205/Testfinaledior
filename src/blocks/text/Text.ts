@@ -4,10 +4,9 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import { reportsHeight } from '../base/heightReport'
 import { bindable, bindingAttr } from '../../core/block/capability'
 import { readBoundSpot } from '../../runtime/boundSpot'
-import { makeDataLink, sampleValue, sourceIdOf, spotValue } from '../../runtime/source'
+import { makeDataLink, sourceIdOf, spotValue } from '../../runtime/source'
 import { makeFieldReader } from '../../runtime/foreignSources'
 import { bindingFields } from '../../core/block/binding'
-import { lookClass, lookStyle } from '../look/look'
 import { symbolTpl } from '../look/symbol'
 import { textStyle } from './textStyle'
 import { TEXT_SIZES, textProperties, type TextValues } from './properties'
@@ -25,28 +24,21 @@ export class Text extends BlockElement {
   static readonly type = 'text'
   static readonly tag = 'ff-text'
 
-  static override styles: CSSResultGroup = [BlockElement.styles, lookStyle, textStyle]
+  static override styles: CSSResultGroup = [BlockElement.styles, textStyle]
 
   constructor() {
     super()
-    reportsHeight(this, () => this.renderRoot.querySelector('.with-label') ?? this.renderRoot.querySelector('.text'))
+    reportsHeight(this, () => this.renderRoot.querySelector('.text'))
   }
 
-  // The size of a text is its own; color and emphasis come from the look.
-  // The symbol stands before the words, which alone are typed and bound.
-  // The frame is the block's room on the grid: the text stands at its top.
-  // With its label the text stands under it, both as high as their lines.
+  // The size of a text is its own, its ink that of its role. The symbol
+  // stands before the words, which alone are typed and bound. The frame is
+  // the block's room on the grid: the text stands at its top.
   override render(): TemplateResult {
     const align = ALIGNS.includes(this.align) ? this.align : 'left'
     const withSymbol = this.symbol !== ''
-    const look = lookClass({ tone: this.tone, emphasis: this.emphasis })
-    // In the editor a bound value under its label shows the dash of an empty
-    // field where the samples hold no value: the label names the field already.
-    const dashOnly = this.preview && this.showLabel && this.textField !== ''
-      && sampleValue(this, this.textField) === ''
-    const words = dashOnly ? '' : this.text
-    const text = html`<div
-      class="text variant-${this.variant} align-${align} ${look}${withSymbol ? ' with-symbol' : ''}${dashOnly ? ' empty' : ''}"
+    return html`<div class="frame"><div
+      class="text variant-${this.variant} align-${align}${withSymbol ? ' with-symbol' : ''}"
       style=${styleMap({ fontSize: tokenOf(TEXT_SIZES[this.size]) })}
     >${withSymbol ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}<span
         class="words"
@@ -58,14 +50,7 @@ export class Text extends BlockElement {
           this.reportSpot(e)
           this.inlineEdit(e, 'text')
         }}
-      >${words}</span></div>`
-    if (!this.showLabel) return html`<div class="frame">${text}</div>`
-    return html`<div class="frame"><div class="with-label"><span
-      class="label"
-      style=${styleMap({ textAlign: align })}
-      data-ff-editable
-      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
-    >${this.label === '' && this.preview ? 'Beschriftung' : this.label}</span>${text}</div></div>`
+      >${this.text}</span></div></div>`
   }
 
   override connectedCallback(): void {
@@ -106,7 +91,7 @@ defineBlock(Text, {
   capabilities: [
     { kind: 'source', after: 'text' },
     { kind: 'followsSelection' },
-    bindable<typeof textProperties>([{ prop: 'text', name: 'Text', several: true, nameProp: 'label' }]),
+    bindable<typeof textProperties>([{ prop: 'text', name: 'Text', several: true }]),
   ],
   grid: { startWidth: 12, startHeight: 2, minWidth: 2, minHeight: 1, heightFromContent: true },
 })

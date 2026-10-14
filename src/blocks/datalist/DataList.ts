@@ -3,12 +3,11 @@ import { state } from 'lit/decorators.js'
 import { BlockElement, defineBlock } from '../base/BlockElement'
 import { bindable } from '../../core/block/capability'
 import { chooseSelection, giverIdOf, relocateSelection, rowsToSelection } from '../../runtime/selection'
-import { makeDataLink, readDataPreamble, rowKeys, spotValue } from '../../runtime/source'
-import { animalAvatarTpl, avatarSpotTpl, avatarStyle, symbolAvatarTpl } from '../parts/card'
+import { makeDataLink, readDataPreamble, rowKeys, sampleValue, spotValue } from '../../runtime/source'
+import { animalAvatarTpl, avatarStyle } from '../parts/card'
 import { tickBoxStyle, tickBoxTpl } from '../parts/tickBox'
-import { symbolTpl } from '../look/symbol'
 import { dataListStyle } from './dataListStyle'
-import { AVATAR_SPOT, dataListProperties, PICK_ONE, ROW_SPOTS, type DataListValues, type RowSpot } from './properties'
+import { dataListProperties, PICK_ONE, ROW_SPOTS, type DataListValues, type RowSpot } from './properties'
 
 interface Item {
   key: string
@@ -22,8 +21,8 @@ export interface DataList extends DataListValues {}
 
 // The records of a source as a list, as "Tiere für diesen Besuch" of the
 // reception mask. A click chooses one row, as at the table, or ticks several,
-// or does nothing. In the editor one row stands for all; its spots are typed
-// or bound right there.
+// or does nothing. In the editor one row stands for all; its spots are
+// bound right there.
 export class DataList extends BlockElement {
   static readonly type = 'datalist'
   static readonly tag = 'ff-datalist'
@@ -46,7 +45,7 @@ export class DataList extends BlockElement {
           row,
           values: {
             ...Object.fromEntries(ROW_SPOTS.map(({ prop }) =>
-              [prop, spotValue(this[prop], this[`${prop}Field`], row, preamble.read)])),
+              [prop, spotValue('', this[`${prop}Field`], row, preamble.read)])),
             avatar: this.avatarField === '' ? '' : preamble.read(row, this.avatarField),
           },
         }))
@@ -71,31 +70,29 @@ export class DataList extends BlockElement {
     this.chosen = next
   }
 
+  // In the editor a spot shows what the editor gives it: the sample value of
+  // its fields or their names; a spot without a field stands empty.
   private spot(prop: RowSpot, className: string): TemplateResult {
     return html`<span
       class=${className}
-      data-ff-editable
       data-ff-spot=${prop}
       ?data-ff-bound=${this[`${prop}Field`] !== ''}
       @click=${this.reportSpot}
-      @dblclick=${(e: MouseEvent) => {
-        this.reportSpot(e)
-        this.inlineEdit(e, prop)
-      }}
-    >${this[prop]}</span>`
+      @dblclick=${this.reportSpot}
+    >${this.spotTexts[prop] ?? ''}</span>`
   }
 
   // The outline of the animal the field names, in the color of its kind; a
-  // bound avatar stands in every row, so the names stay in line. Without a
-  // field the chosen symbol stands there, or nothing.
-  private avatar(species: string | null): TemplateResult | typeof nothing {
-    const bound = this.avatarField !== ''
-    const symbol = symbolTpl(this.symbol)
-    if (species !== null) {
-      if (bound) return animalAvatarTpl(species)
-      return this.symbol === '' ? nothing : symbolAvatarTpl(symbol)
-    }
-    return avatarSpotTpl(AVATAR_SPOT.prop, bound, bound, (e) => this.reportSpot(e), symbol)
+  // bound avatar stands in every row, so the names stay in line, an animal
+  // it does not know as a paw. Without a field there is no avatar.
+  private avatar(species: string): TemplateResult | typeof nothing {
+    return this.avatarField === '' ? nothing : animalAvatarTpl(species)
+  }
+
+  // In the editor a bound avatar shows the animal of the samples, else nothing.
+  private sampleAvatar(): TemplateResult | typeof nothing {
+    const species = sampleValue(this, this.avatarField)
+    return species === '' ? nothing : this.avatar(species)
   }
 
   // In the mask a spot without a value falls away.
@@ -134,7 +131,7 @@ export class DataList extends BlockElement {
       ${this.preview
         ? html`<div class="row">
             ${this.pick === 'several' ? tickBoxTpl(html`<input type="checkbox" tabindex="-1" />`) : nothing}
-            ${this.avatar(null)}
+            ${this.sampleAvatar()}
             <span class="ident">${this.spot('heading', 'name')}${this.spot('subline', 'meta')}</span>
             ${this.spot('aside', 'aside')}
           </div>`
@@ -165,7 +162,7 @@ defineBlock(DataList, {
     { kind: 'source' },
     { kind: 'recordPick', gives: PICK_ONE },
     { kind: 'followsSelection' },
-    bindable<typeof dataListProperties>([...ROW_SPOTS, AVATAR_SPOT]),
+    bindable<typeof dataListProperties>(ROW_SPOTS),
   ],
   grid: { startWidth: 24, startHeight: 10, minWidth: 8, minHeight: 3 },
 })
