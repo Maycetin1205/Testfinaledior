@@ -28,16 +28,19 @@ export class Text extends BlockElement {
 
   constructor() {
     super()
-    reportsHeight(this, () => this.renderRoot.querySelector('.text'))
+    reportsHeight(this, () => this.renderRoot.querySelector('.with-label') ?? this.renderRoot.querySelector('.text'))
   }
 
   // The size of a text is its own, its ink that of its role. The symbol
   // stands before the words, which alone are typed and bound. The frame is
-  // the block's room on the grid: the text stands at its top.
+  // the block's room on the grid: the text stands at its top. With its
+  // label the text stands under it, both as high as their lines; in the
+  // editor the words under the label name the bound fields, so the builder
+  // sees where the value will stand and clicks there to bind it.
   override render(): TemplateResult {
     const align = ALIGNS.includes(this.align) ? this.align : 'left'
     const withSymbol = this.symbol !== ''
-    return html`<div class="frame"><div
+    const text = html`<div
       class="text variant-${this.variant} align-${align}${withSymbol ? ' with-symbol' : ''}"
       style=${styleMap({ fontSize: tokenOf(TEXT_SIZES[this.size]) })}
     >${withSymbol ? html`<span class="symbol">${symbolTpl(this.symbol)}</span>` : nothing}<span
@@ -50,7 +53,14 @@ export class Text extends BlockElement {
           this.reportSpot(e)
           this.inlineEdit(e, 'text')
         }}
-      >${this.text}</span></div></div>`
+      >${this.text}</span></div>`
+    if (!this.showLabel) return html`<div class="frame">${text}</div>`
+    return html`<div class="frame"><div class="with-label"><span
+      class="label"
+      style=${styleMap({ textAlign: align })}
+      data-ff-editable
+      @dblclick=${(e: MouseEvent) => this.inlineEdit(e, 'label')}
+    >${this.label === '' && this.preview ? 'Beschriftung' : this.label}</span>${text}</div></div>`
   }
 
   override connectedCallback(): void {
@@ -91,7 +101,7 @@ defineBlock(Text, {
   capabilities: [
     { kind: 'source', after: 'text' },
     { kind: 'followsSelection' },
-    bindable<typeof textProperties>([{ prop: 'text', name: 'Text', several: true }]),
+    bindable<typeof textProperties>([{ prop: 'text', name: 'Text', several: true, nameProp: 'label' }]),
   ],
   grid: { startWidth: 12, startHeight: 2, minWidth: 2, minHeight: 1, heightFromContent: true },
 })

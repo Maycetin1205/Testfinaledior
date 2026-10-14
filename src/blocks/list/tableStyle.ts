@@ -90,8 +90,8 @@ export const tableStyle = css`
         top: 0;
         z-index: 1;
         flex: none;
-        background: var(--se-panel-2);
-        border-bottom: var(--se-hair);
+        background: var(--se-head-ground);
+        border-bottom: var(--se-border) solid var(--se-head-line);
         font-size: var(--se-fs-rubric);
         font-weight: 600;
         color: var(--se-ink-2);

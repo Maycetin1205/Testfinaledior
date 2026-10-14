@@ -11,10 +11,10 @@
   :root {
     --wb-ground: 220 15.8% 96.3%;     /* #F4F5F7, the ground of the editor */
     --wb-panel: 0 0% 100%;            /* #FFFFFF --se-panel */
-    --wb-control: 220 14.3% 95.9%;    /* #F3F4F6 --se-panel-2, the ground of a place to type */
-    --wb-line: 216 13.5% 85.5%;       /* #D5D9DF --se-line */
-    --wb-line-soft: 216 15.2% 93.5%;  /* #ECEEF1 --se-line-soft, the hairline between surfaces */
-    --wb-box-line: 215 11.8% 80%;     /* #C6CBD2 --se-box-line, the edge of an empty checkbox */
+    --wb-control: 220 14.3% 95.9%;    /* #F3F4F6, the ground of a place to type */
+    --wb-line: 215 10.7% 71.6%;       /* #AFB6C0 --se-line */
+    --wb-line-soft: 216 10.6% 87.1%;  /* #D9DDE3 --se-line-soft, the hairline between surfaces */
+    --wb-box-line: 215 9.2% 65.7%;    /* #9EA6B1 --se-box-line, the edge of an empty checkbox */
     --wb-hover: 216 18.5% 94.7%;      /* #EFF1F4 --se-hover */
     --wb-ink: 218.2 23.4% 9.2%;       /* #12161D --se-ink */
     --wb-ink-2: 216.7 13.6% 25.9%;    /* #39404B --se-ink-2 */
@@ -38,7 +38,7 @@
 
     /* The ground around the canvas: the window of the mask, on which the
        canvas lays the white sheet. */
-    --canvas-bg: 225 9.1% 91.4%;      /* #E7E8EB --se-bg */
+    --canvas-bg: 217.5 12.3% 87.5%;   /* #DCDFE4 --se-bg */
   }
 
   * {

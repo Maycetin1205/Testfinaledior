@@ -12,9 +12,16 @@
   color-scheme: light;
 
   /* The window is the ground, the mask a white sheet on it. */
-  --se-bg:        #E7E8EB;
+  --se-bg:        #DCDFE4;
   --se-panel:     #FFFFFF;
-  --se-panel-2:   #F3F4F6;
+  --se-panel-2:   #EBEDF1;
+
+  /* The head of a group box, of a table and the band at the top of the
+     sheet: a light blue-grey in a line of the same family, so the parts of
+     the mask stand apart from the sheet (14.10., the user on the grey of
+     before: no lines, no contrast, no color). */
+  --se-head-ground: #E4E9F6;
+  --se-head-line:   #BFC9E3;
 
   /* Ink in three steps: a title and a value, a label and a column head,
      what only shows the way (a symbol, a sign). */
@@ -22,9 +29,11 @@
   --se-ink-2:     #39404B;
   --se-faint:     #A0A6AF;
 
-  --se-line:      #D5D9DF;
-  --se-line-soft: #ECEEF1;
-  --se-box-line:  #C6CBD2;  /* the box of a checkbox */
+  /* Lines a reader sees: the line of a box and under a head, the softer one
+     between rows (14.10.; before, #D5D9DF and #ECEEF1 vanished on white). */
+  --se-line:      #AFB6C0;
+  --se-line-soft: #D9DDE3;
+  --se-box-line:  #9EA6B1;  /* the box of a checkbox */
 
   /* Royal blue, the ink of a fountain pen. The accent of the mask, at three
      places only: the main button, the chosen row (its ground and the bar at
@@ -136,7 +145,7 @@
      placeholders readable. The column line is ink seen through, so a tinted
      row runs through under it as one band. */
   --se-head-rule: var(--se-rule);
-  --se-col-rule: rgba(18, 22, 29, .06);
+  --se-col-rule: rgba(18, 22, 29, .14);
   --se-col-edge: inset 1px 0 0 var(--se-col-rule);
   --se-capture-ground: #F7F8FA;
   --se-capture-edge: inset 0 1px 0 var(--se-line);

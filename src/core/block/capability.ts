@@ -7,6 +7,10 @@ export interface BindableSpot {
   when?: Condition
   previewProp?: string
 
+  // A property, like a label, that left empty carries the names of the
+  // fields bound to the spot.
+  nameProp?: string
+
   // The spot takes several fields and shows their values in a row.
   several?: true
 }
@@ -131,9 +135,10 @@ type BindableSpotProp<Props> = keyof Props extends infer K
   : never
 
 type BindableSpotsFor<Props> = ReadonlyArray<
-  Omit<BindableSpot, 'prop' | 'previewProp' | 'when'> & {
+  Omit<BindableSpot, 'prop' | 'previewProp' | 'nameProp' | 'when'> & {
     prop: BindableSpotProp<Props>
     previewProp?: keyof Props & string
+    nameProp?: keyof Props & string
     when?: Condition<keyof Props & string>
   }
 >

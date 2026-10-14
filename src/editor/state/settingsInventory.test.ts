@@ -10,8 +10,8 @@ import { allBlockTypes } from '../../core/block/registry'
 // every chat that strikes a setting (offen.md, 5g and 5h) and rises only with
 // a line in entschieden.md that names the mask which needs the new setting.
 // 14.10.: 77 settings, 29 of them never touched by any of the three masks;
-// 58 after 5g.
-const CEILING = 58
+// 58 after 5g; 60 with the label of a text back (user, 14.10.).
+const CEILING = 60
 
 function settingsOf(def: BlockType): number {
   const shown = Object.values(def.properties).filter((p) => p.place !== 'none').length

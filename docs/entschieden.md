@@ -7,17 +7,20 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Die Beschriftung am Text bleibt (Nutzer): Schalter und Text, die
+  Beschriftung über dem Text wie über dem Wert eines Felds, leer trägt
+  sie die Namen der gebundenen Felder. In 5g gestrichen, am selben Tag
+  zurückgeholt; Decke 60.
 - 14.10. Ränder zurück (Chat 5i, Fable): jeder Bereich außer dem freien
   ist ein Kasten mit Linie, die Kopfzeile ein Gruppenkasten mit Titel auf
   hellem Kopf; der Wert eines Felds steht in einem Kasten mit Linie;
   Tabelle und Erfassung stehen in einem Kasten mit hellem Kopf und zeigen
   unter den Sätzen leere Zeilen samt Spaltenlinien bis zum Fuß, auch im
   Editor. Hebt „Abschnitte statt Karten“ (5d) und „Kasten ohne Rand“ (5e)
-  auf. Grund: der Nutzer über den flachen Stand: „randlos, leer“; ein
-  Belegprogramm unter Windows zeichnet seine Gruppen, Felder und Listen
-  mit Linien. Bleibt: Haarlinien statt Schatten, Rundung 3 px, der Akzent
+  auf. Grund: ohne Linien wirkt die Maske leer; ein Belegprogramm unter
+  Windows zeichnet seine Gruppen, Felder und Listen mit Linien. Bleibt: Haarlinien statt Schatten, Rundung 3 px, der Akzent
   an drei Stellen.
-- 14.10. Keine Probedaten im Editor (Nutzer, nachdrücklich). Hebt Chat 5f
+- 14.10. Keine Probedaten im Editor (Nutzer). Hebt Chat 5f
   vom selben Tag auf: `src/editor/probedaten/` ist weg, `previewHost`
   liefert wieder nichts, eine gebundene Stelle zeigt die Namen ihrer
   Felder, Erfassung und Tabelle zeigen Kopf, Tippzeile und Linien bis

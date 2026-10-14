@@ -48,8 +48,8 @@ export const areaStyle = css`
   }
   .appearance-box { background: var(--se-panel); }
   .appearance-headed .head {
-    background: var(--se-panel-2);
-    border-bottom: var(--se-hair);
+    background: var(--se-head-ground);
+    border-bottom: var(--se-border) solid var(--se-head-line);
     border-radius: var(--se-radius) var(--se-radius) 0 0;
   }
   .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
@@ -70,10 +70,13 @@ export const areaStyle = css`
   }
   .appearance-box.emphasis-soft { border-color: var(--tone-line); }
 
-  /* Band: the head of the sheet, like the head of a letter: a light grey box
-     in the line; the columns inside stay those of the sheet. It belongs at
-     the top of the page, over the whole width. */
-  .appearance-band { background: var(--se-panel-2); }
+  /* Band: the head of the sheet, like the head of a letter: the light
+     blue-grey of a head, in its line; the columns inside stay those of the
+     sheet. It belongs at the top of the page, over the whole width. */
+  .appearance-band {
+    background: var(--se-head-ground);
+    border-color: var(--se-head-line);
+  }
 
   /* The head: the title as text over the section. Fläche voll and Fläche
      leicht lay a band of the tone under it, Nur Rand draws the section's edge

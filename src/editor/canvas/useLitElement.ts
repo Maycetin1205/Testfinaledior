@@ -112,6 +112,9 @@ export function useLitElement({
       } else {
         el.setDeclared(bindingProp(spot.prop), '')
       }
+      if (spot.nameProp !== undefined && String(block.values[spot.nameProp] ?? '') === '') {
+        el.setDeclared(spot.nameProp, boundNames(value, sources))
+      }
     }
     el.spotTexts = texts
 

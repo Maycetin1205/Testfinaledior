@@ -59,7 +59,7 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   nicht eine Liste von Auflagen. Eine Auflage, die etwas wegnimmt, braucht
   ein Bild, das zeigt, dass es ohne besser ist: fünf Runden „weniger“
   (Schatten, Rundung, Großschrift, Grund, Zeilen) haben die Leinwand leer
-  gemacht; „leer“ und „randlos“ heißt beim Nutzer Form, nicht Inhalt.
+  gemacht; „leer“ heißt hier Form, nicht Inhalt.
 - Nichts Neues ohne Maske, die es braucht (14.10.). Inventur vom 14.10.:
   der Editor zeigt 77 Einstellungen an den Bausteinen, 29 davon hat keine
   der drei Masken je angefasst; dazu 6 Schrittarten, 3 davon nie benutzt,
@@ -67,7 +67,8 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   Schrittart, jedes Fenster braucht eine Zeile in `entschieden.md`, die
   die Maske nennt, die es braucht. Die Zahl steht als Decke in
   `src/editor/state/settingsInventory.test.ts`; der Test schlägt an, wenn
-  sie steigt. Chat 5g senkt sie auf 58. Was die Maske kann (Blättern,
+  sie steigt. Chat 5g senkte sie auf 58, die Beschriftung am Text kam am
+  selben Tag zurück: 60. Was die Maske kann (Blättern,
   Sortieren, Spaltenwahl, Tag filtern, Einziger Treffer), bleibt; was nur
   der Editor anbietet und keine Maske nutzt, geht (Nutzer, 14.10.).
 
@@ -199,7 +200,8 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    Kopf, Tippzeile und Linien bis zum Fuß. Was leer aussieht, wird am
    Aussehen behoben (Ränder, Flächen, Gewicht), siehe 5i.
 5g. Streichen, Teil 1: Bausteine, Farben, Schritte. Erledigt 14.10.,
-   Decke 58. Weg: am Text Farbe, Art, Beschriftung (der Text ist kein
+   Decke 58; die Beschriftung am Text kam am selben Tag zurück (Nutzer),
+   Decke 60. Weg: am Text Farbe und Art (der Text ist kein
    Chip mehr); am Feld Art und die Haken-Werte (J und N fest); an
    Datenliste und Kanban die getippten Stellen und das Symbol, am Kanban
    der Avatar-Schalter und der Chip samt Streifen (`parts/chip.ts`);
@@ -227,9 +229,9 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    „Unterzeile“ samt Platzwahl (die graue zweite Zeile vom 07.10., samt
    `greyLine`, `placedUnder`, `UNDER` in `capture/column.ts`), „€“.
    Sagt er raus, streicht sie ein Nachtrag zu 5g; die Decke sinkt dann
-   auf 54.
-5i. Ränder (Fable, 14.10., erledigt). Der Nutzer über den Stand nach 5g:
-   „randlos, beschissen leer“. Jeder Bereich außer dem freien ist wieder
+   auf 56.
+5i. Ränder (Fable, 14.10., erledigt). Der Stand nach 5g war ohne Linien
+   und wirkte leer. Jeder Bereich außer dem freien ist wieder
    ein Kasten mit Linie: Kasten weiß in der Linie, Kopfzeile ein
    Gruppenkasten mit dem Titel auf hellem Kopf über der Linie, Band
    hellgrau in der Linie (`areaStyle.ts`). Das Feld hat seinen Wert in
@@ -494,8 +496,8 @@ sagt nur: „Lies docs/offen.md, baue Chat N, halte dich an den Rahmen.“
   streicht; sie steigt nur mit einer Zeile in `entschieden.md`, die die
   Maske nennt, die die Einstellung braucht. Was eine Maske nicht braucht,
   wird nicht gebaut, auch nicht „für später“.
-- Das Design der Maske ist eingefroren (`entschieden.md`, 14.10., Bilder
-  in `docs/design/2026-10-14-fachsoftware-*.png`). Werte für Aussehen nur aus
+- Das Design der Maske steht in `entschieden.md` (14.10., zuletzt 5i:
+  Kästen mit Linie). Werte für Aussehen nur aus
   `src/design/mask.css` und `editor.css`. Nur hell. Keine Chips, Pills,
   Badges als Deko. Keine Kästchen in Zeilen der Erfassung. Kein Vorschlag
   für eine neue Designsprache, in keinem Chat.

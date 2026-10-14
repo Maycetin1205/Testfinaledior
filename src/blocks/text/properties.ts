@@ -1,4 +1,5 @@
 import {
+  booleanProperty,
   choiceProperty,
   fieldProperty,
   segmentProperty,
@@ -24,6 +25,8 @@ export const TEXT_SIZES: Readonly<Record<string, string>> = {
 const ROLE_SIZES = {
   title: '22', heading: '15', label: '12', body: '14', muted: '13', number: '14', hint: '12', amount: '26',
 }
+
+const WITH_LABEL = { key: 'showLabel', equals: true }
 
 // A text takes the ink and weight of its role.
 export const textProperties = {
@@ -65,6 +68,21 @@ export const textProperties = {
     label: 'Text',
     place: 'block',
     attribute: 'text',
+  }),
+  // The label stands small above the text, as over the value of a field, so
+  // a text and a field with their labels stand on one line. Left empty it
+  // names the bound fields. Struck in 5g, back the same day (user).
+  showLabel: booleanProperty({
+    default: false,
+    label: 'Beschriftung',
+    attribute: 'showlabel',
+  }),
+  label: textProperty({
+    default: '',
+    label: 'Beschriftung',
+    place: 'block',
+    attribute: 'label',
+    when: WITH_LABEL,
   }),
   textField: fieldProperty({
     default: '',

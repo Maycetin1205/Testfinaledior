@@ -139,7 +139,17 @@ export abstract class BlockElement extends LitElement {
     :host([fills]) { height: 100%; box-sizing: border-box; }
     [data-ff-editable] { cursor: text; }
     :host(:not([data-editable])) [data-ff-editable] { cursor: inherit; }
+    /* In the editor a bound spot shows the names of its fields as a quiet
+       placeholder, in the second ink and plain, not as a value; the dotted
+       line that says "bound, click to bind anew" shows only while the block
+       is marked or under the pointer (14.10.: under every value it made the
+       sheet look like a page of broken links). */
     :host([preview]) [data-ff-bound] {
+      color: var(--se-ink-2);
+      font-weight: 400;
+    }
+    :host([preview][data-editable]) [data-ff-bound],
+    :host([preview]:hover) [data-ff-bound] {
       text-decoration: underline dotted var(--se-accent);
       text-decoration-thickness: 2px;
       text-underline-offset: 3px;

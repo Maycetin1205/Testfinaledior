@@ -14,6 +14,28 @@ export const textStyle = css`
   }
   .frame > .text { flex: none; }
 
+  /* Beschriftung: the Rubrik over the text, as .label over the value of a
+     field: the same type on a 14 px line, 6 px above it and 1 px under it,
+     so a text and a field with their labels stand on one line and are as
+     high. A label is the second ink, plain; a value the first, semibold. */
+  .frame > .with-label {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1px;
+    padding-top: 6px;
+  }
+  .with-label > .text { flex: none; }
+  .label {
+    min-width: 0;
+    padding-inline: 10px;
+    color: var(--se-ink-2);
+    font-family: var(--se-font);
+    font-size: var(--se-fs-rubric);
+    font-weight: 400;
+    line-height: 14px;
+  }
+
   .text {
     box-sizing: border-box;
     padding-inline: 10px;
