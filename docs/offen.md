@@ -28,7 +28,7 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   und im V7-Ordner `VORLAGEN_INDIV\Belegerfassung\LAYOUTRAHMEN\10000`.
 - Design der Maske eingefroren (Blatt-Sprache vom 13.10., Bilder
   `docs/design/2026-10-14-*.png`). Es gibt keine neue Designsprache mehr,
-  nur Feinschliff je Baustein in der Revue unten.
+  nur Feinschliff je Baustein in der Durchsicht unten.
 - Code-Durchgang 14.10. (Fable): Schichten, Store, Registry, Doku in
   Ordnung. Schwach: vier Tests, 34 Schema-Stufen in sieben Wochen, sieben
   Stellen, die einen Fehler still verschlucken (`runEvent(...).catch(() => {})`),
@@ -46,7 +46,8 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   ändert oder der Nutzer einen Stand gesichert haben will.
 - Keine neuen Tests, außer dem Ladetest in Chat 3. Kein Thema
   Geschwindigkeit. Kein Chat, der nur aufräumt, ohne dass der Nutzer
-  danach etwas sieht; Ausnahmen sind Chat 7 und Chat 18, beide gewollt.
+  danach etwas sieht; Ausnahmen sind Chat 7 und das doppelte Zeichnen in
+  Chat 10, beide gewollt.
 - Rückmeldungen sind sparsam: eine Meldung je Vorfall, eine Zeile oder
   ein kleines Fenster mit „OK“, nie mehrere hintereinander, keine
   Browser-Dialoge außer der Rückfrage bei „Neu“ (Nutzer, 14.10.).
@@ -65,7 +66,7 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 2. Rückmeldungen. Der Export sagt, welche Prüfung scheitert. Eine Datei,
    die nicht lädt, sagt warum. „Neu“ fragt nach. Die leere Leinwand zeigt,
    was zu tun ist. Dazu: der Export nennt Stellen, deren Feld die Quelle
-   nicht hat. Erledigt 14.10., geprüft 14.10. Rest für Revue Text: die
+   nicht hat. Erledigt 14.10., geprüft 14.10. Rest für Chat 8: die
    Meldung „mit Lücken“ nennt den Baustein nur mit seiner Art („Text“);
    sie soll Beschriftung oder Text mitnennen, sonst findet man ihn unter
    48 Texten nicht.
@@ -117,30 +118,28 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
    `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
-8. Revue Text.
-9. Revue Feld.
-10. Revue Bereich, dazu der neue Baustein Linie: eine Haarlinie,
-    waagerecht oder senkrecht, Farbe aus den Wahlen, eine Rasterzeile hoch
-    oder eine Spalte breit. Für Masken, die Gruppen trennen wollen, ohne
-    einen Bereich zu zeichnen.
-11. Revue Erfassung.
-12. Revue Tabelle.
-13. Revue Knopf.
-14. Revue Datenliste.
-15. Revue Kanban.
-16. Revue Popup.
-17. Revue Datum.
-18. Doppeltes Zeichnen. Lit meldet, dass `ff-capture` und `ff-table` nach
-    einem Update ein weiteres planen. Ursache finden, beheben. Nichts wird
-    sichtbar, aber jede spätere Änderung an der Erfassung wird sicherer.
+Durchsicht heißt: jeder Baustein wird einmal durchgesehen und in Ordnung
+gebracht, nach der Prüfliste unten. Ähnliche Bausteine teilen sich einen
+Chat (14.10., der Nutzer will nicht 17 Chats takten).
+
+8. Durchsicht der kleinen Bausteine: Text, Feld, Datum, Knopf.
+9. Durchsicht Bereich und Popup, dazu der neue Baustein Linie: eine
+   Haarlinie, waagerecht oder senkrecht, Farbe aus den Wahlen, eine
+   Rasterzeile hoch oder eine Spalte breit. Für Masken, die Gruppen
+   trennen wollen, ohne einen Bereich zu zeichnen.
+10. Durchsicht Erfassung, Tabelle und Datenliste, dazu das doppelte
+    Zeichnen: Lit meldet, dass `ff-capture` und `ff-table` nach einem
+    Update ein weiteres planen; Ursache finden, beheben. Darf
+    `masken/behandlung` anfassen (breitere Spalten).
+11. Durchsicht Kanban.
 
 ### Phase 2: Vor dem ersten Kunden
 
-19. Die Maske redet. Antwortet SoftEngine nicht oder lehnt es ein
+12. Die Maske redet. Antwortet SoftEngine nicht oder lehnt es ein
     Schreiben ab, zeigt die Maske es leise an der Stelle, wo es passiert
     ist (die Zeile der Erfassung, der Knopf). Heute bleibt beides
     unsichtbar (23.09.). Für einen Kunden geht das nicht.
-20. Pilotkunde mit der Belegerfassung, Standardmaske als Rückweg. Vorher
+13. Pilotkunde mit der Belegerfassung, Standardmaske als Rückweg. Vorher
     einmal mit einem dicken Beleg (hunderte Positionen) und einem großen
     Artikelstamm testen. Braucht den Nutzer und seinen CTO.
 
@@ -243,7 +242,7 @@ breit. In den Referenzbaum aufnehmen, `REFERENCE_REFRESH=1 npm test`.
 Nicht noch einmal: die Summenlinie am Text (13.10. entfernt) bleibt weg,
 dafür ist die Linie da.
 
-Chats 8 bis 17, Revue. Je Baustein dieselbe Prüfliste, Befunde beheben,
+Chats 8 bis 11, Durchsicht. Je Baustein dieselbe Prüfliste, Befunde beheben,
 nichts Neues erfinden:
 
 - Im Editor: sichtbar auf der Leinwand, auch leer? Leiste verständlich,
@@ -260,22 +259,22 @@ nichts Neues erfinden:
 - Bekannte Reste: Text mit Beschriftung rechtsbündig setzt die Rubrik
   links (Belegerfassung, „Beleg-Nr.“); Name im Band 4 px höher als in der
   Vorlage; schmale Spaltenköpfe der Behandlung brauchen breitere Spalten
-  (Maske, Chat 12 darf `masken/behandlung` anfassen); „Trenner“ in der
+  (Maske, Chat 10 darf `masken/behandlung` anfassen); „Trenner“ in der
   Feldwahl des Texts klar benennen; „Pflicht“ am Feld ist als Wahl da und
   in der Maske nicht zu sehen; im Empfang bricht der Titel „Kleintierpraxis
   am Lindenhof“ bei 1440 px um und liegt über „Empfang heute“, sein Umriss
   ist zu niedrig (seit Chat 1 im Editor zu sehen).
-- Jeder Revue-Chat endet mit zwei Bildern je Maske, in der die Art
+- Jeder Durchsicht-Chat endet mit zwei Bildern je Maske, in der die Art
   vorkommt: Editor und Export, vorher und nachher.
 
-Chat 18, Doppeltes Zeichnen. Konsole: „Element ff-capture scheduled an
+Teil von Chat 10, doppeltes Zeichnen. Konsole: „Element ff-capture scheduled an
 update after an update completed“, dasselbe für `ff-table`. Eine
 Eigenschaft wird während des Zeichnens gesetzt. Ursache in
 `src/blocks/capture/Capture.ts`, `src/blocks/list/recordList.ts`,
 `src/blocks/base/heightReport.ts` oder `headsReport.ts`. Beheben, Maske
 pixelgleich.
 
-Chat 19, die Maske redet. Heute: `runEvent(...).catch(() => {})` an
+Chat 12, die Maske redet. Heute: `runEvent(...).catch(() => {})` an
 sieben Stellen (`src/blocks/button/Button.ts`, `formfield/valueBinding.ts`,
 `kanban/board.ts`, `list/rowActivation.ts`), die Schreibwarteschlange
 (`src/softengine/relations/hostQueue.ts`) gibt nach 10 s auf, ohne dass
