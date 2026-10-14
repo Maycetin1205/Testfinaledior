@@ -1,11 +1,11 @@
 import { css, unsafeCSS } from 'lit'
 import { AREA_COLUMNS, GRID, gridAreaCss } from '../../core/block/grid'
 
-// The card of the sample docs/design/behandlung-modern.html (.card): white,
-// without a border, on a soft shadow; the head carries the title as text.
-// Head and padding take whole rows of the grid, so an area holds as many rows
-// as before the new look: the head and the room below make four rows, the
-// room above and below a box one.
+// Sections, not cards (Tonprobe 3, 14.10.): a Kopfzeile is a section of the
+// sheet, its title over a hairline; a Kasten a white box in the hairline, no
+// shadow. Head and padding take whole rows of the grid, so an area holds as
+// many rows as before the new look: the head and the room below make four
+// rows, the room above and below a box one.
 const PITCH = GRID.rowPx + GRID.gapPx
 const ROOM = 12
 const HEAD = 4 * PITCH - ROOM
@@ -37,46 +37,41 @@ export const areaStyle = css`
   :host(:not([preview])) .frame,
   :host(:not([preview])) .body { overflow: clip; }
 
-  /* Kasten and Kopfzeile: the white card. */
-  .appearance-box,
-  .appearance-headed {
+  /* Kasten: a white box on the sheet, the hairline drawn inside, so the box
+     keeps its size. */
+  .appearance-box {
     background: var(--se-card-bg);
-    box-shadow: var(--se-shadow-card);
-  }
-  /* On the white sheet a white card needs an edge: the hairline of the
-     sheet, drawn inside, so the card keeps its size. */
-  .appearance-box.emphasis-text,
-  .appearance-headed.emphasis-text {
     outline: var(--se-border) solid var(--se-line);
     outline-offset: calc(-1 * var(--se-border));
   }
+  /* Kopfzeile: a section, no box: the title over a hairline, what it holds
+     on the sheet below. */
+  .appearance-headed .head { border-bottom: var(--se-hair); }
   .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
   .appearance-headed .body { padding: 0 ${unsafeCSS(ROOM)}px ${unsafeCSS(ROOM)}px; }
 
   /* Fläche voll, Fläche leicht and Nur Rand lay the tone on a free area and
-     on a box: the ground and the line of the emphasis, the line drawn inside,
-     no shadow. Nur Schrift leaves them as they are. */
+     on a box: the ground and the line of the emphasis, the line drawn inside.
+     Nur Schrift leaves them as they are. */
   .appearance-plain:not(.emphasis-text),
   .appearance-box:not(.emphasis-text) {
     background: var(--look-ground);
-    box-shadow: none;
     outline: var(--se-border) solid var(--look-edge);
     outline-offset: calc(-1 * var(--se-border));
   }
 
-  /* Band: the head of the sheet, like the head of a letter. It reaches over
-     the padding of the sheet to its edges, on a quiet grey with a hairline
-     under it; the columns inside stay those of the sheet. It belongs at the
-     top of the page, over the whole width. */
+  /* Band: the head of the sheet, like the head of a letter: flat on the
+     sheet, without a ground or a corner of its own, a hairline under it; the
+     columns inside stay those of the sheet. It belongs at the top of the
+     page, over the whole width. */
   .appearance-band {
-    background: var(--se-band-ground);
     border-bottom: var(--se-hair);
-    border-radius: var(--se-radius);
+    border-radius: 0;
   }
 
-  /* The head, .card .hd: the title as text on the card. Fläche voll and
-     Fläche leicht lay a band of the tone under it, Nur Rand draws the card's
-     edge in the tone instead of the shadow, Nur Schrift colors the title. */
+  /* The head: the title as text over the section. Fläche voll and Fläche
+     leicht lay a band of the tone under it, Nur Rand draws the section's edge
+     in the tone, Nur Schrift colors the title. */
   .head {
     flex: none;
     box-sizing: border-box;
@@ -96,7 +91,6 @@ export const areaStyle = css`
     color: var(--look-ink);
   }
   .appearance-headed.emphasis-outline {
-    box-shadow: none;
     outline: var(--se-border) solid var(--look-edge);
     outline-offset: calc(-1 * var(--se-border));
   }

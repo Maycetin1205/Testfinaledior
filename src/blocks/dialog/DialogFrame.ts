@@ -113,7 +113,7 @@ export class DialogFrame extends LitElement {
       border: none;
       border-radius: var(--se-radius);
       background: transparent;
-      color: var(--se-muted);
+      color: var(--se-ink-2);
       cursor: pointer;
       transition: background-color var(--se-move), color var(--se-move);
     }

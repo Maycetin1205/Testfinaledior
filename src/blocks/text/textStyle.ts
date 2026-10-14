@@ -18,7 +18,7 @@ export const textStyle = css`
   /* Beschriftung: the Rubrik over the text, as .label over the value of a
      field: the same type on a 14 px line, 6 px above it and 1 px under it,
      so a text and a field with their labels stand on one line and are as
-     high. */
+     high. A label is the second ink, plain; a value the first, semibold. */
   .frame > .with-label {
     flex: none;
     display: flex;
@@ -30,12 +30,10 @@ export const textStyle = css`
   .label {
     min-width: 0;
     padding-inline: 10px;
-    color: var(--se-label);
+    color: var(--se-ink-2);
     font-family: var(--se-font);
     font-size: var(--se-fs-rubric);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: var(--se-tracking-caps);
+    font-weight: 400;
     line-height: 14px;
   }
 
@@ -54,11 +52,11 @@ export const textStyle = css`
   }
   .text.emphasis-text { padding-inline: 10px; }
 
-  /* .pat .name */
+  /* The title of the sheet: 22 px, semibold, the first ink. */
   .variant-title {
     color: var(--se-ink);
     font-size: var(--se-fs-xl);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -.02em;
     --text-line-height: 1.2;
   }
@@ -75,23 +73,23 @@ export const textStyle = css`
 
   /* .f .l */
   .variant-label {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
-    font-weight: 600;
+    font-weight: 400;
   }
 
-  /* .lines .row */
+  /* .lines .row: a value. */
   .variant-body {
-    color: var(--se-ink-2);
+    color: var(--se-ink);
     font-size: var(--se-fs-lg);
     font-weight: 600;
   }
 
   /* .t-meta */
   .variant-muted {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs);
-    font-weight: 600;
+    font-weight: 400;
   }
 
   /* .tbl .n */
@@ -102,31 +100,27 @@ export const textStyle = css`
     font-weight: 600;
   }
 
-  /* Rubrik: small capitals, spaced and light, over or beside a value. */
+  /* Rubrik: a label over or beside a value, plain in the second ink. */
   .variant-rubric {
-    padding-top: 3px;
-    color: var(--se-label);
+    padding-top: 2px;
+    color: var(--se-ink-2);
     font-size: var(--se-fs-rubric);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: var(--se-tracking-caps);
+    font-weight: 400;
   }
 
-  /* Kopf: a Rubrik, smaller, tight over its value. */
+  /* Kopf: a Rubrik, tight over its value. */
   .variant-head {
-    color: var(--se-label);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-head);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: var(--se-tracking-caps);
+    font-weight: 400;
     --text-line-height: 1.1;
   }
 
   /* Hilfe: a quiet line under a part of the sheet. */
   .variant-hint {
-    color: var(--se-label);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
-    font-weight: 600;
+    font-weight: 400;
   }
 
   /* Betrag: a large figure, tight. */
@@ -181,9 +175,9 @@ export const textStyle = css`
   .with-symbol .words { min-width: 0; }
 
   /* In the editor, a bound value under its label: a quiet dash where the
-     value will stand. */
+     value will stand. The mask shows nothing there. */
   .empty .words::after {
     content: "–";
-    color: var(--se-label);
+    color: var(--se-faint);
   }
 `

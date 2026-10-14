@@ -7,7 +7,7 @@ Für Programmierer, die TypeScript, React und Web Components kennen, dieses Repo
 - Ein Editor im Browser für Masken des ERP SoftEngine, das sie in WinUI über Edge WebView2 zeigt (`CLAUDE.md`). Vite, React 19, Lit 3 (`package.json`). Einstieg des Editors: `src/main.tsx`.
 - Export: `exportMask()` in `src/export/exportMask.ts` liefert `{ html, sevariablen }`, eine HTML und eine JSON. `src/editor/shell/Toolbar.tsx` schreibt beide in den Zielordner der Maske oder lädt sie herunter, wenn `validateMaskHtml()` (`src/export/validator.ts`) nichts beanstandet; sonst nennt ein kleines Fenster die gescheiterte Prüfung (`Notice`, `src/editor/widgets/Notice.tsx`), und nichts geht hinaus. Danach nennt es gebundene Stellen, deren Feld die Quelle nicht hat (`lostBindings()`, `src/export/lostBindings.ts`); die Maske zeigt sie leer, der Editor wie ungebunden.
 - Zielordner: die Maske trägt nur seinen Namen (`exportTarget` an der Wurzel, `src/core/block/exportTarget.ts`, neben `maskName` und `documentFrame`, `ROOT_PROPERTIES` in `src/core/block/treeOps.ts`); den Ordner selbst hält der Browser in IndexedDB unter diesem Namen (`src/editor/state/exportTarget.ts`, `src/editor/state/handleStore.ts`). `exportFolder()` holt ihn beim Klick auf „Exportieren“ und fragt die Rechte nach, bevor die Maske gebaut wird; kennt der Browser ihn nicht oder darf nicht schreiben, wird heruntergeladen und ein `Notice` sagt warum. Der Export selbst kennt den Wert nicht.
-- Die HTML ist geschlossen: Stile, Schrift, Datenquellen, Relationen und die ganze Laufzeit stehen darin. Einziges fremdes Skript ist die Brücke von SoftEngine (`BRIDGE_SCRIPT` in `src/export/validator.ts`).
+- Die HTML ist geschlossen: Stile, Datenquellen, Relationen und die ganze Laufzeit stehen darin; die Schrift ist Segoe UI, die auf jedem Windows liegt (`--se-font` in `src/design/mask.css`). Einziges fremdes Skript ist die Brücke von SoftEngine (`BRIDGE_SCRIPT` in `src/export/validator.ts`).
 - Die Bausteine sind Lit-Elemente unter `src/blocks/`. Der Editor hängt dieselben Elemente auf die Leinwand, deren Tags der Export in die HTML schreibt.
 - Der Schalter zwischen Editor und Maske ist das Attribut `preview` (`BlockElement.preview` in `src/blocks/base/BlockElement.ts`). Der Editor setzt es vor dem Einhängen (`src/editor/canvas/useLitElement.ts`); `nodeToHtml()` im Export kennt es nicht und schreibt es nie.
 - Daten fragt ein Baustein über `maskState.host` (`src/runtime/maskState.ts`). Vorbelegt ist `softEngineHost` (`src/runtime/softEngineHost.ts`); der Editor setzt vor dem ersten Render `previewHost` (`src/main.tsx`, `src/runtime/previewHost.ts`), der nichts liefert.
@@ -212,7 +212,7 @@ Befehle (`package.json`):
 Was in jede exportierte HTML eingebettet wird (`src/export/exportMask.ts`):
 
 - die Laufzeit `src/export/generated/runtime.js` (Import `?raw`), ganz, mit allen Bausteinen aus `src/blocks/register.ts`, gleich welche die Maske nutzt.
-- `src/design/mask.css` im einzigen `<style>`, samt Schrift: die `@font-face` darin tragen die Schrift als `data:font/woff2;base64`.
+- `src/design/mask.css` im einzigen `<style>`, ohne eigene Schrift (seit 14.10. Segoe UI aus Windows statt eingebettetem Manrope).
 - `window.FF_DATA_SOURCES` und `window.FF_RELATIONS`. Die Skripte werden auf ASCII maskiert (`escapeNonAsciiJs()`, `src/export/serializer.ts`); `validateMaskHtml()` prüft u. a. nur LF, nur ASCII, genau ein `<style>`, eingebettete Laufzeit.
 - Der Editor lädt `exportMask.ts` erst beim ersten Export (`import()` in `src/editor/shell/Toolbar.tsx`).
 

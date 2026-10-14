@@ -26,9 +26,10 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   die alten Punkte A (F4), E (Artikelinfo) und K (Tippzeile nach F4)
   erledigt. Der Export liegt in `masken/belegerfassung/Rahmen10000.basis.*`
   und im V7-Ordner `VORLAGEN_INDIV\Belegerfassung\LAYOUTRAHMEN\10000`.
-- Design der Maske eingefroren (Blatt-Sprache vom 13.10., Bilder
-  `docs/design/2026-10-14-*.png`). Es gibt keine neue Designsprache mehr,
-  nur Feinschliff je Baustein in der Durchsicht unten.
+- Aussehen endgültig: „Fachsoftware“ (Tonprobe 3 mit den Auflagen „Leben“,
+  Chat 5d), Bilder `docs/design/2026-10-14-fachsoftware-*.png`. Es gibt
+  keine Proben und Entwürfe mehr, nur Feinschliff je Baustein in der
+  Durchsicht unten.
 - Code-Durchgang 14.10. (Fable): Schichten, Store, Registry, Doku in
   Ordnung. Schwach: vier Tests, 34 Schema-Stufen in sieben Wochen, sieben
   Stellen, die einen Fehler still verschlucken (`runEvent(...).catch(() => {})`),
@@ -131,16 +132,19 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    `docs/design/tonprobe-{1,2,3}.png` (Belegerfassung mit Probedaten,
    Position „Bravecto“ gewählt), `tonprobe-{1,3}-empfang.png`,
    `tonprobe-{1,2,3}-editor.png` (Hülle D, Leinwand im Ton der Probe);
-   die Werte in `docs/design/tonprobe/`. Die Wahl des Nutzers steht aus;
-   sie kommt nach `entschieden.md`.
+   die Werte in `docs/design/tonprobe/`. Gewählt: Probe 3 (Chat 5d).
 5d. Übernahme: Probe 3 und Entwurf D sind gewählt (Nutzer, 14.10.).
    Ein Chat übernimmt die Werte der Probe 3 in `mask.css`, `editor.css`
-   und die Bausteine, mit den Auflagen „Leben“ unten (Kontrast, Akzent
-   an drei Stellen, keine leeren Zeilen, Kanban-Streifen, Bewegung).
-   `REFERENCE_REFRESH=1`, neue Bilder `docs/design/<Datum>-*.png` als
-   eingefrorener Stand. Danach ist das Aussehen endgültig zu: keine
-   Proben, keine Entwürfe mehr, nur noch Durchsicht mit Bild vorher und
-   nachher.
+   und die Bausteine, mit den Auflagen „Leben“ (Kontrast, Akzent an drei
+   Stellen, keine leeren Zeilen, Kanban-Streifen, Bewegung). Erledigt
+   14.10.: Segoe UI statt eingebettetem Manrope (Export rund 40 KB
+   kleiner), drei Tinten, Beschriftungen normal, Rundung 3/6, Linien
+   statt Schatten, Kopfzeile als Abschnitt, Band flach, Zeilen 30 px und
+   nur die, die es gibt, Kennzeichen als Streifen, Heben unter der Maus,
+   Schatten nur beim Ziehen. Bilder
+   `docs/design/2026-10-14-fachsoftware-{belegerfassung,empfang}.png`.
+   Das Aussehen ist jetzt zu, nur noch Durchsicht mit Bild vorher und
+   nachher. Reste stehen bei Chat 7b, 8 und 11.
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -155,14 +159,19 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    heute nichts liefert) liefert je Quelle ein paar plausible Zeilen aus
    einer festen Probedatei (`src/editor/probedaten/`: Tiere, Halter,
    Artikel, Positionen, Termine, mit deutschen Namen und Beträgen), nach
-   Feldcode zugeordnet; unbekannte Felder bleiben Platzhalter. Nur im
+   Feldcode zugeordnet; unbekannte Felder bleiben Platzhalter. Erfassung
+   und Tabelle zeigen dann drei Probezeilen (heute im Editor nur Kopf,
+   Tippzeile und die Haarlinie am unteren Rand, seit 5d). Nur im
    Editor, der Export kennt die Daten nicht. Später ersetzbar durch
    Daten aus einem SoftEngine-Log (Idee unten). Ein Chat.
 Durchsicht heißt: jeder Baustein wird einmal durchgesehen und in Ordnung
 gebracht, nach der Prüfliste unten. Ähnliche Bausteine teilen sich einen
 Chat (14.10., der Nutzer will nicht 17 Chats takten).
 
-8. Durchsicht der kleinen Bausteine: Text, Feld, Datum, Knopf.
+8. Durchsicht der kleinen Bausteine: Text, Feld, Datum, Knopf. Rest aus
+   5d: der Name in der Belegerfassung steht mit Größe 26 in der Maske,
+   die Rolle Titel hat 22; mit dem Nutzer klären, ob die Maske auf 22
+   geht (`masken/` ändern).
 9. Durchsicht Bereich und Popup, dazu der neue Baustein Linie: eine
    Haarlinie, waagerecht oder senkrecht, Farbe aus den Wahlen, eine
    Rasterzeile hoch oder eine Spalte breit. Für Masken, die Gruppen
@@ -171,7 +180,11 @@ Chat (14.10., der Nutzer will nicht 17 Chats takten).
     Zeichnen: Lit meldet, dass `ff-capture` und `ff-table` nach einem
     Update ein weiteres planen; Ursache finden, beheben. Darf
     `masken/behandlung` anfassen (breitere Spalten).
-11. Durchsicht Kanban.
+11. Durchsicht Kanban. Reste aus 5d: der Chip ist jetzt Wort mit Punkt
+    und Streifen, „Art des Chips“ ändert darum nichts mehr (raus, wenn
+    der Nutzer ja sagt); die Farbe des Chips gilt für alle Karten, „OP
+    ocker, Notfall rot“ ginge nur mit einer Farbe je Wert, und die ist
+    seit 07.10. gestrichen.
 
 ### Phase 2: Vor dem ersten Kunden
 
@@ -192,9 +205,8 @@ war nur eine Idee und steht nicht im Plan (14.10.).
   des Nutzers; der Verdacht „Belege Kunde“ trägt nicht (13.10. geprüft).
 - G: Ereignisse der Erfassung „Zeile geändert“, „Zeile gelöscht“,
   „Positionen“ als Ganzes.
-- Export abspecken (heute 330 KB je Maske, Laufzeit 255 KB mit allen
-  Bausteinen). Erst, wenn Masken spürbar langsam öffnen. Schrift bleibt
-  eingebettet, Manrope mit zwei Schnitten.
+- Export abspecken (heute rund 285 KB je Maske, fast alles Laufzeit mit
+  allen Bausteinen). Erst, wenn Masken spürbar langsam öffnen.
 - `softengine-wiki/kontrakte.md` eindampfen: je Kontrakt drei Zeilen, nur
   Belegtes. Erst, wenn jemand darin nichts mehr findet.
 - Rest-Refactoring: `maskState` ist ein Zustand je Seite, nicht je Maske
@@ -204,62 +216,6 @@ war nur eine Idee und steht nicht im Plan (14.10.).
   Nutzer sie will.
 
 ## Einzelheiten zu den Chats
-
-Übernahme der Tonprobe, nach der Wahl des Nutzers (Chat 5c erledigt
-14.10.). Wird 2 oder 3 gewählt, ist der erste Bau-Chat danach die
-Übernahme (ein Chat, `REFERENCE_REFRESH=1`, neue Bilder
-`docs/design/<Datum>-*.png` als eingefrorener Stand); die Schrift fällt
-dann aus dem Export, 37 KB weniger. Die Werte liegen in
-`docs/design/tonprobe/`: `mask-N.css` ist `mask.css` mit markierten
-Zeilen („Probe 2“, „Probe 3“), `huelle-N.css` das, was Entwurf D selbst
-festschreibt. Befund der Probe: nicht alles steht in `mask.css`.
-`bausteine-N.css` nennt je Regel die Datei, in der der Wert heute fest
-steht: Versalien in `textStyle.ts`, `formFieldStyle.ts`,
-`kanbanStyle.ts`, `suggestionList.ts`; Stärke der Beschriftung dort und
-in `tableStyle.ts`; Zeilenhöhe `ROWS_HEIGHT` in
-`src/blocks/list/pageSize.ts` (heute 32, gestreckt auf 34); Strich im
-leeren Feld, Abschnitte statt Karten (`areaStyle.ts`), Spalten, Knopf
-und Pille im Kanban (`kanbanStyle.ts`, `src/blocks/parts/chip.ts`). Die
-Übernahme fasst diese Dateien an, nicht nur `mask.css` und `editor.css`;
-wo es geht, wird der feste Wert ein Wert aus `mask.css`. Die
-Probedaten der Bilder sind erfunden und nicht im Code.
-
-Chat 5d, die Übernahme mit „Leben“. Gewählt: Probe 3 und Entwurf D.
-Der Nutzer sieht Probe 3 als „tot“; Ursache ist nicht die Ruhe, sondern
-fehlender Kontrast, leere Gitter und ein Akzent ohne Absicht. Auflagen,
-zusätzlich zu den Werten der Probe 3:
-
-- Kontrast: Titel 22 px halbfett in `--se-ink`, Werte in `--se-ink`,
-  Beschriftungen in `--se-ink-2` (eine Stufe dunkler als Probe 3, nicht
-  `--se-label`), Spaltenköpfe halbfett in `--se-ink-2`. Drei Stufen,
-  nicht fünf.
-- Akzent mit Absicht: die Hausfarbe der Maske (Wert an der Wurzel,
-  Vorgabe Blau, Wahl aus `look.ts`; der Export setzt `--se-accent` und
-  seine Abstufungen) erscheint an genau drei Stellen: Hauptknopf,
-  gewählte Zeile (Grund und 3-px-Strich), Fokusring. Sonst nirgends.
-- Keine leeren Zeilen: Erfassung und Tabelle zeichnen nur Zeilen, die es
-  gibt, dann die Tippzeile, darunter Fläche ohne Linien
-  (`src/blocks/list/tableBody.ts`, `pageSize.ts`: `pageRowsTemplate`
-  füllt nicht mehr mit Leerzeilen auf; die Liste wächst weiter mit dem
-  Fenster, aber leer). Im Editor zeigt die Erfassung drei Probezeilen
-  aus Chat 7b, bis dahin eine graue Hilfslinie am unteren Rand des
-  Rahmens, damit man seine Größe sieht.
-- Kanban: statt der Pille ein 3-px-Streifen links an der Karte in der
-  Farbe des Kennzeichens (Notfall rot, OP ocker), der Text „Notfall“
-  bleibt als Wort mit Punkt; der getönte Tierkreis bleibt; der Farbpunkt
-  im Spaltenkopf 8 px; die „Jetzt“-Linie bleibt rot.
-- Bewegung: Zeile und Karte unter der Maus heben sich (`--se-row-hover`),
-  Knopf unter der Maus eine Stufe dunkler, Fokusring sofort, alles mit
-  `transition: 120ms ease` auf Grund und Rand; beim Ziehen im Kanban
-  hebt sich die Karte mit Schatten (die einzige Stelle mit Schatten).
-- Das Band oben (Bereich in der Form Band) flach, ohne Rundung, mit
-  Haarlinie unten statt eigenem Grund, wenn es die Probe 3 noch rund
-  zeigt.
-
-Export ändert sich gewollt (`REFERENCE_REFRESH=1`); Masken in `masken/`
-laden weiter (Ladetest). Bilder: Belegerfassung und Empfang als Export,
-je einmal mit Probedaten des Referenzabzugs, nach `docs/design/<Datum>-*.png`;
-die alten `2026-10-14-*.png` bleiben als Vorher.
 
 Urteil zu Entwurf D (14.10., Fable): D ist der erste Entwurf, der wie
 ein Werkzeug aussieht: Rahmen und Blatt sind unterscheidbar, die rechte
@@ -362,7 +318,9 @@ nichts Neues erfinden:
   der Wurzel der Maske wählt den Akzent aus den Farben in `look.ts`
   (Blau, Petrol, Grün, Ocker), der Export setzt `--se-accent` und seine
   Abstufungen in der Maske um; Vorgabe Blau. Kunde A grün, Kunde B
-  petrol, ohne eigenes CSS. Keine freien Farben.
+  petrol, ohne eigenes CSS. Keine freien Farben. Seit 5d nutzen gewählte
+  Zeile und Fokusring nur `--se-accent`; der Hauptknopf trägt heute die
+  Farbe „Blau“ (`--se-info`) und muss dabei mitgehen.
 - Bekannte Reste: Text mit Beschriftung rechtsbündig setzt die Rubrik
   links (Belegerfassung, „Beleg-Nr.“); Name im Band 4 px höher als in der
   Vorlage; schmale Spaltenköpfe der Behandlung brauchen breitere Spalten
@@ -432,7 +390,7 @@ sagt nur: „Lies docs/offen.md, baue Chat N, halte dich an den Rahmen.“
   verbietet. Keine neuen Abhängigkeiten. Kein neues Verhalten, das der
   Schritt nicht nennt. Keine neuen Tests außer Chat 3.
 - Das Design der Maske ist eingefroren (`entschieden.md`, 14.10., Bilder
-  in `docs/design/2026-10-14-*.png`). Werte für Aussehen nur aus
+  in `docs/design/2026-10-14-fachsoftware-*.png`). Werte für Aussehen nur aus
   `src/design/mask.css` und `editor.css`. Nur hell. Keine Chips, Pills,
   Badges als Deko. Keine Kästchen in Zeilen der Erfassung. Kein Vorschlag
   für eine neue Designsprache, in keinem Chat.

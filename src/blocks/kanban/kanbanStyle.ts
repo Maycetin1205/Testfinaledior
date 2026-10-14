@@ -1,10 +1,11 @@
 import { css } from 'lit'
 
-// Board, columns and cards in the language of the sample
-// docs/design/behandlung-modern.html: a column is a softly tinted surface
-// without a border, its head the title as text beside a dot of its color and
-// the count; the cards on it are white with a soft shadow, the avatar in its
-// circle, the name bold.
+// Board, columns and cards as Fachsoftware (Tonprobe 3, 14.10.): a column is
+// a quiet grey surface in the hairline, its color only in the dot of its
+// head beside the title and the count; the cards on it are white in the
+// hairline, the avatar in its tinted circle, the name bold. A card with a
+// flag wears a stripe of the flag's color at its left edge. Under the
+// pointer a card lifts; dragged, it rises on the one shadow of the mask.
 export const kanbanStyle = css`
   :host { min-width: 0; height: 100%; display: flex; flex-direction: column; }
 
@@ -27,7 +28,7 @@ export const kanbanStyle = css`
     min-width: 232px;
     min-height: 0;
     overflow: hidden;
-    background: var(--tone-shell);
+    background: var(--se-neutral-shell);
     border-radius: var(--se-radius-card);
     box-shadow: var(--se-column-edge);
     font-family: var(--se-font);
@@ -60,9 +61,9 @@ export const kanbanStyle = css`
     text-overflow: ellipsis;
   }
 
-  /* .card .hd .cnt: the count as grey text. */
+  /* .card .hd .cnt: the count in the second ink. */
   .count {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-lg);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -101,14 +102,14 @@ export const kanbanStyle = css`
     padding: 10px 12px 4px;
   }
   .place-head .head-text {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
   }
 
   .place-count {
     flex: none;
     margin-left: auto;
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -134,6 +135,7 @@ export const kanbanStyle = css`
   }
 
   .card {
+    position: relative;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -146,8 +148,8 @@ export const kanbanStyle = css`
     transition: box-shadow var(--se-move), background-color var(--se-move);
   }
 
-  /* As a row of every list: a ground under the pointer, chosen soft blue
-     with the accent bar at the left edge. */
+  /* As a row of every list: a ground under the pointer, chosen the soft
+     accent with the accent bar at the left edge. */
   .card:hover {
     background: var(--se-row-hover);
     box-shadow: var(--se-shadow-tile-hover);
@@ -158,7 +160,25 @@ export const kanbanStyle = css`
     box-shadow: var(--se-shadow-chosen);
   }
 
-  .card.dragging { opacity: 0.55; }
+  /* The flag of the card as a stripe at its left edge, in the color of the
+     flag. On a chosen card it lies over the accent bar; the ground shows the
+     choice. */
+  .card.flagged::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    border-radius: var(--se-radius) 0 0 var(--se-radius);
+    background: var(--tone-strong);
+  }
+
+  /* The card being dragged rises from its column. */
+  .card.dragging {
+    z-index: 1;
+    box-shadow: var(--se-shadow-lift);
+  }
 
   /* The avatar beside name and subline. */
   .main {
@@ -199,13 +219,13 @@ export const kanbanStyle = css`
   }
   .meta {
     flex: none;
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
     font-weight: 600;
     white-space: nowrap;
   }
   .owner {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
     font-weight: 600;
   }
@@ -239,7 +259,7 @@ export const kanbanStyle = css`
 
   /* The line of information under the text. */
   .date {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -248,7 +268,7 @@ export const kanbanStyle = css`
 
   /* How far the time lies from now; past it, red. */
   .until {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
     font-weight: 600;
     white-space: nowrap;
@@ -262,12 +282,10 @@ export const kanbanStyle = css`
     align-items: center;
     gap: 8px;
     padding: 4px 4px 0;
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-family: var(--se-font);
     font-size: var(--se-fs-xs);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
   }
   .hour::after {
     content: '';
@@ -287,8 +305,6 @@ export const kanbanStyle = css`
     font-family: var(--se-font);
     font-size: var(--se-fs-xs);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
   }
   .now::before {
     content: '';
@@ -305,16 +321,18 @@ export const kanbanStyle = css`
     background: var(--se-danger);
   }
 
-  /* The button under the card, a soft button (.btn.sec) in the tone of the
-     column it leads to. */
+  /* The button under the card: white in the hairline, the first ink; a
+     step darker under the pointer. Neither the tone of a column nor the
+     accent: the board's buttons are no main button. */
   .advance {
     box-sizing: border-box;
     width: 100%;
     height: 32px;
     border: none;
     border-radius: var(--se-radius);
-    background: var(--tone-tint);
-    color: var(--tone-ink);
+    background: var(--se-panel);
+    box-shadow: var(--se-edge);
+    color: var(--se-ink);
     font-family: var(--se-font);
     font-size: var(--se-fs);
     font-weight: 700;
@@ -324,15 +342,8 @@ export const kanbanStyle = css`
     cursor: pointer;
     transition: background-color var(--se-move);
   }
-  .advance:hover { background: color-mix(in oklab, var(--tone-tint), var(--tone-strong) 10%); }
+  .advance:hover { background: var(--se-hover); }
   .advance:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
-
-  /* The action of the last column: the blue of the mask. */
-  .advance.action {
-    --tone-tint: var(--se-accent-soft);
-    --tone-ink: var(--se-accent-dark);
-    --tone-strong: var(--se-accent);
-  }
 
   :host([preview]) [data-ff-spot]:not([data-ff-bound]):not(.avatar):empty::before,
   :host([preview]) .advance:empty::before {

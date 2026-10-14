@@ -3,7 +3,8 @@ import { rowsHigh } from '../../core/block/grid'
 
 // The field of the sheet: the label a Rubrik over the value, both as text,
 // the field has no frame. Under the pointer it lies on a ground, while typed
-// into it is white with the blue ring.
+// into it is white with the ring of the accent, at once. An empty field shows
+// its label and nothing where the value would stand.
 export const fieldStyle = css`
   .field {
     position: relative;
@@ -17,7 +18,7 @@ export const fieldStyle = css`
     border-radius: var(--se-radius);
     font-family: var(--se-font);
     cursor: text;
-    transition: background-color var(--se-move), box-shadow var(--se-move);
+    transition: background-color var(--se-move);
   }
   .field.labelled {
     height: ${unsafeCSS(rowsHigh(3))}px;
@@ -32,24 +33,21 @@ export const fieldStyle = css`
     box-shadow: var(--se-focus-ring);
   }
 
-  /* The label as a Rubrik: small capitals, spaced, light. */
+  /* The label as a Rubrik: plain, in the second ink. */
   .label {
     grid-column: 2;
     grid-row: 1;
     min-width: 0;
-    color: var(--se-label);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-rubric);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: var(--se-tracking-caps);
+    font-weight: 400;
     line-height: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .field:focus-within .label { color: var(--se-accent-dark); }
 
-  /* The value, its control and the dash of an empty field on one line. */
+  /* The value and its control on one line. */
   .value {
     grid-column: 2;
     grid-row: -2;
@@ -90,16 +88,6 @@ export const fieldStyle = css`
     white-space: nowrap;
     overflow: hidden;
   }
-
-  /* .f .v.empty::before */
-  .dash {
-    color: var(--se-empty);
-    font-size: var(--se-fs-lg);
-    font-weight: 600;
-    line-height: 20px;
-    pointer-events: none;
-  }
-  .field:focus-within .dash { visibility: hidden; }
 
   /* The chosen symbol on the left, beside label and value. */
   .symbol {
@@ -163,7 +151,7 @@ export const fieldStyle = css`
   }
 
   /* An empty date stays empty instead of showing the browser's date pattern;
-     while it is typed into, the pattern stands instead of the dash. */
+     while it is typed into, the pattern stands. */
   .value.empty input[type='date']:not(:focus)::-webkit-datetime-edit,
   .value.empty input[type='time']:not(:focus)::-webkit-datetime-edit { opacity: 0; }
 

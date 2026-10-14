@@ -80,7 +80,7 @@ interface ListShowQuestion {
 }
 
 interface ListShows {
-  // False in the editor: there the list draws placeholder rows, not data.
+  // False in the editor: there the list has no data and draws no rows.
   rows: boolean
 
   empty: boolean
@@ -295,9 +295,9 @@ export class RecordList implements ReactiveController {
     })
     return html`<div class="table" style=${styleMap({
       '--tick': `${view.tick}px`,
-      '--row-height': `${view.rowsHeight}px`,
+      '--row-height': `${view.tick}px`,
       '--sub-height': `${subHeight}px`,
-      '--record-height': `${view.rowsHeight + subHeight}px`,
+      '--record-height': `${view.tick + subHeight}px`,
     })}>
       ${tableBody({
         columns: visible.columns,

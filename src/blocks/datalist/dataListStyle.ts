@@ -2,8 +2,8 @@ import { css } from 'lit'
 
 // The list on the sheet: rows apart by a hairline, the avatar in its tinted
 // circle, the name bold, the line under it grey, a short value on the right.
-// Under the pointer a row lies on a ground, the chosen one on soft blue with
-// the accent bar at its left edge. It lies flat, as a table does.
+// Under the pointer a row lifts on a ground, the chosen one lies on the soft
+// accent with the accent bar at its left edge. It lies flat, as a table does.
 export const dataListStyle = css`
   :host { min-width: 0; height: 100%; }
 
@@ -41,7 +41,6 @@ export const dataListStyle = css`
     background: var(--se-selection);
     box-shadow: var(--se-mark-bar);
   }
-  .row.chosen .name { color: var(--se-accent-dark); }
 
   /* Keine: the rows are only read. */
   .pick-none .row { cursor: default; }
@@ -76,7 +75,7 @@ export const dataListStyle = css`
     line-height: 18px;
   }
   .meta {
-    color: var(--se-muted);
+    color: var(--se-ink-2);
     font-size: var(--se-fs-sm);
     font-weight: 600;
     line-height: 16px;

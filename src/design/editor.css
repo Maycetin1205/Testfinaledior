@@ -4,11 +4,12 @@
 
 @layer base {
   /* The editor's own colors. They mirror the mask's tokens in mask.css, so
-     the editor wears the look of the mask it builds; the comment names the
-     hex value and the --se-* token. They hold hsl channels, not colors, so
-     both hsl(var(--wb-…)) and Tailwind's opacity use them. */
+     the editor wears the look of the mask it builds (Tonprobe 3, 14.10.);
+     the comment names the hex value and the --se-* token. They hold hsl
+     channels, not colors, so both hsl(var(--wb-…)) and Tailwind's opacity
+     use them. */
   :root {
-    --wb-ground: 220 15.8% 96.3%;     /* #F4F5F7 --se-band-ground */
+    --wb-ground: 220 15.8% 96.3%;     /* #F4F5F7, the ground of the editor */
     --wb-panel: 0 0% 100%;            /* #FFFFFF --se-panel */
     --wb-control: 220 14.3% 95.9%;    /* #F3F4F6 --se-panel-2, the ground of a place to type */
     --wb-line: 216 13.5% 85.5%;       /* #D5D9DF --se-line */
@@ -17,7 +18,7 @@
     --wb-hover: 216 18.5% 94.7%;      /* #EFF1F4 --se-hover */
     --wb-ink: 218.2 23.4% 9.2%;       /* #12161D --se-ink */
     --wb-ink-2: 216.7 13.6% 25.9%;    /* #39404B --se-ink-2 */
-    --wb-muted: 216.7 8.4% 42%;       /* #626974 --se-muted */
+    --wb-muted: 216.7 13.6% 25.9%;    /* #39404B --se-ink-2: one ink, as in the mask */
 
     --wb-accent: 229.7 65.3% 47.5%;   /* #2A45C8 --se-accent */
     --wb-accent-soft: 228 78.9% 96.3%; /* #EEF1FD --se-accent-soft */
@@ -31,9 +32,9 @@
     --wb-selection: 229.7 65.3% 47.5%; /* #2A45C8 --se-accent */
 
     /* Pixels, not rem: the corner must not grow with the font size. */
-    --radius: 6px;                    /* --se-radius */
-    --radius-small: 5px;              /* --se-radius-sm, a checkbox, a line of a list */
-    --radius-card: 10px;              /* --se-radius-card, a window */
+    --radius: 3px;                    /* --se-radius */
+    --radius-small: 3px;              /* --se-radius-sm, a checkbox, a line of a list */
+    --radius-card: 6px;               /* --se-radius-card, a window */
 
     /* The ground around the canvas: the window of the mask, on which the
        canvas lays the white sheet. */

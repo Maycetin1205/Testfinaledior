@@ -73,9 +73,6 @@ const SIGNS: Partial<Record<FieldType, IconName>> = {
   time: 'clock',
 }
 
-// An empty field shows a dash where its value would stand.
-const DASH = '–'
-
 export interface FormField extends FormFieldValues {}
 
 export class FormField extends BlockElement implements ValueCarrier {
@@ -293,7 +290,6 @@ export class FormField extends BlockElement implements ValueCarrier {
         @dblclick=${this.reportSpot}
       >
         ${this.controlTpl(kind)}
-        ${empty ? html`<span class="dash">${DASH}</span>` : nothing}
       </div>
       ${sign ? html`<span class="sign">${icon(sign)}</span>` : nothing}
     </div>`

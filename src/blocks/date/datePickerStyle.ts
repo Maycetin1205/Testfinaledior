@@ -27,7 +27,7 @@ export const dateStyle = css`
     padding: 2px;
     border-radius: var(--se-radius);
     background: var(--se-neutral-soft);
-    transition: box-shadow var(--se-move), background-color var(--se-move);
+    transition: background-color var(--se-move);
   }
   .stepper:focus-within {
     background: var(--se-panel);

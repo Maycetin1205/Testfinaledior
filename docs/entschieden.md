@@ -7,6 +7,18 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Übernahme der Probe 3 (Chat 5d), endgültiger Stand der Maske:
+  Bilder `docs/design/2026-10-14-fachsoftware-*.png`. Der Akzent steht nur
+  an Hauptknopf, gewählter Zeile (Grund und Strich, die Schrift bleibt
+  schwarz) und Fokusring; Ankreuzfeld, Knöpfe im Kanban, Beschriftung im
+  Fokus, Tippzeile und Zeilen auf dem Weg nach SoftEngine sind darum
+  grau oder schwarz statt blau. Kopfzeile ist ein Abschnitt (Titel über
+  Haarlinie), Kasten weiß mit Haarlinie. Tabelle und Erfassung zeichnen
+  nur echte Zeilen, 30 px hoch, nicht mehr gestreckt; im Editor nur Kopf,
+  Tippzeile und die Haarlinie am unteren Rand. Der Kennzeichen-Streifen
+  trägt die Farbe des Chips; eine Farbe je Wert bleibt gestrichen
+  (07.10.). Schatten nur an der Karte beim Ziehen. Die Hausfarbe selbst
+  kommt in Chat 8 oder 9.
 - 14.10. Maskenordner (Chat 4): die Liste der Masken ist bis Chat 5 ein
   Fenster „Masken“. Klick öffnet eine Maske mit ihrer Datei; jede
   Änderung geht danach dorthin, bloßes Öffnen schreibt nichts, auch nicht

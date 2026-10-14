@@ -12,8 +12,9 @@ export const captureStyle = css`
         z-index: 1;
       }
 
-      /* The capture row: tinted, a line over it, its cells without a box
-         like every other row (user, 07.10. and 09.10.). */
+      /* The capture row: on a quiet ground, a line over it, its cells without
+         a box like every other row (user, 07.10. and 09.10.). Under it the
+         bare sheet. */
       .row.capture,
       .body > .row.capture:hover {
         flex: none;
@@ -28,13 +29,14 @@ export const captureStyle = css`
       .row { position: relative; }
 
       /* One sign per row state, the tone: the reception mask tones a table
-         row on hover the same way and shows no dot inside a row. */
-      .row[data-status="captured"],
-      .row[data-status="writes"] { background: var(--se-accent-soft); }
+         row on hover the same way and shows no dot inside a row. A row on its
+         way out is grey, not of the accent, which only the chosen row wears. */
+      .row[data-status="captured"]:not(.selected),
+      .row[data-status="writes"]:not(.selected) { background: var(--se-neutral-tint); }
       .row[data-status="changed"] { background: var(--se-warning-soft); }
       .row[data-status="error"] { background: var(--se-danger-soft); }
       .row[data-status="writes"] { animation: se-writing 1.1s ease-in-out infinite; }
-      .row[data-status="written"] { color: var(--se-muted); }
+      .row[data-status="written"] { color: var(--se-ink-2); }
       @keyframes se-writing { 50% { opacity: 0.55; } }
       @media (prefers-reduced-motion: reduce) {
         .row[data-status="writes"] { animation: none; }

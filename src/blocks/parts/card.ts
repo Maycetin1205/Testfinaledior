@@ -39,7 +39,7 @@ export const avatarStyle = css`
     place-items: center;
     border-radius: 50%;
     background: var(--animal-soft, var(--se-neutral-soft)) no-repeat center / cover;
-    color: var(--animal, var(--se-muted));
+    color: var(--animal, var(--se-ink-2));
   }
   .avatar svg { width: 56%; height: 56%; }
 

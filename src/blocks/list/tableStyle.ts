@@ -1,9 +1,9 @@
 import { css } from 'lit'
 
 // The table and the capture are ruled like an invoice on the sheet: no card,
-// the head in grey bold capitals over the strong rule, rows apart by a faint
-// line, faint lines between the columns, a hairline under the whole, the
-// figures right. The empty room below is ruled on to the bottom.
+// the head semibold in the second ink over the strong rule, rows apart by a
+// faint line, faint lines between the columns, a hairline under the whole,
+// the figures right. Only the rows there are; the room below them is bare.
 export const tableStyle = css`
       :host { min-width: 0; height: 100%; }
 
@@ -63,7 +63,7 @@ export const tableStyle = css`
         background: var(--se-panel-2);
         border: 0;
         border-radius: var(--se-radius);
-        transition: background-color var(--se-move), box-shadow var(--se-move);
+        transition: background-color var(--se-move);
       }
       .search-row input:hover { background: var(--se-hover); }
       .search-row input:focus {
@@ -91,10 +91,8 @@ export const tableStyle = css`
         background: var(--se-panel);
         border-bottom: var(--se-head-rule);
         font-size: var(--se-fs-rubric);
-        font-weight: 700;
-        text-transform: var(--se-head-case);
-        letter-spacing: var(--se-head-tracking);
-        color: var(--se-muted);
+        font-weight: 600;
+        color: var(--se-ink-2);
       }
 
       .body {
@@ -110,23 +108,11 @@ export const tableStyle = css`
 
       .body > .row { flex: none; }
 
-      /* The room under the records: a line per row height, as an empty list
-         draws it, whatever height a record takes. */
+      /* The room under the records: bare sheet down to the hairline at the
+         bottom, no empty rows and no column lines. */
       .ruler {
         flex: 1 1 auto;
         min-height: 0;
-
-        background-image:
-          repeating-linear-gradient(
-            to bottom,
-            transparent 0,
-            transparent calc(var(--row-height) - 1px),
-            var(--se-line-soft) calc(var(--row-height) - 1px),
-            var(--se-line-soft) var(--row-height)
-          );
-        background-position: 0 0;
-
-        display: grid;
       }
 
       .row {
@@ -135,8 +121,8 @@ export const tableStyle = css`
         transition: background-color var(--se-move);
       }
 
-      /* Only a row without a status takes the hover color: the status color is
-         the message. */
+      /* A row under the pointer lifts from the sheet. Only a row without a
+         status does: the status color is the message. */
       .body > .row:not([data-status]):hover {
         background: var(--se-row-hover);
       }
@@ -156,10 +142,8 @@ export const tableStyle = css`
       .body > .row:not([data-status]):focus-visible:hover {
         background: var(--se-selection);
       }
-      .row.selected > div,
-      .row:focus-visible > div { color: var(--se-accent-dark); }
-      /* The chosen row, as in every list of the mask: soft blue with the
-         accent bar at its left edge. */
+      /* The chosen row, as in every list of the mask: the soft accent with
+         the accent bar at its left edge; its words keep their ink. */
       .row.selected { box-shadow: var(--se-mark-bar); }
       .head > div,
       .row > div {
@@ -178,12 +162,11 @@ export const tableStyle = css`
       }
       .head > div.right { justify-content: flex-end; text-align: right; }
 
-      /* The faint lines between the columns, through head, rows and the
-         ruled room below; in a grey line between its own cells. */
+      /* The faint lines between the columns, through head and rows; in a grey
+         line between its own cells. */
       .head > div + div,
       .row > [role='cell']:not(.sub) + [role='cell']:not(.sub),
-      .row > .sub + .sub,
-      .ruler > div + div { box-shadow: var(--se-col-edge); }
+      .row > .sub + .sub { box-shadow: var(--se-col-edge); }
 
       /* A record with a grey line is two lines high: the row on top and,
          under a cell of it, the column anchored there, as wide as the cell.
@@ -204,7 +187,7 @@ export const tableStyle = css`
         color: var(--se-ink-2);
       }
       .row > .sub.right { justify-content: flex-end; }
-      .sub > .head-text { flex: none; color: var(--se-muted); }
+      .sub > .head-text { flex: none; color: var(--se-ink-2); }
       .sub > .sub-value {
         min-width: 0;
         overflow: hidden;
@@ -253,10 +236,7 @@ export const tableStyle = css`
          tighter instead of being cut off. */
       .head > div { container-type: inline-size; }
       @container (max-width: 84px) {
-        .head-text {
-          font-size: var(--se-fs-xs);
-          letter-spacing: .02em;
-        }
+        .head-text { font-size: var(--se-fs-xs); }
       }
 
       /* A grid child of its own that hangs over the column line, which alone is
@@ -276,13 +256,13 @@ export const tableStyle = css`
         background: linear-gradient(
           to right,
           transparent 4px,
-          var(--se-accent) 4px,
-          var(--se-accent) 7px,
+          var(--se-ink-2) 4px,
+          var(--se-ink-2) 7px,
           transparent 7px
         );
       }
 
-      .sort-arrow { font-size: var(--se-fs-xs); color: var(--se-muted); }
+      .sort-arrow { font-size: var(--se-fs-xs); color: var(--se-ink-2); }
 
       /* Only dimmed in the editor: it is a real column the builder still edits. */
       :host([preview]) .hidden { opacity: 0.45; }
@@ -312,7 +292,7 @@ export const tableStyle = css`
         padding: 3px 8px 5px;
         font-size: var(--se-fs-sm);
         font-weight: 600;
-        color: var(--se-muted);
+        color: var(--se-ink-2);
       }
       .picker-row,
       .picker-all {
@@ -334,17 +314,17 @@ export const tableStyle = css`
       .picker-row:hover:not(:disabled),
       .picker-all:hover { background: var(--se-hover); }
       .picker-row:disabled { cursor: default; opacity: 0.55; }
-      .picker-row:not(.checked) { color: var(--se-muted); }
+      .picker-row:not(.checked) { color: var(--se-ink-2); }
       .picker-check {
         flex: none;
         width: 12px;
-        color: var(--se-accent);
+        color: var(--se-ink);
       }
       .picker-all {
         margin-top: 3px;
         padding-top: 6px;
         border-top: var(--se-border) solid var(--se-line-soft);
-        color: var(--se-accent-dark);
+        color: var(--se-ink);
         font-weight: 700;
       }
 
@@ -358,7 +338,7 @@ export const tableStyle = css`
         padding: 4px var(--se-cell-x);
         border-top: var(--se-border) solid var(--se-line-soft);
         font-size: var(--se-fs-sm);
-        color: var(--se-muted);
+        color: var(--se-ink-2);
         white-space: nowrap;
         overflow: hidden;
       }
@@ -389,7 +369,7 @@ export const tableStyle = css`
         gap: var(--se-gap-lg);
       }
       /* .sum-l and .sum */
-      .total-title { color: var(--se-muted); font-weight: 700; }
+      .total-title { color: var(--se-ink-2); font-weight: 700; }
       .totals b {
         color: var(--se-ink);
         font-size: var(--se-fs-name);

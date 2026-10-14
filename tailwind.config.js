@@ -12,16 +12,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        // The chain of --se-font: Manrope from the @font-face in mask.css,
-        // which main.tsx loads, then the fonts of the machine.
-        sans: [
-          '"Manrope"',
-          '"Segoe UI Variable Text"',
-          '"Segoe UI"',
-          'system-ui',
-          'Arial',
-          'sans-serif',
-        ],
+        // --se-font: the type of Windows and SoftEngine.
+        sans: ['"Segoe UI"', 'Arial', 'sans-serif'],
         mono: ['"Consolas"', 'monospace'], // .num
       },
       colors: {
@@ -54,9 +46,6 @@ export default {
         label: ['11.5px', { lineHeight: '1.45' }], // .vfeld-label
         title: ['15px', { lineHeight: '1.45' }], // --se-fs-name, the head of a card
       },
-      letterSpacing: {
-        label: '.04em', // .vfeld-label
-      },
       spacing: {
         control: '32px', // .tog of the sample
       },
@@ -68,8 +57,8 @@ export default {
         sm: 'var(--radius)',
       },
       boxShadow: {
-        // The one shadow, for what floats: popover and dialog.
-        overlay: '0 18px 50px hsl(var(--wb-ink) / .20), 0 2px 6px hsl(var(--wb-ink) / .08)', // --se-shadow-pop
+        // What floats, popover and dialog: the hairline, no shadow.
+        overlay: '0 0 0 1px hsl(var(--wb-line))', // --se-shadow-pop
         focus: '0 0 0 3px hsl(var(--wb-accent) / .20)', // --se-focus
         // The marked line of a list: a stroke on its left edge.
         mark: 'inset 3px 0 0 hsl(var(--wb-accent))',
@@ -77,7 +66,7 @@ export default {
         cell: 'inset 0 0 0 1px hsl(var(--wb-accent))',
       },
       transitionDuration: {
-        DEFAULT: '140ms', // --se-move
+        DEFAULT: '120ms', // --se-move
       },
     },
   },

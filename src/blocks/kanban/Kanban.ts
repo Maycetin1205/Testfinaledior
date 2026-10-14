@@ -71,27 +71,26 @@ export class Kanban extends BlockElement {
   }
 
   // The button under the cards of a column, as the column sets it: on to the
-  // next column, in the tone of that one, the last column has none; or the
-  // board's action, in the accent. In the editor its text is typed on it; in
-  // the mask it shows only with a text.
+  // next column, the last column has none; or the board's action. Both look
+  // the same. In the editor its text is typed on it; in the mask it shows
+  // only with a text.
   private button(column: number, card: CardData | null): TemplateResult | typeof nothing {
     const columns = this.columns
     const own = columns[column]
     const next = columns[column + 1]
     if (!own || own.buttonKind === 'none' || (own.buttonKind === 'next' && !next)) return nothing
     if (card !== null && own.button.trim() === '') return nothing
-    const look = own.buttonKind === 'next' && next ? `tone-${toneValue(next.tone)}` : 'action'
     if (card === null) {
       return html`<button
         type="button"
-        class="advance ${look}"
+        class="advance"
         data-ff-editable
         @dblclick=${(e: MouseEvent) => this.editButton(e, column)}
       >${own.button}</button>`
     }
     return html`<button
       type="button"
-      class="advance ${look}"
+      class="advance"
       draggable="false"
       @click=${(e: MouseEvent) => {
         e.stopPropagation()
@@ -120,20 +119,29 @@ export class Kanban extends BlockElement {
     return this[prop] !== '' || this[`${prop}Field`] !== ''
   }
 
+  // Whether a spot of the card shows. Without values the card is the one the
+  // builder shapes: while the board is marked every spot shows, otherwise
+  // only the shaped ones, and with none shaped every spot, so the card never
+  // stands empty. In the mask a spot without a value falls away.
+  private shows(values: Readonly<Record<string, string>> | null, prop: CardSpot | typeof AVATAR_SPOT.prop): boolean {
+    if (values !== null) return (values[prop] ?? '').trim() !== ''
+    const onlyShaped = !this.editable
+      && (this.spotShaped(AVATAR_SPOT.prop) || CARD_SPOTS.some((s) => this.spotShaped(s.prop)))
+    return !onlyShaped || this.spotShaped(prop)
+  }
+
+  // The classes of a card: with a flag it wears a stripe of the flag's color.
+  private cardClass(values: Readonly<Record<string, string>> | null): string {
+    return this.shows(values, 'chip') ? `card flagged tone-${toneValue(this.chipTone)}` : 'card'
+  }
+
   // The card as .vkarte of the reception mask: avatar, beside it the title
   // with the subline on the same line and the second title below, the time at
   // the right; then the chip, the text, the date, how far its time lies from
-  // now, the button. Without values the card is the one the builder shapes:
-  // while the board is marked every spot shows, otherwise only the shaped
-  // ones, and with none shaped every spot, so the card never stands empty.
-  // In the mask a spot without a value falls away.
+  // now, the button.
   private cardContent(column: number, card: CardData | null, until: Until | null): TemplateResult {
     const values = card === null ? null : card.values
-    const onlyShaped = values === null && !this.editable
-      && (this.spotShaped(AVATAR_SPOT.prop) || CARD_SPOTS.some((s) => this.spotShaped(s.prop)))
-    const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean => (values === null
-      ? !onlyShaped || this.spotShaped(prop)
-      : (values[prop] ?? '').trim() !== '')
+    const shows = (prop: CardSpot | typeof AVATAR_SPOT.prop): boolean => this.shows(values, prop)
     const line = shows('heading') || shows('subline')
     const main = shows('avatar') || line || shows('heading2') || shows('time')
     return html`
@@ -165,7 +173,7 @@ export class Kanban extends BlockElement {
     const board = this.board
     const chosen = card.key === board.chosen
     return html`<div
-      class="card${chosen ? ' chosen' : ''}${card.key === board.dragging ? ' dragging' : ''}"
+      class="${this.cardClass(card.values)}${chosen ? ' chosen' : ''}${card.key === board.dragging ? ' dragging' : ''}"
       role="button"
       tabindex="0"
       aria-pressed=${String(chosen)}
@@ -188,7 +196,7 @@ export class Kanban extends BlockElement {
       // One sample card per column, in its first place: the button of the
       // column is typed on it. The other places stand empty, as in the mask.
       if (spot.place !== 0) return []
-      return html`${byTime ? SAMPLE_HOUR_LINE : nothing}<div class="card">${
+      return html`${byTime ? SAMPLE_HOUR_LINE : nothing}<div class=${this.cardClass(null)}>${
         this.cardContent(spot.column, null, byTime ? SAMPLE_UNTIL : null)
       }</div>`
     }

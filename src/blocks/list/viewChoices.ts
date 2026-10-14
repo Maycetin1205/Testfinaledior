@@ -159,7 +159,7 @@ export class ViewChoices {
     const { metrics, height, head } = measuredMetrics(this.el, ROWS_HEIGHT, this._subMeasured)
     this._bodyMeasured = height
     this._headMeasured = head
-    if (metrics?.fit === this._metrics?.fit && metrics?.rowsHeight === this._metrics?.rowsHeight) return
+    if (metrics?.fit === this._metrics?.fit) return
     this._metrics = metrics
     this.el.requestUpdate()
   }

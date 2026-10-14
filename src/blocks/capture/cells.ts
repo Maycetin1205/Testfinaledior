@@ -71,7 +71,9 @@ export const cellsInputStyle = css`
 
       .right .cell-holder > .cell-input { text-align: right; }
 
-      .cell-input::placeholder { color: transparent; }
+      /* The quiet words of an empty cell: plain, as a label, not semibold
+         as a value. */
+      .cell-input::placeholder { color: transparent; font-weight: 400; }
       .row.capture .cell-input::placeholder { color: var(--se-placeholder); }
       .row:focus-within .cell-input::placeholder { color: var(--se-placeholder); }
 

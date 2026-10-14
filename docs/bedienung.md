@@ -87,21 +87,27 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
 
 ## Die Bausteine
 
-Alle in der Blatt-Sprache (13.10., `entschieden.md`):
+Alle im Aussehen „Fachsoftware“ (14.10., `entschieden.md`): Segoe UI,
+Beschriftungen normal geschrieben in der zweiten Tinte, Werte halbfett,
+Linien statt Schatten. Die blaue Hausfarbe nur am Hauptknopf, an der
+gewählten Zeile und am Fokusring. Zeile und Karte unter der Maus heben sich.
 
-- Bereich: Form Frei, Kasten, Kopfzeile mit Titel oder Band (der Kopf des
-  Blatts, oben über die ganze Breite bis an die Kanten, grauer Grund);
+- Bereich: Form Frei, Kasten (weiß mit Haarlinie), Kopfzeile (ein
+  Abschnitt: Titel über einer Haarlinie, kein Kasten) oder Band (der Kopf
+  des Blatts, oben über die ganze Breite, flach mit Haarlinie darunter);
   Farbe, Art. Innen das Raster der Seite.
 - Knopf: Farbe, Art, Größe (Klein und Normal 28 px, Groß 44 px).
 - Datum: Tageswahl.
 - Feld: Text, Zahl, Datum tippbar, Auswahl, Nachschlagen, Ankreuzfeld
   (Haken `J`, kein Haken `N`, je Feld einstellbar). Beschriftung als
-  Rubrik über dem Wert, abschaltbar; Symbol links. Leer zeigt einen Strich.
+  Rubrik über dem Wert, abschaltbar; Symbol links. Leer zeigt nur die
+  Beschriftung, keinen Strich.
   Art: Linie (Standard, Haarlinie unter dem Wert, blau beim Tippen) oder
   Ohne; das Ankreuzfeld hat keine.
 - Tabelle: liniert wie eine Rechnung, immer mit Kopf, der beim Rollen
-  stehen bleibt; Blättern, Sortieren per Klick, Spaltenwahl per Rechtsklick
-  auf den Kopf.
+  stehen bleibt; nur die Zeilen, die es gibt, darunter leeres Blatt bis zur
+  Haarlinie am unteren Rand (im Editor nur Kopf und diese Linie); Blättern,
+  Sortieren per Klick, Spaltenwahl per Rechtsklick auf den Kopf.
 - Erfassung: ein Kopf, Hauptzeile und graue Unterzeile je Zelle; Tab und
   Enter erfassen, Pfeile wechseln Haupt- und Unterzeile, Escape bricht ab.
   Klick auf eine neue Position zeigt sie, der Cursor bleibt in der
@@ -109,12 +115,15 @@ Alle in der Blatt-Sprache (13.10., `entschieden.md`):
   (Einstellungen, Aktionen): die Kette daran läuft für jede erfasste Zeile
   sofort, eine nach der anderen, z. B. PUT 82. Die Liste blättert nie; neue
   Positionen bleiben unten sichtbar. Keine
-  Kästchen in Zeilen. Die Tippzeile ist getönt; Pflichtspalten zeigen ihren
+  Kästchen in Zeilen, keine leeren Zeilen: unter den Positionen die
+  Tippzeile, darunter leeres Blatt. Die Tippzeile liegt auf leisem Grau; Pflichtspalten zeigen ihren
   Titel leise, die erste andere Spalte den „Hinweis in der Tippzeile“
   (Einstellungen, Anzeige). Auf der Seite wächst sie mit dem Fenster.
 - Kanban: Plätze je Spalte, mehrere Felder je Platz mit Trenner, Knopf je
   Spalte (Aus, Weiter oder Aktion), Spalte nach Uhrzeit mit Stundenlinien
-  und Jetzt-Linie.
+  und Jetzt-Linie. Der Chip ist ein Wort mit Punkt; eine Karte mit Chip
+  trägt links einen Streifen in seiner Farbe. Beim Ziehen hebt sich die
+  Karte mit Schatten.
 - Datenliste: Auswahl Eine Zeile, Mehrere oder Keine; je Zeile Tiersymbol
   oder Symbol, Titel, Unterzeile, Rechts.
 - Popup: eigene Seite, geöffnet und geschlossen über Aktionen.

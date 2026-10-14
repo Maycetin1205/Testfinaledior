@@ -72,7 +72,7 @@ interface BodyPlacement {
   sortColumn: number
   sortAscending: boolean
 
-  rows: readonly (number | null)[]
+  rows: readonly number[]
 
   valueAt: (rawIndex: number, slot: number) => string
 
@@ -104,18 +104,13 @@ interface BodyAct {
   rowDouble: (rawIndex: number | null) => void
 }
 
-// The lines under the records. It also takes the room a record without a
-// grey line leaves, so the lines reach the foot.
+// The room under the records, bare down to the foot: no empty rows, no
+// column lines. A click there is still a click into the list.
 function ruler(placement: BodyPlacement): TemplateResult {
   const style = placement.rulerTicks === null
-    ? placement.cols
-    : {
-        ...placement.cols,
-        height: `calc(var(--record-height) * ${placement.rulerTicks})`,
-      }
-  return html`<div class="ruler" role="presentation" style=${styleMap(style)}>
-          ${placement.columns.map(() => html`<div></div>`)}
-        </div>`
+    ? {}
+    : { height: `calc(var(--record-height) * ${placement.rulerTicks})` }
+  return html`<div class="ruler" role="presentation" style=${styleMap(style)}></div>`
 }
 
 interface CellPart {
@@ -264,8 +259,9 @@ function headCellTpl(
     : ''}</div>`
 }
 
+// Head, the records, what the block draws under them (the rows of a
+// capture), then the bare room.
 export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResult {
-  const firstEmpty = placement.rows.indexOf(null)
   return html`
       ${placement.showSearch ? html`<div class="search-row">
         <div class="search">
@@ -287,10 +283,8 @@ export function tableBody(placement: BodyPlacement, act: BodyAct): TemplateResul
         ${placement.columns.map((s, i) => headCellTpl(placement, act, s, placement.slots[i], i))}
         ${widthsHandles(placement.columns.length, act.widths)}
       </div>
-        ${placement.rows.map((rawIndex, viewIndex) => html`${
-          viewIndex === firstEmpty ? placement.bottom : nothing
-        }${rowTpl(placement, act, rawIndex, viewIndex)}`)}
-        ${firstEmpty === -1 ? placement.bottom : nothing}
+        ${placement.rows.map((rawIndex, viewIndex) => rowTpl(placement, act, rawIndex, viewIndex))}
+        ${placement.bottom}
         ${ruler(placement)}
       </div>
       ${columnsChoiceTpl(placement.columnPicker, act.columnPicker)}

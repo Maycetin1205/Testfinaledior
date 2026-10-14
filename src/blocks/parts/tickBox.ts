@@ -1,10 +1,10 @@
 import { css, html, type TemplateResult } from 'lit'
 import { icon } from './icons'
 
-// The box of a tick, as .cb of the sample docs/design/behandlung-modern.html:
-// white with a grey edge, blue with a white tick when ticked. The form field
-// and the rows of the data list take it; the input inside keeps the keyboard
-// and the change, the tick is drawn over it.
+// The box of a tick: white with a grey edge, ticked the edge and the tick in
+// the second ink, as a box on a form; the accent is not its color. The form
+// field and the rows of the data list take it; the input inside keeps the
+// keyboard and the change, the tick is drawn over it.
 export const tickBoxStyle = css`
   .box {
     position: relative;
@@ -27,14 +27,14 @@ export const tickBoxStyle = css`
     appearance: none;
     transition: background-color var(--se-move), border-color var(--se-move);
   }
-  .box input:hover { border-color: var(--se-muted); }
-  .box input:checked { background: var(--se-accent); border-color: var(--se-accent); }
+  .box input:hover { border-color: var(--se-ink-2); background: var(--se-hover); }
+  .box input:checked { border-color: var(--se-ink-2); }
   .box input:focus-visible { outline: none; box-shadow: var(--se-focus-ring); }
   .box .icon {
     position: relative;
     width: 12px;
     height: 12px;
-    color: var(--se-panel);
+    color: var(--se-ink);
     visibility: hidden;
     pointer-events: none;
   }

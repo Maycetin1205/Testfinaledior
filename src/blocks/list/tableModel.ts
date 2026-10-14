@@ -1,7 +1,6 @@
 import {
   rulerTicks,
   WITHOUT_MEASUREMENT,
-  placeholderRows,
   scrollSplit,
   pagesSplit,
   ROWS_HEIGHT,
@@ -22,7 +21,7 @@ interface ViewQuestion {
 
   widthOf?: (index: number) => number | undefined
 
-  // False in the editor: there the list draws placeholder rows, not data.
+  // False in the editor: there the list has no data and draws no rows.
   showsRows: boolean
 
   empty: boolean
@@ -47,9 +46,9 @@ interface ViewQuestion {
 interface TableRenderModel {
   cols: ColumnsGrid
 
+  // The height of a row.
   tick: number
 
-  rowsHeight: number
   showsRows: boolean
   empty: boolean
 
@@ -57,7 +56,7 @@ interface TableRenderModel {
   pageCount: number
   page: number
 
-  rows: readonly (number | null)[]
+  rows: readonly number[]
 
   rulerTicks: number | null
 
@@ -101,7 +100,6 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
   }
 
   const tick = ROWS_HEIGHT
-  const rowsHeight = question.measured?.rowsHeight ?? tick
 
   const showsRows = question.showsRows
 
@@ -121,7 +119,6 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
     showsRows,
     perPage,
     wantedPage: question.wantedPage,
-    placeholderRows: placeholderRows(free),
   }
   const { pages, page, rows } = question.paging
     ? pagesSplit(splitQuestion)
@@ -129,7 +126,6 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
   return {
     cols,
     tick,
-    rowsHeight,
     showsRows,
     empty,
     total: allVisible.length,
@@ -137,8 +133,8 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
     page,
     rows,
 
-    // In the editor the placeholder rows are one line high each, so the
-    // ruler fills whatever they leave.
+    // The rows a page still has room for under the records; in the editor
+    // the room under the head is simply bare.
     rulerTicks: showsRows ? rulerTicks(free, rows.length) : null,
 
     totals: totalsOf(question, allVisible),

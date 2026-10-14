@@ -207,11 +207,9 @@ export const suggestionStyle = css`
     z-index: 1;
     background: var(--se-panel);
     border-bottom: var(--se-border) solid var(--se-line-soft);
-    font-size: var(--se-fs-xs);
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    color: var(--se-muted);
+    font-size: var(--se-fs-sm);
+    font-weight: 600;
+    color: var(--se-ink-2);
     cursor: default;
   }
 
@@ -227,7 +225,8 @@ export const suggestionStyle = css`
 
   .suggestion + .suggestion { border-top: var(--se-border) solid var(--se-line-soft); }
 
-  .suggestion.marked { background: var(--se-accent-soft); }
+  /* The marked hit is the chosen row of the list. */
+  .suggestion.marked { background: var(--se-selection); box-shadow: var(--se-mark-bar); }
 
   .suggestion mark {
     background: var(--se-warning-soft);

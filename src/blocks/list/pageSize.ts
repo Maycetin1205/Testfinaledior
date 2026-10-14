@@ -1,16 +1,11 @@
-// A row of a list, as .tbl td of the sample with a little less air.
-export const ROWS_HEIGHT = 32
+// A row of a list, dense as the lines of a ledger (Tonprobe 3, 14.10.). It
+// keeps this height however high the list is.
+export const ROWS_HEIGHT = 30
 
 // The grey line under a row, smaller than the row itself.
 export const SUBLINE_HEIGHT = 20
 
 export const WITHOUT_MEASUREMENT = 10
-
-const PLACEHOLDER_WITHOUT_MEASUREMENT = 4
-
-export function placeholderRows(measured: number | null): number {
-  return measured ?? PLACEHOLDER_WITHOUT_MEASUREMENT
-}
 
 function headRows(headHeight: number, tick: number): number {
   return Math.max(1, Math.floor(headHeight / tick))
@@ -28,25 +23,19 @@ function fittingRows(
 }
 
 export interface RowMetrics {
+  // The records that fit under the head: as many make a page.
   fit: number
-
-  rowsHeight: number
 }
 
+// The rows are not stretched to the height of the list: only the rows there
+// are stand on the sheet, and the room they leave stays bare below them.
 function rowMetrics(
   bodyHeight: number,
   headHeight: number,
   tick: number,
   sub: number,
 ): RowMetrics {
-  const heads = headRows(headHeight, tick)
-  const fit = fittingRows(bodyHeight, heads, tick, sub)
-  // A row with a grey line keeps its height: stretched, the row would drift
-  // away from the grey line under it. The room left stays below the rows.
-  if (sub > 0) return { fit, rowsHeight: tick }
-  const height = bodyHeight / (fit + heads)
-  if (height < tick) return { fit, rowsHeight: tick }
-  return { fit, rowsHeight: Math.floor(height * 100) / 100 }
+  return { fit: fittingRows(bodyHeight, headRows(headHeight, tick), tick, sub) }
 }
 
 export function rulerTicks(fit: number | null, rendered: number): number | null {
@@ -59,30 +48,25 @@ interface Split {
 
   page: number
 
-  rows: (number | null)[]
+  rows: number[]
 }
 
 interface SplitQuestion {
   visible: readonly number[]
 
-  // False in the editor: placeholder rows stand in for data that is not there.
+  // False in the editor: there are no data, so there are no rows, not even
+  // empty ones.
   showsRows: boolean
   perPage: number
 
   wantedPage: number
-
-  placeholderRows: number
 }
 
 export function scrollSplit({
   visible,
   showsRows,
-  placeholderRows,
 }: SplitQuestion): Split {
-  if (!showsRows) {
-    return { pages: 1, page: 0, rows: Array.from({ length: placeholderRows }, () => null) }
-  }
-  return { pages: 1, page: 0, rows: [...visible] }
+  return { pages: 1, page: 0, rows: showsRows ? [...visible] : [] }
 }
 
 export function pagesSplit({
@@ -90,14 +74,11 @@ export function pagesSplit({
   showsRows,
   perPage,
   wantedPage,
-  placeholderRows,
 }: SplitQuestion): Split {
   const pages = showsRows ? Math.max(1, Math.ceil(visible.length / perPage)) : 1
 
   const page = Math.min(Math.max(wantedPage, 0), pages - 1)
-  if (!showsRows) {
-    return { pages, page, rows: Array.from({ length: placeholderRows }, () => null) }
-  }
+  if (!showsRows) return { pages, page, rows: [] }
   return { pages, page, rows: [...visible.slice(page * perPage, (page + 1) * perPage)] }
 }
 
