@@ -70,8 +70,9 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    sie soll Beschriftung oder Text mitnennen, sonst findet man ihn unter
    48 Texten nicht.
 3. Masken sichern. Ein Test lädt jede Maske aus `masken/` (Heber,
-   Prüfung, Export) und schlägt an, wenn eine nicht mehr lädt. Die Masken
-   werden committet.
+   Prüfung, Export) und schlägt an, wenn eine nicht mehr lädt oder dabei
+   einen Baustein, eine Quelle oder eine Relation verliert. Die Masken
+   werden committet. Erledigt 14.10.
 4. Maskenordner und Vorlagen. Statt Laden und Speichern über Dateidialoge
    und einem Speicherplatz im Browser: der Nutzer wählt einmal einen
    Ordner, der Editor zeigt links alle Masken darin mit Name,
@@ -138,12 +139,6 @@ war nur eine Idee und steht nicht im Plan (14.10.).
   Nutzer sie will.
 
 ## Einzelheiten zu den Chats
-
-Chat 3, Masken sichern. Ein Test `src/editor/state/masksLoad.test.ts`:
-für jede `*.aufbau-maske.json` unter `masken/` `liftState()`,
-`checkTreeState()`, `exportMask()`, `validateMaskHtml()` alle grün. Dazu
-`CLAUDE.md` und dieser Plan: Masken werden committet. Im selben Commit die
-drei Masken.
 
 Chat 4, Maskenordner und Vorlagen. Heute: ein Platz im Browser
 (`aufbau_editor_mask`, `src/editor/state/maskStorage.ts`), dazu

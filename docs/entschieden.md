@@ -7,6 +7,10 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Ladetest (Chat 3): eine Maske in `masken/` gilt als geladen, wenn
+  beim Lesen kein Baustein, keine Quelle und keine Relation wegfällt und
+  ihr Export die Prüfung besteht. Wird eine Maske aufgegeben, kommt sie
+  aus `masken/` heraus; der Test wird nicht gelockert.
 - 14.10. Die Bestellung als vierte Maske ist gestrichen, sie war nur eine
   Idee (Nutzer). Phase 2 heißt jetzt „Vor dem ersten Kunden“: die Maske
   meldet gescheitertes Schreiben (hebt „abgelehntes Schreiben bleibt
