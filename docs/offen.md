@@ -95,7 +95,10 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    nichts, was nach Produkt aussieht. Ein Chat baut drei Entwürfe der
    Editor-Hülle als Bilder (Toolbar, Palette, Maskenliste aus Chat 4,
    Leiste am Baustein, ein Fenster), in der Blatt-Sprache, nur hell. Der
-   Nutzer zeigt auf einen. Kein Code in diesem Chat.
+   Nutzer zeigt auf einen. Kein Code in diesem Chat. Erledigt 14.10.:
+   `docs/design/editor-entwurf-{a,b,c}.html` mit PNG, A Werkbank, B
+   Kompakt, C Leinwand. Die Wahl des Nutzers steht aus; sie kommt nach
+   `entschieden.md`, dann Chat 6.
 6. Gesicht des Editors, Bau. Der gewählte Entwurf wird gebaut. Die Maske
    bleibt pixelgleich, Export und Referenzabzug unverändert.
 7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
@@ -150,22 +153,20 @@ war nur eine Idee und steht nicht im Plan (14.10.).
 
 ## Einzelheiten zu den Chats
 
-Chat 5, Gesicht des Editors, Entwürfe. Drei HTML-Bilder der Editor-Hülle
-unter `docs/design/editor-entwurf-{a,b,c}.html` mit je einem PNG, 1680 px
-breit, mit der Belegerfassung auf der Leinwand (Bild
-`docs/design/2026-10-14-belegerfassung.png` als Inhalt). Alle drei in der
-Blatt-Sprache (`src/design/mask.css`: Manrope, Tinte, Königsblau, Rundung
-6/10), nur hell, ohne Chips und Badges. Unterschiede: Palette als
-Streifen mit Symbolen und Namen, als schmale Leiste nur mit Symbolen und
-Tooltip, oder als Fenster; Toolbar dicht oder luftig; Maskenliste aus
-Chat 4 als Streifen oder Fenster. Kein Code im Editor in diesem Chat. Der
-Nutzer wählt; die Wahl kommt nach `entschieden.md`.
-
 Chat 6, Gesicht des Editors, Bau. Der gewählte Entwurf aus Chat 5 wird
 gebaut: `src/design/editor.css`, `src/editor/shell/`, `src/editor/sidebar/`,
 `src/editor/bar/`, `src/editor/widgets/`. Dieselben Farben und Maße wie
 die Maske, aus `mask.css` übernommen. Was nicht im Entwurf ist, bleibt,
 wie es ist. Maske pixelgleich, Export und Referenzabzug unverändert.
+Die Entwürfe zeigen nur die Hülle; die Leinwand darin ist ein Bild des
+heutigen Editors. Neu je Entwurf: A die Seiten als Reiter über dem Blatt,
+jede Wahl der Leiste mit ihrem Namen als Rubrik darüber, die Masken als
+Tabelle im Fenster; B die Masken als Streifen mit „Export nach“ unten,
+„Masken“ blendet ihn ein und aus, die Bausteine nur als Symbol mit Tipp;
+C das Fenster „Bausteine“ mit einer Zeile je Baustein, kein Streifen an
+der Seite. In allen dreien steht die Leiste weiter im festen Streifen
+unter der Toolbar (seit 06.10.), und jedes Symbol gibt es schon
+(`src/editor/icons/iconData.ts`).
 
 Chat 7, Aktionsfenster. `src/editor/actions/StepWindow.tsx` (22 Stellen)
 und `ActionsSection.tsx` (12 Stellen) unterscheiden Schrittarten einzeln.
