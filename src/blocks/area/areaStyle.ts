@@ -37,34 +37,43 @@ export const areaStyle = css`
   :host(:not([preview])) .frame,
   :host(:not([preview])) .body { overflow: clip; }
 
-  /* Kasten: a light grey box on the white sheet, without a line (Chat 5e);
-     the cards of the board stay white in the hairline on their grey column. */
-  .appearance-box { background: var(--se-panel-2); }
-  /* Kopfzeile: a section, no box: the title over a hairline, what it holds
-     on the sheet below. */
-  .appearance-headed .head { border-bottom: var(--se-hair); }
+  /* Every area but a free one is a box with a line (14.10., the user on
+     sections without one: „randlos, leer“). Kasten: white in the line.
+     Kopfzeile: a group box, its title on a light head over the line. */
+  .appearance-box,
+  .appearance-headed,
+  .appearance-band {
+    border: var(--se-hair);
+    border-radius: var(--se-radius);
+  }
+  .appearance-box { background: var(--se-panel); }
+  .appearance-headed .head {
+    background: var(--se-panel-2);
+    border-bottom: var(--se-hair);
+    border-radius: var(--se-radius) var(--se-radius) 0 0;
+  }
   .appearance-box .body { padding: ${unsafeCSS(BOX_ROOM)}px ${unsafeCSS(ROOM)}px; }
   .appearance-headed .body { padding: 0 ${unsafeCSS(ROOM)}px ${unsafeCSS(ROOM)}px; }
 
   /* Fläche voll, Fläche leicht and Nur Rand lay the tone on a free area and
-     on a box: the ground and the line of the emphasis, the line drawn inside.
-     Nur Schrift leaves them as they are. */
-  .appearance-plain:not(.emphasis-text),
-  .appearance-box:not(.emphasis-text) {
+     on a box: the ground and the line of the emphasis; on the free area the
+     line is drawn inside, the box takes it as its own. A light box keeps a
+     line in its tone. Nur Schrift leaves them as they are. */
+  .appearance-plain:not(.emphasis-text) {
     background: var(--look-ground);
     outline: var(--se-border) solid var(--look-edge);
     outline-offset: calc(-1 * var(--se-border));
   }
-
-  /* Band: the head of the sheet, like the head of a letter: flat on a light
-     grey ground, without a corner, a hairline under it (Tonprobe 3, back in
-     Chat 5e); the columns inside stay those of the sheet. It belongs at the
-     top of the page, over the whole width. */
-  .appearance-band {
-    background: var(--se-panel-2);
-    border-bottom: var(--se-hair);
-    border-radius: 0;
+  .appearance-box:not(.emphasis-text) {
+    background: var(--look-ground);
+    border-color: var(--look-edge);
   }
+  .appearance-box.emphasis-soft { border-color: var(--tone-line); }
+
+  /* Band: the head of the sheet, like the head of a letter: a light grey box
+     in the line; the columns inside stay those of the sheet. It belongs at
+     the top of the page, over the whole width. */
+  .appearance-band { background: var(--se-panel-2); }
 
   /* The head: the title as text over the section. Fläche voll and Fläche
      leicht lay a band of the tone under it, Nur Rand draws the section's edge
@@ -87,10 +96,7 @@ export const areaStyle = css`
     background: var(--look-ground);
     color: var(--look-ink);
   }
-  .appearance-headed.emphasis-outline {
-    outline: var(--se-border) solid var(--look-edge);
-    outline-offset: calc(-1 * var(--se-border));
-  }
+  .appearance-headed.emphasis-outline { border-color: var(--look-edge); }
   .appearance-headed.emphasis-text:not(.tone-neutral) .head { color: var(--look-ink); }
 
   .head-text {

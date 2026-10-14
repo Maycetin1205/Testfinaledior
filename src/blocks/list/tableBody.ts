@@ -104,13 +104,16 @@ interface BodyAct {
   rowDouble: (rawIndex: number | null) => void
 }
 
-// The room under the records, ruled down to the foot (tableStyle.ts), no
-// column lines. A click there is still a click into the list.
+// The room under the records: as many empty rows as fit down to the foot,
+// with the column lines of the rows above. A click there is still a click
+// into the list.
 function ruler(placement: BodyPlacement): TemplateResult {
-  const style = placement.rulerTicks === null
-    ? {}
-    : { height: `calc(var(--record-height) * ${placement.rulerTicks})` }
-  return html`<div class="ruler" role="presentation" style=${styleMap(style)}></div>`
+  const ticks = placement.rulerTicks ?? 0
+  return html`<div class="ruler" role="presentation">${Array.from({ length: ticks }, () => html`<div
+    class="row"
+    role="presentation"
+    style=${styleMap(placement.cols)}
+  >${placement.columns.map(() => html`<div role="cell"></div>`)}</div>`)}</div>`
 }
 
 interface CellPart {

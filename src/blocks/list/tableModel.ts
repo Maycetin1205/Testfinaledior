@@ -133,9 +133,9 @@ export function tableRenderModel(question: ViewQuestion): TableRenderModel {
     page,
     rows,
 
-    // The rows a page still has room for under the records; in the editor
-    // the room under the head is simply bare.
-    rulerTicks: showsRows ? rulerTicks(free, rows.length) : null,
+    // The rows a page still has room for under the records; in the editor,
+    // without records, the whole room under the head and the typing row.
+    rulerTicks: rulerTicks(free, rows.length),
 
     totals: totalsOf(question, allVisible),
   }

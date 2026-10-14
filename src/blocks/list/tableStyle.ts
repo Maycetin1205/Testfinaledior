@@ -1,9 +1,10 @@
 import { css } from 'lit'
 
-// The table and the capture are ruled like an invoice on the sheet: no card,
-// the head semibold in the second ink over the strong rule, rows apart by a
-// faint line, faint lines between the columns, a hairline under the whole,
-// the figures right. Only the rows there are; the room below them is bare.
+// The table and the capture are ruled like an invoice, in a box with a line
+// (14.10.): the head semibold in the second ink on a light ground over the
+// line, rows apart by a faint line, faint lines between the columns, the
+// figures right. Under the rows there are, empty rows rule the room down to
+// the foot.
 export const tableStyle = css`
       :host { min-width: 0; height: 100%; }
 
@@ -17,7 +18,8 @@ export const tableStyle = css`
         flex-direction: column;
         height: 100%;
         background: var(--se-panel);
-        border-bottom: var(--se-hair);
+        border: var(--se-hair);
+        border-radius: var(--se-radius);
         overflow: hidden;
         font-family: var(--se-font);
         font-size: var(--se-fs-lg);
@@ -88,8 +90,8 @@ export const tableStyle = css`
         top: 0;
         z-index: 1;
         flex: none;
-        background: var(--se-panel);
-        border-bottom: var(--se-head-rule);
+        background: var(--se-panel-2);
+        border-bottom: var(--se-hair);
         font-size: var(--se-fs-rubric);
         font-weight: 600;
         color: var(--se-ink-2);
@@ -108,19 +110,13 @@ export const tableStyle = css`
 
       .body > .row { flex: none; }
 
-      /* The room under the records: ruled like the rows, a hairline every
-         record down to the foot, as a ledger keeps its lines where no entry
-         is yet (14.10., reverses the bare sheet of 5d). No column lines. */
+      /* The room under the records holds empty rows down to the foot, as a
+         ledger keeps its lines where no entry is yet (14.10.); the column
+         lines run through them. */
       .ruler {
         flex: 1 1 auto;
         min-height: 0;
-        background: repeating-linear-gradient(
-          to bottom,
-          transparent 0,
-          transparent calc(var(--record-height) - var(--se-border)),
-          var(--se-line-soft) calc(var(--record-height) - var(--se-border)),
-          var(--se-line-soft) var(--record-height)
-        );
+        overflow: hidden;
       }
 
       .row {

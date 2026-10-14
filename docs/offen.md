@@ -54,12 +54,12 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
   Browser-Dialoge außer der Rückfrage bei „Neu“ (Nutzer, 14.10.).
 - Jeder Chat endet mit einem Bild vorher und nachher. Der Nutzer sagt ja
   oder nein; bei nein wird zurückgebaut, nicht diskutiert.
-- Bild statt Regel (14.10., nach 5e): Maßstab für das Aussehen ist das
-  Bild der Belegerfassung mit Daten,
-  `docs/design/2026-10-14-fachsoftware-belegerfassung.png`, nicht eine
-  Liste von Auflagen. Eine Auflage, die etwas wegnimmt, braucht ein Bild,
-  das zeigt, dass es ohne besser ist: fünf Runden „weniger“ (Schatten,
-  Rundung, Großschrift, Grund, Zeilen) haben die Leinwand leer gemacht.
+- Bild statt Regel (14.10., nach 5e): Maßstab für das Aussehen ist der
+  Editor, wie der Nutzer ihn sieht, ohne Daten (keine Probedaten, 14.10.),
+  nicht eine Liste von Auflagen. Eine Auflage, die etwas wegnimmt, braucht
+  ein Bild, das zeigt, dass es ohne besser ist: fünf Runden „weniger“
+  (Schatten, Rundung, Großschrift, Grund, Zeilen) haben die Leinwand leer
+  gemacht; „leer“ und „randlos“ heißt beim Nutzer Form, nicht Inhalt.
 - Nichts Neues ohne Maske, die es braucht (14.10.). Inventur vom 14.10.:
   der Editor zeigt 77 Einstellungen an den Bausteinen, 29 davon hat keine
   der drei Masken je angefasst; dazu 6 Schrittarten, 3 davon nie benutzt,
@@ -228,6 +228,24 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    `greyLine`, `placedUnder`, `UNDER` in `capture/column.ts`), „€“.
    Sagt er raus, streicht sie ein Nachtrag zu 5g; die Decke sinkt dann
    auf 54.
+5i. Ränder (Fable, 14.10., erledigt). Der Nutzer über den Stand nach 5g:
+   „randlos, beschissen leer“. Jeder Bereich außer dem freien ist wieder
+   ein Kasten mit Linie: Kasten weiß in der Linie, Kopfzeile ein
+   Gruppenkasten mit dem Titel auf hellem Kopf über der Linie, Band
+   hellgrau in der Linie (`areaStyle.ts`). Das Feld hat seinen Wert in
+   einem Kasten mit Linie wie jedes Feld eines Windows-Programms, blau
+   beim Tippen (`formFieldStyle.ts`). Tabelle und Erfassung stehen in
+   einem Kasten, der Kopf auf hellem Grund über der Linie, unter den
+   Sätzen leere Zeilen mit Spaltenlinien bis zum Fuß, auch im Editor
+   (`tableStyle.ts`, `tableBody.ts`, `tableModel.ts`). Hebt „Abschnitte
+   statt Karten“ (5d) und „Kasten ohne Rand“ (5e) auf. Export und
+   Referenzabzug unverändert (Stile in der Laufzeit), die exportierte
+   Maske sieht entsprechend anders aus. Rest: die freien Bereiche unten
+   in der Belegerfassung (Artikel der Position, Zahlungsbedingung,
+   Summen) haben keine Linie, weil die Maske sie als „Frei“ führt; will
+   der Nutzer dort Kästen, Form auf „Kopfzeile“ (`masken/belegerfassung`,
+   mit seinem Ja). `--se-field-line*` und `--se-head-rule` in `mask.css`
+   nutzt niemand mehr (Chat 11).
 6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
    6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
    „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
@@ -263,8 +281,9 @@ Chat (14.10., der Nutzer will nicht 17 Chats takten).
     Zeichnen: Lit meldet, dass `ff-capture` und `ff-table` nach einem
     Update ein weiteres planen; Ursache finden, beheben. Darf
     `masken/behandlung` anfassen (breitere Spalten).
-11. Durchsicht Kanban. Rest aus 5e und 5g: `--se-edge` und
-    `--se-petrol*` in `mask.css` nutzt niemand mehr.
+11. Durchsicht Kanban. Rest aus 5e, 5g und 5i: `--se-edge`,
+    `--se-petrol*`, `--se-field-line*` und `--se-head-rule` in `mask.css`
+    nutzt niemand mehr.
 
 ### Phase 2: Vor dem ersten Kunden
 

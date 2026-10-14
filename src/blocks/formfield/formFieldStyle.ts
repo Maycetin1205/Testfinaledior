@@ -1,10 +1,11 @@
 import { css, unsafeCSS } from 'lit'
 import { rowsHigh } from '../../core/block/grid'
 
-// The field of the sheet: the label a Rubrik over the value, both as text,
-// the field has no frame. Under the pointer it lies on a ground, while typed
-// into it is white with the ring of the accent, at once. An empty field shows
-// its label and nothing where the value would stand.
+// The field of the sheet: the label a Rubrik over the value, the value in a
+// box with a line, as every field of a Windows program (14.10., the user on
+// the field without one: „randlos“). Under the pointer the box lies on a
+// ground, while typed into it is white with the ring of the accent. An empty
+// field shows its label and nothing where the value would stand.
 export const fieldStyle = css`
   .field {
     position: relative;
@@ -12,24 +13,24 @@ export const fieldStyle = css`
     height: ${unsafeCSS(rowsHigh(2))}px;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-rows: 20px;
+    grid-template-rows: 22px;
     align-content: center;
     padding: 0 10px;
     border-radius: var(--se-radius);
     font-family: var(--se-font);
     cursor: text;
-    transition: background-color var(--se-move);
   }
   .field.labelled {
     height: ${unsafeCSS(rowsHigh(3))}px;
-    grid-template-rows: 14px 20px;
+    grid-template-rows: 14px 22px;
     row-gap: 1px;
     align-content: start;
     padding-top: 6px;
   }
-  .field:hover { background: var(--se-hover); }
-  .field:focus-within {
+  .field:hover .value { background: var(--se-hover); }
+  .field:focus-within .value {
     background: var(--se-panel);
+    border-color: var(--se-accent);
     box-shadow: var(--se-focus-ring);
   }
 
@@ -47,21 +48,24 @@ export const fieldStyle = css`
     text-overflow: ellipsis;
   }
 
-  /* The value and its control on one line. */
+  /* The value and its control on one line, in the box of the field; blue
+     while typing. A checkbox has its own box instead. */
   .value {
     grid-column: 2;
     grid-row: -2;
+    box-sizing: border-box;
+    height: 22px;
     display: grid;
     grid-template: 20px / minmax(0, 1fr);
     align-items: center;
     min-width: 0;
+    padding: 0 6px;
+    background: var(--se-panel);
+    border: var(--se-hair);
+    border-radius: var(--se-radius);
+    transition: background-color var(--se-move);
   }
   .value > * { grid-area: 1 / 1; }
-
-  /* A hairline under the value, as under a signature, so the eye finds
-     where to type; blue while typing. A checkbox has its box instead. */
-  .field .value { box-shadow: var(--se-field-line); }
-  .field:focus-within .value { box-shadow: var(--se-field-line-typing); }
 
   /* .f .v */
   .ctrl,
