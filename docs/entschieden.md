@@ -27,6 +27,17 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
   beim Lesen kein Baustein, keine Quelle und keine Relation wegfällt und
   ihr Export die Prüfung besteht. Wird eine Maske aufgegeben, kommt sie
   aus `masken/` heraus; der Test wird nicht gelockert.
+- 14.10. Urteil zu den Entwürfen A, B, C der Editor-Hülle (Fable, von
+  außen): dreimal dieselbe Einrichtung umgestellt, keiner hebt das
+  Slop-Gefühl auf. Zwei Entscheidungen werden aufgehoben: „Kein
+  Inspector“ (24.09.) und „der Editor übernimmt dieselbe Sprache wie die
+  Maske“ (08.10.). Neu: der Editor hat eine rechte Spalte „Eigenschaften“
+  (Leiste und Einstellungsfenster gehen darin auf), und sein Rahmen hat
+  einen eigenen, kühleren Ton, damit das Blatt der einzige weiße Fleck
+  ist. Grund: die Fensterchen an der Leiste sind die Quelle der
+  abgeschnittenen Texte, und ohne Kante zwischen Werkzeug und Werkstück
+  sieht jeder Editor aus wie Slop. Entwurf D zeigt es; die Wahl des
+  Nutzers steht aus.
 - 14.10. Die Bestellung als vierte Maske ist gestrichen, sie war nur eine
   Idee (Nutzer). Phase 2 heißt jetzt „Vor dem ersten Kunden“: die Maske
   meldet gescheitertes Schreiben (hebt „abgelehntes Schreiben bleibt

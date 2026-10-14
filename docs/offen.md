@@ -99,8 +99,21 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    `docs/design/editor-entwurf-{a,b,c}.html` mit PNG, A Werkbank, B
    Kompakt, C Leinwand. Die Wahl des Nutzers steht aus; sie kommt nach
    `entschieden.md`, dann Chat 6.
-6. Gesicht des Editors, Bau. Der gewählte Entwurf wird gebaut. Die Maske
-   bleibt pixelgleich, Export und Referenzabzug unverändert.
+5b. Gesicht des Editors, Entwurf D. Urteil 14.10. (Fable, von außen):
+   A, B und C sind dieselbe Einrichtung dreimal umgestellt, keiner hebt
+   das Slop-Gefühl auf. Zwei Ursachen bleiben in allen dreien: Rahmen und
+   Maske sind nicht zu unterscheiden (alles weiß und hellgrau), und die
+   Eigenschaften stecken in einer Leiste mit Fensterchen, der Quelle der
+   abgeschnittenen Texte. D: Dreiteilung mit linker Spalte (Bausteine,
+   Masken), Leinwand auf grauem Grund, rechter Spalte „Eigenschaften“;
+   der Rahmen in einem eigenen, kühleren Ton; ein schmaler Kopf. Ein Chat
+   baut D als Bild wie A bis C; der Nutzer vergleicht und entscheidet.
+   Kein Code in diesem Chat.
+6. Gesicht des Editors, Bau, in drei Chats: 6a Hülle und linke Spalte,
+   6b rechte Spalte mit den Wahlen der heutigen Leiste, 6c die Gruppen aus
+   „Einstellungen“ in die rechte Spalte, die Fensterchen an der Leiste
+   verschwinden. Die Maske bleibt pixelgleich, Export und Referenzabzug
+   unverändert. Setzt die Wahl des Nutzers nach 5b voraus.
 7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
    `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
@@ -153,11 +166,56 @@ war nur eine Idee und steht nicht im Plan (14.10.).
 
 ## Einzelheiten zu den Chats
 
-Chat 6, Gesicht des Editors, Bau. Der gewählte Entwurf aus Chat 5 wird
-gebaut: `src/design/editor.css`, `src/editor/shell/`, `src/editor/sidebar/`,
-`src/editor/bar/`, `src/editor/widgets/`. Dieselben Farben und Maße wie
-die Maske, aus `mask.css` übernommen. Was nicht im Entwurf ist, bleibt,
-wie es ist. Maske pixelgleich, Export und Referenzabzug unverändert.
+Chat 5b, Entwurf D. Ein HTML-Bild `docs/design/editor-entwurf-d.html` mit
+PNG, 1680 x 1050, wie A bis C gebaut (Werte aus `mask.css`, Symbole aus
+`iconData.ts`, die Belegerfassung auf der Leinwand, Text „Name“
+markiert), dazu ein zweites PNG `editor-entwurf-d-erfassung.png` mit der
+markierten Erfassung, damit man die Aktionen in der rechten Spalte sieht.
+Aufbau:
+
+- Kopf, eine Zeile, 44 px: links Name der Maske und Rahmen-Nummer, in der
+  Mitte die Seitenreiter (Hauptseite, Popups, Plus), rechts Rückgängig,
+  Wiederholen, ein stiller Speichern-Zustand („Gespeichert 11:05“ statt
+  eines Knopfs; Strg+S bleibt), Daten, Umrisse, Exportieren als einziger
+  blauer Knopf.
+- Linke Spalte, 232 px, zwei Reiter: „Bausteine“ (Symbol und Name je
+  Baustein, Erklärzeile aus C als Tipp) und „Masken“ (die Liste aus Chat 4
+  mit Ordnern, Vorlagen und „Export nach“ unten, wie B).
+- Mitte: die Leinwand auf dem Fenstergrund `--se-bg`, das Blatt weiß mit
+  Haarlinie, wie heute.
+- Rechte Spalte, 300 px, „Eigenschaften“: Kopf mit Symbol und Name des
+  markierten Bausteins und dem Papierkorb; dann die Wahlen der heutigen
+  Leiste als Zeilen mit Beschriftung links und Wahl rechts (Rolle, Farbe
+  und Größe, Art, Symbol, Ausrichtung, Beschriftung); darunter die Gruppen
+  aus „Einstellungen“ als aufklappbare Abschnitte (Quelle, Hilfsquelle,
+  Anzeige, Suchfenster, Folgt der Auswahl, Aktionen), jede mit Haarlinie
+  und fetter Überschrift wie in den heutigen Fenstern. Nichts markiert:
+  Name, Rahmen, Zielordner der Maske. Der Baustein-Bezug („Folgt der
+  Auswahl“ per Klick auf den Geber) bleibt, wie er ist.
+- Ton des Rahmens: Kopf und beide Spalten auf `--se-panel-2` mit
+  Haarlinien `--se-line`, Schrift `--se-ink-2`, Überschriften in Versalien
+  11 px wie die Rubriken der Maske; das Blatt bleibt der einzige weiße
+  Fleck. Dieselbe Schrift, dasselbe Blau, sonst nichts Neues; keine
+  dunkle Oberfläche.
+- Fenster bleiben nur für Aufgaben: Daten, Schritt, Suchfenster, Spalten.
+
+Chat 6a, Hülle und linke Spalte. Nach dem gewählten Entwurf:
+`src/design/editor.css`, `src/editor/shell/EditorShell.tsx`, `Toolbar.tsx`,
+`src/editor/sidebar/`, `src/editor/masks/MasksWindow.tsx` wird der Reiter
+„Masken“ der linken Spalte. Die Leiste bleibt vorerst, wo sie ist.
+Maske pixelgleich, Export und Referenzabzug unverändert.
+
+Chat 6b, rechte Spalte mit den Wahlen der Leiste. `src/editor/bar/`
+(`BlockBar.tsx`, `BarControl.tsx`, `BarFrame.tsx`) zieht in eine Spalte
+`src/editor/inspector/`; `propertiesFor()` (`src/core/block/propertyPlace.ts`)
+verteilt weiter nach `place`, nur das Ziel ist die Spalte. Die
+Spaltenleiste (`ColumnBar.tsx`) am Spaltenkopf bleibt, sie gehört zur
+Stelle auf der Leinwand.
+
+Chat 6c, Einstellungen in die Spalte. `SettingsWindow.tsx` und
+`ActionsSection.tsx` werden Abschnitte der Spalte; die Fensterchen an der
+Leiste und der Streifen `BarStrip.tsx` verschwinden. Was ein Fenster
+bleibt: Schritt (`StepWindow.tsx`), Daten, Suchfenster, Berechnung.
 Die Entwürfe zeigen nur die Hülle; die Leinwand darin ist ein Bild des
 heutigen Editors. Neu je Entwurf: A die Seiten als Reiter über dem Blatt,
 jede Wahl der Leiste mit ihrem Namen als Rubrik darüber, die Masken als
