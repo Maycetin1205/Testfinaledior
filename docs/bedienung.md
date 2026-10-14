@@ -108,5 +108,5 @@ nicht alle in SoftEngine.
   Beleg-Nr., Anschrift und Daten (Quellen Belegfenster und Adresse),
   Erfassung, die jede Zeile beim Erfassen schreibt (PUT 82 an „Zeile
   erfasst“), Artikel der Position, Zahlungsbedingung mit Speichern (PUT 82,
-  für das, was liegen blieb), Summen mit Gesamtbetrag. Daneben noch der alte handgeschriebene Export
-  vom 06.10. (`Rahmen10000.basis.*`).
+  für das, was liegen blieb), Summen mit Gesamtbetrag. Daneben ihr Export
+  vom 14.10. (`Rahmen10000.basis.*`), in V7 bestanden.

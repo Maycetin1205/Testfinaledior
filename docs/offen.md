@@ -1,6 +1,6 @@
 # Offen
 
-Stand 13.10.2026. Das hier ist der Plan: was als Nächstes gebaut wird, in
+Stand 14.10.2026. Das hier ist der Plan: was als Nächstes gebaut wird, in
 dieser Reihenfolge. Es gibt kein zweites Plan-Dokument. Entscheidungen mit
 Datum stehen in `entschieden.md`, die Bedienung in `bedienung.md`, der Bau
 des Codes in `architektur.md`, alles über SoftEngine in
@@ -9,334 +9,228 @@ des Codes in `architektur.md`, alles über SoftEngine in
 ## Ziel
 
 Der Nutzer und seine Kollegen bauen Masken für Kunden, exportieren, der
-Kunde benutzt sie in SoftEngine. Aktuelles Ziel (12.10.): ein vollständiger
-Tierarzt-Prototyp, gebaut mit dem Editor. Empfang als Kanban (Termin
-anlegen, ins Behandlungszimmer, zur Kasse), Behandlung (der Arzt sieht alle
-Patientendaten und füllt den Beleg: Leistungen, Medikamente, Artikel),
-Belegerfassung. Die Masken liegen in `masken/`. Die Chef-Maske ist kein
-Maßstab mehr; `docs/chef-maske` ist nur noch Quelle für Schreibwege.
+Kunde benutzt sie in SoftEngine. SoftEngine bleibt Daten und Logik, der
+Editor macht die Oberfläche: Belegerfassung, Empfang, Behandlungszimmer,
+Bestellung, und danach, was Kunden sonst brauchen. Die Masken liegen in
+`masken/`.
 
-Der Editor darf rau sein, aber bedienbar; die Maske muss glänzen. Der Code
-muss so sein, dass ein eigener Programmierer ihn übernehmen kann.
+Zwei Maßstäbe: der Editor erzeugt keinen Durchfall (man sieht, was man
+tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
+überzeugt. Der Code muss so sein, dass ein eigener Programmierer ihn
+übernehmen kann.
+
+## Stand 14.10.
+
+- Echttest in V7 bestanden: die Belegerfassung aus dem Editor zeigt Band,
+  Anschrift und Beleg-Nr., die Summen stimmen, „Artikel der Position“ zeigt
+  nach der Auswahl aus der Liste, F4 löscht die richtige Zeile. Damit sind
+  die alten Punkte A (F4), E (Artikelinfo) und K (Tippzeile nach F4)
+  erledigt. Der Export liegt in `masken/belegerfassung/Rahmen10000.basis.*`
+  und im V7-Ordner `VORLAGEN_INDIV\Belegerfassung\LAYOUTRAHMEN\10000`.
+- Design der Maske eingefroren (Blatt-Sprache vom 13.10., Bilder
+  `docs/design/2026-10-14-*.png`). Es gibt keine neue Designsprache mehr,
+  nur Feinschliff je Baustein in der Revue unten.
+- Code-Durchgang 14.10. (Fable): Schichten, Store, Registry, Doku in
+  Ordnung. Schwach: vier Tests, 34 Schema-Stufen in sieben Wochen, sieben
+  Stellen, die einen Fehler still verschlucken (`runEvent(...).catch(() => {})`),
+  der Export bricht stumm ab. Das ist Phase 1.
 
 ## Arbeitsweise
 
-- Ein Schritt ist ein Chat. Der Auftrag ist knapp, nennt die Dateien und
-  sagt, was nicht angefasst wird. Ein Chat baut, ein Prüf-Chat sieht nach.
+- Fable plant und prüft, Opus 5.5 baut. Ein Schritt ist ein Chat. Der
+  Nutzer schreibt nur: „Lies docs/offen.md, baue Chat N, halte dich an den
+  Rahmen.“ Ein Prüf-Chat sieht danach nach (Prüfauftrag unten).
 - Vor jedem Commit `npm run check` und `npm test` grün. Masken ab Schema 20
   und Kundendateien jeder Fassung laden weiter. Der Export ändert sich nur
   gewollt (`REFERENCE_REFRESH=1 npm test`, im Commit benannt).
-- Keine neuen Tests. Kein Thema Geschwindigkeit. Kein Chat, der nur
-  aufräumt, ohne dass der Nutzer danach etwas sieht; Ausnahme ist das
-  Refactoring unten, am 13.10. ausdrücklich gewollt.
-- Je Baustein, bevor er gebaut wird, drei Sätze im Chat: Das teilt er mit X.
-  Das ist neu. Das wird dadurch überflüssig. Der Nutzer sagt ja oder nein.
-  Nach dem Bau sieht er ihn in SoftEngine.
-- Änderungen unter `masken/` bleiben uncommittet.
+- Masken in `masken/` werden committet, immer dann, wenn ein Chat sie
+  ändert oder der Nutzer einen Stand gesichert haben will.
+- Keine neuen Tests, außer dem Ladetest in Chat 3. Kein Thema
+  Geschwindigkeit. Kein Chat, der nur aufräumt, ohne dass der Nutzer
+  danach etwas sieht; Ausnahmen sind Chat 4 und Chat 15, beide gewollt.
+- Jeder Chat endet mit einem Bild vorher und nachher. Der Nutzer sagt ja
+  oder nein; bei nein wird zurückgebaut, nicht diskutiert.
 
-## Plan für Opus-Chats, Stand 13.10. abends
+## Plan: ein Chat je Zeile
 
-Ein Chat je Zeile, in dieser Reihenfolge. Der Nutzer schreibt in den Chat
-nur: „Lies docs/offen.md, baue Chat N aus dem Plan für Opus-Chats, halte
-dich an den Rahmen für jeden Auftrag.“ Details stehen unter den Buchstaben
-im Abschnitt danach. Im Arbeitsbaum liegt ein angefangener Stand von J
-(`src/blocks/text/Text.ts`, `properties.ts`, `textStyle.ts`, uncommittet):
-Chat 1 nimmt ihn als Ausgangspunkt, prüft ihn und bringt ihn zu Ende oder
-wirft ihn weg.
+### Phase 1: Kein Durchfall
 
-1. J: Text mit Beschriftung, wie das Feld. Commit. Danach Export und
-   Referenzabzug unverändert für Masken ohne Beschriftung. Erledigt 13.10.
-   Danach, vom Nutzer 13.10. gewollt:
-   - Text-Anzeige-Wahlen: ganz entfernt 13.10. (`entschieden.md`). Offen:
-     „Trenner“ (Feldwahl, mehrere Felder) klar benennen; die Rolle
-     „Beschriftung“ heißt wie der Haken.
-   - Export Stufe 1: den Stil der Bausteine beim Bauen zusammenpressen
-     (gemessen 13.10.: Laufzeit 2400 → 450 Zeilen, 258 → 239 KB), den Stil
-     des Exports ebenso; über den TypeScript-Parser, ohne neues Werkzeug.
-     Nur genutzte Bausteine einbetten (Stufe 2) nicht jetzt.
-2. D: alte Exportdatei in `masken/belegerfassung` durch den aktuellen
-   Export ersetzen (Dateinamen bleiben, uncommittet). Dann exportiert der
-   Nutzer nach V7 und testet F4 (A) mit einem doppelten Artikel.
-3. E: Artikelinfo nach Auswahl aus der Liste. Verdacht: Schlüssel aus
-   SoftEngine sind auf Feldlänge mit Leerzeichen gefüllt, die Tippzeile
-   nicht; Vergleich getrimmt, an einer Stelle. Headless mit gefüllten
-   Schlüsseln prüfen. Commit.
-4. K: Nach F4 rückte die Tippzeile beim Nutzer nicht nach oben, bis eine
-   neue Zeile geschrieben war; headless (scratchpad `f4.mjs`, Lieferung
-   nach dem PUT 53) rückt sie. Also kommt bei ihm nach PUT 53 keine
-   Lieferung an oder sie wird nicht gezeigt. Prüfen: `bridge.ts`
-   (`ring`, `typingHeld`, Signatur), `events.ts` (`requestFreshData`),
-   `rowActivation.ts` (F4 bei laufender Kette: `busy` wird still
-   verschluckt; mehrere F4 kurz nacheinander gehen verloren). Mindestens:
-   F4 während eine Kette läuft wird nicht verschluckt, sondern nach ihr
-   ausgeführt. Commit.
-5. F: Name im Band auf die Linie der Vorlage, breitere Spalten in der
-   Behandlung. Commit (Code) und Maske (uncommittet).
-6. I: Refactoring Schritte 2, 3, 4 (je ein Chat), dann Schritt 7 Export
-   abspecken.
-7. B nur mit neuem Debug des Nutzers. G später. H gestrichen.
-8. `docs/softengine-wiki/kontrakte.md` eindampfen: nur das Belegte bleibt,
-   je Kontrakt drei Zeilen (was, wie, wann belegt), keine Geschichte, keine
-   Vermutungen; was nur abgelesen ist, kommt nach `funktionen.md` oder
-   fliegt raus. Kein Kontrakt geht verloren. Commit.
+1. Umrisse. Jeder Baustein ist auf der Leinwand zu sehen, auch leer: ein
+   leiser Umriss um jeden Baustein, deutlicher beim Zeigen, kräftig beim
+   Markieren. Ein Schalter „Umrisse“ in der Toolbar, Vorgabe an, gemerkt.
+   In der Maske ändert sich nichts.
+2. Rückmeldungen. Der Export sagt, welche Prüfung scheitert. Eine Datei,
+   die nicht lädt, sagt warum. „Neu“ fragt nach. Die leere Leinwand zeigt,
+   was zu tun ist.
+3. Masken sichern. Ein Test lädt jede Maske aus `masken/` (Heber,
+   Prüfung, Export) und schlägt an, wenn eine nicht mehr lädt. Die Masken
+   werden committet.
+4. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
+   `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
+   Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
+5. Revue Text.
+6. Revue Feld.
+7. Revue Bereich.
+8. Revue Erfassung.
+9. Revue Tabelle.
+10. Revue Knopf.
+11. Revue Datenliste.
+12. Revue Kanban.
+13. Revue Popup.
+14. Revue Datum.
+15. Doppeltes Zeichnen. Lit meldet, dass `ff-capture` und `ff-table` nach
+    einem Update ein weiteres planen. Ursache finden, beheben. Nichts wird
+    sichtbar, aber jede spätere Änderung an der Erfassung wird sicherer.
 
-## Stand 13.10. abends: Einzelheiten zu den Buchstaben
+### Phase 2: Bestellung
 
-Was heute auffiel, gemessen und gelesen; Opus arbeitet die Liste ab,
-Punkt für Punkt, je Punkt ein Commit (ohne `masken/`).
+16. Die Bestellung als vierte Maske, mit den heutigen Bausteinen, in
+    `masken/bestellung`. Was dabei fehlt, wird danach als eigener Chat
+    gebaut, nicht vorher auf Vorrat.
 
-A. F4 löscht unzuverlässig. Unser PUT 53 (`masken/belegerfassung`, Kette
-   „F4 – Aktion an der Zeile“) nennt SoftEngine nur BELART, BELNR und die
-   Artikelnummer der gewählten Zeile; die Positionsfelder der Relation
-   (`POS_128_6, POS_11_6, POS_1_1, POS_645_10, POS_0_1, POS_17_1, SNR`)
-   gehen leer. Steht ein Artikel zweimal im Beleg, trifft es die falsche
-   Zeile oder keine. Die Satznummer `645_10` liefert SoftEngine schon
-   (Quelle Belegpositionen). Bau: die Kette gibt `645_10` der gewählten
-   Zeile mit, die übrigen Felder bestellt die Quelle und gibt sie mit, wo
-   die Lieferung sie trägt. Echttest beim Nutzer: zweimal derselbe
-   Artikel, F4 auf der zweiten Zeile. Relation 53 danach in
-   `kontrakte.md` eintragen (heute: ungedeutet, nur „löscht“ belegt).
-   Gebaut 13.10. (nur Maske, uncommittet): die Kette gibt `128_6`, `11_6`,
-   `1_1`, `645_10`, `0_1`, `17_1` der gewählten Zeile mit, die Quelle
-   Belegpositionen bestellt sie (wie die Chef-Maske, `JsonBeleg.json`);
-   `SNR` bleibt leer. Relation 53 steht in `kontrakte.md` §7. Offen: der
-   Echttest.
-B. Refresh nach dem Schreiben dauert Sekunden. Gemessen am Debug des
-   Nutzers (13.10., 15:08, PUT 82): PUT 20:287, SoftEngine fertig
-   gerechnet 20:650, dann 1,86 s ohne Zeile, dann 22:507 die
-   Bildnachschläge (Relation 1911) für jeden Artikel des Belegs, das ist
-   der Bau der Lieferung für unsere Maske. PUT 53: Rechnen 57 ms, danach
-   dasselbe Loch. SoftEngines eigenes Layout: Lieferung 80 ms nach der
-   Position. Die Maske wartet nicht (hostQueue, bridge gelesen: höchstens
-   0,8 s, wenn ein Feld den Fokus hält). Verdacht: die Schleife „Belege
-   Kunde“ (alle Belege des Kunden, 7 Felder) in den SEvariablen, SoftEngine
-   baut sie bei jeder Lieferung neu. Bau: die Schleife nur bestellen, wenn
-   ein Baustein sie liest (ist das heute so? prüfen in
-   `src/export/exportMask.ts`, Bestellung der Quellen); in der
-   Belegerfassung prüfen, ob ein Baustein „Belege Kunde“ braucht. Echttest:
-   Debug mit und ohne Schleife, Abstand PUT → Relation 1911.
-   Geprüft 13.10.: der Export bestellt schon heute nur Quellen, die ein
-   Baustein oder eine Kette liest (`collectDataSources()` →
-   `sourceIdsUsedBy()`); `bridge.ts` und `hostQueue.ts` bestellen nichts.
-   Die SEvariablen in V7 (`VORLAGEN_INDIV/Belegerfassung/LAYOUTRAHMEN/10000`,
-   13.10. 15:22) haben keine Schleife „Belege Kunde“, nur VAR (BEL,
-   WINDOW_VARIABLE, ADR) und Belegpositionen. Die 7 Felder stehen nur in
-   der alten Datei `masken/belegerfassung/Rahmen10000.basis.SEvariablen.json`
-   (Punkt D). In der Maske gibt es die Quelle nicht mehr; vorher (Commit
-   af29c97) war sie eine ERP-Abfrage `BELEG.GET` für eine Tabelle, nicht
-   bestellt. Nichts geändert; der Verdacht trägt nicht.
-   Liegt (Nutzer, 13.10.): weiter erst mit einem neuen Debug.
-C. Rahmen im Bereich: der Nutzer sieht, dass Bausteine im Bereich ihre
-   Rahmen verlieren. Headless (13.10., Behandlung und Belegerfassung): das
-   markierte Feld im Bereich zeigt Rahmen, Griffe und Hover; Knopf und
-   Tabelle im Bereich zeichnen normal. Nicht reproduziert. Offen: welcher
-   Baustein, Editor oder SoftEngine, ein Bild vom Nutzer. Dann prüfen:
-   `overflow: clip` in `src/blocks/area/areaStyle.ts` (`.frame`, `.body`)
-   schneidet, was über den Rand eines Bausteins hinausragt.
-   Gebaut 13.10.: reproduziert im Editor (Text „Name“ in Zeile 0 des Bands
-   der Belegerfassung markiert: obere Linie fehlt, Griffe halb). Ursache
-   war der Clip an `.frame` und `.body`; er gilt jetzt nur in der Maske
-   (`:host(:not([preview]))`, `src/blocks/area/areaStyle.ts`). Maske
-   pixelgleich, Export und Referenzabzug unverändert.
-D. `masken/belegerfassung/Rahmen10000.basis.source.html` ist der Export
-   vom 05.10. (Petrol, alte Belegerfassung), nicht der der Blatt-Maske.
-   Der Nutzer exportiert die Belegerfassung aus dem Editor neu nach V7;
-   die alte Datei im Ordner fliegt raus oder wird ersetzt.
-E. Artikelinfo bei neuen Zeilen zeigt beim Nutzer nichts (headless ja).
-   Braucht eine echte Antwort von `ARTIKEL.GET` aus dem Debug.
-F. Design-Reste: Name im Band etwa 4 px höher als in der Vorlage; schmale
-   Spaltenköpfe der Behandlung brauchen breitere Spalten (Maskenarbeit).
-G. Ereignisse der Erfassung, später: „Zeile geändert“, „Zeile gelöscht“,
-   „Positionen“ als Ganzes. Bleibt später (Nutzer, 13.10.).
-H. Gestrichen (Nutzer, 13.10.): START_TOOL 444 „Artikel hinzufügen“ und
-   Schreiben ohne PUT 82.
-I. Danach das Refactoring unten (Schritte 2 bis 4), dann Export abspecken
-   (Schritt 7).
-J. Text mit Beschriftung: der Text bekommt wie das Feld den Haken
-   „Beschriftung“ und die Rubrik klein in Versalien über dem Text, im
-   selben Maß und Ton wie beim Feld, damit Feld und Text mit Beschriftung
-   auf einer Linie stehen. Ohne Haken bleibt der Text wie heute.
-   Gebaut 13.10.: Rubrik und Wert pixelgleich mit dem Feld. Nachgebessert
-   13.10.: die Beschriftung ist der Feldname, der Wert zeigt im Editor „–“,
-   das Darunter rückt nach unten, wenn der Text wächst.
+### Liegt, bis es stört
 
-## Refactoring, zuerst
+- B: Refresh nach dem Schreiben dauert Sekunden. Nur mit einem neuen Debug
+  des Nutzers; der Verdacht „Belege Kunde“ trägt nicht (13.10. geprüft).
+- G: Ereignisse der Erfassung „Zeile geändert“, „Zeile gelöscht“,
+  „Positionen“ als Ganzes.
+- Export abspecken (heute 330 KB je Maske, Laufzeit 255 KB mit allen
+  Bausteinen). Erst, wenn Masken spürbar langsam öffnen. Schrift bleibt
+  eingebettet, Manrope mit zwei Schnitten.
+- `softengine-wiki/kontrakte.md` eindampfen: je Kontrakt drei Zeilen, nur
+  Belegtes. Erst, wenn jemand darin nichts mehr findet.
+- Rest-Refactoring: `maskState` ist ein Zustand je Seite, nicht je Maske
+  (stört erst bei zwei Masken auf einer Seite); Tests für Kern, Store und
+  Schreibwarteschlange (`hostQueue.ts`); die sieben verschluckten Fehler.
+- Prüfbericht für den CTO: Gliederung liegt, Fassung folgt, wenn der
+  Nutzer sie will.
 
-Urteil vom 13.10.: Kern, Bausteine, Datenweg, Export, Laufzeit und
-`architektur.md` sind in Ordnung und bleiben. Weh tut der Editor selbst.
-Jeder Schritt lässt das Verhalten der Maske gleich; der Referenzabzug
-ändert sich nur, wo es gesagt ist.
+## Einzelheiten zu den Chats
 
-1. Editor-Oberfläche in der Maskensprache (`docs/design/behandlung-modern.html`):
-   Toolbar, Palette, Leiste am Baustein, Fenster, Datenfenster. Heute
-   (gemessen 13.10.): Segoe 13 px, Rundung 4 px, Petrol als Akzent, dunkle
-   Palette. Die Maske: Manrope, Rundung 8 px, Blau `#2F6BFF`, Grund
-   `#F4F5F7`, weiße Karten ohne Rand. Dateien: `src/design/editor.css`,
-   `src/editor/widgets/`, `src/editor/shell/`, `src/editor/sidebar/`,
-   `src/editor/bar/`, `src/editor/data/`. Drei Chats: Toolbar und Palette;
-   Leiste und ihre Fenster; Datenfenster.
-2. Rückmeldungen. Der Export bricht heute ohne Meldung ab, wenn eine
-   Prüfung scheitert (`return` in `src/editor/shell/Toolbar.tsx`); er soll
-   sagen, welche. Eine Datei, die nicht lädt, tut heute nichts; sie soll
-   sagen, warum. „Neu“ löscht heute die ganze Maske ohne Rückfrage; es
-   fragt nach. Die leere Leinwand zeigt einen Hinweis, was zu tun ist. Ein
-   Chat, kann in Schritt 1 mitlaufen.
-3. Aktionsfenster. Die Schrittarten sind Adapter (`StepAdapter`), für
-   Export und Laufzeit generisch; `src/editor/actions/StepWindow.tsx` und
-   `ActionsSection.tsx` unterscheiden sie heute einzeln, an 24 Stellen.
-   Jede Schrittart bringt ihr Fensterstück selbst mit. Verhalten bleibt
-   gleich, Referenzabzug ändert sich nicht. Ein bis zwei Chats.
-4. Erfassung und Tabelle zeichnen doppelt: Lit meldet in der Konsole, dass
-   `ff-capture` und `ff-table` nach einem Update ein weiteres planen (eine
-   Eigenschaft wird während des Zeichnens gesetzt). Ursache finden,
-   beheben. Ein Chat. Sichtbar wird nichts, aber jede spätere Änderung an
-   der Erfassung wird ungefährlicher.
-5. Später, nur wenn es stört: `maskState` (`src/runtime/maskState.ts`) ist
-   ein Zustand für die ganze Seite, nicht je Maske. Stört erst, wenn zwei
-   Masken auf einer Seite sollen.
+Chat 1, Umrisse. Heute: `src/editor/canvas/BlockHost.tsx` zeichnet den
+Rahmen eines unmarkierten Bausteins mit `outline: 2px solid transparent`;
+ein leerer Bereich der Form „Frei“ und ein leerer Text sind unsichtbar.
+Bau: Umriss aus `editor.css` (Haarlinie, leise), beim Zeigen deutlicher,
+nur im Editor (`preview`), Schalter in `src/editor/shell/Toolbar.tsx`,
+Zustand in `src/editor/state/editorStore/viewState.ts`, gemerkt wie der
+übrige Ansichtszustand. Maske pixelgleich, Export und Referenzabzug
+unverändert.
 
-Stand 13.10., Blatt-Sprache: gebaut in vier Commits, Abnahme offen. Die
-Bausteine sprechen die Sprache der Vorlage Rahmen10000 (`entschieden.md`,
-13.10.): Grundwerte in `mask.css`, die Maske als Blatt auf dem
-Fenstergrund (auch auf der Leinwand), Text mit Rubrik, Kopf, Hilfe, Betrag
-und den Anzeige-Wahlen, Bereich als Band, Erfassung und Tabelle als
-Rechnung, eine Regel für Zeilen, ein Fokusring, Beträge je Spalte und Text.
-Die Belegerfassung in `masken/` ist danach neu gelegt; ihr Export sieht aus
-wie die Vorlage, ohne eigenes CSS. Behandlung und Empfang tragen die
-Sprache ohne Umbau; in der Behandlung werden schmale Spaltenköpfe in
-Versalien abgeschnitten, die Spalten dort brauchen mehr Breite.
+Chat 2, Rückmeldungen. `src/editor/shell/Toolbar.tsx`: `return` ohne
+Meldung, wenn `validateMaskHtml()` eine Prüfung nicht besteht; die
+Prüfungen tragen schon Namen und Details (`src/export/validator.ts`).
+`src/editor/state/maskFile.ts`: `loadMaskFromFile()` tut bei einer Datei,
+die nicht lädt, nichts. „Neu“ löscht ohne Rückfrage. Eine Meldung in der
+Maskensprache (kleines Fenster, `src/editor/widgets/`), keine
+Browser-Dialoge außer der Rückfrage bei „Neu“.
 
-Stand 13.10.: Schritt 1 Teil 1 (Toolbar, Palette, Reiter) gebaut und
-abgenommen (9c90662). Teil 2 (Leiste und ihre Fenster) gebaut und
-abgenommen 13.10. (9a6340a, Kästchen 20 px wie im Muster a3884d4): kleine
-Fenster ohne Rand mit Schatten, Gruppen als fette
-Überschrift mit Haarlinie, Ankreuzkästchen der Maske (`TickBox`), Feldcodes
-als leiser Text statt grauer Pille, Fenster in der Mitte mit Rundung 12 px,
-Tabellen in Fenstern ohne senkrechte Linien. Das Datenfenster trägt Rahmen,
-Reiter und Linien damit schon. Für Teil 3 bleibt sein Inneres (Zeile Art und
-Liefert, Import mit `Checkbox`) und die markierte Zeile einer Liste: sie
-bleibt voll blau, weil `ActionsSection.tsx` und `TermLine.tsx` das Blau
-selbst schreiben. Dazugekommen am 13.10., aus einer fremden Prüfung
-der exportierten Belegerfassung mit echten Daten, im Code bestätigt:
+Chat 3, Masken sichern. Ein Test `src/editor/state/masksLoad.test.ts`:
+für jede `*.aufbau-maske.json` unter `masken/` `liftState()`,
+`checkTreeState()`, `exportMask()`, `validateMaskHtml()` alle grün. Dazu
+`CLAUDE.md` und dieser Plan: Masken werden committet. Im selben Commit die
+drei Masken.
 
-6. Zahlen in Tabelle und Erfassung. Gebaut 13.10., Abnahme offen. Eine
-   Spalte ist eine Zahl, wenn sie eine Summe hat oder eine Berechnung des
-   Bausteins sie nennt (`figureOf` in `src/blocks/parts/column.ts`); sie
-   steht rechts und zeigt de-DE mit Tausenderpunkt (`shownFigure` in
-   `src/core/data/number.ts`). Die Spalte, aus der die Berechnung erzählt
-   wird, zeigt deren Nachkommastellen (Gesamtpreis 2, 0 wird „0,00“), jede
-   andere so viele, wie der Wert mitbringt. Getipptes und PUT unverändert
-   (`numberText`). Offen: der Feldcode sagt nichts über die Art, darum
-   bleibt eine Tabellenspalte ohne Summe und Berechnung links (Menge,
-   Einzelpreis in der Behandlung), und Einzelpreis zeigt die
-   Nachkommastellen, die SoftEngine liefert („12,5“). Seit 13.10. gibt es
-   dafür je Spalte die Schalter Zahl, Betrag und €; die Behandlung nutzt
-   sie noch nicht. Die Tippzeile zeigt ihre Werte roh („5124,84“), erst die
-   erfasste Zeile formatiert.
-7. Export abspecken, in der Datei (Laden aus der Installation ist
-   verworfen, 13.10.). Gemessen an der Belegerfassung: Maske 14 KB,
-   Quellen 1 KB, Stil 4 KB, Schrift 37 KB, Laufzeit 245 KB. Zuerst die
-   Laufzeit je Baustein vermessen und Fett finden (die Erfassung allein
-   wiegt fast 100 KB). Dann entscheiden, ob nur genutzte Bausteine
-   eingebettet werden; das braucht die Laufzeit in Teilen, die zusammen
-   passen, und bringt bei einer Maske mit Erfassung etwa 40 KB. Schrift:
-   Manrope bleibt (Entscheidung des Nutzers offen: zwei Schnitte 37 KB,
-   ein Schnitt etwa 19 KB, Segoe 0 KB).
+Chat 4, Aktionsfenster. `src/editor/actions/StepWindow.tsx` (22 Stellen)
+und `ActionsSection.tsx` (12 Stellen) unterscheiden Schrittarten einzeln.
+Die Schrittarten sind Adapter (`src/core/data/steps/stepAdapter.ts`); jeder
+Adapter bekommt ein Fensterstück, das Fenster fragt den Adapter. Ein bis
+zwei Chats; Referenzabzug unverändert.
 
-## Bausteine und Masken, danach
+Chats 5 bis 14, Revue. Je Baustein dieselbe Prüfliste, Befunde beheben,
+nichts Neues erfinden:
 
-1. Aussehen-Wahlen (Farbe, Art, Größe aus `src/blocks/look/look.ts`) an
-   Tabelle, Erfassung, Datenliste, Datum, Feld und Popup. Knopf, Text und
-   Bereich haben sie (der Text seine eigene Größe, der Bereich keine);
-   Kanban hat die Farbe je Spalte, der Chip Farbe und Art.
-2. Feld: „Pflicht“ ist als Wahl da und in der Maske nicht zu sehen.
-3. Empfang schreibt nichts: die Popups Termin, Kunde und Tier haben nur
-   Öffnen und Schließen. Termin schreiben, neuer Kunde (155/01) und neues
-   Tier (160/03) stehen nicht in den Kontrakten; erst der Kontrakt, dann
-   der Bau.
-4. Belegerfassung: gebaut 13.10., Abnahme in SoftEngine offen. Jede Zeile
-   wird beim Erfassen geschrieben (Ereignis „Zeile erfasst“ der Erfassung,
-   in `masken/belegerfassung` derselbe PUT 82 wie am Knopf Speichern); der
-   nächste PUT wartet auf die Lieferung, höchstens 10 s; die Lieferung
-   kommt auch, während in der Tippzeile getippt wird, und bringt Positionen
-   und Summen mit. Für den Echttest: liefert SoftEngine nach jedem PUT neu,
-   und trägt `WINDOW_VARIABLE` dann die neuen Summen? Zeigt „Artikel der
-   Position“ die Tippzeile und die neue Position? Headless ja (Beispiel-
-   daten und die Datei vom Desktop), beim Nutzer nicht; Ursache im
-   Code nicht gefunden. Zeigt es weiter nichts, braucht es eine Antwort von
-   `ARTIKEL.GET` aus SoftEngine (Schlüssel und Werte einer Zeile).
-5. Position löschen per F4 wie in SoftEngine, eigener Schritt. Kein ✕ an
-   den Zeilen (12.10.).
-6. IDB-Inhalte: XML und DTK liefern nur die Struktur; die Zeilen kommen
-   über das Importmodul von SoftEngine (12.10.).
-7. Export nur mit dem, was auf der Leinwand liegt; Laufzeit und Schrift
-   aus der SoftEngine-Installation, nicht aus dem Internet (12.10.).
-8. Suchfenster: liest seine Spalten noch über die Schlüssel seiner
-   Fähigkeit (`src/editor/canvas/lookupWindowState.ts`), der Rest vom
-   Datenweg.
-9. Bild-Baustein fürs Tier: erst, wenn SoftEngine ein Tierfoto liefert
-   (Technik des Kanban-Avatars).
+- Im Editor: sichtbar auf der Leinwand, auch leer? Leiste verständlich,
+  Wahlen mit Namen, die der Maskenbauer versteht? Einstellungsfenster
+  vollständig, nichts abgeschnitten (heute bei der Erfassung: „Hinweis in
+  der Tip…“ und der Knopf „Neue Positi“), nichts über den oberen Rand
+  hinaus? Feld binden in zwei Klicks?
+- In der Maske: mit Daten und ohne Daten richtig? Mit sehr langen Werten?
+  Mit Beschriftung und ohne? Ein Baustein, der leer ist, zeigt einen Strich
+  oder nichts, nie seinen Platzhalter aus dem Editor.
+- Bekannte Reste: Text mit Beschriftung rechtsbündig setzt die Rubrik
+  links (Belegerfassung, „Beleg-Nr.“); Name im Band 4 px höher als in der
+  Vorlage; schmale Spaltenköpfe der Behandlung brauchen breitere Spalten
+  (Maske, Chat 9 darf `masken/behandlung` anfassen); „Trenner“ in der
+  Feldwahl des Texts klar benennen; „Pflicht“ am Feld ist als Wahl da und
+  in der Maske nicht zu sehen.
+- Jeder Revue-Chat endet mit zwei Bildern je Maske, in der die Art
+  vorkommt: Editor und Export, vorher und nachher.
+
+Chat 15, Doppeltes Zeichnen. Konsole: „Element ff-capture scheduled an
+update after an update completed“, dasselbe für `ff-table`. Eine
+Eigenschaft wird während des Zeichnens gesetzt. Ursache in
+`src/blocks/capture/Capture.ts`, `src/blocks/list/recordList.ts`,
+`src/blocks/base/heightReport.ts` oder `headsReport.ts`. Beheben, Maske
+pixelgleich.
+
+Chat 16, Bestellung. Erst die drei Sätze je Baustein im Chat (das teilt
+er mit X, das ist neu, das wird überflüssig), dann der Bau in `masken/`.
+Quellen und Relationen nur aus `kontrakte.md`; was dort nicht steht, wird
+nicht gebaut, sondern als Frage an den Nutzer notiert.
 
 ## Einzelpunkte, ohne Reihenfolge
 
-- Tag-Feld je Baustein: wie heute, nicht entschieden.
-- Datenquellen: eigenes Gespräch. Die Analyse der SoftEngine-Vorlagen des
-  Nutzers ist noch nicht im Projekt.
+- Empfang schreibt nichts: die Popups Termin, Kunde und Tier haben nur
+  Öffnen und Schließen. Termin schreiben, neuer Kunde (155/01) und neues
+  Tier (160/03) stehen nicht in den Kontrakten; erst der Kontrakt, dann
+  der Bau.
+- Bild-Baustein fürs Tier: erst, wenn SoftEngine ein Tierfoto liefert
+  (Technik des Kanban-Avatars).
 - Escape in der Spaltenwahl schließt das ganze Fenster
   (`src/blocks/list/columnPicker.ts`).
 - Lieferung „per GET“ erzeugt eine Quelle, die die Maske ablehnt
   (`src/core/data/dataSources.ts`); berührt Relation 69, nur mit Ja des
   Nutzers.
 - Eine Bindung, deren Feld die Quelle nicht mehr hat, ist im Export leer,
-  ohne Warnung (`src/editor/canvas/useLitElement.ts`).
-- Erfassung gegenüber der Handmaske: kein Doppelklick auf
-  `TABELLEPOS_DETAILS`, Löschen und Infosystem nur als BW_LINK-Schritt von
-  Hand, kein Farbkennzeichen der Position, kein Artikelbild, keine
-  Zeilenart.
-- Nicht in den Kontrakten, darum nicht gebaut: Zimmerwechsel per Ziehen,
-  Rechnung (712), Aktualisieren (3003).
-- `Desktop\SoftEngine-Lexikon` (alle Aktionen der SoftEngine-Vorlagen,
-  Ordner für Ordner): entweder ins `softengine-wiki` oder draußen lassen.
-  Entscheidung des Nutzers.
+  ohne Warnung (`src/editor/canvas/useLitElement.ts`). Gehört zu Chat 2,
+  wenn es dort billig ist.
+- Suchfenster liest seine Spalten noch über die Schlüssel seiner
+  Fähigkeit (`src/editor/canvas/lookupWindowState.ts`), der Rest vom
+  Datenweg.
+- `Desktop\SoftEngine-Lexikon`: ins `softengine-wiki` oder draußen
+  lassen. Entscheidung des Nutzers.
 
 ## Ideen, nicht freigegeben
 
-- Export direkt in den SoftEngine-Ordner
-  (`…\HtmlTemplates\BELEGERFASSUNG\LAYOUTRAHMEN\<Nr>`), einmal gewählt,
-  dann jeder Export dorthin. Macht den Test in SoftEngine zu zehn Sekunden.
+- Export direkt in den SoftEngine-Ordner, einmal gewählt, dann jeder
+  Export dorthin. Macht den Test in SoftEngine zu zehn Sekunden.
 - Probedaten aus einem SoftEngine-Debug-Log: der Editor zeigt die Maske
   mit den Daten, die SoftEngine wirklich geschickt hat.
 
 ## Rahmen für jeden Auftrag
 
 Gilt für jeden Chat, der einen Schritt aus dieser Datei baut. Der Nutzer
-sagt nur: „Lies docs/offen.md und baue Schritt N. Halte dich an den Rahmen.“
+sagt nur: „Lies docs/offen.md, baue Chat N, halte dich an den Rahmen.“
 
-- Lies zuerst `docs/offen.md` (den Schritt und diesen Rahmen),
-  `docs/architektur.md` und die im Schritt genannten Dateien vollständig.
-- Fasse nur an, was der Schritt nennt. Nie `masken/`, nie `src/design/mask.css`,
-  nie eine Schicht, die der Linter verbietet. Keine neuen Abhängigkeiten.
-  Kein neues Verhalten, das der Schritt nicht nennt. Keine neuen Tests.
-- Werte für Aussehen nur aus `src/design/mask.css` und `editor.css`, Muster
-  ist die Blatt-Sprache (13.10., `entschieden.md`; zu sehen an
-  `masken/belegerfassung`). Nur hell. Keine Chips, Pills,
-  Badges als Deko. Keine Kästchen in Zeilen der Erfassung.
+- Lies zuerst `docs/offen.md` (den Schritt, seine Einzelheiten und diesen
+  Rahmen), `docs/architektur.md` und die im Schritt genannten Dateien
+  vollständig.
+- Fasse nur an, was der Schritt nennt. `masken/` nur, wenn der Schritt es
+  sagt. Nie `src/design/mask.css`, nie eine Schicht, die der Linter
+  verbietet. Keine neuen Abhängigkeiten. Kein neues Verhalten, das der
+  Schritt nicht nennt. Keine neuen Tests außer Chat 3.
+- Das Design der Maske ist eingefroren (`entschieden.md`, 14.10., Bilder
+  in `docs/design/2026-10-14-*.png`). Werte für Aussehen nur aus
+  `src/design/mask.css` und `editor.css`. Nur hell. Keine Chips, Pills,
+  Badges als Deko. Keine Kästchen in Zeilen der Erfassung. Kein Vorschlag
+  für eine neue Designsprache, in keinem Chat.
 - `npm run check` und `npm test` grün. Ändert sich der Export gewollt:
   `REFERENCE_REFRESH=1 npm test` und im Commit sagen, was. Ändert er sich
   ungewollt: zurück.
 - Ändert sich die Struktur, zieh `docs/architektur.md` nach. Ist etwas
   entschieden, eine Zeile in `docs/entschieden.md`. Ist der Schritt fertig,
-  trag es hier beim Schritt ein.
+  trag es hier beim Schritt ein („Erledigt TT.MM.“) und streich die
+  Einzelheiten, die damit erledigt sind.
 - Im Browser prüfen (http://localhost:5300, Maske aus `masken/` laden),
   Screenshot vorher und nachher, Pfade im Bericht.
-- Ein Commit je Schritt, deutsch, ohne `masken/`, nicht pushen. Bericht
-  kurz, deutsch, für einen Nicht-Programmierer: was anders ist, was gleich
-  blieb, Check und Test grün. Frag nicht nach, entscheide nach Muster.
+- Ein Commit je Schritt, deutsch, nicht pushen. Bericht kurz, deutsch, für
+  einen Nicht-Programmierer: was anders ist, was gleich blieb, wo er es
+  sieht, Check und Test grün. Frag nicht nach, entscheide nach Muster.
 
 ## Prüfauftrag
 
 Für einen zweiten Chat nach einem Schritt. Der Nutzer sagt: „Prüfe den
-letzten Commit gegen docs/offen.md Schritt N und den Rahmen.“ Der Prüfer
+letzten Commit gegen docs/offen.md Chat N und den Rahmen.“ Der Prüfer
 liest den Diff (`git show HEAD`), den Schritt und den Rahmen, führt
 `npm run check` und `npm test` aus, lädt eine Maske aus `masken/` im
 Browser und meldet nur Verstöße und Fehler, je einen Satz mit Datei und

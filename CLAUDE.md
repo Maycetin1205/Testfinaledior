@@ -25,4 +25,5 @@ zeigt, ist die Maske.
   wie der Editor bedient wird. `docs/architektur.md`: wie der Code gebaut
   ist. `docs/softengine-wiki/`: alles ueber SoftEngine (`kontrakte.md`
   nur per Echttest belegt, `funktionen.md` nur abgelesen).
-- Aenderungen unter `masken/` bleiben uncommittet.
+- Masken unter `masken/` werden committet (seit 14.10.), im selben
+  Commit wie der Schritt, der sie aendert.

@@ -7,6 +7,29 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Echttest in V7 bestanden (Nutzer): Band, Anschrift, Beleg-Nr.,
+  Summen, „Artikel der Position“ nach Auswahl aus der Liste, F4 löscht
+  die richtige Zeile. A, E und K sind damit erledigt, ohne Debug.
+- 14.10. Design der Maske eingefroren (Fable als Projektleitung, Nutzer
+  einverstanden): die Blatt-Sprache vom 13.10., festgehalten in
+  `docs/design/2026-10-14-belegerfassung.png`, `-behandlung.png`,
+  `-empfang.png`. Keine neue Designsprache mehr; Änderungen nur als
+  Feinschliff je Baustein mit Bild vorher/nachher und Ja des Nutzers.
+  Grund: drei Designsprachen in fünf Wochen (24.09., 08.10., 13.10.).
+- 14.10. Masken in `masken/` werden committet. Hebt die Regel „bleiben
+  uncommittet“ auf. Grund: die Masken sind das Arbeitsergebnis; der letzte
+  gesicherte Stand war vom 09.10., im Arbeitsbaum lagen 2700 geänderte
+  Zeilen.
+- 14.10. Ein neuer Test ist erlaubt: jede Maske aus `masken/` lädt und
+  exportiert (Plan Chat 3). Hebt „keine neuen Tests“ für diesen Fall auf.
+  Grund: ein Schema-Heber, der bricht, verliert Masken lautlos.
+- 14.10. Reihenfolge: zuerst „Kein Durchfall“ im Editor (Umrisse,
+  Rückmeldungen, Masken sichern, Aktionsfenster, Revue je Baustein), dann
+  die Bestellung als vierte Maske. Export abspecken, Schriftfrage und
+  Kontrakte eindampfen liegen, bis sie stören. Schrift bleibt eingebettet.
+- 14.10. Fable plant und prüft, Opus 5.5 baut (Nutzer, wegen der Token).
+- 14.10. Prüfbericht für den CTO: liegt, kommt erst auf Wunsch des
+  Nutzers.
 - 13.10. Der Text hat keine Anzeige-Wahlen mehr (Nutzer): Einzeilig, Unten
   ausrichten, Leer zeigt Strich, Null oder weniger rot, Zahl, Summenlinie
   und Ohne Auswahl sind aus dem Code; ein Text endet nie mehr in „…“.
