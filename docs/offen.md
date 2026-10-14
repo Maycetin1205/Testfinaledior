@@ -434,9 +434,9 @@ nichts Neues erfinden:
   oder nichts, nie seinen Platzhalter aus dem Editor.
 - Hausfarbe je Maske (Chat 8 oder 9, wo es billig ist): ein Wert an
   der Wurzel der Maske wählt den Akzent aus den Farben in `look.ts`
-  (Blau, Petrol, Grün, Ocker), der Export setzt `--se-accent` und seine
-  Abstufungen in der Maske um; Vorgabe Blau. Kunde A grün, Kunde B
-  petrol, ohne eigenes CSS. Keine freien Farben. Seit 5d nutzen gewählte
+  (Blau, Grün, Ocker; Petrol fällt in 5g), der Export setzt `--se-accent`
+  und seine Abstufungen in der Maske um; Vorgabe Blau. Kunde A grün,
+  Kunde B ocker, ohne eigenes CSS. Keine freien Farben. Seit 5d nutzen gewählte
   Zeile und Fokusring nur `--se-accent`; der Hauptknopf trägt heute die
   Farbe „Blau“ (`--se-info`) und muss dabei mitgehen.
 - Bekannte Reste: Text mit Beschriftung rechtsbündig setzt die Rubrik
