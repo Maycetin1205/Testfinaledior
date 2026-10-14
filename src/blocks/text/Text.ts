@@ -4,7 +4,7 @@ import { BlockElement, defineBlock } from '../base/BlockElement'
 import { reportsHeight } from '../base/heightReport'
 import { bindable, bindingAttr } from '../../core/block/capability'
 import { readBoundSpot } from '../../runtime/boundSpot'
-import { makeDataLink, sourceIdOf, spotValue } from '../../runtime/source'
+import { makeDataLink, sampleValue, sourceIdOf, spotValue } from '../../runtime/source'
 import { makeFieldReader } from '../../runtime/foreignSources'
 import { bindingFields } from '../../core/block/binding'
 import { lookClass, lookStyle } from '../look/look'
@@ -41,8 +41,9 @@ export class Text extends BlockElement {
     const withSymbol = this.symbol !== ''
     const look = lookClass({ tone: this.tone, emphasis: this.emphasis })
     // In the editor a bound value under its label shows the dash of an empty
-    // field: the label names the field already.
+    // field where the samples hold no value: the label names the field already.
     const dashOnly = this.preview && this.showLabel && this.textField !== ''
+      && sampleValue(this, this.textField) === ''
     const words = dashOnly ? '' : this.text
     const text = html`<div
       class="text variant-${this.variant} align-${align} ${look}${withSymbol ? ' with-symbol' : ''}${dashOnly ? ' empty' : ''}"

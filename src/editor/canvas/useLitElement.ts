@@ -14,6 +14,7 @@ import {
 import { HEIGHT_REPORTED, type HeightReported } from '../../blocks/base/heightReport'
 import { boundNames } from '../../core/data/boundField'
 import type { SourceInReach } from '../../core/data/extraSources'
+import { sampleValue } from '../../runtime/source'
 import type { EditorStore } from '../state/EditorStore'
 import { capacityOf } from './gridArea'
 
@@ -99,13 +100,16 @@ export function useLitElement({
       el.setDeclared(key, value)
     }
 
+    // A bound spot shows its fields in the first sample row, as the mask
+    // shows them with data; where the samples hold none, it names its fields.
     for (const spot of bindableSpots) {
       const value = block.values[bindingProp(spot.prop)]
       if (typeof value !== 'string' || value === '') continue
 
       const names = boundNames(value, sources, HELPER_MARK)
       if (names !== '') {
-        el.setDeclared(spot.previewProp ?? spot.prop, names)
+        const sample = sampleValue(el, value)
+        el.setDeclared(spot.previewProp ?? spot.prop, sample !== '' ? sample : names)
       } else {
         el.setDeclared(bindingProp(spot.prop), '')
       }

@@ -7,6 +7,16 @@ und `stand.md` bis 13.10. (in Git bis b98b23e).
 
 ## Oktober 2026
 
+- 14.10. Probedaten im Editor (Chat 5f): der Editor-Host liefert je Quelle
+  die Zeilen der SoftEngine-Tabelle, die sie nennt, aus
+  `src/editor/probedaten/`; Felder nach Feldcode, ein Feld ohne Wert zeigt
+  seinen Namen. Abweichung von 7b: Erfassung und Tabelle zeigen alle
+  Probezeilen (sechs Positionen wie im Maßstab-Bild), nicht drei; das
+  Kanban zeigt je Spalte die erste Zeile, die die Daten dorthin legen,
+  sonst stünde in vier Spalten dasselbe Tier. Die Zeilen sind im Editor
+  nicht wählbar, ein Klick markiert den Baustein. Die gepunktete Linie
+  unter gebundenen Stellen bleibt: sie zeigt, dass die Stelle an einem
+  Feld hängt, und ein Klick bindet um. Der Export kennt die Daten nicht.
 - 14.10. Nichts Neues ohne Maske, die es braucht. Inventur: 77
   Einstellungen an den Bausteinen, 29 nie von einer Maske angefasst; 6
   Schrittarten, 3 nie; 6 Farben, eine nie. Die Zahl steht als Decke in

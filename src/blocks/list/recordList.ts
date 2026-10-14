@@ -38,6 +38,7 @@ import {
 import {
   followSource,
   unfollowSource,
+  fillSampleRows,
   cellsForHandedRows,
   type HandedRow,
   type RowsFrom,
@@ -80,16 +81,16 @@ interface ListShowQuestion {
 }
 
 interface ListShows {
-  // False in the editor: there the list has no data and draws no rows.
+  // In the editor only with sample rows; without them the list draws none.
   rows: boolean
 
   empty: boolean
 }
 
 // Rows of blanks are as empty as no rows at all, and a list without a source
-// has none.
+// has none. The editor never says empty.
 function listEmptyState(question: ListShowQuestion): ListShows {
-  if (question.preview) return { rows: false, empty: false }
+  if (question.preview) return { rows: question.rowCount > 0, empty: false }
 
   const anyColumnBound = question.columns.some((column) => column.field.trim() !== '')
   const empty = question.rowCount === 0
@@ -235,6 +236,7 @@ export class RecordList implements ReactiveController {
   }
 
   hostUpdate(): void {
+    if (this.el.preview && this._rowsFrom === 'source') fillSampleRows(this.el)
     if (this.el.columns === this._columns) return
     this._columns = this.el.columns
     this._widths.forget()
@@ -338,11 +340,15 @@ export class RecordList implements ReactiveController {
         },
         widths: this._widths.hostForDrag(),
         clickHead: (i) => this._view.clickSort(i),
+        // The sample rows of the editor are not chosen; a click there marks the block.
         activateRow: (rawIndex, viewIndex) => {
+          if (el.preview) return
           activateRow(el, this._rowsChoice, el.rawRows, rawIndex, viewIndex)
           el.requestUpdate()
         },
-        rowDouble: (rawIndex) => rowDouble(el, el.rawRows, rawIndex),
+        rowDouble: (rawIndex) => {
+          if (!el.preview) rowDouble(el, el.rawRows, rawIndex)
+        },
       })}
       ${tableFoot({
         showsRows: view.showsRows,

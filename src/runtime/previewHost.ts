@@ -1,25 +1,42 @@
+import type { RuntimeSource } from '../core/data/dataSources'
 import type { MaskHost } from './maskHost'
 
-// The host of the editor: no rows, no answers, nothing sent, no sign-in. A block
-// asking it gets the empty value and shows its placeholders.
-export const previewHost: MaskHost = {
-  start: () => {},
-  hasData: () => false,
-  onData: () => () => {},
+// What the editor has instead of SoftEngine's data: its sources and a few
+// sample rows for each, every row a record by field code.
+export interface Samples {
+  sources(): RuntimeSource[]
+  rows(source: RuntimeSource): readonly Readonly<Record<string, string>>[]
+}
 
-  sources: () => [],
-  source: () => undefined,
-  rows: () => [],
-  readField: () => '',
-  writeField: () => false,
+// The host of the editor: no answers, nothing sent, no sign-in and no
+// delivery, so no block hydrates as in the mask. A block on the canvas asks it
+// for the sample rows of its source instead (readSamples, source.ts) and shows
+// them where the mask shows its data; a field the samples lack keeps its
+// placeholder.
+export function previewHost(samples: Samples): MaskHost {
+  return {
+    start: () => {},
+    hasData: () => false,
+    onData: () => () => {},
 
-  relation: () => undefined,
-  resolveParameter: () => '',
-  runRelation: () => Promise.resolve({ value: '', raw: undefined, failed: true }),
-  sendStartTool: () => false,
-  sendBwLink: () => false,
-  closeMask: () => false,
-  requestFreshData: () => {},
+    sources: () => samples.sources(),
+    source: (id) => samples.sources().find((source) => source.id === id),
+    rows: (source) => [...samples.rows(source)],
+    readField: (row, code) => {
+      if (typeof row !== 'object' || row === null) return ''
+      const value: unknown = Reflect.get(row, code.trim())
+      return typeof value === 'string' ? value : ''
+    },
+    writeField: () => false,
 
-  fetchRows: () => {},
+    relation: () => undefined,
+    resolveParameter: () => '',
+    runRelation: () => Promise.resolve({ value: '', raw: undefined, failed: true }),
+    sendStartTool: () => false,
+    sendBwLink: () => false,
+    closeMask: () => false,
+    requestFreshData: () => {},
+
+    fetchRows: () => {},
+  }
 }

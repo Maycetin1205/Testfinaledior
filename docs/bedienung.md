@@ -54,6 +54,11 @@ Was noch fehlt, steht in `offen.md`; warum etwas so ist, in
   Baustein um eine Zelle, Umschalt+Pfeil ändert die Größe.
 - Feld binden: Klick auf die Stelle, die Feldliste der Quelle erscheint
   dort. Gebundene Stellen gepunktet unterstrichen.
+- Probedaten (14.10.): gebundene Stellen zeigen einen erfundenen Wert
+  („Sabine Krüger“, „Bello“), Erfassung und Tabelle Probezeilen, jede
+  Kanban-Spalte eine andere Karte. Hat die Probedatei für ein Feld keinen
+  Wert, steht dort sein Name. Die Zeilen lassen sich im Editor nicht
+  wählen; der Export enthält keine Probedaten.
 - Aktionen: je Ereignis die Schritte als Zeilen; das Schrittfenster in der
   Mitte, Reiter GET Relation, PUT Relation, Werkzeug, Popup; erst die
   Herkunft, dann das Feld; „Übernehmen“ schreibt.

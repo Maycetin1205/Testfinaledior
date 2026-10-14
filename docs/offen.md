@@ -185,23 +185,24 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    der Tippzeile der Erfassung klafft seit 5d ein weißes Loch von 450 px
    (Regel „keine leeren Zeilen“, Fable, falsch), und jedes Feld zeigt
    seinen Platzhalter, weil der Editor keine Daten hat. Beides ist 5f.
-5f. Leben im Editor, in zwei Teilen. Vorher-Bild: die Erfassung endet
+5f. Leben im Editor, in zwei Teilen. Erledigt 14.10. Vorher-Bild: die Erfassung endet
    nach der Tippzeile, darunter nichts bis zum Fuß; die Felder zeigen
    „Straße Hausnummer“, die Karten „Tiername“.
    Zeilen, erledigt 14.10. (Fable, `tableStyle.ts`): der Raum unter den
    Sätzen einer Tabelle oder Erfassung trägt wieder Linien im Abstand der
    Zeilen bis zum Fuß, im Editor und in der Maske; hebt „keine leeren
    Zeilen“ aus 5d auf (`entschieden.md`).
-   Probedaten, der Chat 5f, Einzelheiten unten bei 7b: Quelle der Daten
-   ist `sichtprobe/chat5c-tonprobe/probedaten.mjs` (Beleg, Positionen,
-   Artikel, Termine, dieselben wie im Maßstab-Bild); sie ziehen nach
-   `src/editor/probedaten/` um, der Editor-Host liefert sie nach Feldcode.
-   Maßstab: die Belegerfassung im Editor sieht aus wie
-   `docs/design/2026-10-14-fachsoftware-belegerfassung.png`, mit Linien
-   unter den sechs Positionen; der Empfang zeigt Tiere und Halter statt
-   „Tiername“. Bilder vorher und nachher, dazu
-   `docs/design/2026-10-14-fachsoftware-*.png` erneuern (Linien). Kommt
-   vor 6a.
+   Probedaten, erledigt 14.10.: die Daten des Maßstab-Bilds liegen in
+   `src/editor/probedaten/probedaten.ts`, je SoftEngine-Tabelle eine Liste
+   (Beleg, Fenster, Adresse, Positionen, Artikel, Chargen, Belege, Halter,
+   Tiere, Termine). Der Editor-Host (`previewHost()`) liefert sie je
+   Quelle nach ihrer Tabelle, die Felder nach Feldcode; gebundene Stellen
+   zeigen den Wert der ersten Zeile, Erfassung und Tabelle alle Zeilen,
+   das Kanban je Spalte die erste Zeile, die dorthin gehört (Bello, Rocky,
+   Balu, Emma). Ein Feld ohne Wert behält seinen Namen. Nur im Editor,
+   Export und Referenzabzug unverändert. Standbilder
+   `docs/design/2026-10-14-fachsoftware-*.png` erneuert (Linien). Bilder
+   `sichtprobe/chat5f-probedaten/vergleich.png`.
 5g. Streichen, Teil 1: Bausteine, Farben, Schritte. Weg ist weg, samt
    dem Code dahinter (Leiste, Fenster, Baustein, Export, Laden); die
    Masken laden danach weiter (`readValues` lässt unbekannte Namen
@@ -266,18 +267,8 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
 7. Aktionsfenster. Jede Schrittart bringt ihr Fensterstück selbst mit;
    `StepWindow.tsx` und `ActionsSection.tsx` unterscheiden heute an 34
    Stellen einzeln. Verhalten bleibt gleich, Referenzabzug unverändert.
-7b. Probedaten im Editor, als 5f vorgezogen (siehe oben; die
-   Einzelheiten stehen hier). Heute zeigt die Leinwand Platzhalter
-   („Tiername“, „Zahlungsbedingung 1“), darum sieht jede Maske im Editor
-   aus wie ein Mockup. Der Editor-Host (`src/runtime/previewHost.ts`, der
-   heute nichts liefert) liefert je Quelle ein paar plausible Zeilen aus
-   einer festen Probedatei (`src/editor/probedaten/`: Tiere, Halter,
-   Artikel, Positionen, Termine, mit deutschen Namen und Beträgen), nach
-   Feldcode zugeordnet; unbekannte Felder bleiben Platzhalter. Erfassung
-   und Tabelle zeigen dann drei Probezeilen (heute im Editor nur Kopf,
-   Tippzeile und die Haarlinie am unteren Rand, seit 5d). Nur im
-   Editor, der Export kennt die Daten nicht. Später ersetzbar durch
-   Daten aus einem SoftEngine-Log (Idee unten). Ein Chat.
+7b. Probedaten im Editor: als 5f erledigt 14.10. Später ersetzbar durch
+   Daten aus einem SoftEngine-Log (Idee unten).
 Durchsicht heißt: jeder Baustein wird einmal durchgesehen und in Ordnung
 gebracht, nach der Prüfliste unten. Ähnliche Bausteine teilen sich einen
 Chat (14.10., der Nutzer will nicht 17 Chats takten).
