@@ -80,7 +80,16 @@ tut, und wenn etwas schiefgeht, sagt er es), und die exportierte Maske
    eigener Ordner. Klick öffnet, Speichern schreibt dorthin, „Als Vorlage
    sichern“, „Neu aus Vorlage“. Je Maske ein Zielordner für den Export,
    dann ist der Weg nach V7 ein Klick. Erledigt 14.10. (Fenster
-   „Masken“; Streifen oder Fenster entscheidet Chat 5).
+   „Masken“; Streifen oder Fenster entscheidet Chat 5). Geprüft 14.10.,
+   zwei Reste für Chat 6: der erste Klick auf „Speichern“ ohne Ordner
+   öffnet sofort den Ordnerdialog des Browsers, ohne zu sagen, wozu (der
+   Nutzer stand davor und verstand es nicht); vorher das Fenster „Masken“
+   mit seiner Erklärung zeigen, erst der Klick dort öffnet den Dialog. Und
+   die Erklärung sagt, was Chrome verweigert: ein ganzes Laufwerk, den
+   Benutzerordner, Windows, Programme („Systemdateien“); ein Unterordner
+   wie `masken` geht. Der Export in den Zielordner ist nur beim Nutzer in
+   V7 prüfbar, headless nicht (der Browser hält den Ordner, nicht der
+   Test).
 5. Gesicht des Editors, Entwürfe. Der Editor sieht aus wie KI-Slop
    (Nutzer, 14.10.): generische Knöpfe, Palette mit Symbol und Wort,
    nichts, was nach Produkt aussieht. Ein Chat baut drei Entwürfe der
